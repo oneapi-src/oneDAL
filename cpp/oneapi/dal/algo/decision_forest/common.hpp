@@ -124,6 +124,14 @@ enum class voting_mode {
     unweighted
 };
 
+/// Available splitting strategies for building trees
+enum class splitter_mode {
+    /// Treshold for a node is chosen as the best among all bins
+    best,
+    /// Threshold for a node is the best for a set chosen at random
+    random
+};
+
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
     return bitwise_or(value_left, value_right);
 }
@@ -166,6 +174,7 @@ using v1::variable_importance_mode;
 using v1::error_metric_mode;
 using v1::infer_mode;
 using v1::voting_mode;
+using v1::splitter_mode;
 
 namespace detail {
 namespace v1 {
@@ -220,6 +229,7 @@ public:
     std::int64_t get_min_bin_size() const;
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
+    splitter_mode get_splitter_mode() const;
     error_metric_mode get_error_metric_mode() const;
     variable_importance_mode get_variable_importance_mode() const;
 
@@ -255,6 +265,7 @@ protected:
     void set_min_bin_size_impl(std::int64_t value);
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
+    void set_splitter_mode_impl(splitter_mode value);
     void set_error_metric_mode_impl(error_metric_mode value);
     void set_variable_importance_mode_impl(variable_importance_mode value);
     void set_class_count_impl(std::int64_t value);
@@ -508,6 +519,18 @@ public:
 
     auto& set_bootstrap(bool value) {
         base_t::set_bootstrap_impl(value);
+        return *this;
+    }
+
+    /// Splitter strategy: if 'best', best threshold for each is
+    /// selected. If 'random', trashold is selected randomly.
+    /// @remark default = splitter_mode::best
+    splitter_mode get_splitter_mode() const {
+        return base_t::get_splitter_mode();
+    }
+
+    auto& set_splitter_mode(splitter_mode value) {
+        base_t::set_splitter_mode_impl(value);
         return *this;
     }
 

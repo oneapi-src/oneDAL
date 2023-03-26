@@ -298,6 +298,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'mutable_data'),
     ('cpp:identifier', 'data'),
     ('cpp:identifier', 'count'),
+    ('cpp:identifier', 'sparse_indexing'),
+    ('cpp:identifier', 'sparse_indexing::zero_based'),
+    ('cpp:identifier', 'sparse_indexing::one_based'),
     # array
     ('cpp:identifier', 'array'),
     ('cpp:identifier', 'T'),

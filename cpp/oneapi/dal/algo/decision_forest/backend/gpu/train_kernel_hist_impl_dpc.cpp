@@ -174,6 +174,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ctx.bootstrap_ = desc.get_bootstrap();
     ctx.max_tree_depth_ = desc.get_max_tree_depth();
 
+    ctx.splitter_mode_value_ = desc.get_splitter_mode();
+    ctx.seed_ = desc.get_seed();
+
     if constexpr (std::is_same_v<Task, task::classification>) {
         ctx.selected_ftr_count_ = desc.get_features_per_node() ? desc.get_features_per_node()
                                                                : std::sqrt(ctx.column_count_);
@@ -470,10 +473,10 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
 
     auto node_vs_tree_map_list_host = node_vs_tree_map_list.to_host(queue_);
 
-    if (ctx.selected_ftr_count_ != ctx.column_count_) {
-        pr::rng<Index> rn_gen;
-        auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
+    pr::rng<Index> rn_gen;
+    auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
 
+    if (ctx.selected_ftr_count_ != ctx.column_count_) {
         for (Index node = 0; node < node_count; ++node) {
             rn_gen.uniform_without_replacement(
                 ctx.selected_ftr_count_,
@@ -498,6 +501,44 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
 
     return std::tuple{ selected_features_com, event };
 }
+
+template <typename Float, typename Bin, typename Index, typename Task>
+std::tuple<pr::ndarray<Float, 1>, sycl::event>
+train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_thresholds(
+    const train_context_t& ctx,
+    Index node_count,
+    const pr::ndarray<Index, 1>& node_vs_tree_map,
+    rng_engine_list_t& rng_engine_list) {
+    ONEDAL_PROFILER_TASK(gen_random_thresholds, queue_);
+
+    ONEDAL_ASSERT(node_vs_tree_map.get_count() == node_count);
+
+    auto node_vs_tree_map_list_host = node_vs_tree_map.to_host(queue_);
+
+    pr::rng<Float> rn_gen;
+    auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
+
+    // Create arrays for random generated bins
+    auto random_bins_host =
+        pr::ndarray<Float, 1>::empty(queue_, { node_count * ctx.selected_ftr_count_ });
+    auto random_bins_com = pr::ndarray<Float, 1>::empty(queue_,
+                                                        { node_count * ctx.selected_ftr_count_ },
+                                                        alloc::device);
+    auto random_bins_host_ptr = random_bins_host.get_mutable_data();
+
+    // Generate random bins for selected features
+    for (Index node = 0; node < node_count; ++node) {
+        rn_gen.uniform(ctx.selected_ftr_count_,
+                       random_bins_host_ptr + node * ctx.selected_ftr_count_,
+                       rng_engine_list[tree_map_ptr[node]].get_state(),
+                       0.0f,
+                       1.0f);
+    }
+    auto event_rnd_generate =
+        random_bins_com.assign_from_host(queue_, random_bins_host_ptr, random_bins_com.get_count());
+
+    return std::tuple{ random_bins_com, event_rnd_generate };
+};
 
 template <typename Float, typename Index, typename Task>
 struct kernel_context {
@@ -1138,6 +1179,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
                                                      imp_data_list,
                                                      node_count,
                                                      deps);
+        last_event.wait_and_throw();
     }
 
     return last_event;
@@ -1150,6 +1192,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& tree_order,
     const pr::ndarray<Index, 1>& selected_ftr_list,
+    const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     pr::ndarray<Index, 1>& node_list,
@@ -1175,10 +1218,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
         ONEDAL_ASSERT(left_child_imp_data_list.class_hist_list_.get_count() ==
                       node_count * ctx.class_count_);
     }
-
-    using bs_kernels_prv_t = train_best_split_impl<Float, Bin, Index, Task, true>;
-    using bs_kernels_loc_t = train_best_split_impl<Float, Bin, Index, Task, false>;
-    using bs_kernels_opt_t = train_best_split_sp_opt_impl<Float, Bin, Index, Task>;
+    using bs_kernels_prv_t = train_splitter_impl<Float, Bin, Index, Task, true>;
+    using bs_kernels_loc_t = train_splitter_impl<Float, Bin, Index, Task, false>;
+    using bs_kernels_opt_t = train_splitter_sp_opt_impl<Float, Bin, Index, Task>;
     // no overflow check is required because of ctx.node_group_count_ and ctx.node_group_prop_count_ are small constants
 
     node_list_t node_list_wrap(queue_, node_list, node_count);
@@ -1190,7 +1232,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
     Index grp_node_count = 0;
     const Index max_ph_block_elem_count = ctx.max_part_hist_cumulative_size_ / sizeof(hist_type_t);
-
     for (Index i = 0; i < node_group_list_.get_count(); ++i) {
         auto node_group = node_group_list_.get_group_view(i);
         grp_node_count = node_group.get_node_count();
@@ -1213,7 +1254,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                 get_part_hist_elem_count(ctx.selected_ftr_count_,
                                          ctx.max_bin_count_among_ftrs_,
                                          hist_prop_count);
-
             Index part_hist_count = max_grp_block_count <= ctx.min_row_block_count_for_one_hist_
                                         ? 1
                                         : ctx.max_part_hist_count_;
@@ -1242,12 +1282,10 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
 
             Index block_node_count =
                 grp_node_count / ph_block_count + bool(grp_node_count % ph_block_count);
-
             for (Index block_ind_ofs = grp_ind_ofs; block_ind_ofs < grp_ind_ofs + grp_node_count;
                  block_ind_ofs += block_node_count) {
                 block_node_count =
                     std::min(block_node_count, grp_ind_ofs + grp_node_count - block_ind_ofs);
-
                 auto [node_hist_list, event] = ctx.distr_mode_
                                                    ? compute_histogram_distr(ctx,
                                                                              data,
@@ -1275,31 +1313,50 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                        block_node_count,
                                                                        { last_event });
                 last_event = event;
-
                 {
-                    if (ctx.use_private_mem_buf_) {
-                        last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
-                            queue_,
-                            ctx,
-                            node_hist_list,
-                            selected_ftr_list,
-                            bin_offset_list,
-                            imp_data_list,
-                            node_ind_list,
-                            block_ind_ofs,
-                            node_list,
-                            left_child_imp_data_list,
-                            node_imp_decrease_list,
-                            update_imp_dec_required,
-                            block_node_count,
-                            { last_event });
+                    if (ctx.splitter_mode_value_ == splitter_mode::best) {
+                        if (ctx.use_private_mem_buf_) {
+                            last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
+                                queue_,
+                                ctx,
+                                node_hist_list,
+                                selected_ftr_list,
+                                bin_offset_list,
+                                imp_data_list,
+                                node_ind_list,
+                                block_ind_ofs,
+                                node_list,
+                                left_child_imp_data_list,
+                                node_imp_decrease_list,
+                                update_imp_dec_required,
+                                block_node_count,
+                                { last_event });
+                        }
+                        else {
+                            last_event = bs_kernels_loc_t::compute_best_split_by_histogram(
+                                queue_,
+                                ctx,
+                                node_hist_list,
+                                selected_ftr_list,
+                                bin_offset_list,
+                                imp_data_list,
+                                node_ind_list,
+                                block_ind_ofs,
+                                node_list,
+                                left_child_imp_data_list,
+                                node_imp_decrease_list,
+                                update_imp_dec_required,
+                                block_node_count,
+                                { last_event });
+                        }
                     }
                     else {
-                        last_event = bs_kernels_loc_t::compute_best_split_by_histogram(
+                        last_event = bs_kernels_loc_t::compute_random_split_by_histogram(
                             queue_,
                             ctx,
                             node_hist_list,
                             selected_ftr_list,
+                            random_bins_com,
                             bin_offset_list,
                             imp_data_list,
                             node_ind_list,
@@ -1311,53 +1368,75 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                             block_node_count,
                             { last_event });
                     }
+
                     last_event.wait_and_throw();
                 }
             }
         }
         else {
-            Index max_row_count = node_group.get_max_row_count();
-            if (max_row_count > node_t::get_elementary_node_max_row_count()) {
-                last_event =
-                    bs_kernels_opt_t::compute_best_split_single_pass_large(queue_,
-                                                                           ctx,
-                                                                           data,
-                                                                           response,
-                                                                           tree_order,
-                                                                           selected_ftr_list,
-                                                                           bin_offset_list,
-                                                                           imp_data_list,
-                                                                           node_ind_list,
-                                                                           grp_ind_ofs,
-                                                                           node_list,
-                                                                           left_child_imp_data_list,
-                                                                           node_imp_decrease_list,
-                                                                           update_imp_dec_required,
-                                                                           grp_node_count,
-                                                                           { last_event });
-                last_event.wait_and_throw();
+            if (ctx.splitter_mode_value_ == splitter_mode::best) {
+                Index max_row_count = node_group.get_max_row_count();
+                if (max_row_count > node_t::get_elementary_node_max_row_count()) {
+                    last_event =
+                        bs_kernels_opt_t::best_split_single_pass_large(queue_,
+                                                                       ctx,
+                                                                       data,
+                                                                       response,
+                                                                       tree_order,
+                                                                       selected_ftr_list,
+                                                                       bin_offset_list,
+                                                                       imp_data_list,
+                                                                       node_ind_list,
+                                                                       grp_ind_ofs,
+                                                                       node_list,
+                                                                       left_child_imp_data_list,
+                                                                       node_imp_decrease_list,
+                                                                       update_imp_dec_required,
+                                                                       grp_node_count,
+                                                                       { last_event });
+                }
+                else {
+                    last_event =
+                        bs_kernels_opt_t::best_split_single_pass_small(queue_,
+                                                                       ctx,
+                                                                       data,
+                                                                       response,
+                                                                       tree_order,
+                                                                       selected_ftr_list,
+                                                                       bin_offset_list,
+                                                                       imp_data_list,
+                                                                       node_group,
+                                                                       node_list_wrap,
+                                                                       left_child_imp_data_list,
+                                                                       node_imp_decrease_list,
+                                                                       update_imp_dec_required,
+                                                                       { last_event });
+                }
             }
             else {
-                last_event =
-                    bs_kernels_opt_t::compute_best_split_single_pass_small(queue_,
-                                                                           ctx,
-                                                                           data,
-                                                                           response,
-                                                                           tree_order,
-                                                                           selected_ftr_list,
-                                                                           bin_offset_list,
-                                                                           imp_data_list,
-                                                                           node_group,
-                                                                           node_list_wrap,
-                                                                           left_child_imp_data_list,
-                                                                           node_imp_decrease_list,
-                                                                           update_imp_dec_required,
-                                                                           { last_event });
-                last_event.wait_and_throw();
+                // Random splitting
+                last_event = bs_kernels_opt_t::random_split_single_pass(queue_,
+                                                                        ctx,
+                                                                        data,
+                                                                        response,
+                                                                        tree_order,
+                                                                        selected_ftr_list,
+                                                                        random_bins_com,
+                                                                        bin_offset_list,
+                                                                        imp_data_list,
+                                                                        node_ind_list,
+                                                                        grp_ind_ofs,
+                                                                        node_list,
+                                                                        left_child_imp_data_list,
+                                                                        node_imp_decrease_list,
+                                                                        update_imp_dec_required,
+                                                                        grp_node_count,
+                                                                        { last_event });
             }
+
+            last_event.wait_and_throw();
         }
     }
-
     return last_event;
 }
 
@@ -1439,14 +1518,12 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram(
                                                 part_hist_count,
                                                 node_count,
                                                 { deps });
-
         last_event = reduce_partial_histograms(ctx,
                                                part_hist_list,
                                                node_hist_list,
                                                part_hist_count,
                                                node_count,
                                                { last_event });
-
         last_event.wait_and_throw();
     }
 
@@ -1667,6 +1744,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
                                              node_hist_list,
                                              node_count,
                                              { last_event });
+            last_event.wait_and_throw();
         }
     }
 
@@ -1723,7 +1801,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
                       get_part_hist_elem_count(ctx.selected_ftr_count_,
                                                ctx.max_bin_count_among_ftrs_,
                                                hist_prop_count));
-
     auto fill_event = part_hist_list.fill(queue_, 0, deps);
     fill_event.wait_and_throw();
 
@@ -2868,23 +2945,26 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         for (Index level = 0; node_count > 0; ++level) {
             auto node_list = level_node_lists[level];
-
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
 
             auto [selected_features_com, event] =
                 gen_feature_list(ctx, node_count, node_vs_tree_map_list, engine_arr);
             event.wait_and_throw();
 
+            auto [random_bins_com, gen_bins_event] =
+                gen_random_thresholds(ctx, node_count, node_vs_tree_map_list, engine_arr);
+            gen_bins_event.wait_and_throw();
+
             if (ctx.mdi_required_) {
                 node_imp_decrease_list =
                     pr::ndarray<Float, 1>::empty(queue_, { node_count }, alloc::device);
             }
-
             last_event = compute_best_split(ctx,
                                             full_data_nd_,
                                             response_nd_,
                                             tree_order_lev_,
                                             selected_features_com,
+                                            random_bins_com,
                                             ftr_bin_offsets_nd_,
                                             imp_data_holder.get_data(level),
                                             node_list,
@@ -2960,13 +3040,13 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                            node_count_new,
                                            { last_event });
                 last_event.wait_and_throw();
-
                 if (ctx.max_tree_depth_ > 0 && ctx.max_tree_depth_ == level) {
                     tree_level_record_t level_record(queue_,
                                                      node_list_new,
                                                      imp_data_holder.get_data(level + 1),
                                                      node_count_new,
-                                                     ctx);
+                                                     ctx,
+                                                     { last_event });
                     level_records.push_back(level_record);
                     node_count_new = 0;
                 }
@@ -2992,6 +3072,8 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
             node_count = node_count_new;
         }
+
+        last_event.wait_and_throw();
 
         model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
 
