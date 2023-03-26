@@ -629,7 +629,7 @@ protected:
         const size_t nGen = (!_memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
-        rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), n);
+        rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _helper._engineImpl->getState(), n);
     }
 
     services::Status computeResults(const dtrees::internal::Tree & t);
@@ -1064,7 +1064,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         IndexType iFeature;
         *_numElems += 1;
 
-        int errorcode = rng.uniform(1, &iFeature, _engineImpl->getState(), 0, _data->getNumberOfColumns());
+        int errorcode = rng.uniform(1, &iFeature, _helper._engineImpl->getState(), 0, _data->getNumberOfColumns());
         if (errorcode)
         {
             st = services::Status(services::ErrorNullResult);
