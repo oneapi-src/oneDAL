@@ -26,6 +26,7 @@ rem)
 echo "Echo test"
 setlocal
 call:GetFullPath "%~dp0..\.."    DAAL
+call:GetFullPath "%~dp0..\..\.." DAAL_UP
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
 
 set DAAL_IA=intel64
