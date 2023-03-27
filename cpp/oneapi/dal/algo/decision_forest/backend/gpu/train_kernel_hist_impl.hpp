@@ -104,7 +104,7 @@ private:
         const pr::ndarray<Index, 1>& node_vs_tree_map,
         rng_engine_list_t& rng_engine_list);
 
-    std::tuple<pr::ndarray<Float, 1>, sycl::event> gen_random_tresholds(
+    std::tuple<pr::ndarray<Float, 1>, sycl::event> gen_random_thresholds(
         const train_context_t& ctx,
         Index node_count,
         const pr::ndarray<Index, 1>& node_vs_tree_map,
