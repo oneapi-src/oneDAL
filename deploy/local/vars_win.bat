@@ -17,11 +17,13 @@ rem ============================================================================
 
 setlocal
 rem check if ONEAPI_ROOT is defined
-if "!ONEAPI_ROOT!" neq "" (
-    set "DAALROOT=%ONEAPI_ROOT%"
-    set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
-    exit /b 0
-)
+rem if "!ONEAPI_ROOT!" neq "" (
+rem    set "DAALROOT=%ONEAPI_ROOT%"
+rem    set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
+rem    exit /b 0
+rem)
+
+echo Echo call
 
 call:GetFullPath "%~dp0..\.."    DAAL
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
