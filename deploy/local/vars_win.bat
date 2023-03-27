@@ -15,7 +15,7 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 rem ============================================================================
 
-setlocal
+
 rem check if ONEAPI_ROOT is defined
 rem if "!ONEAPI_ROOT!" neq "" (
 rem    set "DAALROOT=%ONEAPI_ROOT%"
@@ -24,7 +24,7 @@ rem    exit /b 0
 rem)
 
 echo "Echo test"
-
+setlocal
 call:GetFullPath "%~dp0..\.."    DAAL
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
 
