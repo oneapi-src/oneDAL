@@ -23,7 +23,7 @@ rem    set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
 rem    exit /b 0
 rem)
 
-echo Echo call
+echo "Echo test"
 
 call:GetFullPath "%~dp0..\.."    DAAL
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
