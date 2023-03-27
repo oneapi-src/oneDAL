@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/logloss_objective/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include <cmath>
 
 namespace oneapi::dal::logloss_objective::detail {
 

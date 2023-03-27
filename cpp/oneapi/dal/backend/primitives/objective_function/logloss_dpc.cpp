@@ -89,9 +89,9 @@ sycl::event compute_logloss(sycl::queue& q,
 
         cgh.depends_on(deps);
 
-        auto sumReduction = reduction(out_ptr, sycl::plus<>());
+        auto sum_reduction = reduction(out_ptr, sycl::plus<>());
 
-        cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float prob = prob_ptr[idx];
             const std::int32_t label = labels_ptr[idx];
             sum += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
@@ -108,8 +108,8 @@ sycl::event compute_logloss(sycl::queue& q,
         auto reg_event = q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(vector_out_reg);
             const auto range = make_range_1d(p);
-            auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
-            cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+            auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
+            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
                 const Float param = param_ptr[idx + 1];
                 sum += L1 * sycl::abs(param) + L2 * param * param;
             });
@@ -202,16 +202,16 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         using sycl::reduction;
 
         cgh.depends_on(deps);
-        auto sumReductionLogLoss = reduction(out_ptr, sycl::plus<>());
-        auto sumReductionDerivativeW0 = reduction(out_derivative_ptr, sycl::plus<>());
+        auto sum_reduction_logloss = reduction(out_ptr, sycl::plus<>());
+        auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
         cgh.parallel_for(
             range,
-            sumReductionLogLoss,
-            sumReductionDerivativeW0,
-            [=](sycl::nd_item<1> id, auto& sum_logloss, auto& sum_Dw0) {
+            sum_reduction_logloss,
+            sum_reduction_derivative_w0,
+            [=](sycl::nd_item<1> id, auto& sum_logloss, auto& sum_dw0) {
                 auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
                 if (idx >= std::size_t(n))
                     return;
@@ -219,7 +219,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                 const float label = labels_ptr[idx];
                 sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
                 der_obj_ptr[idx] = prob - label;
-                sum_Dw0 += der_obj_ptr[idx];
+                sum_dw0 += der_obj_ptr[idx];
             });
     });
 
@@ -237,8 +237,8 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     auto reg_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(reg_deps);
         const auto range = make_range_1d(p);
-        auto sumReduction = sycl::reduction(reg_ptr, sycl::plus<>());
-        cgh.parallel_for(range, sumReduction, [=](sycl::id<1> idx, auto& sum) {
+        auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + 1];
             sum += L1 * sycl::abs(param) + L2 * param * param;
             out_derivative_ptr[idx + 1] += L2 * 2 * param;
@@ -294,19 +294,22 @@ sycl::event compute_derivative(sycl::queue& q,
         using sycl::reduction;
 
         cgh.depends_on(deps);
-        auto sumReductionDerivativeW0 = reduction(out_derivative_ptr, sycl::plus<>());
+        auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
-        cgh.parallel_for(range, sumReductionDerivativeW0, [=](sycl::nd_item<1> id, auto& sum_Dw0) {
-            auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-            if (idx >= std::size_t(n))
-                return;
-            const Float prob = proba_ptr[idx];
-            const Float label = labels_ptr[idx];
-            der_obj_ptr[idx] = prob - label;
-            sum_Dw0 += der_obj_ptr[idx];
-        });
+        cgh.parallel_for(range,
+                         sum_reduction_derivative_w0,
+                         [=](sycl::nd_item<1> id, auto& sum_dw0) {
+                             auto idx =
+                                 id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+                             if (idx >= std::size_t(n))
+                                 return;
+                             const Float prob = proba_ptr[idx];
+                             const Float label = labels_ptr[idx];
+                             der_obj_ptr[idx] = prob - label;
+                             sum_dw0 += der_obj_ptr[idx];
+                         });
     });
 
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
