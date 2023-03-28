@@ -17,11 +17,11 @@ rem ============================================================================
 
 
 rem check if ONEAPI_ROOT is defined
-rem if "!ONEAPI_ROOT!" neq "" (
-rem    set "DAALROOT=%ONEAPI_ROOT%"
-rem    set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
-rem    exit /b 0
-rem)
+if defined ONEAPI_ROOT (
+  set "DAALROOT=%ONEAPI_ROOT%"
+  set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
+  exit /b 0
+)
 
 echo "Echo test"
 
