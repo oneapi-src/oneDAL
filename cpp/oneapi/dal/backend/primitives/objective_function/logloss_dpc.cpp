@@ -91,9 +91,9 @@ sycl::event compute_logloss(sycl::queue& q,
             const std::int32_t label = labels_ptr[idx];
             Float& out = *out_ptr;
             sycl::atomic_ref<Float,
-                            sycl::memory_order::relaxed,
-                            sycl::memory_scope::device,
-                            sycl::access::address_space::ext_intel_global_device_space>(out)
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(out)
                 .fetch_add(-label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob));
         });
     });
@@ -102,17 +102,16 @@ sycl::event compute_logloss(sycl::queue& q,
 
     if (L1 > 0 || L2 > 0) {
         auto reg_event = q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({loss_event});
+            cgh.depends_on({ loss_event });
             const auto range = make_range_1d(p);
             cgh.parallel_for(range, [=](sycl::id<1> idx) {
                 const Float param = param_ptr[idx + 1];
                 Float& out = *out_ptr;
                 sycl::atomic_ref<Float,
-                                sycl::memory_order::relaxed,
-                                sycl::memory_scope::device,
-                                sycl::access::address_space::ext_intel_global_device_space>(out)
+                                 sycl::memory_order::relaxed,
+                                 sycl::memory_scope::device,
+                                 sycl::access::address_space::ext_intel_global_device_space>(out)
                     .fetch_add(L1 * sycl::abs(param) + L2 * param * param);
-
             });
         });
         return reg_event;
@@ -199,31 +198,30 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
-        cgh.parallel_for(
-            range,
-            [=](sycl::nd_item<1> id) {
-                auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-                if (idx >= std::size_t(n))
-                    return;
-                const Float prob = proba_ptr[idx];
-                const float label = labels_ptr[idx];
-                
-                Float& out_logloss = *out_ptr;
-                Float& out_der = *out_derivative_ptr;
-                sycl::atomic_ref<Float,
-                            sycl::memory_order::relaxed,
-                            sycl::memory_scope::device,
-                            sycl::access::address_space::ext_intel_global_device_space>(out_logloss)
+        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+            auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+            if (idx >= std::size_t(n))
+                return;
+            const Float prob = proba_ptr[idx];
+            const float label = labels_ptr[idx];
+
+            Float& out_logloss = *out_ptr;
+            Float& out_der = *out_derivative_ptr;
+            sycl::atomic_ref<Float,
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(
+                out_logloss)
                 .fetch_add(-label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob));
 
-                der_obj_ptr[idx] = prob - label;
+            der_obj_ptr[idx] = prob - label;
 
-                sycl::atomic_ref<Float,
-                            sycl::memory_order::relaxed,
-                            sycl::memory_scope::device,
-                            sycl::access::address_space::ext_intel_global_device_space>(out_der)
+            sycl::atomic_ref<Float,
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(out_der)
                 .fetch_add(der_obj_ptr[idx]);
-            });
+        });
     });
 
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
@@ -234,15 +232,16 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     }
 
     auto reg_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({loss_event, der_event});
+        cgh.depends_on({ loss_event, der_event });
         const auto range = make_range_1d(p);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             const Float param = param_ptr[idx + 1];
             Float& out_logloss = *out_ptr;
             sycl::atomic_ref<Float,
-                            sycl::memory_order::relaxed,
-                            sycl::memory_scope::device,
-                            sycl::access::address_space::ext_intel_global_device_space>(out_logloss)
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(
+                out_logloss)
                 .fetch_add(L1 * sycl::abs(param) + L2 * param * param);
             out_derivative_ptr[idx + 1] += L2 * 2 * param;
         });
@@ -287,7 +286,6 @@ sycl::event compute_derivative(sycl::queue& q,
     auto* const out_derivative_ptr = out_derivative.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
-
         cgh.depends_on(deps);
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
@@ -301,9 +299,9 @@ sycl::event compute_derivative(sycl::queue& q,
             der_obj_ptr[idx] = prob - label;
             Float& out_der = *out_derivative_ptr;
             sycl::atomic_ref<Float,
-                            sycl::memory_order::relaxed,
-                            sycl::memory_scope::device,
-                            sycl::access::address_space::ext_intel_global_device_space>(out_der)
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(out_der)
                 .fetch_add(der_obj_ptr[idx]);
         });
     });
