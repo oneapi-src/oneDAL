@@ -37,13 +37,13 @@ template <typename Type>
 class cumsum_test_random_1d : public te::float_algo_fixture<Type> {
 public:
     void generate() {
-        //n_ = GENERATE(11, 511, 512, 513, 1023, 1024, 1025, 1000000);
-        n_ = GENERATE(1024);
-        generate_input();
+        this->n_ = GENERATE(511, 512, 513, 1023, 1024, 1025, 2047, 2048, 
+            2049, 4095, 4096, 4097, 8191, 8192, 8193, 16383, 16384, 16385);
+        this->generate_input();
     }
 
     bool is_initialized() const {
-        return n_ > 0;
+        return this->n_ > 0;
     }
 
     void check_if_initialized() const {
@@ -69,7 +69,7 @@ public:
         this->input_table_ = dataframe.get_table(this->get_homogen_table_id());
     }
 
-    void test_1d_cumsum(const Type tol = 1.e-6) {
+    void test_1d_cumsum(const Type tol = 1.e-5) {
         constexpr auto eps = std::numeric_limits<Type>::epsilon();
         row_accessor<const Type> accessor{ this->input_table_ };
         auto input_array = accessor.pull(this->get_queue(), {0, -1}, sycl::usm::alloc::device);

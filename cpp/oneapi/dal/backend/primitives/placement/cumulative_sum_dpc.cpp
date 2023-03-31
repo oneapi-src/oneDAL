@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#include <iostream>
+
 #include <algorithm>
 
 #include "oneapi/dal/detail/profiler.hpp"
@@ -45,10 +45,6 @@ sycl::event up_sweep(sycl::queue& queue,
 
         event = detail::block_cumsum(queue, data, 
                 base_stride, curr_stride, new_deps);
-
-        {
-            std::cerr << iter_count << ' ' << i << ":\n" << data.to_host(queue, {event}) << "\n\n" << std::endl;
-        }
 
         curr_stride *= base_stride;
     }
@@ -144,8 +140,6 @@ sycl::event block_cumsum(sycl::queue& queue,
     if (elem_handle < 1) return wait_or_pass(deps);
 
     const auto range = make_multiple_nd_range_1d(elem_handle, base_stride);
-
-    std::cerr << base_stride << ' ' << curr_stride << ' ' << elem_handle << std::endl;
 
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
