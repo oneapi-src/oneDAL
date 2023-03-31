@@ -36,6 +36,21 @@ namespace oneapi::dal::backend {
 template <std::int64_t axis_count>
 using ndindex = std::array<std::int64_t, axis_count>;
 
+template<typename Integer>
+inline constexpr Integer up_log(Integer x, Integer b = 2) {
+    static_assert(std::is_integral_v<Integer>);
+    ONEDAL_ASSERT(x > 0);
+
+    Integer res = 0, val = 1;
+
+    while (val < x) {
+        res += 1;
+        val *= b; 
+    }
+
+    return res;
+}
+
 /// Finds the largest multiple of `multiple` not larger than `x`
 /// Return `x`, if `x` is already multiple of `multiple`
 /// Example: down_multiple(10, 4) == 8
@@ -160,6 +175,11 @@ private:
 #ifdef ONEDAL_DATA_PARALLEL
 
 using event_vector = std::vector<sycl::event>;
+
+inline sycl::event wait_or_pass(const event_vector& vec) {
+    if (vec.size() > 1) sycl::event::wait_and_throw(vec);
+    return vec.size() > 0 ? vec.at(0) : sycl::event{};
+}
 
 inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) {
     const auto res_size = rhs.size() + lhs.size();
