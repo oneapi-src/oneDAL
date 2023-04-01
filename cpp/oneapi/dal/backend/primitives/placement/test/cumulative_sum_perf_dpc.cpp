@@ -34,12 +34,11 @@ namespace pr = oneapi::dal::backend::primitives;
 using cumsum_types = std::tuple<float, double>;
 
 template <typename Type>
-class cumsum_test_random_1d : public te::float_algo_fixture<Type> {
+class cumsum_bench_random_1d : public te::float_algo_fixture<Type> {
 public:
     void generate() {
-        this->m_ = GENERATE(16, 32, 64, 128);
-        this->n_ = GENERATE(511, 512, 513, 1023, 1024, 1025, 2047, 2048, 
-            4096, 4097, 8191, 8192, 8193, 16383, 16384, 16385, 0x40000);
+        this->m_ = device_max_wg_size(this->get_queue());
+        this->n_ = GENERATE(33'554'432, 134'217'728, 1'073'741'824);
         this->generate_input();
     }
 
@@ -53,25 +52,44 @@ public:
         }
     }
 
-    auto groundtruth() const {
-        row_accessor<const Type> accessor{ this->input_table_ };
-        auto inp = accessor.pull({0, -1});
-        auto res = ndarray<Type, 1, ndorder::c>::zeros(this->n_ + 1);
-
-        for (std::int64_t i = 0; i < this->n_; ++i) {
-            res.at(i + 1) = res.at(i) + inp[i];
-        }
-
-        return res;
-    }
-
     void generate_input() {
         auto dataframe = GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(0.0, 2.0));
         this->input_table_ = dataframe.get_table(this->get_homogen_table_id());
     }
 
-    void test_1d_cumsum(const Type tol = 1.e-5) {
-        constexpr auto eps = std::numeric_limits<Type>::epsilon();
+    auto fpt_desc() const {
+        if constexpr (std::is_same_v<Type, float>) {
+            return "float";
+        }
+        if constexpr (std::is_same_v<Type, double>) {
+            return "double";
+        }
+        REQUIRE(false);
+        return "unknown type";
+    }
+
+    auto type_desc() const {
+        return fmt::format("Floating Point Type: {}", fpt_desc());
+    }
+
+    auto data_desc() const {
+        check_if_initialized();
+        return fmt::format("Dataset of size: {}", this->n_);
+    }
+
+    auto workgroup_desc() const {
+        check_if_initialized();
+        return fmt::format("Workgroup of size: {}", this->m_);
+    }
+
+    auto desc() const {
+        return fmt::format("{}; {}; {}",
+                           type_desc(),
+                           data_desc(),
+                           workgroup_desc());
+    }
+
+    void bench_1d_cumsum() {
         row_accessor<const Type> accessor{ this->input_table_ };
         auto input_array = accessor.pull(this->get_queue(), {0, -1}, sycl::usm::alloc::device);
         auto immut_input = ndview<Type, 1>::wrap(input_array.get_data(), { this->n_ });
@@ -80,25 +98,14 @@ public:
         
         auto mut_2d = mut_input.template reshape<2>({1, this->n_});
         auto immut_2d = immut_input.template reshape<2>({1, this->n_});
-        auto copy_event = copy(this->get_queue(), mut_2d, immut_2d);
-        auto cum_event = cumulative_sum_1d(this->get_queue(), mut_input, this->m_, { copy_event });
-    
-        const auto gtr = this->groundtruth();
-        const auto res = mut_input.to_host(this->get_queue(), { cum_event });
+        copy(this->get_queue(), mut_2d, immut_2d).wait_and_throw();
 
-        for (std::int64_t i = 0; i < this->n_; ++i) {
-            const auto gtr_val = gtr.at(i + 1);
-            const auto res_val = res.at(i);
+        const auto name = desc();
+        BENCHMARK(name.c_str()) {
+            cumulative_sum_1d(this->get_queue(), mut_input, m_, {}).wait_and_throw();
+        };
 
-            const auto adiff = std::abs(res_val - gtr_val);
-            const auto rdiff = adiff / std::max({eps, std::abs(gtr_val), std::abs(res_val)});
-            if (tol < rdiff) {
-                CAPTURE(this->n_, i, gtr_val, res_val, adiff, rdiff, tol);
-                FAIL();
-            }
-        }
-
-        SUCCEED();
+        REQUIRE(true);
     }
 
 private:
@@ -106,13 +113,13 @@ private:
     std::int64_t m_, n_;
 };
 
-TEMPLATE_LIST_TEST_M(cumsum_test_random_1d,
+TEMPLATE_LIST_TEST_M(cumsum_bench_random_1d,
                      "Randomly filled array",
                      "[cumsum][1d][small]",
                      cumsum_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
-    this->test_1d_cumsum();
+    this->bench_1d_cumsum();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
