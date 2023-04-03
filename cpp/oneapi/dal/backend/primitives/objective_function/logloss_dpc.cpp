@@ -85,8 +85,6 @@ sycl::event compute_logloss(sycl::queue& q,
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         const auto range = make_range_1d(n);
         using oneapi::dal::backend::operator+;
-        using sycl::reduction;
-
         cgh.depends_on(deps);
 
         auto sum_reduction = reduction(out_ptr, sycl::plus<>());
@@ -94,33 +92,33 @@ sycl::event compute_logloss(sycl::queue& q,
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float prob = prob_ptr[idx];
             const std::int32_t label = labels_ptr[idx];
-            sum += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
+            Float& out = *out_ptr;
+            sycl::atomic_ref<Float,
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(out)
+                .fetch_add(-label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob));
         });
     });
-
-    auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
-    auto* const reg_ptr = out_reg.get_mutable_data();
-    const event_vector vector_out_reg = { out_reg_e };
 
     const auto* const param_ptr = parameters.get_data();
 
     if (L1 > 0 || L2 > 0) {
         auto reg_event = q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(vector_out_reg);
+            cgh.depends_on({ loss_event });
             const auto range = make_range_1d(p);
             auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
             cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
                 const Float param = param_ptr[idx + 1];
-                sum += L1 * sycl::abs(param) + L2 * param * param;
+                Float& out = *out_ptr;
+                sycl::atomic_ref<Float,
+                                 sycl::memory_order::relaxed,
+                                 sycl::memory_scope::device,
+                                 sycl::access::address_space::ext_intel_global_device_space>(out)
+                    .fetch_add(L1 * sycl::abs(param) + L2 * param * param);
             });
         });
-        auto final_event = q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ reg_event, loss_event });
-            cgh.single_task([=] {
-                out_ptr[0] += reg_ptr[0];
-            });
-        });
-        return final_event;
+        return reg_event;
     }
     return loss_event;
 }
@@ -199,7 +197,6 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
-        using sycl::reduction;
 
         cgh.depends_on(deps);
         auto sum_reduction_logloss = reduction(out_ptr, sycl::plus<>());
@@ -243,30 +240,25 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     if (L1 == 0 && L2 == 0) {
         return der_event;
     }
-    auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
-
-    const event_vector reg_deps = { reg_val_e, der_event };
-    auto* const reg_ptr = reg_val.get_mutable_data();
 
     auto reg_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(reg_deps);
+        cgh.depends_on({ loss_event, der_event });
         const auto range = make_range_1d(p);
         auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + 1];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
+            Float& out_logloss = *out_ptr;
+            sycl::atomic_ref<Float,
+                             sycl::memory_order::relaxed,
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::ext_intel_global_device_space>(
+                out_logloss)
+                .fetch_add(L1 * sycl::abs(param) + L2 * param * param);
             out_derivative_ptr[idx + 1] += L2 * 2 * param;
         });
     });
 
-    auto final_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ reg_event, loss_event });
-        cgh.single_task([=] {
-            out_ptr[0] += reg_ptr[0];
-        });
-    });
-
-    return final_event;
+    return reg_event;
 }
 
 template <typename Float>
@@ -305,8 +297,6 @@ sycl::event compute_derivative(sycl::queue& q,
     auto* const out_derivative_ptr = out_derivative.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
-        using sycl::reduction;
-
         cgh.depends_on(deps);
         auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
         const auto wg_size = propose_wg_size(q);
