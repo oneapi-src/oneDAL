@@ -87,6 +87,17 @@ After computing the subset of splits, each value from the initially provided dat
 with the value of the corresponding bin.
 Bins are continuous intervals between selected splits.
 
+Split strategy
+++++++++++++++
+
+NOTE: Current support only for `hist` method. Dense method supports only best strategy.
+Two split strategies are supported, while building trees:
+.. tabs::
+  .. group-tab:: Best splitter
+  Treshold for a node is chosen as the best among all bins.
+  .. group-tab:: Random splitter
+  Threshold for a node is the best for a set chosen at random.
+
 Split Criteria
 ++++++++++++++
 
