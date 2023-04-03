@@ -203,15 +203,13 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
         cgh.depends_on(deps);
         auto sum_reduction_logloss = reduction(out_ptr, sycl::plus<>());
-        auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
         cgh.parallel_for(
             range,
             sum_reduction_logloss,
-            sum_reduction_derivative_w0,
-            [=](sycl::nd_item<1> id, auto& sum_logloss, auto& sum_dw0) {
+            [=](sycl::nd_item<1> id, auto& sum_logloss) {
                 auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
                 if (idx >= std::size_t(n))
                     return;
@@ -219,13 +217,33 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                 const float label = labels_ptr[idx];
                 sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
                 der_obj_ptr[idx] = prob - label;
+            });
+    });
+
+    auto derw0_event = q.submit([&](sycl::handler& cgh) {
+        using oneapi::dal::backend::operator+;
+        using sycl::reduction;
+
+        cgh.depends_on(deps + loss_event);
+        auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
+        const auto wg_size = propose_wg_size(q);
+        const auto range = make_multiple_nd_range_1d(n, wg_size);
+
+        cgh.parallel_for(
+            range,
+            sum_reduction_derivative_w0,
+            [=](sycl::nd_item<1> id, auto& sum_dw0) {
+                auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+                if (idx >= std::size_t(n))
+                    return;
                 sum_dw0 += der_obj_ptr[idx];
             });
     });
 
+
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
 
-    auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
+    auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { derw0_event });
     if (L1 == 0 && L2 == 0) {
         return der_event;
     }
