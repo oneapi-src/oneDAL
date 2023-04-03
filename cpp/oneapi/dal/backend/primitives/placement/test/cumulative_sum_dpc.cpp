@@ -66,11 +66,13 @@ public:
     }
 
     void generate_input() {
-        auto dataframe = GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(0.0, 2.0));
+        auto dataframe = GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.0, 2.0));
         this->input_table_ = dataframe.get_table(this->get_homogen_table_id());
     }
 
     void test_1d_cumsum(const Type tol = 1.e-5) {
+        check_if_initialized();
+
         constexpr auto eps = std::numeric_limits<Type>::epsilon();
         row_accessor<const Type> accessor{ this->input_table_ };
         auto input_array = accessor.pull(this->get_queue(), {0, -1}, sycl::usm::alloc::device);
