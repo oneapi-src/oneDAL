@@ -57,6 +57,7 @@ sycl::event search_sorted_1d(sycl::queue& queue,
     ONEDAL_ASSERT(points.has_data());
     ONEDAL_ASSERT(results.has_mutable_data());
 
+    const auto data_count = data.get_count();
     const auto points_count = points.get_count();
     const auto range = make_range_1d(points_count);
     ONEDAL_ASSERT(points_count == results.get_count());
@@ -72,7 +73,7 @@ sycl::event search_sorted_1d(sycl::queue& queue,
             constexpr auto cmp = comparator_v<alignment, Type>;
 
             const auto target = points_ptr[idx]; 
-            Index left_idx = 0, right_idx = points_count - 1;
+            Index left_idx = 0, right_idx = data_count;
 
             while (left_idx < right_idx) {
                 const auto mid_idx = left_idx + (right_idx - left_idx) / 2;
