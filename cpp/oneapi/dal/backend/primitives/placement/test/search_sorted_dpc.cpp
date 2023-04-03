@@ -22,7 +22,6 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/placement/search_sorted.hpp"
 
@@ -125,9 +124,6 @@ public:
 
         auto inputs_host = inputs_acc.pull({0, -1});
         auto points_host = points_acc.pull({0, -1});
-
-        std::cout << "Inputs: " << ndview<type_t, 1>::wrap(inputs_host.get_data(), { this->n_ }) << std::endl;
-        std::cout << "Points: " << ndview<type_t, 1>::wrap(points_host.get_data(), { this->m_ }) << std::endl;
 
         auto inputs_device = inputs_acc.pull(this->get_queue(), {0, -1}, alloc);
         auto points_device = points_acc.pull(this->get_queue(), {0, -1}, alloc);
