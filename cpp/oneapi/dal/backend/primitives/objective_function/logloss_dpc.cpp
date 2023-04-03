@@ -206,18 +206,15 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
-        cgh.parallel_for(
-            range,
-            sum_reduction_logloss,
-            [=](sycl::nd_item<1> id, auto& sum_logloss) {
-                auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-                if (idx >= std::size_t(n))
-                    return;
-                const Float prob = proba_ptr[idx];
-                const float label = labels_ptr[idx];
-                sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
-                der_obj_ptr[idx] = prob - label;
-            });
+        cgh.parallel_for(range, sum_reduction_logloss, [=](sycl::nd_item<1> id, auto& sum_logloss) {
+            auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+            if (idx >= std::size_t(n))
+                return;
+            const Float prob = proba_ptr[idx];
+            const float label = labels_ptr[idx];
+            sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
+            der_obj_ptr[idx] = prob - label;
+        });
     });
 
     auto derw0_event = q.submit([&](sycl::handler& cgh) {
@@ -229,17 +226,16 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
-        cgh.parallel_for(
-            range,
-            sum_reduction_derivative_w0,
-            [=](sycl::nd_item<1> id, auto& sum_dw0) {
-                auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-                if (idx >= std::size_t(n))
-                    return;
-                sum_dw0 += der_obj_ptr[idx];
-            });
+        cgh.parallel_for(range,
+                         sum_reduction_derivative_w0,
+                         [=](sycl::nd_item<1> id, auto& sum_dw0) {
+                             auto idx =
+                                 id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+                             if (idx >= std::size_t(n))
+                                 return;
+                             sum_dw0 += der_obj_ptr[idx];
+                         });
     });
-
 
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
 
