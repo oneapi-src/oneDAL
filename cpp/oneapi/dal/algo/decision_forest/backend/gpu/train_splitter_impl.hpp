@@ -51,6 +51,23 @@ public:
     train_splitter_impl() = default;
     ~train_splitter_impl() = default;
 
+    /// Computing best split for `node_count` nodes using `selected_ftr_list`
+    /// for splitting and choosing the best split in terms of impurity.
+    ///
+    /// @param[in] queue                    sycl parallel queue
+    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] node_hist_list           a pre-calculated histogram for each node
+    /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
+    /// @param[in] bin_offset_list          an array of offsets for each bin
+    /// @param[in] imp_data_list            an array of impurity data for each node
+    /// @param[in] node_ind_list            an array of node indices
+    /// @param[in] node_ind_ofs             a global offset for node indices
+    /// @param[in] node_list                a node structure containing split information
+    /// @param[in] left_child_imp_data_list an array of left child impurity values
+    /// @param[in] node_imp_dec_list        an array of node impurity decrease values
+    /// @param[in] update_imp_dec_required  boolean indicator to update impurity decrease structure
+    /// @param[in] node_count               a number of node to compute in current step
+    /// @param[in] deps                     a set of sycl event, which this method depends on
     static sycl::event compute_best_split_by_histogram(
         sycl::queue& queue,
         const context_t& ctx,
@@ -58,7 +75,7 @@ public:
         const pr::ndarray<Index, 1>& selected_ftr_list,
         const pr::ndarray<Index, 1>& bin_offset_list,
         const imp_data_t& imp_data_list,
-        const pr::ndarray<Index, 1>& nodeIndices,
+        const pr::ndarray<Index, 1>& node_ind_list,
         Index node_ind_ofs,
         pr::ndarray<Index, 1>& node_list,
         imp_data_t& left_child_imp_data_list,
