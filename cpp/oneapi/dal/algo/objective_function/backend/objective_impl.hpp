@@ -26,6 +26,7 @@ public:
     virtual ~objective_impl() = default;
     virtual double get_l1_regularization_coefficient() = 0;
     virtual double get_l2_regularization_coefficient() = 0;
+    virtual bool get_intercept_flag() = 0;
 };
 
 } // namespace v1

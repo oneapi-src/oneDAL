@@ -80,10 +80,12 @@ public:
 
     double get_l1_regularization_coefficient() const;
     double get_l2_regularization_coefficient() const;
+    bool get_intercept_flag() const;
 
 protected:
     void set_l1_regularization_coefficient_impl(double l1_coef);
     void set_l2_regularization_coefficient_impl(double l2_coef);
+    void set_intercept_flag_impl(bool fit_intercept);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -120,9 +122,11 @@ public:
 
     /// Creates a new instance of the class with the default property values.
     explicit descriptor(double l1_regularization_coefficient = 0.0,
-                        double l2_regularization_coefficient = 0.0) {
+                        double l2_regularization_coefficient = 0.0,
+                        bool fit_intercept = true) {
         set_l1_regularization_coefficient(l1_regularization_coefficient);
         set_l2_regularization_coefficient(l2_regularization_coefficient);
+        set_intercept_flag(fit_intercept);
     }
 
     double get_l1_regularization_coefficient() const {
@@ -133,6 +137,10 @@ public:
         return base_t::get_l2_regularization_coefficient();
     }
 
+    bool get_intercept_flag() const {
+        return base_t::get_intercept_flag();
+    }
+
     auto& set_l1_regularization_coefficient(double value) {
         base_t::set_l1_regularization_coefficient_impl(value);
         return *this;
@@ -140,6 +148,11 @@ public:
 
     auto& set_l2_regularization_coefficient(double value) {
         base_t::set_l2_regularization_coefficient_impl(value);
+        return *this;
+    }
+
+    auto& set_intercept_flag(bool fit_intercept) {
+        base_t::set_intercept_flag_impl(fit_intercept);
         return *this;
     }
 };

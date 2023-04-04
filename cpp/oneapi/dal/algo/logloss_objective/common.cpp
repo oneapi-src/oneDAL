@@ -26,11 +26,14 @@ template <typename Task>
 class descriptor_impl : public base {
 public:
     explicit descriptor_impl(double l1_regularization_coefficient = 0.0,
-                             double l2_regularization_coefficient = 0.0)
+                             double l2_regularization_coefficient = 0.0,
+                             bool fit_intercept = true)
             : l1_regularization_coefficient(l1_regularization_coefficient),
-              l2_regularization_coefficient(l2_regularization_coefficient) {}
+              l2_regularization_coefficient(l2_regularization_coefficient),
+              fit_intercept(fit_intercept) {}
     double l1_regularization_coefficient = 0.0;
     double l2_regularization_coefficient = 0.0;
+    bool fit_intercept = true;
 };
 
 template <typename Task>
@@ -44,6 +47,11 @@ double descriptor_base<Task>::get_l1_regularization_coefficient() const {
 template <typename Task>
 double descriptor_base<Task>::get_l2_regularization_coefficient() const {
     return impl_->l2_regularization_coefficient;
+}
+
+template <typename Task>
+bool descriptor_base<Task>::get_intercept_flag() const {
+    return impl_->fit_intercept;
 }
 
 template <typename Task>
@@ -62,6 +70,11 @@ void descriptor_base<Task>::set_l2_regularization_coefficient_impl(double value)
         throw domain_error(msg::regularization_coef_is_less_than_0());
     }
     impl_->l2_regularization_coefficient = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_intercept_flag_impl(bool fit_intercept) {
+    impl_->fit_intercept = fit_intercept;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;

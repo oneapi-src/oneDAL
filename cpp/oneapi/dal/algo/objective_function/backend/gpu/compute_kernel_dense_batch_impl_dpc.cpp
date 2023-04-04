@@ -124,6 +124,7 @@ sycl::event value_and_gradient_iter(sycl::queue& q_,
                                     const pr::ndarray<Float, 1>& probabilities,
                                     pr::ndarray<Float, 1>& out,
                                     pr::ndarray<Float, 1>& ans,
+                                    bool fit_intercept,
                                     sycl::event& prev_iter) {
     auto fill_event = fill(q_, out, Float(0), {});
 
@@ -139,6 +140,7 @@ sycl::event value_and_gradient_iter(sycl::queue& q_,
                                                out_gradient,
                                                Float(0),
                                                Float(0),
+                                               fit_intercept,
                                                { fill_event });
 
     const auto* const out_ptr = out.get_data();
@@ -161,6 +163,7 @@ sycl::event value_iter(sycl::queue& q_,
                        const pr::ndarray<Float, 1>& probabilities,
                        pr::ndarray<Float, 1>& out_loss,
                        pr::ndarray<Float, 1>& ans_loss,
+                       bool fit_intercept,
                        sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_loss, Float(0), {});
     auto loss_event = compute_logloss(q_,
@@ -171,6 +174,7 @@ sycl::event value_iter(sycl::queue& q_,
                                       out_loss,
                                       Float(0),
                                       Float(0),
+                                      fit_intercept,
                                       { fill_event });
     const auto* const out_ptr = out_loss.get_data();
     auto* const ans_loss_ptr = ans_loss.get_mutable_data();
@@ -191,6 +195,7 @@ sycl::event gradient_iter(sycl::queue& q_,
                           const pr::ndarray<Float, 1>& probabilities,
                           pr::ndarray<Float, 1>& out_gradient,
                           pr::ndarray<Float, 1>& ans_gradient,
+                          bool fit_intercept,
                           sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_gradient, Float(0), {});
     auto grad_event = compute_derivative(q_,
@@ -201,6 +206,7 @@ sycl::event gradient_iter(sycl::queue& q_,
                                          out_gradient,
                                          Float(0),
                                          Float(0),
+                                         fit_intercept,
                                          { fill_event });
     grad_event.wait_and_throw();
     const auto* const grad_ptr = out_gradient.get_data();
@@ -225,6 +231,7 @@ sycl::event hessian_iter(sycl::queue& q_,
                          const pr::ndarray<Float, 1>& probabilities,
                          pr::ndarray<Float, 2>& out_hessian,
                          pr::ndarray<Float, 2>& ans_hessian,
+                         bool fit_intercept,
                          sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_hessian, Float(0), {});
     auto hess_event = compute_hessian(q_,
@@ -235,6 +242,7 @@ sycl::event hessian_iter(sycl::queue& q_,
                                       out_hessian,
                                       Float(0),
                                       Float(0),
+                                      fit_intercept,
                                       { fill_event });
     const auto* const hess_ptr = out_hessian.get_data();
     auto* const ans_hess_ptr = ans_hessian.get_mutable_data();
@@ -268,6 +276,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
 
     const Float L1 = obj_impl->get_l1_regularization_coefficient();
     const Float L2 = obj_impl->get_l2_regularization_coefficient();
+    bool fit_intercept = obj_impl->get_intercept_flag();
 
     const std::int64_t bsz = get_block_size(n, p);
     const bk::uniform_blocking blocking(n, bsz);
@@ -316,7 +325,8 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
         const auto data_nd = pr::ndarray<Float, 2>::wrap(data_rows, { cursize, p });
         const auto responses_nd = responses_nd_big.slice(first, cursize);
 
-        sycl::event prob_e = compute_probabilities(q_, params_nd, data_nd, probabilities, {});
+        sycl::event prob_e =
+            compute_probabilities(q_, params_nd, data_nd, probabilities, fit_intercept, {});
         prob_e.wait_and_throw();
 
         if (desc.get_result_options().test(result_options::value) &&
@@ -329,6 +339,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                                                      probabilities,
                                                      out,
                                                      ans,
+                                                     fit_intercept,
                                                      prev_logloss_e);
         }
         else {
@@ -341,6 +352,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                                             probabilities,
                                             out_loss,
                                             ans_loss,
+                                            fit_intercept,
                                             prev_logloss_e);
             }
             if (desc.get_result_options().test(result_options::gradient)) {
@@ -352,6 +364,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                                             probabilities,
                                             out_gradient,
                                             ans_gradient,
+                                            fit_intercept,
                                             prev_grad_e);
             }
         }
@@ -364,6 +377,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
                                        probabilities,
                                        out_hessian,
                                        ans_hessian,
+                                       fit_intercept,
                                        prev_hess_e);
         }
     }

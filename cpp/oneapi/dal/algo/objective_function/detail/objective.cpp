@@ -25,24 +25,32 @@ using logloss_objective_t = logloss_objective::descriptor<F, M>;
 
 class logloss_objective_impl : public objective_impl {
 public:
-    logloss_objective_impl(double l1_coef, double l2_coef) : l1_coef(l1_coef), l2_coef(l2_coef) {}
+    logloss_objective_impl(double l1_coef, double l2_coef, bool fit_intercept)
+            : l1_coef(l1_coef),
+              l2_coef(l2_coef),
+              fit_intercept(fit_intercept) {}
     double get_l1_regularization_coefficient() {
         return l1_coef;
     }
     double get_l2_regularization_coefficient() {
         return l2_coef;
     }
+    bool get_intercept_flag() {
+        return fit_intercept;
+    }
 
 private:
     double l1_coef = 0.0;
     double l2_coef = 0.0;
+    bool fit_intercept = true;
 };
 
 template <typename F, typename M>
 objective<logloss_objective_t<F, M>>::objective(const logloss_objective_t<F, M>& obj)
         : objective_(obj),
           impl_(new logloss_objective_impl{ obj.get_l1_regularization_coefficient(),
-                                            obj.get_l2_regularization_coefficient() }) {}
+                                            obj.get_l2_regularization_coefficient(),
+                                            obj.get_intercept_flag() }) {}
 
 template <typename F, typename M>
 objective_impl* objective<logloss_objective_t<F, M>>::get_impl() const {

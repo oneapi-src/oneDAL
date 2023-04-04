@@ -24,6 +24,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 1>& parameters,
                                   const ndview<Float, 2>& data,
                                   ndview<Float, 1>& probabilities,
+                                  bool fit_intercept,
                                   const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -66,6 +67,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             ndview<Float, 1>& out,
                             Float L1,
                             Float L2,
+                            bool fit_intercept,
                             const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -133,6 +135,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             ndview<Float, 1>& out,
                             Float L1,
                             Float L2,
+                            bool fit_intercept,
                             const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -145,7 +148,8 @@ sycl::event compute_logloss(sycl::queue& q,
     // out should be filled with zero
 
     auto probabilities = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
-    auto prediction_event = compute_probabilities(q, parameters, data, probabilities, deps);
+    auto prediction_event =
+        compute_probabilities(q, parameters, data, probabilities, fit_intercept, deps);
 
     return compute_logloss(q,
                            parameters,
@@ -155,6 +159,7 @@ sycl::event compute_logloss(sycl::queue& q,
                            out,
                            L1,
                            L2,
+                           fit_intercept,
                            { prediction_event });
 }
 
@@ -168,6 +173,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      ndview<Float, 1>& out_derivative,
                                      Float L1,
                                      Float L2,
+                                     bool fit_intercept,
                                      const event_vector& deps) {
     // out, out_derivative should be filled with zeros
 
@@ -278,6 +284,7 @@ sycl::event compute_derivative(sycl::queue& q,
                                ndview<Float, 1>& out_derivative,
                                Float L1,
                                Float L2,
+                               bool fit_intercept,
                                const event_vector& deps) {
     // out_derivative should be filled with zeros
 
@@ -356,6 +363,7 @@ sycl::event compute_hessian(sycl::queue& q,
                             ndview<Float, 2>& out_hessian,
                             Float L1,
                             Float L2,
+                            bool fit_intercept,
                             const event_vector& deps) {
     const int64_t n = data.get_dimension(0);
     const int64_t p = data.get_dimension(1);
@@ -434,6 +442,7 @@ sycl::event compute_hessian(sycl::queue& q,
                                                   const ndview<F, 1>&,               \
                                                   const ndview<F, 2>&,               \
                                                   ndview<F, 1>&,                     \
+                                                  bool,                              \
                                                   const event_vector&);              \
     template sycl::event compute_logloss<F>(sycl::queue&,                            \
                                             const ndview<F, 1>&,                     \
@@ -442,6 +451,7 @@ sycl::event compute_hessian(sycl::queue& q,
                                             ndview<F, 1>&,                           \
                                             F,                                       \
                                             F,                                       \
+                                            bool,                                    \
                                             const event_vector&);                    \
     template sycl::event compute_logloss<F>(sycl::queue&,                            \
                                             const ndview<F, 1>&,                     \
@@ -451,6 +461,7 @@ sycl::event compute_hessian(sycl::queue& q,
                                             ndview<F, 1>&,                           \
                                             F,                                       \
                                             F,                                       \
+                                            bool,                                    \
                                             const event_vector&);                    \
     template sycl::event compute_logloss_with_der<F>(sycl::queue&,                   \
                                                      const ndview<F, 1>&,            \
@@ -461,6 +472,7 @@ sycl::event compute_hessian(sycl::queue& q,
                                                      ndview<F, 1>&,                  \
                                                      F,                              \
                                                      F,                              \
+                                                     bool,                           \
                                                      const event_vector&);           \
     template sycl::event compute_derivative<F>(sycl::queue&,                         \
                                                const ndview<F, 1>&,                  \
@@ -470,6 +482,7 @@ sycl::event compute_hessian(sycl::queue& q,
                                                ndview<F, 1>&,                        \
                                                F,                                    \
                                                F,                                    \
+                                               bool,                                 \
                                                const event_vector&);                 \
     template sycl::event compute_hessian<F>(sycl::queue&,                            \
                                             const ndview<F, 1>&,                     \
@@ -479,6 +492,7 @@ sycl::event compute_hessian(sycl::queue& q,
                                             ndview<F, 2>&,                           \
                                             F,                                       \
                                             F,                                       \
+                                            bool,                                    \
                                             const event_vector&);
 
 INSTANTIATE(float);
