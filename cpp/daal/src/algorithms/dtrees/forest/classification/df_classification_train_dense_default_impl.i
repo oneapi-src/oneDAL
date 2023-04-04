@@ -528,7 +528,7 @@ public:
     typedef typename dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
     typedef double intermSummFPType;
-    using super = UnorderedRespHelperBest<algorithmFPType, cpu>;
+    using super        = UnorderedRespHelperBest<algorithmFPType, cpu>;
     using Histogramm   = typename super::Histogramm;
     using ImpurityData = typename super::ImpurityData;
     using TSplitData   = typename super::TSplitData;
