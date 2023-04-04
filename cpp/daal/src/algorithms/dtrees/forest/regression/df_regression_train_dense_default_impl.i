@@ -847,7 +847,7 @@ size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size
     algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
     algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
     size_t mid;
-    size_t l = minidx;
+    size_t l   = minidx;
     size_t idx = maxidx;
     RNGs<algorithmFPType, cpu> rng;
     rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
@@ -1308,7 +1308,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
 services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
-                          decision_forest::regression::Model & m, Result & res, const Parameter & par)
+                         decision_forest::regression::Model & m, Result & res, const Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(), nullptr,
                   res.get(outOfBagErrorR2).get(), nullptr, res.get(outOfBagErrorPrediction).get());
@@ -1350,7 +1350,8 @@ services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const 
     }
     else
     {
-        if (!(par.memorySavingMode || par.splitter == decision_forest::training::splitterMode::random)) // do not index features for random splitter with defaultDense
+        if (!(par.memorySavingMode
+              || par.splitter == decision_forest::training::splitterMode::random)) // do not index features for random splitter with defaultDense
         {
             s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
             DAAL_CHECK_STATUS_VAR(s);

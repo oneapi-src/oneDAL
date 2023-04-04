@@ -177,8 +177,8 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitbyHistDefault(int nD
         if (!nFeatIdx[i]) continue;
         algorithmFPType thisFeatWeights = featWeights[i];
 
-        nLeft       = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        nLeft        = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
+        -leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
         if ((nLeft == n) //last split
             || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
             break;
@@ -322,8 +322,8 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiff
     }
     if (idxFeatureBestSplit >= 0)
     {
-        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
-        split.totalWeights     = totalWeights;
+        -split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
+        split.totalWeights      = totalWeights;
     }
 
     return idxFeatureBestSplit;
@@ -695,7 +695,7 @@ template <typename algorithmFPType, CpuType cpu, typename crtp>
 bool RespHelperBase<algorithmFPType, cpu, crtp>::init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample,
                                                       const NumericTable * weights)
 {
-    DAAL_CHECK_STATUS_VAR(super::init(data, resp, aSample, weights)); //DataHelper is inhereited by this class
+    DAAL_CHECK_STATUS_VAR(super::init(data, resp, aSample, weights)); //super is DataHelper
     if (this->_indexedFeatures)
     {
         //init work buffers for the computation using indexed features
@@ -988,7 +988,6 @@ public:
     bool findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                      const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
-
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -999,7 +998,7 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const si
     algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
     algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
     size_t mid;
-    size_t l = minidx;
+    size_t l   = minidx;
     size_t idx = maxidx;
     RNGs<algorithmFPType, cpu> rng;
     rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
@@ -1018,7 +1017,6 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const si
     }
     return idx;
 }
-
 
 template <typename algorithmFPType, CpuType cpu>
 int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
@@ -1686,7 +1684,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
 services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
-                          decision_forest::classification::Model & m, Result & res, const decision_forest::classification::training::Parameter & par)
+                         decision_forest::classification::Model & m, Result & res, const decision_forest::classification::training::Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(),
                   res.get(outOfBagErrorAccuracy).get(), nullptr, res.get(outOfBagErrorDecisionFunction).get(), nullptr);
@@ -1728,7 +1726,8 @@ services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const 
     }
     else
     {
-        if (!(par.memorySavingMode || par.splitter == decision_forest::training::splitterMode::random)) // do not index features for random splitter with defaultDense
+        if (!(par.memorySavingMode
+              || par.splitter == decision_forest::training::splitterMode::random)) // do not index features for random splitter with defaultDense
         {
             s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
             DAAL_CHECK_STATUS_VAR(s);
