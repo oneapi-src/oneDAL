@@ -73,19 +73,21 @@ corresponding to their children, :math:`t_L` and :math:`t_R`.
 Training method: *Dense*
 ++++++++++++++++++++++++
 
-In *dense* training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated
-for best split computation.
+In *dense* training method, all possible data points for each feature are considered as possible splits for the current node 
+and evaluated for best split computation.
 
 .. _df_t_math_hist:
 
 Training method: *Hist*
 +++++++++++++++++++++++
 
-In *hist* training method, only a selected subset of splits is considered for best split computation.
-This subset of splits is computed for each feature at the initialization stage of the algorithm.
-After computing the subset of splits, each value from the initially provided data is substituted
-with the value of the corresponding bin.
-Bins are continuous intervals between selected splits.
+In *hist* training method, only bins are considered for best split computation.
+Bins are continuous intervals of data points for a selected feature.
+Bins are computed for each feature at the initialization stage of the algorithm.
+Each value from the initially provided data is substituted
+with the value of the corresponding bin. It decreases the computational time complexity
+from :math:`O(num_rows * num_selected_features)` to :math:`O(num_bins * num_selected_features)`,
+but decreases algorithm accuracy. 
 
 Split strategy
 ++++++++++++++
