@@ -822,7 +822,7 @@ public:
         : RespHelperBase<algorithmFPType, cpu, OrderedRespHelperRandom<algorithmFPType, cpu> >(indexedFeatures, dummy)
     {}
 
-    size_t genRandomBinIdx(const size_t minidx, const size_t maxidx) const;
+    size_t genRandomBinIdx(const IndexType iFeature, const size_t minidx, const size_t maxidx) const;
 
     template <bool noWeights, bool featureUnordered>
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
@@ -840,7 +840,7 @@ public:
 };
 
 template <typename algorithmFPType, CpuType cpu>
-size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size_t minidx, const size_t maxidx) const
+size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const IndexType iFeature, const size_t minidx, const size_t maxidx) const
 {
     //randomly select a histogram split index
     algorithmFPType fidx   = 0;
@@ -908,7 +908,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     }
     else
     {
-        idx = this->genRandomBinIdx(minidx, maxidx);
+        idx = this->genRandomBinIdx(iFeature, minidx, maxidx);
     }
 
     for (; isZero<IndexType, cpu>(nFeatIdx[idx]); idx--)

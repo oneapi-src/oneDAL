@@ -971,7 +971,7 @@ public:
         : RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >(indexedFeatures, nClasses)
     {}
 
-    size_t genRandomBinIdx(const size_t minidx, const size_t maxidx) const;
+    size_t genRandomBinIdx(const IndexType iFeature, const size_t minidx, const size_t maxidx) const;
 
     int findSplitbyHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
                                const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const IndexType iFeature) const;
@@ -991,7 +991,7 @@ public:
 };
 
 template <typename algorithmFPType, CpuType cpu>
-size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size_t minidx, const size_t maxidx) const
+size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const IndexType iFeature, const size_t minidx, const size_t maxidx) const
 {
     //randomly select a histogram split index
     algorithmFPType fidx   = 0;
@@ -1071,7 +1071,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitbyHistDefault(int 
     }
     else
     {
-        idx = this->genRandomBinIdx(minidx, maxidx);
+        idx = this->genRandomBinIdx(iFeature, minidx, maxidx);
 
         //iterate idx down for FinalizeBestSplit (since it splits leftward)
         for (; (minidx < idx) && isZero<IndexType, cpu>(nFeatIdx[idx]); idx--)
@@ -1227,7 +1227,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     }
     else
     {
-        idx = this->genRandomBinIdx(minidx, maxidx);
+        idx = this->genRandomBinIdx(iFeature, minidx, maxidx);
     }
 
     if (noWeights)
