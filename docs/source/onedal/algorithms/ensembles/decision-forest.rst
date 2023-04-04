@@ -103,7 +103,7 @@ There are two split strategies for building trees:
   Threshold for a node is chosen at random for each selected feature. Split treshold is chosen as best among all pairs (feature, random treshold)
   according to split criteria(see next section).
   The computational time complexity for `random` splitter as :math:`O(num_features)` for each node.
-  Random splitting strategy builds a tree with not optimal trees, but in case of big tree ensembles it provides more robust model comparing to `best` 
+  Random splitting strategy builds a tree with not optimal trees, but in case of big tree ensembles it provides more robust model comparing to `best`
   strategy.
 
 Split Criteria
