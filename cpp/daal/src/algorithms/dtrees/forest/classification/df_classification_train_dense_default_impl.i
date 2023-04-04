@@ -1725,13 +1725,11 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
                         par.nClasses, featTypes, &indexedFeatures);
             }
             else
-            {
                 s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                                 daal::algorithms::decision_forest::classification::internal::ModelImpl,
                                 TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, cpu> >(
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
                     par.nClasses, featTypes, nullptr);
-            }
         }
         else
         {
@@ -1746,13 +1744,11 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
                     par.nClasses, featTypes, &indexedFeatures);
             }
             else
-            {
                 s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                                 daal::algorithms::decision_forest::classification::internal::ModelImpl,
                                 TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, cpu> >(
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
                     par.nClasses, featTypes, nullptr);
-            }
         }
     }
     else
@@ -1784,22 +1780,18 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
                         par.nClasses, featTypes, &indexedFeatures);
             }
             else
-            {
                 s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                                 daal::algorithms::decision_forest::classification::internal::ModelImpl,
                                 TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, cpu> >(
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
                     par.nClasses, featTypes, nullptr);
-            }
         }
         else
-        {
             s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                             daal::algorithms::decision_forest::classification::internal::ModelImpl,
                             TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, cpu> >(
                 pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
                 featTypes, nullptr);
-        }
     }
 
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
