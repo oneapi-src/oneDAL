@@ -840,7 +840,7 @@ public:
 };
 
 template <typename algorithmFPType, CpuType cpu>
-size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size_t minidx, const size_t maxidx) const
+size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size_t minidx, const size_t maxidx) const
 {
     //randomly select a histogram split index
     algorithmFPType fidx   = 0;

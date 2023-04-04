@@ -531,7 +531,6 @@ public:
     using Histogramm   = typename UnorderedRespHelperBest<algorithmFPType, cpu>::Histogramm;
     using ImpurityData = typename UnorderedRespHelperBest<algorithmFPType, cpu>::ImpurityData;
     using TSplitData   = typename UnorderedRespHelperBest<algorithmFPType, cpu>::TSplitData;
-    using super        = typename UnorderedRespHelperBest<algorithmFPType, cpu>::super;
 
     engines::internal::BatchBaseImpl * engineImpl;
 
@@ -696,7 +695,7 @@ template <typename algorithmFPType, CpuType cpu, typename crtp>
 bool RespHelperBase<algorithmFPType, cpu, crtp>::init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample,
                                                       const NumericTable * weights)
 {
-    DAAL_CHECK_STATUS_VAR(DataHelper<algorithmFPType, ClassIndexType, cpu>::init(data, resp, aSample, weights)); //DataHelper is inhereited by this class
+    DAAL_CHECK_STATUS_VAR(super::init(data, resp, aSample, weights)); //DataHelper is inhereited by this class
     if (this->_indexedFeatures)
     {
         //init work buffers for the computation using indexed features
@@ -992,7 +991,7 @@ public:
 
 };
 
-template <typename algorithmFPType, Calculate cpu>
+template <typename algorithmFPType, CpuType cpu>
 size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size_t minidx, const size_t maxidx) const
 {
     //randomly select a histogram split index
