@@ -25,12 +25,12 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename DistsType, typename IndexType>
+template <typename DistsType, typename IndexType, typename ClassType>
 sycl::event distance_voting_kernel(sycl::queue& queue,
                                    const ndview<IndexType, 2>& responses,
                                    const ndview<DistsType, 2>& distances,
                                    ndview<DistsType, 2>& probas,
-                                   ndview<IndexType, 1>& result,
+                                   ndview<ClassType, 1>& result,
                                    const event_vector& deps) {
     constexpr auto eps = dal::detail::limits<DistsType>::epsilon();
     ONEDAL_ASSERT(distances.has_data());
@@ -61,12 +61,22 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
             for (std::int32_t i = 0; i < classes; ++i) {
                 prb_row[i] = 0;
             }
+            bool contains_zero = false;
             for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto dst = dst_row[i];
                 const auto idx = ids_row[i];
-                prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
+                if (dst == 0 && !contains_zero){
+                    contains_zero = true;
+                    i = 0;
+                }
+                if(contains_zero){
+                    prb_row[idx] = dst == 0;
+                }else{
+                    prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
+                }
             }
-            IndexType best_cls = -1;
+            
+            ClassType best_cls = -1;
             DistsType best_prb = -1;
             for (std::int32_t i = 0; i < classes; ++i) {
                 const auto p = prb_row[i];
