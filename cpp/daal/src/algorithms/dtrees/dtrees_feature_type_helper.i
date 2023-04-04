@@ -246,10 +246,10 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
 
     size_t nBins         = 0;
     const size_t binSize = nRows / _prm.maxBins;
-    int remainder        = nRows % _prm.maxBins; //allow for negative values
+    int64_t remainder    = nRows % _prm.maxBins; //allow for negative values
     size_t dx            = 2 * _prm.maxBins;
     size_t dy            = 2 * remainder;
-    int D                = dy - _prm.maxBins; //use bresenham's line algorithm to distribute remainder
+    int64_t D            = dy - _prm.maxBins; //use bresenham's line algorithm to distribute remainder
 
     size_t i = 0;
     for (; (i + binSize + 1 < nRows) && (nBins < _prm.maxBins);)

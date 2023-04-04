@@ -822,6 +822,8 @@ public:
         : RespHelperBase<algorithmFPType, cpu, OrderedRespHelperRandom<algorithmFPType, cpu> >(indexedFeatures, dummy)
     {}
 
+    size_t genRandomBinIdx(const size_t minidx, const size_t maxidx) const;
+
     template <bool noWeights, bool featureUnordered>
     int findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf, size_t n, size_t nMinSplitPart,
                             const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
@@ -836,6 +838,34 @@ public:
                                          const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
 };
+
+template <typename algorithmFPType, CpuType cpu>
+size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const size_t minidx, const size_t maxidx) const
+{
+    //randomly select a histogram split index
+    algorithmFPType fidx   = 0;
+    algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
+    algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
+    size_t mid;
+    size_t l = minidx;
+    size_t idx = maxidx;
+    RNGs<algorithmFPType, cpu> rng;
+    rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
+
+    while (l < idx)
+    {
+        mid = l + (idx - l) / 2;
+        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+        {
+            idx = mid;
+        }
+        else
+        {
+            l = mid + 1;
+        }
+    }
+    return idx;
+}
 
 template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights, bool featureUnordered>
@@ -878,27 +908,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     }
     else
     {
-        algorithmFPType fidx   = 0;
-        algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
-        algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
-        size_t mid;
-        size_t l = minidx;
-        idx      = maxidx;
-        RNGs<algorithmFPType, cpu> rng;
-        rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
-
-        while (l < idx)
-        {
-            mid = l + (idx - l) / 2;
-            if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
-            {
-                idx = mid;
-            }
-            else
-            {
-                l = mid + 1;
-            }
-        }
+        idx = this->genRandomBinIdx(minidx, maxidx);
     }
 
     for (; isZero<IndexType, cpu>(nFeatIdx[idx]); idx--)
@@ -1297,8 +1307,8 @@ public:
 // RegressionTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
-services::Status _compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
-                          decision_forest::regression::Model & m, Result & res, const Parameter & par, bool memSave)
+services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
+                          decision_forest::regression::Model & m, Result & res, const Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(), nullptr,
                   res.get(outOfBagErrorR2).get(), nullptr, res.get(outOfBagErrorPrediction).get());
@@ -1306,9 +1316,10 @@ services::Status _compute(HostAppIface * pHostApp, const NumericTable * x, const
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);
     dtrees::internal::IndexedFeatures indexedFeatures;
+
     if (method == hist)
     {
-        if (!memSave)
+        if (!par.memorySavingMode)
         {
             BinParams prm(par.maxBins, par.minBinSize);
             s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
@@ -1339,7 +1350,7 @@ services::Status _compute(HostAppIface * pHostApp, const NumericTable * x, const
     }
     else
     {
-        if (!memSave)
+        if (!(par.memorySavingMode || par.splitter == decision_forest::training::splitterMode::random)) // do not index features for random splitter with defaultDense
         {
             s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
             DAAL_CHECK_STATUS_VAR(s);
@@ -1360,26 +1371,6 @@ services::Status _compute(HostAppIface * pHostApp, const NumericTable * x, const
     }
 
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
-    return s;
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHostApp, const NumericTable * x,
-                                                                                   const NumericTable * y, const NumericTable * w,
-                                                                                   decision_forest::regression::Model & m, Result & res,
-                                                                                   const Parameter & par)
-{
-    services::Status s;
-    if (par.splitter == decision_forest::training::splitterMode::best)
-    {
-        s = _compute<algorithmFPType, method, cpu, RespHelperBase<algorithmFPType, cpu, OrderedRespHelperBest<algorithmFPType, cpu> > >(
-            pHostApp, x, y, w, m, res, par, par.memorySavingMode);
-    }
-    else if (par.splitter == decision_forest::training::splitterMode::random)
-    {
-        s = _compute<algorithmFPType, method, cpu, RespHelperBase<algorithmFPType, cpu, OrderedRespHelperRandom<algorithmFPType, cpu> > >(
-            pHostApp, x, y, w, m, res, par, par.memorySavingMode || method == defaultDense);
-    }
     return s;
 }
 
