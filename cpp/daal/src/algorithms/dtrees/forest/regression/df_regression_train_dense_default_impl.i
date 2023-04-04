@@ -1307,7 +1307,7 @@ public:
 // RegressionTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
-services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
+services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
                          decision_forest::regression::Model & m, Result & res, const Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(), nullptr,

@@ -1685,7 +1685,7 @@ public:
 // ClassificationTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
-services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
+services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
                          decision_forest::classification::Model & m, Result & res, const decision_forest::classification::training::Parameter & par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(),
