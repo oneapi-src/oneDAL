@@ -23,8 +23,6 @@ IF DEFINED ONEAPI_ROOT (
   exit /b 0
 )
 
-echo "Echo test"
-
 setlocal
 call:GetFullPath "%~dp0.."       DAAL
 call:GetFullPath "%~dp0..\..\.." DAAL_UP
