@@ -90,13 +90,19 @@ Bins are continuous intervals between selected splits.
 Split strategy
 ++++++++++++++
 
-NOTE: Current support only for `hist` method. Dense method supports only best strategy.
-Two split strategies are supported, while building trees:
+NOTE: `random` split strategy is supported only for `hist` method. Dense method supports only `best` strategy.
+There are two split strategies for building trees:
 .. tabs::
   .. group-tab:: Best splitter
-  Treshold for a node is chosen as the best among all bins.
+  Treshold for a node is chosen as the best among all bins and all selected features according to split criteria(see next section).
+  The computational time complexity for `best` splitter is :math:`O(num_features * num_bins)` for each node. Best splitting strategy
+  builds a tree with optimal splits on each level.
   .. group-tab:: Random splitter
-  Threshold for a node is the best for a set chosen at random.
+  Threshold for a node is chosen at random for each selected feature. Split treshold is chosen as best among all pairs (feature, random treshold)
+  according to split criteria(see next section).
+  The computational time complexity for `random` splitter as :math:`O(num_features)` for each node.
+  Random splitting strategy builds a tree with not optimal trees, but in case of big tree ensembles it provides more robust model comparing to `best` 
+  strategy.
 
 Split Criteria
 ++++++++++++++
