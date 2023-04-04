@@ -528,9 +528,10 @@ public:
     typedef typename dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
     typedef double intermSummFPType;
-    using Histogramm   = typename UnorderedRespHelperBest<algorithmFPType, cpu>::Histogramm;
-    using ImpurityData = typename UnorderedRespHelperBest<algorithmFPType, cpu>::ImpurityData;
-    using TSplitData   = typename UnorderedRespHelperBest<algorithmFPType, cpu>::TSplitData;
+    using super = UnorderedRespHelperBest<algorithmFPType, cpu>;
+    using Histogramm   = typename super::Histogramm;
+    using ImpurityData = typename super::ImpurityData;
+    using TSplitData   = typename super::TSplitData;
 
     engines::internal::BatchBaseImpl * engineImpl;
 
@@ -695,7 +696,7 @@ template <typename algorithmFPType, CpuType cpu, typename crtp>
 bool RespHelperBase<algorithmFPType, cpu, crtp>::init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample,
                                                       const NumericTable * weights)
 {
-    DAAL_CHECK_STATUS_VAR(super::init(data, resp, aSample, weights)); //super is DataHelper
+    DAAL_CHECK_STATUS_VAR(super::super::init(data, resp, aSample, weights)); //super::super is DataHelper
     if (this->_indexedFeatures)
     {
         //init work buffers for the computation using indexed features
@@ -1351,6 +1352,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
     algorithmFPType leftWeights = algorithmFPType(0);
     algorithmFPType v           = algorithmFPType(0);
     algorithmFPType idx;
+    size_t i;
 
     //select random split index
     RNGs<algorithmFPType, cpu> rng;
