@@ -44,8 +44,7 @@ inline auto convert_to_daal_variable_importance_mode(variable_importance_mode vi
 
 inline auto convert_to_daal_splitter_mode(splitter_mode splitter) {
     namespace daal_df = daal::algorithms::decision_forest;
-    return splitter_mode::best == splitter ? daal_df::training::best
-                                           : daal_df::training::random;
+    return splitter_mode::best == splitter ? daal_df::training::best : daal_df::training::random;
 }
 
 class model_interop : public base {
