@@ -1379,7 +1379,6 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
     else
     {
         using helper = RespHelperBase<algorithmFPType, cpu, OrderedRespHelperRandom<algorithmFPType, cpu> >;
-
         if (method == hist)
         {
             if (!par.memorySavingMode)
@@ -1413,13 +1412,11 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
                     nullptr);
         }
         else
-        {
             s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                             daal::algorithms::decision_forest::regression::internal::ModelImpl,
                             TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, cpu> >(
                 pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::regression::internal::ModelImpl *>(&m), rd, par, 0, featTypes,
                 nullptr);
-        }
     }
 
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
