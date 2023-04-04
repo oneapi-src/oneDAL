@@ -97,6 +97,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     daal_parameter.varImportance = convert_to_daal_variable_importance_mode(vimp);
 
+    auto splitter = desc.get_splitter_mode();
+
+    daal_parameter.splitter = convert_to_daal_splitter_mode(splitter);
+
     result_t res;
 
     auto daal_result = daal_df_reg_train::Result();
