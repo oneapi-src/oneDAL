@@ -63,6 +63,12 @@ class knn_batch_test : public knn_test<TestType, knn_batch_test<TestType>> {};
                          "[external-dataset][knn][integration][batch][test]", \
                          knn_reg_bf_types)
 
+#define KNN_DIST_VOTING_TRAIN_IN_TEST(name)                                \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                   \
+                         name,                                             \
+                         "[small-dataset][knn][integration][batch][test]", \
+                         knn_cls_types)
+
 KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -461,4 +467,55 @@ KNN_CLS_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev dist
     REQUIRE(score >= target_score);
 }
 
+KNN_DIST_VOTING_TRAIN_IN_TEST("knn classification predefined data with distance voting") {
+    SKIP_IF(this->is_kd_tree);
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    constexpr std::int64_t feature_count = 5;
+    constexpr std::int64_t n_classes = 2;
+    constexpr std::int64_t n_neighbors = 3;
+    constexpr std::int64_t train_row_count = 7;
+    constexpr std::int64_t infer_row_count = 3;
+    constexpr double target_score = 0.8;
+    CAPTURE(feature_count, n_classes, n_neighbors, train_row_count, infer_row_count);
+
+    constexpr std::int64_t train_element_count = train_row_count * feature_count;
+    constexpr std::int64_t infer_element_count = infer_row_count * feature_count;
+
+    constexpr std::array<float, train_element_count> train = { 0.451,0.666,0.154,0.496,0.521,
+                                                                    0.446,0.844,0.3,0.682,0.695,
+                                                                    0.64,0.835,0.355,0.707,0.673,
+                                                                    0.201,0.704,0.145,0.341,0.486,
+                                                                    0.276,0.423,0.927,0.402,0.256,
+                                                                    0.738,0.384,0.232,0.325,0.996,
+                                                                    0.644,0.936,0.296,0.54,0.719 };
+
+    constexpr std::array<float, infer_element_count> infer = { 0.451,0.666,0.154,0.496,0.521,
+                                                                    0.086,0.17,0.721,0.383,0.028,
+                                                                    0.216,0.255,0.672,0.303,0.466 };
+
+    constexpr std::array<float, train_row_count> train_label = { 0,1,1,1,1,1,1};
+    constexpr std::array<float, infer_row_count> infer_label = { 0,1,1};
+
+    const auto x_train_table = homogen_table::wrap(train.data(), train_row_count, feature_count);
+    const auto x_infer_table = homogen_table::wrap(infer.data(), infer_row_count, feature_count);
+    const auto y_train_table = homogen_table::wrap(train_label.data(), train_row_count, 1);
+    const auto y_infer_table = homogen_table::wrap(infer_label.data(), infer_row_count, 1);
+
+    using distance_t = oneapi::dal::minkowski_distance::descriptor<>;
+    constexpr double minkowski_degree = 2.0;
+    const auto distance_desc = distance_t(minkowski_degree);
+    constexpr auto voting = oneapi::dal::knn::voting_mode::distance;
+    const auto score = this->classification(x_train_table,
+                                            y_train_table,
+                                            x_infer_table,
+                                            y_infer_table,
+                                            n_classes,
+                                            n_neighbors,
+                                            distance_desc,
+                                            voting);
+    CAPTURE(score, target_score);
+    REQUIRE(score >= target_score);
+}
 } // namespace oneapi::dal::knn::test

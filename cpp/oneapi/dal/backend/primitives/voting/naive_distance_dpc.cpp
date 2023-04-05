@@ -25,12 +25,12 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename DistsType, typename IndexType, typename ClassType>
+template <typename DistsType, typename IndexType>
 sycl::event distance_voting_kernel(sycl::queue& queue,
                                    const ndview<IndexType, 2>& responses,
                                    const ndview<DistsType, 2>& distances,
                                    ndview<DistsType, 2>& probas,
-                                   ndview<ClassType, 1>& result,
+                                   ndview<IndexType, 1>& result,
                                    const event_vector& deps) {
     constexpr auto eps = dal::detail::limits<DistsType>::epsilon();
     ONEDAL_ASSERT(distances.has_data());
@@ -62,21 +62,32 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
                 prb_row[i] = 0;
             }
             bool contains_zero = false;
-            for (std::int32_t i = 0; i < k_resps; ++i) {
-                const auto dst = dst_row[i];
-                const auto idx = ids_row[i];
-                if (dst == 0 && !contains_zero){
+            for (std::int32_t i = 0; i < k_resps; ++i) {  
+                const auto dst = dst_row[i];          
+                if (dst < eps){
                     contains_zero = true;
-                    i = 0;
+                    break;
                 }
-                if(contains_zero){
-                    prb_row[idx] = dst == 0;
-                }else{
+            }
+
+            if (contains_zero)
+            {
+                for (std::int32_t i = 0; i < k_resps; ++i) {
+                    const auto dst = dst_row[i];
+                    const auto idx = ids_row[i];
+                    prb_row[idx] = dst < eps ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (std::int32_t i = 0; i < k_resps; ++i) {
+                    const auto dst = dst_row[i];
+                    const auto idx = ids_row[i];
                     prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
                 }
             }
             
-            ClassType best_cls = -1;
+            IndexType best_cls = -1;
             DistsType best_prb = -1;
             for (std::int32_t i = 0; i < classes; ++i) {
                 const auto p = prb_row[i];
