@@ -45,7 +45,7 @@ the problem is to compute the RBF kernel function :math:`K(x_i, y_i)` for any pa
 
 Computation method: *dense*
 ---------------------------
-The method computes the rbf kernel function :math:`K(X, Y)` for
+The method computes the rbf kernel function :math:`Z=K(X, Y), Z \in \mathbb{R}^{n \times m}` for
 :math:`X` and :math:`Y` matrices.
 
 ---------------------
