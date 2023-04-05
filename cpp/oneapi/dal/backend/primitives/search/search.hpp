@@ -151,7 +151,7 @@ public:
             auto search_event = impl_ptr->do_search(query_slice,
                                                     k_neighbors,
                                                     temporary_obj,
-                                                    *selection_obj,
+                                                    selection_obj,
                                                     deps + *last_event);
             auto out_indices =
                 get_indices(temporary_obj).get_row_slice(0, query_blocking.get_block_length(qb_id));
@@ -169,7 +169,7 @@ protected:
     sycl::event do_search(const ndview<Float, 2, qorder>& query,
                           std::int64_t k_neighbors,
                           temp_ptr_t temp_objs,
-                          selc_t& select,
+                          selc_ptr_t selt_objs,
                           const event_vector& deps) const;
     selc_ptr_t create_selection_objects(std::int64_t query_block, std::int64_t k_neighbors) const;
     temp_ptr_t create_temporary_objects(std::int64_t query_block,
@@ -237,6 +237,7 @@ class search_engine<Float, squared_l2_distance<Float>, torder>
     using temp_ptr_t = std::shared_ptr<temp_t>;
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
+    using selc_ptr_t = std::shared_ptr<selc_t>;
 
     friend class search_engine_base<Float, squared_l2_distance<Float>, search_engine, torder>;
 
@@ -264,7 +265,7 @@ protected:
     sycl::event do_search(const ndview<Float, 2, qorder>& query,
                           std::int64_t k_neighbors,
                           temp_ptr_t temp_objs,
-                          selc_t& select,
+                          selc_ptr_t select,
                           const event_vector& deps) const;
     template <ndorder qorder>
     sycl::event distance(const ndview<Float, 2, qorder>& query,
@@ -287,6 +288,7 @@ class search_engine<Float, cosine_distance<Float>, torder>
     using temp_ptr_t = std::shared_ptr<temp_t>;
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
+    using selc_ptr_t = std::shared_ptr<selc_t>;
 
     friend class search_engine_base<Float, cosine_distance<Float>, search_engine, torder>;
 
@@ -314,7 +316,7 @@ protected:
     sycl::event do_search(const ndview<Float, 2, qorder>& query,
                           std::int64_t k_neighbors,
                           temp_ptr_t temp_objs,
-                          selc_t& select,
+                          selc_ptr_t selt_objs,
                           const event_vector& deps) const;
     template <ndorder qorder>
     sycl::event distance(const ndview<Float, 2, qorder>& query,

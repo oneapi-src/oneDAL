@@ -382,20 +382,6 @@ auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects
                                                   last_event);
 }
 
-/*template <typename Float, typename Distance, typename Impl, ndorder torder>
-auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects(
-    const uniform_blocking& query_blocking,
-    std::int64_t k_neighbors,
-    event_ptr_t last_event) const -> temp_ptr_t {
-    auto* res_obj = new temp_t(get_queue(),
-                               k_neighbors,
-                               query_blocking.get_block(),
-                               get_train_blocking().get_block(),
-                               selection_sub_blocks);
-    auto res_del = temp_del_t(last_event);
-    return temp_ptr_t(res_obj, res_del);
-}*/
-
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 auto search_engine_base<Float, Distance, Impl, torder>::create_selection_objects(
     std::int64_t query_block,
@@ -451,7 +437,7 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
     const ndview<Float, 2, qorder>& query,
     std::int64_t k_neighbors,
     temp_ptr_t temp_objs,
-    selc_t& select,
+    selc_ptr_t selt_objs,
     const event_vector& deps) const {
     ONEDAL_PROFILER_TASK(search.base, this->get_queue());
 
@@ -482,7 +468,7 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto selt_event =
-                select(get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
+                (*selt_objs)(get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
 
             const auto st_idx = get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
@@ -490,12 +476,12 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
-        auto selt_event = select(get_queue(),
-                                 dists,
-                                 k_neighbors,
-                                 temp_objs->get_out_distances(),
-                                 temp_objs->get_out_indices(),
-                                 { last_event });
+        auto selt_event = (*selt_objs)(this->get_queue(),
+                                       dists,
+                                       k_neighbors,
+                                       temp_objs->get_out_distances(),
+                                       temp_objs->get_out_indices(),
+                                       { last_event });
         auto inds_event = select_indexed(temp_objs->get_part_indices(),
                                          temp_objs->get_out_indices(),
                                          { selt_event });
@@ -558,7 +544,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
     const ndview<Float, 2, qorder>& query,
     std::int64_t k_neighbors,
     temp_ptr_t temp_objs,
-    selc_t& select,
+    selc_ptr_t selt_objs,
     const event_vector& deps) const {
     ONEDAL_PROFILER_TASK(search.squared_l2, this->get_queue());
 
@@ -595,14 +581,14 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                 temp_objs->get_part_indices_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
-            auto selt_event = select.select_sq_l2(this->get_queue(),
-                                                  qnorms,
-                                                  tnorms,
-                                                  ip,
-                                                  k_neighbors,
-                                                  part_dsts,
-                                                  part_inds,
-                                                  { ip_event, qevent, tevent });
+            auto selt_event = selt_objs->select_sq_l2(this->get_queue(),
+                                                      qnorms,
+                                                      tnorms,
+                                                      ip,
+                                                      k_neighbors,
+                                                      part_dsts,
+                                                      part_inds,
+                                                      { ip_event, qevent, tevent });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
@@ -610,12 +596,12 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
-        auto selt_event = select(this->get_queue(),
-                                 dists,
-                                 k_neighbors,
-                                 temp_objs->get_out_distances(),
-                                 temp_objs->get_out_indices(),
-                                 { last_event });
+        auto selt_event = (*selt_objs)(this->get_queue(),
+                                       dists,
+                                       k_neighbors,
+                                       temp_objs->get_out_distances(),
+                                       temp_objs->get_out_indices(),
+                                       { last_event });
         auto inds_event = this->select_indexed(temp_objs->get_part_indices(),
                                                temp_objs->get_out_indices(),
                                                { selt_event });
@@ -666,7 +652,7 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
     const ndview<Float, 2, qorder>& query,
     std::int64_t k_neighbors,
     temp_ptr_t temp_objs,
-    selc_t& select,
+    selc_ptr_t selt_objs,
     const event_vector& deps) const {
     ONEDAL_PROFILER_TASK(search.cosine, this->get_queue());
 
@@ -713,7 +699,7 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto selt_event =
-                select(this->get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
+                (*selt_objs)(this->get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
@@ -721,12 +707,12 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
         dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
         const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
-        auto selt_event = select(this->get_queue(),
-                                 dists,
-                                 k_neighbors,
-                                 temp_objs->get_out_distances(),
-                                 temp_objs->get_out_indices(),
-                                 { last_event });
+        auto selt_event = (*selt_objs)(this->get_queue(),
+                                       dists,
+                                       k_neighbors,
+                                       temp_objs->get_out_distances(),
+                                       temp_objs->get_out_indices(),
+                                       { last_event });
         auto inds_event = this->select_indexed(temp_objs->get_part_indices(),
                                                temp_objs->get_out_indices(),
                                                { selt_event });
@@ -743,25 +729,25 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, squared_l2_distance<F>>>,                           \
-        kselect_by_rows<F>&,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, cosine_distance<F>, A>::do_search(                       \
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, cosine_distance<F>>>,                               \
-        kselect_by_rows<F>&,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, lp_distance<F>, A>::do_search(                           \
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, lp_distance<F>>>,                                   \
-        kselect_by_rows<F>&,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, chebyshev_distance<F>, A>::do_search(                    \
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, chebyshev_distance<F>>>,                            \
-        kselect_by_rows<F>&,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, squared_l2_distance<F>, A>::distance(                    \
         const ndview<F, 2, B>&,                                                                    \
