@@ -25,13 +25,13 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Type>
+template <typename Type>
 sycl::event cumulative_sum_1d(sycl::queue& queue,
                               ndview<Type, 1>& data,
                               std::int64_t base_stride,
                               const event_vector& deps = {});
 
-template<typename Type>
+template <typename Type>
 sycl::event cumulative_sum_1d(sycl::queue& queue,
                               ndview<Type, 1>& data,
                               const event_vector& deps = {});

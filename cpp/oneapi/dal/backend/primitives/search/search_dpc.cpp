@@ -283,15 +283,17 @@ protected:
     uniform_blocking train_blocking_;
 };
 
-template<typename Float, typename Distance>
-std::shared_ptr<search_temp_objects<Float, Distance>> create_search_objects(sycl::queue& q, 
-                                                                            std::int64_t k, 
-                                                                            std::int64_t query_block, 
-                                                                            std::int64_t train_block, 
-                                                                            std::int64_t select_block,
-                                                                            std::shared_ptr<sycl::event> dep) {
+template <typename Float, typename Distance>
+std::shared_ptr<search_temp_objects<Float, Distance>> create_search_objects(
+    sycl::queue& q,
+    std::int64_t k,
+    std::int64_t query_block,
+    std::int64_t train_block,
+    std::int64_t select_block,
+    std::shared_ptr<sycl::event> dep) {
     const auto deleter = search_temp_objects_deleter<Float, Distance>(dep);
-    auto* const object = new search_temp_objects<Float, Distance>(q, k, query_block, train_block, select_block);
+    auto* const object =
+        new search_temp_objects<Float, Distance>(q, k, query_block, train_block, select_block);
     return std::shared_ptr<search_temp_objects<Float, Distance>>(object, deleter);
 }
 
@@ -373,7 +375,6 @@ auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects
     std::int64_t query_block,
     std::int64_t k_neighbors,
     event_ptr_t last_event) const -> temp_ptr_t {
-
     return create_search_objects<Float, Distance>(this->get_queue(),
                                                   k_neighbors,
                                                   query_block,
@@ -698,8 +699,12 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
                 temp_objs->get_part_indices_block(rel_idx + 1).get_row_slice(0, query_block_size);
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
-            auto selt_event =
-                (*selt_objs)(this->get_queue(), dists, k_neighbors, part_dsts, part_inds, { dist_event });
+            auto selt_event = (*selt_objs)(this->get_queue(),
+                                           dists,
+                                           k_neighbors,
+                                           part_dsts,
+                                           part_inds,
+                                           { dist_event });
 
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
@@ -729,25 +734,25 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, squared_l2_distance<F>>>,                           \
-        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, cosine_distance<F>, A>::do_search(                       \
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, cosine_distance<F>>>,                               \
-        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, lp_distance<F>, A>::do_search(                           \
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, lp_distance<F>>>,                                   \
-        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, chebyshev_distance<F>, A>::do_search(                    \
         const ndview<F, 2, B>&,                                                                    \
         std::int64_t,                                                                              \
         std::shared_ptr<search_temp_objects<F, chebyshev_distance<F>>>,                            \
-        std::shared_ptr<kselect_by_rows<F>>,                                                                       \
+        std::shared_ptr<kselect_by_rows<F>>,                                                       \
         const event_vector&) const;                                                                \
     template sycl::event search_engine<F, squared_l2_distance<F>, A>::distance(                    \
         const ndview<F, 2, B>&,                                                                    \

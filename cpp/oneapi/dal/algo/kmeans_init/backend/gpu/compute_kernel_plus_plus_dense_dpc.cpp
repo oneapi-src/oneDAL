@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-
-
 namespace oneapi::dal::kmeans_init::backend {
 
 namespace bk = dal::backend;
@@ -25,10 +23,7 @@ template <typename Float, typename Index>
 sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
                                        std::int64_t index,
                                        ndview<Float, 1>& place,
-                                       const ndview<Index, 1>& 
-                                       const event_vector& deps = {}) {
-
-}
+                                       const ndview<Index, 1>& const event_vector& deps = {}) {}
 
 template <typename SearchObject, typename Float>
 sycl::event find_local_closest(sycl::queue& queue,
@@ -45,8 +40,10 @@ sycl::event find_local_closest(sycl::queue& queue,
     auto query_block = pr::propose_query_block(queue, sample_count);
 
     const pr::uniform_blocking blocking(sample_count, query_block);
-    const auto callback = [&](std::int64_t qb_id, const auto& indices, 
-            const auto& distances, const event_vector& dependencies) {
+    const auto callback = [&](std::int64_t qb_id,
+                              const auto& indices,
+                              const auto& distances,
+                              const event_vector& dependencies) {
         ONEDAL_ASSERT(indices.has_data() && distances.has_data());
         ONEDAL_ASSERT(distances.get_dimension(1) == std::int64_t{ 1 });
 
@@ -64,12 +61,11 @@ sycl::event find_local_closest(sycl::queue& queue,
     return search_object(samples, callback, query_block, 1, deps);
 }
 
-
 template <typename Float, typename Method, typename Task>
 compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
-        const bk::context_gpu& ctx,
-        const detail::descriptor_base<Task>& params,
-        const compute_input<Task>& input) const {
+    const bk::context_gpu& ctx,
+    const detail::descriptor_base<Task>& params,
+    const compute_input<Task>& input) const {
     auto& queue = ctx.get_queue();
     const auto& data_table = input.get_data();
 
@@ -84,14 +80,10 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
 
     constexpr auto alloc = sycl::usm::alloc::device;
     auto data = pr::table2ndarray<Float>(queue, data_table, alloc);
-    auto centroids = pr::ndarray<Float, 2>::empty(queue, 
-                            {cluster_count, feature_count}, alloc);
-
+    auto centroids = pr::ndarray<Float, 2>::empty(queue, { cluster_count, feature_count }, alloc);
 
     for (std::int64_t i = 1; i < cluster_count; ++i) {
-
     }
-
 
     return compute_result<Task>{};
 }

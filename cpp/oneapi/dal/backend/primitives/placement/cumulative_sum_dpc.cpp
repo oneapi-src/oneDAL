@@ -27,12 +27,11 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Type>
+template <typename Type>
 sycl::event up_sweep(sycl::queue& queue,
                      ndview<Type, 1>& data,
                      std::int64_t base_stride,
                      const event_vector& deps) {
-
     const auto count = data.get_count();
     const auto iter_count = up_log(count, base_stride) + 1;
 
@@ -43,8 +42,7 @@ sycl::event up_sweep(sycl::queue& queue,
         event_vector new_deps(deps);
         new_deps.push_back(event);
 
-        event = detail::block_cumsum(queue, data, 
-                base_stride, curr_stride, new_deps);
+        event = detail::block_cumsum(queue, data, base_stride, curr_stride, new_deps);
 
         curr_stride *= base_stride;
     }
@@ -52,12 +50,11 @@ sycl::event up_sweep(sycl::queue& queue,
     return event;
 }
 
-template<typename Type>
+template <typename Type>
 sycl::event down_sweep(sycl::queue& queue,
                        ndview<Type, 1>& data,
                        std::int64_t base_stride,
                        const event_vector& deps) {
-
     const auto count = data.get_count();
     const auto iter_count = up_log(count, base_stride) + 1;
 
@@ -70,14 +67,13 @@ sycl::event down_sweep(sycl::queue& queue,
         event_vector new_deps(deps);
         new_deps.push_back(event);
 
-        event = detail::distribute_sum(queue, data, 
-                base_stride, curr_stride, new_deps);
+        event = detail::distribute_sum(queue, data, base_stride, curr_stride, new_deps);
     }
 
     return event;
 }
 
-template<typename Type>
+template <typename Type>
 sycl::event cumulative_sum_1d(sycl::queue& queue,
                               ndview<Type, 1>& data,
                               std::int64_t base_stride,
@@ -90,28 +86,23 @@ sycl::event cumulative_sum_1d(sycl::queue& queue,
     return down_sweep(queue, data, base_stride, { up_event });
 }
 
-template<typename Type>
-std::int64_t propose_cumsum_block(const sycl::queue& queue,
-                                  const ndview<Type, 1>& data) {
+template <typename Type>
+std::int64_t propose_cumsum_block(const sycl::queue& queue, const ndview<Type, 1>& data) {
     return propose_wg_size(queue);
 }
 
-template<typename Type>
-sycl::event cumulative_sum_1d(sycl::queue& queue,
-                              ndview<Type, 1>& data,
-                              const event_vector& deps) {
+template <typename Type>
+sycl::event cumulative_sum_1d(sycl::queue& queue, ndview<Type, 1>& data, const event_vector& deps) {
     const auto stride = propose_cumsum_block(queue, data);
     return cumulative_sum_1d(queue, data, stride, deps);
 }
 
-#define INSTANTIATE(T)                              \
-template sycl::event cumulative_sum_1d(sycl::queue&,         \
-                              ndview<T, 1>&,        \
-                              const event_vector&); \
-template sycl::event cumulative_sum_1d(sycl::queue&,         \
-                              ndview<T, 1>&,        \
-                              std::int64_t,         \
-                              const event_vector&);
+#define INSTANTIATE(T)                                                                        \
+    template sycl::event cumulative_sum_1d(sycl::queue&, ndview<T, 1>&, const event_vector&); \
+    template sycl::event cumulative_sum_1d(sycl::queue&,                                      \
+                                           ndview<T, 1>&,                                     \
+                                           std::int64_t,                                      \
+                                           const event_vector&);
 
 INSTANTIATE(float)
 INSTANTIATE(double)
@@ -120,7 +111,7 @@ INSTANTIATE(double)
 
 namespace detail {
 
-template<typename Type>
+template <typename Type>
 sycl::event block_cumsum(sycl::queue& queue,
                          ndview<Type, 1>& data,
                          std::int64_t base_stride,
@@ -134,10 +125,10 @@ sycl::event block_cumsum(sycl::queue& queue,
     const auto count = data.get_count();
     auto* const ptr = data.get_mutable_data();
 
-    const auto elem_handle = (count - curr_stride + 1) / curr_stride; 
+    const auto elem_handle = (count - curr_stride + 1) / curr_stride;
 
-
-    if (elem_handle < 1) return wait_or_pass(deps);
+    if (elem_handle < 1)
+        return wait_or_pass(deps);
 
     const auto range = make_multiple_nd_range_1d(elem_handle, base_stride);
 
@@ -153,10 +144,11 @@ sycl::event block_cumsum(sycl::queue& queue,
             const std::int64_t gid = item.get_global_linear_id();
 
             //const std::int64_t idx = curr_stride - 1 + gid * curr_stride;
-            const std::int64_t idx = curr_stride - 1  + gid * curr_stride;
-            const Type val = (idx < count) ? ptr[idx]: zero;
+            const std::int64_t idx = curr_stride - 1 + gid * curr_stride;
+            const Type val = (idx < count) ? ptr[idx] : zero;
             auto res = sycl::inclusive_scan_over_group(group, val, plus);
-            if (idx < count && lid < base_stride) ptr[idx] = res;
+            if (idx < count && lid < base_stride)
+                ptr[idx] = res;
         });
     });
 }
@@ -183,25 +175,24 @@ sycl::event distribute_sum(sycl::queue& queue,
             const std::int64_t idx = gid;
             const auto block_id = idx / curr_stride;
             const auto prev = block_id * curr_stride - 1;
-            const bool handle = 
-                            (block_id % base_stride != 0) 
-                            && (idx != prev + curr_stride);
-            if (idx < count && handle) ptr[idx] += ptr[prev];
+            const bool handle = (block_id % base_stride != 0) && (idx != prev + curr_stride);
+            if (idx < count && handle)
+                ptr[idx] += ptr[prev];
         });
     });
 }
 
-#define INSTANTIATE(T)                                          \
-template sycl::event block_cumsum(sycl::queue&,                 \
-                                  ndview<T, 1>&,                \
-                                  std::int64_t,                 \
-                                  std::int64_t,                 \
-                                  const event_vector&);         \
-template sycl::event distribute_sum(sycl::queue&,               \
-                                    ndview<T, 1>&,              \
-                                    std::int64_t,               \
-                                    std::int64_t,               \
-                                    const event_vector&);
+#define INSTANTIATE(T)                                      \
+    template sycl::event block_cumsum(sycl::queue&,         \
+                                      ndview<T, 1>&,        \
+                                      std::int64_t,         \
+                                      std::int64_t,         \
+                                      const event_vector&); \
+    template sycl::event distribute_sum(sycl::queue&,       \
+                                        ndview<T, 1>&,      \
+                                        std::int64_t,       \
+                                        std::int64_t,       \
+                                        const event_vector&);
 
 INSTANTIATE(float)
 INSTANTIATE(double)

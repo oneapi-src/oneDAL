@@ -128,7 +128,6 @@ inline sycl::event element_wise(sycl::queue& queue,
     return element_wise(queue, functor, inp, out, deps);
 }
 
-
 #endif
 
 } // namespace oneapi::dal::backend::primitives

@@ -83,21 +83,18 @@ public:
     }
 
     auto desc() const {
-        return fmt::format("{}; {}; {}",
-                           type_desc(),
-                           data_desc(),
-                           workgroup_desc());
+        return fmt::format("{}; {}; {}", type_desc(), data_desc(), workgroup_desc());
     }
 
     void bench_1d_cumsum() {
         row_accessor<const Type> accessor{ this->input_table_ };
-        auto input_array = accessor.pull(this->get_queue(), {0, -1}, sycl::usm::alloc::device);
+        auto input_array = accessor.pull(this->get_queue(), { 0, -1 }, sycl::usm::alloc::device);
         auto immut_input = ndview<Type, 1>::wrap(input_array.get_data(), { this->n_ });
-        auto mut_input = ndarray<Type, 1>::empty(this->get_queue(), 
-                            { this->n_ }, sycl::usm::alloc::device);
-        
-        auto mut_2d = mut_input.template reshape<2>({1, this->n_});
-        auto immut_2d = immut_input.template reshape<2>({1, this->n_});
+        auto mut_input =
+            ndarray<Type, 1>::empty(this->get_queue(), { this->n_ }, sycl::usm::alloc::device);
+
+        auto mut_2d = mut_input.template reshape<2>({ 1, this->n_ });
+        auto immut_2d = immut_input.template reshape<2>({ 1, this->n_ });
         copy(this->get_queue(), mut_2d, immut_2d).wait_and_throw();
 
         const auto name = desc();

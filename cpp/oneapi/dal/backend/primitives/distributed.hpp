@@ -46,4 +46,3 @@ inline auto get_boundary_indices(const ndview<std::int64_t, 1>& sample_counts,
 }
 
 } // namespace oneapi::dal::backend::primitives
-

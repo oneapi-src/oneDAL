@@ -38,8 +38,23 @@ class cumsum_test_random_1d : public te::float_algo_fixture<Type> {
 public:
     void generate() {
         this->m_ = GENERATE(16, 32, 64, 128);
-        this->n_ = GENERATE(511, 512, 513, 1023, 1024, 1025, 2047, 2048, 
-            4096, 4097, 8191, 8192, 8193, 16383, 16384, 16385, 0x40000);
+        this->n_ = GENERATE(511,
+                            512,
+                            513,
+                            1023,
+                            1024,
+                            1025,
+                            2047,
+                            2048,
+                            4096,
+                            4097,
+                            8191,
+                            8192,
+                            8193,
+                            16383,
+                            16384,
+                            16385,
+                            0x40000);
         this->generate_input();
     }
 
@@ -55,7 +70,7 @@ public:
 
     auto groundtruth() const {
         row_accessor<const Type> accessor{ this->input_table_ };
-        auto inp = accessor.pull({0, -1});
+        auto inp = accessor.pull({ 0, -1 });
         auto res = ndarray<Type, 1, ndorder::c>::zeros(this->n_ + 1);
 
         for (std::int64_t i = 0; i < this->n_; ++i) {
@@ -66,7 +81,8 @@ public:
     }
 
     void generate_input() {
-        auto dataframe = GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.0, 2.0));
+        auto dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.0, 2.0));
         this->input_table_ = dataframe.get_table(this->get_homogen_table_id());
     }
 
@@ -75,16 +91,16 @@ public:
 
         constexpr auto eps = std::numeric_limits<Type>::epsilon();
         row_accessor<const Type> accessor{ this->input_table_ };
-        auto input_array = accessor.pull(this->get_queue(), {0, -1}, sycl::usm::alloc::device);
+        auto input_array = accessor.pull(this->get_queue(), { 0, -1 }, sycl::usm::alloc::device);
         auto immut_input = ndview<Type, 1>::wrap(input_array.get_data(), { this->n_ });
-        auto mut_input = ndarray<Type, 1>::empty(this->get_queue(), 
-                            { this->n_ }, sycl::usm::alloc::device);
-        
-        auto mut_2d = mut_input.template reshape<2>({1, this->n_});
-        auto immut_2d = immut_input.template reshape<2>({1, this->n_});
+        auto mut_input =
+            ndarray<Type, 1>::empty(this->get_queue(), { this->n_ }, sycl::usm::alloc::device);
+
+        auto mut_2d = mut_input.template reshape<2>({ 1, this->n_ });
+        auto immut_2d = immut_input.template reshape<2>({ 1, this->n_ });
         auto copy_event = copy(this->get_queue(), mut_2d, immut_2d);
         auto cum_event = cumulative_sum_1d(this->get_queue(), mut_input, this->m_, { copy_event });
-    
+
         const auto gtr = this->groundtruth();
         const auto res = mut_input.to_host(this->get_queue(), { cum_event });
 
@@ -93,7 +109,7 @@ public:
             const auto res_val = res.at(i);
 
             const auto adiff = std::abs(res_val - gtr_val);
-            const auto rdiff = adiff / std::max({eps, std::abs(gtr_val), std::abs(res_val)});
+            const auto rdiff = adiff / std::max({ eps, std::abs(gtr_val), std::abs(res_val) });
             if (tol < rdiff) {
                 CAPTURE(this->n_, i, gtr_val, res_val, adiff, rdiff, tol);
                 FAIL();

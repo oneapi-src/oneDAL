@@ -43,8 +43,7 @@
 namespace oneapi::dal::knn::backend {
 
 template <typename Float>
-inline std::int64_t propose_distributed_block_size(const sycl::queue& queue, 
-                                                   std::int64_t fcount) {
+inline std::int64_t propose_distributed_block_size(const sycl::queue& queue, std::int64_t fcount) {
     return 16 * pr::propose_train_block<Float>(queue, fcount);
 }
 

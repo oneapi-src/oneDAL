@@ -36,24 +36,23 @@ struct right_alignment_tag {};
 template <typename AlignmentTag>
 struct alignment_tag_map {};
 
-template<>
+template <>
 struct alignment_tag_map<left_alignment_tag> {
     constexpr static auto value = search_alignment::left;
 };
 
-template<>
+template <>
 struct alignment_tag_map<right_alignment_tag> {
     constexpr static auto value = search_alignment::right;
 };
 
-template<typename AlignmentTag>
+template <typename AlignmentTag>
 constexpr auto alignment_v = alignment_tag_map<AlignmentTag>::value;
 
-using searchsorted_types = std::tuple<
-                                std::tuple<left_alignment_tag, float, std::int32_t>,
-                                std::tuple<left_alignment_tag, float, std::int64_t>, 
-                                std::tuple<right_alignment_tag, float, std::int32_t>,
-                                std::tuple<right_alignment_tag, double, std::int64_t>>;
+using searchsorted_types = std::tuple<std::tuple<left_alignment_tag, float, std::int32_t>,
+                                      std::tuple<left_alignment_tag, float, std::int64_t>,
+                                      std::tuple<right_alignment_tag, float, std::int32_t>,
+                                      std::tuple<right_alignment_tag, double, std::int64_t>>;
 
 template <typename Param>
 class searchsorted_test_random_1d : public te::float_algo_fixture<std::tuple_element_t<1, Param>> {
@@ -66,8 +65,7 @@ public:
 
     void generate() {
         this->m_ = GENERATE(5, 9, 511, 1027, 4096);
-        this->n_ = GENERATE(511, 512, 513, 1025, 2047, 
-                            4097, 8191, 16385, 65536);
+        this->n_ = GENERATE(511, 512, 513, 1025, 2047, 4097, 8191, 16385, 65536);
         this->generate_input();
     }
 
@@ -84,13 +82,14 @@ public:
     void generate_input() {
         check_if_initialized();
 
-        const auto input_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.5, 2.5, 3333));
-        const auto point_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ 1, this->m_ }.fill_uniform(0.0, 3.0, 9999));
+        const auto input_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.5, 2.5, 3333));
+        const auto point_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->m_ }.fill_uniform(0.0, 3.0, 9999));
 
         const auto raw_input = input_dataframe.get_table(this->get_homogen_table_id());
-        const auto arr_input = row_accessor<const type_t>(raw_input).pull({0, -1}).need_mutable_data();
+        const auto arr_input =
+            row_accessor<const type_t>(raw_input).pull({ 0, -1 }).need_mutable_data();
 
         auto* first = arr_input.get_mutable_data();
         std::sort(first, first + this->n_);
@@ -106,7 +105,7 @@ public:
         if constexpr (is_left) {
             return (left < mid) && (mid <= right);
         }
-        
+
         if constexpr (is_right) {
             return (left <= mid) && (mid < right);
         }
@@ -122,18 +121,24 @@ public:
         row_accessor<const type_t> inputs_acc{ this->input_table_ };
         row_accessor<const type_t> points_acc{ this->point_table_ };
 
-        auto inputs_host = inputs_acc.pull({0, -1});
-        auto points_host = points_acc.pull({0, -1});
+        auto inputs_host = inputs_acc.pull({ 0, -1 });
+        auto points_host = points_acc.pull({ 0, -1 });
 
-        auto inputs_device = inputs_acc.pull(this->get_queue(), {0, -1}, alloc);
-        auto points_device = points_acc.pull(this->get_queue(), {0, -1}, alloc);
+        auto inputs_device = inputs_acc.pull(this->get_queue(), { 0, -1 }, alloc);
+        auto points_device = points_acc.pull(this->get_queue(), { 0, -1 }, alloc);
 
         auto inputs = ndview<type_t, 1>::wrap(inputs_device.get_data(), { this->n_ });
         auto points = ndview<type_t, 1>::wrap(points_device.get_data(), { this->m_ });
 
-        auto [result_device, result_event] = ndarray<index_t, 1>::zeros(this->get_queue(), { this->m_ }, alloc);
+        auto [result_device, result_event] =
+            ndarray<index_t, 1>::zeros(this->get_queue(), { this->m_ }, alloc);
 
-        auto search_event = search_sorted_1d(this->get_queue(), alignment, inputs, points, result_device, { result_event });
+        auto search_event = search_sorted_1d(this->get_queue(),
+                                             alignment,
+                                             inputs,
+                                             points,
+                                             result_device,
+                                             { result_event });
 
         auto result = result_device.to_host(this->get_queue(), { search_event });
 

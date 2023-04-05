@@ -66,18 +66,19 @@ public:
     void operator()(temp_t* obj) const;
 
     event_ptr_t& get_last_event();
+
 private:
     event_ptr_t last_event_;
 };
 
-template<typename Float, typename Distance>
+template <typename Float, typename Distance>
 std::shared_ptr<search_temp_objects<Float, Distance>> create_search_objects(
-                            sycl::queue& q,
-                            std::int64_t k,
-                            std::int64_t query_block,
-                            std::int64_t train_block,
-                            std::int64_t select_block,
-                            std::shared_ptr<sycl::event> dep);
+    sycl::queue& q,
+    std::int64_t k,
+    std::int64_t query_block,
+    std::int64_t train_block,
+    std::int64_t select_block,
+    std::shared_ptr<sycl::event> dep);
 
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 class search_engine_base {
@@ -122,13 +123,8 @@ public:
         const auto* const impl_ptr = static_cast<const Impl* const>(this);
         auto sel_objs = impl_ptr->create_selection_objects(query_block, k_neighbors);
         auto tmp_objs = impl_ptr->create_temporary_objects(query_block, k_neighbors, last_event);
-        return this->operator()(query_data,
-                                callback,
-                                query_block,
-                                k_neighbors,
-                                tmp_objs,
-                                sel_objs,
-                                deps);
+        return this->
+        operator()(query_data, callback, query_block, k_neighbors, tmp_objs, sel_objs, deps);
     }
 
     template <ndorder qorder, typename CallbackImpl>
@@ -140,7 +136,7 @@ public:
                            selc_ptr_t selection_obj,
                            const event_vector& deps = {}) const {
         ONEDAL_PROFILER_TASK(search.query_loop, this->get_queue());
-        using tmp_del_t = search_temp_objects_deleter<Float, Distance>; 
+        using tmp_del_t = search_temp_objects_deleter<Float, Distance>;
         const auto* const impl_ptr = static_cast<const Impl* const>(this);
         const uniform_blocking query_blocking(query_data.get_dimension(0), query_block);
         auto& last_event = std::get_deleter<tmp_del_t>(temporary_obj)->get_last_event();
@@ -155,8 +151,8 @@ public:
                                                     deps + *last_event);
             auto out_indices =
                 get_indices(temporary_obj).get_row_slice(0, query_blocking.get_block_length(qb_id));
-            auto out_distances =
-                get_distances(temporary_obj).get_row_slice(0, query_blocking.get_block_length(qb_id));
+            auto out_distances = get_distances(temporary_obj)
+                                     .get_row_slice(0, query_blocking.get_block_length(qb_id));
             *last_event = callback(qb_id, out_indices, out_distances, { search_event });
         }
         return *last_event;
@@ -223,6 +219,11 @@ public:
                            const event_vector& deps = {}) const {
         return base_t::operator()(query_data, callback, query_block, k_neighbors, deps);
     }
+
+    template <typename... Args>
+    sycl::event operator()(Args&&... args) const {
+        return base_t::operator()(std::forward<Args>(args)...);
+    }
 };
 
 template <typename Float, ndorder torder>
@@ -258,6 +259,11 @@ public:
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
         return base_t::operator()(query_data, callback, query_block, k_neighbors, deps);
+    }
+
+    template <typename... Args>
+    sycl::event operator()(Args&&... args) const {
+        return base_t::operator()(std::forward<Args>(args)...);
     }
 
 protected:
@@ -309,6 +315,11 @@ public:
                            std::int64_t k_neighbors = 1,
                            const event_vector& deps = {}) const {
         return base_t::operator()(query_data, callback, query_block, k_neighbors, deps);
+    }
+
+    template <typename... Args>
+    sycl::event operator()(Args&&... args) const {
+        return base_t::operator()(std::forward<Args>(args)...);
     }
 
 protected:
