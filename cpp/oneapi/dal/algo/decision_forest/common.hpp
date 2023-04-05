@@ -522,7 +522,7 @@ public:
         return *this;
     }
 
-    /// Splitter strategy: if 'best', best treshold for each is
+    /// Splitter strategy: if 'best', best threshold for each is
     /// selected. If 'random', trashold is selected randomly.
     /// @remark default = splitter_mode::best
     splitter_mode get_splitter_mode() const {
