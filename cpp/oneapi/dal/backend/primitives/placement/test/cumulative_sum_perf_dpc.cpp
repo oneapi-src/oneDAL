@@ -38,7 +38,7 @@ class cumsum_bench_random_1d : public te::float_algo_fixture<Type> {
 public:
     void generate() {
         this->m_ = device_max_wg_size(this->get_queue());
-        this->n_ = GENERATE(33'554'432, 134'217'728, 1'073'741'824);
+        this->n_ = GENERATE(1'048'576, 33'554'432, 134'217'728, 268'435'456);
         this->generate_input();
     }
 

@@ -25,6 +25,7 @@
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
+#include "oneapi/dal/backend/primitives/distributed.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/regression.hpp"
@@ -40,6 +41,12 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::knn::backend {
+
+template <typename Float>
+inline std::int64_t propose_distributed_block_size(const sycl::queue& queue, 
+                                                   std::int64_t fcount) {
+    return 16 * pr::propose_train_block<Float>(queue, fcount);
+}
 
 template <typename Float, typename Task>
 class knn_callback_distr {
@@ -546,8 +553,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     }
     const auto ccount = desc.get_class_count();
 
-    auto block_size = pr::get_block_size<Float>();
     auto rank_count = comm.get_rank_count();
+    auto block_size = propose_distributed_block_size<Float>(queue, fcount);
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
 
     comm.allgather(tcount, node_sample_counts.flatten()).wait();

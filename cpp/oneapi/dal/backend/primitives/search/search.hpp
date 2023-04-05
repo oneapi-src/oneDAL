@@ -28,17 +28,10 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float>
-std::int64_t get_block_size();
-
-template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width);
 
 template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width);
-
-std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(
-    ndarray<std::int64_t, 1> sample_counts,
-    std::int64_t block_size);
 
 template <typename Index>
 sycl::event treat_indices(sycl::queue& q,
@@ -76,6 +69,15 @@ private:
     const event_ptr_t last_event_;
 };
 
+template<typename Float, typename Distance>
+std::shared_ptr<search_temp_objects<Float, Distance>> create_search_objects(
+                            sycl::queue& q,
+                            std::int64_t k,
+                            std::int64_t query_block,
+                            std::int64_t train_block,
+                            std::int64_t select_block,
+                            std::shared_ptr<sycl::event> dep);
+
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 class search_engine_base {
 protected:
@@ -85,7 +87,7 @@ protected:
     using event_ptr_t = std::shared_ptr<sycl::event>;
     using selc_t = kselect_by_rows<Float>;
 
-    constexpr static inline std::int64_t selection_sub_blocks = 31;
+    constexpr static inline std::int64_t selection_sub_blocks = 7;
 
 public:
     search_engine_base(sycl::queue& queue, const ndview<Float, 2, torder>& train_data);
@@ -139,6 +141,8 @@ public:
         return *last_event;
     }
 
+    sycl::event reset(temp_ptr_t temp_obj, const event_vector& deps) const;
+
 protected:
     template <ndorder qorder>
     sycl::event do_search(const ndview<Float, 2, qorder>& query,
@@ -157,7 +161,6 @@ protected:
     ndview<Float, 2, torder> get_train_block(std::int64_t idx) const;
     static ndview<Float, 2> get_distances(temp_ptr_t tmp_objs);
     static ndview<std::int32_t, 2> get_indices(temp_ptr_t tmp_objs);
-    sycl::event reset(temp_ptr_t temp_obj, const event_vector& deps) const;
     template <ndorder qorder>
     sycl::event distance(const ndview<Float, 2, qorder>& query,
                          const ndview<Float, 2, torder>& train,

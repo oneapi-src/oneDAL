@@ -86,6 +86,9 @@ constexpr bool is_not_default_dense = !std::is_same_v<M, method::dense>;
 template <typename M>
 using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
 
+template <typename M>
+using enable_if_plus_plus_dense = std::enable_if_t<std::is_same_v<M, method::plus_plus_dense>>;
+
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -98,10 +101,12 @@ public:
 
     descriptor_base();
 
+    std::int64_t get_local_trials_count() const;
     std::int64_t get_cluster_count() const;
     std::int64_t get_seed() const;
 
 protected:
+    void set_local_trials_count_impl(std::int64_t);
     void set_cluster_count_impl(std::int64_t);
     void set_seed_impl(std::int64_t value);
 
@@ -170,6 +175,17 @@ public:
     template <typename M = Method, typename = detail::v1::enable_if_not_default_dense<M>>
     auto& set_seed(std::int64_t value) {
         base_t::set_seed_impl(value);
+        return *this;
+    }
+
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    auto& get_local_trials_count() const {
+        return base_t::get_local_trials_count();
+    }
+
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    auto& set_local_trials_count(std::int64_t value = ) {
+        base_t::set_local_trials_count_impl(value);
         return *this;
     }
 };

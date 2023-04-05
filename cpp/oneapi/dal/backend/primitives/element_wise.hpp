@@ -29,7 +29,7 @@ template <typename Functor,
           ndorder input1_layout,
           ndorder input2_layout,
           ndorder output_layout>
-inline sycl::event element_wise(sycl::queue queue,
+inline sycl::event element_wise(sycl::queue& queue,
                                 const Functor& functor,
                                 const ndview<Input1Type, 2, input1_layout>& input1,
                                 const ndview<Input2Type, 2, input2_layout>& input2,
@@ -59,9 +59,32 @@ template <typename Functor,
           typename Input1Type,
           typename Input2Type,
           typename OutputType,
+          ndorder input1_layout,
+          ndorder input2_layout,
+          ndorder output_layout>
+inline sycl::event element_wise(sycl::queue& queue,
+                                const Functor& functor,
+                                const ndview<Input1Type, 1, input1_layout>& input1,
+                                const ndview<Input2Type, 1, input2_layout>& input2,
+                                ndview<OutputType, 1, output_layout>& output,
+                                const event_vector& deps = {}) {
+    const auto count = input1.get_count();
+    ONEDAL_ASSERT(count == input2.get_count());
+    ONEDAL_ASSERT(count == output.get_count());
+
+    auto out = output.template reshape<2>({ 1, count });
+    const auto inp1 = input1.template reshape<2>({ 1, count });
+    const auto inp2 = input2.template reshape<2>({ 1, count });
+    return element_wise(queue, functor, inp1, inp2, out, deps);
+}
+
+template <typename Functor,
+          typename Input1Type,
+          typename Input2Type,
+          typename OutputType,
           ndorder input_layout,
           ndorder output_layout>
-inline sycl::event element_wise(sycl::queue queue,
+inline sycl::event element_wise(sycl::queue& queue,
                                 const Functor& functor,
                                 const ndview<Input1Type, 2, input_layout>& input,
                                 const Input2Type& argument,
@@ -83,6 +106,29 @@ inline sycl::event element_wise(sycl::queue queue,
         });
     });
 }
+
+template <typename Functor,
+          typename Input1Type,
+          typename Input2Type,
+          typename OutputType,
+          ndorder input_layout,
+          ndorder output_layout>
+inline sycl::event element_wise(sycl::queue& queue,
+                                const Functor& functor,
+                                const ndview<Input1Type, 2, input_layout>& input,
+                                const Input2Type& argument,
+                                ndview<OutputType, 2, output_layout>& output,
+                                const event_vector& deps = {}) {
+    const auto count = input1.get_count();
+    ONEDAL_ASSERT(count == input2.get_count());
+    ONEDAL_ASSERT(count == output.get_count());
+
+    auto out = output.template reshape<2>({ 1, count });
+    const auto inp = input1.template reshape<2>({ 1, count });
+    return element_wise(queue, functor, inp, out, deps);
+}
+
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives

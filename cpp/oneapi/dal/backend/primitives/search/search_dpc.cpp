@@ -29,12 +29,6 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-std::int64_t get_block_size() {
-    constexpr std::int64_t result = 128 * 4096 / sizeof(Float);
-    return result;
-}
-
-template <typename Float>
 std::int64_t propose_train_block(const sycl::queue& q, std::int64_t width) {
     constexpr std::int64_t result = 4096 * 8 / sizeof(Float);
     return result;
@@ -44,30 +38,6 @@ template <typename Float>
 std::int64_t propose_query_block(const sycl::queue& q, std::int64_t width) {
     constexpr std::int64_t result = 8192 * 8 / sizeof(Float);
     return result;
-}
-
-std::tuple<std::vector<std::int32_t>, std::vector<std::int64_t>> get_boundary_indices(
-    ndarray<std::int64_t, 1> sample_counts,
-    std::int64_t block_size) {
-    ONEDAL_ASSERT(sample_counts.has_mutable_data());
-    std::vector<std::int32_t> nodes;
-    std::vector<std::int64_t> boundaries;
-    std::int64_t global_bias = 0;
-    for (std::int32_t i = 0; i < sample_counts.get_dimension(0); i++) {
-        auto s = sample_counts.at(i);
-        ONEDAL_ASSERT(s >= 0);
-        auto block_counting = uniform_blocking(s, block_size);
-        auto block_count = block_counting.get_block_count();
-        for (std::int32_t block_index = 0; block_index < block_count; block_index++) {
-            nodes.push_back(i);
-            auto local = std::min(s, block_index * block_size);
-            auto biased = local + global_bias;
-            boundaries.push_back(biased);
-        }
-        global_bias = global_bias + s;
-    }
-    boundaries.push_back(global_bias);
-    return std::make_tuple(nodes, boundaries);
 }
 
 template <typename Index>
@@ -308,6 +278,18 @@ protected:
     uniform_blocking train_blocking_;
 };
 
+template<typename Float, typename Distance>
+std::shared_ptr<search_temp_objects<Float, Distance>> create_search_objects(sycl::queue& q, 
+                                                                            std::int64_t k, 
+                                                                            std::int64_t query_block, 
+                                                                            std::int64_t train_block, 
+                                                                            std::int64_t select_block,
+                                                                            std::shared_ptr<sycl::event> dep) {
+    const auto deleter = search_temp_objects_deleter<Float, Distance>(dep);
+    auto* const object = new search_temp_objects<Float, Distance>(q, k, query_block, train_block, select_block);
+    return std::shared_ptr<search_temp_objects<Float, Distance>>(object, deleter);
+}
+
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 search_engine_base<Float, Distance, Impl, torder>::search_engine_base(
     sycl::queue& queue,
@@ -381,6 +363,20 @@ ndview<Float, 2, torder> search_engine_base<Float, Distance, Impl, torder>::get_
     return train_data_.get_row_slice(from, to);
 }
 
+/*template <typename Float, typename Distance, typename Impl, ndorder torder>
+auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects(
+    const uniform_blocking& query_blocking,
+    std::int64_t k_neighbors,
+    event_ptr_t last_event) const -> temp_ptr_t {
+
+    return create_search_objects<Float, Distance>(this->get_queue(),
+                                                  k_neighbors,
+                                                  query_blocking.get_block(),
+                                                  this->get_train_blocking().get_block(),
+                                                  selection_sub_blocks,
+                                                  last_event);
+}*/
+
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects(
     const uniform_blocking& query_blocking,
@@ -423,8 +419,8 @@ template <typename Float, typename Distance, typename Impl, ndorder torder>
 sycl::event search_engine_base<Float, Distance, Impl, torder>::reset(
     temp_ptr_t tmp_objs,
     const event_vector& deps) const {
-    constexpr Float default_dst_value = detail::limits<Float>::max();
     constexpr std::int32_t default_idx_value = -1;
+    constexpr Float default_dst_value = detail::limits<Float>::max();
     auto out_dsts = fill(get_queue(), tmp_objs->get_out_distances(), default_dst_value, deps);
     auto out_idcs = fill(get_queue(), tmp_objs->get_out_indices(), default_idx_value, deps);
     auto part_dsts = fill(get_queue(), tmp_objs->get_part_distances(), default_dst_value, deps);
@@ -813,7 +809,6 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
 #define INSTANTIATE_F(F)                                                             \
     INSTANTIATE_B(F, ndorder::c)                                                     \
     INSTANTIATE_B(F, ndorder::f)                                                     \
-    template std::int64_t get_block_size<F>();                                       \
     template std::int64_t propose_train_block<F>(const sycl::queue&, std::int64_t);  \
     template std::int64_t propose_query_block<F>(const sycl::queue&, std::int64_t);  \
     template class search_temp_objects<F, distance<F, lp_metric<F>>>;                \
