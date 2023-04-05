@@ -483,20 +483,18 @@ KNN_DIST_VOTING_TRAIN_IN_TEST("knn classification predefined data with distance 
     constexpr std::int64_t train_element_count = train_row_count * feature_count;
     constexpr std::int64_t infer_element_count = infer_row_count * feature_count;
 
-    constexpr std::array<float, train_element_count> train = { 0.451,0.666,0.154,0.496,0.521,
-                                                                    0.446,0.844,0.3,0.682,0.695,
-                                                                    0.64,0.835,0.355,0.707,0.673,
-                                                                    0.201,0.704,0.145,0.341,0.486,
-                                                                    0.276,0.423,0.927,0.402,0.256,
-                                                                    0.738,0.384,0.232,0.325,0.996,
-                                                                    0.644,0.936,0.296,0.54,0.719 };
+    constexpr std::array<float, train_element_count> train = {
+        0.451, 0.666, 0.154, 0.496, 0.521, 0.446, 0.844, 0.3,   0.682, 0.695, 0.64,  0.835,
+        0.355, 0.707, 0.673, 0.201, 0.704, 0.145, 0.341, 0.486, 0.276, 0.423, 0.927, 0.402,
+        0.256, 0.738, 0.384, 0.232, 0.325, 0.996, 0.644, 0.936, 0.296, 0.54,  0.719
+    };
 
-    constexpr std::array<float, infer_element_count> infer = { 0.451,0.666,0.154,0.496,0.521,
-                                                                    0.086,0.17,0.721,0.383,0.028,
-                                                                    0.216,0.255,0.672,0.303,0.466 };
+    constexpr std::array<float, infer_element_count> infer = { 0.451, 0.666, 0.154, 0.496, 0.521,
+                                                               0.086, 0.17,  0.721, 0.383, 0.028,
+                                                               0.216, 0.255, 0.672, 0.303, 0.466 };
 
-    constexpr std::array<float, train_row_count> train_label = { 0,1,1,1,1,1,1};
-    constexpr std::array<float, infer_row_count> infer_label = { 0,1,1};
+    constexpr std::array<float, train_row_count> train_label = { 0, 1, 1, 1, 1, 1, 1 };
+    constexpr std::array<float, infer_row_count> infer_label = { 0, 1, 1 };
 
     const auto x_train_table = homogen_table::wrap(train.data(), train_row_count, feature_count);
     const auto x_infer_table = homogen_table::wrap(infer.data(), infer_row_count, feature_count);
