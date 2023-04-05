@@ -477,7 +477,7 @@ KNN_DIST_VOTING_TRAIN_IN_TEST("knn classification predefined data with distance 
     constexpr std::int64_t n_neighbors = 3;
     constexpr std::int64_t train_row_count = 7;
     constexpr std::int64_t infer_row_count = 3;
-    constexpr double target_score = 0.8;
+    constexpr double target_score = 1.0;
     CAPTURE(feature_count, n_classes, n_neighbors, train_row_count, infer_row_count);
 
     constexpr std::int64_t train_element_count = train_row_count * feature_count;
@@ -516,6 +516,6 @@ KNN_DIST_VOTING_TRAIN_IN_TEST("knn classification predefined data with distance 
                                             distance_desc,
                                             voting);
     CAPTURE(score, target_score);
-    REQUIRE(score >= target_score);
+    REQUIRE(score == target_score);
 }
 } // namespace oneapi::dal::knn::test
