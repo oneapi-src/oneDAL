@@ -147,8 +147,13 @@ search_temp_objects_deleter<Float, Distance>::search_temp_objects_deleter(event_
         : last_event_(event) {}
 
 template <typename Float, typename Distance>
+auto search_temp_objects_deleter<Float, Distance>::get_last_event() -> event_ptr_t& {
+    return this->last_event_;
+}
+
+template <typename Float, typename Distance>
 void search_temp_objects_deleter<Float, Distance>::operator()(temp_t* obj) const {
-    last_event_->wait_and_throw();
+    this->last_event_->wait_and_throw();
     delete obj;
 }
 
@@ -363,21 +368,21 @@ ndview<Float, 2, torder> search_engine_base<Float, Distance, Impl, torder>::get_
     return train_data_.get_row_slice(from, to);
 }
 
-/*template <typename Float, typename Distance, typename Impl, ndorder torder>
+template <typename Float, typename Distance, typename Impl, ndorder torder>
 auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects(
-    const uniform_blocking& query_blocking,
+    std::int64_t query_block,
     std::int64_t k_neighbors,
     event_ptr_t last_event) const -> temp_ptr_t {
 
     return create_search_objects<Float, Distance>(this->get_queue(),
                                                   k_neighbors,
-                                                  query_blocking.get_block(),
+                                                  query_block,
                                                   this->get_train_blocking().get_block(),
                                                   selection_sub_blocks,
                                                   last_event);
-}*/
+}
 
-template <typename Float, typename Distance, typename Impl, ndorder torder>
+/*template <typename Float, typename Distance, typename Impl, ndorder torder>
 auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects(
     const uniform_blocking& query_blocking,
     std::int64_t k_neighbors,
@@ -389,18 +394,18 @@ auto search_engine_base<Float, Distance, Impl, torder>::create_temporary_objects
                                selection_sub_blocks);
     auto res_del = temp_del_t(last_event);
     return temp_ptr_t(res_obj, res_del);
-}
+}*/
 
 template <typename Float, typename Distance, typename Impl, ndorder torder>
 auto search_engine_base<Float, Distance, Impl, torder>::create_selection_objects(
     std::int64_t query_block,
-    std::int64_t k_neighbors) const -> selc_t {
+    std::int64_t k_neighbors) const -> selc_ptr_t {
     const auto train_block = get_train_blocking().get_block();
     dal::detail::check_mul_overflow(k_neighbors, (selection_sub_blocks + 1));
     const auto width =
         std::max<std::int64_t>(k_neighbors * (selection_sub_blocks + 1), train_block);
     const ndshape<2> typical_blocking(query_block, width);
-    return selc_t(get_queue(), typical_blocking, k_neighbors);
+    return std::make_shared<selc_t>(get_queue(), typical_blocking, k_neighbors);
 }
 
 template <typename Float, typename Distance, typename Impl, ndorder torder>

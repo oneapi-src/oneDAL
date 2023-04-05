@@ -436,7 +436,7 @@ inline std::int64_t device_max_sg_size(const sycl::queue& q) {
 inline std::int64_t propose_wg_size(const sycl::queue& q) {
     // TODO: a temporary solution that limits work item count used on the device.
     // Needs to change to more smart logic in the future.
-    return std::min<std::int64_t>(512, device_max_wg_size(q));
+    return std::min<std::int64_t>(1024, device_max_wg_size(q));
 }
 
 /// Finds the workgroup size for specified data set width
