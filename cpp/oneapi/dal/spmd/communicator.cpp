@@ -53,7 +53,7 @@ request communicator<MemoryAccessKind>::sendrecv_replace(const array<D>& buf,
 
 template <typename MemoryAccessKind>
 template <typename D>
-request communicator<MemoryAccessKind>::allgather(D& scalar, const array<D>& recv) const {
+request communicator<MemoryAccessKind>::allgather(const D& scalar, const array<D>& recv) const {
     return de::allgather(*this, scalar, recv);
 }
 
@@ -106,7 +106,7 @@ void communicator<MemoryAccessKind>::reset_error_flag() const {
     template request communicator<M>::bcast<D>(const array<D>& ary, std::int64_t root) const;  \
     template request communicator<M>::allgather<D>(const array<D>& send, const array<D>& recv) \
         const;                                                                                 \
-    template request communicator<M>::allgather<D>(D & scalar, const array<D>& recv) const;    \
+    template request communicator<M>::allgather<D>(const D& scalar, const array<D>& recv) const;    \
     template request communicator<M>::allgatherv<D>(const array<D>& send,                      \
                                                     const array<D>& recv,                      \
                                                     const std::int64_t* recv_counts,           \

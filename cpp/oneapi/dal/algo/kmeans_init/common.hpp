@@ -184,7 +184,7 @@ public:
     }
 
     template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
-    auto& set_local_trials_count(std::int64_t value =) {
+    auto& set_local_trials_count(std::int64_t value = -1) {
         base_t::set_local_trials_count_impl(value);
         return *this;
     }
