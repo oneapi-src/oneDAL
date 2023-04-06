@@ -1684,10 +1684,10 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////
 // ClassificationTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
+template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
+services::Status computeForSpecificHelper(
     HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, decision_forest::classification::Model & m,
-    Result & res, const decision_forest::classification::training::Parameter & par)
+    Result & res, const decision_forest::classification::training::Parameter & par, bool memSave)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(),
                   res.get(outOfBagErrorAccuracy).get(), nullptr, res.get(outOfBagErrorDecisionFunction).get(), nullptr);
@@ -1696,12 +1696,9 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
     DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);
     dtrees::internal::IndexedFeatures indexedFeatures;
 
-    if (par.splitter == decision_forest::training::splitterMode::best)
-    {
-        using helper = RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperBest<algorithmFPType, cpu> >;
         if (method == hist)
         {
-            if (!par.memorySavingMode)
+            if (!memSave)
             {
                 BinParams prm(par.maxBins, par.minBinSize);
                 s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
@@ -1733,7 +1730,7 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
         }
         else
         {
-            if (!par.memorySavingMode)
+            if (!memSave)
             {
                 s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
                 DAAL_CHECK_STATUS_VAR(s);
@@ -1750,51 +1747,27 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
                     pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
                     par.nClasses, featTypes, nullptr);
         }
-    }
-    else
-    {
-        using helper = RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >;
-        if (method == hist)
-        {
-            if (!par.memorySavingMode)
-            {
-                BinParams prm(par.maxBins, par.minBinSize);
-                s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
-                DAAL_CHECK_STATUS_VAR(s);
-
-                if (indexedFeatures.maxNumIndices() <= 256)
-                    s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                    TrainBatchTask<algorithmFPType, uint8_t, hist, helper, cpu> >(
-                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                        par.nClasses, featTypes, &indexedFeatures);
-                else if (indexedFeatures.maxNumIndices() <= 65536)
-                    s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                    TrainBatchTask<algorithmFPType, uint16_t, hist, helper, cpu> >(
-                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                        par.nClasses, featTypes, &indexedFeatures);
-                else
-                    s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                                    daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                    TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, cpu> >(
-                        pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                        par.nClasses, featTypes, &indexedFeatures);
-            }
-            else
-                s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                                daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                    par.nClasses, featTypes, nullptr);
-        }
-        else
-            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                            daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, cpu> >(
-                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
-                featTypes, nullptr);
-    }
-
+   
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
+    return s;
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
+    HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, decision_forest::classification::Model & m,
+    Result & res, const decision_forest::classification::training::Parameter & par)
+{
+    services::Status s;
+    if (par.splitter == decision_forest::training::splitterMode::best)
+    {
+        s = computeForSpecificHelper<algorithmFPType, method, cpu, RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperBest<algorithmFPType, cpu> > >(
+            pHostApp, x, y, w, m, res, par, par.memorySavingMode);
+    }
+    else if (par.splitter == decision_forest::training::splitterMode::random)
+    {
+        s = computeForSpecificHelper<algorithmFPType, method, cpu, RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> > >(
+            pHostApp, x, y, w, m, res, par, par.memorySavingMode || method == defaultDense);
+    }
     return s;
 }
 
