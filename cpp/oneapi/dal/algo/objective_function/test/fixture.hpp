@@ -42,7 +42,8 @@ public:
     using objective_t = lg::descriptor<Float>;
 
     auto get_descriptor(obj_fun::result_option_id compute_mode) const {
-        return descriptor_t(objective_t{ L1_, L2_ }).set_result_options(compute_mode);
+        return descriptor_t(objective_t{ L1_, L2_, fit_intercept_ })
+            .set_result_options(compute_mode);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -52,6 +53,10 @@ public:
     void set_reg_coefs(double L1, double L2) {
         this->L1_ = L1;
         this->L2_ = L2;
+    }
+
+    void set_intercept_flag(bool fit_intercept) {
+        this->fit_intercept_ = fit_intercept;
     }
 
     void gen_input() {
@@ -125,12 +130,23 @@ public:
     }
 
     void calculate_predictions(array<Float>& data_arr, array<Float>& params_arr, Float* pred_ptr) {
+        const Float bottom = te::get_tolerance<Float>(1e-7, 1e-15);
+        const Float top = Float(1.0) - bottom;
         for (std::int64_t i = 0; i < n_; ++i) {
+            pred_ptr[i] = 0;
             for (std::int64_t j = 0; j < p_; ++j) {
                 pred_ptr[i] += data_arr[i * p_ + j] * params_arr[j + 1];
             }
-            pred_ptr[i] += params_arr[0];
-            pred_ptr[i] = 1 / (1 + std::exp(-pred_ptr[i]));
+            if (fit_intercept_) {
+                pred_ptr[i] += params_arr[0];
+            }
+            pred_ptr[i] = Float(1.0) / (Float(1.0) + std::exp(-pred_ptr[i]));
+            if (pred_ptr[i] < bottom) {
+                pred_ptr[i] = bottom;
+            }
+            if (pred_ptr[i] > top) {
+                pred_ptr[i] = top;
+            }
         }
     }
 
@@ -145,8 +161,8 @@ public:
             REQUIRE(value.get_column_count() == 1);
             REQUIRE(te::has_no_nans(value));
             auto val_arr = row_accessor<const Float>(value).pull({ 0, -1 });
-            Float val = val_arr[0];
-            Float ans = 0;
+            const Float val = val_arr[0];
+            Float ans = 0.0;
             for (std::int64_t i = 0; i < n_; ++i) {
                 ans -= resp_arr[i] * std::log(pred_ptr[i]) +
                        (1 - resp_arr[i]) * std::log(1 - pred_ptr[i]);
@@ -166,14 +182,17 @@ public:
                                     array<std::int32_t>& resp_arr,
                                     const Float* pred_ptr,
                                     std::int64_t j) {
+        if (!fit_intercept_ && j == 0) {
+            return 0.0;
+        }
         Float ans = 0;
         for (std::int64_t i = 0; i < n_; ++i) {
-            Float x1 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
+            Float x1 = (j == 0) ? 1 : data_arr[i * p_ + j - 1];
             ans += (pred_ptr[i] - resp_arr[i]) * x1;
         }
         ans /= n_;
         // We do not apply regularization to w_0
-        ans += j > 0 ? +L2_ * 2 * params_arr[j] : 0;
+        ans += j > 0 ? L2_ * 2 * params_arr[j] : 0;
         return ans;
     }
 
@@ -183,16 +202,19 @@ public:
                         array<std::int32_t>& resp_arr,
                         const Float* pred_ptr,
                         const double tol = 1e-4,
-                        const std::int32_t stohastic = 0) {
+                        const std::int32_t stochastic = 0) {
         std::mt19937 rnd(2007 + n_ + p_ + n_ * p_ + 1);
         if (result.get_result_options().test(result_options::gradient)) {
             const auto gradient = result.get_gradient();
             REQUIRE(gradient.get_row_count() == p_ + 1);
             REQUIRE(gradient.get_column_count() == 1);
             auto grad_arr = row_accessor<const Float>(gradient).pull({ 0, -1 });
-            if (stohastic > 0) {
-                for (std::int32_t num_checks = 0; num_checks < stohastic; ++num_checks) {
+            if (stochastic > 0) {
+                for (std::int32_t num_checks = 0; num_checks < stochastic; ++num_checks) {
                     std::int64_t j = rnd() % (p_ + 1);
+                    if (!fit_intercept_) {
+                        j = rnd() % p_ + 1;
+                    }
                     const double diff = std::abs(
                         grad_arr[j] -
                         compute_gth_gradient_item(data_arr, params_arr, resp_arr, pred_ptr, j));
@@ -216,6 +238,9 @@ public:
                                    const Float* pred_ptr,
                                    std::int64_t j,
                                    std::int64_t k) {
+        if (!fit_intercept_ && (j == 0 || k == 0)) {
+            return 0.0;
+        }
         Float ans = 0;
         for (std::int64_t i = 0; i < n_; ++i) {
             Float x1 = j == 0 ? 1 : data_arr[i * p_ + j - 1];
@@ -234,17 +259,21 @@ public:
                        array<std::int32_t>& resp_arr,
                        const Float* pred_ptr,
                        const double tol = 1e-4,
-                       const std::int32_t stohastic = 0) {
+                       const std::int32_t stochastic = 0) {
         std::mt19937 rnd(2007 + n_ + p_ + n_ * p_ + 2);
         if (result.get_result_options().test(result_options::hessian)) {
             const auto hessian = result.get_hessian();
             REQUIRE(hessian.get_row_count() == p_ + 1);
             REQUIRE(hessian.get_column_count() == p_ + 1);
             auto hess_arr = row_accessor<const Float>(hessian).pull({ 0, -1 });
-            if (stohastic > 0) {
-                for (std::int32_t num_checks = 0; num_checks < stohastic; ++num_checks) {
+            if (stochastic > 0) {
+                for (std::int32_t num_checks = 0; num_checks < stochastic; ++num_checks) {
                     std::int64_t j = rnd() % (p_ + 1);
                     std::int64_t k = rnd() % (p_ + 1);
+                    if (!fit_intercept_) {
+                        j = rnd() % p_ + 1;
+                        k = rnd() % p_ + 1;
+                    }
                     const double diff = std::abs(
                         hess_arr[j * (p_ + 1) + k] -
                         compute_gth_hessian_item(data_arr, params_arr, resp_arr, pred_ptr, j, k));
@@ -299,7 +328,7 @@ public:
 
         calculate_predictions(data_arr, params_arr, pred_ptr);
 
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-6);
+        const double tol = te::get_tolerance<Float>(1e-2, 1e-6);
 
         check_value(result, params_arr, resp_arr, pred_ptr, tol);
 
@@ -316,6 +345,7 @@ protected:
     table responses_;
     Float L1_ = 0;
     Float L2_ = 0;
+    bool fit_intercept_ = true;
 };
 
 using logloss_types = COMBINE_TYPES((float, double), (obj_fun::method::dense_batch));

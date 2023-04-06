@@ -58,6 +58,20 @@ TEMPLATE_LIST_TEST_M(logloss_batch_test,
     this->gen_dimensions();
     this->gen_input();
     this->set_reg_coefs(1.1, 2.3);
+    this->set_intercept_flag(true);
+    this->general_checks();
+}
+
+TEMPLATE_LIST_TEST_M(logloss_batch_test,
+                     "logloss tests - no fit_intercept",
+                     "[logloss][integration][gpu]",
+                     logloss_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    this->gen_dimensions();
+    this->gen_input();
+    this->set_reg_coefs(1.1, 2.3);
+    this->set_intercept_flag(false);
     this->general_checks();
 }
 

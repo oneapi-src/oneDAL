@@ -64,6 +64,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto obj_impl = detail::get_objective_impl(desc);
     daal_parameter.penaltyL1 = obj_impl->get_l1_regularization_coefficient();
     daal_parameter.penaltyL2 = obj_impl->get_l2_regularization_coefficient();
+    daal_parameter.interceptFlag = obj_impl->get_intercept_flag();
 
     array<Float> arr_val, arr_grad, arr_hess;
 
