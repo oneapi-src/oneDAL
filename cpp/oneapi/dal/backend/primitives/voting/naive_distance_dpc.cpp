@@ -61,11 +61,30 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
             for (std::int32_t i = 0; i < classes; ++i) {
                 prb_row[i] = 0;
             }
+            bool contains_zero = false;
             for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto dst = dst_row[i];
-                const auto idx = ids_row[i];
-                prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
+                if (dst < eps) {
+                    contains_zero = true;
+                    break;
+                }
             }
+
+            if (contains_zero) {
+                for (std::int32_t i = 0; i < k_resps; ++i) {
+                    const auto dst = dst_row[i];
+                    const auto idx = ids_row[i];
+                    prb_row[idx] = dst < eps ? 1 : 0;
+                }
+            }
+            else {
+                for (std::int32_t i = 0; i < k_resps; ++i) {
+                    const auto dst = dst_row[i];
+                    const auto idx = ids_row[i];
+                    prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
+                }
+            }
+
             IndexType best_cls = -1;
             DistsType best_prb = -1;
             for (std::int32_t i = 0; i < classes; ++i) {
