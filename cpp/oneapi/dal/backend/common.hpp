@@ -33,6 +33,28 @@
 
 namespace oneapi::dal::backend {
 
+template <typename Type>
+inline Type* begin(const dal::array<Type>& arr) {
+    ONEDAL_ASSERT(arr.has_mutable_data());
+    return arr.get_mutable_data();
+}
+
+template <typename Type>
+inline Type* end(const dal::array<Type>& arr) {
+    return begin(arr) + arr.get_count();
+}
+
+template <typename Type>
+inline const Type* cbegin(const dal::array<Type>& arr) {
+    ONEDAL_ASSERT(arr.has_data());
+    return arr.get_data();
+}
+
+template <typename Type>
+inline const Type* cend(const dal::array<Type>& arr) {
+    return cbegin(arr) + arr.get_count();
+}
+
 template <std::int64_t axis_count>
 using ndindex = std::array<std::int64_t, axis_count>;
 

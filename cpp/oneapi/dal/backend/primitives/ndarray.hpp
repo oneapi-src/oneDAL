@@ -206,10 +206,20 @@ public:
         return wrap(data.get_mutable_data(), shape);
     }
 
-    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t strides) {
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t& strides) {
         ONEDAL_ASSERT(data.has_mutable_data());
         ONEDAL_ASSERT(data.get_count() >= shape.get_count());
         return wrap(data.get_mutable_data(), shape, strides);
+    }
+
+    template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
+    static ndview wrap(const array<T>& data) {
+        return wrap(data, { data.get_count() });
+    }
+
+    template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
+    static ndview wrap_mutable(const array<T>& data) {
+        return wrap_mutable(data, { data.get_count() });
     }
 
     const T* get_data() const {
