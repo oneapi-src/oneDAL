@@ -204,8 +204,8 @@ template <typename Generator, typename Float, ndorder order>
 sycl::event first_sample(const bk::context_gpu& ctx, 
                          Generator& rng,
                          std::int64_t full_count,
-                         const ndview<Float, 2, order>& data,
-                         ndview<Float, 2>& centroids,
+                         const pr::ndview<Float, 2, order>& data,
+                         pr::ndview<Float, 2>& centroids,
                          const event_vector& deps = {}) {
     const auto sample_count = data.get_dimension(0);
     const auto feature_count = dsta.get_dimension(1);
