@@ -49,6 +49,31 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     return wait_or_pass(deps);
 }
 
+template <typename Type, typename Index>
+inline sycl::event search_sorted_1d(sycl::queue& queue,
+                                    const bool& clip_result,
+                                    search_alignment alignment,
+                                    const ndview<Type, 1>& data,
+                                    const ndview<Type, 1>& points,
+                                    ndview<Index, 1>& results,
+                                    const event_vector& deps = {}) {
+    if (clip_result) {
+        return search_sorted_1d<Type, Index, true>(queue, 
+                                                   alignment,
+                                                   data,
+                                                   points,
+                                                   results,
+                                                   deps);
+    } else {
+        return search_sorted_1d<Type, Index, false>(queue, 
+                                                    alignment,
+                                                    data,
+                                                    points,
+                                                    results,
+                                                    deps);
+    }
+}
+
 template <search_alignment alignment, typename Type, typename Index, bool clip = false>
 sycl::event search_sorted_1d(sycl::queue& queue,
                              const ndview<Type, 1>& data,

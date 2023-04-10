@@ -57,12 +57,14 @@ sycl::event add_number(sycl::queue& queue,
 
 template<typename Type>
 sycl::event minimum(sycl::queue& queue,
-                       const ndview<Type, 1>& inp1,
-                       const ndview<Type, 1>& inp2,
-                       ndview<Type, 1>& output
-                       const event_vector& deps = {}) {
+                    const ndview<Type, 1>& inp1,
+                    const ndview<Type, 1>& inp2,
+                    ndview<Type, 1>& output,
+                    const event_vector& deps = {}) {
     constexpr std::plus<Type> kernel{};
-    return pr::element_wise(queue, kernel, array, value, array, deps);
+    ONEDAL_ASSERT(inp1.get_count() == inp2.get_count());
+    ONEDAL_ASSERT(inp1.get_count() == output.get_count());
+    return pr::element_wise(queue, kernel, inp1, inp2, output, deps);
 }
 
 template <typename Type>
@@ -185,9 +187,9 @@ sycl::event find_local_closest(sycl::queue& queue,
 
     const bk::uniform_blocking blocking(sample_count, query_block);
     const auto callback = [&](std::int64_t qb_id,
-                              const pr::ndview<Float, 2>& indices,
-                              const pr::ndview<std::int32_t, 2>& distances,
-                              const bk::event_vector& dependencies) -> sycl::event {
+                              const pr::ndview<Float, 2>& distances,
+                              const pr::ndview<std::int32_t, 2>& indices,
+                              const bk::event_vector& deps) -> sycl::event {
         ONEDAL_ASSERT(indices.has_data() && distances.has_data());
         ONEDAL_ASSERT(distances.get_dimension(1) == std::int64_t{ 1 });
 
@@ -197,9 +199,9 @@ sycl::event find_local_closest(sycl::queue& queue,
         ONEDAL_ASSERT(distances.get_dimension(0) == block_length);
 
         const auto output_slice = closest_distances.get_slice(first, last);
-        auto output_2d = output_slice.template reshape<1>({ block_length, 1 });
+        auto distance_2d = distances.template reshape<1>({ block_length });
 
-        return pr::copy(queue, output_2d, distances, dependencies);
+        return minimum(queue, output_slice, distance_2d, distance_2d, deps);
     };
 
     return search_object(samples, callback, query_block, std::int64_t{ 1 }, deps);
@@ -249,7 +251,7 @@ Float compute_potential(sycl::queue& queue,
     const search_l2 search_object{ queue, cent_slice, train_block };
     auto closest_event = find_local_closest(queue, search_object, data, dist_slice, deps);
 
-
+    auto minimum_event = minimum();
 }
 
 template <typename Method, typename Task, typename Float, pr::ndorder order>

@@ -45,8 +45,8 @@ constexpr auto comparator_v = comparator<alignment, Type>::value;
 template <bool clip, typename Index>
 inline Index clip_place(std::int64_t count, Index result) {
     if constexpr (clip) {
-        return std::max<Index>(Index(0), 
-            std::min<Index>(result, count));
+        return std::max(static_cast<Index>(0), 
+            std::min<Index>(result, count - 1));
     } 
     else {
         return result;
@@ -85,7 +85,7 @@ sycl::event search_sorted_1d(sycl::queue& queue,
             constexpr auto cmp = comparator_v<alignment, Type>;
 
             const auto target = points_ptr[idx];
-            Index left_idx = 0, right_idx = Index(data_count);
+            Index left_idx = 0, right_idx = static_cast<Index>(data_count);
 
             while (left_idx < right_idx) {
                 const auto mid_idx = left_idx + (right_idx - left_idx) / 2;
