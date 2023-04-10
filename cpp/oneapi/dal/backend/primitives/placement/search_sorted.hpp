@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 
 enum search_alignment : std::int64_t { left = 0b0l, right = 0b1l };
 
-template <typename Type, typename Index>
+template <typename Type, typename Index, bool clip = false>
 inline sycl::event search_sorted_1d(sycl::queue& queue,
                                     search_alignment alignment,
                                     const ndview<Type, 1>& data,
@@ -38,18 +38,18 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     constexpr auto right = search_alignment::right;
 
     if (alignment == left) {
-        return search_sorted_1d<search_alignment::left>(queue, data, points, results, deps);
+        return search_sorted_1d<search_alignment::left, Type, Index, clip>(queue, data, points, results, deps);
     }
 
     if (alignment == right) {
-        return search_sorted_1d<search_alignment::right>(queue, data, points, results, deps);
+        return search_sorted_1d<search_alignment::right, Type, Index, clip>(queue, data, points, results, deps);
     }
 
     ONEDAL_ASSERT(false);
     return wait_or_pass(deps);
 }
 
-template <search_alignment alignment, typename Type, typename Index>
+template <search_alignment alignment, typename Type, typename Index, bool clip = false>
 sycl::event search_sorted_1d(sycl::queue& queue,
                              const ndview<Type, 1>& data,
                              const ndview<Type, 1>& points,

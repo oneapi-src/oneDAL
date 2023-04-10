@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
 #include <functional>
 
 #include "oneapi/dal/detail/profiler.hpp"
@@ -41,9 +42,20 @@ struct comparator<search_alignment::right, Type> {
 template <search_alignment alignment, typename Type>
 constexpr auto comparator_v = comparator<alignment, Type>::value;
 
+template <bool clip, typename Index>
+inline Index clip_place(std::int64_t count, Index result) {
+    if constexpr (clip) {
+        return std::max<Index>(Index(0), 
+            std::min<Index>(result, count));
+    } 
+    else {
+        return result;
+    }
+}
+
 // Reference numpy implementation:
 // https://github.com/numpy/numpy/blob/main/numpy/core/src/npysort/binsearch.cpp#L61
-template <search_alignment alignment, typename Type, typename Index>
+template <search_alignment alignment, typename Type, typename Index, bool clip>
 sycl::event search_sorted_1d(sycl::queue& queue,
                              const ndview<Type, 1>& data,
                              const ndview<Type, 1>& points,
@@ -73,7 +85,7 @@ sycl::event search_sorted_1d(sycl::queue& queue,
             constexpr auto cmp = comparator_v<alignment, Type>;
 
             const auto target = points_ptr[idx];
-            Index left_idx = 0, right_idx = data_count;
+            Index left_idx = 0, right_idx = Index(data_count);
 
             while (left_idx < right_idx) {
                 const auto mid_idx = left_idx + (right_idx - left_idx) / 2;
@@ -85,21 +97,25 @@ sycl::event search_sorted_1d(sycl::queue& queue,
                     right_idx = mid_idx;
             }
 
-            results_ptr[idx] = left_idx;
+            results_ptr[idx] = clip_place<clip>(data_count, left_idx);
         });
     });
 }
 
-#define INSTANTIATE(A, T, I)                                      \
-    template sycl::event search_sorted_1d<A>(sycl::queue&,        \
-                                             const ndview<T, 1>&, \
-                                             const ndview<T, 1>&, \
-                                             ndview<I, 1>&,       \
-                                             const event_vector&);
+#define INSTANTIATE(A, T, I, C)                                             \
+    template sycl::event search_sorted_1d<A, T, I, C>(sycl::queue&,         \
+                                                      const ndview<T, 1>&,  \
+                                                      const ndview<T, 1>&,  \
+                                                      ndview<I, 1>&,        \
+                                                      const event_vector&);
 
-#define INSTANTIATE_ALIGNMENT(T, I)           \
-    INSTANTIATE(search_alignment::left, T, I) \
-    INSTANTIATE(search_alignment::right, T, I)
+#define INSTANTIATE_CLIP(A, T, I)   \
+    INSTANTIATE(A, T, I, true)      \
+    INSTANTIATE(A, T, I, false)
+
+#define INSTANTIATE_ALIGNMENT(T, I)                 \
+    INSTANTIATE_CLIP(search_alignment::left, T, I)  \
+    INSTANTIATE_CLIP(search_alignment::right, T, I)
 
 #define INSTANTIATE_TYPE(I)         \
     INSTANTIATE_ALIGNMENT(float, I) \

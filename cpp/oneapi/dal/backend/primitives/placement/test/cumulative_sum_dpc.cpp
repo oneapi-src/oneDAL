@@ -37,8 +37,9 @@ template <typename Type>
 class cumsum_test_random_1d : public te::float_algo_fixture<Type> {
 public:
     void generate() {
-        this->m_ = GENERATE(16, 32, 64, 128);
-        this->n_ = GENERATE(511,
+        this->m_ = GENERATE(8, 16, 32, 64, 128);
+        this->n_ = GENERATE(64,
+                            511,
                             512,
                             513,
                             1023,
@@ -54,7 +55,11 @@ public:
                             16383,
                             16384,
                             16385,
-                            0x40000);
+                            65537,
+                            262143,
+                            262144,
+                            262145,
+                            270000);
         this->generate_input();
     }
 

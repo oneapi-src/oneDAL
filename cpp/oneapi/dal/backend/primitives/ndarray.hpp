@@ -913,3 +913,30 @@ inline auto copy(sycl::queue& q,
 #endif
 
 } // namespace oneapi::dal::backend::primitives
+
+
+namespace oneapi::dal::backend {
+
+template <typename Type>
+inline Type* begin(const primitives::ndview<Type, 1>& arr) {
+    ONEDAL_ASSERT(arr.has_mutable_data());
+    return arr.get_mutable_data();
+}
+
+template <typename Type>
+inline Type* end(const primitives::ndview<Type, 1>& arr) {
+    return begin(arr) + arr.get_count();
+}
+
+template <typename Type>
+inline const Type* cbegin(const primitives::ndview<Type, 1>& arr) {
+    ONEDAL_ASSERT(arr.has_data());
+    return arr.get_data();
+}
+
+template <typename Type>
+inline const Type* cend(const primitives::ndview<Type, 1>& arr) {
+    return cbegin(arr) + arr.get_count();
+}
+
+} // namespace oneapi::dal::backend
