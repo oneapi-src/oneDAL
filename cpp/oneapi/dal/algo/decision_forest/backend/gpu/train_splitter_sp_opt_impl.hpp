@@ -81,7 +81,7 @@ public:
     /// @param[in] node_imp_dec_list            an array for node impurity decrease data
     /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
     /// @param[in] node_count                   number of the nodes to compute in the current step
-    /// @param[in] deps                         a set of events, which this method depends on
+    /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event best_split_single_pass_large(sycl::queue& queue,
                                                     const context_t& ctx,
                                                     const pr::ndarray<Bin, 2>& data,
