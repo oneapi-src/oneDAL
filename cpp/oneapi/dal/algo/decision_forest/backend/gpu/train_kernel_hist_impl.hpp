@@ -249,7 +249,7 @@ private:
     /// @param[in] imp_data_list                a list of nodes' impurity
     /// @param[in] left_child_imp_data_list     an array of left-child impurity values
     /// @param[in] node_list_new                a new node list containing splitting info
-    /// @param[in] node_vs_tree_map_new         an new tree order
+    /// @param[in] node_vs_tree_map_new         a new tree order
     /// @param[in] imp_data_list                a list of nodes' impurity
     /// @param[in] node_count                   number of nodes to process
     /// @param[in] node_count_new               a new number of nodes
@@ -281,7 +281,7 @@ private:
     /// @param[in] imp_data_list            a list of nodes' impurity
     /// @param[in] node_list                a node list containing splitting information
     /// @param[in] left_child_imp_data_list an array of left-child impurity values
-    /// @param[in] node_imp_decrease_list   an array of node decreases list
+    /// @param[in] node_imp_decrease_list   an array of a node decreases list
     /// @param[in] update_imp_dec_required  a boolean flag if required to update `node_imp_decrease_list`
     /// @param[in] node_count               number of nodes to process
     /// @param[in] deps                     a set of SYCL events this kernel depends on
@@ -359,7 +359,7 @@ private:
         const bk::event_vector& deps = {});
 
     /// Computes partial histograms for each node. It is an internal kernel
-    /// used in `compute_histogram` kernel.
+    /// used in the `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
@@ -389,7 +389,7 @@ private:
                                            const bk::event_vector& deps = {});
 
     /// Reduces a partial histogram to one `hist_list`. It is an internal kernel
-    /// used in `compute_histogram` kernel.
+    /// used in the `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] part_hist_list           an array of partial histograms
@@ -405,7 +405,7 @@ private:
                                           const bk::event_vector& deps = {});
 
     /// Computes histogram statistics (count and sum) partially. It is an internal auxiliary kernel,
-    /// which is used in `compute_histogram` kernel.
+    /// which is used in the `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
@@ -437,7 +437,7 @@ private:
                                               const task::regression task_val = {});
 
     /// Computes distances to center partially. It is an internal auxiliary kernel
-    /// used in `compute_histogram` kernel.
+    /// used in the `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
@@ -471,7 +471,7 @@ private:
                                          const task::regression task_val = {});
 
     /// Reduces partial sums into hist list. It is an internal auxiliary kernel
-    /// used in `compute_histogram` kernel.
+    /// used in the `compute_histogram` kernel.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] part_hist_list   an array of partial histograms
@@ -560,7 +560,7 @@ private:
     /// @param[in] oob_row_count_list   an array of OOB counts
     /// @param[in] oob_per_obs_list     an array of OOB values per observation
     /// @param[in] var_imp              a variable importance values
-    /// @param[in] var_imp_variance     a variable importance variance values
+    /// @param[in] var_imp_variance     variable importance variance values
     /// @param[in] rng_engine_arr       a list of random generator engines
     /// @param[in] tree_idx             a tree index
     /// @param[in] tree_in_block        number of trees in the computational block
