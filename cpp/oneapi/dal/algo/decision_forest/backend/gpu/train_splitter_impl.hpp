@@ -51,23 +51,23 @@ public:
     train_splitter_impl() = default;
     ~train_splitter_impl() = default;
 
-    /// Computing best split for `node_count` nodes using `selected_ftr_list`
+    /// Computing the best split for the `node_count` nodes using `selected_ftr_list`
     /// for splitting and choosing the best split in terms of impurity.
     ///
-    /// @param[in] queue                    sycl parallel queue
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] queue                    SYCL parallel queue
+    /// @param[in] ctx                      a training context structure for the GPU backend
     /// @param[in] node_hist_list           a pre-calculated histogram for each node
     /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
     /// @param[in] bin_offset_list          an array of offsets for each bin
     /// @param[in] imp_data_list            an array of impurity data for each node
     /// @param[in] node_ind_list            an array of node indices
-    /// @param[in] node_ind_ofs             a global offset for node indices
+    /// @param[in] node_ind_ofs             global offset for node indices
     /// @param[in] node_list                a node structure containing split information
-    /// @param[in] left_child_imp_data_list an array of left child impurity values
+    /// @param[in] left_child_imp_data_list an array of left-child impurity values
     /// @param[in] node_imp_dec_list        an array of node impurity decrease values
     /// @param[in] update_imp_dec_required  boolean indicator to update impurity decrease structure
-    /// @param[in] node_count               a number of node to compute in current step
-    /// @param[in] deps                     a set of sycl event, which this method depends on
+    /// @param[in] node_count               number of the nodes to compute in the current step
+    /// @param[in] deps                     a set of SYCL events this method depends on
     static sycl::event compute_best_split_by_histogram(
         sycl::queue& queue,
         const context_t& ctx,
@@ -88,21 +88,21 @@ public:
     /// and `random_bins_com` values for splitting. Computes best split among randomly
     /// selected thresholds for each node.
     ///
-    /// @param[in] queue                    sycl parallel queue
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] queue                    SYCL parallel queue
+    /// @param[in] ctx                      a training context structure for the GPU backend
     /// @param[in] node_hist_list           a pre-calculated histogram for each node
     /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
     /// @param[in] random_bins_com          a set of random (uniformly distributed) thresholds for each selected feature scaled at [0.0, 1.0]
     /// @param[in] bin_offset_list          an array of offsets for each bin
     /// @param[in] imp_data_list            an array of impurity data for each node
     /// @param[in] node_ind_list            an array of node indices
-    /// @param[in] node_ind_ofs             a global offset for node indices
+    /// @param[in] node_ind_ofs             global offset for node indices
     /// @param[in] node_list                a node structure containing split information
-    /// @param[in] left_child_imp_data_list an array of left child impurity values
+    /// @param[in] left_child_imp_data_list an array of left-child impurity values
     /// @param[in] node_imp_dec_list        an array of node impurity decrease values
     /// @param[in] update_imp_dec_required  boolean indicator to update impurity decrease structure
-    /// @param[in] node_count               a number of node to compute in current step
-    /// @param[in] deps                     a set of sycl event, which this method depends on
+    /// @param[in] node_count               number of the nodes to compute in the current step
+    /// @param[in] deps                     a set of SYCL events this method depends on
     static sycl::event compute_random_split_by_histogram(
         sycl::queue& queue,
         const context_t& ctx,

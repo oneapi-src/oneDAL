@@ -60,27 +60,27 @@ public:
     train_splitter_sp_opt_impl() = default;
     ~train_splitter_sp_opt_impl() = default;
 
-    /// Choses the best split for each feature from
+    /// Chooses the best split for each feature from
     /// the `selected_ftr_list` in terms of impurity values.
-    /// This kernel does not require pre-computed histograms, because it computes
+    /// This kernel does not require pre-computed histograms because it computes
     /// histograms while processing nodes.
     /// Large case evolves computation among the whole work-group.
     ///
-    /// @param[in] queue                        sycl parallel queue
-    /// @param[in] ctx                          a train context for GPU backend
+    /// @param[in] queue                        SYCL parallel queue
+    /// @param[in] ctx                          a training context structure for the GPU backend
     /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
     /// @param[in] response                     an input array of training response values
-    /// @param[in] tree_order                   column indices map for corresponding tree
+    /// @param[in] tree_order                   column indices map for the corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
     /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
     /// @param[in] imp_data_list                a node impurity data array
     /// @param[in] node_ind_list                a node indices array
     /// @param[in] node_ind_ofs                 a node indices offset
     /// @param[in] node_list                    a node data structure containing split information
-    /// @param[in] left_child_imp_data_list     an impurity array for left child
+    /// @param[in] left_child_imp_data_list     an impurity array for left-child
     /// @param[in] node_imp_dec_list            an array for node impurity decrease data
     /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
-    /// @param[in] node_count                   a number of nodes to process in current step
+    /// @param[in] node_count                   number of the nodes to compute in the current step
     /// @param[in] deps                         a set of events, which this method depends on
     static sycl::event best_split_single_pass_large(sycl::queue& queue,
                                                     const context_t& ctx,
@@ -99,27 +99,27 @@ public:
                                                     Index node_count,
                                                     const bk::event_vector& deps = {});
 
-    /// Choses the best split for each feature from
+    /// Chooses the best split for each feature from
     /// the `selected_ftr_list` in terms of impurity values.
-    /// This kernel does not require pre-computed histograms, because it computes
+    /// This kernel does not require pre-computed histograms because it computes
     /// histograms while processing nodes.
-    /// Small case evolves computation among subgroups only, it makes computations faster,
-    /// but due to limited subgroup-size applies only for special nodes.
+    /// Small case evolves computation among subgroups only. It makes computations faster,
+    /// but due to limited subgroup size, it applies only to special nodes.
     ///
-    /// @param[in] queue                        sycl parallel queue
-    /// @param[in] ctx                          a train context for GPU backend
+    /// @param[in] queue                        SYCL parallel queue
+    /// @param[in] ctx                          a training context structure for the GPU backend
     /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
     /// @param[in] response                     an input array of training response values
-    /// @param[in] tree_order                   column indices map for corresponding tree
+    /// @param[in] tree_order                   column indices map for the corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
     /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
     /// @param[in] imp_data_list                a node impurity data array
     /// @param[in] node_group                   a node group contains node with appropriate row count
     /// @param[in] level_node_list              a node data structure containing split information
-    /// @param[in] left_child_imp_data_list     an impurity array for left child
+    /// @param[in] left_child_imp_data_list     an impurity array for left-child
     /// @param[in] node_imp_dec_list            an array for node impurity decrease data
     /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
-    /// @param[in] deps                         a set of events, which this method depends on
+    /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event best_split_single_pass_small(sycl::queue& queue,
                                                     const context_t& ctx,
                                                     const pr::ndarray<Bin, 2>& data,
@@ -144,7 +144,7 @@ public:
     /// @param[in] ctx                          a train context for GPU backend
     /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
     /// @param[in] response                     an input array of training response values
-    /// @param[in] tree_order                   column indices map for corresponding tree
+    /// @param[in] tree_order                   column indices map for the corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
     /// @param[in] random_bins_com              random bin tresholds for each selected feature scaled at [0.0, 1.0] uniformly
     /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
@@ -155,8 +155,8 @@ public:
     /// @param[in] left_child_imp_data_list     an impurity array for left child
     /// @param[in] node_imp_dec_list            an array for node impurity decrease data
     /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
-    /// @param[in] node_count                   a number of nodes to process in current step
-    /// @param[in] deps                         a set of events, which this method depends on
+    /// @param[in] node_count                   number of the nodes to compute in the current step
+    /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event random_split_single_pass(sycl::queue& queue,
                                                 const context_t& ctx,
                                                 const pr::ndarray<Bin, 2>& data,

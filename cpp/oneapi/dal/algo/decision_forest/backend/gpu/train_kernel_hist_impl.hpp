@@ -143,7 +143,7 @@ private:
     /// @param[in] imp_data_list    an impurity data list
     /// @param[in] node_list        a node list containing splitting info
     /// @param[in] node_count       a number of nodes on current level
-    /// @param[in] deps             a set of events this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event compute_initial_imp_for_node_list(const train_context_t& ctx,
                                                   imp_data_t& imp_data_list,
                                                   pr::ndarray<Index, 1>& node_list,
@@ -158,7 +158,7 @@ private:
     /// @param[in] node_list        a node list containing splitting info
     /// @param[in] imp_data_list    a list of nodes' impurity
     /// @param[in] node_count       a number of nodes to process
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event compute_initial_histogram_local(const train_context_t& ctx,
                                                 const pr::ndarray<Float, 1>& response,
                                                 const pr::ndarray<Index, 1>& tree_order,
@@ -176,7 +176,7 @@ private:
     /// @param[in] node_list        a node list containing splitting info
     /// @param[in] sum_list         a list of nodes' sum
     /// @param[in] node_count       a number of nodes to process
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event compute_initial_sum_local(const train_context_t& ctx,
                                           const pr::ndarray<Float, 1>& response,
                                           const pr::ndarray<Index, 1>& tree_order,
@@ -195,7 +195,7 @@ private:
     /// @param[in] sum_list         a list of nodes' sum
     /// @param[in] sum2cent_list    a list of nodes' distance to center
     /// @param[in] node_count       a number of nodes to process
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event compute_initial_sum2cent_local(const train_context_t& ctx,
                                                const pr::ndarray<Float, 1>& response,
                                                const pr::ndarray<Index, 1>& tree_order,
@@ -213,7 +213,7 @@ private:
     /// @param[in] sum2cent_list    a list of nodes' distance to center
     /// @param[in] imp_data_list    a list of nodes' impurity
     /// @param[in] node_count       a number of nodes to process
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event fin_initial_imp(const train_context_t& ctx,
                                 const pr::ndarray<Index, 1>& node_list,
                                 const pr::ndarray<Float, 1>& sum_list,
@@ -231,7 +231,7 @@ private:
     /// @param[in] node_list        a node list containing splitting info
     /// @param[in] imp_data_list    a list of nodes' impurity
     /// @param[in] node_count       a number of nodes to process
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event compute_initial_histogram(const train_context_t& ctx,
                                           const pr::ndarray<Float, 1>& response,
                                           const pr::ndarray<Index, 1>& tree_order,
@@ -253,7 +253,7 @@ private:
     /// @param[in] imp_data_list                a list of nodes' impurity
     /// @param[in] node_count                   a number of nodes to process
     /// @param[in] node_count_new               a new number of nodes
-    /// @param[in] deps                         a set of event this kernel depends on
+    /// @param[in] deps                         a set of SYCL events this kernel depends on
     sycl::event do_node_split(const train_context_t& ctx,
                               const pr::ndarray<Index, 1>& node_list,
                               const pr::ndarray<Index, 1>& node_vs_tree_map,
@@ -284,7 +284,7 @@ private:
     /// @param[in] node_imp_decrease_list   an array of node decreases list
     /// @param[in] update_imp_dec_required  a boolean flag if required to update `node_imp_decrease_list`
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     sycl::event compute_best_split(const train_context_t& ctx,
                                    const pr::ndarray<Bin, 2>& data,
                                    const pr::ndview<Float, 1>& response,
@@ -314,7 +314,7 @@ private:
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] npart_hist_list          a number of partial histogram lists
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     std::tuple<pr::ndarray<hist_type_t, 1>, sycl::event> compute_histogram(
         const train_context_t& ctx,
         const pr::ndarray<Bin, 2>& data,
@@ -343,7 +343,7 @@ private:
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] npart_hist_list          a number of partial histogram lists
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     std::tuple<pr::ndarray<hist_type_t, 1>, sycl::event> compute_histogram_distr(
         const train_context_t& ctx,
         const pr::ndarray<Bin, 2>& data,
@@ -373,7 +373,7 @@ private:
     /// @param[in] part_hist_list           an array of partial histograms
     /// @param[in] part_hist_count          a number of partial histograms
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     sycl::event compute_partial_histograms(const train_context_t& ctx,
                                            const pr::ndarray<Bin, 2>& data,
                                            const pr::ndview<Float, 1>& response,
@@ -396,7 +396,7 @@ private:
     /// @param[in] hist_list                a final histogram list
     /// @param[in] part_hist_count          a number of partial histograms
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     sycl::event reduce_partial_histograms(const train_context_t& ctx,
                                           const pr::ndarray<hist_type_t, 1>& part_hist_list,
                                           pr::ndarray<hist_type_t, 1>& hist_list,
@@ -419,7 +419,7 @@ private:
     /// @param[in] part_hist_list           an array of partial histograms
     /// @param[in] part_hist_count          a number of partial histograms
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     /// @param[in] task_val                 a task type, it could be regresson or classification
     sycl::event compute_partial_count_and_sum(const train_context_t& ctx,
                                               const pr::ndarray<Bin, 2>& data,
@@ -452,7 +452,7 @@ private:
     /// @param[in] part_hist_list           an array of partial histograms
     /// @param[in] part_hist_count          a number of partial histograms
     /// @param[in] node_count               a number of nodes to process
-    /// @param[in] deps                     a set of event this kernel depends on
+    /// @param[in] deps                     a set of SYCL events this kernel depends on
     /// @param[in] task_val                 a task type, it could be regresson or classification
     sycl::event compute_partial_sum2cent(const train_context_t& ctx,
                                          const pr::ndarray<Bin, 2>& data,
@@ -479,7 +479,7 @@ private:
     /// @param[in] part_hist_count  a number of partial histograms
     /// @param[in] node_count       a number of nodes to process
     /// @param[in] hist_prop_count  a number of properties in histogram
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event sum_reduce_partial_histograms(const train_context_t& ctx,
                                               const pr::ndarray<Float, 1>& part_hist_list,
                                               pr::ndarray<Float, 1>& hist_list,
@@ -495,7 +495,7 @@ private:
     /// @param[in] sum2cent_list    an array of partial distances to center
     /// @param[in] histogram_list   a final histogram list
     /// @param[in] node_count       a number of nodes to process
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event fin_histogram_distr(const train_context_t& ctx,
                                     const pr::ndarray<Float, 1>& sum_list,
                                     const pr::ndarray<Float, 1>& sum2cent_list,
@@ -514,7 +514,7 @@ private:
     /// @param[in] tree_idx         a tree index
     /// @param[in] ind_ofs          an offset of a tree
     /// @param[in] n                a number of nodes
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     Float compute_oob_error(const train_context_t& ctx,
                             const model_manager_t& model_manager,
                             const pr::ndarray<Float, 1>& data_host,
@@ -537,7 +537,7 @@ private:
     /// @param[in] tree_idx         a tree index
     /// @param[in] ind_ofs          an offset of a tree
     /// @param[in] n                a number of nodes
-    /// @param[in] deps             a set of event this kernel depends on
+    /// @param[in] deps             a set of SYCL events this kernel depends on
     Float compute_oob_error_perm(const train_context_t& ctx,
                                  const model_manager_t& model_manager,
                                  const pr::ndarray<Float, 1>& data_host,
@@ -565,7 +565,7 @@ private:
     /// @param[in] tree_idx             a tree index
     /// @param[in] tree_in_block        a number of trees in computational block
     /// @param[in] built_tree_count     a number of trees, which are already built
-    /// @param[in] deps                 a set of event this kernel depends on
+    /// @param[in] deps                 a set of SYCL events this kernel depends on
     sycl::event compute_results(const train_context_t& ctx,
                                 const model_manager_t& model_manager,
                                 const pr::ndarray<Float, 1>& data_host,
@@ -588,7 +588,7 @@ private:
     /// @param[in] oob_per_obs_list     an array of OOB values per observation
     /// @param[in] res_oob_err          a final OOB error values
     /// @param[in] res_oob_err_obs      a final OOB error values per observation
-    /// @param[in] deps                 a set of event this kernel depends on
+    /// @param[in] deps                 a set of SYCL events this kernel depends on
     sycl::event finalize_oob_error(const train_context_t& ctx,
                                    const pr::ndarray<Float, 1>& response_host,
                                    pr::ndarray<hist_type_t, 1>& oob_per_obs_list,
@@ -601,7 +601,7 @@ private:
     /// @param[in] ctx                  a training context structure for a GPU backend
     /// @param[in] var_imp              a variable importance values
     /// @param[in] var_imp_variance     a variable importance variance values
-    /// @param[in] deps                 a set of event this kernel depends on
+    /// @param[in] deps                 a set of SYCL events this kernel depends on
     sycl::event finalize_var_imp(const train_context_t& ctx,
                                  pr::ndarray<Float, 1>& var_imp,
                                  pr::ndarray<Float, 1>& var_imp_variance,

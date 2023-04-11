@@ -73,7 +73,7 @@ corresponding to their children, :math:`t_L` and :math:`t_R`.
 Training method: *Dense*
 ++++++++++++++++++++++++
 
-In *dense* training method, all possible data points for each feature are considered as possible splits for the current node 
+In the *dense* training method, all possible data points for each feature are considered as possible splits for the current node 
 and evaluated for best split computation.
 
 .. _df_t_math_hist:
@@ -81,9 +81,9 @@ and evaluated for best split computation.
 Training method: *Hist*
 +++++++++++++++++++++++
 
-In *hist* training method, only bins are considered for best split computation.
+In the *hist* training method, only bins are considered for best split computation.
 Bins are continuous intervals of data points for a selected feature.
-Bins are computed for each feature at the initialization stage of the algorithm.
+They are computed for each feature during the initialization stage of the algorithm.
 Each value from the initially provided data is substituted
 with the value of the corresponding bin. It decreases the computational time complexity
 from :math:`O(num_rows * num_selected_features)` to :math:`O(num_bins * num_selected_features)`,
@@ -92,7 +92,9 @@ but decreases algorithm accuracy.
 Split strategy
 ++++++++++++++
 
-NOTE: `random` split strategy is supported only for `hist` method. Dense method supports only `best` strategy.
+.. note::
+  The `random` split strategy is supported only for the `hist` method. The dense method supports only the `best` strategy.
+
 There are two split strategies for building trees:
 .. tabs::
 
