@@ -92,20 +92,20 @@ private:
     Index get_row_total_count(bool distr_mode, Index row_count);
     Index get_global_row_offset(bool distr_mode, Index row_count);
 
-    /// Initializes training context structure `ctx` based on data and
+    /// Initializes `ctx` training context structure based on data and
     /// descriptor class. Filling and calculating all parameters in context,
-    /// for example, tree count, required memory size, calculating indexed features etc.
+    /// for example, tree count, required memory size, calculating indexed features, etc.
     ///
-    /// @param[in] ctx          a train context structure for GPU backend
+    /// @param[in] ctx          a training context structure for a GPU backend
     /// @param[in] desc         a structure containing training parameters
-    /// @param[in] data         a table with train data
-    /// @param[in] labels       a table with train labels
+    /// @param[in] data         a table with training data
+    /// @param[in] labels       a table with training labels
     void init_params(train_context_t& ctx,
                      const descriptor_t& desc,
                      const table& data,
                      const table& labels);
-    /// Allocates all buffers, which are used for ytaining.
-    /// @param[in] ctx  a train context structure for GPU backend
+    /// Allocates all buffers that are used for training.
+    /// @param[in] ctx  a training context structure for a GPU backend
     void allocate_buffers(const train_context_t& ctx);
 
     /// Generates feature list for each node. If `boostrap=true`
@@ -113,7 +113,7 @@ private:
     /// assigns all features for each node. Returns the array of selected features
     /// on device and sycl::event.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] node_count       a number of nodes on current level
     /// @param[in] node_vs_tree_map an initial tree order
     /// @param[in] rng_engine_list  a list of random generator engines
@@ -127,7 +127,7 @@ private:
     /// Tresholds are used for random splitter kernel to split each node.
     /// Returns an array of tresholds scaled in `[0,1]` on device and sycl::event.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] node_count       a number of nodes on current level
     /// @param[in] node_vs_tree_map an initial tree order
     /// @param[in] rng_engine_list  a list of random generator engines
@@ -139,7 +139,7 @@ private:
 
     /// Computes initial impurity for each node.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] imp_data_list    an impurity data list
     /// @param[in] node_list        a node list containing splitting info
     /// @param[in] node_count       a number of nodes on current level
@@ -152,7 +152,7 @@ private:
 
     /// Computes initial histograms for each node in order to compute impurity.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
     /// @param[in] tree_order       a current tree order
     /// @param[in] node_list        a node list containing splitting info
@@ -170,7 +170,7 @@ private:
     /// Computes initial sum locally for each node. It is an internal kernel
     /// which is used for computing histograms.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
     /// @param[in] tree_order       a current tree order
     /// @param[in] node_list        a node list containing splitting info
@@ -188,7 +188,7 @@ private:
     /// Computes initial distances to centers. It is an internal kernel
     /// which is used for computing histograms.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
     /// @param[in] tree_order       a current tree order
     /// @param[in] node_list        a node list containing splitting info
@@ -207,7 +207,7 @@ private:
 
     /// Finalizes computation of initial impurity for each node.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] node_list        a node list containing splitting info
     /// @param[in] sum_list         a list of nodes' sum
     /// @param[in] sum2cent_list    a list of nodes' distance to center
@@ -225,7 +225,7 @@ private:
     /// Computes initial histogram. It is high-level kernel,
     /// which uses auxiliary kernels, desctibed above.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
     /// @param[in] tree_order       a current tree order
     /// @param[in] node_list        a node list containing splitting info
@@ -243,7 +243,7 @@ private:
     /// Computes node splitting based on split information in `node_list`.
     /// Adds splitted nodes to new lists.
     ///
-    /// @param[in] ctx                          a train context structure for GPU backend
+    /// @param[in] ctx                          a training context structure for a GPU backend
     /// @param[in] node_list                    a node list containing splitting info
     /// @param[in] node_vs_tree_map             an initial tree order
     /// @param[in] imp_data_list                a list of nodes' impurity
@@ -271,7 +271,7 @@ private:
     /// For example, for all nodes with row count less than
     /// node_t::get_elementary_node_max_row_count() best_split_single_pass_small will invoke.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a train data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] tree_order               a current tree order
@@ -303,7 +303,7 @@ private:
     /// Computes histogram for each node in current level. It can process
     /// histograms partially or and single run, depending on data size.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a train data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] tree_order               a current tree order
@@ -332,7 +332,7 @@ private:
     /// Computes histogram for each node in current level in distributed manner, if
     /// platform/device supports it and the flag `ctx.distr` is true.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a train data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] tree_order               a current tree order
@@ -361,7 +361,7 @@ private:
     /// Computes partial histograms for each node. It is an internal kernel, which is
     /// used in `compute_histogram` kernel.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a train data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] tree_order               a current tree order
@@ -391,7 +391,7 @@ private:
     /// Reduces partial histogram into one `hist_list`. It is an internal kernel,
     /// which is used in `compute_histogram` kernel.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] part_hist_list           an array of partial histograms
     /// @param[in] hist_list                a final histogram list
     /// @param[in] part_hist_count          a number of partial histograms
@@ -407,7 +407,7 @@ private:
     /// Computes histogram statistics (count and sum) partially. It is an internal auxilary kernel,
     /// which is used in `compute_histogram` kernel.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a train data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] tree_order               a current tree order
@@ -439,7 +439,7 @@ private:
     /// Computes distances to center partially. It is an internal auxilary kernel,
     /// which is used in `compute_histogram` kernel.
     ///
-    /// @param[in] ctx                      a train context structure for GPU backend
+    /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a train data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] sum_list                 an array of partial sums
@@ -473,7 +473,7 @@ private:
     /// Reduces partial sums into hist list. It is an internal auxilary kernel,
     /// which is used in `compute_histogram` kernel.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] part_hist_list   an array of partial histograms
     /// @param[in] hist_list        a final histogram list
     /// @param[in] part_hist_count  a number of partial histograms
@@ -490,7 +490,7 @@ private:
 
     /// Finilizes distributed calculations for histogram using partially pre-computed statistics.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] sum_list         an array of partial sums
     /// @param[in] sum2cent_list    an array of partial distances to center
     /// @param[in] histogram_list   a final histogram list
@@ -505,7 +505,7 @@ private:
 
     /// Computes Out-Of-Bag error.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] model_manager    a model manager class
     /// @param[in] data_host        an array of train data on host
     /// @param[in] response_host    an array of train labels on host
@@ -528,7 +528,7 @@ private:
 
     /// Computes Out-Of-Bag error permuted.
     ///
-    /// @param[in] ctx              a train context structure for GPU backend
+    /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] model_manager    a model manager class
     /// @param[in] data_host        an array of train data on host
     /// @param[in] response_host    an array of train labels on host
@@ -552,7 +552,7 @@ private:
 
     /// Computes results for Out-Of-Bag errors.
     ///
-    /// @param[in] ctx                  a train context structure for GPU backend
+    /// @param[in] ctx                  a training context structure for a GPU backend
     /// @param[in] model_manager        a model manager class
     /// @param[in] data_host            an array of train data on host
     /// @param[in] response_host        an array of train labels on host
@@ -583,7 +583,7 @@ private:
 
     /// Finilizes Out-Of-Bug error computations.
     ///
-    /// @param[in] ctx                  a train context structure for GPU backend
+    /// @param[in] ctx                  a training context structure for a GPU backend
     /// @param[in] response_host        an array of train labels on host
     /// @param[in] oob_per_obs_list     an array of OOB values per observation
     /// @param[in] res_oob_err          a final OOB error values
@@ -598,7 +598,7 @@ private:
 
     /// Finilizes variable importance computations.
     ///
-    /// @param[in] ctx                  a train context structure for GPU backend
+    /// @param[in] ctx                  a training context structure for a GPU backend
     /// @param[in] var_imp              a variable importance values
     /// @param[in] var_imp_variance     a variable importance variance values
     /// @param[in] deps                 a set of event this kernel depends on
