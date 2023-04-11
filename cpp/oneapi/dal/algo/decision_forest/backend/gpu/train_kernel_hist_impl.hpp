@@ -498,7 +498,7 @@ private:
     /// @param[in] deps             a set of event this kernel depends on
     sycl::event fin_histogram_distr(const train_context_t& ctx,
                                     const pr::ndarray<Float, 1>& sum_list,
-                                    const pr::ndarray<Float, 1>& ,
+                                    const pr::ndarray<Float, 1>& sum2cent_list,
                                     pr::ndarray<Float, 1>& histogram_list,
                                     Index node_count,
                                     const bk::event_vector& deps = {});
