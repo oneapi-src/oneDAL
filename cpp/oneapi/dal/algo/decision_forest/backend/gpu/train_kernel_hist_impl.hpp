@@ -108,13 +108,13 @@ private:
     /// @param[in] ctx  a training context structure for a GPU backend
     void allocate_buffers(const train_context_t& ctx);
 
-    /// Generates feature list for each node. If `boostrap=true`
+    /// Generates feature list for each node. If `boostrap=true`,
     /// selects a random subset of features for each node. Otherwise,
     /// assigns all features for each node. Returns the array of selected features
     /// on device and sycl::event.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
-    /// @param[in] node_count       number of nodes on current level
+    /// @param[in] node_count       number of nodes on the current level
     /// @param[in] node_vs_tree_map an initial tree order
     /// @param[in] rng_engine_list  a list of random generator engines
     std::tuple<pr::ndarray<Index, 1>, sycl::event> gen_feature_list(
@@ -124,11 +124,11 @@ private:
         rng_engine_list_t& rng_engine_list);
 
     /// Generates random tresholds for each node and for each selected feature for node.
-    /// Tresholds are used for random splitter kernel to split each node.
-    /// Returns an array of tresholds scaled in `[0,1]` on device and sycl::event.
+    /// Thresholds are used for a random splitter kernel to split each node.
+    /// Returns an array of thresholds scaled in `[0,1]` on device and sycl::event.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
-    /// @param[in] node_count       number of nodes on current level
+    /// @param[in] node_count       number of nodes on the current level
     /// @param[in] node_vs_tree_map an initial tree order
     /// @param[in] rng_engine_list  a list of random generator engines
     std::tuple<pr::ndarray<Float, 1>, sycl::event> gen_random_thresholds(
@@ -141,8 +141,8 @@ private:
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] imp_data_list    an impurity data list
-    /// @param[in] node_list        a node list containing splitting info
-    /// @param[in] node_count       number of nodes on current level
+    /// @param[in] node_list        a node list containing splitting information
+    /// @param[in] node_count       number of nodes on the current level
     /// @param[in] deps             a set of SYCL events this kernel depends on
     sycl::event compute_initial_imp_for_node_list(const train_context_t& ctx,
                                                   imp_data_t& imp_data_list,
@@ -150,12 +150,12 @@ private:
                                                   Index node_count,
                                                   const bk::event_vector& deps = {});
 
-    /// Computes initial histograms for each node in order to compute impurity.
+    /// Computes initial histograms for each node to compute impurity.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
-    /// @param[in] tree_order       a current tree order
-    /// @param[in] node_list        a node list containing splitting info
+    /// @param[in] tree_order       current tree order
+    /// @param[in] node_list        a node list containing splitting information
     /// @param[in] imp_data_list    a list of nodes' impurity
     /// @param[in] node_count       number of nodes to process
     /// @param[in] deps             a set of SYCL events this kernel depends on
@@ -168,12 +168,12 @@ private:
                                                 const bk::event_vector& deps);
 
     /// Computes initial sum locally for each node. It is an internal kernel
-    /// which is used for computing histograms.
+    /// used for computing histograms.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
-    /// @param[in] tree_order       a current tree order
-    /// @param[in] node_list        a node list containing splitting info
+    /// @param[in] tree_order       current tree order
+    /// @param[in] node_list        a node list containing splitting information
     /// @param[in] sum_list         a list of nodes' sum
     /// @param[in] node_count       number of nodes to process
     /// @param[in] deps             a set of SYCL events this kernel depends on
@@ -185,13 +185,13 @@ private:
                                           Index node_count,
                                           const bk::event_vector& deps);
 
-    /// Computes initial distances to centers. It is an internal kernel
-    /// which is used for computing histograms.
+    /// Computes initial distances to center. It is an internal kernel
+    /// used for computing histograms.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
-    /// @param[in] tree_order       a current tree order
-    /// @param[in] node_list        a node list containing splitting info
+    /// @param[in] tree_order       current tree order
+    /// @param[in] node_list        a node list containing splitting information
     /// @param[in] sum_list         a list of nodes' sum
     /// @param[in] sum2cent_list    a list of nodes' distance to center
     /// @param[in] node_count       number of nodes to process
@@ -208,7 +208,7 @@ private:
     /// Finalizes computation of initial impurity for each node.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
-    /// @param[in] node_list        a node list containing splitting info
+    /// @param[in] node_list        a node list containing splitting information
     /// @param[in] sum_list         a list of nodes' sum
     /// @param[in] sum2cent_list    a list of nodes' distance to center
     /// @param[in] imp_data_list    a list of nodes' impurity
@@ -222,13 +222,13 @@ private:
                                 Index node_count,
                                 const bk::event_vector& deps);
 
-    /// Computes initial histogram. It is high-level kernel,
-    /// which uses auxiliary kernels, desctibed above.
+    /// Computes initial histogram. It is a high-level kernel,
+    /// which uses auxiliary kernels defined above.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] response         an array with data responses (labels)
-    /// @param[in] tree_order       a current tree order
-    /// @param[in] node_list        a node list containing splitting info
+    /// @param[in] tree_order       current tree order
+    /// @param[in] node_list        a node list containing splitting information
     /// @param[in] imp_data_list    a list of nodes' impurity
     /// @param[in] node_count       number of nodes to process
     /// @param[in] deps             a set of SYCL events this kernel depends on
@@ -241,13 +241,13 @@ private:
                                           const bk::event_vector& deps);
 
     /// Computes node splitting based on split information in `node_list`.
-    /// Adds splitted nodes to new lists.
+    /// Adds split nodes to new lists.
     ///
     /// @param[in] ctx                          a training context structure for a GPU backend
-    /// @param[in] node_list                    a node list containing splitting info
+    /// @param[in] node_list                    a node list containing splitting information
     /// @param[in] node_vs_tree_map             an initial tree order
     /// @param[in] imp_data_list                a list of nodes' impurity
-    /// @param[in] left_child_imp_data_list     an array of left child impurity values
+    /// @param[in] left_child_imp_data_list     an array of left-child impurity values
     /// @param[in] node_list_new                a new node list containing splitting info
     /// @param[in] node_vs_tree_map_new         an new tree order
     /// @param[in] imp_data_list                a list of nodes' impurity
@@ -266,21 +266,21 @@ private:
                               Index node_count_new,
                               const bk::event_vector& deps);
 
-    /// Provides split computations for each node. Filters nodes based on the
-    /// nodes' row count. For each row count groups chooses appropriate splitting kernel.
+    /// Provides split computations for each node. This kernel filters nodes based on the
+    /// theirs row count. For each row count group this kernel chooses appropriate splitting kernel.
     /// For example, for all nodes with row count less than
-    /// node_t::get_elementary_node_max_row_count() best_split_single_pass_small will invoke.
+    /// node_t::get_elementary_node_max_row_count() best_split_single_pass_small invokes.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
     /// @param[in] response                 an array with data responses (labels)
-    /// @param[in] tree_order               a current tree order
+    /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
     /// @param[in] random_bins_com          an array of random tresholds for each feature and for each node
     /// @param[in] bin_offset_list          an array of bin offsets
     /// @param[in] imp_data_list            a list of nodes' impurity
-    /// @param[in] node_list                a node list containing splitting info
-    /// @param[in] left_child_imp_data_list an array of left child impurity values
+    /// @param[in] node_list                a node list containing splitting information
+    /// @param[in] left_child_imp_data_list an array of left-child impurity values
     /// @param[in] node_imp_decrease_list   an array of node decreases list
     /// @param[in] update_imp_dec_required  a boolean flag if required to update `node_imp_decrease_list`
     /// @param[in] node_count               number of nodes to process
@@ -300,16 +300,16 @@ private:
                                    Index node_count,
                                    const bk::event_vector& deps = {});
 
-    /// Computes histogram for each node in current level. It can process
-    /// histograms partially or and single run, depending on data size.
+    /// Computes a histogram for each node at the current level. It can process
+    /// histograms partially or a single run, depending on data size.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
     /// @param[in] response                 an array with data responses (labels)
-    /// @param[in] tree_order               a current tree order
+    /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
     /// @param[in] bin_offset_list          an array of bin offsets
-    /// @param[in] node_list                a node list containing splitting info
+    /// @param[in] node_list                a node list containing splitting information
     /// @param[in] node_ind_list            a node indices list
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] npart_hist_list          number of partial histogram lists
@@ -329,16 +329,16 @@ private:
         Index node_count,
         const bk::event_vector& deps = {});
 
-    /// Computes histogram for each node in current level in distributed manner, if
+    /// Computes a histogram for each node at the current level in distributed manner, if
     /// platform/device supports it and the flag `ctx.distr` is true.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
     /// @param[in] response                 an array with data responses (labels)
-    /// @param[in] tree_order               a current tree order
+    /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
     /// @param[in] bin_offset_list          an array of bin offsets
-    /// @param[in] node_list                a node list containing splitting info
+    /// @param[in] node_list                a node list containing splitting information
     /// @param[in] node_ind_list            a node indices list
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] npart_hist_list          number of partial histogram lists
@@ -358,16 +358,16 @@ private:
         Index node_count,
         const bk::event_vector& deps = {});
 
-    /// Computes partial histograms for each node. It is an internal kernel, which is
+    /// Computes partial histograms for each node. It is an internal kernel
     /// used in `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
     /// @param[in] response                 an array with data responses (labels)
-    /// @param[in] tree_order               a current tree order
+    /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
     /// @param[in] bin_offset_list          an array of bin offsets
-    /// @param[in] node_list                a node list containing splitting info
+    /// @param[in] node_list                a node list containing splitting information
     /// @param[in] node_ind_list            a node indices list
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] part_hist_list           an array of partial histograms
@@ -388,8 +388,8 @@ private:
                                            Index node_count,
                                            const bk::event_vector& deps = {});
 
-    /// Reduces partial histogram into one `hist_list`. It is an internal kernel,
-    /// which is used in `compute_histogram` kernel.
+    /// Reduces a partial histogram to one `hist_list`. It is an internal kernel
+    /// used in `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] part_hist_list           an array of partial histograms
@@ -404,23 +404,23 @@ private:
                                           Index node_count,
                                           const bk::event_vector& deps = {});
 
-    /// Computes histogram statistics (count and sum) partially. It is an internal auxilary kernel,
+    /// Computes histogram statistics (count and sum) partially. It is an internal auxiliary kernel,
     /// which is used in `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
     /// @param[in] response                 an array with data responses (labels)
-    /// @param[in] tree_order               a current tree order
+    /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
     /// @param[in] bin_offset_list          an array of bin offsets
-    /// @param[in] node_list                a node list containing splitting info
+    /// @param[in] node_list                a node list containing splitting information
     /// @param[in] node_ind_list            a node indices list
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] part_hist_list           an array of partial histograms
     /// @param[in] part_hist_count          number of partial histograms
     /// @param[in] node_count               number of nodes to process
     /// @param[in] deps                     a set of SYCL events this kernel depends on
-    /// @param[in] task_val                 a task type, it could be regresson or classification
+    /// @param[in] task_val                 a task type: regression or classification
     sycl::event compute_partial_count_and_sum(const train_context_t& ctx,
                                               const pr::ndarray<Bin, 2>& data,
                                               const pr::ndview<Float, 1>& response,
@@ -436,24 +436,24 @@ private:
                                               const bk::event_vector& deps = {},
                                               const task::regression task_val = {});
 
-    /// Computes distances to center partially. It is an internal auxilary kernel,
-    /// which is used in `compute_histogram` kernel.
+    /// Computes distances to center partially. It is an internal auxiliary kernel
+    /// used in `compute_histogram` kernel.
     ///
     /// @param[in] ctx                      a training context structure for a GPU backend
     /// @param[in] data                     a training data converted to bins
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] sum_list                 an array of partial sums
-    /// @param[in] tree_order               a current tree order
+    /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
     /// @param[in] bin_offset_list          an array of bin offsets
-    /// @param[in] node_list                a node list containing splitting info
+    /// @param[in] node_list                a node list containing splitting information
     /// @param[in] node_ind_list            a node indices list
     /// @param[in] node_ind_ofs             a node indices offset
     /// @param[in] part_hist_list           an array of partial histograms
     /// @param[in] part_hist_count          number of partial histograms
     /// @param[in] node_count               number of nodes to process
     /// @param[in] deps                     a set of SYCL events this kernel depends on
-    /// @param[in] task_val                 a task type, it could be regresson or classification
+    /// @param[in] task_val                 a task type: regression or classification
     sycl::event compute_partial_sum2cent(const train_context_t& ctx,
                                          const pr::ndarray<Bin, 2>& data,
                                          const pr::ndview<Float, 1>& response,
@@ -470,8 +470,8 @@ private:
                                          const bk::event_vector& deps = {},
                                          const task::regression task_val = {});
 
-    /// Reduces partial sums into hist list. It is an internal auxilary kernel,
-    /// which is used in `compute_histogram` kernel.
+    /// Reduces partial sums into hist list. It is an internal auxiliary kernel
+    /// used in `compute_histogram` kernel.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
     /// @param[in] part_hist_list   an array of partial histograms
