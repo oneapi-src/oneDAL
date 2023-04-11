@@ -123,7 +123,7 @@ private:
         const pr::ndarray<Index, 1>& node_vs_tree_map,
         rng_engine_list_t& rng_engine_list);
 
-    /// Generates random tresholds for each node and for each selected feature for node.
+    /// Generates random thresholds for each node and for each selected feature for node.
     /// Thresholds are used for a random splitter kernel to split each node.
     /// Returns an array of thresholds scaled in `[0,1]` on device and sycl::event.
     ///
@@ -248,11 +248,11 @@ private:
     /// @param[in] node_vs_tree_map             an initial tree order
     /// @param[in] imp_data_list                a list of nodes' impurity
     /// @param[in] left_child_imp_data_list     an array of left-child impurity values
-    /// @param[in] node_list_new                a new node list containing splitting info
+    /// @param[in] node_list_new                a new node list containing splitting information
     /// @param[in] node_vs_tree_map_new         a new tree order
     /// @param[in] imp_data_list                a list of nodes' impurity
     /// @param[in] node_count                   number of nodes to process
-    /// @param[in] node_count_new               a new number of nodes
+    /// @param[in] node_count_new               new number of nodes
     /// @param[in] deps                         a set of SYCL events this kernel depends on
     sycl::event do_node_split(const train_context_t& ctx,
                               const pr::ndarray<Index, 1>& node_list,
@@ -276,7 +276,7 @@ private:
     /// @param[in] response                 an array with data responses (labels)
     /// @param[in] tree_order               current tree order
     /// @param[in] selected_ftr_list        an array of selected features for each node
-    /// @param[in] random_bins_com          an array of random tresholds for each feature and for each node
+    /// @param[in] random_bins_com          an array of random thresholds for each feature and for each node
     /// @param[in] bin_offset_list          an array of bin offsets
     /// @param[in] imp_data_list            a list of nodes' impurity
     /// @param[in] node_list                a node list containing splitting information
@@ -559,7 +559,7 @@ private:
     /// @param[in] oob_row_list         an array of OOB values
     /// @param[in] oob_row_count_list   an array of OOB counts
     /// @param[in] oob_per_obs_list     an array of OOB values per observation
-    /// @param[in] var_imp              a variable importance values
+    /// @param[in] var_imp              variable importance values
     /// @param[in] var_imp_variance     variable importance variance values
     /// @param[in] rng_engine_arr       a list of random generator engines
     /// @param[in] tree_idx             a tree index
