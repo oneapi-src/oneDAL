@@ -31,6 +31,27 @@ In case, when :math:`\phi (x) = x`, the kernel is linear.
 Kernels are used in SVM model, but for some tasks it could be used separately to transform vectors
 from one space to another.
 
+The following tables describes current device support:
+.. list-table:: Device support
+   :widths: 50 10 10
+   :header-rows: 1
+
+   * - Kernel name
+     - CPU
+     - GPU
+   * - Linear
+     - Yes
+     - Yes
+   * - Polynomial
+     - Yes
+     - No
+   * - RBF
+     - Yes
+     - Yes
+   * - Sigmoid
+     - Yes
+     - Yes
+
 .. toctree::
    :titlesonly:
 
