@@ -74,7 +74,7 @@ Training method: *Dense*
 ++++++++++++++++++++++++
 
 In the *dense* training method, all possible data points for each feature are considered as possible splits for the current node 
-and evaluated for best split computation.
+and evaluated best-split computation.
 
 .. _df_t_math_hist:
 

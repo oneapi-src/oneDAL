@@ -68,7 +68,7 @@ public:
     ///
     /// @param[in] queue                        SYCL parallel queue
     /// @param[in] ctx                          a training context structure for the GPU backend
-    /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
+    /// @param[in] data                         an input data with the cast to Bin for each row_count * column_count
     /// @param[in] response                     an input array of training response values
     /// @param[in] tree_order                   column indices map for the corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
@@ -108,7 +108,7 @@ public:
     ///
     /// @param[in] queue                        SYCL parallel queue
     /// @param[in] ctx                          a training context structure for the GPU backend
-    /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
+    /// @param[in] data                         an input data with the cast to Bin for each row_count * column_count
     /// @param[in] response                     an input array of training response values
     /// @param[in] tree_order                   column indices map for the corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
@@ -142,7 +142,7 @@ public:
     ///
     /// @param[in] queue                        sycl parallel queue
     /// @param[in] ctx                          a train context for GPU backend
-    /// @param[in] data                         an input data with cast to Bin for each row_count * column_count
+    /// @param[in] data                         an input data with the cast to Bin for each row_count * column_count
     /// @param[in] response                     an input array of training response values
     /// @param[in] tree_order                   column indices map for the corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
