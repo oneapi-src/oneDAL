@@ -27,3 +27,7 @@
       Batch Processing:
 
       - :ref:`cpp_df_reg_dense_batch.cpp`
+
+   .. group-tab:: Python* with DPC++ support
+
+      - :daal4py_sycl_example:`decision_forest_regression_hist_batch.py`
