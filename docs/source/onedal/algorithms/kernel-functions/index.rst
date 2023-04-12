@@ -18,10 +18,10 @@
 Kernel Functions
 ================
 
-A kernel function is function that takes input vectors from original space
-and returns dot product of the vectors in the feature space.
-More formally, if we have :math:`x,y \in X`, and :math:`\phi \in X \leftarrow \mathbb{R}^n`,
-then kernel function
+A kernel function takes input vectors from original (:math:`p`-dimensional) space
+and returns dot product of the vectors in :math:`s`-dimensional feature space.
+More formally, if we have :math:`x,y \in \mathbb{R}^p`, and
+:math:`\phi \in \mathbb{R}^p \leftarrow \mathbb{R}^s`, then kernel function is
 
 .. math::
    K(x, y) = <\phi (x), \phi (y)>
@@ -31,7 +31,7 @@ In case, when :math:`\phi (x) = x`, the kernel is linear.
 Kernels are used in SVM model, but for some tasks it could be used separately to transform vectors
 from one space to another.
 
-The following tables describes current device support:
+The following table describes current device support:
 
 +--------------+------+------+
 | Kernel type  | CPU  | GPU  |
