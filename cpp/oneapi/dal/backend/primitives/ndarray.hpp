@@ -279,6 +279,18 @@ public:
         return *(col + id0);
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T at_device(sycl::queue& queue, std::int64_t id, const event_vector& deps = {}) const {
+        return this->get_slice(id, id + 1).to_host(queue, deps).at(0);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    T at_device(sycl::queue& queue, std::int64_t id0, std::int64_t id1, const event_vector& deps = {}) const {
+        return this->get_row_slice(id0, id0 + 1).get_col_slice(id1, id1 + 1).to_host(queue, deps).at(0, 0);
+    }
+#endif // ONEDAL_DATA_PARALLEL
+
     auto t() const {
         using tranposed_ndview_t = ndview<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
