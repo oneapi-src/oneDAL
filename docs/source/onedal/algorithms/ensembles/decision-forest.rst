@@ -86,7 +86,7 @@ Bins are continuous intervals of data points for a selected feature.
 They are computed for each feature during the initialization stage of the algorithm.
 Each value from the initially provided data is substituted
 with the value of the corresponding bin. It decreases the computational time complexity
-from :math:`O(num_rows * num_selected_features)` to :math:`O(num_bins * num_selected_features)`,
+from :math:`O(num_rows \dot num_selected_features)` to :math:`O(num_bins \cdot num_selected_features)`,
 but decreases algorithm accuracy. 
 
 Split strategy
@@ -101,7 +101,7 @@ There are two split strategies for building trees:
   .. group-tab:: Best splitter
 
   Treshold for a node is chosen as the best among all bins and all selected features according to split criteria(see  **Split Criteria** below).
-  The computational time complexity for the `best` splitter is :math:`O(num_features * num_bins)` for each node. The best splitting strategy
+  The computational time complexity for the `best` splitter is :math:`O(num_features \cdot num_bins)` for each node. The best splitting strategy
   builds a tree with optimal splits on each level.
 
   .. group-tab:: Random splitter
