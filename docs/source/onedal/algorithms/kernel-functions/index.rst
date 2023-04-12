@@ -28,7 +28,7 @@ More formally, if we have :math:`x,y \in \mathbb{R}^p`, and
 .. _kernel_func_def:
 
 where :math:`\phi(x)` is a vector-valued function:
-:math:`\phi(x) = \phi_1(x), \phi_2(x), \ldots, \phi_P(x)`.
+:math:`\phi(x) = \phi_1(x), \phi_2(x), \ldots, \phi_s(x)`.
 
 In case, when :math:`\phi (x) = x`, the kernel is linear.
 Kernels are used in SVM model, but for some tasks it could be used separately to transform vectors
