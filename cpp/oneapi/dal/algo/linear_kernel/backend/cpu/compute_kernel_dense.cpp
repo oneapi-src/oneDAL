@@ -30,7 +30,7 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_kenrel = daal::algorithms::kernel_function;
+namespace daal_kernel = daal::algorithms::kernel_function;
 namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial::internal;
 namespace daal_kernel_internal = daal::algorithms::kernel_function::internal;
 namespace interop = dal::backend::interop;
@@ -56,7 +56,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 
     daal_kernel_internal::KernelParameter kernel_parameter;
-    kernel_parameter.computationMode = daal_kenrel::ComputationMode::matrixMatrix;
+    kernel_parameter.computationMode = daal_kernel::ComputationMode::matrixMatrix;
     kernel_parameter.scale = desc.get_scale();
     kernel_parameter.shift = desc.get_shift();
     kernel_parameter.degree = 1;
