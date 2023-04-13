@@ -220,7 +220,7 @@ fi
 
 # ############################################################################
 my_script_path=$(get_script_path "${vars_script_name:-}")
-component_root=$(dirname -- "${my_script_path}")
+component_root=$(dirname -- "${my_script_path}")/..
 
 __daal_tmp_dir="<INSTALLDIR>"
 if [ ! -d $__daal_tmp_dir ]; then
@@ -232,8 +232,8 @@ export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
 export DALROOT=$__daal_tmp_dir
 export DAALROOT=$__daal_tmp_dir
 export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
-export LD_LIBRARY_PATH=$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-export CLASSPATH=$__daal_tmp_dir/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
+export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
+export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
 export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
 export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
