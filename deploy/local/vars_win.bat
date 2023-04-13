@@ -20,7 +20,7 @@ rem check if ONEAPI_ROOT is defined
 IF DEFINED ONEAPI_ROOT (
   set "DAALROOT=%ONEAPI_ROOT%"
   set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
-  exit /b 0
+  goto:eof
 )
 
 setlocal
