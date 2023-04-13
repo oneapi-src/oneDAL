@@ -47,7 +47,6 @@
 if [ -n "${ONEAPI_ROOT:-}" ] ; then
   export DAALROOT=$ONEAPI_ROOT
   export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
-  exit 0
 fi
 
 # executing function in a *subshell* to localize vars and effects on `cd`
@@ -227,13 +226,15 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
-export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
-export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
-export DALROOT=$__daal_tmp_dir
-export DAALROOT=$__daal_tmp_dir
-export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
-export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
-export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
-export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
+if [ -z "${ONEAPI_ROOT:-}" ] ; then 
+  export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
+  export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
+  export DALROOT=$__daal_tmp_dir
+  export DAALROOT=$__daal_tmp_dir
+  export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
+  export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
+  export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+  export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
+  export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
+  export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
+fi
