@@ -370,7 +370,7 @@ services::Status copyBinIndex(const size_t nRows, const size_t nCols, const Inde
 template <typename algorithmFPType, typename BinIndexType, CpuType cpu, typename ModelType, typename TaskType>
 services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, ModelType & md,
                              ResultData & res, const Parameter & par, size_t nClasses, const dtrees::internal::FeatureTypes & featTypes,
-                             const dtrees::internal::IndexedFeatures & indexedFeatures)
+                             const dtrees::internal::IndexedFeatures * indexedFeatures)
 {
     services::Status s;
     DAAL_CHECK(md.resize(par.nTrees), ErrorMemoryAllocationFailed);
@@ -380,9 +380,9 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     TVector<BinIndexType, cpu, ScalableAllocator<cpu> > binIndexVector;
     BinIndexType * binIndex = nullptr;
 
-    if (!par.memorySavingMode)
+    if (indexedFeatures)
     {
-        s = copyBinIndex<cpu>(nRows, nCols, indexedFeatures.data(0), binIndexVector, &binIndex);
+        s = copyBinIndex<cpu>(nRows, nCols, indexedFeatures->data(0), binIndexVector, &binIndex);
         DAAL_CHECK_STATUS_VAR(s);
     }
 
@@ -408,8 +408,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     daal::tls<TaskType *> tlsTask([&]() -> TaskType * {
         //in case of single thread no need to allocate
         Ctx * ctx = tlsCtx.local();
-        return ctx ? new TaskType(pHostApp, x, y, w, par, featTypes, par.memorySavingMode ? nullptr : &indexedFeatures, binIndex, *ctx, nClasses) :
-                     nullptr;
+        return ctx ? new TaskType(pHostApp, x, y, w, par, featTypes, indexedFeatures, binIndex, *ctx, nClasses) : nullptr;
     });
 
     engines::internal::ParallelizationTechnique technique = engines::internal::family;
@@ -528,10 +527,12 @@ protected:
           _minWeightLeaf(0.),
           _minImpurityDecrease(-daal::services::internal::EpsilonVal<algorithmFPType>::get() * x->getNumberOfRows()),
           _maxLeafNodes(0),
-          _useConstFeatures(false)
+          _useConstFeatures(false),
+          _memorySavingMode(false)
     {
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
+        _memorySavingMode = indexedFeatures == nullptr;
         const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
             dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&par);
         if (algParameter != NULL)
@@ -625,10 +626,10 @@ protected:
     void chooseFeatures()
     {
         const size_t n    = nFeatures();
-        const size_t nGen = (!_par.memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
+        const size_t nGen = (!_memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
-        rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _engineImpl->getState(), n);
+        rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _helper.engineImpl->getState(), n);
     }
 
     services::Status computeResults(const dtrees::internal::Tree & t);
@@ -654,7 +655,7 @@ protected:
     mutable TVector<IndexType, cpu> _aSample;
     mutable TArray<algorithmFPTypeArray, cpu> _aFeatureBuf;
     mutable TArray<IndexTypeArray, cpu> _aFeatureIndexBuf;
-    engines::internal::BatchBaseImpl * _engineImpl;
+
     const NumericTable * _data;
     const NumericTable * _resp;
     const NumericTable * _weights;
@@ -676,6 +677,7 @@ protected:
     algorithmFPType _minWeightLeaf;
     algorithmFPType _minImpurityDecrease;
     size_t _maxLeafNodes;
+    bool _memorySavingMode;
 };
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
@@ -685,7 +687,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     const size_t maxFeatures = nFeatures();
     _nConstFeature           = 0;
     _numElems                = &numElems;
-    _engineImpl              = engineImpl;
+    _helper.engineImpl       = engineImpl;
     pTree                    = nullptr;
     _tree.destroy();
     _aSample.reset(_nSamples);
@@ -722,7 +724,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     {
         *_numElems += _nSamples;
         RNGs<int, cpu> rng;
-        rng.uniform(_nSamples, _aSample.get(), _engineImpl->getState(), 0, _data->getNumberOfRows());
+        rng.uniform(_nSamples, _aSample.get(), _helper.engineImpl->getState(), 0, _data->getNumberOfRows());
         daal::algorithms::internal::qSort<int, cpu>(_nSamples, _aSample.get());
     }
     else
@@ -824,7 +826,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
         _helper.convertLeftImpToRight(n, curImpurity, split);
-        if (!_par.memorySavingMode && !_useConstFeatures)
+        if (!_memorySavingMode && !_useConstFeatures)
         {
             for (size_t i = _nConstFeature; i > 0; --i)
             {
@@ -1061,11 +1063,13 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
     {
         IndexType iFeature;
         *_numElems += 1;
-        int errorcode = rng.uniform(1, &iFeature, _engineImpl->getState(), 0, _data->getNumberOfColumns());
+
+        int errorcode = rng.uniform(1, &iFeature, _helper.engineImpl->getState(), 0, _data->getNumberOfColumns());
         if (errorcode)
         {
             st = services::Status(services::ErrorNullResult);
         }
+
         featureValuesToBuf(iFeature, featBuf, aIdx, 2);
         if (featBuf[1] - featBuf[0] <= _accuracy) //all values of the feature are the same
             continue;
@@ -1140,7 +1144,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         // assures uniform probability of all drawn numbers
 
         /* draw the i-th index of the sample */
-        int errorcode = rng.uniform(1, &swapIdx, _engineImpl->getState(), 0, maxFeatures - i);
+        int errorcode = rng.uniform(1, &swapIdx, _helper.engineImpl->getState(), 0, maxFeatures - i);
         if (errorcode)
         {
             st = services::Status(services::ErrorNullResult);
@@ -1157,9 +1161,9 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
 
         const auto iFeature = _aFeatureIdx[i];
         const bool bUseIndexedFeatures =
-            (!_par.memorySavingMode) && (algorithmFPType(n) > qMax * algorithmFPType(_helper.indexedFeatures().numIndices(iFeature)));
+            (!_memorySavingMode) && (algorithmFPType(n) > qMax * algorithmFPType(_helper.indexedFeatures().numIndices(iFeature)));
 
-        if (!_maxLeafNodes && !_useConstFeatures && !_par.memorySavingMode)
+        if (!_maxLeafNodes && !_useConstFeatures && !_memorySavingMode)
         {
             if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
@@ -1175,7 +1179,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         else
         {
             ++nVisitedFeature;
-            if (!_par.memorySavingMode && !_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
+            if (!_memorySavingMode && !_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
         }
 
         if (bUseIndexedFeatures)
@@ -1183,8 +1187,8 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
             const int idxFeatureValue =
-                _helper.findBestSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
-                                                      _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
+                _helper.findSplitForFeatureSorted(featureBuf(0), iFeature, aIdx, n, _par.minObservationsInLeafNode, curImpurity, split,
+                                                  _minWeightLeaf, totalWeights, _binIndex + _data->getNumberOfRows() * iFeature);
             if (idxFeatureValue < 0) continue;
             iBestSplit = i;
             split.copyTo(bestSplit);
@@ -1200,8 +1204,8 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
             _helper.checkImpurity(aIdx, n, curImpurity);
 #endif
             split.featureUnordered = _featHelper.isUnordered(iFeature);
-            if (!_helper.findBestSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf,
-                                                 totalWeights))
+            if (!_helper.findSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf,
+                                             totalWeights))
                 continue;
             idxFeatureValueBestSplit = -1;
             iBestSplit               = i;
@@ -1308,7 +1312,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
             const algorithmFPType div1 = algorithmFPType(1) / algorithmFPType(nTrees);
             for (size_t i = 0, n = nFeatures(); i < n; ++i)
             {
-                shuffle<cpu>(_engineImpl->getState(), nOOB, permutation.get());
+                shuffle<cpu>(_helper.engineImpl->getState(), nOOB, permutation.get());
                 const algorithmFPType permOOBError = computeOOBErrorPerm(t, nOOB, oobIndices.get(), permutation.get(), i);
                 const algorithmFPType diff         = (permOOBError - oobError);
                 //_threadCtx.varImp[i] is a mean of diff among all the trees
