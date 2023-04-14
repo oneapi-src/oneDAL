@@ -710,9 +710,9 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
                 const Float scaled_random_val = min_val + (max_val - min_val) * random_val;
 
                 Index cbin = min_bin;
-                for (; cbin < max_bin && cur_ftr_bin_borders[cbin] < scaled_random_val; cbin++)
+                for (; cbin <= max_bin && cur_ftr_bin_borders[cbin] < scaled_random_val; cbin++)
                     ;
-                Index ts_ftr_bin = cbin;
+                Index ts_ftr_bin = cbin - 1; // -1 because bin borders structure keeps right border
 
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     for (Index bin_idx = min_bin; bin_idx <= ts_ftr_bin; bin_idx++) {

@@ -213,10 +213,11 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                         const Float scaled_rand_val = min_val + (max_val - min_val) * rand_val;
 
                         Index cbin = min_bin;
-                        for (; cbin < max_bin && scaled_rand_val < cur_ftr_bin_borders[cbin];
+                        for (; cbin <= max_bin && scaled_rand_val < cur_ftr_bin_borders[cbin];
                              cbin++)
                             ;
-                        ts.ftr_bin = cbin;
+                        ts.ftr_bin =
+                            cbin - 1; // -1 because bin borders structure keeps right border
 
                         const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 

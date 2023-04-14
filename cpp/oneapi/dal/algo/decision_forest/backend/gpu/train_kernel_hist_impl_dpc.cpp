@@ -233,15 +233,34 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
         bin_borders_host_[clmn_idx] = ind_ftrs.get_bin_borders(clmn_idx).to_host(queue_);
     }
 
-    // Copy bin borders to device
+    // Copy bin borders to the device
     const Index max_bins = desc.get_max_bins();
     bin_borders_device_ =
         pr::ndarray<Float, 1>::empty(queue_, { ctx.column_count_ * max_bins }, alloc::device);
+
+    auto bin_borders_ptr = bin_borders_device_.get_mutable_data();
+    const sycl::range<1> range = de::integral_cast<std::size_t>(ctx.column_count_);
+    // Copying to the device is not convenient,
+    // because original bin borders are std::vector<ndarray<Float, 1>>
+    auto bin_borders_ptrs_host = pr::ndarray<const Float*, 1>::empty(queue_, { ctx.column_count_ });
+    auto bin_borders_tmp_ptr = bin_borders_ptrs_host.get_mutable_data();
+    auto bin_borders_ptrs =
+        pr::ndarray<const Float*, 1>::empty(queue_, { ctx.column_count_ }, alloc::device);
     for (Index col_idx = 0; col_idx < ctx.column_count_; ++col_idx) {
-        bin_borders_device_
-            .assign_from_host(queue_, bin_borders_host_[col_idx].get_data(), max_bins)
-            .wait_and_throw();
+        bin_borders_tmp_ptr[col_idx] = ind_ftrs.get_bin_borders(col_idx).get_data();
     }
+    bin_borders_ptrs.assign_from_host(queue_, bin_borders_tmp_ptr, ctx.column_count_)
+        .wait_and_throw();
+    auto origin_bin_borders_ptr = bin_borders_ptrs.get_data();
+    queue_.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(range, [=](sycl::id<1> item) {
+            const Index col_idx = item;
+            const auto col_bins_data = origin_bin_borders_ptr[col_idx];
+            for (Index bin_idx = 0; bin_idx < max_bins; bin_idx++) {
+                bin_borders_ptr[col_idx * max_bins + bin_idx] = col_bins_data[bin_idx];
+            }
+        });
+    });
 
     data_host_ = pr::table2ndarray_1d<Float>(queue_, data, alloc::device).to_host(queue_);
 
