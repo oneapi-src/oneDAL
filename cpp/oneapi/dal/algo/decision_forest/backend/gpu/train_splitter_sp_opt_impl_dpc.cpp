@@ -47,6 +47,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     const pr::ndarray<Index, 1>& tree_order,
     const pr::ndarray<Index, 1>& selected_ftr_list,
     const pr::ndarray<Float, 1>& random_bins_com,
+    const pr::ndarray<Float, 1>& bin_borders,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     const pr::ndarray<Index, 1>& node_ind_list,
@@ -109,6 +110,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
     const Float* ftr_rnd_ptr = random_bins_com.get_data();
+    const Float* bin_borders_ptr = bin_borders.get_data();
 
     const Index column_count = ctx.column_count_;
     const Index selected_ftr_count = ctx.selected_ftr_count_;
@@ -203,10 +205,16 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                                                     bin < max_bin_count_among_ftrs ? bin : 0,
                                                     maximum<Index>());
 
+                        const Float* cur_ftr_bin_borders = bin_borders_ptr + ts.ftr_id * column_count;
                         const Float rand_val = ftr_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
-                        const Index random_bin_ofs =
-                            static_cast<Index>(rand_val * (max_bin - min_bin + 1));
-                        ts.ftr_bin = min_bin + random_bin_ofs;
+                        const Float min_val = cur_ftr_bin_borders[min_bin];
+                        const Float max_val = cur_ftr_bin_borders[max_bin];
+                        const Float scaled_rand_val = min_val + (max_val - min_val) * rand_val;
+
+                        Index cbin = min_bin;
+                        for ( ; cbin < max_bin && scaled_rand_val < cur_ftr_bin_borders[cbin]; cbin++)
+                            ;
+                        ts.ftr_bin = cbin;
 
                         const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
 

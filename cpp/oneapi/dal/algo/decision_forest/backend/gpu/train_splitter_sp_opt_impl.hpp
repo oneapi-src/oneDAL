@@ -104,6 +104,7 @@ public:
     /// @param[in] tree_order                   column indices map for corresponding tree
     /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
     /// @param[in] random_bins_com              random bin tresholds for each selected feature scaled at [0.0, 1.0] uniformly
+    /// @param[in] bin_borders                  an array of bin borders on device
     /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
     /// @param[in] imp_data_list                a node impurity data array
     /// @param[in] node_ind_list                a node indices array
@@ -121,6 +122,7 @@ public:
                                                 const pr::ndarray<Index, 1>& tree_order,
                                                 const pr::ndarray<Index, 1>& selected_ftr_list,
                                                 const pr::ndarray<Float, 1>& random_bins_com,
+                                                const pr::ndarray<Float, 1>& bin_borders,
                                                 const pr::ndarray<Index, 1>& bin_offset_list,
                                                 const imp_data_t& imp_data_list,
                                                 const pr::ndarray<Index, 1>& node_ind_list,

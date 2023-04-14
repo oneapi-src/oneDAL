@@ -59,6 +59,10 @@ public:
         return total_bins_;
     }
 
+    pr::ndarray<Float, 1> get_bin_borders(Index column_idx) const {
+        return entries_[column_idx].bin_borders_nd_;
+    }
+
     pr::ndarray<Float, 1> get_bin_borders(Index column_idx) {
         return entries_[column_idx].bin_borders_nd_;
     }

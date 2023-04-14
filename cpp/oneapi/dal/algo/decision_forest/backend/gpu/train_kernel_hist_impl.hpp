@@ -338,6 +338,7 @@ private:
     pr::ndarray<Bin, 2> full_data_nd_;
     pr::ndarray<Index, 1> ftr_bin_offsets_nd_;
     std::vector<pr::ndarray<Float, 1>> bin_borders_host_;
+    pr::ndarray<Float, 1> bin_borders_device_;
     pr::ndarray<Float, 1> response_nd_;
     pr::ndarray<Float, 1> response_host_;
     pr::ndarray<Float, 1> data_host_;

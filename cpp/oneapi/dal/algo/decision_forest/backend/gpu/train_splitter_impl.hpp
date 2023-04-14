@@ -76,6 +76,7 @@ public:
     /// @param[in] node_hist_list           a pre-calculated histogram for each node
     /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
     /// @param[in] random_bins_com          a set of random (uniformly distributed) thresholds for each selected feature scaled at [0.0, 1.0]
+    /// @param[in] bin_borders              an array of bin borders on device
     /// @param[in] bin_offset_list          an array of offsets for each bin
     /// @param[in] imp_data_list            an array of impurity data for each node
     /// @param[in] node_ind_list            an array of node indices
@@ -92,6 +93,7 @@ public:
         const pr::ndarray<hist_type_t, 1>& node_hist_list,
         const pr::ndarray<Index, 1>& selected_ftr_list,
         const pr::ndarray<Float, 1>& random_bins_com,
+        const pr::ndarray<Float, 1>& bin_borders,
         const pr::ndarray<Index, 1>& bin_offset_list,
         const imp_data_t& imp_data_list,
         const pr::ndarray<Index, 1>& node_ind_list,

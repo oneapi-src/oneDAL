@@ -545,6 +545,7 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
     const pr::ndarray<hist_type_t, 1>& node_hist_list,
     const pr::ndarray<Index, 1>& selected_ftr_list,
     const pr::ndarray<Float, 1>& random_bins_com,
+    const pr::ndarray<Float, 1>& bin_borders,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
     const pr::ndarray<Index, 1>& node_ind_list,
@@ -627,6 +628,8 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d({ node_count }, { 1 });
 
     auto ft_rnd_ptr = random_bins_com.get_data();
+    auto bin_borders_ptr = bin_borders.get_data();
+    const Index col_count = ctx.column_count_;
 
     sycl::event last_event;
 
@@ -701,9 +704,15 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
                 }
 
                 const Float random_val = ft_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
-                const Index random_bin_ofs =
-                    static_cast<Index>((max_bin - min_bin + 1) * random_val);
-                Index ts_ftr_bin = min_bin + random_bin_ofs;
+                const Float* cur_ftr_bin_borders = bin_borders_ptr + ts_ftr_id * col_count;
+                const Float min_val = cur_ftr_bin_borders[min_bin];
+                const Float max_val = cur_ftr_bin_borders[max_bin];
+                const Float scaled_random_val = min_val + (max_val - min_val) * random_val;
+
+                Index cbin = min_bin;
+                for (; cbin < max_bin && cur_ftr_bin_borders[cbin] < scaled_random_val; cbin++)
+                    ;
+                Index ts_ftr_bin = cbin;
 
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     for (Index bin_idx = min_bin; bin_idx <= ts_ftr_bin; bin_idx++) {
