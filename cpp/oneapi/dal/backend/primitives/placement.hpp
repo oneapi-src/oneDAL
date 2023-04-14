@@ -16,5 +16,6 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/placement/argwhere.hpp"
 #include "oneapi/dal/backend/primitives/placement/search_sorted.hpp"
 #include "oneapi/dal/backend/primitives/placement/cumulative_sum.hpp"

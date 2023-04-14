@@ -214,12 +214,12 @@ public:
 
     template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
     static ndview wrap(const array<T>& data) {
-        return wrap(data, { data.get_count() });
+        return wrap(data.get_data(), { data.get_count() });
     }
 
     template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
     static ndview wrap_mutable(const array<T>& data) {
-        return wrap_mutable(data, { data.get_count() });
+        return wrap_mutable(data.get_mutable_data(), { data.get_count() });
     }
 
     const T* get_data() const {
