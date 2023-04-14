@@ -17,6 +17,7 @@
 #pragma once
 
 #include <tuple>
+#include <limits>
 
 #include "oneapi/dal/detail/profiler.hpp"
 
