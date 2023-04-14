@@ -219,7 +219,7 @@ fi
 
 # ############################################################################
 my_script_path=$(get_script_path "${vars_script_name:-}")
-component_root=$(dirname -- "${my_script_path}")
+component_root=$(dirname -- "${my_script_path}")/..
 
 __daal_tmp_dir="<INSTALLDIR>"
 if [ ! -d $__daal_tmp_dir ]; then
@@ -227,7 +227,7 @@ if [ ! -d $__daal_tmp_dir ]; then
 fi
 
 if [ -z "${ONEAPI_ROOT:-}" ] ; then 
-  component_root=$(dirname -- "${my_script_path}")/..
+  component_root=$(dirname -- "${my_script_path}")
   __daal_tmp_dir=${component_root}
   export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
   export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
