@@ -260,7 +260,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                 bin_borders_ptr[col_idx * max_bins + bin_idx] = col_bins_data[bin_idx];
             }
         });
-    });
+    }).wait_and_throw();
 
     data_host_ = pr::table2ndarray_1d<Float>(queue_, data, alloc::device).to_host(queue_);
 
