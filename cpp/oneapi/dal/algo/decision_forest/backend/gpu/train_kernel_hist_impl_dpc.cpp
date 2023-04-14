@@ -235,14 +235,12 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
 
     // Copy bin borders to device
     const Index max_bins = desc.get_max_bins();
-    bin_borders_device_ = pr::ndarray<Float, 1>::empty(queue_,
-                                                       { ctx.column_count_ * max_bins },
-                                                       alloc::device);
-    for (Index col_idx = 0; col_idx  < ctx.column_count_; ++col_idx) {
-        bin_borders_device_.assign_from_host(queue_,
-                                             bin_borders_host_[col_idx].get_data(),
-                                             max_bins)
-                            .wait_and_throw();
+    bin_borders_device_ =
+        pr::ndarray<Float, 1>::empty(queue_, { ctx.column_count_ * max_bins }, alloc::device);
+    for (Index col_idx = 0; col_idx < ctx.column_count_; ++col_idx) {
+        bin_borders_device_
+            .assign_from_host(queue_, bin_borders_host_[col_idx].get_data(), max_bins)
+            .wait_and_throw();
     }
 
     data_host_ = pr::table2ndarray_1d<Float>(queue_, data, alloc::device).to_host(queue_);

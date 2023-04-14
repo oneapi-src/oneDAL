@@ -205,14 +205,16 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                                                     bin < max_bin_count_among_ftrs ? bin : 0,
                                                     maximum<Index>());
 
-                        const Float* cur_ftr_bin_borders = bin_borders_ptr + ts.ftr_id * column_count;
+                        const Float* cur_ftr_bin_borders =
+                            bin_borders_ptr + ts.ftr_id * column_count;
                         const Float rand_val = ftr_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
                         const Float min_val = cur_ftr_bin_borders[min_bin];
                         const Float max_val = cur_ftr_bin_borders[max_bin];
                         const Float scaled_rand_val = min_val + (max_val - min_val) * rand_val;
 
                         Index cbin = min_bin;
-                        for ( ; cbin < max_bin && scaled_rand_val < cur_ftr_bin_borders[cbin]; cbin++)
+                        for (; cbin < max_bin && scaled_rand_val < cur_ftr_bin_borders[cbin];
+                             cbin++)
                             ;
                         ts.ftr_bin = cbin;
 
