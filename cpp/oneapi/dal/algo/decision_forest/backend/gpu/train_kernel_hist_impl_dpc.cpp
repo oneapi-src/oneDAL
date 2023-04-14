@@ -252,15 +252,17 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     bin_borders_ptrs.assign_from_host(queue_, bin_borders_tmp_ptr, ctx.column_count_)
         .wait_and_throw();
     auto origin_bin_borders_ptr = bin_borders_ptrs.get_data();
-    queue_.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(range, [=](sycl::id<1> item) {
-            const Index col_idx = item;
-            const auto col_bins_data = origin_bin_borders_ptr[col_idx];
-            for (Index bin_idx = 0; bin_idx < max_bins; bin_idx++) {
-                bin_borders_ptr[col_idx * max_bins + bin_idx] = col_bins_data[bin_idx];
-            }
-        });
-    }).wait_and_throw();
+    queue_
+        .submit([&](sycl::handler& cgh) {
+            cgh.parallel_for(range, [=](sycl::id<1> item) {
+                const Index col_idx = item;
+                const auto col_bins_data = origin_bin_borders_ptr[col_idx];
+                for (Index bin_idx = 0; bin_idx < max_bins; bin_idx++) {
+                    bin_borders_ptr[col_idx * max_bins + bin_idx] = col_bins_data[bin_idx];
+                }
+            });
+        })
+        .wait_and_throw();
 
     data_host_ = pr::table2ndarray_1d<Float>(queue_, data, alloc::device).to_host(queue_);
 
