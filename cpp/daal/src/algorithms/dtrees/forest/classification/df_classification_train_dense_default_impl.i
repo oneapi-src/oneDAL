@@ -996,7 +996,7 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const In
 {
     //randomly select a histogram split index
     algorithmFPType fidx   = 0;
-    algorithmFPType minval = minidx ? this->indexedFeatures().min(iFeature) : this->indexedFeatures().binRightBorder(iFeature, minidx - 1);
+    algorithmFPType minval = minidx ? this->indexedFeatures().binRightBorder(iFeature, minidx - 1) : this->indexedFeatures().min(iFeature);
     algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
     size_t mid;
     size_t l   = minidx;
