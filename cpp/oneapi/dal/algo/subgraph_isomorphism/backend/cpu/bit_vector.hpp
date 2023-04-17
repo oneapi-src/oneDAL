@@ -116,7 +116,7 @@ void or_equal(std::uint8_t* vec, const std::int64_t* bit_index, const std::int64
 
 template <typename Cpu>
 void set(std::uint8_t* vec, std::int64_t size, const std::uint8_t byte_val = 0x0) {
-    ONEDAL_VECTOR_ALWAYS
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
     }
