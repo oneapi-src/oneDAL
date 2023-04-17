@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
 .. *******************************************************************************/
 
 Principal Component Analysis (PCA) is an algorithm for exploratory data analysis
-and :capterm:`dimensionality reduction`. PCA transforms a set of feature vectors
-of possibly correlated features to a new set of uncorrelated features, called
-principal components. Principal components are the directions of the largest
-variance, that is, the directions where the data is mostly spread out.
+and :capterm:`dimensionality reduction`. PCA transforms a set of feature vectors 
+(possibly correlated) to a new set of uncorrelated features, called
+principal components. Principal components are the orthogonal directions, which explain
+ the variance of the data possibly better than the original features. The first principal
+ component explains the maximum variance, the second principal component explains the second
+ largest variance, and so on.
 
 .. |t_math| replace:: :ref:`Training <pca_t_math>`
 .. |t_cov| replace:: :ref:`Covariance <pca_t_math_cov>`
