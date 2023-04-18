@@ -88,7 +88,7 @@ to each cluster.
 The steps (1) and (2) are performed until the following **stop condition**,
 
 .. math::
-   \sum_{j=1}^k \big\| c_j^{(t)} - c_j^{(t+1)} \big\|^2 < \varepsilon,
+   \Phi_{X}(C^{(t)}) -  \Phi_{X}(C^{(t + 1)}) < \varepsilon,
 
 is satisfied or number of iterations exceeds the maximal value :math:`T` defined
 by the user.
