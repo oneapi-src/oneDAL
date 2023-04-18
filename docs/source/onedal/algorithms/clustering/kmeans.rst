@@ -126,6 +126,12 @@ Programming Interface
 
 Refer to :ref:`API Reference: K-Means <api_kmeans>`.
 
+----------------
+Distributed mode
+----------------
+
+The algorithm supports distributed execution in SPMD mode (only on GPU).
+
 -------------
 Usage example
 -------------
