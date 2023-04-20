@@ -43,7 +43,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
     return total;
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
 ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     return _popcnt32(x);
 }
@@ -70,7 +70,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
     std::int32_t n_v) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
     while (i_u < (n_u / 16) * 16 && i_v < (n_v / 16) * 16) { // not in last n%16 elements
         // assumes neighbor list is ordered
         std::int32_t min_neigh_u = neigh_u[i_u];
@@ -362,7 +362,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx2>(
     std::int32_t n_v) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX__) && defined(DAAL_INTEL_CPP_COMPILER)
     const std::int32_t n_u_8_end = n_u - 8;
     const std::int32_t n_v_8_end = n_v - 8;
     while (i_u <= n_u_8_end && i_v <= n_v_8_end) {
