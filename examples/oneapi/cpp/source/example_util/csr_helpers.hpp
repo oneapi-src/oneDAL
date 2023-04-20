@@ -15,6 +15,7 @@
 *******************************************************************************/
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include <cmath>
 
 namespace dal = oneapi::dal;
 namespace pr = oneapi::dal::backend::primitives;
