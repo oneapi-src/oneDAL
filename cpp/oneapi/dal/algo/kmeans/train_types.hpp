@@ -128,7 +128,7 @@ public:
         return *this;
     }
 
-    /// The value of the objective function $\\Phi_X(C)$, where C is
+    /// The value of the objective function $\\Phi_X(C)$, where $C$ is
     /// :expr:`model.centroids`.
     /// @invariant :expr:`objective_function_value >= 0.0`
     double get_objective_function_value() const;
