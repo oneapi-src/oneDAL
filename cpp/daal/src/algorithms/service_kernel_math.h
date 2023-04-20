@@ -532,7 +532,7 @@ private:
     const NumericTable & _b;
 };
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
 float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)

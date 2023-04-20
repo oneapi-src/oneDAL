@@ -32,7 +32,7 @@
 #include "src/algorithms/svm/svm_train_result.h"
 #include "src/algorithms/svm/svm_train_common.h"
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 

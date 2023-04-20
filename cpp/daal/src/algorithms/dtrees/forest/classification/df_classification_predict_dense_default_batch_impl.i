@@ -438,7 +438,7 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algori
     predictByTreeCommon(x, sizeOfBlock, nCols, tFI, tLC, tFV, prob, iTree);
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
 void PredictClassificationTask<float, avx512>::predictByTree(const float * const x, const size_t sizeOfBlock, const size_t nCols,
@@ -694,7 +694,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
     return safeStat.detach();
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 template <>
 Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t nTreesTotal)
 {
