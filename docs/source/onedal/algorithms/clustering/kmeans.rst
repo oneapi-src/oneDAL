@@ -85,7 +85,7 @@ to each cluster.
 .. math::
    c_j^{(t + 1)} = \frac{1}{|S_j^{(t)}|} \sum_{x \in S_j^{(t)}} x, \quad 1 \leq j \leq k.
 
-If it turned out that some of :math:`S_j^{(t)}` are empty then start empty clusters handling procedure.
+If any of :math:`S_j^{(t)}` are empty, start the empty clusters handling procedure.
 In this case set :math:`c_j^{(t + 1)}` equal to the farthest point from just calculated centroids for each empty cluster.
 
 .. math::
