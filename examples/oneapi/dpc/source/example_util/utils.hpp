@@ -19,3 +19,4 @@
 #include "example_util/input_helpers.hpp"
 #include "example_util/output_helpers.hpp"
 #include "example_util/dpc_helpers.hpp"
+#include "example_util/csr_helpers.hpp"
