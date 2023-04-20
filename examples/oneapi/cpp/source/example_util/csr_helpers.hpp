@@ -14,11 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 #include "oneapi/dal/table/csr.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include <cmath>
 
 namespace dal = oneapi::dal;
-namespace pr = oneapi::dal::backend::primitives;
 using oneapi::dal::detail::empty_delete;
 
 /// Converts a homogen table to one-based CSR table.
@@ -26,12 +24,12 @@ using oneapi::dal::detail::empty_delete;
 /// @param[in] data     an input homogen table
 inline const dal::csr_table convert_to_csr(const dal::table& data) {
     std::int64_t non_zero_count = 0;
-    auto data_ndarray = pr::table2ndarray_1d<float>(data);
-    auto data_ptr = data_ndarray.get_data();
+    dal::row_accessor<const float> accessor{ data };
+    const auto data_ptr = accessor.pull({ 0, -1 });
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t row_count = data.get_row_count();
 
-    for (std::int64_t i = 0; i < data_ndarray.get_count(); i++) {
+    for (std::int64_t i = 0; i < data_ptr.get_count(); i++) {
         if (std::fabs(data_ptr[i]) > std::numeric_limits<float>::epsilon()) {
             non_zero_count++;
         }
@@ -45,7 +43,7 @@ inline const dal::csr_table convert_to_csr(const dal::table& data) {
         row_offsets[i] = 1;
     }
 
-    for (std::int64_t i = 0; i < data_ndarray.get_count(); i++) {
+    for (std::int64_t i = 0; i < data_ptr.get_count(); i++) {
         if (std::fabs(data_ptr[i]) > std::numeric_limits<float>::epsilon()) {
             compressed_data[compressed_idx - 1] = data_ptr[i];
             std::int64_t row_idx = i / column_count + 1;
