@@ -178,6 +178,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -185,6 +190,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -576,6 +586,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1864,6 +1879,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2268,6 +2288,10 @@ contiguous data blocks inside the table.</p></td>
 <td><p>An enumeration of <a class="reference internal" href="../glossary.html#term-Feature"><span class="xref std std-term">feature</span></a> types used in oneDAL to
 define set of available operations onto the data.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../api/data-management/tables.html#api-tables-sparse-indexing"><span class="std std-ref">Sparse Indexing</span></a></p></td>
+<td><p>An enumeration of sparse indexing types used in oneDAL to
+define available formats for sparse table indices.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="section" id="requirements-on-table-types">
@@ -2324,6 +2348,11 @@ and copy-assignment operation:</p>
 <tr class="row-even"><td><p><a class="reference internal" href="table/homogen.html#homogen-table"><span class="std std-ref">homogen table</span></a></p></td>
 <td><p>A dense table that contains <a class="reference internal" href="../glossary.html#term-Contiguous-data"><span class="xref std std-term">contiguous</span></a>
 <a class="reference internal" href="../glossary.html#term-Homogeneous-data"><span class="xref std std-term">homogeneous</span></a> data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="table/csr.html#csr-table"><span class="std std-ref">csr table</span></a></p></td>
+<td><p>A sparse table that contains <a class="reference internal" href="../glossary.html#term-Contiguous-data"><span class="xref std std-term">contiguous</span></a>
+<a class="reference internal" href="../glossary.html#term-Homogeneous-data"><span class="xref std std-term">homogeneous</span></a> data stored in a
+<a class="reference internal" href="../glossary.html#term-CSR-data"><span class="xref std std-term">CSR</span></a> 3-array format.</p></td>
 </tr>
 </tbody>
 </table>

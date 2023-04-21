@@ -179,6 +179,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -186,6 +191,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -577,6 +587,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1865,6 +1880,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2409,18 +2429,21 @@ in the same directory level relative to each other.</p>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-TGludXg=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-TGludXg=" name="TGludXg=" role="tab" tabindex="0">Linux</button><button aria-controls="panel-1-V2luZG93cw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-V2luZG93cw==" name="V2luZG93cw==" role="tab" tabindex="-1">Windows</button></div><div aria-labelledby="tab-1-TGludXg=" class="sphinx-tabs-panel group-tab" id="panel-1-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to examples directory and build examples</span>
 <span class="nb">cd</span> /examples/oneapi/dpc
-make so <span class="nv">example</span><span class="o">=</span>svm_two_class_thunder_dense_batch <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
-make so <span class="nv">mode</span><span class="o">=</span>build                      <span class="c1"># This will compile all the examples</span>
+cmake -G <span class="s2">&quot;Unix Makefiles⁮&quot;</span> -DEXAMPLES_LIST<span class="o">=</span>svm_two_class_thunder <span class="c1"># This would generate makefiles for all svm examples matching passed name</span>
+make               <span class="c1"># This will compile and run generated svm examples</span>
+cmake -G <span class="s2">&quot;Unix Makefiles⁮&quot;</span> -DONEDAL_LINK<span class="o">=</span>static <span class="c1"># This wouldgenerate make for static version</span>
+make               <span class="c1"># This will compile and run all the examples</span>
 </pre></div>
 </div>
-</div><div aria-labelledby="tab-1-V2luZG93cw==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-V2luZG93cw==" name="V2luZG93cw==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to examples directory and build examples</span>
-<span class="nb">cd</span> /examples/oneapi/dpc
-nmake dll <span class="nv">example</span><span class="o">=</span>svm_two_class_thunder_dense_batch+ <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
-nmake dll <span class="nv">mode</span><span class="o">=</span>build                             <span class="c1"># This will compile all the examples</span>
+</div><div aria-labelledby="tab-1-V2luZG93cw==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-V2luZG93cw==" name="V2luZG93cw==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="c1"># Navigate to examples directory and build examples</span>
+ <span class="nb">cd</span> /examples/oneapi/dpc
+cmake  -G <span class="s2">&quot;NMake Makefiles&quot;</span> -DEXAMPLES_LIST<span class="o">=</span>svm_two_class_thunder <span class="c1"># This would generate makefiles for all svm examples matching passed name</span>
+nmake             <span class="c1"># This will compile and run generated svm examples</span>
+cmake  -G <span class="s2">&quot;NMake Makefiles&quot;</span> -DONEDAL_LINK<span class="o">=</span>static <span class="c1"># This wouldgenerate make for static version</span>
+nmake              <span class="c1"># This will compile and run all the examples</span>
 </pre></div>
 </div>
 </div></div>
-<p>To see all available parameters of the build procedure, type <code class="docutils literal notranslate"><span class="pre">make</span></code> on Linux* or <code class="docutils literal notranslate"><span class="pre">nmake</span></code> on Windows*.</p>
 </li>
 <li><p>The resulting example binaries and log files are written into the <code class="file docutils literal notranslate"><span class="pre">_results</span></code> directory.</p>
 <div class="admonition note">

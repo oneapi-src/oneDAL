@@ -180,6 +180,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -187,6 +192,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -578,6 +588,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1866,6 +1881,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2257,6 +2277,11 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#distributed-mode">
+   Distributed mode
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#usage-example">
    Usage example
   </a>
@@ -2362,9 +2387,15 @@ centroid so that <span class="math notranslate nohighlight">\(X\)</span> is part
 to each cluster.</p>
 <div class="math notranslate nohighlight">
 \[c_j^{(t + 1)} = \frac{1}{|S_j^{(t)}|} \sum_{x \in S_j^{(t)}} x, \quad 1 \leq j \leq k.\]</div>
+<p>If any of <span class="math notranslate nohighlight">\(S_j^{(t)}\)</span> are empty, start the empty clusters handling procedure.
+In this case, you can set the value of :math:c_j^{(t+1)} as the farthest point from
+the previously calculated centroids for each empty cluster. This procedure makes sure
+that the number of clusters remains the same.</p>
+<div class="math notranslate nohighlight">
+\[c_j^{(t + 1)} = \mathrm{arg}\max_{x \in X} d^2(x, C^{(t + 1)}).\]</div>
 <p>The steps (1) and (2) are performed until the following <strong>stop condition</strong>,</p>
 <div class="math notranslate nohighlight">
-\[\sum_{j=1}^k \big\| c_j^{(t)} - c_j^{(t+1)} \big\|^2 &lt; \varepsilon,\]</div>
+\[\Phi_{X}(C^{(t)}) -  \Phi_{X}(C^{(t + 1)}) &lt; \varepsilon,\]</div>
 <p>is satisfied or number of iterations exceeds the maximal value <span class="math notranslate nohighlight">\(T\)</span> defined
 by the user.</p>
 </div>
@@ -2388,6 +2419,10 @@ closest to the feature vector <span class="math notranslate nohighlight">\(x_j'\
 <div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
 <p>Refer to <a class="reference internal" href="../../../api/algorithms/clustering/kmeans.html#api-kmeans"><span class="std std-ref">API Reference: K-Means</span></a>.</p>
+</div>
+<div class="section" id="distributed-mode">
+<h2>Distributed mode<a class="headerlink" href="#distributed-mode" title="Permalink to this headline">¶</a></h2>
+<p>The algorithm supports distributed execution in SPMD mode (only on GPU).</p>
 </div>
 <div class="section" id="usage-example">
 <h2>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this headline">¶</a></h2>
