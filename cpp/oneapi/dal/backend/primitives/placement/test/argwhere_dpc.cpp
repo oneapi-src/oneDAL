@@ -36,8 +36,8 @@ template <typename Float>
 class argwhere_test_random_1d : public te::float_algo_fixture<Float> {
 public:
     void generate() {
-        this->n_ = GENERATE(4097, 8191, 16385, 65536);
-        this->m_ = GENERATE(1, 2, 128);
+        this->n_ = GENERATE(7, 4097, 8191, 16385, 65536);
+        this->m_ = GENERATE(1, 2, 4, 16, 32, 64, 128);
         this->generate_input();
     }
 
@@ -73,15 +73,15 @@ public:
         SECTION("Random index") {
             std::mt19937_64 generator(777);
             for (std::int64_t i = 0; i < this->m_; ++i) {
-                const auto raw = generator() % this->m_;
+                const auto raw = generator() % this->n_;
                 const auto idx = static_cast<std::int64_t>(raw);
                 const auto val = host_array[idx];
 
-                auto comp = [=](Float check) { return val == check; };
+                auto comp = [val](Float check) { return val == check; };
 
                 const auto res = argwhere_one(queue, comp, device);
 
-                CAPTURE(idx, val, res, host_array[res]);
+                CAPTURE(idx, val, res);
                 REQUIRE(idx == res);
             }
         };
@@ -133,7 +133,7 @@ public:
 
         auto [min, gtr] = argmin(queue, device);
 
-        CAPTURE(val, idx, min, gtr, host_array[gtr]);
+        CAPTURE(val, idx, min, gtr);
 
         REQUIRE(gtr == idx);
         REQUIRE(min == val);
@@ -161,7 +161,7 @@ public:
 
         auto [max, gtr] = argmax(queue, device);
 
-        CAPTURE(val, idx, max, gtr, host_array[gtr]);
+        CAPTURE(val, idx, max, gtr);
 
         REQUIRE(gtr == idx);
         REQUIRE(max == val);
