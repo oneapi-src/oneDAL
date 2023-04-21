@@ -53,12 +53,8 @@ inline sycl::event argwhere_one(sycl::queue& queue,
         auto accum = sycl::reduction(out_ptr, identity, max);
 
         h.parallel_for(range, accum, [=](sycl::id<1> idx, auto& acc) {
-            const auto value = inp_ptr[idx];
-            const bool handle = unary(value);
-            const std::int64_t arg = handle 
-                        ? std::int64_t(idx)
-                        : std::int64_t(-1l);  
-            acc.combine(arg);
+            const auto handle = static_cast<bool>(unary(inp_ptr[idx])); 
+            acc.combine(handle ? std::int64_t(idx) : std::int64_t(-1l));
         });
     });
 }

@@ -41,7 +41,7 @@ sycl::event argmin(sycl::queue& queue,
     
     const auto* const ptr = val_output.get_mutable_data();
     auto min_event = reduce_1d(queue, values, val_output, binary, unary, deps);
-    auto functor = [=](Type candidate) -> bool { return (*ptr) == candidate; };
+    auto functor = [ptr](Type candidate) -> bool { return *ptr == candidate; };
     return argwhere_one(queue, functor, values, idx_output, { min_event });
 }
 
@@ -51,8 +51,9 @@ std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const event_vector& deps) {
     using dal::backend::operator+;
     constexpr auto alloc = sycl::usm::alloc::device;
-    auto [val_output, val_event] = ndarray<Type, 1>::zeros(queue, { 1 }, alloc);
-    auto [idx_output, idx_event] = ndarray<Index, 1>::zeros(queue, { 1 }, alloc);
+    constexpr auto identity = std::numeric_limits<Type>::max();
+    auto [idx_output, idx_event] = ndarray<Index, 1>::full(queue, { 1 }, { -1l }, alloc);
+    auto [val_output, val_event] = ndarray<Type, 1>::full(queue, { 1 }, { identity }, alloc);
     auto event = argmin(queue, values, val_output, idx_output, deps + val_event + idx_event);
     return { val_output.at_device(queue, 0, { event }), idx_output.at_device(queue, 0, { event }) };
 }
@@ -62,6 +63,8 @@ std::tuple<Type, Index> argmin(sycl::queue& queue,
     template std::tuple<T, I> argmin(sycl::queue&, const ndview<T, 1>&, const event_vector&);
 
 
+INSTANTIATE(float, std::int32_t)
+INSTANTIATE(double, std::int32_t)
 INSTANTIATE(float, std::int64_t)
 INSTANTIATE(double, std::int64_t)
 

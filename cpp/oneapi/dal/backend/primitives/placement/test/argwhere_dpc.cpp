@@ -55,12 +55,10 @@ public:
         check_if_initialized();
 
         const auto dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.5, 2.5, 3333));
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(0.5, 2.5, 1111));
 
         this->input_table_ = dataframe.get_table(this->get_homogen_table_id());
     }
-
-
 
     void test_1d_argwhere() {
         check_if_initialized();
@@ -73,21 +71,36 @@ public:
         const auto host_array = accessor.pull({0, -1});
 
         SECTION("Random index") {
+            std::mt19937_64 generator(777);
+            for (std::int64_t i = 0; i < this->m_; ++i) {
+                const auto raw = generator() % this->m_;
+                const auto idx = static_cast<std::int64_t>(raw);
+                const auto val = host_array[idx];
 
-            auto idx = std::rand() % this->m_;
-            const auto val = host_array[idx];
+                auto comp = [=](Float check) { return val == check; };
+
+                const auto res = argwhere_one(queue, comp, device);
+
+                CAPTURE(idx, val, res, host_array[res]);
+                REQUIRE(idx == res);
+            }
+        };
+
+        SECTION("Invalid huge number") {
+
+            const auto val = std::numeric_limits<Float>::max();
 
             auto comp = [=](Float check) { return val == check; };
 
             const auto res = argwhere_one(queue, comp, device);
 
-            CAPTURE(idx, val, res, host_array[res]);
-            REQUIRE(idx == res);
+            CAPTURE(val, res);
+            REQUIRE(-1l == res);
         };
 
-        SECTION("Invalid number") {
+        SECTION("Invalid small number") {
 
-            const auto val = std::numeric_limits<Float>::max();
+            const auto val = std::numeric_limits<Float>::lowest();
 
             auto comp = [=](Float check) { return val == check; };
 
@@ -101,7 +114,29 @@ public:
     void test_1d_argmin() {
         check_if_initialized();
 
+        auto queue = this->get_queue();
+        constexpr auto alloc = sycl::usm::alloc::device;
+        row_accessor<const Float> accessor(this->input_table_);
+        const auto device_array = accessor.pull(queue, {0, -1}, alloc);
+        const auto device = ndview<Float, 1>::wrap(device_array);
+        const auto host_array = accessor.pull({0, -1});
 
+        std::int64_t idx = -1l;
+        Float val = std::numeric_limits<Float>::max();
+        for (std::int64_t i = 0; i < this->n_; ++i) {
+            const auto curr = host_array[i];
+            if (curr <= val) {
+                val = curr;
+                idx = i;
+            }
+        }
+
+        auto [min, gtr] = argmin(queue, device);
+
+        CAPTURE(val, idx, min, gtr, host_array[gtr]);
+
+        REQUIRE(gtr == idx);
+        REQUIRE(min == val);
     }
 
 private:
