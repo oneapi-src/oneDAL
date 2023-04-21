@@ -34,6 +34,7 @@
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -179,6 +180,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -186,6 +192,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -577,6 +588,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1865,6 +1881,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2218,6 +2239,49 @@
                 
   <div class="section" id="kernel-functions">
 <h1>Kernel Functions<a class="headerlink" href="#kernel-functions" title="Permalink to this headline">¶</a></h1>
+<p>A kernel function takes input vectors from the original (<span class="math notranslate nohighlight">\(p\)</span>-dimensional) space
+and returns the dot product of the vectors in the <span class="math notranslate nohighlight">\(s\)</span>-dimensional feature space.
+Thus, having <span class="math notranslate nohighlight">\(x,y \in \mathbb{R}^p\)</span> and
+<span class="math notranslate nohighlight">\(\phi \in \mathbb{R}^p \leftarrow \mathbb{R}^s\)</span>, the kernel function is</p>
+<div class="math notranslate nohighlight">
+\[K(x, y) \equiv &lt;\phi (x), \phi (y)&gt;\]</div>
+<p id="kernel-func-def">Where <span class="math notranslate nohighlight">\(\phi(x)\)</span> is a vector-valued function:
+<span class="math notranslate nohighlight">\(\phi(x) = \phi_1(x), \phi_2(x), \ldots, \phi_s(x)\)</span>.</p>
+<p>If <span class="math notranslate nohighlight">\(\phi (x) = x\)</span>, the kernel is linear.
+Kernels are used in the SVM model, but for some tasks they could be used separately to transform vectors
+from one space to another.</p>
+<p>The following table describes current device support:</p>
+<table class="table">
+<colgroup>
+<col style="width: 54%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Kernel type</p></th>
+<th class="head"><p>CPU</p></th>
+<th class="head"><p>GPU</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Linear</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Polynomial</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p>RBF</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sigmoid</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="linear-kernel.html">Linear kernel</a></li>

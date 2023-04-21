@@ -177,6 +177,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -184,6 +189,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -575,6 +585,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1863,6 +1878,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2469,9 +2489,11 @@
 </li>
       <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4I0EN6oneapi3dal16basic_statistics13compute_inputE">oneapi::dal::basic_statistics::compute_input (C++ class)</a>
 </li>
-      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input13compute_inputERK5table">oneapi::dal::basic_statistics::compute_input::compute_input (C++ function)</a>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input13compute_inputERK5table">oneapi::dal::basic_statistics::compute_input::compute_input (C++ function)</a>, <a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input13compute_inputERK5tableRK5table">[1]</a>
 </li>
       <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input4dataE">oneapi::dal::basic_statistics::compute_input::data (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4N6oneapi3dal16basic_statistics13compute_input7weightsE">oneapi::dal::basic_statistics::compute_input::weights (C++ member)</a>
 </li>
       <li><a href="api/algorithms/statistics/basic-statistics.html#_CPPv4I0EN6oneapi3dal16basic_statistics14compute_resultE">oneapi::dal::basic_statistics::compute_result (C++ class)</a>
 </li>
@@ -2577,6 +2599,26 @@
 </li>
       <li><a href="api/algorithms/covariance/covariance.html#_CPPv4N6oneapi3dal10covariance4task7computeE">oneapi::dal::covariance::task::compute (C++ struct)</a>
 </li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4N6oneapi3dal9csr_tableE">oneapi::dal::csr_table (C++ class)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4I0000EN6oneapi3dal9csr_table9csr_tableEPK4DataPKNSt7int64_tEPKNSt7int64_tENSt7int64_tENSt7int64_tERR16ConstDataDeleterRR25ConstColumnIndicesDeleterRR22ConstRowOffsetsDeleter15sparse_indexing">oneapi::dal::csr_table::csr_table (C++ function)</a>, <a href="api/data-management/table/csr.html#_CPPv4I0EN6oneapi3dal9csr_table9csr_tableERKN3dal5arrayI4DataEERKN3dal5arrayINSt7int64_tEEERKN3dal5arrayINSt7int64_tEEENSt7int64_tE15sparse_indexing">[1]</a>, <a href="api/data-management/table/csr.html#_CPPv4N6oneapi3dal9csr_table9csr_tableERK5table">[2]</a>, <a href="api/data-management/table/csr.html#_CPPv4N6oneapi3dal9csr_table9csr_tableEv">[3]</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4NK6oneapi3dal9csr_table18get_column_indicesEv">oneapi::dal::csr_table::get_column_indices (C++ function)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4I0ENK6oneapi3dal9csr_table8get_dataEPK4Datav">oneapi::dal::csr_table::get_data (C++ function)</a>, <a href="api/data-management/table/csr.html#_CPPv4NK6oneapi3dal9csr_table8get_dataEv">[1]</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4NK6oneapi3dal9csr_table12get_indexingEv">oneapi::dal::csr_table::get_indexing (C++ function)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4NK6oneapi3dal9csr_table8get_kindEv">oneapi::dal::csr_table::get_kind (C++ function)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4NK6oneapi3dal9csr_table18get_non_zero_countEv">oneapi::dal::csr_table::get_non_zero_count (C++ function)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4NK6oneapi3dal9csr_table15get_row_offsetsEv">oneapi::dal::csr_table::get_row_offsets (C++ function)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4N6oneapi3dal9csr_table4kindEv">oneapi::dal::csr_table::kind (C++ function)</a>
+</li>
+      <li><a href="api/data-management/table/csr.html#_CPPv4I0EN6oneapi3dal9csr_table4wrapE9csr_tablePK4DataPKNSt7int64_tEPKNSt7int64_tENSt7int64_tENSt7int64_tE15sparse_indexing">oneapi::dal::csr_table::wrap (C++ function)</a>, <a href="api/data-management/table/csr.html#_CPPv4I0EN6oneapi3dal9csr_table4wrapE9csr_tableRKN3dal5arrayI4DataEERKN3dal5arrayINSt7int64_tEEERKN3dal5arrayINSt7int64_tEEENSt7int64_tE15sparse_indexing">[1]</a>
+</li>
       <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_sourceE">oneapi::dal::csv::data_source (C++ class)</a>
 </li>
       <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options">oneapi::dal::csv::data_source::data_source (C++ function)</a>, <a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options">[1]</a>
@@ -2675,6 +2717,8 @@
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor4seedE">oneapi::dal::decision_forest::descriptor::seed (C++ member)</a>
 </li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor13splitter_modeE">oneapi::dal::decision_forest::descriptor::splitter_mode (C++ member)</a>
+</li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor10tree_countE">oneapi::dal::decision_forest::descriptor::tree_count (C++ member)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor24variable_importance_modeE">oneapi::dal::decision_forest::descriptor::variable_importance_mode (C++ member)</a>
@@ -2745,7 +2789,15 @@
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result7oob_errE">oneapi::dal::decision_forest::train_result::oob_err (C++ member)</a>
 </li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result16oob_err_accuracyE">oneapi::dal::decision_forest::train_result::oob_err_accuracy (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result25oob_err_decision_functionE">oneapi::dal::decision_forest::train_result::oob_err_decision_function (C++ member)</a>
+</li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result23oob_err_per_observationE">oneapi::dal::decision_forest::train_result::oob_err_per_observation (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result18oob_err_predictionE">oneapi::dal::decision_forest::train_result::oob_err_prediction (C++ member)</a>
+</li>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result10oob_err_r2E">oneapi::dal::decision_forest::train_result::oob_err_r2 (C++ member)</a>
 </li>
       <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result12train_resultEv">oneapi::dal::decision_forest::train_result::train_result (C++ function)</a>
 </li>
@@ -2853,6 +2905,8 @@
 </li>
       <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init10descriptor10descriptorENSt7int64_tE">oneapi::dal::kmeans_init::descriptor::descriptor (C++ function)</a>
 </li>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init10descriptor4seedE">oneapi::dal::kmeans_init::descriptor::seed (C++ member)</a>
+</li>
       <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method10by_defaultE">oneapi::dal::kmeans_init::method::by_default (C++ type)</a>
 </li>
       <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method5denseE">oneapi::dal::kmeans_init::method::dense (C++ struct)</a>
@@ -2907,6 +2961,8 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method11brute_forceE">oneapi::dal::knn::method::brute_force (C++ struct)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method10by_defaultE">oneapi::dal::knn::method::by_default (C++ type)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method7kd_treeE">oneapi::dal::knn::method::kd_tree (C++ struct)</a>
@@ -2925,8 +2981,6 @@
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task10regressionE">oneapi::dal::knn::task::regression (C++ struct)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task6searchE">oneapi::dal::knn::task::search (C++ struct)</a>
 </li>
       <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE">oneapi::dal::knn::train (C++ function)</a>

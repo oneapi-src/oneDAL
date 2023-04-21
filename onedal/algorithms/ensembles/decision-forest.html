@@ -180,6 +180,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -187,6 +192,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -578,6 +588,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1866,6 +1881,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2241,6 +2261,11 @@
       </a>
      </li>
      <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#split-strategy">
+       Split strategy
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
       <a class="reference internal nav-link" href="#split-criteria">
        Split Criteria
       </a>
@@ -2396,16 +2421,42 @@ subset <span class="math notranslate nohighlight">\(X_t\)</span> in two subsets,
 corresponding to their children, <span class="math notranslate nohighlight">\(t_L\)</span> and <span class="math notranslate nohighlight">\(t_R\)</span>.</p>
 <div class="section" id="training-method-dense">
 <span id="df-t-math-dense"></span><h4>Training method: <em>Dense</em><a class="headerlink" href="#training-method-dense" title="Permalink to this headline">¶</a></h4>
-<p>In <em>dense</em> training method, all possible splits for each feature are taken from the subset of selected features for the current node and evaluated
-for best split computation.</p>
+<p>In the <em>dense</em> training method, all possible data points for each feature are considered as possible splits for the current node
+and evaluated best-split computation.</p>
 </div>
 <div class="section" id="training-method-hist">
 <span id="df-t-math-hist"></span><h4>Training method: <em>Hist</em><a class="headerlink" href="#training-method-hist" title="Permalink to this headline">¶</a></h4>
-<p>In <em>hist</em> training method, only a selected subset of splits is considered for best split computation.
-This subset of splits is computed for each feature at the initialization stage of the algorithm.
-After computing the subset of splits, each value from the initially provided data is substituted
-with the value of the corresponding bin.
-Bins are continuous intervals between selected splits.</p>
+<p>In the <em>hist</em> training method, only bins are considered for best split computation.
+Bins are continuous intervals of data points for a selected feature.
+They are computed for each feature during the initialization stage of the algorithm.
+Each value from the initially provided data is substituted
+with the value of the corresponding bin. It decreases the computational time complexity
+from <span class="math notranslate nohighlight">\(O(num_rows \dot num_selected_features)\)</span> to <span class="math notranslate nohighlight">\(O(num_bins \cdot num_selected_features)\)</span>,
+but decreases algorithm accuracy.</p>
+</div>
+<div class="section" id="split-strategy">
+<h4>Split strategy<a class="headerlink" href="#split-strategy" title="Permalink to this headline">¶</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>random</cite> split strategy is supported only for the <cite>hist</cite> method. The dense method supports only the <cite>best</cite> strategy.</p>
+</div>
+<p>There are two split strategies for building trees:
+.. tabs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.. group-tab:: Best splitter
+
+The threshold for a node is chosen as the best among all bins and all selected features according to split criteria(see  **Split Criteria** below).
+The computational time complexity for the `best` splitter is :math:`O(num_features \cdot num_bins)` for each node. The best splitting strategy
+builds a tree with optimal splits on each level.
+
+.. group-tab:: Random splitter
+
+The threshold for a node is chosen randomly for each selected feature. The split threshold is chosen as the best among all pairs
+(feature, random threshold) according to split criteria(see  **Split Criteria** below).
+The computational time complexity for the `random` splitter as :math:`O(num_features)` for each node.
+The random splitting strategy does not build a tree with optimal trees, but in the case of big tree ensembles, it provides a more robust
+model comparing to the `best` strategy.
+</pre></div>
+</div>
 </div>
 <div class="section" id="split-criteria">
 <h4>Split Criteria<a class="headerlink" href="#split-criteria" title="Permalink to this headline">¶</a></h4>

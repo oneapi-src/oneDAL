@@ -178,6 +178,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -185,6 +190,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -576,6 +586,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1864,6 +1879,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2233,7 +2253,7 @@
 <span class="cm">* limitations under the License.</span>
 <span class="cm">*******************************************************************************/</span><span class="w"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/sycl.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sycl/sycl.hpp&gt;</span><span class="cp"></span>
 
 <span class="cp">#ifndef ONEDAL_DATA_PARALLEL</span>
 <span class="cp">#define ONEDAL_DATA_PARALLEL</span>

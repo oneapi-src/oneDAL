@@ -179,6 +179,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -186,6 +191,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -577,6 +587,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1865,6 +1880,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2472,10 +2492,25 @@ process of another object and enables its iterative creation.</p>
 <dt id="term-Contiguous-data">Contiguous data<a class="headerlink" href="#term-Contiguous-data" title="Permalink to this term">¶</a></dt><dd><p>Data that are stored as one contiguous memory block. One of the
 characteristics of a <a class="reference internal" href="#term-Data-format"><span class="xref std std-term">data format</span></a>.</p>
 </dd>
-<dt id="term-CSR-data">CSR data<a class="headerlink" href="#term-CSR-data" title="Permalink to this term">¶</a></dt><dd><p>A compressed sparse row (csr) data is the sparse matrix representation.
+<dt id="term-CSR-data">CSR data<a class="headerlink" href="#term-CSR-data" title="Permalink to this term">¶</a></dt><dd><p>A Compressed Sparse Row (CSR) data is the sparse matrix representation.
 Data with values of a single <a class="reference internal" href="#term-Data-type"><span class="xref std std-term">data type</span></a> and the same set of
 available operations defined on them. One of the characteristics of a
-<a class="reference internal" href="#term-Data-format"><span class="xref std std-term">data format</span></a>.</p>
+<a class="reference internal" href="#term-Data-format"><span class="xref std std-term">data format</span></a>.
+This representation stores the non-zero elements of a matrix in three
+arrays.
+The arrays describe the sparse matrix <span class="math notranslate nohighlight">\(A\)</span> as follows:</p>
+<ul class="simple">
+<li><p>The array values contain non-zero elements of the matrix row-by-row.</p></li>
+<li><p>The element number <code class="docutils literal notranslate"><span class="pre">j</span></code> of the <code class="docutils literal notranslate"><span class="pre">columns_indices</span></code> array encodes
+the column index in the matrix <span class="math notranslate nohighlight">\(A\)</span> for the jth element
+of the array values.</p></li>
+<li><p>The element number <code class="docutils literal notranslate"><span class="pre">i</span></code> of the <code class="docutils literal notranslate"><span class="pre">row_offsets</span></code> array encodes
+the index in the array values corresponding to the first non-zero
+element in rows indexed <code class="docutils literal notranslate"><span class="pre">i</span></code> or greater.
+The last element in the array <code class="docutils literal notranslate"><span class="pre">row_offsets</span></code> encodes the number
+of non-zero elements in the matrix <span class="math notranslate nohighlight">\(A\)</span>.</p></li>
+</ul>
+<p>oneDAL supports zero-based and one-based indexing.</p>
 </dd>
 <dt id="term-Data-format">Data format<a class="headerlink" href="#term-Data-format" title="Permalink to this term">¶</a></dt><dd><p>Representation of the internal structure of the data.</p>
 <p><strong>Examples:</strong> data can be stored in array-of-structures or

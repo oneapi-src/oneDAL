@@ -180,6 +180,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -187,6 +192,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -578,6 +588,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1866,6 +1881,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2434,23 +2454,6 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 </dd></dl>
 
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE">
-<span id="_CPPv3N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE"></span><span id="_CPPv2N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE"></span><span id="oneapi::dal::kmeans::descriptor::accuracy_threshold__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">accuracy_threshold</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The threshold <span class="math notranslate nohighlight">\(\varepsilon\)</span> for the stop condition. <strong>Default value</strong>: 0.0.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_accuracy_threshold()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_accuracy_threshold(double</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE" title="oneapi::dal::kmeans::descriptor::accuracy_threshold"><span class="n">accuracy_threshold</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans10descriptor13cluster_countE">
 <span id="_CPPv3N6oneapi3dal6kmeans10descriptor13cluster_countE"></span><span id="_CPPv2N6oneapi3dal6kmeans10descriptor13cluster_countE"></span><span id="oneapi::dal::kmeans::descriptor::cluster_count__std::int64_t"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cluster_count</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans10descriptor13cluster_countE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The number of clusters k. <strong>Default value</strong>: 2.</p>
@@ -2462,6 +2465,23 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 </dd>
 <dt>Invariants</dt><dd><div class="line-block">
 <div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans10descriptor13cluster_countE" title="oneapi::dal::kmeans::descriptor::cluster_count"><span class="n">cluster_count</span></a><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0</span></span></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE">
+<span id="_CPPv3N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE"></span><span id="_CPPv2N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE"></span><span id="oneapi::dal::kmeans::descriptor::accuracy_threshold__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">accuracy_threshold</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The threshold <span class="math notranslate nohighlight">\(\varepsilon\)</span> for the stop condition. <strong>Default value</strong>: 0.0.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_accuracy_threshold()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_accuracy_threshold(double</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE" title="oneapi::dal::kmeans::descriptor::accuracy_threshold"><span class="n">accuracy_threshold</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
 </div>
 </dd>
 </dl>
@@ -2567,19 +2587,6 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans11train_input4dataE">
-<span id="_CPPv3N6oneapi3dal6kmeans11train_input4dataE"></span><span id="_CPPv2N6oneapi3dal6kmeans11train_input4dataE"></span><span id="oneapi::dal::kmeans::train_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans11train_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An <span class="math notranslate nohighlight">\(n \times p\)</span> table with the data to be clustered, where each row stores one feature vector.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans11train_input17initial_centroidsE">
 <span id="_CPPv3N6oneapi3dal6kmeans11train_input17initial_centroidsE"></span><span id="_CPPv2N6oneapi3dal6kmeans11train_input17initial_centroidsE"></span><span id="oneapi::dal::kmeans::train_input::initial_centroids__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">initial_centroids</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans11train_input17initial_centroidsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A <span class="math notranslate nohighlight">\(k \times p\)</span> table with the initial centroids, where each row stores one centroid.</p>
@@ -2587,6 +2594,19 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_initial_centroids()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_initial_centroids(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans11train_input4dataE">
+<span id="_CPPv3N6oneapi3dal6kmeans11train_input4dataE"></span><span id="_CPPv2N6oneapi3dal6kmeans11train_input4dataE"></span><span id="oneapi::dal::kmeans::train_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans11train_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An <span class="math notranslate nohighlight">\(n \times p\)</span> table with the data to be clustered, where each row stores one feature vector.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2614,17 +2634,39 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE">
-<span id="_CPPv3N6oneapi3dal6kmeans12train_result24objective_function_valueE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result24objective_function_valueE"></span><span id="oneapi::dal::kmeans::train_result::objective_function_value__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">objective_function_value</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The value of the objective function <span class="math notranslate nohighlight">\(\Phi_X(C)\)</span>, where C is <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12train_result5modelE" title="oneapi::dal::kmeans::train_result::model"><span class="n">model</span></a><span class="p">.</span><span class="n">centroids</span></span>.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result9responsesE">
+<span id="_CPPv3N6oneapi3dal6kmeans12train_result9responsesE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result9responsesE"></span><span id="oneapi::dal::kmeans::train_result::responses__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">responses</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the responses <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data, <span class="math notranslate nohighlight">\(1 \leq 1 \leq n\)</span>. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_objective_function_value()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_objective_function_value(double</span> <span class="pre">value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE" title="oneapi::dal::kmeans::train_result::objective_function_value"><span class="n">objective_function_value</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result5modelE">
+<span id="_CPPv3N6oneapi3dal6kmeans12train_result5modelE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result5modelE"></span><span id="oneapi::dal::kmeans::train_result::model__model:Task:CR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12train_result5modelE" title="oneapi::dal::kmeans::train_result::model"><span class="n"><span class="pre">model</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trained K-means model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result6labelsE">
+<span id="_CPPv3N6oneapi3dal6kmeans12train_result6labelsE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result6labelsE"></span><span id="oneapi::dal::kmeans::train_result::labels__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">labels</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result6labelsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the labels <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data, <span class="math notranslate nohighlight">\(1 \leq 1 \leq n\)</span>. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2648,39 +2690,17 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 </dd></dl>
 
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result5modelE">
-<span id="_CPPv3N6oneapi3dal6kmeans12train_result5modelE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result5modelE"></span><span id="oneapi::dal::kmeans::train_result::model__model:Task:CR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12train_result5modelE" title="oneapi::dal::kmeans::train_result::model"><span class="n"><span class="pre">model</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result5modelE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The trained K-means model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE">
+<span id="_CPPv3N6oneapi3dal6kmeans12train_result24objective_function_valueE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result24objective_function_valueE"></span><span id="oneapi::dal::kmeans::train_result::objective_function_value__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">objective_function_value</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The value of the objective function <span class="math notranslate nohighlight">\(\Phi_X(C)\)</span>, where <span class="math notranslate nohighlight">\(C\)</span> is <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12train_result5modelE" title="oneapi::dal::kmeans::train_result::model"><span class="n">model</span></a><span class="p">.</span><span class="n">centroids</span></span>.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_objective_function_value()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_objective_function_value(double</span> <span class="pre">value)</span></code></div>
 </div>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result9responsesE">
-<span id="_CPPv3N6oneapi3dal6kmeans12train_result9responsesE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result9responsesE"></span><span id="oneapi::dal::kmeans::train_result::responses__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">responses</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the responses <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data, <span class="math notranslate nohighlight">\(1 \leq 1 \leq n\)</span>. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12train_result6labelsE">
-<span id="_CPPv3N6oneapi3dal6kmeans12train_result6labelsE"></span><span id="_CPPv2N6oneapi3dal6kmeans12train_result6labelsE"></span><span id="oneapi::dal::kmeans::train_result::labels__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">labels</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12train_result6labelsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with the labels <span class="math notranslate nohighlight">\(y_i\)</span> assigned to the samples <span class="math notranslate nohighlight">\(x_i\)</span> in the input data, <span class="math notranslate nohighlight">\(1 \leq 1 \leq n\)</span>. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE" title="oneapi::dal::kmeans::train_result::objective_function_value"><span class="n">objective_function_value</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
 </div>
 </dd>
 </dl>
@@ -2745,19 +2765,6 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans11infer_input4dataE">
-<span id="_CPPv3N6oneapi3dal6kmeans11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal6kmeans11infer_input4dataE"></span><span id="oneapi::dal::kmeans::infer_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The trained K-Means model. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans11infer_input5modelE">
 <span id="_CPPv3N6oneapi3dal6kmeans11infer_input5modelE"></span><span id="_CPPv2N6oneapi3dal6kmeans11infer_input5modelE"></span><span id="oneapi::dal::kmeans::infer_input::model__model:Task:CR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans11infer_input5modelE" title="oneapi::dal::kmeans::infer_input::model"><span class="n"><span class="pre">model</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Task</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">model</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans11infer_input5modelE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>An <span class="math notranslate nohighlight">\(n \times p\)</span> table with the data to be assigned to the clusters, where each row stores one feature vector. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
@@ -2765,6 +2772,19 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans11infer_input4dataE">
+<span id="_CPPv3N6oneapi3dal6kmeans11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal6kmeans11infer_input4dataE"></span><span id="oneapi::dal::kmeans::infer_input::data__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trained K-Means model. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2792,23 +2812,6 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE">
-<span id="_CPPv3N6oneapi3dal6kmeans12infer_result24objective_function_valueE"></span><span id="_CPPv2N6oneapi3dal6kmeans12infer_result24objective_function_valueE"></span><span id="oneapi::dal::kmeans::infer_result::objective_function_value__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">objective_function_value</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The value of the objective function <span class="math notranslate nohighlight">\(\Phi_X(C)\)</span>, where C is defined by the corresponding <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6kmeans11infer_inputE" title="oneapi::dal::kmeans::infer_input"><span class="n">infer_input</span></a><span class="p">::</span><span class="n">model</span><span class="p">::</span><span class="n">centroids</span></span>. <strong>Default value</strong>: 0.0.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_objective_function_value()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_objective_function_value(double</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE" title="oneapi::dal::kmeans::infer_result::objective_function_value"><span class="n">objective_function_value</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12infer_result9responsesE">
 <span id="_CPPv3N6oneapi3dal6kmeans12infer_result9responsesE"></span><span id="_CPPv2N6oneapi3dal6kmeans12infer_result9responsesE"></span><span id="oneapi::dal::kmeans::infer_result::responses__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">responses</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12infer_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>An <span class="math notranslate nohighlight">\(n \times 1\)</span> table with assignments responses to feature vectors in the input data. <strong>Default value</strong>: table{}.</p>
@@ -2829,6 +2832,23 @@ Each cluster is characterized by a representative point, called <em>a centroid</
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE">
+<span id="_CPPv3N6oneapi3dal6kmeans12infer_result24objective_function_valueE"></span><span id="_CPPv2N6oneapi3dal6kmeans12infer_result24objective_function_valueE"></span><span id="oneapi::dal::kmeans::infer_result::objective_function_value__double"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">objective_function_value</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The value of the objective function <span class="math notranslate nohighlight">\(\Phi_X(C)\)</span>, where <span class="math notranslate nohighlight">\(C\)</span> is defined by the corresponding <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal6kmeans11infer_inputE" title="oneapi::dal::kmeans::infer_input"><span class="n">infer_input</span></a><span class="p">::</span><span class="n">model</span><span class="p">::</span><span class="n">centroids</span></span>. <strong>Default value</strong>: 0.0.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_objective_function_value()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_objective_function_value(double</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE" title="oneapi::dal::kmeans::infer_result::objective_function_value"><span class="n">objective_function_value</span></a><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">0.0</span></span></div>
 </div>
 </dd>
 </dl>

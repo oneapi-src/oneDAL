@@ -179,6 +179,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -186,6 +191,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -577,6 +587,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1865,6 +1880,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2450,26 +2470,13 @@
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal10covariance14compute_result10cov_matrixE">
-<span id="_CPPv3N6oneapi3dal10covariance14compute_result10cov_matrixE"></span><span id="_CPPv2N6oneapi3dal10covariance14compute_result10cov_matrixE"></span><span id="oneapi::dal::covariance::compute_result::cov_matrix__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">cov_matrix</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal10covariance14compute_result10cov_matrixE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The covariance matrix. <strong>Default value</strong>: table{}.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal10covariance14compute_result14result_optionsE">
+<span id="_CPPv3N6oneapi3dal10covariance14compute_result14result_optionsE"></span><span id="_CPPv2N6oneapi3dal10covariance14compute_result14result_optionsE"></span><span id="oneapi::dal::covariance::compute_result::result_options__result_option_idCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">result_option_id</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">result_options</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal10covariance14compute_result14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Result options that indicates availability of the properties. <strong>Default value</strong>: default_result_options&lt;Task&gt;.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_cov_matrix()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_cov_matrix(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal10covariance14compute_result10cor_matrixE">
-<span id="_CPPv3N6oneapi3dal10covariance14compute_result10cor_matrixE"></span><span id="_CPPv2N6oneapi3dal10covariance14compute_result10cor_matrixE"></span><span id="oneapi::dal::covariance::compute_result::cor_matrix__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">cor_matrix</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal10covariance14compute_result10cor_matrixE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The correlation matrix. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_cor_matrix()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_cor_matrix(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;</span> <span class="pre">get_result_options()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_result_options(const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2489,13 +2496,26 @@
 </dd></dl>
 
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal10covariance14compute_result14result_optionsE">
-<span id="_CPPv3N6oneapi3dal10covariance14compute_result14result_optionsE"></span><span id="_CPPv2N6oneapi3dal10covariance14compute_result14result_optionsE"></span><span id="oneapi::dal::covariance::compute_result::result_options__result_option_idCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">result_option_id</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">result_options</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal10covariance14compute_result14result_optionsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Result options that indicates availability of the properties. <strong>Default value</strong>: default_result_options&lt;Task&gt;.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal10covariance14compute_result10cor_matrixE">
+<span id="_CPPv3N6oneapi3dal10covariance14compute_result10cor_matrixE"></span><span id="_CPPv2N6oneapi3dal10covariance14compute_result10cor_matrixE"></span><span id="oneapi::dal::covariance::compute_result::cor_matrix__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">cor_matrix</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal10covariance14compute_result10cor_matrixE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The correlation matrix. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;</span> <span class="pre">get_result_options()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_result_options(const</span> <span class="pre">result_option_id</span> <span class="pre">&amp;value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_cor_matrix()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_cor_matrix(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal10covariance14compute_result10cov_matrixE">
+<span id="_CPPv3N6oneapi3dal10covariance14compute_result10cov_matrixE"></span><span id="_CPPv2N6oneapi3dal10covariance14compute_result10cov_matrixE"></span><span id="oneapi::dal::covariance::compute_result::cov_matrix__tableCR"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="n"><span class="pre">table</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">cov_matrix</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal10covariance14compute_result10cov_matrixE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The covariance matrix. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_cov_matrix()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_cov_matrix(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>

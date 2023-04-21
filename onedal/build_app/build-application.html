@@ -178,6 +178,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -185,6 +190,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -576,6 +586,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1864,6 +1879,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2278,7 +2298,6 @@
 <td><div class="line-block">
 <div class="line">libonedal_core.a,</div>
 <div class="line">libonedal_dpc.a,</div>
-<div class="line">libonedal_sequential.a</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -2292,7 +2311,6 @@
 <td><div class="line-block">
 <div class="line">libonedal_core.so,</div>
 <div class="line">libonedal_dpc.so,</div>
-<div class="line">libonedal_sequential.so</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -2358,7 +2376,6 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 <tr class="row-even"><td><p>Static linking</p></td>
 <td><div class="line-block">
 <div class="line">onedal_core.lib,</div>
-<div class="line">onedal_sequential.lib</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -2394,7 +2411,6 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 <div class="line">onedald.lib,</div>
 <div class="line">onedal_dpcd.lib,</div>
 <div class="line">onedal_sycld.lib,</div>
-<div class="line">onedal_sequentiald.lib</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -2414,7 +2430,6 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 <div class="line">onedald.1.dll,</div>
 <div class="line">onedal_cored.1.dll,</div>
 <div class="line">onedal_dpcd.1.dll,</div>
-<div class="line">onedal_sequentiald.1.dll</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -2457,14 +2472,14 @@ open or create a C++ project for your oneDAL application to build.</p></li>
 <li><p>Linux* OS:</p></li>
 </ul>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>icpx -fsycl my_first_dal_program.cpp -Wl,
---start-group &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_core.a &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_dpc.a &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+--start-group &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_core.a &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Windows* OS:</p></li>
 </ul>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>icx-cl -fsycl my_first_dal_program.cpp -Wl,
---start-group &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_core.a &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_dpc.a &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_sequential.a -lpthread -ldl -lOpenCL &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+--start-group &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_core.a &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL &lt;install dir&gt;/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
 </pre></div>
 </div>
 </div></blockquote>

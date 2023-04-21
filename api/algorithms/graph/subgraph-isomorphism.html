@@ -180,6 +180,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -187,6 +192,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -578,6 +588,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1866,6 +1881,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2371,19 +2391,6 @@ available via inclusion of the <code class="docutils literal notranslate"><span 
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE">
-<span id="_CPPv3N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE"></span><span id="_CPPv2N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE"></span><span id="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind__kind"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind"><span class="n"><span class="pre">kind</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kind</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The kind of subgraph to be isomorphic to the pattern graph. Can be <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind"><span class="n">kind</span></a><span class="p">::</span><span class="n">induced</span></span> or <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind"><span class="n">kind</span></a><span class="p">::</span><span class="n">non_induced</span></span>.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">kind</span> <span class="pre">get_kind()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_kind(kind</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor14semantic_matchE">
 <span id="_CPPv3N6oneapi3dal7preview20subgraph_isomorphism10descriptor14semantic_matchE"></span><span id="_CPPv2N6oneapi3dal7preview20subgraph_isomorphism10descriptor14semantic_matchE"></span><span id="oneapi::dal::preview::subgraph_isomorphism::descriptor::semantic_match__b"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">semantic_match</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor14semantic_matchE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The flag that specifies if semantic search is required in Subgraph Isomorphism computation. If true, vertex labels are considered.</p>
@@ -2391,6 +2398,19 @@ available via inclusion of the <code class="docutils literal notranslate"><span 
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">get_semantic_match()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_semantic_match(bool</span> <span class="pre">semantic_match)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE">
+<span id="_CPPv3N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE"></span><span id="_CPPv2N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE"></span><span id="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind__kind"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind"><span class="n"><span class="pre">kind</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kind</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The kind of subgraph to be isomorphic to the pattern graph. Can be <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind"><span class="n">kind</span></a><span class="p">::</span><span class="n">induced</span></span> or <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="#_CPPv4N6oneapi3dal7preview20subgraph_isomorphism10descriptor4kindE" title="oneapi::dal::preview::subgraph_isomorphism::descriptor::kind"><span class="n">kind</span></a><span class="p">::</span><span class="n">non_induced</span></span>.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">kind</span> <span class="pre">get_kind()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_kind(kind</span> <span class="pre">value)</span></code></div>
 </div>
 </dd>
 </dl>

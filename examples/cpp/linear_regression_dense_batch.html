@@ -178,6 +178,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="../dpc/df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../dpc/df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -185,6 +190,11 @@
      <li class="toctree-l3">
       <a class="reference internal" href="../dpc/df_reg_hist_batch.html">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../dpc/df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -576,6 +586,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1864,6 +1879,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2240,6 +2260,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;example_util/utils.hpp&quot;</span><span class="cp"></span>
 
 <span class="k">namespace</span><span class="w"> </span><span class="nn">dal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">oneapi</span><span class="o">::</span><span class="nn">dal</span><span class="p">;</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">result_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">dal</span><span class="o">::</span><span class="nn">linear_regression</span><span class="o">::</span><span class="nn">result_options</span><span class="p">;</span><span class="w"></span>
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">train_data_file_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;linear_regression_train_data.csv&quot;</span><span class="p">);</span><span class="w"></span>
@@ -2249,18 +2270,22 @@
 
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">x_train</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="w"> </span><span class="n">train_data_file_name</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">y_train</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="w"> </span><span class="n">train_response_file_name</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
-
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lr_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">linear_regression</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">();</span><span class="w"></span>
-
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">x_test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="w"> </span><span class="n">test_data_file_name</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">y_test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span><span class="w"> </span><span class="n">test_response_file_name</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
 
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lr_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">linear_regression</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">().</span><span class="n">set_result_options</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">result_options</span><span class="o">::</span><span class="n">coefficients</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">result_options</span><span class="o">::</span><span class="n">intercept</span><span class="p">);</span><span class="w"></span>
+
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">train_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">train</span><span class="p">(</span><span class="n">lr_desc</span><span class="p">,</span><span class="w"> </span><span class="n">x_train</span><span class="p">,</span><span class="w"> </span><span class="n">y_train</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Coefficients:</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">train_result</span><span class="p">.</span><span class="n">get_coefficients</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Intercept:</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">train_result</span><span class="p">.</span><span class="n">get_intercept</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lr_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_result</span><span class="p">.</span><span class="n">get_model</span><span class="p">();</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">test_result_uniform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">lr_desc</span><span class="p">,</span><span class="w"> </span><span class="n">x_test</span><span class="p">,</span><span class="w"> </span><span class="n">lr_model</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">test_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">lr_desc</span><span class="p">,</span><span class="w"> </span><span class="n">x_test</span><span class="p">,</span><span class="w"> </span><span class="n">lr_model</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Test results:</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">test_result_uniform</span><span class="p">.</span><span class="n">get_responses</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Test results:</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">test_result</span><span class="p">.</span><span class="n">get_responses</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;True responses:</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">y_test</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 

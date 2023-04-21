@@ -18,7 +18,7 @@
 
 ::
 
-   #include <CL/sycl.hpp>
+   #include <sycl/sycl.hpp>
    #include <iostream>
 
    #include "oneapi/dal/table/homogen.hpp"

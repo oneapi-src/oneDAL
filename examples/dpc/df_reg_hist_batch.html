@@ -36,7 +36,7 @@
     <link rel="shortcut icon" href="../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="df_reg_traverse_model.cpp" href="df_reg_traverse_model.html" />
+    <link rel="next" title="df_reg_hist_batch_random.cpp" href="df_reg_hist_batch_random.html" />
     <link rel="prev" title="df_cls_traverse_model.cpp" href="df_cls_traverse_model.html" />
     <script defer type="text/javascript" src="https://www.intel.com/content/dam/www/global/wap/performance-config.js" ></script>
     <script type="text/javascript">
@@ -178,6 +178,11 @@
       </a>
      </li>
      <li class="toctree-l3">
+      <a class="reference internal" href="df_cls_hist_batch_random.html">
+       df_cls_hist_batch_random.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="df_cls_traverse_model.html">
        df_cls_traverse_model.cpp
       </a>
@@ -185,6 +190,11 @@
      <li class="toctree-l3 current active">
       <a class="current reference internal" href="#">
        df_reg_hist_batch.cpp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="df_reg_hist_batch_random.html">
+       df_reg_hist_batch_random.cpp
       </a>
      </li>
      <li class="toctree-l3">
@@ -576,6 +586,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../onedal/data-management/table/homogen.html">
          Homogeneous table
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../onedal/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
         </a>
        </li>
       </ul>
@@ -1864,6 +1879,11 @@
          Homogeneous table
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/data-management/table/csr.html">
+         Compressed Sparse Rows (CSR) Table
+        </a>
+       </li>
       </ul>
      </li>
     </ul>
@@ -2261,7 +2281,7 @@
 
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">df_desc</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
 <span class="w">        </span><span class="n">df</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="o">::</span><span class="n">method</span><span class="o">::</span><span class="n">hist</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="o">::</span><span class="n">task</span><span class="o">::</span><span class="n">regression</span><span class="o">&gt;</span><span class="p">{}</span><span class="w"></span>
-<span class="w">            </span><span class="p">.</span><span class="n">set_tree_count</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">set_tree_count</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span><span class="w"></span>
 <span class="w">            </span><span class="p">.</span><span class="n">set_features_per_node</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
 <span class="w">            </span><span class="p">.</span><span class="n">set_min_observations_in_leaf_node</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
 <span class="w">            </span><span class="p">.</span><span class="n">set_error_metric_mode</span><span class="p">(</span><span class="n">df</span><span class="o">::</span><span class="n">error_metric_mode</span><span class="o">::</span><span class="n">out_of_bag_error</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
@@ -2317,10 +2337,10 @@
             <p class="prev-next-title">df_cls_traverse_model.cpp</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="df_reg_traverse_model.html" title="next page">
+    <a class='right-next' id="next-link" href="df_reg_hist_batch_random.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">df_reg_traverse_model.cpp</p>
+        <p class="prev-next-title">df_reg_hist_batch_random.cpp</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
