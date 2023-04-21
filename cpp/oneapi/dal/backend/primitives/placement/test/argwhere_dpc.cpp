@@ -139,6 +139,34 @@ public:
         REQUIRE(min == val);
     }
 
+    void test_1d_argmax() {
+        check_if_initialized();
+
+        auto queue = this->get_queue();
+        constexpr auto alloc = sycl::usm::alloc::device;
+        row_accessor<const Float> accessor(this->input_table_);
+        const auto device_array = accessor.pull(queue, {0, -1}, alloc);
+        const auto device = ndview<Float, 1>::wrap(device_array);
+        const auto host_array = accessor.pull({0, -1});
+
+        std::int64_t idx = -1l;
+        Float val = std::numeric_limits<Float>::lowest();
+        for (std::int64_t i = 0; i < this->n_; ++i) {
+            const auto curr = host_array[i];
+            if (val <= curr) {
+                val = curr;
+                idx = i;
+            }
+        }
+
+        auto [max, gtr] = argmax(queue, device);
+
+        CAPTURE(val, idx, max, gtr, host_array[gtr]);
+
+        REQUIRE(gtr == idx);
+        REQUIRE(max == val);
+    }
+
 private:
     table input_table_;
     std::int64_t m_, n_;
@@ -155,13 +183,14 @@ TEMPLATE_LIST_TEST_M(argwhere_test_random_1d,
 }
 
 TEMPLATE_LIST_TEST_M(argwhere_test_random_1d,
-                     "Random argmin",
+                     "Random argextreme",
                      "[argmin][1d][small]",
                      argwhere_types) {
     SKIP_IF(this->not_float64_friendly());
 
     this->generate();
     this->test_1d_argmin();
+    this->test_1d_argmax();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

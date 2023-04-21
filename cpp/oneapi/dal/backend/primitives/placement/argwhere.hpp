@@ -79,8 +79,20 @@ sycl::event argmin(sycl::queue& queue,
                    ndview<Index, 1>& idx_output, 
                    const event_vector& deps = {});
 
+template <typename Type, typename Index>
+sycl::event argmax(sycl::queue& queue, 
+                   const ndview<Type, 1>& values, 
+                   ndview<Type, 1>& val_output, 
+                   ndview<Index, 1>& idx_output, 
+                   const event_vector& deps = {});
+
 template <typename Type, typename Index = std::int64_t>
 std::tuple<Type, Index> argmin(sycl::queue& queue, 
+                               const ndview<Type, 1>& values, 
+                               const event_vector& deps = {});
+
+template <typename Type, typename Index = std::int64_t>
+std::tuple<Type, Index> argmax(sycl::queue& queue, 
                                const ndview<Type, 1>& values, 
                                const event_vector& deps = {});
 
