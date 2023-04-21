@@ -93,7 +93,8 @@ The singular value decomposition (SVD) is a matrix factorization technique that
 decomposes an observation matrix :math:`X_{n \times p}` into three matrices as follows:
 .. math::
    `X = U\SigmaV^*`
-Here, the columns of :math:`U` are the left-singular vectors, the 
+
+Here, the columns of :math:`U` are the left-singular vectors, the
 columns of  :math:`V` are the right-singular vectors, :math:`V^*` is the 
 conjugate transpose of the matrix :math:`V` and the diagonal entries of :math:`\Sigma` 
 are the singular values (:math:`\sigma`) of :math:`X`. The right-singular vectors are 
