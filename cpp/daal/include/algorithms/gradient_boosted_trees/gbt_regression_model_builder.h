@@ -121,10 +121,10 @@ public:
     *  \param[in] featureValue    Feature value for splitting
     *  \return Node identifier
     */
-    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue)
+    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int yes_if_missing = 0)
     {
         NodeId resId;
-        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, resId);
+        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, resId, yes_if_missing);
         services::throwIfPossible(_status);
         return resId;
     }
@@ -152,7 +152,7 @@ protected:
     services::Status initialize(size_t nFeatures, size_t nIterations);
     services::Status createTreeInternal(size_t nNodes, TreeId & resId);
     services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId & res);
-    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId & res);
+    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId & res, int yes_if_missing);
     services::Status convertModelInternal();
 };
 /** @} */

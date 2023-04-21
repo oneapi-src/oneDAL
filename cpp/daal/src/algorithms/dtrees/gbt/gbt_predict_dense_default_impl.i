@@ -50,6 +50,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 {
     const ModelFPType * const values        = t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
+    const int * const yesIfMissing          = t.getYesIfMissingForSplit() - 1;
     const FeatureIndexType nFeat            = featTypes.getNumberOfFeatures();
 
     FeatureIndexType i[VECTOR_BLOCK_SIZE];
@@ -68,9 +69,12 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
                 const FeatureIndexType idx          = i[k];
                 const FeatureIndexType splitFeature = fIndexes[idx];
                 const ModelFPType valueFromDataSet  = x[splitFeature + k * nFeat];
-                const ModelFPType splitPoint        = values[idx];
-
-                i[k] = idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoint : valueFromDataSet > splitPoint);
+                if (isnan(valueFromDataSet)) {
+                    i[k] = idx * 2 + (yesIfMissing[idx] != 1);
+                } else {
+                    const ModelFPType splitPoint        = values[idx];
+                    i[k] = idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoint : valueFromDataSet > splitPoint);
+                }
             }
         }
     }
@@ -83,7 +87,11 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
             for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
             {
                 const FeatureIndexType idx = i[k];
-                i[k]                       = idx * 2 + (x[fIndexes[idx] + k * nFeat] > values[idx]);
+                if (isnan(x[fIndexes[idx] + k * nFeat])) {
+                    i[k] = idx * 2 + (yesIfMissing[idx] != 1);    
+                } else {
+                    i[k] = idx * 2 + (x[fIndexes[idx] + k * nFeat] > values[idx]);
+                }
             }
         }
     }
@@ -101,6 +109,7 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 {
     const ModelFPType * const values        = (const ModelFPType *)t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
+    const int * const yesIfMissing          = t.getYesIfMissingForSplit() - 1;
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
@@ -110,14 +119,22 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
     {
         for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
         {
-            i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
+            if (isnan(x[fIndexes[i]])) {
+                i = i * 2 + (yesIfMissing[i] != 1);
+            } else {
+                i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
+            }
         }
     }
     else
     {
         for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
         {
-            i = i * 2 + (x[fIndexes[i]] > values[i]);
+            if (isnan(x[fIndexes[i]])) {
+                i = i * 2 + (yesIfMissing[i] != 1);
+            } else {
+                i = i * 2 + (x[fIndexes[i]] > values[i]);
+            }
         }
     }
 

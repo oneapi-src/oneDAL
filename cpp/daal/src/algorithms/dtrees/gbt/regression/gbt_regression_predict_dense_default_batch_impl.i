@@ -135,10 +135,14 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             {
                 res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
             }
+            // for (iRow = 0; iRow < nRowsToProcess; ++iRow)
+            // {
+            //     res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
+            // }
         });
-
         s = safeStat.detach();
     }
+    
 
     return s;
 }
