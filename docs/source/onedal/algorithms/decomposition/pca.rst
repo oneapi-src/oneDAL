@@ -55,7 +55,7 @@ More specifically, if scaling of the features is important for a problem,
 which is often the case, using the correlation matrix  to compute principal components is more appropriate.
 By default, oneDAL uses correlation matrix to compute the principal components. But it is possible 
 to use the covariance matrix by calling the ``precomputed`` method and feeding a covariance matrix as input
-to the PCA algorithm. To compute the covariance matrix the :ref:`Covariance <alg_cov>` algorithm can be used.
+to the PCA algorithm. To compute the covariance matrix the :ref:`Covariance <_alg_covariance>` algorithm can be used.
 
 The eigenvector associated with the :math:`k`-th largest eigenvalue of the covariance (or correlation) matrix 
 is also the :math:`k`-th principal component of the training data set.  Based on this principle,
@@ -90,10 +90,7 @@ Training method: *SVD*
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The singular value decomposition (SVD) is a matrix factorization technique that
-decomposes an observation matrix :math:`X_{n \times p}` into three matrices as follows:
-.. math::
-   `X = U\SigmaV^*`
-
+decomposes an observation matrix :math:`X_{n \times p}` into three matrices as :math:`X = U\SigmaV^*`.
 Here, the columns of :math:`U` are the left-singular vectors, the
 columns of  :math:`V` are the right-singular vectors, :math:`V^*` is the 
 conjugate transpose of the matrix :math:`V` and the diagonal entries of :math:`\Sigma` 
