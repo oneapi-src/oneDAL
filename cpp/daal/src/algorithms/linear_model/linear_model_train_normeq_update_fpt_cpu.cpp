@@ -29,7 +29,7 @@ namespace training
 {
 namespace internal
 {
-template DAAL_EXPORT class UpdateKernel<DAAL_FPTYPE, DAAL_CPU>;
+template class UpdateKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
 } // namespace training
 } // namespace normal_equations
