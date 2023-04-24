@@ -37,18 +37,18 @@ For a dataset :math:`X_{n \times p}` with :math:`n` observations and :math:`p` f
 the covariance and the correlation matrices are :math:`p \times p` square matrices.
 The means, the covariance, and the correlation are computed with the following formulas:
 .. list-table::
-   :widths: 10 60
-   :header-rows: 1
-   :align: left
-
-   * - Statistic
-     - Definition
-   * - Means
-     - :math:`M = (M_j)`,:math:`j = \overline{1,p}`, :math:`M_j = \frac{1}{n}\sum _{i} X_{ij}`
-   * - Covariance matrix
-     - :math:`S = (S_{ij})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`, :math:`S_{ij} = \frac{1}{n-1}\sum_{k=1}^{n}(X_{ki} - M_i)(X_{kj}-M_j)`
-   * - Correlation matrix
-     - :math:`C = C_{ij}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`,:math:`C_{ij} = \frac{S_{ij}}{\sqrt{S_{ii}\cdot S_{jj}}}`
+  :widths: 10 60
+  :header-rows: 1
+  :align: left
+  
+  * - Statistic
+    - Definition
+  * - Means
+    - :math:`M = (M_j)`,:math:`j = \overline{1,p}`, :math:`M_j = \frac{1}{n}\sum _{i} X_{ij}`
+  * - Covariance matrix
+    - :math:`S = (S_{ij})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`, :math:`S_{ij} = \frac{1}{n-1}\sum_{k=1}^{n}(X_{ki} - M_i)(X_{kj}-M_j)`
+  * - Correlation matrix
+    - :math:`C = C_{ij}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`,:math:`C_{ij} = \frac{S_{ij}}{\sqrt{S_{ii}\cdot S_{jj}}}`
 
 .. _covariance_c_math_dense:
 
