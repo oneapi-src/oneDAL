@@ -36,7 +36,9 @@ Computing
 For a dataset :math:`X_{n \times p}` with :math:`n` observations and :math:`p` features,
 the covariance and the correlation matrices are :math:`p \times p` square matrices.
 The means, the covariance, and the correlation are computed with the following formulas:
+
 .. list-table::
+
     :widths: 10 60
     :header-rows: 1
     :align: left
