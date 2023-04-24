@@ -290,13 +290,39 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
                                 desc.get_observations_per_tree_fraction())
                           : 0;
 
-    // TODO : figure out the universal formula for distributed and batch mode
     // two buffers for row indices for each tree
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_row_total_count_ * 2;
 
+    // The number of nodes for one tree
+    // std::uint64_t one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 1) - 1;
+    // Max node_count in tree = last level
+    std::uint64_t max_node_count_per_tree = std::pow(2, ctx.max_tree_depth_ - 1);
+    // node_lists for one tree
+    required_mem_size_for_one_tree +=
+        sizeof(Index) * impl_const_t::node_prop_count_ * max_node_count_per_tree;
+    // node_vs_tree_map_list structure
+    required_mem_size_for_one_tree += sizeof(Index) * max_node_count_per_tree;
+    // Selected features and random bin tresholds
+    required_mem_size_for_one_tree +=
+        (sizeof(Index) + sizeof(Float)) * ctx.selected_ftr_count_ * max_node_count_per_tree;
+    // Impurity data for each node
+    required_mem_size_for_one_tree +=
+        sizeof(Float) * impl_const_t::node_imp_prop_count_ * max_node_count_per_tree;
+    if constexpr (std::is_same_v<task::classification, Task>) {
+        // class_hist_list_ for classification of impurity data
+        required_mem_size_for_one_tree +=
+            sizeof(Index) * max_node_count_per_tree * ctx.class_count_;
+        // node_hist_list in compute histogram
+        required_mem_size_for_one_tree += max_node_count_per_tree * part_hist_size;
+    }
+
+    // Impurity decrease list
+    if (ctx.mdi_required_) {
+        required_mem_size_for_one_tree += sizeof(Float) * max_node_count_per_tree;
+    }
+
     ctx.tree_in_block_ = de::integral_cast<Index>(available_mem_size_for_tree_block /
                                                   required_mem_size_for_one_tree);
-
     if (ctx.tree_in_block_ <= 0) {
         // not enough memory even for one tree
         throw domain_error(msg::not_enough_memory_to_build_one_tree());
@@ -3069,7 +3095,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                         { last_event });
                 }
             }
-
+            last_event.wait_and_throw();
             node_count = node_count_new;
         }
 

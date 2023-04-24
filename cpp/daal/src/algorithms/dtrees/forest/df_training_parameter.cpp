@@ -56,8 +56,9 @@ Parameter::Parameter()
       minWeightFractionInLeafNode(0.),
       minImpurityDecreaseInSplitNode(0.),
       maxLeafNodes(0),
+      minBinSize(5),
       maxBins(256),
-      minBinSize(5)
+      splitter(best)
 {}
 } // namespace interface2
 Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
