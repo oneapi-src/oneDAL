@@ -41,7 +41,7 @@ matrix :math:`T` that contains one eigenvector in each row.
 
 The principal components can be computed with any of the following two methods:
 
-#. Covariance(or Correlation)
+#. Covariance (or Correlation)
 #. Singular Value Decomposition(SVD)
 
 .. _pca_t_math_cov:
@@ -68,12 +68,12 @@ the principal components can be computed in three steps:
 
 Covariance matrix can be computed in the following way:
 
-#. Compute the dot - product :math:`P = X^T X`.
-#. Compute the sample covariance matrix :math:`S = \frac{1}{n - 1} P`.
+#. Compute the column means :math:`M = (M_j)`,:math:`j = \overline{1,p}`, :math:`M_j = \frac{1}{n}\sum _{i} X_{ij}`.
+#. Compute the sample covariance matrix :math:`S = (S_{ij})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`, :math:`S_{ij} = \frac{1}{n-1}\sum_{k=1}^{n}(X_{ki} - M_i)(X_{kj}-M_j)`.
 
 Corelation matrix can be computed from covariance matrix in the following way:
 
-#. Compute the correlation matrix :math:`C = C_{i,j}, where C_{i,j} = \frac{S_{i,j}}{\sqrt{S_{i,i}\cdot S_{j,j}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}``.
+#. Compute the correlation matrix :math:`C = C_{ij}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`,:math:`C_{ij} = \frac{S_{ij}}{\sqrt{S_{ii}\cdot S_{jj}}}`.
 
 
 The eigenvalues :math:`\lambda_k` and eigenvectors :math:`\upsilon_k` can be computed by an arbitrary
@@ -81,7 +81,7 @@ method such as [Ping14]_.
 
 In the final step, the eigenvalues (:math:`\lambda_k`) are sorted in descending order 
 to determine the order of the principal components. Each principal component is 
-stored as a row of the final resulting matrix, :math:`T = (\upsilon_{1,j}, \cdots, \upsilon_{r,j}), \quad 1 \leq j \leq p`.
+stored as a row of the final resulting matrix, :math:`T = (\upsilon_{1j}, \cdots, \upsilon_{rj}), \quad 1 \leq j \leq p`.
 Additionally, the means and variances of the input dataset are returned.
 
 .. _pca_t_math_svd:
@@ -102,7 +102,7 @@ are as follows:
 #. Decomposing the mean-centered input data to compute the singular values and the singular vectors
 #. Processing(sorting and storing) the results
 
-First step is to mean center the input data :math:`M = M_{i,j}`, where :math:`M_{i,j} = X_{i,j} - \frac{\sum_{i=1}^n X_{i,j}}{n}`.
+First step is to mean center the input data :math:`M = M_{ij}`, where :math:`M_{ij} = X_{ij} - \frac{\sum_{i=1}^n X_{ij}}{n}`.
 
 Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k` and right-singular vectors :math:`V_k` of matrix :math:`M` can be computed with an arbitrary method like the one described in [Demmel90]_.
 
@@ -118,9 +118,9 @@ often depend on the solver used. A sign-flip technique like the one proposed in 
 The sign-flip function modifies the matrix :math:`T` as follows:
 
 .. math::
-   \hat{T}_i = T_i \cdot \mathrm{sgn}(\max_{1 \leq j \leq p } |{T}_{i,j}|), \quad 1 \leq i \leq r,
+   \hat{T}_i = T_i \cdot \mathrm{sgn}(\max_{1 \leq j \leq p } |{T}_{ij}|), \quad 1 \leq i \leq r,
 
-where :math:`T_i` is :math:`i`-th row, :math:`T_{i,j}` is the element in the
+where :math:`T_i` is :math:`i`-th row, :math:`T_{ij}` is the element in the
 :math:`i`-th row and :math:`j`-th column, :math:`\mathrm{sgn}(\cdot)` is the
 signum function,
 
