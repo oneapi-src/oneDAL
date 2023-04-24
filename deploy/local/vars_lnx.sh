@@ -45,6 +45,7 @@
 
 #check if ONEAPI_ROOT is defined
 if [ -n "${ONEAPI_ROOT:-}" ] ; then
+  export DALROOT=$ONEAPI_ROOT
   export DAALROOT=$ONEAPI_ROOT
   export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
 fi
