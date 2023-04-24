@@ -432,6 +432,7 @@ jobs:
     displayName: 'brew and conda install'
   - script: |
       curl https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0232c9ce-614a-43bb-912d-98a2a30290c6/m_cpp-compiler-classic_p_2023.1.0.43554_offline.dmg -o m_cpp-compiler-classic_p_2023.1.0.43554_offline.dmg
+      sudo hdiutil attach m_cpp-compiler-classic_p_2023.1.0.43554_offline.dmg
       sudo bash /Volumes/m_cpp-compiler-classic_p_2023.1.0.43554_offline/bootstrapper.app/Contents/MacOS/install.sh --eula accept --silent
     displayName: 'install icc'
   - script: |
