@@ -18,7 +18,7 @@ In Statistics, covariance and correlation are two of the most fundamental measur
 Both the covariance and the correlation represent the joint variability of any two features.
 Correlation is dimensionless while covariance is measured in units obtained by multiplying the units of the two features.
 Another important distinction is that covariance can be affected by the higher variance of one feature, while
- correalation removes the effect of the variances by normalizing the covariance of two features by their square-root of variances.
+correalation removes the effect of the variances by normalizing the covariance of two features by their square-root of variances.
 Their usage is application dependent. The covariance algorithm computes the followings:
 - Means
 - Covariance
