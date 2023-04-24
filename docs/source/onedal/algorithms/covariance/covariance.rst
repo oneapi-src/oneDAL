@@ -33,10 +33,9 @@ Mathematical formulation
 Computing
 ---------
 
-Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`,
-the problem is to compute the sample means or the
-covariance matrix or the correlation matrix:
-
+For a dataset :math:`X_{n \times p}` with :math:`n` observations and :math:`p` features,
+the covariance and the correlation matrices are :math:`p \times p` square matrices.
+The means, the covariance, and the correlation are computed with the following formulas:
 .. list-table::
    :widths: 10 60
    :header-rows: 1
@@ -45,18 +44,18 @@ covariance matrix or the correlation matrix:
    * - Statistic
      - Definition
    * - Means
-     - :math:`M = (m(1), \ldots , m(p))`, where :math:`m\left(j\right)=\frac{1}{n}\sum _{i}{x}_{ij}`
+     - :math:`M = (M_j)`,:math:`j = \overline{1,p}`, :math:`M_j = \frac{1}{n}\sum _{i} X_{ij}`
    * - Covariance matrix
-     - :math:`Cov = (v_{ij})`, where :math:`v_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m(i))(x_{kj}-m(j))`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
+     - :math:`S = (S_{ij})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`, :math:`S_{ij} = \frac{1}{n-1}\sum_{k=1}^{n}(X_{ki} - M_i)(X_{kj}-M_j)`
    * - Correlation matrix
-     - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
+     - :math:`C = C_{ij}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`,:math:`C_{ij} = \frac{S_{ij}}{\sqrt{S_{ii}\cdot S_{jj}}}`
 
 .. _covariance_c_math_dense:
 
 Computation method: *dense*
 ---------------------------
-The method computes the means or the
-variance-covariance matrix or the correlation matrix
+The method computes the means or the variance-covariance matrix or the correlation matrix for dense data.
+This is also the default and the only method supported.
 
 ---------------------
 Programming Interface
