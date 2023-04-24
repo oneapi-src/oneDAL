@@ -47,6 +47,14 @@ Computing method: *dense*
 The method chooses first :math:`k` feature vectors from the training set
 :math:`X`.
 
+.. _kmeans_init_c_math_random_dense:
+
+Computing method: *random_dense*
+-------------------------
+
+The method chooses random :math:`k` feature vectors from the training set
+:math:`X`.
+
 ---------------------
 Programming Interface
 ---------------------
