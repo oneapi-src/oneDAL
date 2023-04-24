@@ -415,6 +415,70 @@ jobs:
     condition: failed()
     continueOnError: true
 
+- job: 'macOSMakeICC'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_mac'
+    platform.type : 'mac32e'
+  pool:
+    vmImage:  'macos-12'
+  steps:
+  - script: |
+      brew install dos2unix tree curl
+      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      pip install -q cpufeature
+    displayName: 'brew and conda install'
+  - script: |
+      curl https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0232c9ce-614a-43bb-912d-98a2a30290c6/m_cpp-compiler-classic_p_2023.1.0.43554_offline.dmg -o m_cpp-compiler-classic_p_2023.1.0.43554_offline.dmg
+      sudo bash /Volumes/m_cpp-compiler-classic_p_2023.1.0.43554_offline/bootstrapper.app/Contents/MacOS/install.sh --eula accept --silent
+    displayName: 'install icc'
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      source /usr/local/miniconda/etc/profile.d/conda.sh
+      conda activate ci-env
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      .ci/scripts/build.sh --compiler icc --target daal --optimizations "sse2 sse42 avx2 avx512" --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      .ci/scripts/build.sh --compiler icc --target oneapi_c --optimizations "sse2 sse42 avx2 avx512"
+    displayName: 'make oneapi_c'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler icc --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler icc --interface daal/cpp --build_system cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler icc --interface oneapi/cpp --build_system cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
+
 - job: 'WindowsMakeVC'
   timeoutInMinutes: 0
   variables:
