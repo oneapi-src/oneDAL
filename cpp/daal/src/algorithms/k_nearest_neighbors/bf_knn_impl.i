@@ -417,7 +417,7 @@ protected:
             {
                 for (size_t j = 0; j < k; ++j)
                 {
-                    if (distances[i] < epsilon)
+                    if (distances[j] < epsilon)
                     {
                         const int label = static_cast<int>(trainLabel[indices[i * k + j]]);
                         classWeights[label] += 1;

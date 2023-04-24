@@ -16,6 +16,8 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
@@ -59,11 +61,30 @@ sycl::event distance_voting_kernel(sycl::queue& queue,
             for (std::int32_t i = 0; i < classes; ++i) {
                 prb_row[i] = 0;
             }
+            bool contains_zero = false;
             for (std::int32_t i = 0; i < k_resps; ++i) {
                 const auto dst = dst_row[i];
-                const auto idx = ids_row[i];
-                prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
+                if (dst < eps) {
+                    contains_zero = true;
+                    break;
+                }
             }
+
+            if (contains_zero) {
+                for (std::int32_t i = 0; i < k_resps; ++i) {
+                    const auto dst = dst_row[i];
+                    const auto idx = ids_row[i];
+                    prb_row[idx] = dst < eps ? 1 : 0;
+                }
+            }
+            else {
+                for (std::int32_t i = 0; i < k_resps; ++i) {
+                    const auto dst = dst_row[i];
+                    const auto idx = ids_row[i];
+                    prb_row[idx] += (dst < eps) ? 1 : (1 / dst);
+                }
+            }
+
             IndexType best_cls = -1;
             DistsType best_prb = -1;
             for (std::int32_t i = 0; i < classes; ++i) {
@@ -97,6 +118,8 @@ sycl::event naive_distance_voting<DistType, ClassType>::operator()(
     const ndview<DistType, 2>& distances,
     ndview<ClassType, 1>& results,
     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(voting.distance, this->get_queue());
+
     const auto samples_count = results.get_dimension(0);
     auto p_slice = this->get_global_probas().get_row_slice(0, samples_count);
     return distance_voting_kernel(this->get_queue(), responses, distances, p_slice, results, deps);

@@ -41,7 +41,7 @@ static void convert_feature_information_to_daal(
 }
 
 template <typename Data>
-auto host_csr_table_adapter<Data>::create(const detail::csr_table& table) -> ptr_t {
+auto host_csr_table_adapter<Data>::create(const csr_table& table) -> ptr_t {
     status_t internal_stat;
     auto result = ptr_t{ new host_csr_table_adapter(table, internal_stat) };
     status_to_exception(internal_stat);
@@ -98,7 +98,7 @@ std::size_t host_csr_table_adapter<Data>::getDataSize() {
 template <typename Data>
 void host_csr_table_adapter<Data>::freeDataMemoryImpl() {
     base::freeDataMemoryImpl();
-    original_table_ = detail::csr_table{};
+    original_table_ = csr_table{};
 }
 
 template <typename Data>
@@ -116,7 +116,7 @@ auto host_csr_table_adapter<Data>::read_sparse_values_impl(std::size_t vector_id
 }
 
 template <typename Data>
-host_csr_table_adapter<Data>::host_csr_table_adapter(const detail::csr_table& table, status_t& stat)
+host_csr_table_adapter<Data>::host_csr_table_adapter(const csr_table& table, status_t& stat)
         // The following const_cast is safe only when this class is used for read-only
         // operations. Use on write leads to undefined behaviour.
         : base(ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
@@ -124,7 +124,7 @@ host_csr_table_adapter<Data>::host_csr_table_adapter(const detail::csr_table& ta
                                 reinterpret_cast<const std::size_t*>(table.get_column_indices())),
                             daal_object_owner(table) },
                ptr_index_t{ const_cast<std::size_t*>(
-                                reinterpret_cast<const std::size_t*>(table.get_row_indices())),
+                                reinterpret_cast<const std::size_t*>(table.get_row_offsets())),
                             daal_object_owner(table) },
                table.get_column_count(),
                table.get_row_count(),

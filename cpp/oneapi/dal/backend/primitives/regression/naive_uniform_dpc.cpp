@@ -16,6 +16,8 @@
 
 #include <algorithm>
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -51,6 +53,7 @@ sycl::event naive_uniform_regression<ResponseType>::operator()(
     const event_vector& deps) {
     constexpr sum<ResponseType> binary_op{};
     constexpr identity<ResponseType> unary_op{};
+    ONEDAL_PROFILER_TASK(regression.uniform, this->get_queue());
     ONEDAL_ASSERT(results.get_dimension(0) == responses.get_dimension(0));
     auto reduction_event =
         reduce_by_rows(this->get_queue(), responses, results, binary_op, unary_op, deps);

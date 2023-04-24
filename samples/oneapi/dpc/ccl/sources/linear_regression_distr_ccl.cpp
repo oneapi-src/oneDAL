@@ -70,6 +70,7 @@ void run(sycl::queue &queue) {
 }
 
 int main(int argc, char const *argv[]) {
+    ccl::init();
     int status = MPI_Init(nullptr, nullptr);
     if (status != MPI_SUCCESS) {
         throw std::runtime_error{ "Problem occurred during MPI init" };

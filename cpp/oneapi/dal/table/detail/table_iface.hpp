@@ -26,11 +26,13 @@ namespace v1 {
 class table_metadata;
 enum class data_layout;
 enum class feature_type;
+enum class sparse_indexing;
 } // namespace v1
 
 using v1::table_metadata;
 using v1::data_layout;
 using v1::feature_type;
+using v1::sparse_indexing;
 
 } // namespace oneapi::dal
 
@@ -61,7 +63,9 @@ class csr_table_iface : public table_iface {
 public:
     virtual dal::array<byte_t> get_data() const = 0;
     virtual dal::array<std::int64_t> get_column_indices() const = 0;
-    virtual dal::array<std::int64_t> get_row_indices() const = 0;
+    virtual dal::array<std::int64_t> get_row_offsets() const = 0;
+    virtual std::int64_t get_non_zero_count() const = 0;
+    virtual sparse_indexing get_indexing() const = 0;
 };
 
 class table_builder_iface {
