@@ -237,7 +237,7 @@ void PredictMulticlassTask<algorithmFPType, cpu>::predictByTrees(algorithmFPType
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
         val[iTree % nClasses] +=
-            gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x);
+            gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, true);
     }
 }
 
@@ -248,7 +248,7 @@ void PredictMulticlassTask<algorithmFPType, cpu>::predictByTreesVector(algorithm
     algorithmFPType v[VECTOR_BLOCK_SIZE];
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
-        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v);
+        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v, true);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS

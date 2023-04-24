@@ -46,7 +46,7 @@ typedef uint32_t FeatureIndexType;
 const FeatureIndexType VECTOR_BLOCK_SIZE = 64;
 
 template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu>
-inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x, algorithmFPType v[])
+inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x, algorithmFPType v[], bool hasAnyMissing)
 {
     const ModelFPType * const values        = t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
@@ -60,18 +60,34 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 
     if (featTypes.hasUnorderedFeatures())
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+        if (hasAnyMissing) {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
             {
-                const FeatureIndexType idx          = i[k];
-                const FeatureIndexType splitFeature = fIndexes[idx];
-                const ModelFPType valueFromDataSet  = x[splitFeature + k * nFeat];
-                if (isnan(valueFromDataSet)) {
-                    i[k] = idx * 2 + (yesIfMissing[idx] != 1);
-                } else {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+                {
+                    const FeatureIndexType idx          = i[k];
+                    const FeatureIndexType splitFeature = fIndexes[idx];
+                    const ModelFPType valueFromDataSet  = x[splitFeature + k * nFeat];
+                    if (isnan(valueFromDataSet)) {
+                        i[k] = idx * 2 + (yesIfMissing[idx] != 1);
+                    } else {
+                        const ModelFPType splitPoint        = values[idx];
+                        i[k] = idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoint : valueFromDataSet > splitPoint);
+                    }
+                }
+            }
+        } else {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+                {
+                    const FeatureIndexType idx          = i[k];
+                    const FeatureIndexType splitFeature = fIndexes[idx];
+                    const ModelFPType valueFromDataSet  = x[splitFeature + k * nFeat];
                     const ModelFPType splitPoint        = values[idx];
                     i[k] = idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoint : valueFromDataSet > splitPoint);
                 }
@@ -80,16 +96,29 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
     }
     else
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+        if (hasAnyMissing) {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
             {
-                const FeatureIndexType idx = i[k];
-                if (isnan(x[fIndexes[idx] + k * nFeat])) {
-                    i[k] = idx * 2 + (yesIfMissing[idx] != 1);    
-                } else {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+                {
+                    const FeatureIndexType idx = i[k];
+                    if (isnan(x[fIndexes[idx] + k * nFeat])) {
+                        i[k] = idx * 2 + (yesIfMissing[idx] != 1);    
+                    } else {
+                        i[k] = idx * 2 + (x[fIndexes[idx] + k * nFeat] > values[idx]);
+                    }
+                }
+            }
+        } else {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+                {
+                    const FeatureIndexType idx = i[k];
                     i[k] = idx * 2 + (x[fIndexes[idx] + k * nFeat] > values[idx]);
                 }
             }
@@ -105,7 +134,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 }
 
 template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu>
-inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x)
+inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x, bool hasAnyMissing)
 {
     const ModelFPType * const values        = (const ModelFPType *)t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
@@ -117,28 +146,50 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 
     if (featTypes.hasUnorderedFeatures())
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
-        {
-            if (isnan(x[fIndexes[i]])) {
-                i = i * 2 + (yesIfMissing[i] != 1);
-            } else {
+        if (hasAnyMissing) {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+            {
+                if (isnan(x[fIndexes[i]])) {
+                    i = i * 2 + (yesIfMissing[i] != 1);
+                } else {
+                    i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
+                }
+            }
+        } else {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+            {
                 i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
             }
         }
     }
     else
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
-        {
-            if (isnan(x[fIndexes[i]])) {
-                i = i * 2 + (yesIfMissing[i] != 1);
-            } else {
-                i = i * 2 + (x[fIndexes[i]] > values[i]);
+        if (hasAnyMissing) {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+            {
+                if (isnan(x[fIndexes[i]])) {
+                    i = i * 2 + (yesIfMissing[i] != 1);
+                } else {
+                    i = i * 2 + (x[fIndexes[i]] > values[i]);
+                }
             }
+        } else {
+            for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+            {
+                i = i * 2 + (x[fIndexes[i]] > values[i]);
+            }    
         }
     }
 
     return values[i];
+}
+
+template <typename algorithmFPType>
+inline bool checkForMissing(algorithmFPType* x, size_t nData) {
+    for (size_t idx = 0; idx < nData; ++idx) {
+        if (isnan(x[idx])) return true;
+    }
+    return false;
 }
 
 template <typename algorithmFPType>

@@ -66,8 +66,8 @@ public:
 
 protected:
     services::Status runInternal(services::HostAppIface * pHostApp, NumericTable * result);
-    algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x);
-    void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res);
+    algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, bool hasAnyMissing);
+    void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res, bool hasAnyMissing);
 
 protected:
     dtrees::internal::FeatureTypes _featHelper;
@@ -124,21 +124,18 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iBlock * dim.nRowsInBlock : dim.nRowsInBlock;
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(this->_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+            const bool hasAnyMissing = gbt::prediction::internal::checkForMissing(xBD.get(), nRowsToProcess * dim.nCols);
             algorithmFPType * res = resBD.get() + iStartRow;
 
             size_t iRow;
             for (iRow = 0; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
             {
-                predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow);
+                predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow, hasAnyMissing);
             }
             for (; iRow < nRowsToProcess; ++iRow)
             {
-                res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
+                res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, hasAnyMissing);
             }
-            // for (iRow = 0; iRow < nRowsToProcess; ++iRow)
-            // {
-            //     res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
-            // }
         });
         s = safeStat.detach();
     }
@@ -148,22 +145,22 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 }
 
 template <typename algorithmFPType, CpuType cpu>
-algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x)
+algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, bool hasAnyMissing)
 {
     algorithmFPType val = 0;
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
-        val += gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x);
+        val += gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, hasAnyMissing);
     return val;
 }
 
 template <typename algorithmFPType, CpuType cpu>
 void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
-                                                                       algorithmFPType * res)
+                                                                                      algorithmFPType * res, bool hasAnyMissing)
 {
     algorithmFPType v[VECTOR_BLOCK_SIZE];
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
-        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v);
+        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v, hasAnyMissing);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
