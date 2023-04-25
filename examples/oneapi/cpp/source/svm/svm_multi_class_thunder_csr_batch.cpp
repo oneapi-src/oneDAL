@@ -22,10 +22,10 @@
 namespace dal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
-    const auto train_data_file_name = get_data_path("svm_multi_class_train_dense_data.csv");
-    const auto train_response_file_name = get_data_path("svm_multi_class_train_dense_label.csv");
-    const auto test_data_file_name = get_data_path("svm_multi_class_test_dense_data.csv");
-    const auto test_response_file_name = get_data_path("svm_multi_class_test_dense_label.csv");
+    const auto train_data_file_name = get_data_path("svm_multi_cls_synthetic_3k_train_sparse_data.csv");
+    const auto train_response_file_name = get_data_path("svm_multi_cls_synthetic_3k_train_sparse_labels.csv");
+    const auto test_data_file_name = get_data_path("svm_multi_cls_synthetic_3k_test_sparse_data.csv");
+    const auto test_response_file_name = get_data_path("svm_multi_cls_synthetic_3k_test_sparse_labels.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
     const auto x_train_csr = convert_to_csr<float>(x_train);
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
-    const auto svm_desc = dal::svm::descriptor{ kernel_desc }.set_class_count(5).set_c(1.0);
+    const auto svm_desc = dal::svm::descriptor{ kernel_desc }.set_class_count(4).set_c(1.0);
 
     const auto result_train = dal::train(svm_desc, x_train_csr, y_train);
 
