@@ -18,7 +18,6 @@
 #include <cmath>
 
 namespace dal = oneapi::dal;
-using oneapi::dal::detail::empty_delete;
 
 /// Converts a homogen table to one-based CSR table.
 ///
