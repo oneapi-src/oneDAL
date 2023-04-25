@@ -174,11 +174,16 @@ DF_BATCH_CLS_TEST_EXT("df cls small flow") {
         this->get_cls_dataframe(wl.ds_info.name, wl.required_accuracy);
 
     const std::int64_t tree_count = GENERATE_COPY(1, 2);
+    const splitter_mode splitter_mode_val =
+        GENERATE_COPY(splitter_mode::best, splitter_mode::random);
+    const bool bootstrap_val = GENERATE_COPY(true, false);
 
     auto desc = this->get_default_descriptor();
 
     desc.set_tree_count(tree_count);
     desc.set_class_count(wl.ds_info.class_count);
+    desc.set_splitter_mode(splitter_mode_val);
+    desc.set_bootstrap(bootstrap_val);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
@@ -249,10 +254,13 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
         this->get_cls_dataframe(wl.ds_info.name, wl.required_accuracy);
 
     const bool bootstrap_val = GENERATE_COPY(false, true);
+    const splitter_mode splitter_mode_val =
+        GENERATE_COPY(splitter_mode::best, splitter_mode::random);
 
     auto desc = this->get_default_descriptor();
 
     desc.set_bootstrap(bootstrap_val);
+    desc.set_splitter_mode(splitter_mode_val);
     desc.set_max_tree_depth(50);
     desc.set_class_count(wl.ds_info.class_count);
 
@@ -418,7 +426,13 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
     const auto [data, data_test, checker_list] =
         this->get_reg_dataframe(wl.ds_info.name, wl.required_mse, wl.required_mae);
 
+    const splitter_mode splitter_mode_val =
+        GENERATE_COPY(splitter_mode::best, splitter_mode::random);
+    const bool bootstrap_val = GENERATE_COPY(true, false);
+
     auto desc = this->get_default_descriptor();
+    desc.set_splitter_mode(splitter_mode_val);
+    desc.set_bootstrap(bootstrap_val);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
@@ -456,11 +470,16 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
 
     const double impurity_threshold_val = GENERATE_COPY(0.0, 0.1);
     const std::int64_t min_observations_in_leaf_node = 30;
+    const splitter_mode splitter_mode_val =
+        GENERATE_COPY(splitter_mode::best, splitter_mode::random);
+    const bool bootstrap_val = GENERATE_COPY(true, false);
 
     auto desc = this->get_default_descriptor();
     desc.set_tree_count(500);
     desc.set_min_observations_in_leaf_node(min_observations_in_leaf_node);
     desc.set_impurity_threshold(impurity_threshold_val);
+    desc.set_splitter_mode(splitter_mode_val);
+    desc.set_bootstrap(bootstrap_val);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
@@ -480,11 +499,14 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg bootstrap flow") {
     const double impurity_threshold_val = GENERATE_COPY(0.0, 0.1);
     const std::int64_t max_tree_depth_val = GENERATE_COPY(0, 50);
     const bool bootstrap_val = GENERATE_COPY(false, true);
+    const splitter_mode splitter_mode_val =
+        GENERATE_COPY(splitter_mode::best, splitter_mode::random);
 
     auto desc = this->get_default_descriptor();
     desc.set_impurity_threshold(impurity_threshold_val);
     desc.set_max_tree_depth(max_tree_depth_val);
     desc.set_bootstrap(bootstrap_val);
+    desc.set_splitter_mode(splitter_mode_val);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();

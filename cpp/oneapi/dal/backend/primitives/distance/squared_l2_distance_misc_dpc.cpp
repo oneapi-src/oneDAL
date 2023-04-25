@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
 
 #include "oneapi/dal/backend/primitives/blas.hpp"
@@ -46,6 +48,7 @@ sycl::event scatter_2d(sycl::queue& q,
                        const ndview<Float, 1>& inp2,
                        ndview<Float, 2>& out,
                        const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(distance.scatter_2d, q);
     const auto out_stride = out.get_leading_stride();
     const auto n_samples1 = inp1.get_dimension(0);
     const auto n_samples2 = inp2.get_dimension(0);

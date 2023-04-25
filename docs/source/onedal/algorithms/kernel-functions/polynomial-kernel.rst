@@ -47,8 +47,8 @@ where :math:`k\in\mathbb{R},\ b\in\mathbb{R},\ d\in{\{0,\ 1,\ 2,\ ...\}}, \quad 
 
 Computation method: *dense*
 ---------------------------
-The method computes the polynomial kernel function :math:`K(X, Y)` for
-:math:`X` and :math:`Y` matrices.
+The method computes the polynomial kernel function :math:`Z=K(X, Y), Z \in \mathbb{R}^{n \times m}` for
+dense :math:`X` and :math:`Y` matrices.
 
 ---------------------
 Programming Interface

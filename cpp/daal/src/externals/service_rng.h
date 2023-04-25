@@ -141,6 +141,34 @@ public:
         return errorcode;
     }
 
+    /* Draw a random sample of length k from the numbers that are provided in buffer of length n
+    * \param[in]  k       The length of the sample to be drawn
+    * \param[out] r       A pointer to the result buffer
+    * \param[in]  buffer  A pointer to the buffer containing the numbers
+    * \param[in]  n       Length of the buffer
+    * \param[in]  method  Method handed to the uniform random number generator
+    *
+    * This method is based on the Fisher Yates sampling technique, but since we are re-using the provided buffer, there
+    * is no need to initialize it to [0, 1, 2, ..., n-1] first, providing us with a speed-up from O(n) -> O(k) runtime
+    */
+    template <typename DstType = Type>
+    int drawKFromBufferWithoutReplacement(const SizeType k, DstType * r, Type * buffer, void * state, const Type n,
+                                          const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        int errorcode = 0;
+        Type swapIdx;
+
+        for (SizeType i = 0; i < k; ++i)
+        {
+            errorcode         = uniform(1, &swapIdx, state, 0, n - i, method);
+            r[i]              = (DstType)buffer[swapIdx];
+            buffer[swapIdx]   = buffer[n - 1 - i];
+            buffer[n - 1 - i] = (Type)r[i];
+        }
+
+        return errorcode;
+    }
+
     template <typename DstType = Type>
     int uniformWithoutReplacement(const SizeType n, Type * r, BaseRNGs<cpu, BaseType> & brng, const Type a, const Type b,
                                   const int method = __DAAL_RNG_METHOD_UNIFORM_STD)

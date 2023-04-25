@@ -95,7 +95,15 @@ enum class error_metric_mode : std::uint64_t {
     /// Train produces $1 \\times 1$ table with cumulative prediction error for out of bag observations
     out_of_bag_error = 0x00000001ULL,
     /// Train produces $n \\times 1$ table with prediction error for out-of-bag observations
-    out_of_bag_error_per_observation = 0x00000002ULL
+    out_of_bag_error_per_observation = 0x00000002ULL,
+    /// Train produces $1 \\times 1$ table with cumulative prediction error (accuracy) for out of bag observations
+    out_of_bag_error_accuracy = 0x00000004ULL,
+    /// Train produces $1 \\times 1$ table with cumulative prediction error (R2) for out of bag observations
+    out_of_bag_error_r2 = 0x00000008ULL,
+    /// Train produces $n \\times c$ table with decision function for out-of-bag observations
+    out_of_bag_error_decision_function = 0x00000010ULL,
+    /// Train produces $n \\times 1$ table with prediction for out-of-bag observations
+    out_of_bag_error_prediction = 0x00000020ULL
 };
 
 /// Available identifiers to specify the infer mode
@@ -114,6 +122,14 @@ enum class voting_mode {
     weighted,
     /// The final prediction is combined through a simple majority voting
     unweighted
+};
+
+/// Available splitting strategies for building trees
+enum class splitter_mode {
+    /// Threshold for a node is chosen as the best among all bins
+    best,
+    /// Threshold for a node is the best for a set chosen at random
+    random
 };
 
 inline infer_mode operator|(infer_mode value_left, infer_mode value_right) {
@@ -158,6 +174,7 @@ using v1::variable_importance_mode;
 using v1::error_metric_mode;
 using v1::infer_mode;
 using v1::voting_mode;
+using v1::splitter_mode;
 
 namespace detail {
 namespace v1 {
@@ -212,6 +229,7 @@ public:
     std::int64_t get_min_bin_size() const;
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
+    splitter_mode get_splitter_mode() const;
     error_metric_mode get_error_metric_mode() const;
     variable_importance_mode get_variable_importance_mode() const;
 
@@ -247,6 +265,7 @@ protected:
     void set_min_bin_size_impl(std::int64_t value);
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
+    void set_splitter_mode_impl(splitter_mode value);
     void set_error_metric_mode_impl(error_metric_mode value);
     void set_variable_importance_mode_impl(variable_importance_mode value);
     void set_class_count_impl(std::int64_t value);
@@ -500,6 +519,18 @@ public:
 
     auto& set_bootstrap(bool value) {
         base_t::set_bootstrap_impl(value);
+        return *this;
+    }
+
+    /// Splitter strategy: if 'best', best threshold for each is
+    /// selected. If 'random', threshold is selected randomly.
+    /// @remark default = splitter_mode::best
+    splitter_mode get_splitter_mode() const {
+        return base_t::get_splitter_mode();
+    }
+
+    auto& set_splitter_mode(splitter_mode value) {
+        base_t::set_splitter_mode_impl(value);
         return *this;
     }
 

@@ -48,6 +48,7 @@ MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
     "SPMD version of the algorithm is not implemented for this device. "
     "Consider running on it on the other device.")
 MSG(invalid_data_block_size, "Invalid data block size")
+MSG(invalid_column_indices_block_size, "Invalid column indices block size")
 MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
 MSG(unknown_memcpy_error, "Unknown error during memory copying")
@@ -98,13 +99,15 @@ MSG(object_does_not_provide_write_access_to_columns,
 MSG(object_does_not_provide_access_to_rows_or_columns,
     "Given object does not provide access to rows or columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
-MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
-MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")
+MSG(invalid_first_row_offset, "Invalid row offset for the first row is provided")
+MSG(row_offsets_lt_min_value, "Row offsets are less than the minimum acceptable value")
+MSG(row_offsets_gt_max_value, "Row offsets are larger than the maximum acceptable value")
+MSG(row_offsets_not_ascending, "Row offsets are are not stored in the ascending order")
 MSG(column_indices_lt_min_value, "Column indices are less than the minimum acceptable value")
 MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acceptable value")
-MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for csr table")
+MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for CSR table")
 MSG(object_does_not_provide_read_access_to_csr,
-    "Given object does not provide read access to the block of csr format")
+    "Given object does not provide read access to the block of CSR format")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

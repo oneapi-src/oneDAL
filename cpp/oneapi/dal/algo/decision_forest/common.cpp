@@ -63,6 +63,7 @@ public:
 
     bool memory_saving_mode = false;
     bool bootstrap = true;
+    splitter_mode splitter_mode_value = splitter_mode::best;
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
     voting_mode voting_mode_value = voting_mode::weighted;
@@ -146,6 +147,11 @@ bool descriptor_base<Task>::get_memory_saving_mode() const {
 template <typename Task>
 bool descriptor_base<Task>::get_bootstrap() const {
     return impl_->bootstrap;
+}
+
+template <typename Task>
+splitter_mode descriptor_base<Task>::get_splitter_mode() const {
+    return impl_->splitter_mode_value;
 }
 
 template <typename Task>
@@ -265,6 +271,11 @@ void descriptor_base<Task>::set_memory_saving_mode_impl(bool value) {
 template <typename Task>
 void descriptor_base<Task>::set_bootstrap_impl(bool value) {
     impl_->bootstrap = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_splitter_mode_impl(splitter_mode value) {
+    impl_->splitter_mode_value = value;
 }
 
 template <typename Task>

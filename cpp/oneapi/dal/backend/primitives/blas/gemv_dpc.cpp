@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/blas/misc.hpp"
 
@@ -29,6 +30,8 @@ sycl::event gemv(sycl::queue& queue,
                  Float alpha,
                  Float beta,
                  const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(blas.gemv, queue);
+
     ONEDAL_ASSERT(a.has_data());
     ONEDAL_ASSERT(x.has_data());
     ONEDAL_ASSERT(y.has_mutable_data());

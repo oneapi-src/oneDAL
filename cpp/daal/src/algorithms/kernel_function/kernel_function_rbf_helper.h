@@ -88,7 +88,7 @@ services::Status HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(algorithmFP
     return services::Status();
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
 services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * const mklBuff, const double * const sqrA1i, const double sqrA2i,

@@ -49,7 +49,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -101,7 +101,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
-      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.7.1 openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.8.0 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
       wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
@@ -110,7 +110,7 @@ jobs:
       echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
       sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
       sudo apt-get update
-      sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.0.0
+      sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.1.0
       sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
       sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
     displayName: 'dpcpp installation'
@@ -324,6 +324,7 @@ jobs:
   - script: |
       . /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
       cd daal4py
       python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
     displayName: sklearnex build
@@ -340,7 +341,7 @@ jobs:
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ret_code=0
-      python -m daal4py daal4py/examples/daal4py/run_examples.py
+      python -m daal4py daal4py/tests/run_examples.py
       ret_code=$(($ret_code + $?))
       python -m daal4py daal4py/examples/daal4py/sycl/sklearn_sycl.py
       ret_code=$(($ret_code + $?))

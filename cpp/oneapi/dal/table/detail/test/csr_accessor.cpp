@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/detail/csr.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/table/detail/csr_accessor.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
@@ -31,11 +31,10 @@ TEST("can read csr table via csr accessor") {
     const std::int64_t column_count{ 4 };
     const std::int64_t element_count{ 7 };
 
-    detail::csr_table t{ array<double>::wrap(data, element_count),
-                         array<std::int64_t>::wrap(column_indices, element_count),
-                         array<std::int64_t>::wrap(row_indices, row_count + 1),
-                         row_count,
-                         column_count };
+    csr_table t{ array<double>::wrap(data, element_count),
+                 array<std::int64_t>::wrap(column_indices, element_count),
+                 array<std::int64_t>::wrap(row_indices, row_count + 1),
+                 column_count };
     const auto [data_array, cidx_array, ridx_array] =
         detail::csr_accessor<const double>(t).pull({ 0, -1 });
 
@@ -63,23 +62,23 @@ TEST("can read csr table via csr accessor create smaller block") {
     const std::int64_t column_count{ 4 };
     const std::int64_t element_count{ 7 };
 
-    detail::csr_table t{ array<double>::wrap(data, element_count),
-                         array<std::int64_t>::wrap(column_indices, element_count),
-                         array<std::int64_t>::wrap(row_indices, row_count + 1),
-                         row_count,
-                         column_count };
-    const auto csr_block = detail::csr_accessor<const double>(t).pull({ 1, 3 });
+    csr_table t{ array<double>::wrap(data, element_count),
+                 array<std::int64_t>::wrap(column_indices, element_count),
+                 array<std::int64_t>::wrap(row_indices, row_count + 1),
+                 column_count };
+    const auto [data_array, cidx_array, ridx_array] =
+        detail::csr_accessor<const double>(t).pull({ 1, 3 });
 
-    REQUIRE(data + 3 == csr_block.data.get_data());
-    REQUIRE(column_indices + 3 == csr_block.column_indices.get_data());
-    REQUIRE(row_indices + 1 != csr_block.row_indices.get_data());
+    REQUIRE(data + 3 == data_array.get_data());
+    REQUIRE(column_indices + 3 == cidx_array.get_data());
+    REQUIRE(row_indices + 1 != ridx_array.get_data());
 
-    for (std::int64_t i = 0; i < csr_block.data.get_count(); i++) {
-        REQUIRE(csr_block.data[i] == data[3 + i]);
-        REQUIRE(csr_block.column_indices[i] == column_indices[3 + i]);
+    for (std::int64_t i = 0; i < data_array.get_count(); i++) {
+        REQUIRE(data_array[i] == data[3 + i]);
+        REQUIRE(cidx_array[i] == column_indices[3 + i]);
     }
-    for (std::int64_t i = 0; i < csr_block.row_indices.get_count(); i++) {
-        REQUIRE(csr_block.row_indices[i] == row_indices[1 + i] - 3);
+    for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
+        REQUIRE(ridx_array[i] == row_indices[1 + i] - 3);
     }
 }
 
@@ -94,23 +93,23 @@ TEST("can read csr table via csr accessor with conversion") {
     const std::int64_t column_count{ 4 };
     const std::int64_t element_count{ 7 };
 
-    detail::csr_table t{ array<float>::wrap(data, element_count),
-                         array<std::int64_t>::wrap(column_indices, element_count),
-                         array<std::int64_t>::wrap(row_indices, row_count + 1),
-                         row_count,
-                         column_count };
-    const auto csr_block = detail::csr_accessor<const double>(t).pull({ 0, -1 });
+    csr_table t{ array<float>::wrap(data, element_count),
+                 array<std::int64_t>::wrap(column_indices, element_count),
+                 array<std::int64_t>::wrap(row_indices, row_count + 1),
+                 column_count };
+    const auto [data_array, cidx_array, ridx_array] =
+        detail::csr_accessor<const double>(t).pull({ 0, -1 });
 
-    REQUIRE((void*)data != (void*)csr_block.data.get_data());
-    REQUIRE(column_indices == csr_block.column_indices.get_data());
-    REQUIRE(row_indices == csr_block.row_indices.get_data());
+    REQUIRE((void*)data != (void*)data_array.get_data());
+    REQUIRE(column_indices == cidx_array.get_data());
+    REQUIRE(row_indices == ridx_array.get_data());
 
-    for (std::int64_t i = 0; i < csr_block.data.get_count(); i++) {
-        REQUIRE(csr_block.data[i] == Approx(static_cast<double>(data[i])));
-        REQUIRE(csr_block.column_indices[i] == column_indices[i]);
+    for (std::int64_t i = 0; i < data_array.get_count(); i++) {
+        REQUIRE(data_array[i] == Approx(static_cast<double>(data[i])));
+        REQUIRE(cidx_array[i] == column_indices[i]);
     }
-    for (std::int64_t i = 0; i < csr_block.row_indices.get_count(); i++) {
-        REQUIRE(csr_block.row_indices[i] == row_indices[i]);
+    for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
+        REQUIRE(ridx_array[i] == row_indices[i]);
     }
 }
 

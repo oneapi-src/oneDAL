@@ -24,7 +24,7 @@
 #ifndef __KERNEL_FUNCTION_CSR_IMPL_I__
 #define __KERNEL_FUNCTION_CSR_IMPL_I__
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #include <immintrin.h>
 #endif
 
@@ -74,7 +74,7 @@ algorithmFPType KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct(const
     return computeDotProductBaseline<algorithmFPType, cpu>(startIndexA, endIndexA, valuesA, indicesA, startIndexB, endIndexB, valuesB, indicesB);
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
     #undef __DAAL_IA32e
 

@@ -28,6 +28,8 @@ help:
 	@echo "                    for Intel(R) oneAPI DPC++/C++ Compiler."
 	@echo
 	@echo "mode_name         - can be build or run. Default is run"
+	@echo
+	@echo "proc              - number of processes (GPUs). Default is 4"
 
 ##------------------------------------------------------------------------------
 ## examples of using:
@@ -49,6 +51,10 @@ include onedal.lst
 
 ifndef sample
     sample= $(MPI)
+endif
+
+ifndef proc
+    proc = 4
 endif
 
 
@@ -111,7 +117,6 @@ RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 
 EXT_LIB := $(LOPTS) $(LIBS)
 
-override proc = 4
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
