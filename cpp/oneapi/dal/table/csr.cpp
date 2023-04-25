@@ -78,5 +78,9 @@ void csr_table::init_impl(const Policy& policy,
 
 INSTANTIATE(detail::default_host_policy)
 
+#ifdef ONEDAL_DATA_PARALLEL
+INSTANTIATE(detail::data_parallel_policy)
+#endif
+
 } // namespace v1
 } // namespace oneapi::dal

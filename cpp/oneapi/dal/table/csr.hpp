@@ -69,6 +69,56 @@ public:
                           indexing };
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new ``csr_table`` instance from externally-defined data, columns indices
+    /// and row offsets memory blocks.
+    /// Table object refers to the memory blocks but does not own them. The responsibility to
+    /// free the memory blocks remains on the user side.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    /// The :literal:`columns_indices` should point to the ``column_indices_pointer`` memory block.
+    /// The :literal:`row_offsets` should point to the ``row_offsets_pointer`` memory block.
+    ///
+    /// @tparam Data        The type of elements in the data block that will be stored into the
+    ///                     table. The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type:
+    ///                     contiguous for floating-point, ordinal for integer types. The :literal:`Data`
+    ///                     type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///
+    /// @param queue                  The SYCL* queue object
+    /// @param data_pointer           The pointer to values block in the CSR layout.
+    /// @param column_indices_pointer The pointer to column indices block in the CSR layout.
+    /// @param row_offsets_pointer    The pointer to row offsets block in CSR layout.
+    /// @param row_count              The number of rows in the table.
+    /// @param column_count           The number of columns in the table.
+    /// @param indexing               The indexing scheme used to access data in the CSR layout.
+    ///                               Should be :literal:`sparse_indexing::zero_based` or
+    ///                               :literal:`sparse_indexing::one_based`.
+    /// @param dependencies           Events indicating availability of the :literal:`data`,
+    ///                               :literal:`columns_indices` and :literal:`row_offsets` for reading
+    ///                               or writing.
+    template <typename Data>
+    static csr_table wrap(const sycl::queue& queue,
+                          const Data* data_pointer,
+                          const std::int64_t* column_indices_pointer,
+                          const std::int64_t* row_offsets_pointer,
+                          std::int64_t row_count,
+                          std::int64_t column_count,
+                          sparse_indexing indexing = sparse_indexing::one_based,
+                          const std::vector<sycl::event>& dependencies = {}) {
+        return csr_table{ queue,
+                          data_pointer,
+                          column_indices_pointer,
+                          row_offsets_pointer,
+                          row_count,
+                          column_count,
+                          dal::detail::empty_delete<const Data>(),
+                          dal::detail::empty_delete<const std::int64_t>(),
+                          dal::detail::empty_delete<const std::int64_t>(),
+                          indexing,
+                          dependencies };
+    }
+#endif
+
     /// Creates a new ``csr_table`` instance with zero number of rows and columns.
     /// The :expr:`kind` is set to``csr_table::kind()``.
     /// All the properties should be set to default values (see the Properties section).
@@ -157,6 +207,73 @@ public:
                   std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter),
                   indexing);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new ``csr_table`` instance from externally-defined data blocks.
+    /// Table object owns the data, column indices and row offsets pointers.
+    /// The :literal:`data` should point to the ``data_pointer`` memory block.
+    /// The :literal:`column_indices` should point to the ``column_indices_pointer`` memory block.
+    /// The :literal:`row_offsets` should point to the ``row_offsets_pointer`` memory block.
+    ///
+    /// @tparam Data         The type of elements in the data block that will be stored into the table.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
+    ///                      or :expr:`std::int32_t`.
+    /// @tparam ConstDataDeleter
+    ///                      The type of a deleter called on ``data_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    /// @tparam ConstColumnIndicesDeleter
+    ///                      The type of a deleter called on ``column_indices_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    /// @tparam ConstRowOffsetsDeleter
+    ///                      The type of a deleter called on ``row_offsets_pointer`` when
+    ///                      the last table that refers it is out of the scope.
+    ///
+    /// @param queue                  The SYCL* queue object
+    /// @param data_pointer           The pointer to values block in the CSR layout.
+    /// @param column_indices_pointer The pointer to column indices block in the CSR layout.
+    /// @param row_offsets_pointer    The pointer to row offsets block in the CSR layout.
+    /// @param row_count              The number of rows in the table.
+    /// @param column_count           The number of columns in the table.
+    /// @param data_deleter           The deleter that is called on the ``data_pointer``
+    ///                               when the last table that refers it is out of the scope.
+    /// @param column_indices_deleter The deleter that is called on the ``column_indices_pointer``
+    ///                               when the last table that refers it is out of the scope.
+    /// @param row_offsets_deleter    The deleter that is called on the ``row_offsets_pointer``
+    ///                               when the last table that refers it is out of the scope.
+    /// @param indexing               The indexing scheme used to access data in the CSR layout.
+    ///                               Should be :literal:`sparse_indexing::zero_based` or
+    ///                               :literal:`sparse_indexing::one_based`.
+    /// @param dependencies           Events indicating availability of the :literal:`data`,
+    ///                               :literal:`columns_indices` and :literal:`row_offsets` for reading
+    ///                               or writing.
+    template <typename Data,
+              typename ConstDataDeleter,
+              typename ConstColumnIndicesDeleter,
+              typename ConstRowOffsetsDeleter>
+    csr_table(const sycl::queue& queue,
+              const Data* data_pointer,
+              const std::int64_t* column_indices_pointer,
+              const std::int64_t* row_offsets_pointer,
+              std::int64_t row_count,
+              std::int64_t column_count,
+              ConstDataDeleter&& data_deleter,
+              ConstColumnIndicesDeleter&& column_indices_deleter,
+              ConstRowOffsetsDeleter&& row_offsets_deleter,
+              sparse_indexing indexing = sparse_indexing::one_based,
+              const std::vector<sycl::event>& dependencies = {}) {
+        init_impl(detail::data_parallel_policy{ queue },
+                  data_pointer,
+                  column_indices_pointer,
+                  row_offsets_pointer,
+                  row_count,
+                  column_count,
+                  std::forward<ConstDataDeleter>(data_deleter),
+                  std::forward<ConstColumnIndicesDeleter>(column_indices_deleter),
+                  std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter),
+                  indexing);
+        sycl::event::wait_and_throw(dependencies);
+    }
+#endif
 
     /// Creates a new ``csr_table`` instance from arrays of data, column indices and row offsets.
     /// The created table shares data ownership with the given arrays.

@@ -76,6 +76,8 @@ private:
 
 private:
     csr_table original_table_;
+    array<size_t> one_based_column_indices_;
+    array<size_t> one_based_row_offsets_;
 };
 
 } // namespace oneapi::dal::backend::interop

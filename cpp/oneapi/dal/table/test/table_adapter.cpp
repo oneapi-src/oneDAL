@@ -37,3 +37,40 @@ TEST("SOA adapter is used") {
 
     REQUIRE(dynamic_cast<backend::interop::host_soa_table_adapter*>(dt.get()) != nullptr);
 }
+
+TEST("CSR adapter is used, one-based indexing") {
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+
+    csr_table t = csr_table::wrap(data, column_indices, row_offsets, row_count, column_count);
+
+    auto dt = backend::interop::convert_to_daal_table<float>(t);
+
+    REQUIRE(dynamic_cast<backend::interop::host_csr_table_adapter<float>*>(dt.get()) !=
+            nullptr);
+}
+
+TEST("CSR adapter is used, zero-based indexing") {
+    float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices[] = { 0, 1, 3, 2, 1, 3, 1 };
+    std::int64_t row_offsets[] = { 0, 3, 4, 6, 7 };
+
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+
+    csr_table t = csr_table::wrap(data,
+                                  column_indices,
+                                  row_offsets,
+                                  row_count,
+                                  column_count,
+                                  sparse_indexing::zero_based);
+
+    auto dt = backend::interop::convert_to_daal_table<float>(t);
+
+    REQUIRE(dynamic_cast<backend::interop::host_csr_table_adapter<float>*>(dt.get()) !=
+            nullptr);
+}
