@@ -28,7 +28,7 @@
 #include "src/algorithms/service_heap.h"
 #include "services/collection.h"
 
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__INTEL_COMPILER_BUILD_DATE)
     #include <immintrin.h>
 #endif
 
@@ -571,7 +571,7 @@ void indexBubbleSortDesc(services::Collection<algorithmFPtype> & x, services::Co
     }
 }
 
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__INTEL_COMPILER_BUILD_DATE)
     #define __RADIX_SORT_CAST32(x) (_castf32_u32(x))
     #define __RADIX_SORT_CAST64(x) (_castf64_u64(x))
 #else
