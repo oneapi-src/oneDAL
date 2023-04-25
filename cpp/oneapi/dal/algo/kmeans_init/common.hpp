@@ -40,8 +40,14 @@ namespace v1 {
 /// Tag-type that denotes :ref:`dense <kmeans_init_c_math_dense>`
 /// computational method.
 struct dense {};
+/// Tag-type that denotes :ref:`random_dense <kmeans_init_c_math_random_dense>`
+/// computational method.
 struct random_dense {};
+/// Tag-type that denotes :ref:`plus_plus_dense <kmeans_init_c_math_plus_plus_dense>`
+/// computational method.
 struct plus_plus_dense {};
+/// Tag-type that denotes :ref:`parallel_plus_dense <kmeans_init_c_math_parallel_plus_dense>`
+/// computational method.
 struct parallel_plus_dense {};
 using by_default = dense;
 } // namespace v1
