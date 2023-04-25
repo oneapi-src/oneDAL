@@ -32,7 +32,7 @@ inline const dal::csr_table convert_to_csr(const dal::table& data) {
     const Index row_count = data.get_row_count();
 
     for (Index i = 0; i < data_ptr.get_count(); ++i) {
-        non_zero_count += (std::fabs(data_ptr[i]) > std::numeric_limits<float>::epsilon());
+        non_zero_count += (std::fabs(data_ptr[i]) > std::numeric_limits<Float>::epsilon());
     }
 
     const auto compressed_data = dal::array<Float>::empty(non_zero_count);
@@ -49,7 +49,7 @@ inline const dal::csr_table convert_to_csr(const dal::table& data) {
     }
 
     for (Index i = 0; i < data_ptr.get_count(); ++i) {
-        if (std::fabs(data_ptr[i]) > std::numeric_limits<float>::epsilon()) {
+        if (std::fabs(data_ptr[i]) > std::numeric_limits<Float>::epsilon()) {
             comp_data_ptr[compressed_idx - 1] = data_ptr[i];
             Index row_idx = i / column_count + 1;
             Index col_idx = i % column_count + 1;
