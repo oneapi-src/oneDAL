@@ -43,13 +43,6 @@
 # Outputs:
 #   /script/absolute/pathname
 
-#check if ONEAPI_ROOT is defined
-if [ -n "${ONEAPI_ROOT:-}" ] ; then
-  export DALROOT=$ONEAPI_ROOT
-  export DAALROOT=$ONEAPI_ROOT
-  export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
-fi
-
 # executing function in a *subshell* to localize vars and effects on `cd`
 get_script_path() (
   script="$1"
@@ -227,17 +220,24 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
-if [ -z "${ONEAPI_ROOT:-}" ] ; then 
-  component_root=$(dirname -- "${my_script_path}")
-  __daal_tmp_dir=${component_root}
-  export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
-  export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
-  export DALROOT=$__daal_tmp_dir
-  export DAALROOT=$__daal_tmp_dir
-  export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-  export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
-  export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-  export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
-  export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
-  export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
-fi
+case "${my_script_path}" in
+  *"env"*)
+    component_root=$(dirname -- "${my_script_path}")
+    __daal_tmp_dir=${component_root}
+    export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
+    export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
+    export DALROOT=$__daal_tmp_dir
+    export DAALROOT=$__daal_tmp_dir
+    export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
+    export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
+    export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+    export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
+    export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
+    export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
+  ;;
+  *)
+    export DALROOT=$ONEAPI_ROOT
+    export DAALROOT=$ONEAPI_ROOT
+    export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
+  ;;
+esac
