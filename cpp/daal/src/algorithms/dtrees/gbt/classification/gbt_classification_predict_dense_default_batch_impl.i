@@ -178,8 +178,8 @@ public:
 protected:
     services::Status predictByAllTrees(size_t nTreesTotal, size_t nClasses, const DimType & dim);
 
-    void predictByTrees(algorithmFPType * res, size_t iFirstTree, size_t nTrees, size_t nClasses, const algorithmFPType * x);
-    void predictByTreesVector(algorithmFPType * val, size_t iFirstTree, size_t nTrees, size_t nClasses, const algorithmFPType * x);
+    void predictByTrees(algorithmFPType * res, size_t iFirstTree, size_t nTrees, size_t nClasses, const algorithmFPType * x, bool hasAnyMissing);
+    void predictByTreesVector(algorithmFPType * val, size_t iFirstTree, size_t nTrees, size_t nClasses, const algorithmFPType * x, bool hasAnyMissing);
     void softmax(algorithmFPType * Input, algorithmFPType * Output, size_t nRows, size_t nCols);
 
     size_t getMaxClass(const algorithmFPType * val, size_t nClasses) const
@@ -232,23 +232,23 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const gbt::cla
 
 template <typename algorithmFPType, CpuType cpu>
 void PredictMulticlassTask<algorithmFPType, cpu>::predictByTrees(algorithmFPType * val, size_t iFirstTree, size_t nTrees, size_t nClasses,
-                                                                 const algorithmFPType * x)
+                                                                 const algorithmFPType * x, bool hasAnyMissing)
 {
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
         val[iTree % nClasses] +=
-            gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, true);
+            gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, hasAnyMissing);
     }
 }
 
 template <typename algorithmFPType, CpuType cpu>
 void PredictMulticlassTask<algorithmFPType, cpu>::predictByTreesVector(algorithmFPType * val, size_t iFirstTree, size_t nTrees, size_t nClasses,
-                                                                       const algorithmFPType * x)
+                                                                       const algorithmFPType * x, bool hasAnyMissing)
 {
     algorithmFPType v[VECTOR_BLOCK_SIZE];
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
-        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v, true);
+        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v, hasAnyMissing);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -281,6 +281,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             algorithmFPType * valL      = valFull + iStartRow * nClasses;
             algorithmFPType * val       = valL;
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+            const bool hasAnyMissing = gbt::prediction::internal::checkForMissing(xBD.get(), nRowsToProcess * nCols);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
             algorithmFPType * res = resBD.get() ? resBD.get() + iStartRow : nullptr;
 
@@ -288,7 +289,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
             {
                 val = valL + iRow * nClasses;
-                predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+                predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols, hasAnyMissing);
                 if (res)
                 {
                     for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
@@ -300,7 +301,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             for (; iRow < nRowsToProcess; ++iRow)
             {
                 val = valL + iRow * nClasses;
-                predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+                predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols, hasAnyMissing);
                 if (res)
                 {
                     res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
@@ -320,6 +321,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+            const bool hasAnyMissing = gbt::prediction::internal::checkForMissing(xBD.get(), nRowsToProcess * nCols);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
             algorithmFPType * res = resBD.get() + iStartRow;
 
@@ -327,7 +329,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
             {
                 services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses * VECTOR_BLOCK_SIZE);
-                predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+                predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols, hasAnyMissing);
 
                 for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
                 {
@@ -337,7 +339,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             for (; iRow < nRowsToProcess; ++iRow)
             {
                 services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses);
-                predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+                predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols, hasAnyMissing);
                 res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
             }
         });
