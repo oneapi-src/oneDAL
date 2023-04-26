@@ -50,7 +50,7 @@ The method chooses first :math:`k` feature vectors from the training set
 .. _kmeans_init_c_math_random_dense:
 
 Computing method: *random_dense*
--------------------------
+--------------------------------
 
 The method chooses random :math:`k` feature vectors from the training set
 :math:`X`.
@@ -58,7 +58,7 @@ The method chooses random :math:`k` feature vectors from the training set
 .. _kmeans_init_c_math_plus_plus_dense:
 
 Computing method: *plus_plus_dense* (only on CPU)
--------------------------
+-------------------------------------------------
 
 The method designed as follows: the first centroid :math:`c_0` is selected randomly and :math:`C = \{ c_1 \}`. Then do
 
@@ -70,7 +70,7 @@ until :math:`C` reaches necessary size.
 .. _kmeans_init_c_math_parallel_plus_dense:
 
 Computing method: *parallel_plus_dense* (only on CPU)
--------------------------
+-----------------------------------------------------
 
 The method is the same as :ref:`K-Means++ <kmeans_init_c_math_plus_plus_dense>` but the data is divided into equal parts and the
 algorithm runs on each of them.
