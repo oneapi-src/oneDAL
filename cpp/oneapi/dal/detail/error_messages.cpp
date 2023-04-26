@@ -203,7 +203,7 @@ MSG(value_is_not_provided, "Table with value is missing");
 MSG(gradient_is_not_provided, "Table with gradient is missing");
 MSG(hessian_is_not_provided, "Table withj hessian is missing");
 MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct");
-MSG(regularization_coef_is_less_than_0,
+MSG(regularization_coef_is_less_than_zero,
     "L1 and L2 regularization coefs should not be less than zero");
 MSG(regularization_coef_is_nan_or_inf,
     "L1 and L2 regularization coefs should be real decimal numbers")

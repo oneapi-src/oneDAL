@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/algo/logloss_objective/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
-#include <cmath>
 
 namespace oneapi::dal::logloss_objective::detail {
 
@@ -31,9 +30,9 @@ public:
             : l1_regularization_coefficient(l1_regularization_coefficient),
               l2_regularization_coefficient(l2_regularization_coefficient),
               fit_intercept(fit_intercept) {}
-    double l1_regularization_coefficient = 0.0;
-    double l2_regularization_coefficient = 0.0;
-    bool fit_intercept = true;
+    double l1_regularization_coefficient;
+    double l2_regularization_coefficient;
+    bool fit_intercept;
 };
 
 template <typename Task>
@@ -58,7 +57,7 @@ template <typename Task>
 void descriptor_base<Task>::set_l1_regularization_coefficient_impl(double value) {
     using msg = dal::detail::error_messages;
     if (value < 0) {
-        throw domain_error(msg::regularization_coef_is_less_than_0());
+        throw domain_error(msg::regularization_coef_is_less_than_zero());
     }
     impl_->l1_regularization_coefficient = value;
 }
@@ -67,7 +66,7 @@ template <typename Task>
 void descriptor_base<Task>::set_l2_regularization_coefficient_impl(double value) {
     using msg = dal::detail::error_messages;
     if (value < 0) {
-        throw domain_error(msg::regularization_coef_is_less_than_0());
+        throw domain_error(msg::regularization_coef_is_less_than_zero());
     }
     impl_->l2_regularization_coefficient = value;
 }

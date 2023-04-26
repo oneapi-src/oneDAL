@@ -251,7 +251,7 @@ public:
     MSG(gradient_is_not_provided);
     MSG(hessian_is_not_provided);
     MSG(incorrect_output_table_size);
-    MSG(regularization_coef_is_less_than_0);
+    MSG(regularization_coef_is_less_than_zero);
     MSG(regularization_coef_is_nan_or_inf);
 
     /* PCA */
