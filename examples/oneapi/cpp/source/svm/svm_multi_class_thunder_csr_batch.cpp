@@ -37,7 +37,7 @@ int main(int argc, char const *argv[]) {
     // Convert data table to CSR table
     const auto x_train_csr = convert_to_csr<float>(x_train);
 
-    const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
+    const auto kernel_desc = dal::rbf_kernel::descriptor{}.set_sigma(2.5);
     const auto svm_desc = dal::svm::descriptor{ kernel_desc }.set_class_count(4).set_c(1.0);
 
     const auto result_train = dal::train(svm_desc, x_train_csr, y_train);
