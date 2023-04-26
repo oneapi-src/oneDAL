@@ -61,6 +61,7 @@ Computing method: *plus_plus_dense* (only on CPU)
 -------------------------
 
 The method designed as follows: the first centroid :math:`c_0` is selected randomly and :math:`C = \{ c_1 \}`. Then do
+
 .. math::
    c_{i+1} = \mathrm{arg}\max_{x \in X} d^2(x, C), C = C \cup \{ c_{i+1} \}
 
