@@ -286,10 +286,16 @@ public:
                                    copy_current_indc_event,
                                    copy_actual_resp_event,
                                    copy_current_resp_event });
-        auto resps_event =
-            select_indexed(queue_, min_indc_dest, part_responses_.get_row_slice(first, last), min_resp_dest, { selt_event });
-        auto final_event =
-            select_indexed(queue_, min_indc_dest, part_indices_.get_row_slice(first, last), min_indc_dest, { resps_event });
+        auto resps_event = select_indexed(queue_,
+                                          min_indc_dest,
+                                          part_responses_.get_row_slice(first, last),
+                                          min_resp_dest,
+                                          { selt_event });
+        auto final_event = select_indexed(queue_,
+                                          min_indc_dest,
+                                          part_indices_.get_row_slice(first, last),
+                                          min_indc_dest,
+                                          { resps_event });
         if (last_iteration_) {
             final_event = finalize(qb_id, indices_, distances_, { final_event });
         }
