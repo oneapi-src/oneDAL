@@ -71,7 +71,7 @@ Then the following step is repeated until :math:`C` reaches the necessary size.
 Computing method: *parallel_plus_dense* (only on CPU)
 -----------------------------------------------------
 
-The method is the same as :ref:`K-Means++ <kmeans_init_c_math_plus_plus_dense>` but the data is divided into equal parts and the
+The method is the same as :ref:`K-Means++ <kmeans_init_c_math_plus_plus_dense>`, but the data is divided into equal parts and the
 algorithm runs on each of them.
 
 ---------------------
