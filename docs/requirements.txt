@@ -1,6 +1,6 @@
 alabaster==0.7.13
 Babel==2.11.0
-beautifulsoup4==4.11.1
+beautifulsoup4==4.12.2
 certifi==2022.12.7
 chardet==5.1.0
 click==8.1.3
