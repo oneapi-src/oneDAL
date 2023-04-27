@@ -26,7 +26,7 @@ namespace data_management
 namespace internal
 {
 /* only for AVX512 architecture with using intrinsics */
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 template <typename T>
 void vectorCopyInternal()
 {
