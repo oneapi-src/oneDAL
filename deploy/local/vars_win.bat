@@ -15,27 +15,29 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 rem ============================================================================
 
-
-rem check if ONEAPI_ROOT is defined
-IF DEFINED ONEAPI_ROOT (
-  set "DALROOT=%ONEAPI_ROOT%"
-  set "DAALROOT=%ONEAPI_ROOT%"
-  set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
-  goto:eof
-)
-
 setlocal
 call:GetFullPath "%~dp0.."       DAAL
+call:GetFullPath "%~dp0"         SCRIPT_PATH
 call:GetFullPath "%~dp0..\..\.." DAAL_UP
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
 
 set DAAL_IA=intel64
 
 :ParseArgs
-if /i "%1"=="" goto :GoodArgs
+if /i "%1"=="" goto :CheckLayout
 if /i "%1"=="intel64" (set DAAL_IA=intel64) & shift & goto :ParseArgs
 shift
 goto :ParseArgs
+
+:CheckLayout
+if "%SCRIPT_PATH%"=="%DAAL%\env\" (
+  goto :GoodArgs
+) else (
+  set "DALROOT=%ONEAPI_ROOT%"
+  set "DAALROOT=%ONEAPI_ROOT%"
+  set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
+  goto:eof
+)
 
 :GetFullPath
 set %2=%~f1
