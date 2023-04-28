@@ -214,7 +214,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
 
                         Index cbin = min_bin;
                         for (; cbin <= max_bin && scaled_rand_val < cur_ftr_bin_borders[cbin];
-                             cbin++)
+                             ++cbin)
                             ;
                         ts.ftr_bin =
                             cbin - 1; // -1 because bin borders structure keeps right border

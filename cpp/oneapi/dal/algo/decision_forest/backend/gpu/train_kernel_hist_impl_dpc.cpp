@@ -241,7 +241,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     auto bin_borders_ptr = bin_borders_device_.get_mutable_data();
     const sycl::range<1> range = de::integral_cast<std::size_t>(ctx.column_count_);
     // Copying to the device is not convenient,
-    // because original bin borders are std::vector<ndarray<Float, 1>>
+    // because original bin borders are std::vector<ndarray<Float, 1>> and each ndarray is on device.
+    // So it is required to collect all ndarrays' pointers on host and then collect final
+    // bin_borders_ptr on device.
     auto bin_borders_ptrs_host = pr::ndarray<const Float*, 1>::empty(queue_, { ctx.column_count_ });
     auto bin_borders_tmp_ptr = bin_borders_ptrs_host.get_mutable_data();
     auto bin_borders_ptrs =
@@ -249,11 +251,12 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     for (Index col_idx = 0; col_idx < ctx.column_count_; ++col_idx) {
         bin_borders_tmp_ptr[col_idx] = ind_ftrs.get_bin_borders(col_idx).get_data();
     }
-    bin_borders_ptrs.assign_from_host(queue_, bin_borders_tmp_ptr, ctx.column_count_)
-        .wait_and_throw();
+    auto borders_event =
+        bin_borders_ptrs.assign_from_host(queue_, bin_borders_tmp_ptr, ctx.column_count_);
     auto origin_bin_borders_ptr = bin_borders_ptrs.get_data();
     queue_
         .submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ borders_event });
             cgh.parallel_for(range, [=](sycl::id<1> item) {
                 const Index col_idx = item;
                 const auto col_bins_data = origin_bin_borders_ptr[col_idx];
