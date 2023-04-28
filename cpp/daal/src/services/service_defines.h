@@ -319,7 +319,7 @@ typedef union
 
 #define COMPUTE_DAAL_VERSION(majorVersion, minorVersion, updateVersion) (majorVersion * 10000 + minorVersion * 100 + updateVersion)
 
-#if defined(_MSC_VER) || defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+#if defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER)
     #include <immintrin.h>
     #define DAAL_PREFETCH_READ_T0(addr) _mm_prefetch((char *)addr, _MM_HINT_T0)
 #else

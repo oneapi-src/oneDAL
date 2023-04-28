@@ -75,6 +75,7 @@ dal_algo_example_suite(
         "linear_kernel",
         "linear_regression",
         "louvain",
+        "objective_function",
         "pca",
         "polynomial_kernel",
         "rbf_kernel",

@@ -128,6 +128,13 @@ static HMODULE WINAPI _DAALLoadLibrary(LPCTSTR filename)
 
     case TRUST_E_EXPLICIT_DISTRUST: printf("Intel oneDAL FATAL ERROR: The signature/publisher of %s is disallowed.\n", filename); break;
 
+    case CERT_E_UNTRUSTEDROOT:
+        printf(
+            "Intel oneDAL FATAL ERROR: The certificate chain of %s processed, but terminated in a root certificate which is not trusted by the trust "
+            "provider.\n",
+            filename);
+        break;
+
     case ERROR_SUCCESS: break;
 
     case TRUST_E_SUBJECT_NOT_TRUSTED: printf("Intel oneDAL FATAL ERROR: The signature of %s in not trusted.\n", filename); break;

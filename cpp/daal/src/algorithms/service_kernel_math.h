@@ -396,33 +396,7 @@ public:
     }
 
 protected:
-    FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
-    {
-        daal::internal::mkl::MklMath<FPType, cpu> math;
-
-        FPType d = 0;
-
-        if (_p == 1.0)
-        {
-            for (size_t i = 0; i < n; ++i)
-            {
-                d += math.sFabs(x[i] - y[i]);
-            }
-
-            return d;
-        }
-        else
-        {
-            for (size_t i = 0; i < n; ++i)
-            {
-                d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
-            }
-
-            if (!_powered) return math.sPowx(d, 1.0 / _p);
-
-            return d;
-        }
-    }
+    inline FPType computeDistance(const FPType * x, const FPType * y, const size_t n) const;
 
     services::Status computeBatchImpl(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                       FPType * const res)
@@ -456,6 +430,35 @@ private:
     const double _p;
     const bool _powered;
 };
+
+template <typename FPType, CpuType cpu>
+inline FPType MinkowskiDistances<FPType, cpu>::computeDistance(const FPType * x, const FPType * y, const size_t n) const
+{
+    daal::internal::mkl::MklMath<FPType, cpu> math;
+
+    FPType d = 0;
+
+    if (_p == 1.0)
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            d += math.sFabs(x[i] - y[i]);
+        }
+
+        return d;
+    }
+    else
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
+        }
+
+        if (!_powered) return math.sPowx(d, 1.0 / _p);
+
+        return d;
+    }
+}
 
 template <typename FPType, CpuType cpu>
 class ChebyshevDistances : public PairwiseDistances<FPType, cpu>
@@ -532,10 +535,10 @@ private:
     const NumericTable & _b;
 };
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
-float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
+inline float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n) const
 {
     daal::internal::mkl::MklMath<float, avx512> math;
 
@@ -585,7 +588,7 @@ float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const 
 }
 
 template <>
-double MinkowskiDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n)
+inline double MinkowskiDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n) const
 {
     daal::internal::mkl::MklMath<double, avx512> math;
 

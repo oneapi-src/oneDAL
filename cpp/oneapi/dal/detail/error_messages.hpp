@@ -244,6 +244,16 @@ public:
     /* Minkowski distance */
     MSG(invalid_minkowski_degree);
 
+    /* Objective function */
+    MSG(resp_column_count_is_not_eq_to_one);
+    MSG(params_column_count_is_not_eq_to_one);
+    MSG(value_is_not_provided);
+    MSG(gradient_is_not_provided);
+    MSG(hessian_is_not_provided);
+    MSG(incorrect_output_table_size);
+    MSG(regularization_coef_is_less_than_zero);
+    MSG(regularization_coef_is_nan_or_inf);
+
     /* PCA */
     MSG(component_count_lt_zero);
     MSG(input_data_cc_lt_desc_component_count);

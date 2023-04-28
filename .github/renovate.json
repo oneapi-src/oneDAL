@@ -9,6 +9,8 @@
       "(^|/)docs/requirements.txt$"
     ],
     "matchUpdateTypes": ["minor", "patch"],
+    "groupName": "Doc packages",
+    "schedule": ["before 2am on monday"],
     "matchCurrentVersion": "!/^0/",
     "automerge": true
     }

@@ -25,6 +25,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 1>& parameters,
                                   const ndview<Float, 2>& data,
                                   ndview<Float, 1>& predictions,
+                                  bool fit_intercept = true,
                                   const event_vector& deps = {});
 
 template <typename Float>
@@ -35,6 +36,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             ndview<Float, 1>& out,
                             Float L1 = Float(0),
                             Float L2 = Float(0),
+                            bool fit_intercept = true,
                             const event_vector& deps = {});
 
 template <typename Float>
@@ -46,6 +48,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             ndview<Float, 1>& out,
                             Float L1 = Float(0),
                             Float L2 = Float(0),
+                            bool fit_intercept = true,
                             const event_vector& deps = {});
 
 template <typename Float>
@@ -58,6 +61,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      ndview<Float, 1>& out_derivative,
                                      Float L1 = Float(0),
                                      Float L2 = Float(0),
+                                     bool fit_intercept = true,
                                      const event_vector& deps = {});
 
 template <typename Float>
@@ -69,6 +73,7 @@ sycl::event compute_derivative(sycl::queue& q,
                                ndview<Float, 1>& out_derivative,
                                Float L1 = Float(0),
                                Float L2 = Float(0),
+                               bool fit_intercept = true,
                                const event_vector& deps = {});
 
 template <typename Float>
@@ -80,6 +85,7 @@ sycl::event compute_hessian(sycl::queue& q,
                             ndview<Float, 2>& out_hessian,
                             Float L1 = Float(0),
                             Float L2 = Float(0),
+                            bool fit_intercept = true,
                             const event_vector& deps = {});
 
 } // namespace oneapi::dal::backend::primitives

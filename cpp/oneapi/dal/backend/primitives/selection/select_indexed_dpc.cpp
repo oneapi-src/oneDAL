@@ -29,6 +29,7 @@ sycl::event select_indexed(sycl::queue& q,
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     ONEDAL_ASSERT(ids.get_shape() == dst.get_shape());
+    ONEDAL_ASSERT(ids.get_dimension(0) == src.get_dimension(0));
     const ndshape<2> shape = ids.get_shape();
     const auto range = make_range_2d(shape[0], shape[1]);
     const auto* const ids_ptr = ids.get_data();

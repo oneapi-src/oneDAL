@@ -29,19 +29,14 @@ CORE.SERV.COMPILER.icc = generic
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd \
-                    -Werror -Wreturn-type
+                    -Werror -Wreturn-type -diag-disable=10441
 COMPILER.lnx.icc += $(if $(COVFILE), $(-Q)m64)
-COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd
+COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd -Qdiag-disable:10441
 COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.15 \
-				   -Werror -Wreturn-type
+				   -Werror -Wreturn-type -diag-disable=10441
 
-# icc 16 does not support -qopenmp-simd option on macOS*
-ifeq ($(if $(OS_is_mac),$(shell icc --version | grep "icc (ICC) 16"),),)
-    COMPILER.mac.icc += -qopenmp-simd
-endif
-
-link.dynamic.lnx.icc = icc -no-cilk
-link.dynamic.mac.icc = icc
+link.dynamic.lnx.icc = icc -no-cilk -diag-disable=10441
+link.dynamic.mac.icc = icc -diag-disable=10441
 
 pedantic.opts.lnx.icc = -pedantic \
                         -Wall \
@@ -51,8 +46,8 @@ pedantic.opts.lnx.icc = -pedantic \
 daaldep.lnx32e.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel
 
-p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xCORE-AVX2,xSSE2)
-mc3_OPT.icc  = $(-Q)$(if $(OS_is_mac),xCORE-AVX2,xSSE4.2)
+p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),march=pentium4,xSSE2)
+mc3_OPT.icc  = $(-Q)xSSE4.2
 avx2_OPT.icc = $(-Q)xCORE-AVX2
 skx_OPT.icc  = $(-Q)xCORE-AVX512 $(-Qopt)zmm-usage=high
 #TODO add march opts in GCC style

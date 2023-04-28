@@ -25,7 +25,7 @@
 #ifndef __GBT_TRAIN_SPLIT_HIST_KERNEL_I__
 #define __GBT_TRAIN_SPLIT_HIST_KERNEL_I__
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #include <immintrin.h>
 #endif
 
@@ -307,7 +307,7 @@ struct MergeGHSums
     }
 };
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #if __CPUID__(DAAL_CPU) >= __sse42__
         #define SSE42_ALL DAAL_CPU
     #else
