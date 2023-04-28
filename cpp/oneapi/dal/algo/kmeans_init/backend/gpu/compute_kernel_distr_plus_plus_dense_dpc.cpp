@@ -482,7 +482,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
         auto potential_event = compute_potential(ctx, closest, candidates, samples,
             distances, potentials, candidate_norms, sample_norms, { norms_event }); 
 
-        const auto argmax_event = pr::argmax(queue, )
+        auto [valmax, argmax] = pr::argmax(queue, potentials, { potential_event });
 
         auto chosen = candidates.get_row_slice(argmax, argmax + 1);
         auto centroid = centroids.get_row_slice(i, i + 1);
@@ -491,7 +491,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
         auto chosen_norm = candidate_norms.get_slice(argmax, argmax + 1);
         last_event = compute_distances_to_cluster(queue, centroid, samples, 
                         dist_sq, chosen_norm, sample_norms, { copy_event });
-        curr_potential = potential.at_device(queue, argmax, { argmax_event });
+        curr_potential = std::move(valmax);
     }
 
     return compute_result<Task>{}.set_centroids(
