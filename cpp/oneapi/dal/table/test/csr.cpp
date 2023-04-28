@@ -334,7 +334,7 @@ TEST(
 #ifdef ONEDAL_DATA_PARALLEL
 
 TEST(
-    (std::string("can construct table from data pointers allocated on device") +
+    (std::string("can construct table from data pointers allocated on the device") +
      std::string(" and share the ownership of the data with those pointers")).c_str()) {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
@@ -411,6 +411,58 @@ TEST("can construct table from arrays and share the ownership of the data with t
     REQUIRE(t.get_column_count() == column_count);
     REQUIRE(t.get_non_zero_count() == element_count);
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+TEST((std::string("can construct table from arrays holding the data allocated on the device") +
+      std::string(" and share the ownership of the data with those arrays")).c_str()) {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+    constexpr std::int64_t element_count{ 7 };
+
+    float data_host[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    std::int64_t column_indices_host[] = { 1, 2, 4, 3, 2, 4, 2 };
+    std::int64_t row_offsets_host[] = { 1, 4, 5, 7, 8 };
+
+    auto data = sycl::malloc_device<float>(element_count, q);
+    auto column_indices = sycl::malloc_device<std::int64_t>(element_count, q);
+    auto row_offsets = sycl::malloc_device<std::int64_t>(row_count + 1, q);
+
+    q.submit([&](sycl::handler& cgh) {
+        cgh.memcpy(data, data_host, element_count * sizeof(float));
+    });
+
+    q.submit([&](sycl::handler& cgh) {
+        cgh.memcpy(column_indices, column_indices_host, element_count * sizeof(std::int64_t));
+    });
+
+    q.submit([&](sycl::handler& cgh) {
+        cgh.memcpy(row_offsets, row_offsets_host, (row_count + 1) * sizeof(std::int64_t));
+    });
+
+    q.wait_and_throw();
+
+    const auto data_array = array<float>::wrap(q, data, element_count);
+    const auto column_indices_array = array<std::int64_t>::wrap(q, column_indices, element_count);
+    const auto row_offsets_array = array<std::int64_t>::wrap(q, row_offsets, row_count + 1);
+
+    auto t = csr_table::wrap(data_array, column_indices_array, row_offsets_array, column_count);
+
+    REQUIRE(t.get_data<float>() == data);
+    REQUIRE(t.get_column_indices() == column_indices);
+    REQUIRE(t.get_row_offsets() == row_offsets);
+    REQUIRE(t.get_row_count() == row_count);
+    REQUIRE(t.get_column_count() == column_count);
+    REQUIRE(t.get_non_zero_count() == element_count);
+
+    sycl::free(data, q);
+    sycl::free(column_indices, q);
+    sycl::free(row_offsets, q);
+}
+
+#endif
 
 TEST("create table with invalid row or column count") {
     float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
