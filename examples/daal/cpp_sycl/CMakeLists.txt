@@ -16,20 +16,20 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+set(CMAKE_BUILD_TYPE Release)
+set(ONEDAL_USE_DPCPP yes)
+set(ONEDAL_INTERFACE no)
+
 # Add cmake scripts and modules to CMake search path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
 include(setup_examples)
 
 project(daal_cpp_sycl_examples)
 
-set(CMAKE_BUILD_TYPE Release)
-
-set(ONEDAL_USE_DPCPP yes)
-set(ONEDAL_INTERFACE no)
-
 find_package(oneDAL REQUIRED)
 
 set_link_type()
+set_common_compiler_options()
 
 include_directories(source/utils)
 
