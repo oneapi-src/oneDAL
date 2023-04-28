@@ -139,14 +139,6 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 }
 
 template <typename algorithmFPType>
-inline bool checkForMissing(const algorithmFPType* x, size_t nData) {
-    for (size_t idx = 0; idx < nData; ++idx) {
-        if (isnan(x[idx])) return true;
-    }
-    return false;
-}
-
-template <typename algorithmFPType>
 struct TileDimensions
 {
     size_t nRowsTotal    = 0;

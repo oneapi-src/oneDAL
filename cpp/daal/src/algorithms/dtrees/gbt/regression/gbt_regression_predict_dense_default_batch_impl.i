@@ -76,6 +76,22 @@ protected:
     void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res,
                               const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing>& dispetcher);
 
+    inline bool checkForMissing(const algorithmFPType* x, size_t nTrees, size_t nRows, size_t nColumns) {
+        size_t nLvlTotal = 0;
+        for (size_t iTree = 0; iTree < nTrees; ++iTree) {
+           nLvlTotal += this->_aTree[iTree]->getMaxLvl();
+        }
+        if (nLvlTotal <= nColumns) {
+            // Checking is compicated. Better to do it during inferense.
+            return true;
+        } else {
+            for (size_t idx = 0; idx < nRows * nColumns; ++idx) {
+                if (isnan(x[idx])) return true;
+            }
+        }
+        return false;
+    }
+
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType* x,
                         algorithmFPType* res)
@@ -104,7 +120,7 @@ protected:
 
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType* x, algorithmFPType* res)
     {
-        const bool hasAnyMissing = gbt::prediction::internal::checkForMissing(x, nRows);
+        const bool hasAnyMissing = checkForMissing(x, nTrees, nRows, nColumns);
         if (hasAnyMissing) {
             predict<true>(iTree, nTrees, nRows, nColumns, x, res);
         } else {
