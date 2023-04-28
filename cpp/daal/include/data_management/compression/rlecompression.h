@@ -52,7 +52,9 @@ public:
      * RleCompressionParameter constructor
      * \param _isBlockHeader RLE block header presence flag. True if a RLE block header is present, false otherwise
      */
-    DAAL_DEPRECATED RleCompressionParameter(bool _isBlockHeader = 1) : data_management::CompressionParameter(defaultLevel), isBlockHeader(_isBlockHeader) {}
+    DAAL_DEPRECATED RleCompressionParameter(bool _isBlockHeader = 1)
+        : data_management::CompressionParameter(defaultLevel), isBlockHeader(_isBlockHeader)
+    {}
 
     DAAL_DEPRECATED ~RleCompressionParameter() {}
 

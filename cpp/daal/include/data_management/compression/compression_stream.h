@@ -103,7 +103,10 @@ public:
      * \param[out] outBlock Reference to the DataBlock where compressed data is stored
      * \return Size of copied data in bytes
      */
-    DAAL_DEPRECATED_VIRTUAL virtual size_t copyCompressedArray(DataBlock & outBlock) { return copyCompressedArray(outBlock.getPtr(), outBlock.getSize()); }
+    DAAL_DEPRECATED_VIRTUAL virtual size_t copyCompressedArray(DataBlock & outBlock)
+    {
+        return copyCompressedArray(outBlock.getPtr(), outBlock.getSize());
+    }
 
     DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
@@ -178,7 +181,10 @@ public:
      * \param[out] outBlock Reference to the DataBlock where decompressed data is stored.
      *                      Size of DataBlock must be at least getDecompressedSize() bytes
      */
-    DAAL_DEPRECATED_VIRTUAL virtual size_t copyDecompressedArray(DataBlock & outBlock) { return copyDecompressedArray(outBlock.getPtr(), outBlock.getSize()); }
+    DAAL_DEPRECATED_VIRTUAL virtual size_t copyDecompressedArray(DataBlock & outBlock)
+    {
+        return copyDecompressedArray(outBlock.getPtr(), outBlock.getSize());
+    }
 
     DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
