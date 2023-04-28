@@ -59,9 +59,9 @@ public:
         : data_management::CompressionParameter(clevel), gzHeader(bgzHeader)
     {}
 
-    ~ZlibCompressionParameter() {}
+    DAAL_DEPRECATED ~ZlibCompressionParameter() {}
 
-    bool gzHeader; /*!< Optional flag. True if simple GZIP header is included, false otherwise */
+    DAAL_DEPRECATED bool gzHeader; /*!< Optional flag. True if simple GZIP header is included, false otherwise */
 };
 /* [ZlibCompressionParameter source code] */
 
@@ -83,7 +83,7 @@ public:
      * \brief Compressor<zlib> constructor
      */
     DAAL_DEPRECATED Compressor();
-    ~Compressor();
+    DAAL_DEPRECATED ~Compressor();
     /**
      * Associates an input data block with a compressor
      * \param[in] inBlock Pointer to the data block to compress. Must be at least size+offset bytes
@@ -140,7 +140,7 @@ public:
      * \brief Decompressor<zlib> constructor
      */
     DAAL_DEPRECATED Decompressor();
-    ~Decompressor();
+    DAAL_DEPRECATED ~Decompressor();
     /**
      * Associates an input data block with a decompressor
      * \param[in] inBlock Pointer to the data block to decompress. Must be at least size+offset bytes

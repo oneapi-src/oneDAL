@@ -62,50 +62,50 @@ public:
      * \param compr Pointer to a specific Compressor used for compression
      * \param minSize Optional parameter, minimal size of internal data blocks
      */
-    CompressionStream(CompressorImpl * compr, size_t minSize = 1024 * 64);
-    virtual ~CompressionStream() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED CompressionStream(CompressorImpl * compr, size_t minSize = 1024 * 64);
+    DAAL_DEPRECATED_VIRTUAL virtual ~CompressionStream() DAAL_C11_OVERRIDE;
 
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be compressed
      */
-    virtual void push_back(DataBlock * inBlock);
+    DAAL_DEPRECATED_VIRTUAL virtual void push_back(DataBlock * inBlock);
 
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be compressed
      */
-    virtual void operator<<(DataBlock * inBlock) { push_back(inBlock); }
+    DAAL_DEPRECATED_VIRTUAL virtual void operator<<(DataBlock * inBlock) { push_back(inBlock); }
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
      * \param[in] inBlock  Next DataBlock to be compressed
      */
-    virtual void operator<<(DataBlock inBlock) { push_back(&inBlock); }
+    DAAL_DEPRECATED_VIRTUAL virtual void operator<<(DataBlock inBlock) { push_back(&inBlock); }
     /**
      * Provides access to compressed data blocks stored in %CompressionStream
      * \return Pointer to an internal \ref DataBlockCollection
      */
-    virtual DataBlockCollectionPtr getCompressedBlocksCollection();
+    DAAL_DEPRECATED_VIRTUAL virtual DataBlockCollectionPtr getCompressedBlocksCollection();
     /**
      * Returns the size of compressed data stored in %CompressionStream
      * \return Size in bytes
      */
-    virtual size_t getCompressedDataSize();
+    DAAL_DEPRECATED_VIRTUAL virtual size_t getCompressedDataSize();
     /**
      * Copies compressed data stored in %CompressionStream to an external array
      * \param[out] outPtr Pointer to the array where compressed data is stored
      * \param[in] outSize Number of bytes available in external memory
      * \return Size of copied data in bytes
      */
-    virtual size_t copyCompressedArray(byte * outPtr, size_t outSize);
+    DAAL_DEPRECATED_VIRTUAL virtual size_t copyCompressedArray(byte * outPtr, size_t outSize);
     /**
      * Copies compressed data stored in %CompressionStream to an external DataBlock
      * \param[out] outBlock Reference to the DataBlock where compressed data is stored
      * \return Size of copied data in bytes
      */
-    virtual size_t copyCompressedArray(DataBlock & outBlock) { return copyCompressedArray(outBlock.getPtr(), outBlock.getSize()); }
+    DAAL_DEPRECATED_VIRTUAL virtual size_t copyCompressedArray(DataBlock & outBlock) { return copyCompressedArray(outBlock.getPtr(), outBlock.getSize()); }
 
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
 private:
     void * _blocks;
@@ -139,48 +139,48 @@ public:
      * \param decompr Pointer to a specific Decompressor used for decompression
      * \param minSize Optional parameter, minimal size of internal data blocks
      */
-    DecompressionStream(DecompressorImpl * decompr, size_t minSize = 1024 * 64);
-    virtual ~DecompressionStream() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED DecompressionStream(DecompressorImpl * decompr, size_t minSize = 1024 * 64);
+    DAAL_DEPRECATED_VIRTUAL virtual ~DecompressionStream() DAAL_C11_OVERRIDE;
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be decompressed
      */
-    virtual void push_back(DataBlock * inBlock);
+    DAAL_DEPRECATED_VIRTUAL virtual void push_back(DataBlock * inBlock);
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be decompressed
      */
-    virtual void operator<<(DataBlock * inBlock) { push_back(inBlock); }
+    DAAL_DEPRECATED_VIRTUAL virtual void operator<<(DataBlock * inBlock) { push_back(inBlock); }
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Next DataBlock to be decompressed
      */
-    virtual void operator<<(DataBlock inBlock) { push_back(&inBlock); }
+    DAAL_DEPRECATED_VIRTUAL virtual void operator<<(DataBlock inBlock) { push_back(&inBlock); }
     /**
      * Provides access to decompressed data blocks stored in %DecompressionStream
      * \return Pointer to internal \ref DataBlockCollection
      */
-    virtual DataBlockCollectionPtr getDecompressedBlocksCollection();
+    DAAL_DEPRECATED_VIRTUAL virtual DataBlockCollectionPtr getDecompressedBlocksCollection();
     /**
      * Returns the size of decompressed data stored in %DecompressionStream
      * \return Size in bytes
      */
-    virtual size_t getDecompressedDataSize();
+    DAAL_DEPRECATED_VIRTUAL virtual size_t getDecompressedDataSize();
     /**
      * Copies decompressed data stored in %DecompressionStream to an external array
      * \param[out] outPtr Pointer to the array where decompressed data is stored
      * \param[in] outSize Number of bytes available in external memory
      * \return Size of copied data in bytes
      */
-    virtual size_t copyDecompressedArray(byte * outPtr, size_t outSize);
+    DAAL_DEPRECATED_VIRTUAL virtual size_t copyDecompressedArray(byte * outPtr, size_t outSize);
     /**
      * Copies decompressed data stored in %DecompressionStream to an external DataBlock
      * \param[out] outBlock Reference to the DataBlock where decompressed data is stored.
      *                      Size of DataBlock must be at least getDecompressedSize() bytes
      */
-    virtual size_t copyDecompressedArray(DataBlock & outBlock) { return copyDecompressedArray(outBlock.getPtr(), outBlock.getSize()); }
+    DAAL_DEPRECATED_VIRTUAL virtual size_t copyDecompressedArray(DataBlock & outBlock) { return copyDecompressedArray(outBlock.getPtr(), outBlock.getSize()); }
 
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
 private:
     void * _blocks;
