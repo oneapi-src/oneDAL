@@ -27,87 +27,30 @@
 
 namespace daal
 {
-/**
- * @defgroup data_management Data Management
- * \copydoc daal::data_management
- * @{
- */
 namespace data_management
 {
 namespace interface1
 {
-/**
- * @defgroup data_compression Data Compression
- * \brief Contains classes for data compression and decompression
- * @ingroup data_management
- * @{
- */
-/**
- * <a name="DAAL-CLASS-DATA_MANAGEMENT__BZIP2COMPRESSIONPARAMETER"></a>
- *
- * \brief Parameter for bzip2 compression and decompression    \DAAL_DEPRECATED
- *
- * \snippet compression/bzip2compression.h Bzip2CompressionParameter source code
- *
- * \par Enumerations
- *      - \ref CompressionLevel - %Compression level
- */
-/* [Bzip2CompressionParameter source code] */
 class DAAL_EXPORT Bzip2CompressionParameter : public data_management::CompressionParameter
 {
 public:
-    /**
-     *  Bzip2CompressionParameter Constructor
-     *  \param[in] clevel   %Compression level, \ref CompressionLevel.
-     *                      defaultLevel is equal to bzip2 compression level 9
-     */
     DAAL_DEPRECATED Bzip2CompressionParameter(CompressionLevel clevel = defaultLevel) : data_management::CompressionParameter(clevel) {}
     DAAL_DEPRECATED ~Bzip2CompressionParameter() {}
 };
-/* [Bzip2CompressionParameter source code] */
 
-/**
- * <a name="DAAL-CLASS-COMPRESSOR_BZIP2"></a>
- *
- * \brief Implementation of the Compressor class for the bzip2 compression method    \DAAL_DEPRECATED
- * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
- *
- * \par References
- *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
- *      - \ref Bzip2CompressionParameter class
- */
 template <>
 class DAAL_EXPORT Compressor<bzip2> : public data_management::CompressorImpl
 {
 public:
-    /**
-     * \brief Compressor<bzip2> constructor
-     */
     DAAL_DEPRECATED Compressor();
     DAAL_DEPRECATED ~Compressor();
-    /**
-     * Associates an input data block with a compressor
-     * \param[in] inBlock Pointer to the data block to compress. Must be at least size+offset bytes
-     * \param[in] size     Number of bytes to compress in inBlock
-     * \param[in] offset   Offset in bytes, the starting position for compression in inBlock
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
-    /**
-     * Associates an input data block with a compressor
-     * \param[in] inBlock Reference to the data block to compress
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(DataBlock & inBlock) { return setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
-    /**
-     * Performs bzip2 compression of a data block
-     * \param[out] outBlock Pointer to the data block where compression results are stored. Must be at least size+offset bytes
-     * \param[in] size       Number of bytes available in outBlock
-     * \param[in] offset     Offset in bytes, the starting position for compression in outBlock
-     */
+
     DAAL_DEPRECATED void run(byte * outBlock, size_t size, size_t offset);
-    /**
-     * Performs bzip2 compression of a data block
-     * \param[out] outBlock Reference to the data block where compression results are stored
-     */
+
     DAAL_DEPRECATED void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     DAAL_DEPRECATED Bzip2CompressionParameter parameter; /*!< Bzip2 compression parameters structure */
@@ -129,48 +72,19 @@ private:
     void checkBZipError(int error);
 };
 
-/**
- * <a name="DAAL-CLASS-DECOMPRESSOR_BZI2"></a>
- *
- * \brief Specialization of Decompressor class for Bzip2 compression method    \DAAL_DEPRECATED
- * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
- *
- * \par References
- *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
- *      - \ref Bzip2CompressionParameter class
- */
 template <>
 class DAAL_EXPORT Decompressor<bzip2> : public data_management::DecompressorImpl
 {
 public:
-    /**
-     * \brief Decompressor<bzip2> constructor
-     */
     DAAL_DEPRECATED Decompressor();
     DAAL_DEPRECATED ~Decompressor();
-    /**
-     * Associates an input data block with a decompressor
-     * \param[in] inBlock Pointer to the data block to decompress. Must be at least size+offset bytes
-     * \param[in] size     Number of bytes to decompress in inBlock
-     * \param[in] offset   Offset in bytes, the starting position for decompression in inBlock
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
-    /**
-     * Associates an input data block with a decompressor
-     * \param[in] inBlock Reference to the data block to decompress
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
-    /**
-     * Performs bzip2 decompression of a data block
-     * \param[out] outBlock Pointer to the data block where decompression results are stored. Must be at least size+offset bytes
-     * \param[in] size       Number of bytes available in outBlock
-     * \param[in] offset     Offset in bytes, the starting position for decompression in outBlock
-     */
+
     DAAL_DEPRECATED void run(byte * outBlock, size_t size, size_t offset);
-    /**
-     * Performs bzip2 decompression of a data block
-     * \param[out] outBlock Reference to the data block where decompression results are stored
-     */
+
     DAAL_DEPRECATED void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     DAAL_DEPRECATED Bzip2CompressionParameter parameter; /*!< Bzip2 compression parameters structure */
@@ -191,6 +105,5 @@ using interface1::Compressor;
 using interface1::Decompressor;
 
 } //namespace data_management
-/** @} */
 } //namespace daal
 #endif //__BZIP2COMPRESSION_H

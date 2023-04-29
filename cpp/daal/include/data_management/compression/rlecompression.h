@@ -31,27 +31,9 @@ namespace data_management
 {
 namespace interface1
 {
-/**
- * @ingroup data_compression
- * @{
- */
-/**
- * <a name="DAAL-CLASS-RLECOMPRESSIONPARAMETER"></a>
- *
- * \brief Parameter for run-length encoding and decoding.    \DAAL_DEPRECATED
- * A RLE encoded block may contain a header that consists of two sections: 1) decoded data size (4 bytes) and 2) encoded data size (4 bytes)
- *
- * \snippet compression/rlecompression.h RleCompressionParameter source code
- *
- */
-/* [RleCompressionParameter source code] */
 class DAAL_EXPORT RleCompressionParameter : public data_management::CompressionParameter
 {
 public:
-    /**
-     * RleCompressionParameter constructor
-     * \param _isBlockHeader RLE block header presence flag. True if a RLE block header is present, false otherwise
-     */
     DAAL_DEPRECATED RleCompressionParameter(bool _isBlockHeader = 1)
         : data_management::CompressionParameter(defaultLevel), isBlockHeader(_isBlockHeader)
     {}
@@ -60,51 +42,20 @@ public:
 
     DAAL_DEPRECATED bool isBlockHeader; /*!< RLE block header presence flag. True if a RLE block header is present, false otherwise */
 };
-/* [RleCompressionParameter source code] */
 
-/**
- * <a name="DAAL-CLASS-COMPRESSOR_RLE"></a>
- *
- * \brief Implementation of the Compressor class for the run-length encoding method    \DAAL_DEPRECATED
- * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
- *
- * \par References
- *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
- *      - \ref RleCompressionParameter class
- */
 template <>
 class DAAL_EXPORT Compressor<rle> : public data_management::CompressorImpl
 {
 public:
-    /**
-     * \brief Compressor<rle> constructor
-     */
     DAAL_DEPRECATED Compressor();
     DAAL_DEPRECATED ~Compressor();
-    /**
-     * Associates an input data block with a compressor
-     * \param[in] inBlock Pointer to the data block to encode. Must be at least size+offset bytes
-     * \param[in] size     Number of bytes to encode in inBlock
-     * \param[in] offset   Offset in bytes, the starting position for encoding in inBlock
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
-    /**
-     * Associates an input data block with a compressor
-     * \param[in] inBlock Reference to the data block to encode
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
 
-    /**
-     * Performs run-length encoding of a data block
-     * \param[out] outBlock Pointer to the data block where encoding results are stored. Must be at least size+offset bytes
-     * \param[in] size       Number of bytes available in outBlock
-     * \param[in] offset     Offset in bytes, the starting position for encoding in outBlock
-     */
     DAAL_DEPRECATED void run(byte * outBlock, size_t size, size_t offset);
-    /**
-     * Performs run-length encoding of a data block
-     * \param[out] outBlock Reference to the data block where encoding results are stored
-     */
+
     DAAL_DEPRECATED void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     DAAL_DEPRECATED RleCompressionParameter parameter; /*!< RLE compression parameters structure */
@@ -122,48 +73,19 @@ private:
     void finalizeCompression();
 };
 
-/**
- * <a name="DAAL-CLASS-DECOMPRESSOR_RLE"></a>
- *
- * \brief Implementation of the Decompressor class for the run-length decoding method    \DAAL_DEPRECATED
- * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
- *
- * \par References
- *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
- *      - \ref RleCompressionParameter class
- */
 template <>
 class DAAL_EXPORT Decompressor<rle> : public data_management::DecompressorImpl
 {
 public:
-    /**
-     * \brief Decompressor<rle> constructor
-     */
     DAAL_DEPRECATED Decompressor();
     DAAL_DEPRECATED ~Decompressor();
-    /**
-     * Associates an input data block with a decompressor
-     * \param[in] inBlock Pointer to the data block to decode. Must be at least size+offset bytes
-     * \param[in] size     Number of bytes to decode in inBlock
-     * \param[in] offset   Offset in bytes, the starting position for decoding in inBlock
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
-    /**
-     * Associates an input data block with a decompressor
-     * \param[in] inBlock Reference to the data block to decode
-     */
+
     DAAL_DEPRECATED void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
-    /**
-     * Performs run-length decoding of a data block
-     * \param[out] outBlock Pointer to the data block where decoding results are stored. Must be at least size+offset bytes
-     * \param[in] size       Number of bytes available in outBlock
-     * \param[in] offset     Offset in bytes, the starting position for decoding in outBlock
-     */
+
     DAAL_DEPRECATED void run(byte * outBlock, size_t size, size_t offset);
-    /**
-     * Performs run-length decoding of a data block
-     * \param[out] outBlock Reference to the data block where decoding results are stored
-     */
+
     DAAL_DEPRECATED void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     DAAL_DEPRECATED RleCompressionParameter parameter; /*!< RLE compression parameters structure */
@@ -184,7 +106,6 @@ private:
 
     void finalizeCompression();
 };
-/** @} */
 } // namespace interface1
 using interface1::RleCompressionParameter;
 using interface1::Compressor;
