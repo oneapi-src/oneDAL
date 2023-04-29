@@ -38,7 +38,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-RLECOMPRESSIONPARAMETER"></a>
  *
- * \brief Parameter for run-length encoding and decoding.
+ * \brief Parameter for run-length encoding and decoding.    \DAAL_DEPRECATED
  * A RLE encoded block may contain a header that consists of two sections: 1) decoded data size (4 bytes) and 2) encoded data size (4 bytes)
  *
  * \snippet compression/rlecompression.h RleCompressionParameter source code
@@ -65,7 +65,7 @@ public:
 /**
  * <a name="DAAL-CLASS-COMPRESSOR_RLE"></a>
  *
- * \brief Implementation of the Compressor class for the run-length encoding method
+ * \brief Implementation of the Compressor class for the run-length encoding method    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -125,7 +125,7 @@ private:
 /**
  * <a name="DAAL-CLASS-DECOMPRESSOR_RLE"></a>
  *
- * \brief Implementation of the Decompressor class for the run-length decoding method
+ * \brief Implementation of the Decompressor class for the run-length decoding method    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References

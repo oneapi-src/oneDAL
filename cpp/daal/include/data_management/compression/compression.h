@@ -39,7 +39,7 @@ namespace data_management
  */
 /**
  * <a name="DAAL-ENUM-DATA_MANAGEMENT__COMPRESSIONLEVEL"></a>
- * \brief %Compression levels
+ * \brief %Compression levels    \DAAL_DEPRECATED
  */
 enum DAAL_DEPRECATED CompressionLevel
 {
@@ -59,7 +59,7 @@ enum DAAL_DEPRECATED CompressionLevel
 
 /**
  * <a name="DAAL-ENUM-DATA_MANAGEMENT__COMPRESSIONMETHOD"></a>
- * \brief %Compression methods
+ * \brief %Compression methods    \DAAL_DEPRECATED
  */
 enum DAAL_DEPRECATED CompressionMethod
 {
@@ -76,7 +76,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-STRUCT-DATA_MANAGEMENT__COMPRESSIONPARAMETER"></a>
- * \brief Parameters for compression and decompression
+ * \brief Parameters for compression and decompression    \DAAL_DEPRECATED
  *
  * \snippet compression/compression.h CompressionParameter source code
  *
@@ -98,7 +98,7 @@ struct DAAL_EXPORT CompressionParameter
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSIONIFACE"></a>
- * \brief Abstract interface class for compression and decompression
+ * \brief Abstract interface class for compression and decompression    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  */
 class DAAL_EXPORT CompressionIface
@@ -144,7 +144,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSION"></a>
- * \brief %Base class for compression and decompression
+ * \brief %Base class for compression and decompression    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -210,7 +210,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSORIMPL"></a>
- * \brief %Base class for the Compressor.
+ * \brief %Base class for the Compressor.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -233,7 +233,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__DECOMPRESSORIMPL"></a>
- * \brief %Base class for the Decompressor.
+ * \brief %Base class for the Decompressor.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -256,7 +256,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSOR"></a>
- * \brief %Compressor class compresses an input data block and writes results into an output data block.
+ * \brief %Compressor class compresses an input data block and writes results into an output data block.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \tparam dcmethod Compression method, \ref CompressionMethod
@@ -278,7 +278,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__DECOMPRESSOR"></a>
- * \brief %Decompressor class decompresses an input data block and writes results into an output data block.
+ * \brief %Decompressor class decompresses an input data block and writes results into an output data block.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \tparam dcmethod %Decompression method, \ref CompressionMethod

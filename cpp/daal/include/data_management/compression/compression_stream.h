@@ -47,7 +47,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSIONSTREAM"></a>
- * \brief %CompressionStream class compresses input raw data by blocks.
+ * \brief %CompressionStream class compresses input raw data by blocks.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -127,7 +127,7 @@ private:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__DECOMPRESSIONSTREAM"></a>
- * \brief %DecompressionStream class decompresses compressed input data by blocks.
+ * \brief %DecompressionStream class decompresses compressed input data by blocks.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References

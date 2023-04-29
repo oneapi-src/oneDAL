@@ -38,7 +38,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-LZOCOMPRESSIONPARAMETER"></a>
  *
- * \brief Parameter for LZO compression and decompression.
+ * \brief Parameter for LZO compression and decompression.    \DAAL_DEPRECATED
  * LZO compressed block header consists of four sections: 1) optional, 2) uncompressed data size (4 bytes),
  * 3) compressed data size (4 bytes), 4) optional.
  *
@@ -67,7 +67,7 @@ public:
 /**
  * <a name="DAAL-CLASS-COMPRESSOR_LZO"></a>
  *
- * \brief Implementation of the Compressor class for the LZO compression method
+ * \brief Implementation of the Compressor class for the LZO compression method    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -129,7 +129,7 @@ private:
 /**
  * <a name="DAAL-CLASS-DECOMPRESSOR_LZO"></a>
  *
- * \brief Specialization of Decompressor class for LZO compression method
+ * \brief Specialization of Decompressor class for LZO compression method    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
