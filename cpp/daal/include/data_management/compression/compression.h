@@ -41,7 +41,7 @@ namespace data_management
  * <a name="DAAL-ENUM-DATA_MANAGEMENT__COMPRESSIONLEVEL"></a>
  * \brief %Compression levels    \DAAL_DEPRECATED
  */
-enum DAAL_DEPRECATED CompressionLevel
+enum CompressionLevel
 {
     defaultLevel = -1, /*!< Default compression level */
     level0       = 0,  /*!< Minimum compression level, maximum speed */
@@ -61,7 +61,7 @@ enum DAAL_DEPRECATED CompressionLevel
  * <a name="DAAL-ENUM-DATA_MANAGEMENT__COMPRESSIONMETHOD"></a>
  * \brief %Compression methods    \DAAL_DEPRECATED
  */
-enum DAAL_DEPRECATED CompressionMethod
+enum CompressionMethod
 {
     zlib, /*!< DEFLATE compression method with a ZLIB block header or a simple GZIP block header */
     lzo,  /*!< LZO1X compatible compression method */
