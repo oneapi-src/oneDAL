@@ -129,7 +129,7 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
     ONEDAL_ASSERT(offsets.get_count() == comm.get_rank_count() + 1);
 
     // Extract part
-    auto new_deps{ deps };
+    bk::event_vector new_deps{ deps };
     if (rank == target) {
         const auto start_index = offsets[rank];
         const auto last_index = offsets[rank + 1];
@@ -242,7 +242,7 @@ sycl::event find_local_closest(sycl::queue& queue,
 }
 
 template <typename Generator, typename Float>
-void generate_trials(Generator& rng, pr::ndview<Float, 1>& res, Float pot) {
+void generate_trials(Generator& rng, pr::ndview<Float, 1>& trls, Float pot) {
     std::uniform_real_distribution<Float> finalize(0, pot);
     const auto gen = [&]() -> Float { return finalize(rng); };
     std::generate(bk::begin(trls), bk::end(trls), gen);
@@ -418,7 +418,7 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     auto slice_2d = centroids.get_row_slice(0, 1);
     auto slice = slice_2d.template reshape<1>({ feature_count });
     const std::uniform_int_distribution<std::int64_t> finalize(0, full_count);
-    auto share_event = extract_and_share(ctx, finalize(rng), boundaries, samples, slice, deps);
+    auto share_event = extract_and_share_by_index(ctx, finalize(rng), boundaries, samples, slice, deps);
     
     ONEDAL_ASSERT(potential.has_mutable_data());
     ONEDAL_ASSERT(distances.has_mutable_data());
