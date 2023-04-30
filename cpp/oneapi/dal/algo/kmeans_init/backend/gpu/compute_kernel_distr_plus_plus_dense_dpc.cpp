@@ -37,41 +37,40 @@ namespace oneapi::dal::kmeans_init::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-template<typename Float = double>
 std::int64_t fix_trials_count(std::int64_t trial_count, 
                               std::int64_t sample_count) {
     ONEDAL_ASSERT(-1 <= trial_count);
-    const auto additional = std::log<Float>(sample_count);
-    const auto proposed = 2 + std::int64_t{ additional };
+    const auto additional = std::log(sample_count);
+    const auto proposed = 2 + std::int64_t(additional);
     return (trial_count == -1) ? proposed : trial_count;
 }
 
 template<typename Type>
 sycl::event add_number(sycl::queue& queue,
                        const Type& value,
-                       ndview<Type, 1>& array,
-                       const event_vector& deps = {}) {
+                       pr::ndview<Type, 1>& array,
+                       const bk::event_vector& deps = {}) {
     constexpr std::plus<Type> kernel{};
     ONEDAL_ASSERT(array.has_mutable_data());
     return element_wise(queue, kernel, array, value, array, deps);
 }
 
-template<typename Type, typename ax1, typename ax2>
+template<typename Type, std::int64_t ax1, std::int64_t ax2>
 sycl::event min_number(sycl::queue& queue,
-                       ndview<Type, ax1>& array,
-                       const ndview<Type, ax2> minimum,
-                       const event_vector& deps = {}) {
-    constexpr std::min<Type> kernel{};
+                       pr::ndview<Type, ax1>& array,
+                       const pr::ndview<Type, ax2> minimum,
+                       const bk::event_vector& deps = {}) {
+    constexpr sycl::minimum<Type> kernel{};
     ONEDAL_ASSERT(array.has_mutable_data());
     return element_wise(queue, kernel, array, minimum, array, deps);
 }
 
 template<typename Type>
 sycl::event minimum(sycl::queue& queue,
-                    const ndview<Type, 1>& inp1,
-                    const ndview<Type, 1>& inp2,
-                    ndview<Type, 1>& output,
-                    const event_vector& deps = {}) {
+                    const pr::ndview<Type, 1>& inp1,
+                    const pr::ndview<Type, 1>& inp2,
+                    pr::ndview<Type, 1>& output,
+                    const bk::event_vector& deps = {}) {
     constexpr std::plus<Type> kernel{};
     ONEDAL_ASSERT(inp1.get_count() == inp2.get_count());
     ONEDAL_ASSERT(inp1.get_count() == output.get_count());
@@ -86,7 +85,7 @@ std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     
     ONEDAL_ASSERT(std::is_sorted(first, last));
     const auto iter = std::lower_bound(first, last, value);
-    return dal::integral_cast<std::int64_t>(std::distance(first, iter)); 
+    return dal::detail::integral_cast<std::int64_t>(std::distance(first, iter)); 
 }
 
 template <typename Comm, typename Type>
@@ -109,15 +108,15 @@ auto get_boundaries(Comm& comm, const Type& local) {
     return res;
 }
 
-template <typename Float, ndorder order>
+template <typename Float, pr::ndorder order>
 sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
                                        std::int64_t index,
                                        const dal::array<std::int64_t>& offsets, 
-                                       const ndview<Float, 2, order>& input,
-                                       ndview<Float, 1>& place, 
+                                       const pr::ndview<Float, 2, order>& data,
+                                       pr::ndview<Float, 1>& place, 
                                        const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(offsets.has_data());
+    //ONEDAL_ASSERT(offsets.has_data());
     ONEDAL_ASSERT(place.has_mutable_data());
 
     auto& queue = ctx.get_queue();
@@ -146,12 +145,37 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
 
 
     // Share part
-    {
+    if (comm.get_rank_count() > 1) {
         auto dst = place.flatten(queue, new_deps);
         comm.bcast(dst, target).wait();
     }
 
     return bk::wait_or_pass(new_deps);
+}
+
+template <typename Float, pr::ndorder order>
+sycl::event extract_and_share_by_indices(const bk::context_gpu& ctx,
+                                         const pr::ndview<std::int64_t, 1>& indices,
+                                         const dal::array<std::int64_t>& offsets, 
+                                         const pr::ndview<Float, 2, order>& input,
+                                         pr::ndview<Float, 2>& candidates, 
+                                         const bk::event_vector& deps = {}) {
+    const auto candidate_count = candidates.get_dimension(0);
+    ONEDAL_ASSERT(candidate_count == indices.get_count());
+    const auto feature_count = candidates.get_dimesion(1);
+
+    auto last_event = extract_and_share_by_index(ctx, indices.at(0), 
+                        offsets, input, candidates.get_row_slice(0, 1)
+                        .template reshape<1>({ feature_count }), deps);
+
+    for(std::int64_t i = 1; i < candidate_count; ++i) {
+        auto result = candidates.get_row_slice(i, i + 1)
+                    .template reshape<1>({ feature_count });
+        last_event = extract_and_share_by_index(ctx, indices.at(i), 
+                            offsets, input, result, { last_event });
+    }
+
+    return last_event;
 }
 
 template <typename Comm, typename Type>
@@ -219,7 +243,7 @@ sycl::event find_local_closest(sycl::queue& queue,
 
 template <typename Generator, typename Float>
 void generate_trials(Generator& rng, pr::ndview<Float, 1>& res, Float pot) {
-    const std::uniform_real_distribution<Float> finalize(0, pot);
+    std::uniform_real_distribution<Float> finalize(0, pot);
     const auto gen = [&]() -> Float { return finalize(rng); };
     std::generate(bk::begin(trls), bk::end(trls), gen);
 }
@@ -243,7 +267,7 @@ sycl::event compute_potential_local(sycl::queue& queue,
                                     pr::ndview<Float, 1>& potential,
                                     const pr::ndview<Float, 1>& candidate_norms,
                                     const pr::ndview<Float, 1>& sample_norms,
-                                    const event_vector& deps = {}) {
+                                    const bk::event_vector& deps = {}) {
     constexpr pr::sum<Float> sum{};
     constexpr pr::identity<Float> identity{};
     
@@ -270,7 +294,7 @@ sycl::event compute_potential_local(sycl::queue& queue,
 
     sycl::event last_event = pr::fill(queue, potential, Float(0), deps);
 
-    for (std::int64_t cd_id = 0; cd_id < candidate_blocking.get_block_count(); ++cb_id) {
+    for (std::int64_t cd_id = 0; cd_id < candidate_blocking.get_block_count(); ++cd_id) {
         const auto cd_first = candidate_blocking.get_block_start_index(cd_id);
         const auto cd_last = candidate_blocking.get_block_end_index(cd_id);
 
@@ -286,7 +310,7 @@ sycl::event compute_potential_local(sycl::queue& queue,
 
             const auto closest_slice = closest.get_slice(sp_first, sp_last);
             const auto sample_slice = samples.get_row_slice(sp_first, sp_last);
-            const auto sample_norms_slice = samples_norms.get_slice(sp_first, sp_last);
+            const auto sample_norms_slice = sample_norms.get_slice(sp_first, sp_last);
 
             auto dist_sp_slice = dist_cd_slice.get_col_slice(sp_first, sp_last);
 
@@ -320,7 +344,7 @@ sycl::event compute_potential(const bk::context_gpu& ctx,
                               pr::ndview<Float, 1>& potential,
                               const pr::ndview<Float, 1>& candidate_norms,
                               const pr::ndview<Float, 1>& sample_norms,
-                              const event_vector& deps = {}) {
+                              const bk::event_vector& deps = {}) {
     auto& queue = ctx.get_queue();
     auto& comm = ctx.get_communicator();
 
@@ -334,7 +358,7 @@ sycl::event compute_potential(const bk::context_gpu& ctx,
                                                sample_norms,
                                                deps);
 
-    if (comm.get_rank_count() > 0) {
+    if (comm.get_rank_count() > 1) {
         sycl::event::wait_and_throw({ local_event });
         auto potential_arr = dal::array<Float>::wrap(queue, 
             potential.get_mutable_data(), potential.get_count());
@@ -346,12 +370,12 @@ sycl::event compute_potential(const bk::context_gpu& ctx,
 
 template <typename Float, pr::ndorder order>
 sycl::event compute_distances_to_cluster(sycl::queue& queue,
-                                         const ndview<Float, 1>& cluster,
-                                         const ndview<Float, 2, order>& samples,
-                                         ndview<Float, 1>& output,
-                                         const ndview<Float, 1>& cluster_norm,
-                                         const ndview<Float, 1>& samples_norm,
-                                         const event_vector& deps = {}) {
+                                         const pr::ndview<Float, 1>& cluster,
+                                         const pr::ndview<Float, 2, order>& samples,
+                                         pr::ndview<Float, 1>& output,
+                                         const pr::ndview<Float, 1>& cluster_norm,
+                                         const pr::ndview<Float, 1>& samples_norm,
+                                         const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(output.has_mutable_data());
     ONEDAL_ASSERT(cluster.has_data() && samples.has_data());
     ONEDAL_ASSERT(cluster_norm.has_data() && samples_norm.has_data());
@@ -370,7 +394,7 @@ sycl::event compute_distances_to_cluster(sycl::queue& queue,
     return dist_l2(cluster_2d, samples, output_2d, cluster_norm, samples_norm, deps);
 }
 
-template <typename Generator, typename Float, ndorder order>
+template <typename Generator, typename Float, pr::ndorder order>
 sycl::event first_sample(const bk::context_gpu& ctx, 
                          Generator& rng,
                          std::int64_t full_count,
@@ -380,7 +404,7 @@ sycl::event first_sample(const bk::context_gpu& ctx,
                          pr::ndview<Float, 1>& distances,
                          pr::ndview<Float, 1>& candidates_norm,
                          const pr::ndview<Float, 1>& samples_norm,
-                         const event_vector& deps = {}) {
+                         const bk::event_vector& deps = {}) {
     constexpr pr::sum<Float> sum{};
     constexpr pr::square<Float> square{};
     constexpr pr::identity<Float> identity{};
@@ -391,7 +415,7 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     ONEDAL_ASSERT(feature_count == centroids.get_dimension(1));
 
     ONEDAL_ASSERT(centroids.has_mutable_data());
-    auto slice_2d = centroids.row_slice(0, 1);
+    auto slice_2d = centroids.get_row_slice(0, 1);
     auto slice = slice_2d.template reshape<1>({ feature_count });
     const std::uniform_int_distribution<std::int64_t> finalize(0, full_count);
     auto share_event = extract_and_share(ctx, finalize(rng), boundaries, samples, slice, deps);
@@ -405,14 +429,118 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     auto dist_2d = distances.template reshape<2>({ 1, sample_count });
     auto norm_event = pr::reduce_by_rows(queue, slice_2d, first_norm, sum, square, { fill_event , share_event });
     auto dist_event = compute_distances_to_cluster(queue, slice_2d, samples, dist_2d, first_norm, samples_norm, { norm_event });
-    return pr::reduce_1d(queue, distance, potential.get_slice(0, 1), sum, identity, { dist_event, pot_event });
+    return pr::reduce_1d(queue, distances, potential.get_slice(0, 1), sum, identity, { dist_event, pot_event });
 }
+
+template <typename Float, typename Index>
+sycl::event fix_indices(sycl::queue& queue,
+                        const std::int64_t rank,
+                        const std::int64_t offset,
+                        const pr::ndview<Float, 1>& points,
+                        const pr::ndview<Float, 1>& bounds,
+                        pr::ndview<Index, 1>& indices,
+                        const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(fix_indices.kernel, queue);
+
+    ONEDAL_ASSERT(points.has_data());
+    ONEDAL_ASSERT(bounds.has_data());
+    ONEDAL_ASSERT(indices.has_mutable_data());
+
+    const auto count = points.get_count();
+    const auto rank_count = bounds.get_count()
+    ONEDAL_ASSERT(count == indices.get_count());
+
+    const auto range = bk::make_range_1d(count);
+    const Float* const pts_ptr = points.get_data();
+    const Float* const bds_ptr = bounds.get_data();
+    Float* const ids_ptr = indices.get_mutable_data();
+
+    return queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+
+        h.parallel_for(range, [=](sycl::id<1> idx) {
+            const auto value = pts_ptr[idx];
+            const auto index = ids_ptr[idx];
+
+            const auto curr_upper = bds_ptr[rank];
+            const auto curr_lower = (rank == std::int64_t(0)) ? 
+                std::numeric_limits<Float>::lowest() : bds_ptr[rank - 1];
+
+            const bool not_this_rank = (value < curr_lower) || (curr_upper <= value); 
+
+            ids_ptr[idx] = not_this_rank ? (index + offset) : std::numeric_limits<Index>::lowest();
+        });
+    });
+}
+
+template <typename Communicator, typename Float, typename Index>
+sycl::event fix_indices(sycl::queue& queue,
+                        Communicator& comm,
+                        const std::int64_t offset,
+                        const pr::ndview<Float, 1>& points,
+                        const pr::ndview<Float, 1>& bounds,
+                        pr::ndview<Index, 1>& indices,
+                        const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(fix_indices, queue);
+
+    const auto rank = comm.get_rank();
+    const auto rank_count = comm.get_rank_count();
+    ONEDAL_ASSERT(bounds.get_count() == rank_count);
+    auto event = fix_indices(queue, rank, offset, points, bounds, indices, deps);
+
+    {
+        ONEDAL_PROFILER_TASK(fix_indices, queue);
+        sycl::event::wait_and_throw({ event });
+
+        const auto ids_arr = array<Float>::wrap(queue, 
+            indices.get_mutable_data(), indices.get_count());
+
+        comm.allreduce(ids_arr, dal::preview::spmd::reduce_op::max).wait();
+
+        return sycl::event{};
+    }
+}
+
+template <typename Communicator, typename Float, typename Index>
+sycl::event find_indices(sycl::queue& queue,
+                         Communicator& comm,
+                         const pr::ndview<Float, 1>& points,
+                         pr::ndview<Float, 1>& values,
+                         pr::ndview<Float, 1>& bounds,
+                         pr::ndview<Index, 1>& indices,
+                         const bk::event_vector& deps) {
+    const auto rank = comm.get_rank();
+    const auto rank_count = comm.get_rank_count();
+
+    ONEDAL_ASSERT(bounds.has_mutable_data());
+    ONEDAL_ASSERT(rank_count + 1 == bounds.get_count());
+
+    ONEDAL_ASSERT(values.has_mutable_data());
+    const auto local_count = values.get_count();
+
+    {
+        sycl::event::wait_and_throw(deps);
+
+        ONEDAL_PROFILER_TASK(find_indices.boundaries, queue);
+
+        auto bnds_arr = array<Float>::wrap(queue, bounds.get_mutable_data(), rank_count);
+        const Float* const last_val_ptr = values.get_data() + local_count - 1;
+        auto last_val_arr = array<Float>::wrap(queue, last_val_ptr, 1);
+        comm.allgather(last_val_arr, bnds_arr).wait();
+    }
+
+    constexpr auto alignment = pr::search_alignment::left;
+    auto search_event = search_sorted_1d<alignment>(queue, values, points);
+
+    return fix_indices(queue, rank, points, bounds, indices, { search_event });
+}
+
 
 template <typename Method, typename Task, typename Float, pr::ndorder order>
 compute_result<Task> implementation(const bk::context_gpu& ctx,
                                     const detail::descriptor_base<Task>& params,
                                     const pr::ndview<Float, 2, order>& samples,
-                                    const event_vector& deps = {}) {
+                                    const bk::event_vector& deps = {}) {
     using dal::backend::operator+;
 
     constexpr pr::sum<Float> sum{};
@@ -422,17 +550,19 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     auto& comm = ctx.get_communicator();
 
     auto rng = std::mt19937_64(params.get_seed());
-    const auto cluster_count = params.get_cluster_count();
-    const auto trials_count = fix_trials_count(params.get_local_trials_count());
 
     const auto sample_count = samples.get_dimension(0);
     const auto feature_count = samples.get_dimension(1);
+
+    const auto cluster_count = params.get_cluster_count();
+    const auto trials_count = fix_trials_count(
+        params.get_local_trials_count(), sample_count);
 
     ONEDAL_ASSERT(0 < cluster_count);
     ONEDAL_ASSERT(cluster_count <= sample_count);
 
     constexpr auto alloc = sycl::usm::alloc::device;
-    constexpr auto alignment = search_alignment::left;
+    constexpr auto alignment = pr::search_alignment::left;
     constexpr auto max_val = std::numeric_limits<Float>::max();
     auto res_count = dal::detail::check_mul_overflow(cluster_count, feature_count);
     auto centroids_array = dal::array<Float>::full(queue, res_count, max_val, alloc);
@@ -445,11 +575,12 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     auto trials = dal::array<Float>::empty(trials_count);
     auto host_trials = pr::ndview<Float, 1>::wrap(trials);
 
-    const auto sample_block = propose_sample_block(queue, feature_count);
-    const auto candidate_block = propose_candidate_block(queue, feature_count);
+    const auto sample_block = propose_sample_block<Float>(queue, feature_count);
+    const auto candidate_block = propose_candidate_block<Float>(queue, feature_count);
     auto distances = pr::ndarray<Float, 2>::empty(queue, { candidate_block, sample_block }, alloc);
 
     auto candidates = pr::ndarray<Float, 2>::empty(queue, { trials_count, feature_count }, alloc);
+    auto candidate_indices = pr::ndarray<std::int64_t, 1>::empty(queue, { trials_count }, alloc);
     auto candidate_norms = pr::ndarray<Float, 1>::empty(queue, { trials_count }, alloc);
     auto potentials = pr::ndarray<Float, 1>::empty(queue, { trials_count }, alloc);
 
@@ -461,24 +592,28 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     auto dist_sq = pr::ndarray<Float, 1>::empty(queue, { sample_count }, alloc);
 
     sycl::event last_event = first_sample(ctx, rng, full_count, centroids, 
-        samples, potential, dist_sq, candidate_norms, sample_norms, deps + sample_norms_event);  
+        samples, potentials, dist_sq, candidate_norms, sample_norms, deps + sample_norms_event);  
 
-    Float curr_potential = potential.at_device(queue, 0, { last_event }); 
+    Float curr_potential = potentials.at_device(queue, 0, { last_event }); 
     for (std::int64_t i = 1; i < cluster_count; ++i) {
         generate_trials(rng, host_trials, curr_potential);
 
-        auto cumsum_event = pr::cumulative_sum_1d(queue, distances, {});
-        const auto local = distances.at_device(queue, sample_count - 1, { cumsum_event });
+        auto cumsum_event = pr::cumulative_sum_1d(queue, dist_sq, {});
+        const auto local = dist_sq.at_device(queue, sample_count - 1, { cumsum_event });
 
         const auto boundaries = get_boundaries(comm, local);
         const auto local_offset = boundaries[ comm.get_rank() ]; 
         auto adjust_event = add_number(queue, local_offset, distances);
 
-        auto device_trials = host_trials.to_device(queue, { last_event });
-        auto search_event = pr::search_sorted(queue, )
+        auto device_trials = host_trials.to_device(queue, {});
+        auto search_event = find_indices(queue, comm, o
+            device_trials, distances, boundaries, candidate_indices, {});
 
-        auto norms_event = pr::reduce_by_rows(queue, canidates, candidate_norms, 
-                                                    sum, square, extract_events); 
+        auto extract_event = extract_and_share_by_indices(ctx, 
+            candidate_indices, offsets, samples, candidates, { search_event });
+            
+        auto norms_event = pr::reduce_by_rows(queue, candidates, candidate_norms, 
+                                                sum, square, { extract_event }); 
         auto potential_event = compute_potential(ctx, closest, candidates, samples,
             distances, potentials, candidate_norms, sample_norms, { norms_event }); 
 
@@ -486,7 +621,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
 
         auto chosen = candidates.get_row_slice(argmax, argmax + 1);
         auto centroid = centroids.get_row_slice(i, i + 1);
-        auto copy_event = pr::copy(queue, centroid, chosen, { argmax_event });
+        auto copy_event = pr::copy(queue, centroid, chosen, {});
 
         auto chosen_norm = candidate_norms.get_slice(argmax, argmax + 1);
         last_event = compute_distances_to_cluster(queue, centroid, samples, 

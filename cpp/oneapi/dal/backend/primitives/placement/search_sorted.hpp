@@ -51,7 +51,7 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
 
 template <typename Type, typename Index>
 inline sycl::event search_sorted_1d(sycl::queue& queue,
-                                    const bool& clip_result,
+                                    bool clip_result,
                                     search_alignment alignment,
                                     const ndview<Type, 1>& data,
                                     const ndview<Type, 1>& points,
