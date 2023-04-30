@@ -44,18 +44,18 @@ typedef enum
 class DAAL_EXPORT ReadWriteBlock : public DataBlock
 {
 public:
-    explicit ReadWriteBlock() : DataBlock(), _allocState(notallocated), _w_off(0), _r_off(0) {}
-    ReadWriteBlock(byte * ptr, size_t size) : DataBlock(ptr, size), _allocState(externallocated), _w_off(size), _r_off(0) {}
-    explicit ReadWriteBlock(DataBlock * block)
+    DAAL_DEPRECATED explicit ReadWriteBlock() : DataBlock(), _allocState(notallocated), _w_off(0), _r_off(0) {}
+    DAAL_DEPRECATED ReadWriteBlock(byte * ptr, size_t size) : DataBlock(ptr, size), _allocState(externallocated), _w_off(size), _r_off(0) {}
+    DAAL_DEPRECATED explicit ReadWriteBlock(DataBlock * block)
         : DataBlock(block->getPtr(), block->getSize()), _allocState(externallocated), _w_off(block->getSize()), _r_off(0)
     {}
-    explicit ReadWriteBlock(size_t size) : DataBlock(size), _allocState(internallocated), _w_off(0), _r_off(0)
+    DAAL_DEPRECATED explicit ReadWriteBlock(size_t size) : DataBlock(size), _allocState(internallocated), _w_off(0), _r_off(0)
     {
         byte * tmp_ptr = (byte *)daal::services::daal_calloc(size);
         setPtr(tmp_ptr);
     }
 
-    virtual ~ReadWriteBlock()
+    DAAL_DEPRECATED_VIRTUAL virtual ~ReadWriteBlock()
     {
         if (_allocState != externallocated && _allocState != notallocated)
         {
@@ -65,13 +65,13 @@ public:
         }
     }
 
-    virtual AllocationStateEnum getAllocState() { return _allocState; }
-    virtual size_t getWriteOffset() { return _w_off; }
-    virtual size_t getReadOffset() { return _r_off; }
+    DAAL_DEPRECATED_VIRTUAL virtual AllocationStateEnum getAllocState() { return _allocState; }
+    DAAL_DEPRECATED_VIRTUAL virtual size_t getWriteOffset() { return _w_off; }
+    DAAL_DEPRECATED_VIRTUAL virtual size_t getReadOffset() { return _r_off; }
 
-    virtual void setAllocState(AllocationStateEnum state) { _allocState = state; }
-    virtual void setWriteOffset(size_t w_off) { _w_off = w_off; }
-    virtual void setReadOffset(size_t r_off) { _r_off = r_off; }
+    DAAL_DEPRECATED_VIRTUAL virtual void setAllocState(AllocationStateEnum state) { _allocState = state; }
+    DAAL_DEPRECATED_VIRTUAL virtual void setWriteOffset(size_t w_off) { _w_off = w_off; }
+    DAAL_DEPRECATED_VIRTUAL virtual void setReadOffset(size_t r_off) { _r_off = r_off; }
 
 private:
     AllocationStateEnum _allocState;
@@ -82,14 +82,14 @@ private:
 class DAAL_EXPORT CompressionBlock : public ReadWriteBlock
 {
 public:
-    CompressionBlock() : ReadWriteBlock(), _comprState(notprocessed) {}
-    CompressionBlock(byte * ptr, size_t size) : ReadWriteBlock(ptr, size), _comprState(notprocessed) {}
-    explicit CompressionBlock(DataBlock * block) : ReadWriteBlock(block), _comprState(notprocessed) {}
-    explicit CompressionBlock(size_t size) : ReadWriteBlock(size), _comprState(notprocessed) {}
-    virtual ~CompressionBlock() {}
+    DAAL_DEPRECATED CompressionBlock() : ReadWriteBlock(), _comprState(notprocessed) {}
+    DAAL_DEPRECATED CompressionBlock(byte * ptr, size_t size) : ReadWriteBlock(ptr, size), _comprState(notprocessed) {}
+    DAAL_DEPRECATED explicit CompressionBlock(DataBlock * block) : ReadWriteBlock(block), _comprState(notprocessed) {}
+    DAAL_DEPRECATED explicit CompressionBlock(size_t size) : ReadWriteBlock(size), _comprState(notprocessed) {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~CompressionBlock() {}
 
-    virtual CompressionStateEnum getComprState() { return _comprState; }
-    virtual void setComprState(CompressionStateEnum state) { _comprState = state; }
+    DAAL_DEPRECATED_VIRTUAL virtual CompressionStateEnum getComprState() { return _comprState; }
+    DAAL_DEPRECATED_VIRTUAL virtual void setComprState(CompressionStateEnum state) { _comprState = state; }
 
 private:
     CompressionStateEnum _comprState;
