@@ -219,7 +219,8 @@ public:
 
     template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
     static ndview wrap_mutable(const array<T>& data) {
-        return wrap_mutable(data.get_mutable_data(), { data.get_count() });
+        ONEDAL_ASSERT(data.has_mutable_data());
+        return wrap(data.get_mutable_data(), { data.get_count() });
     }
 
     const T* get_data() const {

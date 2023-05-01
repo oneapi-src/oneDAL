@@ -41,6 +41,8 @@ TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
                      "kmeans init dense test",
                      "[kmeans_init][batch]",
                      kmeans_init_types) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     constexpr std::int64_t row_count = 8;

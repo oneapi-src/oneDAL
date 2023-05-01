@@ -37,11 +37,9 @@ public:
     }
 
     bool not_available_on_device() {
-        constexpr bool is_plus_plus_dense =
-            std::is_same_v<method_t, kmeans_init::method::plus_plus_dense>;
         constexpr bool is_parallel_plus_dense =
             std::is_same_v<method_t, kmeans_init::method::parallel_plus_dense>;
-        return this->get_policy().is_gpu() && (is_plus_plus_dense || is_parallel_plus_dense);
+        return this->get_policy().is_gpu() && is_parallel_plus_dense;
     }
 
     void dense_checks(std::int64_t cluster_count, const table& data) {

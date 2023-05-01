@@ -62,7 +62,7 @@ sycl::event add_number(sycl::queue& queue,
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
 
-        h.parallel_for(range, [&](sycl::id<1> idx) {
+        h.parallel_for(range, [=](sycl::id<1> idx) {
             arr_ptr[idx] += *val_ptr;
         });
     });
@@ -176,12 +176,13 @@ sycl::event extract_and_share_by_indices(const bk::context_gpu& ctx,
                                          pr::ndview<Float, 2>& candidates, 
                                          const bk::event_vector& deps = {}) {
     const auto candidate_count = candidates.get_dimension(0);
+    const auto feature_count = candidates.get_dimension(1);
     ONEDAL_ASSERT(candidate_count == indices.get_count());
-    const auto feature_count = candidates.get_dimesion(1);
 
+    auto slice = candidates.get_row_slice(0, 1) //
+                .template reshape<1>({ feature_count });
     auto last_event = extract_and_share_by_index(ctx, indices.at(0), 
-                        offsets, input, candidates.get_row_slice(0, 1)
-                        .template reshape<1>({ feature_count }), deps);
+                                        offsets, input, slice, deps);
 
     for(std::int64_t i = 1; i < candidate_count; ++i) {
         auto result = candidates.get_row_slice(i, i + 1)
@@ -466,13 +467,14 @@ sycl::event fix_indices(sycl::queue& queue,
     ONEDAL_ASSERT(indices.has_mutable_data());
 
     const auto count = points.get_count();
-    const auto rank_count = bounds.get_count()
     ONEDAL_ASSERT(count == indices.get_count());
+    [[maybe_unused]] auto rank_count = bounds.get_count();
+    ONEDAL_ASSERT((rank_count + 1 )== bounds.get_count());
 
     const auto range = bk::make_range_1d(count);
     const Float* const pts_ptr = points.get_data();
     const Float* const bds_ptr = bounds.get_data();
-    Float* const ids_ptr = indices.get_mutable_data();
+    Index* const ids_ptr = indices.get_mutable_data();
 
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -511,8 +513,8 @@ sycl::event fix_indices(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(fix_indices, queue);
         sycl::event::wait_and_throw({ event });
 
-        const auto ids_arr = array<Float>::wrap(queue, 
-            indices.get_mutable_data(), indices.get_count());
+        auto ids_arr = array<std::int64_t>::wrap(queue, 
+            indices.get_mutable_data(), indices.get_count(), { event });
 
         comm.allreduce(ids_arr, dal::preview::spmd::reduce_op::max).wait();
 
@@ -557,9 +559,10 @@ sycl::event find_indices(sycl::queue& queue,
     }
 
     constexpr auto alignment = pr::search_alignment::left;
-    auto search_event = pr::search_sorted_1d<alignment>(queue, values, points, { last_event });
+    auto search_event = pr::search_sorted_1d(queue, alignment, values, 
+                                    points, indices, { last_event });
 
-    return fix_indices(queue, rank, points, bounds, indices, { search_event });
+    return fix_indices(queue, comm, rank, points, bounds, indices, { search_event });
 }
 
 
@@ -589,7 +592,6 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     ONEDAL_ASSERT(cluster_count <= sample_count);
 
     constexpr auto alloc = sycl::usm::alloc::device;
-    constexpr auto alignment = pr::search_alignment::left;
     constexpr auto max_val = std::numeric_limits<Float>::max();
     auto res_count = dal::detail::check_mul_overflow(cluster_count, feature_count);
     auto centroids_array = dal::array<Float>::full(queue, res_count, max_val, alloc);
@@ -604,7 +606,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     auto bin_boundaries = pr::ndarray<Float, 1>::empty(queue, { rank_count + 1 }, alloc);
 
     auto trials = dal::array<Float>::empty(trials_count);
-    auto host_trials = pr::ndview<Float, 1>::wrap(trials);
+    auto host_trials = pr::ndview<Float, 1>::wrap_mutable(trials);
 
     const auto sample_block = propose_sample_block<Float>(queue, feature_count);
     const auto candidate_block = propose_candidate_block<Float>(queue, feature_count);
@@ -640,18 +642,19 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
             
         auto norms_event = pr::reduce_by_rows(queue, candidates, candidate_norms, 
                                                 sum, square, { extract_event }); 
-        auto potential_event = compute_potential(ctx, closest, candidates, samples,
+        auto potential_event = compute_potential(ctx, dist_sq, candidates, samples,
             distances, potentials, candidate_norms, sample_norms, { norms_event }); 
 
         auto [valmax, argmax] = pr::argmax(queue, potentials, { potential_event });
 
         auto centroid = centroids.get_row_slice(i, i + 1);
+        auto centroid_1d = centroid.template reshape<1>({ feature_count });
         auto chosen = candidates.get_row_slice(argmax, argmax + 1);
         auto copy_event = pr::copy(queue, centroid, chosen, {});
 
         auto chosen_norm = candidate_norms.get_slice(argmax, argmax + 1);
-        auto chosen_event = compute_distances_to_cluster(queue, centroid,
-            samples, dist_sq, chosen_norm, sample_norms, { copy_event });
+        auto chosen_event = compute_distances_to_cluster(queue, centroid_1d,
+                samples, dist_sq, chosen_norm, sample_norms, { copy_event });
 
         last_event = std::move(chosen_event);
         curr_potential = std::move(valmax);
@@ -673,7 +676,7 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
 
     auto data_variant = pr::table2ndarray_variant<Float>(queue, data_table, alloc);
 
-    return std::visit([&](const auto& data) -> compute_result<Task> {
+    return std::visit([&](const auto& data)  {
         return implementation<Method, Task>(ctx, params, data);
     }, data_variant);
 }

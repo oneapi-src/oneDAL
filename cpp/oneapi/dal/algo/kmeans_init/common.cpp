@@ -42,6 +42,11 @@ std::int64_t descriptor_base<Task>::get_seed() const {
 }
 
 template <typename Task>
+std::int64_t descriptor_base<Task>::get_local_trials_count() const {
+    return impl_->local_trials_count;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
@@ -53,6 +58,7 @@ template <typename Task>
 void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
     impl_->seed = value;
 }
+
 
 template <typename Task>
 void descriptor_base<Task>::set_local_trials_count_impl(std::int64_t value) {
