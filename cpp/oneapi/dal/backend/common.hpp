@@ -46,7 +46,6 @@ inline Type* end(const dal::array<Type>& arr) {
 
 template <typename Type>
 inline const Type* cbegin(const dal::array<Type>& arr) {
-    ONEDAL_ASSERT(arr.has_data());
     return arr.get_data();
 }
 
