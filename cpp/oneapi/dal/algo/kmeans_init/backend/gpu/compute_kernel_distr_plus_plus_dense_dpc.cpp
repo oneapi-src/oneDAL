@@ -23,6 +23,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
+#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/search.hpp"
@@ -136,13 +137,16 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
 
     const auto rank = comm.get_rank();
     const auto target = find_bin(offsets, index);
+    const auto rank_count = comm.get_rank_count();
+    //ONEDAL_ASSERT(target < rank_count);
+
     const auto sample_count = data.get_dimension(0);
     ONEDAL_ASSERT(data.get_dimension(1) == place.get_count());
     ONEDAL_ASSERT(offsets.get_count() == comm.get_rank_count() + 1);
 
     // Extract part
     bk::event_vector new_deps{ deps };
-    if (rank == target) {
+    if ((rank_count == 1l) || (rank == target)) {
         const auto start_index = offsets[rank];
         const auto last_index = offsets[rank + 1];
         const auto rel_index = index - start_index;
@@ -151,17 +155,17 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
         ONEDAL_ASSERT(0 <= rel_index && rel_index < sample_count);
         
         const auto source = data.get_row_slice(rel_index, rel_index + 1);
-        auto dest = place.template reshape<2>({ 1, place.get_count() });
+        auto dest = place.template reshape<2>({ 1, source.get_count() });
         new_deps.push_back(pr::copy(queue, dest, source, deps));
+
+        std::cout << "Host slice: " << source.to_host(queue) << std::endl;
     } 
 
 
     // Share part
-    if (comm.get_rank_count() > 1) {
-        sycl::event::wait_and_throw(new_deps);
-
+    if (rank_count > 1l) {
         const auto dst = array<Float>::wrap(queue, 
-            place.get_mutable_data(), place.get_count());
+            place.get_mutable_data(), place.get_count(), new_deps);
         comm.bcast(dst, target).wait();
     }
 
@@ -301,7 +305,6 @@ sycl::event compute_potential_local(sycl::queue& queue,
     const auto feature_count = candidates.get_dimension(1);
     ONEDAL_ASSERT(feature_count == samples.get_dimension(1));
     const auto candidate_count = candidates.get_dimension(0);
-    std::cout << candidate_count << ' ' << potential.get_count() << std::endl;
     ONEDAL_ASSERT(candidate_count == potential.get_count());
     ONEDAL_ASSERT(candidate_count == candidate_norms.get_count());
 
@@ -582,7 +585,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     auto& queue = ctx.get_queue();
     auto& comm = ctx.get_communicator();
 
-    auto rng = std::mt19937_64(params.get_seed());
+    auto rng = std::mt19937_64(666);
 
     const auto sample_count = samples.get_dimension(0);
     const auto feature_count = samples.get_dimension(1);
@@ -636,32 +639,44 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
         // Generates sequence (array) of random numbers on host
         generate_trials(rng, host_trials, curr_potential);
 
-        auto device_trials = host_trials.to_device(queue, {});
-        auto search_event = find_indices(queue, comm,
-            device_trials, dist_sq, bin_boundaries, candidate_indices, {});
+        auto device_trials = host_trials.to_device(queue, { last_event });
+        auto search_event = find_indices(queue, comm, device_trials, 
+            dist_sq, bin_boundaries, candidate_indices, { last_event });
+
+        std::cout << "Indices: " << candidate_indices.to_host(queue, { search_event }) << std::endl;
 
         auto extract_event = extract_and_share_by_indices(ctx, candidate_indices, 
                                 boundaries, samples, candidates, { search_event });
+
+        std::cout << "Extracted candidates: " << candidates.to_host(queue, {extract_event}) << std::endl;
             
         auto norms_event = pr::reduce_by_rows(queue, candidates, candidate_norms, 
                                                 sum, square, { extract_event }); 
         auto potential_event = compute_potential(ctx, dist_sq, candidates, samples,
-            distances, potentials, candidate_norms, sample_norms, { norms_event }); 
+            distances, potentials, candidate_norms, sample_norms, { norms_event });
 
-        auto [valmax, argmax] = pr::argmax(queue, potentials, { potential_event });
+        std::cout << "Potentials: " << potentials.to_host(queue, { potential_event }) << std::endl;
+
+        auto [valmin, argmin] = pr::argmin(queue, potentials, { potential_event });
+
+        std::cout << "Argmin: " << argmin << "; Valmin: " << valmin << "\n\n" << std::endl;
 
         auto centroid = centroids.get_row_slice(i, i + 1);
         auto centroid_1d = centroid.template reshape<1>({ feature_count });
-        auto chosen = candidates.get_row_slice(argmax, argmax + 1);
+        auto chosen = candidates.get_row_slice(argmin, argmin + 1);
         auto copy_event = pr::copy(queue, centroid, chosen, {});
 
-        auto chosen_norm = candidate_norms.get_slice(argmax, argmax + 1);
+        auto chosen_norm = candidate_norms.get_slice(argmin, argmin + 1);
         auto chosen_event = compute_distances_to_cluster(queue, centroid_1d,
                 samples, dist_sq, chosen_norm, sample_norms, { copy_event });
 
+        std::cout << "Centroid 1d: " << centroid_1d.to_host(queue, { copy_event }) << std::endl;
+
         last_event = std::move(chosen_event);
-        curr_potential = std::move(valmax);
+        curr_potential = std::move(valmin);
     }
+
+    std::cout << "\n\n\n\nFinal centroids: " << centroids.to_host(queue, { last_event }) << std::endl;
 
     return compute_result<Task>{}.set_centroids(
         homogen_table::wrap(centroids_array, cluster_count, feature_count));
