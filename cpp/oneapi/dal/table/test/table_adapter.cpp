@@ -50,8 +50,7 @@ TEST("CSR adapter is used, one-based indexing") {
 
     auto dt = backend::interop::convert_to_daal_table<float>(t);
 
-    REQUIRE(dynamic_cast<backend::interop::host_csr_table_adapter<float>*>(dt.get()) !=
-            nullptr);
+    REQUIRE(dynamic_cast<backend::interop::host_csr_table_adapter<float>*>(dt.get()) != nullptr);
 }
 
 TEST("CSR adapter is used, zero-based indexing") {
@@ -71,6 +70,5 @@ TEST("CSR adapter is used, zero-based indexing") {
 
     auto dt = backend::interop::convert_to_daal_table<float>(t);
 
-    REQUIRE(dynamic_cast<backend::interop::host_csr_table_adapter<float>*>(dt.get()) !=
-            nullptr);
+    REQUIRE(dynamic_cast<backend::interop::host_csr_table_adapter<float>*>(dt.get()) != nullptr);
 }

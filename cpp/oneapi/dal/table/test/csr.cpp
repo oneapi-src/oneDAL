@@ -333,9 +333,9 @@ TEST(
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-TEST(
-    (std::string("can construct table from data pointers allocated on the device") +
-     std::string(" and share the ownership of the data with those pointers")).c_str()) {
+TEST((std::string("can construct table from data pointers allocated on the device") +
+      std::string(" and share the ownership of the data with those pointers"))
+         .c_str()) {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
     constexpr std::int64_t row_count{ 4 };
@@ -415,7 +415,8 @@ TEST("can construct table from arrays and share the ownership of the data with t
 #ifdef ONEDAL_DATA_PARALLEL
 
 TEST((std::string("can construct table from arrays holding the data allocated on the device") +
-      std::string(" and share the ownership of the data with those arrays")).c_str()) {
+      std::string(" and share the ownership of the data with those arrays"))
+         .c_str()) {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
     constexpr std::int64_t row_count{ 4 };
