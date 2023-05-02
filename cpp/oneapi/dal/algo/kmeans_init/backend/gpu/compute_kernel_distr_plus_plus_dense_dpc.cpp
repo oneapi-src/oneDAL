@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
+#include <iostream>
 #include <cmath>
 #include <random>
 #include <numeric>
@@ -175,20 +175,24 @@ sycl::event extract_and_share_by_indices(const bk::context_gpu& ctx,
                                          const pr::ndview<Float, 2, order>& input,
                                          pr::ndview<Float, 2>& candidates, 
                                          const bk::event_vector& deps = {}) {
+        
     const auto candidate_count = candidates.get_dimension(0);
     const auto feature_count = candidates.get_dimension(1);
     ONEDAL_ASSERT(candidate_count == indices.get_count());
 
-    auto slice = candidates.get_row_slice(0, 1) //
-                .template reshape<1>({ feature_count });
-    auto last_event = extract_and_share_by_index(ctx, indices.at(0), 
-                                        offsets, input, slice, deps);
+    ONEDAL_ASSERT(indices.has_data());
+    auto slice_2d = candidates.get_row_slice(0, 1);
+    auto slice = slice_2d.template reshape<1>({ feature_count });
+
+    auto indices_host = indices.to_host(ctx.get_queue(), deps);
+    auto last_event = extract_and_share_by_index(ctx,
+        indices_host.at(0), offsets, input, slice, deps);
 
     for(std::int64_t i = 1; i < candidate_count; ++i) {
-        auto result = candidates.get_row_slice(i, i + 1)
-                    .template reshape<1>({ feature_count });
-        last_event = extract_and_share_by_index(ctx, indices.at(i), 
-                            offsets, input, result, { last_event });
+        auto result_2d = candidates.get_row_slice(i, i + 1);
+        auto result = result_2d.template reshape<1>({ feature_count });
+        last_event = extract_and_share_by_index(ctx, 
+            indices_host.at(i), offsets, input, result, { last_event });
     }
 
     return last_event;
@@ -296,7 +300,8 @@ sycl::event compute_potential_local(sycl::queue& queue,
     ONEDAL_ASSERT(sample_count == sample_norms.get_count());
     const auto feature_count = candidates.get_dimension(1);
     ONEDAL_ASSERT(feature_count == samples.get_dimension(1));
-    const auto candidate_count = candidates.get_dimension(1);
+    const auto candidate_count = candidates.get_dimension(0);
+    std::cout << candidate_count << ' ' << potential.get_count() << std::endl;
     ONEDAL_ASSERT(candidate_count == potential.get_count());
     ONEDAL_ASSERT(candidate_count == candidate_norms.get_count());
 
@@ -468,8 +473,6 @@ sycl::event fix_indices(sycl::queue& queue,
 
     const auto count = points.get_count();
     ONEDAL_ASSERT(count == indices.get_count());
-    [[maybe_unused]] auto rank_count = bounds.get_count();
-    ONEDAL_ASSERT((rank_count + 1 )== bounds.get_count());
 
     const auto range = bk::make_range_1d(count);
     const Float* const pts_ptr = points.get_data();
@@ -506,7 +509,7 @@ sycl::event fix_indices(sycl::queue& queue,
 
     const auto rank = comm.get_rank();
     const auto rank_count = comm.get_rank_count();
-    ONEDAL_ASSERT(bounds.get_count() == rank_count);
+    ONEDAL_ASSERT(bounds.get_count() == rank_count + 1);
     auto event = fix_indices(queue, rank, offset, points, bounds, indices, deps);
 
     {

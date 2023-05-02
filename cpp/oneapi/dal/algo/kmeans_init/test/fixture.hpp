@@ -60,14 +60,14 @@ public:
         REQUIRE(centroids.get_row_count() == cluster_count);
         REQUIRE(centroids.get_column_count() == column_count);
 
-        const auto data_array = row_accessor<const float>(data).pull();
-        const auto centroid_array = row_accessor<const float>(centroids).pull();
+        const auto data_array = row_accessor<const float_t>(data).pull();
+        const auto centroid_array = row_accessor<const float_t>(centroids).pull();
 
-        std::unordered_set<std::int64_t> indices;
-        for (std::int64_t i = 0; i < cluster_count; i++) {
-            for (std::int64_t j = 0; j < row_count; j++) {
+        std::set<std::int64_t> indices{};
+        for (std::int64_t i = 0; i < cluster_count; ++i) {
+            for (std::int64_t j = 0; j < row_count; ++j) {
                 bool match = true;
-                for (std::int64_t k = 0; k < column_count; k++) {
+                for (std::int64_t k = 0; k < column_count; ++k) {
                     if (data_array[j * column_count + k] != centroid_array[i * column_count + k]) {
                         match = false;
                         break;
