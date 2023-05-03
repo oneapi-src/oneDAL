@@ -96,6 +96,7 @@ Split strategy
   The `random` split strategy is supported only for the `hist` method. The dense method supports only the `best` strategy.
 
 There are two split strategies for building trees:
+
 .. tabs::
 
   .. group-tab:: Best splitter

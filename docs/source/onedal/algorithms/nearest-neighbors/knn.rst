@@ -19,9 +19,9 @@
 
 .. _alg_knn:
 
-====================================================
-k-Nearest Neighbors Classification and Search (k-NN)
-====================================================
+=================================================================
+k-Nearest Neighbors Classification, Regression, and Search (k-NN)
+=================================================================
 
 .. include:: ../../../includes/nearest-neighbors/knn-introduction.rst
 
@@ -30,6 +30,18 @@ Mathematical formulation
 ------------------------
 
 .. _knn_t_math:
+
+The following table describes current device support:
+
++----------------+------+------+
+| Task           | CPU  | GPU  |
++================+======+======+
+| Classification | Yes  | Yes  |
++----------------+------+------+
+| Regression     | No   | Yes  |
++----------------+------+------+
+| Search         | Yes  | Yes  |
++----------------+------+------+
 
 Training
 --------
@@ -41,6 +53,16 @@ Training
    :math:`p`-dimensional feature vectors, let :math:`Y = \{ y_1, \ldots, y_n \}` be
    the set of class labels, where :math:`y_i \in \{ 0, \ldots, C-1 \}`, :math:`1
    \leq i \leq n`, and :math:`C` is the number of classes. Given :math:`X`,
+   :math:`Y`, and the number of nearest neighbors :math:`k`,
+   the problem is to build a model that allows distance computation
+   between the feature vectors in training and inference sets at the inference
+   stage.
+
+  .. group-tab:: Regression
+
+   Let :math:`X = \{ x_1, \ldots, x_n \}` be the training set of
+   :math:`p`-dimensional feature vectors, let :math:`Y = \{ y_1, \ldots, y_n \}` be
+   the corresponding continuous target outputs, where :math:`y_i \in \mathbb{R}`. Given :math:`X`,
    :math:`Y`, and the number of nearest neighbors :math:`k`,
    the problem is to build a model that allows distance computation
    between the feature vectors in training and inference sets at the inference
@@ -112,6 +134,31 @@ Inference
          y_j' = \mathrm{arg}\max_{0 \leq l < C} P_{jl},
          \quad 1 \leq j \leq m.
 
+  .. group-tab:: Regression
+
+   Let :math:`X' = \{ x_1', \ldots, x_m' \}` be the inference set of
+   :math:`p`-dimensional feature vectors. Given :math:`X'`, the model produced at
+   the training stage, and the number of nearest neighbors :math:`k`, the problem is
+   to predict the continuous target variable :math:`y_j'` from the :math:`Y` set for each :math:`x_j'`,
+   :math:`1 \leq j \leq m`, by performing the following steps:
+
+   #. Identify the set :math:`N(x_j') \subseteq X` of :math:`k` feature vectors
+      in the training set that are nearest to :math:`x_j'` with respect to the
+      Euclidean distance, which is chosen by default. The distance can be customized
+      with the predefined set of pairwise distances: :ref:`Minkowski distances
+      <alg_minkowski_distance>` with fractional degree (including Euclidean distance),
+      :ref:`Chebyshev distance <alg_chebyshev_distance>`, and
+      :ref:`Cosine distance <alg_cosine_distance>`.
+
+   #. Estimate the conditional expectation of the target variable based on the nearest neighbors
+    :math:`N(x_j')` as the average of the target values for those neighbors:
+
+      .. math::
+         :label: y_predict
+
+         y_j' = \frac{1}{| N(x_j') |} \sum_{x_r \in N(x_j')} y_r,
+     \quad 1 \leq j \leq m.
+
   .. group-tab:: Search
 
    Let :math:`X' = \{ x_1', \ldots, x_m' \}` be the inference set of
@@ -153,7 +200,13 @@ distance between :math:`x_j'` and the most distant feature vector from
 Programming Interface
 ---------------------
 
-Refer to :ref:`API Reference: k-Nearest Neighbors Classification and Search <api_knn>`.
+Refer to :ref:`API Reference: k-Nearest Neighbors Classification, Regression, and Search <api_knn>`.
+
+----------------
+Distributed mode
+----------------
+
+The algorithm supports distributed execution in SPMD mode (only on GPU).
 
 -------------
 Usage example

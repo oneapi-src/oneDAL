@@ -17,7 +17,7 @@
 Notices and Disclaimers
 =======================
 
-Performance varies by use, configuration and other factors. Learn more at www.Intel.com/PerformanceIndex​.
+Performance varies by use, configuration and other factors. Learn more at `www.Intel.com/PerformanceIndex<http://www.Intel.com/PerformanceIndex>`​.
 
 No product or component can be absolutely secure.
 
