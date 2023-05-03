@@ -86,8 +86,9 @@ Bins are continuous intervals of data points for a selected feature.
 They are computed for each feature during the initialization stage of the algorithm.
 Each value from the initially provided data is substituted
 with the value of the corresponding bin. It decreases the computational time complexity
-from :math:`O(num_rows \dot num_selected_features)` to :math:`O(num_bins \cdot num_selected_features)`,
-but decreases algorithm accuracy. 
+from :math:`O(n_r \cdot n_f)` to :math:`O(n_b \cdot n_f)`,
+but decreases algorithm accuracy, where :math:`n_r` is number of rows, :math:`n_b` is number of bins, 
+and :math:`n_f` is number of selected features. 
 
 Split strategy
 ++++++++++++++
@@ -101,17 +102,17 @@ There are two split strategies for building trees:
 
   .. group-tab:: Best splitter
 
-  The threshold for a node is chosen as the best among all bins and all selected features according to split criteria(see  **Split Criteria** below).
-  The computational time complexity for the `best` splitter is :math:`O(num_features \cdot num_bins)` for each node. The best splitting strategy
-  builds a tree with optimal splits on each level.
+    The threshold for a node is chosen as the best among all bins and all selected features according to split criteria(see  **Split Criteria** below).
+    The computational time complexity for the `best` splitter is :math:`O(n_f \cdot n_b)` for each node. The best splitting strategy
+    builds a tree with optimal splits on each level.
 
   .. group-tab:: Random splitter
 
-  The threshold for a node is chosen randomly for each selected feature. The split threshold is chosen as the best among all pairs
-  (feature, random threshold) according to split criteria(see  **Split Criteria** below).
-  The computational time complexity for the `random` splitter as :math:`O(num_features)` for each node.
-  The random splitting strategy does not build a tree with optimal trees, but in the case of big tree ensembles, it provides a more robust
-  model comparing to the `best` strategy.
+    The threshold for a node is chosen randomly for each selected feature. The split threshold is chosen as the best among all pairs
+    (feature, random threshold) according to split criteria(see  **Split Criteria** below).
+    The computational time complexity for the `random` splitter as :math:`O(n_f)` for each node.
+    The random splitting strategy does not build a tree with optimal trees, but in the case of big tree ensembles, it provides a more robust
+    model comparing to the `best` strategy.
 
 Split Criteria
 ++++++++++++++

@@ -31,18 +31,6 @@ Mathematical formulation
 
 .. _knn_t_math:
 
-The following table describes current device support:
-
-+----------------+------+------+
-| Task           | CPU  | GPU  |
-+================+======+======+
-| Classification | Yes  | Yes  |
-+----------------+------+------+
-| Regression     | No   | Yes  |
-+----------------+------+------+
-| Search         | Yes  | Yes  |
-+----------------+------+------+
-
 Training
 --------
 .. tabs::
@@ -151,13 +139,13 @@ Inference
       :ref:`Cosine distance <alg_cosine_distance>`.
 
    #. Estimate the conditional expectation of the target variable based on the nearest neighbors
-    :math:`N(x_j')` as the average of the target values for those neighbors:
+      :math:`N(x_j')` as the average of the target values for those neighbors:
 
       .. math::
-         :label: y_predict
+         :label: y_predict_reg
 
          y_j' = \frac{1}{| N(x_j') |} \sum_{x_r \in N(x_j')} y_r,
-     \quad 1 \leq j \leq m.
+         \quad 1 \leq j \leq m.
 
   .. group-tab:: Search
 
@@ -201,6 +189,18 @@ Programming Interface
 ---------------------
 
 Refer to :ref:`API Reference: k-Nearest Neighbors Classification, Regression, and Search <api_knn>`.
+
+The following table describes current device support:
+
++----------------+------+------+
+| Task           | CPU  | GPU  |
++================+======+======+
+| Classification | Yes  | Yes  |
++----------------+------+------+
+| Regression     | No   | Yes  |
++----------------+------+------+
+| Search         | Yes  | Yes  |
++----------------+------+------+
 
 ----------------
 Distributed mode

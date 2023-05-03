@@ -17,7 +17,7 @@
 Notices and Disclaimers
 =======================
 
-Performance varies by use, configuration and other factors. Learn more at `www.Intel.com/PerformanceIndex<http://www.Intel.com/PerformanceIndex>`​.
+Performance varies by use, configuration and other factors. Learn more at www.Intel.com/PerformanceIndex​.
 
 No product or component can be absolutely secure.
 
@@ -36,4 +36,3 @@ Current characterized errata are available on request.
 
 Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability,
 fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
-
