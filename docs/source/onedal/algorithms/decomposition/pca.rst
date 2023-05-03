@@ -36,29 +36,29 @@ Training
 Given a training data set :math:`X_{n \times p}` with :math:`n`observations and
 :math:`p` features, the problem is to compute :math:`r, 1 \leq r \leq p` 
 principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the 
-training date set. The eigenvectors can be grouped into an :math:`r \times p` 
+training date set. The eigenvectors can be grouped into the :math:`r \times p` 
 matrix :math:`T` that contains one eigenvector in each row.
 
 The principal components can be computed with any of the following two methods:
 
 #. Covariance (or Correlation)
-#. Singular Value Decomposition(SVD)
+#. Singular Value Decomposition (SVD)
 
 .. _pca_t_math_cov:
 
 Training method: *Covariance*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Principal components can be computed by both covariance matrix and correlation matrix.
-The choice of covariance matrix or correlation matrix is application dependent. 
+The PCA algorithm can be trained using either the covariance or the correlation matrix.
+The choice of covariance matrix or correlation matrix is application-dependent. 
 More specifically, if scaling of the features is important for a problem, 
-which is often the case, using the correlation matrix  to compute principal components is more appropriate.
-By default, oneDAL uses correlation matrix to compute the principal components. But it is possible 
-to use the covariance matrix by calling the ``precomputed`` method and feeding a covariance matrix as input
-to the PCA algorithm. To compute the covariance matrix the :ref:`Covariance <alg_covariance>` algorithm can be used.
+which is often the case, using the correlation matrix to compute principal components is more appropriate.
+By default, oneDAL uses the correlation matrix to compute the principal components. It is possible 
+to use the covariance matrix by passing ``precomputed`` as method and feeding a covariance matrix as input
+to the PCA algorithm. To compute the covariance matrix, the :ref:`Covariance <alg_covariance>` algorithm can be used.
 
 The eigenvector associated with the :math:`k`-th largest eigenvalue of the covariance (or correlation) matrix 
-is also the :math:`k`-th principal component of the training data set.  Based on this principle,
+is also the :math:`k`-th principal component of the training data set.  Based on this,
 the principal components can be computed in three steps:
 
 #. Computation of the covariance (or correlation) matrix
@@ -91,23 +91,25 @@ Training method: *SVD*
 
 The singular value decomposition (SVD) is a matrix factorization technique that
 decomposes an observation matrix :math:`X_{n \times p}` into three matrices as :math:`X = U\SigmaV^*`.
-Here, the columns of :math:`U` are the left-singular vectors, the
-columns of  :math:`V` are the right-singular vectors, :math:`V^*` is the 
-conjugate transpose of the matrix :math:`V` and the diagonal entries of :math:`\Sigma` 
-are the singular values (:math:`\sigma`) of :math:`X`. The right-singular vectors are 
-the principal components of :math:`X`. The steps of computing principal components using SVD technique
+Here, 
+#. The columns of :math:`U` are the left-singular vectors.
+#. The columns of  :math:`V` are the right-singular vectors.
+#. :math:`V^*` is the conjugate transpose of the matrix :math:`V`.
+#. The diagonal entries of :math:`\Sigma` are the singular values (:math:`\sigma`) of :math:`X`.
+
+The right-singular vectors are the principal components of :math:`X`. The steps of computing principal components using SVD technique
 are as follows:
 
 #. Mean centering the input data
 #. Decomposing the mean-centered input data to compute the singular values and the singular vectors
-#. Processing(sorting and storing) the results
+#. Processing (sorting and storing) the results
 
 First step is to mean center the input data :math:`M = M_{ij}`, where :math:`M_{ij} = X_{ij} - \frac{\sum_{i=1}^n X_{ij}}{n}`.
 
-Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k` and right-singular vectors :math:`V_k` of matrix :math:`M` can be computed with an arbitrary method like the one described in [Demmel90]_.
+Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k`, and right-singular vectors :math:`V_k` of matrix :math:`M` can be computed with an arbitrary method as described in [Demmel90]_.
 
-The final step is to find a permutation matrix :math:`Q_{p \times p}` such that the diagonal entries of :math:`\SigmaQ`are sorted in a descending order i.e :math:`\sigma_k \geq \sigma_{k+1}, for all k < p assuming n > p`.
-The rows of the resulting matrix :math:`T = V^*Q` are the principal components of :math:`X`. Note that the rows
+The final step is to find a permutation matrix :math:`Q_{p \times p}` such that the diagonal entries of :math:`\SigmaQ`are sorted in a descending order i.e. :math:`\sigma_k \geq \sigma_{k+1}, for all k < p assuming n > p`.
+The rows of the resulting matrix :math:`T = V^*Q` are the principal components of :math:`X`. The rows
 of :math:`T` are also the eigenvectors of the covariance matrix of :math:`X`. Additionally, the means and
 variances of the initial dataset are returned.
 
