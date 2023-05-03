@@ -55,7 +55,7 @@ The means, the covariance, and the correlation are computed with the following f
 
 Computation method: *dense*
 ---------------------------
-The method computes means, variance-covariance matrix, or correlation matrix for the dense data.
+The method computes means, variance-covariance, or correlation matrix for the dense data.
 This is the default and the only method supported.
 
 ---------------------
