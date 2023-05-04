@@ -30,7 +30,7 @@ For more details, see Algorithms.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for Iterative Solver Computaion
+.. list-table:: Algorithm Input for Iterative Solver Computation
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -53,7 +53,7 @@ The iterative solver algorithm has the following parameters:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for Iterative Solver Computaion
+.. list-table:: Algorithm Parameters for Iterative Solver Computation
    :widths: 10 10 60
    :header-rows: 1
    :align: left
@@ -86,7 +86,7 @@ For more details, see Algorithms.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Output for Iterative Solver Computaion
+.. list-table:: Algorithm Output for Iterative Solver Computation
    :widths: 10 60
    :header-rows: 1
    :align: left

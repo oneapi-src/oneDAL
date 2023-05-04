@@ -42,7 +42,7 @@ Modeling operates in two major stages:
 - **Training**, when the algorithm estimates model parameters based on a training data set.
 - **Prediction or decision making**, when the algorithm uses the trained model to predict the outcome based on new data.
 
-Training is typically a lot more computationally complex problem than prediction.
+Training is typically a much more computationally complex problem than prediction.
 Therefore, certain end-to-end analytics usage scenarios require that training and prediction phases are done on different devices,
 the training is done on more powerful devices, while prediction is done on smaller devices.
 Because smaller devices may have stricter memory footprint requirements,

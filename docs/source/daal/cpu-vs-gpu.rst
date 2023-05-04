@@ -29,7 +29,7 @@ For the following algorithms, only listed computation modes are supported on GPU
 
 .. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
 
-.. list-table:: GPU Support: Computaion Modes
+.. list-table:: GPU Support: Computation Modes
    :header-rows: 1
    :widths: 10 10
    :align: left
@@ -56,7 +56,7 @@ For the following algorithms, only listed methods are supported on GPU:
    :align: left
    :class: longtable
 
-   * - Algortihm
+   * - Algorithm
      - Supported on GPU
    * - :ref:`kmeans`
      - ``defaultDense``
@@ -90,7 +90,7 @@ Parameters
    :align: left
    :class: longtable
 
-   * - Algortihm
+   * - Algorithm
      - Notes
    * - :ref:`svm`
      - ``doShrinking`` is only supported for ``defaultDense`` method.
