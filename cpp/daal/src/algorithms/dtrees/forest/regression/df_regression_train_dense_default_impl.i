@@ -1094,7 +1094,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             iBest             = r;
         }
     }
-  
+
     if (iBest < 0) return false;
 
     split.impurityDecrease = curImpurity.var - vBest / totalWeights;
