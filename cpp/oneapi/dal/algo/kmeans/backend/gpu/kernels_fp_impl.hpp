@@ -151,19 +151,28 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     const auto fp_max = dal::detail::limits<Float>::max();
 
     auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for<select_min_distance<Float>>(
-            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::int64_t sg_id = sg.get_group_id()[0];
-                const std::int64_t wg_id = item.get_global_id(1);
-                const std::int64_t sg_num = sg.get_group_range()[0];
-                const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
-                if (sg_global_id >= row_count)
-                    return;
-                const std::int64_t in_offset = sg_global_id * stride;
-                const std::int64_t out_offset = sg_global_id;
+    cgh.depends_on(deps);
+
+    const std::int64_t block_size = 4096;  // adjust as needed
+    const std::int64_t num_blocks = (row_count + block_size - 1) / block_size;
+
+    cgh.parallel_for<select_min_distance<Float>>(
+        bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+        [=](sycl::nd_item<2> item) {
+            auto sg = item.get_sub_group();
+            const std::int64_t sg_id = sg.get_group_id()[0];
+            const std::int64_t wg_id = item.get_global_id(1);
+            const std::int64_t sg_num = sg.get_group_range()[0];
+            const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
+
+            for (std::int64_t block_id = 0; block_id < num_blocks; block_id++) {
+                const std::int64_t block_start = block_id * block_size;
+                const std::int64_t block_end = std::min(block_start + block_size, row_count);
+                if (sg_global_id >= block_end - block_start)
+                    continue;
+
+                const std::int64_t in_offset = (block_start + sg_global_id) * stride;
+                const std::int64_t out_offset = block_start + sg_global_id;
 
                 const std::int64_t local_id = sg.get_local_id()[0];
                 const std::int64_t local_range = sg.get_local_range()[0];
@@ -197,9 +206,11 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                     indices_ptr[out_offset] = final_index;
                     selection_ptr[out_offset] = final_value;
                 }
-            });
-    });
-    return event;
+            }
+        });
+});
+
+return event;
 }
 
 template <typename Float>
