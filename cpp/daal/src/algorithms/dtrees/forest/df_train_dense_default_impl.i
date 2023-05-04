@@ -626,7 +626,7 @@ protected:
     void chooseFeatures()
     {
         const size_t n    = nFeatures();
-        const size_t nGen = (!_memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
+        const size_t nGen = (!_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
         *_numElems += n;
         RNGs<IndexType, cpu> rng;
         rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _helper.engineImpl->getState(), n);
@@ -826,7 +826,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
         _helper.convertLeftImpToRight(n, curImpurity, split);
-        if (!_memorySavingMode && !_useConstFeatures)
+        if (!_useConstFeatures)
         {
             for (size_t i = _nConstFeature; i > 0; --i)
             {
@@ -1163,7 +1163,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         const bool bUseIndexedFeatures =
             (!_memorySavingMode) && (algorithmFPType(n) > qMax * algorithmFPType(_helper.indexedFeatures().numIndices(iFeature)));
 
-        if (!_maxLeafNodes && !_useConstFeatures && !_memorySavingMode)
+        if (!_maxLeafNodes && !_useConstFeatures)
         {
             if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
             if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
@@ -1179,7 +1179,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         else
         {
             ++nVisitedFeature;
-            if (!_memorySavingMode && !_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
+            if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
         }
 
         if (bUseIndexedFeatures)

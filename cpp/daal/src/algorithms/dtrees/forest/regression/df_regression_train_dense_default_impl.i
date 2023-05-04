@@ -30,7 +30,6 @@
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/regression/df_regression_training_types_result.h"
-#include <iostream>
 
 namespace daal
 {
@@ -1094,10 +1093,6 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             split.leftWeights = leftWeights;
             iBest             = r;
         }
-    }
-    if(featureVal[0] == 0 && featureVal[n-1] == 3 && n == 480)
-    {
-      std::cout << idx << " " << vBest <<" " << iBest << std::endl; 
     }
   
     if (iBest < 0) return false;
