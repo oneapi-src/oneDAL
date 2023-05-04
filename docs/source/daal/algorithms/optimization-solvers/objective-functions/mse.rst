@@ -79,7 +79,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for MSE Computaion
+.. list-table:: Algorithm Input for MSE Computation
    :widths: 10 60
    :align: left
    :class: longtable
@@ -102,7 +102,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Optional Algorithm Input for MSE Computaion
+.. list-table:: Optional Algorithm Input for MSE Computation
    :widths: 10 60
    :align: left
    :class: longtable
@@ -118,7 +118,7 @@ For more details, see :ref:`algorithms`.
        By default, all weights are equal to :math:`1`.
    * - ``gramMatrix``
      - Optional input.
-       Pointer to the :mathL`p \times p` numeric table with pre-computed Gram matrix.
+       Pointer to the :math:`p \times p` numeric table with pre-computed Gram matrix.
        The input can be an object of any class derived from ``NumericTable``
        except for ``PackedTriangularMatrix`` and ``PackedSymmetricMatrix``.
 
@@ -132,7 +132,7 @@ Some of them are required only for specific values of the computation method par
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for MSE Computaion
+.. list-table:: Algorithm Parameters for MSE Computation
    :widths: 10 10 60
    :align: left
    :class: longtable
