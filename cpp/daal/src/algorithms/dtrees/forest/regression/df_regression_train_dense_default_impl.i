@@ -1095,7 +1095,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
             iBest             = r;
         }
     }
-    if(featureVal[0] == 0 && featureVal[n-1] == 3 && n == 469)
+    if(featureVal[0] == 0 && featureVal[n-1] == 3 && n == 480)
     {
       std::cout << idx << " " << vBest <<" " << iBest << std::endl; 
     }
