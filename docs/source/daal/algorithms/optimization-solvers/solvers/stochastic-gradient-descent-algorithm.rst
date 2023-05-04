@@ -116,7 +116,7 @@ method parameter method:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.15}|\Y{0.55}|
 
-.. list-table:: Algorithm Parameters for Stochastic Gradient Descent Algorithm Computaion
+.. list-table:: Algorithm Parameters for Stochastic Gradient Descent Algorithm Computation
    :widths: 10 10 10 30
    :header-rows: 1
    :align: left

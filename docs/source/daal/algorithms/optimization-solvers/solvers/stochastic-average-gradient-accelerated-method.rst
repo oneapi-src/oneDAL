@@ -83,7 +83,7 @@ the SAGA optimization solver has the following optional input:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Input for Stochastic Average Gradient Accelerated Method Computaion
+.. list-table:: Algorithm Input for Stochastic Average Gradient Accelerated Method Computation
    :widths: 10 10 60
    :align: left
 
@@ -109,7 +109,7 @@ In addition to parameters of the iterative solver, the SAGA optimization solver 
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for Stochastic Average Gradient Accelerated Method Computaion
+.. list-table:: Algorithm Parameters for Stochastic Average Gradient Accelerated Method Computation
    :widths: 10 10 60
    :header-rows: 1
    :align: left
@@ -155,7 +155,7 @@ the SAGA optimization solver calculates the following optional result:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Output for Stochastic Average Gradient Accelerated Method Computaion
+.. list-table:: Algorithm Output for Stochastic Average Gradient Accelerated Method Computation
    :widths: 10 10 60
    :align: left
 

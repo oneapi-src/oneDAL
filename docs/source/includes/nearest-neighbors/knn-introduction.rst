@@ -14,11 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-:math:`k`-NN :capterm:`classification` and :capterm:`search` algorithms are based on finding
+:math:`k`-NN :capterm:`classification`, :capterm:`regression`, and :capterm:`search` algorithms are based on finding
 the :math:`k` nearest observations to the training set. For :capterm:`classification`,
 the problem is to infer the class of a new feature vector by computing the majority vote of its
+:math:`k` nearest observations from the training set. For :capterm:`regression`,
+the problem is to infer the target value of a new feature vector by computing the average target value of its
 :math:`k` nearest observations from the training set.
-For :capterm:`search`, the problem is to infer :math:`k` nearest observations from
+For :capterm:`search`, the problem is to identify the :math:`k` nearest observations from
 the training set to a new feature vector. The nearest observations are computed
 based on the chosen distance metric.
 

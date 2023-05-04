@@ -21,7 +21,7 @@ K-Means Clustering
 
 .. note::
 
-   K-Means ans K-Means initialization are also available with oneAPI interfaces:
+   K-Means and K-Means initialization are also available with oneAPI interfaces:
 
    - :ref:`alg_kmeans`
    - :ref:`alg_kmeans_init`

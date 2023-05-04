@@ -26,7 +26,7 @@ with the batch equal to the number of observations in the training data set.
 Details
 *******
 
-The aet of intrinsic parameters :math:`S_t` is empty.
+The set of intrinsic parameters :math:`S_t` is empty.
 Algorithmic-specific transformation :math:`T`, algorithm-specific vector :math:`U`,
 and power :math:`d` of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`_ [Adams2003]_ are defined as follows:
 
@@ -79,7 +79,7 @@ In addition to the input of a iterative solver, Coordinate Descent algorithm acc
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for Coordinate Descent Computaion
+.. list-table:: Algorithm Parameters for Coordinate Descent Computation
    :widths: 10 10 60
    :header-rows: 1
    :align: left
