@@ -255,9 +255,11 @@ public:
         if constexpr (order == ndorder::c) {
             const auto* row = get_data() + id0 * this->get_stride(0);
             return *(row + id1);
+        } 
+        else {
+            const auto* const col = get_data() + id1 * this->get_stride(1);
+            return *(col + id0);
         }
-        const auto* const col = get_data() + id1 * this->get_stride(1);
-        return *(col + id0);
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
@@ -276,8 +278,10 @@ public:
             auto* const row = get_mutable_data() + id0 * this->get_stride(0);
             return *(row + id1);
         }
-        auto* const col = get_mutable_data() + id1 * this->get_stride(1);
-        return *(col + id0);
+        else {
+            auto* const col = get_mutable_data() + id1 * this->get_stride(1);
+            return *(col + id0);
+        }
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -477,6 +481,17 @@ inline sycl::event copy(sycl::queue& q,
         res_event = copy(q, new_dst, new_src, deps);
     }
     return res_event;
+}
+
+template <typename T1, ndorder ord1, typename T2, ndorder ord2>
+inline sycl::event copy(sycl::queue& q,
+                        ndview<T1, 1, ord1>& dst,
+                        const ndview<T2, 1, ord2>& src,
+                        const event_vector& deps = {}) {
+    auto dst_2d = dst.template reshape<2>({1l, dst.get_count()});
+    auto src_2d = src.template reshape<2>({1l, src.get_count()});
+
+    return copy(q, dst_2d, src_2d, deps);
 }
 
 template <typename T>
@@ -874,9 +889,20 @@ template <typename T, std::int64_t axis_count, ndorder order>
 ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_host(
     sycl::queue& q,
     const event_vector& deps) const {
+    
+    /*event_vector new_deps{};
     T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
-    dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
-        .wait_and_throw();
+    if constexpr (order == ndorder::c) {
+        auto copy_event = dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps);
+        
+        new_deps.push_back(copy_event);
+    }
+    else {
+
+    }*/
+
+    T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
+    dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
     return ndarray<T, axis_count, order>::wrap(
         host_ptr,
         this->get_shape(),

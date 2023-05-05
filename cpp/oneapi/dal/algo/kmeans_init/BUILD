@@ -11,9 +11,10 @@ dal_module(
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:search",
+        "@onedal//cpp/oneapi/dal/backend/primitives:distance",
         "@onedal//cpp/oneapi/dal/backend/primitives:selection",
         "@onedal//cpp/oneapi/dal/backend/primitives:placement",
+        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/kmeans:kernel",

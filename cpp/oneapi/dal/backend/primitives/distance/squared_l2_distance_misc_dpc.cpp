@@ -49,20 +49,28 @@ sycl::event scatter_2d(sycl::queue& q,
                        ndview<Float, 2>& out,
                        const event_vector& deps) {
     ONEDAL_PROFILER_TASK(distance.scatter_2d, q);
+
+    const auto n_samples1 = inp1.get_count();
+    const auto n_samples2 = inp2.get_count();
     const auto out_stride = out.get_leading_stride();
-    const auto n_samples1 = inp1.get_dimension(0);
-    const auto n_samples2 = inp2.get_dimension(0);
+
+    std::cout << "XxY: " << n_samples1 << 'x' << n_samples2 << std::endl;
+
     ONEDAL_ASSERT(n_samples1 <= out.get_dimension(0));
     ONEDAL_ASSERT(n_samples2 <= out.get_dimension(1));
-    const auto* inp1_ptr = inp1.get_data();
-    const auto* inp2_ptr = inp2.get_data();
-    auto* out_ptr = out.get_mutable_data();
+    const auto* const inp1_ptr = inp1.get_data();
+    const auto* const inp2_ptr = inp2.get_data();
+    auto* const out_ptr = out.get_mutable_data();
     const auto out_range = make_range_2d(n_samples1, n_samples2);
+
+    std::cout << out_stride << std::endl;
+
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
+
         h.parallel_for(out_range, [=](sycl::id<2> idx) {
-            auto& out_place = *(out_ptr + out_stride * idx[0] + idx[1]);
-            out_place = inp1_ptr[idx[0]] + inp2_ptr[idx[1]];
+            auto* out_place = out_ptr + out_stride * idx[0] + idx[1];
+            *out_place = inp1_ptr[idx[0]] + inp2_ptr[idx[1]];
         });
     });
 }
