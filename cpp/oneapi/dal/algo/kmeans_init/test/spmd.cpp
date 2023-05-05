@@ -100,7 +100,7 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double), (kmeans_init::method::random_dense));
+using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double), (kmeans_init::method::plus_plus_dense));
 
 TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
                      "kmeans init dense test",

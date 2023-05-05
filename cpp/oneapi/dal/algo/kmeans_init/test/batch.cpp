@@ -34,24 +34,6 @@ class kmeans_init_batch_test : public kmeans_init_test<TestType, kmeans_init_bat
 using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
                                               (kmeans_init::method::plus_plus_dense));
 
-/*TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
-                     "kmeans init dense test pre-defined",
-                     "[kmeans_init][batch]",
-                     kmeans_init_types) {
-    SKIP_IF(this->not_available_on_device());
-    SKIP_IF(this->not_float64_friendly());
-
-    constexpr std::int64_t column_count = GENERATE(2, 7, 9);
-    constexpr std::int64_t cluster_count = GENERATE(1, 5, 8);
-    constexpr std::int64_t row_count = GENERATE(8, 127, 8193);
-
-    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
-    const auto data_table = homogen_table::wrap(data, row_count, column_count);
-
-    this->dense_checks(cluster_count, data_table);
-}*/
-
 TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
                      "kmeans init dense test random",
                      "[kmeans_init][batch][random]",
