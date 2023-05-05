@@ -54,16 +54,12 @@ sycl::event scatter_2d(sycl::queue& q,
     const auto n_samples2 = inp2.get_count();
     const auto out_stride = out.get_leading_stride();
 
-    std::cout << "XxY: " << n_samples1 << 'x' << n_samples2 << std::endl;
-
     ONEDAL_ASSERT(n_samples1 <= out.get_dimension(0));
     ONEDAL_ASSERT(n_samples2 <= out.get_dimension(1));
     const auto* const inp1_ptr = inp1.get_data();
     const auto* const inp2_ptr = inp2.get_data();
     auto* const out_ptr = out.get_mutable_data();
     const auto out_range = make_range_2d(n_samples1, n_samples2);
-
-    std::cout << out_stride << std::endl;
 
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
