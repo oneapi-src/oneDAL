@@ -47,7 +47,7 @@ std::int64_t fix_trials_count(std::int64_t trial_count,
     const auto proposed = 2 + std::int64_t(additional);
     auto result = (trial_count == -1) ? proposed : trial_count;
 
-    //ONEDAL_ASSERT(result > 0l);
+    ONEDAL_ASSERT(result > 0l);
 
     return result;
 }

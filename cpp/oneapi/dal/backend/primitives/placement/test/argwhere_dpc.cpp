@@ -30,11 +30,47 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using argwhere_types = std::tuple<float, double>;
+struct left_align{};
+struct right_align{};
 
-template <typename Float>
-class argwhere_test_random_1d : public te::float_algo_fixture<Float> {
+template <typename Align>
+struct align_map {};
+
+template <>
+struct align_map<left_align> {
+    constexpr static auto value = where_alignment::left;
+
+    template <typename Type>
+    static inline bool comp(const Type& left, const Type& right) {
+        return left <= right;
+    }
+};
+
+template <>
+struct align_map<right_align> {
+    constexpr static auto value = where_alignment::right;
+
+    template <typename Type>
+    static inline bool comp(const Type& left, const Type& right) {
+        return left < right;
+    }
+};
+
+using argwhere_types = std::tuple<std::tuple<float, left_align>,
+                                  std::tuple<float, right_align>,
+                                  std::tuple<double, left_align>,
+                                  std::tuple<double, right_align>>;
+
+template <typename Param>
+class argwhere_test_random_1d : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
+    using index_t = std::int64_t;
+    using float_t = std::tuple_element_t<0, Param>;
+    using align_t = std::tuple_element_t<1, Param>;
+
+    constexpr static auto align_v = align_map<align_t>::value;
+    using params_t = where_alignment_map<index_t, align_v>;
+
     void generate() {
         this->n_ = GENERATE(7, 4097, 8191, 16385, 65536);
         this->m_ = GENERATE(1, 2, 4, 16, 32, 64, 128);
@@ -65,49 +101,46 @@ public:
 
         auto queue = this->get_queue();
         constexpr auto alloc = sycl::usm::alloc::device;
-        row_accessor<const Float> accessor(this->input_table_);
+        row_accessor<const float_t> accessor(this->input_table_);
         const auto device_array = accessor.pull(queue, {0, -1}, alloc);
-        const auto device = ndview<Float, 1>::wrap(device_array);
+        const auto device = ndview<float_t, 1>::wrap(device_array);
         const auto host_array = accessor.pull({0, -1});
 
         SECTION("Random index") {
             std::mt19937_64 generator(777);
-            for (std::int64_t i = 0; i < this->m_; ++i) {
-                const auto raw = generator() % this->n_;
-                const auto idx = static_cast<std::int64_t>(raw);
-                const auto val = host_array[idx];
+            for (index_t i = 0; i < this->m_; ++i) {
+                const index_t idx = generator() % this->n_;
+                const float_t val = host_array[idx];
 
-                auto comp = [val](Float check) { return val == check; };
+                auto comp = [val](float_t check) { return val == check; };
 
-                const auto res = argwhere_one(queue, comp, device);
+                const auto res = argwhere_one(queue, comp, device, align_v);
 
-                CAPTURE(idx, val, res);
+                CAPTURE(idx, val, res, params_t::identity);
                 REQUIRE(idx == res);
             }
         };
 
         SECTION("Invalid huge number") {
+            const auto val = std::numeric_limits<float_t>::max();
 
-            const auto val = std::numeric_limits<Float>::max();
+            auto comp = [=](float_t check) { return val == check; };
 
-            auto comp = [=](Float check) { return val == check; };
+            const auto res = argwhere_one(queue, comp, device, align_v);
 
-            const auto res = argwhere_one(queue, comp, device);
-
-            CAPTURE(val, res);
-            REQUIRE(-1l == res);
+            CAPTURE(val, res, params_t::identity);
+            REQUIRE(params_t::identity == res);
         };
 
         SECTION("Invalid small number") {
+            const auto val = std::numeric_limits<float_t>::lowest();
 
-            const auto val = std::numeric_limits<Float>::lowest();
+            auto comp = [=](float_t check) { return val == check; };
 
-            auto comp = [=](Float check) { return val == check; };
+            const auto res = argwhere_one(queue, comp, device, align_v);
 
-            const auto res = argwhere_one(queue, comp, device);
-
-            CAPTURE(val, res);
-            REQUIRE(-1l == res);
+            CAPTURE(val, res, params_t::identity);
+            REQUIRE(params_t::identity == res);
         };
     }
 
@@ -116,26 +149,26 @@ public:
 
         auto queue = this->get_queue();
         constexpr auto alloc = sycl::usm::alloc::device;
-        row_accessor<const Float> accessor(this->input_table_);
+        row_accessor<const float_t> accessor(this->input_table_);
         const auto device_array = accessor.pull(queue, {0, -1}, alloc);
-        const auto device = ndview<Float, 1>::wrap(device_array);
+        const auto device = ndview<float_t, 1>::wrap(device_array);
         const auto host_array = accessor.pull({0, -1});
 
-        std::int64_t idx = -1l;
-        Float val = std::numeric_limits<Float>::max();
-        for (std::int64_t i = 0; i < this->n_; ++i) {
+        index_t idx = -1;
+        float_t val = std::numeric_limits<float_t>::max();
+        for (index_t i = 0; i < this->n_; ++i) {
             const auto curr = host_array[i];
-            if (curr <= val) {
+            if (align_map<align_t>::comp(curr, val)) {
                 val = curr;
                 idx = i;
             }
         }
 
-        auto [min, gtr] = argmin(queue, device);
+        auto [min, res] = argmin(queue, device, align_v);
 
-        CAPTURE(val, idx, min, gtr);
+        CAPTURE(val, idx, min, res);
 
-        REQUIRE(gtr == idx);
+        REQUIRE(res == idx);
         REQUIRE(min == val);
     }
 
@@ -144,26 +177,26 @@ public:
 
         auto queue = this->get_queue();
         constexpr auto alloc = sycl::usm::alloc::device;
-        row_accessor<const Float> accessor(this->input_table_);
+        row_accessor<const float_t> accessor(this->input_table_);
         const auto device_array = accessor.pull(queue, {0, -1}, alloc);
-        const auto device = ndview<Float, 1>::wrap(device_array);
+        const auto device = ndview<float_t, 1>::wrap(device_array);
         const auto host_array = accessor.pull({0, -1});
 
-        std::int64_t idx = -1l;
-        Float val = std::numeric_limits<Float>::lowest();
-        for (std::int64_t i = 0; i < this->n_; ++i) {
+        index_t idx = -1;
+        float_t val = std::numeric_limits<float_t>::lowest();
+        for (index_t i = 0; i < this->n_; ++i) {
             const auto curr = host_array[i];
-            if (val <= curr) {
+            if (align_map<align_t>::comp(val, curr)) {
                 val = curr;
                 idx = i;
             }
         }
 
-        auto [max, gtr] = argmax(queue, device);
+        auto [max, res] = argmax(queue, device, align_v);
 
-        CAPTURE(val, idx, max, gtr);
+        CAPTURE(val, idx, max, res);
 
-        REQUIRE(gtr == idx);
+        REQUIRE(res == idx);
         REQUIRE(max == val);
     }
 
