@@ -73,7 +73,7 @@ public:
 
     void generate() {
         this->n_ = GENERATE(7, 4097, 8191, 16385, 65536);
-        this->m_ = GENERATE(1, 2, 4, 16, 32, 64, 128);
+        this->m_ = GENERATE(1, 2, 4, 7, 16, 32, 64, 128);
         this->generate_input();
     }
 

@@ -27,7 +27,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-enum where_alignment : std::int64_t { left = 0b0l, right = 0b1l };
+enum class where_alignment : std::int64_t { left = 0b0l, right = 0b1l };
 
 #ifdef ONEDAL_DATA_PARALLEL
 

@@ -25,7 +25,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-enum search_alignment : std::int64_t { left = 0b0l, right = 0b1l };
+enum class search_alignment : std::int64_t { left = 0b0l, right = 0b1l };
 
 template <typename Type, typename Index, bool clip = false>
 inline sycl::event search_sorted_1d(sycl::queue& queue,

@@ -409,7 +409,9 @@ sycl::event compute_distances_to_cluster(sycl::queue& queue,
     const auto cluster_2d = cluster.template reshape<2>({ 1, feature_count });
     auto output_2d = output.template reshape<2>({ 1, sample_count });
 
-    return dist_l2(cluster_2d, samples, output_2d, cluster_norm, samples_norm, deps);
+    auto dist_event = dist_l2(cluster_2d, samples, output_2d, cluster_norm, samples_norm, deps);
+
+    return dist_event;
 }
 
 template <typename Generator, typename Float, pr::ndorder order>
@@ -688,10 +690,11 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
         auto chosen_norm = candidate_norms.get_slice(argmin, argmin + 1);
         auto chosen_event = compute_distances_to_cluster(queue, centroid_1d,
                 samples, dist_sq, chosen_norm, sample_norms, { copy_event });
-
+        auto min_event = min_number(queue, dist_sq, closest, { chosen_event });
+                
         std::cout << "Centroid 1d: " << centroid_1d.to_host(queue, { copy_event }) << std::endl;
 
-        last_event = std::move(chosen_event);
+        last_event = std::move(min_event);
         curr_potential = std::move(valmin);
     }
 
