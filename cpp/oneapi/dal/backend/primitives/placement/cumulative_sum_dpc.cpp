@@ -18,8 +18,6 @@
 
 #include "oneapi/dal/detail/profiler.hpp"
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
