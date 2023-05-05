@@ -23,7 +23,6 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"

@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 #include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 
@@ -41,7 +40,6 @@ sycl::event distance<Float, squared_l2_metric<Float>>::operator()(
     const event_vector& deps) const {
     check_inputs(inp1, inp2, out);
     auto scatter_event = scatter_2d(q_, inp1_norms, inp2_norms, out, { deps });
-    std::cout << "After scatter: " << out.to_host(q_, { scatter_event }) << std::endl;
     return compute_inner_product(q_, inp1, inp2, out, { scatter_event });
 }
 
