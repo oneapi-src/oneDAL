@@ -153,7 +153,9 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
 
-        const std::int64_t block_size = 4096;
+        const std::int64_t block_size =
+            std::min(static_cast<std::int64_t>(bk::device_local_mem_size(queue) / sizeof(Float)),
+                     row_count);
         const std::int64_t num_blocks = (row_count + block_size - 1) / block_size;
 
         cgh.parallel_for<select_min_distance<Float>>(
