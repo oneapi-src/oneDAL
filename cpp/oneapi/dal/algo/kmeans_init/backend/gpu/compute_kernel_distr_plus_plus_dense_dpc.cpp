@@ -247,9 +247,9 @@ Type get_local_offset(Comm& comm,
     return get_local_offset(comm, value, temp);
 }
 
-template <typename Generator, typename Float>
-void generate_trials(Generator& rng, pr::ndview<Float, 1>& trls, Float pot) {
-    std::uniform_real_distribution<float> finalize(0, pot);
+template <typename Generator, typename Float, typename GenFloat = float>
+void generate_trials(Generator& rng, pr::ndview<Float, 1>& trls, GenFloat pot) {
+    std::uniform_real_distribution<GenFloat> finalize(0.0f, pot);
     const auto gen = [&]() -> Float { return finalize(rng); };
     std::generate(bk::begin(trls), bk::end(trls), gen);
 }
@@ -422,6 +422,7 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     constexpr pr::identity<Float> identity{};
 
     auto& queue = ctx.get_queue();
+    auto& comm =ctx.get_communicator();
     const auto sample_count = samples.get_dimension(0);
     const auto feature_count = samples.get_dimension(1);
     ONEDAL_ASSERT(feature_count == centroids.get_dimension(1));
@@ -432,7 +433,7 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     std::uniform_int_distribution<std::int64_t> finalize(0, full_count - 1);
 
     const auto first_index = finalize(rng);
-
+    std::cout << "First index: " << first_index << std::endl;
     auto share_event = extract_and_share_by_index(ctx, first_index, boundaries, samples, slice, deps);
     
     ONEDAL_ASSERT(potential.has_mutable_data());
@@ -446,7 +447,21 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     auto dist_2d = distances.template reshape<2>({ 1, sample_count });
     auto norm_event = pr::reduce_by_rows(queue, slice_2d, first_norm, sum, square, { fill_event , share_event });
     auto dist_event = compute_distances_to_cluster(queue, slice, samples, distances, first_norm, samples_norm, { norm_event });
-    return pr::reduce_1d(queue, distances, curr_potential, sum, identity, { dist_event, pot_event });
+    auto local_event = pr::reduce_1d(queue, distances, curr_potential, sum, identity, { dist_event, pot_event });
+
+    if (comm.get_rank_count() > 1) {
+        sycl::event::wait_and_throw({ local_event });
+
+        std::cout << "First, potential 0: " << curr_potential.to_host(queue) << "; Rank: " << comm.get_rank() << std::endl;
+
+        auto arr = array<Float>::wrap(queue, //
+            curr_potential.get_mutable_data(), std::int64_t(1));
+        comm.allreduce(arr).wait();
+
+        std::cout << "First, potential 1: " << curr_potential.to_host(queue) << std::endl;
+    }
+
+    return local_event;
 }
 
 template <typename Float, typename Index>
@@ -508,7 +523,7 @@ sycl::event fix_indices(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(fix_indices, queue);
         sycl::event::wait_and_throw({ event });
 
-        auto ids_arr = array<std::int64_t>::wrap(queue, 
+        const auto ids_arr = array<std::int64_t>::wrap(queue, //
             indices.get_mutable_data(), indices.get_count(), { event });
 
         comm.allreduce(ids_arr, dal::preview::spmd::reduce_op::max).wait();
@@ -540,26 +555,32 @@ sycl::event find_indices(sycl::queue& queue,
     if (rank_count > 1) {
         ONEDAL_PROFILER_TASK(find_indices.boundaries, queue);
 
-        auto bnds_arr = array<Float>::wrap(queue, bounds.get_mutable_data(), rank_count);
+        auto fill_event = pr::fill(queue, bounds, Float(0), deps);
+        auto bnds_arr = array<Float>::wrap(queue, bounds.get_mutable_data() + 1, rank_count);
         const Float* const last_val_ptr = values.get_data() + local_count - 1;
         auto last_val_arr = array<Float>::wrap(queue, last_val_ptr, 1);
 
-        sycl::event::wait_and_throw({ last_event });
+        sycl::event::wait_and_throw({ last_event, fill_event });
         comm.allgather(last_val_arr, bnds_arr).wait();
 
         auto cumsum_event = pr::cumulative_sum_1d(queue, bounds);
 
+        std::cout << "Meta cumsum: " << bounds.to_host(queue, {cumsum_event}) << std::endl;
+        
         const auto adjustment = bounds.get_slice(rank, rank + 1);
         last_event = add_number(queue, adjustment, values, { cumsum_event });
     }
 
+    std::cout << "Values: " << values.to_host(queue, {last_event}) << std::endl;
+    std::cout << "Points: " << points.to_host(queue, {last_event}) << std::endl;
+
     constexpr auto alignment = pr::search_alignment::left;
     auto search_event = pr::search_sorted_1d(queue, alignment, //
                         values, points, indices, { last_event });
-
+    std::cout << "Rank: " << rank << "; Not Indices: " << indices.to_host(queue, {search_event}) << std::endl;
     auto fix_event = fix_indices(queue, comm, rank, points, bounds, indices, { search_event });
 
-    std::cout << "Indices: " << indices.to_host(queue, {fix_event}) << std::endl;
+    std::cout << "Rank: " << rank << "; Fixed Indices: " << indices.to_host(queue, {fix_event}) << std::endl;
 
     return fix_event;
 }

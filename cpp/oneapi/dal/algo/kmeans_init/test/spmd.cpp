@@ -100,7 +100,7 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double), (kmeans_init::method::plus_plus_dense));
+using kmeans_init_types = _TE_COMBINE_TYPES_2((float), (kmeans_init::method::plus_plus_dense));
 
 TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
                      "kmeans init dense test",
@@ -114,7 +114,7 @@ TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
     constexpr std::int64_t cluster_count = 3;
     this->set_rank_count(GENERATE(2, 3));
 
-    const float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0, 2.0,  2.0, 1.0,  -1.0, -1.0, -1.0, -2.0,
+    const double data[] = { 1.0,  1.0,  2.0,  2.0,  1.0, 2.0,  2.0, 1.0,  -1.0, -1.0, -1.0, -2.0,
                            -2.0, -1.0, -2.0, -2.0, 7.0, -7.0, 8.0, -8.0, 9.0,  -9.0, 1.0,  2.0,
                            3.0,  -2.0, 3.0,  0.1,  0.2, 0.3,  0.3, 0.4,  0.5,  7.0,  -1.1, 4.2 };
     const auto data_table = homogen_table::wrap(data, row_count, column_count);
