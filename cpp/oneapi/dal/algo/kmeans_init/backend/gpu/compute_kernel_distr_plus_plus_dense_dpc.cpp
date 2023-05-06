@@ -22,7 +22,6 @@
 #include "oneapi/dal/array.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
-
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -32,6 +31,9 @@
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel_distr.hpp"
+
+#include "oneapi/dal/detail/debug.hpp"
+#include "oneapi/dal/backend/primitives/debug.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
 
@@ -101,23 +103,31 @@ std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     const auto* const last = bk::cend(offsets);
     const auto* const first = bk::cbegin(offsets);
     
+    ONEDAL_ASSERT(*first == Type(0));
     ONEDAL_ASSERT(std::is_sorted(first, last));
     const auto iter = std::lower_bound(first, last, value);
-    return dal::detail::integral_cast<std::int64_t>(std::distance(first, iter)); 
+
+    const auto result = iter == first ? iter : std::prev(iter);
+
+    std::cout << "Iter, Value, Result " << *result << ' ' << value << ' ' << *iter << std::endl;
+
+    ONEDAL_ASSERT(*result <= value);
+    ONEDAL_ASSERT(value <= *iter);
+
+    return dal::detail::integral_cast<std::int64_t>(//
+                        std::distance(first, result)); 
 }
 
 template <typename Comm, typename Type>
 dal::array<Type> get_boundaries(Comm& comm, const Type& local) {
     const auto count = comm.get_rank_count();
-
-    using res_t = dal::array<Type>;
-    auto res = res_t::zeros(count + 1);
+    auto res = dal::array<Type>::zeros(count + 1);
 
     auto* const last = bk::end(res);
     auto* const first = bk::begin(res);
 
     {
-        auto view = res_t::wrap(first + 1, count);
+        auto view = dal::array<Type>::wrap(first + 1, count);
         comm.allgather(local, view).wait();
     }
 
@@ -134,7 +144,6 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
                                        pr::ndview<Float, 1>& place, 
                                        const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.has_data());
-    //ONEDAL_ASSERT(offsets.has_data());
     ONEDAL_ASSERT(place.has_mutable_data());
 
     auto& queue = ctx.get_queue();
@@ -143,7 +152,7 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
     const auto rank = comm.get_rank();
     const auto target = find_bin(offsets, index);
     const auto rank_count = comm.get_rank_count();
-    //ONEDAL_ASSERT(target < rank_count);
+    //ONEDAL_ASSERT(target <= rank_count);
 
     const auto sample_count = data.get_dimension(0);
     ONEDAL_ASSERT(data.get_dimension(1) == place.get_count());
@@ -155,6 +164,11 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
         const auto start_index = offsets[rank];
         const auto last_index = offsets[rank + 1];
         const auto rel_index = index - start_index;
+
+        auto tmp = pr::ndview<std::int64_t, 1>::wrap(offsets);
+        std::cout << tmp << std::endl;
+        std::cout << rank << ' ' << target << ' ' << rank_count << std::endl;
+        std::cout << start_index << ' ' << index << ' ' << last_index << std::endl;
 
         ONEDAL_ASSERT(start_index <= index && index < last_index);
         ONEDAL_ASSERT(0 <= rel_index && rel_index < sample_count);
@@ -545,6 +559,8 @@ sycl::event find_indices(sycl::queue& queue,
 
     auto fix_event = fix_indices(queue, comm, rank, points, bounds, indices, { search_event });
 
+    std::cout << "Indices: " << indices.to_host(queue, {fix_event}) << std::endl;
+
     return fix_event;
 }
 
@@ -610,7 +626,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
 
     sycl::event last_event = first_sample(ctx, rng, full_count, centroids, boundaries,
         samples, potentials, dist_sq, candidate_norms, sample_norms, deps + sample_norms_event);  
-
+    std::cout << centroids.to_host(queue, { last_event }) << std::endl;
     // Obtain potential as a squared distance to the first sample
     Float curr_potential = potentials.at_device(queue, 0, { last_event }); 
     for (std::int64_t i = 1; i < cluster_count; ++i) {
@@ -622,6 +638,8 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
         auto device_trials = host_trials.to_device(queue, { last_event });
         auto search_event = find_indices(queue, comm, device_trials, dist_sq, 
             bin_boundaries, candidate_indices, { last_event, closest_event });
+
+        //std::cout << "Indices: " << candidate_indices.to_host(queue, { search_event }) << "; Boundaries: " << bin_boundaries << std::endl;
 
         auto extract_event = extract_and_share_by_indices(ctx, candidate_indices, 
                                 boundaries, samples, candidates, { search_event });
@@ -645,10 +663,11 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
 
         last_event = std::move(min_event);
         curr_potential = std::move(valmin);
+        std::cout << centroids.to_host(queue, { last_event }) << std::endl;
     }
 
     sycl::event::wait_and_throw({ last_event });
-
+    std::cout << centroids.to_host(queue) << std::endl;
     return compute_result<Task>{}.set_centroids(
         homogen_table::wrap(centroids_array, cluster_count, feature_count));
 }
