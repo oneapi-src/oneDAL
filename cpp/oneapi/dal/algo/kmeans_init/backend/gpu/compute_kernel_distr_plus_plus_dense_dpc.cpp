@@ -107,7 +107,7 @@ std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     ONEDAL_ASSERT(std::is_sorted(first, last));
     const auto iter = std::lower_bound(first, last, value);
 
-    const auto result = iter == first ? iter : std::prev(iter);
+    const auto result = (iter == first) ? iter : std::prev(iter);
 
     std::cout << "Iter, Value, Result " << *result << ' ' << value << ' ' << *iter << std::endl;
 
@@ -249,7 +249,7 @@ Type get_local_offset(Comm& comm,
 
 template <typename Generator, typename Float>
 void generate_trials(Generator& rng, pr::ndview<Float, 1>& trls, Float pot) {
-    std::uniform_real_distribution<Float> finalize(0, pot);
+    std::uniform_real_distribution<float> finalize(0, pot);
     const auto gen = [&]() -> Float { return finalize(rng); };
     std::generate(bk::begin(trls), bk::end(trls), gen);
 }
@@ -663,11 +663,11 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
 
         last_event = std::move(min_event);
         curr_potential = std::move(valmin);
-        std::cout << centroids.to_host(queue, { last_event }) << std::endl;
+        std::cout << "Centrids mid: " <<  centroids.to_host(queue, { last_event }) << std::endl;
     }
 
     sycl::event::wait_and_throw({ last_event });
-    std::cout << centroids.to_host(queue) << std::endl;
+    std::cout << "Centroids: " << centroids.to_host(queue) << std::endl;
     return compute_result<Task>{}.set_centroids(
         homogen_table::wrap(centroids_array, cluster_count, feature_count));
 }
