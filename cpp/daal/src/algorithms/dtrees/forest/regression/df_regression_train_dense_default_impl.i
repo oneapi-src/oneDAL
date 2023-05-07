@@ -840,34 +840,6 @@ public:
 };
 
 template <typename algorithmFPType, CpuType cpu>
-size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const IndexType iFeature, const size_t minidx, const size_t maxidx) const
-{
-    //randomly select a histogram split index
-    algorithmFPType fidx   = 0;
-    algorithmFPType minval = minidx ? this->indexedFeatures().binRightBorder(iFeature, minidx - 1) : this->indexedFeatures().min(iFeature);
-    algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
-    size_t mid;
-    size_t l   = minidx;
-    size_t idx = maxidx;
-    RNGs<algorithmFPType, cpu> rng;
-    rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
-
-    while (l < idx)
-    {
-        mid = l + (idx - l) / 2;
-        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
-        {
-            idx = mid;
-        }
-        else
-        {
-            l = mid + 1;
-        }
-    }
-    return idx;
-}
-
-template <typename algorithmFPType, CpuType cpu>
 template <bool noWeights, bool featureUnordered>
 int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nDiffFeatMax, intermSummFPType sumTotal, algorithmFPType * buf,
                                                                        size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
