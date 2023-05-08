@@ -150,56 +150,69 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     std::int32_t* indices_ptr = indices.get_mutable_data();
     const auto fp_max = dal::detail::limits<Float>::max();
 
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for<select_min_distance<Float>>(
-            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::int64_t sg_id = sg.get_group_id()[0];
-                const std::int64_t wg_id = item.get_global_id(1);
-                const std::int64_t sg_num = sg.get_group_range()[0];
-                const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
-                if (sg_global_id >= row_count)
-                    return;
-                const std::int64_t in_offset = sg_global_id * stride;
-                const std::int64_t out_offset = sg_global_id;
+    const std::int64_t num_rows = 100;
+    std::vector<sycl::event> events;
+    for (std::int64_t start_row = 0; start_row < row_count; start_row += num_rows) {
+        const std::int64_t end_row = std::min(start_row + num_rows, row_count);
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for<select_min_distance<Float>>(
+                bk::make_multiple_nd_range_2d({ wg_size, end_row - start_row }, { wg_size, 1 }),
+                [=](sycl::nd_item<2> item) {
+                    const std::int64_t global_row_id = item.get_global_id(1) + start_row;
+                    if (global_row_id >= end_row)
+                        return;
+                    auto sg = item.get_sub_group();
+                    const std::int64_t sg_id = sg.get_group_id()[0];
+                    const std::int64_t wg_id = item.get_global_id(1);
+                    const std::int64_t sg_num = sg.get_group_range()[0];
+                    const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
+                    if (sg_global_id >= row_count)
+                        return;
+                    const std::int64_t in_offset = sg_global_id * stride;
+                    const std::int64_t out_offset = sg_global_id;
 
-                const std::int64_t local_id = sg.get_local_id()[0];
-                const std::int64_t local_range = sg.get_local_range()[0];
+                    const std::int64_t local_id = sg.get_local_id()[0];
+                    const std::int64_t local_range = sg.get_local_range()[0];
 
-                std::int32_t index = -1;
-                Float value = fp_max;
-                for (std::int64_t i = local_id; i < cluster_count_as_int32; i += local_range) {
-                    const Float cur_val = distances_ptr[in_offset + i] + centroid_squares_ptr[i];
-                    if (cur_val < value) {
-                        index = static_cast<std::int32_t>(i);
-                        value = cur_val;
+                    std::int32_t index = -1;
+                    Float value = fp_max;
+                    for (std::int64_t i = local_id; i < cluster_count_as_int32; i += local_range) {
+                        const Float cur_val =
+                            distances_ptr[in_offset + i] + centroid_squares_ptr[i];
+                        if (cur_val < value) {
+                            index = static_cast<std::int32_t>(i);
+                            value = cur_val;
+                        }
                     }
-                }
 
-                sg.barrier();
+                    sg.barrier();
 
-                const Float final_value =
-                    sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());
-                const bool present = (final_value == value);
-                const std::int32_t pos =
-                    sycl::exclusive_scan_over_group(sg,
-                                                    present ? 1 : 0,
-                                                    sycl::ext::oneapi::plus<std::int32_t>());
-                const bool owner = present && pos == 0;
-                const std::int32_t final_index =
-                    -sycl::reduce_over_group(sg,
-                                             owner ? -index : 1,
-                                             sycl::ext::oneapi::minimum<std::int32_t>());
+                    const Float final_value =
+                        sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());
+                    const bool present = (final_value == value);
+                    const std::int32_t pos =
+                        sycl::exclusive_scan_over_group(sg,
+                                                        present ? 1 : 0,
+                                                        sycl::ext::oneapi::plus<std::int32_t>());
+                    const bool owner = present && pos == 0;
+                    const std::int32_t final_index =
+                        -sycl::reduce_over_group(sg,
+                                                 owner ? -index : 1,
+                                                 sycl::ext::oneapi::minimum<std::int32_t>());
 
-                if (local_id == 0) {
-                    indices_ptr[out_offset] = final_index;
-                    selection_ptr[out_offset] = final_value;
-                }
-            });
-    });
-    return event;
+                    if (local_id == 0) {
+                        indices_ptr[out_offset] = final_index;
+                        selection_ptr[out_offset] = final_value;
+                    }
+                });
+        });
+
+        events.push_back(event);
+    }
+    sycl::event last_event = events.back(); // сохраняем последнее событие в переменной
+    //sycl::event combined_event = sycl::event::wait(events);
+    return last_event;
 }
 
 template <typename Float>
