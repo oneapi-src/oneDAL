@@ -1031,29 +1031,6 @@ $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEAS
 $(foreach x,$(release.EXAMPLES.COMMON_CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 $(foreach x,$(release.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 
-
-#----- releasing VS solutions
-ifeq ($(OS_is_win),yes)
-# $1: Relative examples directiry
-# $2: Solution filename
-# $3: Prefix of solution template
-# $4: Target to trigger
-define .release.x.sln
-$4: $(RELEASEDIR.daal)/$1/$2
-$(RELEASEDIR.daal)/$1/$2: \
-        $1/$3.vcxproj.tpl \
-        $1/$3.vcxproj.filters.tpl \
-        $1/$3.vcxproj.user.tpl \
-        $1/$3.sln.tpl
-	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2 --template_name $3
-endef
-
-$(eval $(call .release.x.sln,examples/daal/cpp,_release_c))
-$(eval $(call .release.x.sln,examples/daal/cpp_sycl,_release_c))
-$(eval $(call .release.x.sln,examples/oneapi/cpp,_release_oneapi_c))
-$(eval $(call .release.x.sln,examples/oneapi/dpc,_release_oneapi_dpc))
-endif
-
 #----- releasing environment scripts
 define .release.x
 $4: $3/$2
