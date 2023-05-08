@@ -32,7 +32,6 @@
 
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel_distr.hpp"
 
-#include "oneapi/dal/detail/debug.hpp"
 #include "oneapi/dal/backend/primitives/debug.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
