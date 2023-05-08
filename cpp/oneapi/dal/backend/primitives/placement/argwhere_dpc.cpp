@@ -27,9 +27,9 @@ namespace oneapi::dal::backend::primitives {
 template <typename Binary, typename Type, typename Index, where_alignment align>
 sycl::event argextreme(sycl::queue& queue,
                        const Binary& binary,
-                       const ndview<Type, 1>& values, 
-                       ndview<Type, 1>& val_output, 
-                       ndview<Index, 1>& idx_output, 
+                       const ndview<Type, 1>& values,
+                       ndview<Type, 1>& val_output,
+                       ndview<Index, 1>& idx_output,
                        const event_vector& deps) {
     ONEDAL_ASSERT(values.has_data());
     ONEDAL_ASSERT(val_output.has_mutable_data());
@@ -38,17 +38,19 @@ sycl::event argextreme(sycl::queue& queue,
     ONEDAL_ASSERT(std::int64_t(1) == idx_output.get_count());
 
     constexpr identity<Type> unary{};
-    
+
     const auto* const ptr = val_output.get_mutable_data();
     auto min_event = reduce_1d(queue, values, val_output, binary, unary, deps);
-    auto functor = [ptr](Type candidate) -> bool { return *ptr == candidate; };
+    auto functor = [ptr](Type candidate) -> bool {
+        return *ptr == candidate;
+    };
     return argwhere_one(queue, functor, values, idx_output, align, { min_event });
 }
 
 template <typename Binary, typename Type, typename Index, where_alignment align>
-std::tuple<Type, Index> argextreme(sycl::queue& queue, 
+std::tuple<Type, Index> argextreme(sycl::queue& queue,
                                    const Binary& binary,
-                                   const ndview<Type, 1>& values, 
+                                   const ndview<Type, 1>& values,
                                    const event_vector& deps) {
     using dal::backend::operator+;
 
@@ -56,30 +58,37 @@ std::tuple<Type, Index> argextreme(sycl::queue& queue,
     constexpr auto val_identity = Binary::init_value;
     constexpr auto idx_identity = where_alignment_map<Index, align>::identity;
 
-
     auto [idx_output, idx_event] = ndarray<Index, 1>::full(queue, { 1 }, { idx_identity }, alloc);
     auto [val_output, val_event] = ndarray<Type, 1>::full(queue, { 1 }, { val_identity }, alloc);
 
-    auto event = argextreme<Binary, Type, Index, align>(queue, binary, values, //
-                            val_output, idx_output, deps + val_event + idx_event);
+    auto event = argextreme<Binary, Type, Index, align>(queue,
+                                                        binary,
+                                                        values, //
+                                                        val_output,
+                                                        idx_output,
+                                                        deps + val_event + idx_event);
     return { val_output.at_device(queue, 0, { event }), idx_output.at_device(queue, 0, { event }) };
 }
 
 template <typename Type, typename Index, where_alignment align>
 sycl::event argmin(sycl::queue& queue,
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
-                   ndview<Index, 1>& idx_output, 
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
+                   ndview<Index, 1>& idx_output,
                    const event_vector& deps) {
     constexpr min<Type> binary{};
-    return argextreme<decltype(binary), Type, Index, align>(
-        queue, binary, values, val_output, idx_output, deps);
+    return argextreme<decltype(binary), Type, Index, align>(queue,
+                                                            binary,
+                                                            values,
+                                                            val_output,
+                                                            idx_output,
+                                                            deps);
 }
 
 template <typename Type, typename Index>
 sycl::event argmin(sycl::queue& queue,
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
                    ndview<Index, 1>& idx_output,
                    where_alignment align,
                    const event_vector& deps) {
@@ -97,16 +106,15 @@ sycl::event argmin(sycl::queue& queue,
 }
 
 template <typename Type, typename Index, where_alignment align>
-std::tuple<Type, Index> argmin(sycl::queue& queue, 
+std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                const event_vector& deps) {
     constexpr min<Type> binary{};
-    return argextreme<decltype(binary), Type, Index, align>(
-                            queue, binary, values, deps);
+    return argextreme<decltype(binary), Type, Index, align>(queue, binary, values, deps);
 }
 
 template <typename Type, typename Index>
-std::tuple<Type, Index> argmin(sycl::queue& queue, 
+std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                where_alignment align,
                                const event_vector& deps) {
@@ -125,19 +133,23 @@ std::tuple<Type, Index> argmin(sycl::queue& queue,
 
 template <typename Type, typename Index, where_alignment align>
 sycl::event argmax(sycl::queue& queue,
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
-                   ndview<Index, 1>& idx_output, 
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
+                   ndview<Index, 1>& idx_output,
                    const event_vector& deps) {
     constexpr max<Type> binary{};
-    return argextreme<decltype(binary), Type, Index, align>(
-        queue, binary, values, val_output, idx_output, deps);
+    return argextreme<decltype(binary), Type, Index, align>(queue,
+                                                            binary,
+                                                            values,
+                                                            val_output,
+                                                            idx_output,
+                                                            deps);
 }
 
 template <typename Type, typename Index>
 sycl::event argmax(sycl::queue& queue,
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
                    ndview<Index, 1>& idx_output,
                    where_alignment align,
                    const event_vector& deps) {
@@ -155,16 +167,15 @@ sycl::event argmax(sycl::queue& queue,
 }
 
 template <typename Type, typename Index, where_alignment align>
-std::tuple<Type, Index> argmax(sycl::queue& queue, 
-                               const ndview<Type, 1>& values, 
+std::tuple<Type, Index> argmax(sycl::queue& queue,
+                               const ndview<Type, 1>& values,
                                const event_vector& deps) {
     constexpr max<Type> binary{};
-    return argextreme<decltype(binary), Type, Index, align>(
-                            queue, binary, values, deps);
+    return argextreme<decltype(binary), Type, Index, align>(queue, binary, values, deps);
 }
 
 template <typename Type, typename Index>
-std::tuple<Type, Index> argmax(sycl::queue& queue, 
+std::tuple<Type, Index> argmax(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                where_alignment align,
                                const event_vector& deps) {
@@ -181,19 +192,47 @@ std::tuple<Type, Index> argmax(sycl::queue& queue,
     return std::tuple<Type, Index>(0, -1);
 }
 
-#define INSTANTIATE(T, I, A)                                   \
-    template sycl::event argmin<T, I, A>(sycl::queue&, const ndview<T, 1>&, ndview<T, 1>&, ndview<I, 1>&, const event_vector&); \
-    template sycl::event argmax<T, I, A>(sycl::queue&, const ndview<T, 1>&, ndview<T, 1>&, ndview<I, 1>&, const event_vector&); \
-    template std::tuple<T, I> argmin<T, I, A>(sycl::queue&, const ndview<T, 1>&, const event_vector&); \
-    template std::tuple<T, I> argmax<T, I, A>(sycl::queue&, const ndview<T, 1>&, const event_vector&);
+#define INSTANTIATE(T, I, A)                                        \
+    template sycl::event argmin<T, I, A>(sycl::queue&,              \
+                                         const ndview<T, 1>&,       \
+                                         ndview<T, 1>&,             \
+                                         ndview<I, 1>&,             \
+                                         const event_vector&);      \
+    template sycl::event argmax<T, I, A>(sycl::queue&,              \
+                                         const ndview<T, 1>&,       \
+                                         ndview<T, 1>&,             \
+                                         ndview<I, 1>&,             \
+                                         const event_vector&);      \
+    template std::tuple<T, I> argmin<T, I, A>(sycl::queue&,         \
+                                              const ndview<T, 1>&,  \
+                                              const event_vector&); \
+    template std::tuple<T, I> argmax<T, I, A>(sycl::queue&,         \
+                                              const ndview<T, 1>&,  \
+                                              const event_vector&);
 
-#define INSTANTIATE_ALIGN(T, I)         \
-INSTANTIATE(T, I, where_alignment::right) \
-INSTANTIATE(T, I, where_alignment::left)    \
-template sycl::event argmin(sycl::queue&, const ndview<T, 1>&, ndview<T, 1>&, ndview<I, 1>&, where_alignment, const event_vector&); \
-template sycl::event argmax(sycl::queue&, const ndview<T, 1>&, ndview<T, 1>&, ndview<I, 1>&, where_alignment, const event_vector&); \
-template std::tuple<T, I> argmin(sycl::queue&, const ndview<T, 1>&, where_alignment, const event_vector&); \
-template std::tuple<T, I> argmax(sycl::queue&, const ndview<T, 1>&, where_alignment, const event_vector&);
+#define INSTANTIATE_ALIGN(T, I)                            \
+    INSTANTIATE(T, I, where_alignment::right)              \
+    INSTANTIATE(T, I, where_alignment::left)               \
+    template sycl::event argmin(sycl::queue&,              \
+                                const ndview<T, 1>&,       \
+                                ndview<T, 1>&,             \
+                                ndview<I, 1>&,             \
+                                where_alignment,           \
+                                const event_vector&);      \
+    template sycl::event argmax(sycl::queue&,              \
+                                const ndview<T, 1>&,       \
+                                ndview<T, 1>&,             \
+                                ndview<I, 1>&,             \
+                                where_alignment,           \
+                                const event_vector&);      \
+    template std::tuple<T, I> argmin(sycl::queue&,         \
+                                     const ndview<T, 1>&,  \
+                                     where_alignment,      \
+                                     const event_vector&); \
+    template std::tuple<T, I> argmax(sycl::queue&,         \
+                                     const ndview<T, 1>&,  \
+                                     where_alignment,      \
+                                     const event_vector&);
 
 INSTANTIATE_ALIGN(float, std::int32_t)
 INSTANTIATE_ALIGN(double, std::int32_t)

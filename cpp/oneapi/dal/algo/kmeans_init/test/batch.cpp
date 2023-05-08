@@ -45,7 +45,7 @@ TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
     constexpr std::int64_t cluster_count = 4;
 
     const double data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
-                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
     this->dense_checks(cluster_count, data_table);

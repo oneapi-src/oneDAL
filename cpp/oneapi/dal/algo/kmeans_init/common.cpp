@@ -59,7 +59,6 @@ void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
     impl_->seed = value;
 }
 
-
 template <typename Task>
 void descriptor_base<Task>::set_local_trials_count_impl(std::int64_t value) {
     if (value <= 0) {

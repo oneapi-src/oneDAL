@@ -38,11 +38,19 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     constexpr auto right = search_alignment::right;
 
     if (alignment == left) {
-        return search_sorted_1d<search_alignment::left, Type, Index, clip>(queue, data, points, results, deps);
+        return search_sorted_1d<search_alignment::left, Type, Index, clip>(queue,
+                                                                           data,
+                                                                           points,
+                                                                           results,
+                                                                           deps);
     }
 
     if (alignment == right) {
-        return search_sorted_1d<search_alignment::right, Type, Index, clip>(queue, data, points, results, deps);
+        return search_sorted_1d<search_alignment::right, Type, Index, clip>(queue,
+                                                                            data,
+                                                                            points,
+                                                                            results,
+                                                                            deps);
     }
 
     ONEDAL_ASSERT(false);
@@ -58,19 +66,10 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
                                     ndview<Index, 1>& results,
                                     const event_vector& deps = {}) {
     if (clip_result) {
-        return search_sorted_1d<Type, Index, true>(queue, 
-                                                   alignment,
-                                                   data,
-                                                   points,
-                                                   results,
-                                                   deps);
-    } else {
-        return search_sorted_1d<Type, Index, false>(queue, 
-                                                    alignment,
-                                                    data,
-                                                    points,
-                                                    results,
-                                                    deps);
+        return search_sorted_1d<Type, Index, true>(queue, alignment, data, points, results, deps);
+    }
+    else {
+        return search_sorted_1d<Type, Index, false>(queue, alignment, data, points, results, deps);
     }
 }
 

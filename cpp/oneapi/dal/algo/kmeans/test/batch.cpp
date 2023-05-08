@@ -71,7 +71,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                        false);
 }
 
-
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
@@ -97,7 +96,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch]",
                      kmeans_types) {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
-    
+
     SKIP_IF(this->not_float64_friendly());
     this->check_on_gold_data();
 }

@@ -94,8 +94,7 @@ inline sycl::event element_wise(sycl::queue& queue,
     ONEDAL_ASSERT(shape == input1.get_shape());
     ONEDAL_ASSERT(shape.at(1) == input2.get_count());
 
-    const ndview<Input2Type, 2> input2_2d = input2
-        .template reshape<2>({ 1, input2.get_count() });
+    const ndview<Input2Type, 2> input2_2d = input2.template reshape<2>({ 1, input2.get_count() });
 
     auto out = make_ndindexer(output);
     auto inp1 = make_ndindexer(input1);

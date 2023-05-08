@@ -45,9 +45,8 @@ constexpr auto comparator_v = comparator<alignment, Type>::value;
 template <bool clip, typename Index>
 inline Index clip_place(std::int64_t count, Index result) {
     if constexpr (clip) {
-        return std::max(static_cast<Index>(0), 
-            std::min<Index>(result, count - 1));
-    } 
+        return std::max(static_cast<Index>(0), std::min<Index>(result, count - 1));
+    }
     else {
         return result;
     }
@@ -102,19 +101,19 @@ sycl::event search_sorted_1d(sycl::queue& queue,
     });
 }
 
-#define INSTANTIATE(A, T, I, C)                                             \
-    template sycl::event search_sorted_1d<A, T, I, C>(sycl::queue&,         \
-                                                      const ndview<T, 1>&,  \
-                                                      const ndview<T, 1>&,  \
-                                                      ndview<I, 1>&,        \
+#define INSTANTIATE(A, T, I, C)                                            \
+    template sycl::event search_sorted_1d<A, T, I, C>(sycl::queue&,        \
+                                                      const ndview<T, 1>&, \
+                                                      const ndview<T, 1>&, \
+                                                      ndview<I, 1>&,       \
                                                       const event_vector&);
 
-#define INSTANTIATE_CLIP(A, T, I)   \
-    INSTANTIATE(A, T, I, true)      \
+#define INSTANTIATE_CLIP(A, T, I) \
+    INSTANTIATE(A, T, I, true)    \
     INSTANTIATE(A, T, I, false)
 
-#define INSTANTIATE_ALIGNMENT(T, I)                 \
-    INSTANTIATE_CLIP(search_alignment::left, T, I)  \
+#define INSTANTIATE_ALIGNMENT(T, I)                \
+    INSTANTIATE_CLIP(search_alignment::left, T, I) \
     INSTANTIATE_CLIP(search_alignment::right, T, I)
 
 #define INSTANTIATE_TYPE(I)         \

@@ -30,8 +30,8 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-struct left_align{};
-struct right_align{};
+struct left_align {};
+struct right_align {};
 
 template <typename Align>
 struct align_map {};
@@ -102,9 +102,9 @@ public:
         auto queue = this->get_queue();
         constexpr auto alloc = sycl::usm::alloc::device;
         row_accessor<const float_t> accessor(this->input_table_);
-        const auto device_array = accessor.pull(queue, {0, -1}, alloc);
+        const auto device_array = accessor.pull(queue, { 0, -1 }, alloc);
         const auto device = ndview<float_t, 1>::wrap(device_array);
-        const auto host_array = accessor.pull({0, -1});
+        const auto host_array = accessor.pull({ 0, -1 });
 
         SECTION("Random index") {
             std::mt19937_64 generator(777);
@@ -112,7 +112,9 @@ public:
                 const index_t idx = generator() % this->n_;
                 const float_t val = host_array[idx];
 
-                auto comp = [val](float_t check) { return val == check; };
+                auto comp = [val](float_t check) {
+                    return val == check;
+                };
 
                 const auto res = argwhere_one(queue, comp, device, align_v);
 
@@ -124,7 +126,9 @@ public:
         SECTION("Invalid huge number") {
             const auto val = std::numeric_limits<float_t>::max();
 
-            auto comp = [=](float_t check) { return val == check; };
+            auto comp = [=](float_t check) {
+                return val == check;
+            };
 
             const auto res = argwhere_one(queue, comp, device, align_v);
 
@@ -135,7 +139,9 @@ public:
         SECTION("Invalid small number") {
             const auto val = std::numeric_limits<float_t>::lowest();
 
-            auto comp = [=](float_t check) { return val == check; };
+            auto comp = [=](float_t check) {
+                return val == check;
+            };
 
             const auto res = argwhere_one(queue, comp, device, align_v);
 
@@ -150,9 +156,9 @@ public:
         auto queue = this->get_queue();
         constexpr auto alloc = sycl::usm::alloc::device;
         row_accessor<const float_t> accessor(this->input_table_);
-        const auto device_array = accessor.pull(queue, {0, -1}, alloc);
+        const auto device_array = accessor.pull(queue, { 0, -1 }, alloc);
         const auto device = ndview<float_t, 1>::wrap(device_array);
-        const auto host_array = accessor.pull({0, -1});
+        const auto host_array = accessor.pull({ 0, -1 });
 
         index_t idx = -1;
         float_t val = std::numeric_limits<float_t>::max();
@@ -178,9 +184,9 @@ public:
         auto queue = this->get_queue();
         constexpr auto alloc = sycl::usm::alloc::device;
         row_accessor<const float_t> accessor(this->input_table_);
-        const auto device_array = accessor.pull(queue, {0, -1}, alloc);
+        const auto device_array = accessor.pull(queue, { 0, -1 }, alloc);
         const auto device = ndview<float_t, 1>::wrap(device_array);
-        const auto host_array = accessor.pull({0, -1});
+        const auto host_array = accessor.pull({ 0, -1 });
 
         index_t idx = -1;
         float_t val = std::numeric_limits<float_t>::lowest();

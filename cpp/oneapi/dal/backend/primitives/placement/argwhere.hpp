@@ -41,12 +41,15 @@ struct where_alignment_map<Index, where_alignment::left> {
 };
 
 template <typename Index>
-struct where_alignment_map<Index, where_alignment::right>{
+struct where_alignment_map<Index, where_alignment::right> {
     constexpr static inline sycl::ext::oneapi::minimum<Index> binary{};
     constexpr static inline auto identity = std::numeric_limits<Index>::max();
 };
 
-template <typename Functor, typename Type, typename Index, where_alignment align = where_alignment::right>
+template <typename Functor,
+          typename Type,
+          typename Index,
+          where_alignment align = where_alignment::right>
 inline sycl::event argwhere_one(sycl::queue& queue,
                                 const Functor& unary,
                                 const ndview<Type, 1>& values,
@@ -65,16 +68,17 @@ inline sycl::event argwhere_one(sycl::queue& queue,
         const auto range = make_range_1d(count);
         const auto* const inp_ptr = values.get_data();
         auto* const out_ptr = output.get_mutable_data();
-        
+
         constexpr auto binary = map_t::binary;
         constexpr auto identity = map_t::identity;
-        
+
         auto accum = sycl::reduction(out_ptr, identity, binary);
 
         h.parallel_for(range, accum, [=](sycl::id<1> idx, auto& acc) {
-            const bool handle = unary(inp_ptr[idx]); 
+            const bool handle = unary(inp_ptr[idx]);
             //acc.combine(handle ? Index(idx) : map_t::identity);
-            if (handle) acc.combine(Index(idx));
+            if (handle)
+                acc.combine(Index(idx));
         });
     });
 }
@@ -91,17 +95,28 @@ inline sycl::event argwhere_one(sycl::queue& queue,
 
     if (align == right) {
         return argwhere_one<Functor, Type, Index, right>( //
-                    queue, unary, values, output, deps);
+            queue,
+            unary,
+            values,
+            output,
+            deps);
     }
     if (align == left) {
         return argwhere_one<Functor, Type, Index, left>( //
-                    queue, unary, values, output, deps);
+            queue,
+            unary,
+            values,
+            output,
+            deps);
     }
     ONEDAL_ASSERT(false);
     return sycl::event{};
 }
 
-template <typename Functor, typename Type, typename Index = std::int64_t, where_alignment align = where_alignment::right>
+template <typename Functor,
+          typename Type,
+          typename Index = std::int64_t,
+          where_alignment align = where_alignment::right>
 inline Index argwhere_one(sycl::queue& queue,
                           const Functor& unary,
                           const ndview<Type, 1>& values,
@@ -111,7 +126,11 @@ inline Index argwhere_one(sycl::queue& queue,
     constexpr auto identity = where_alignment_map<Index, align>::identity;
     auto [out, out_event] = ndarray<Index, 1>::full(queue, { 1 }, identity, alloc);
     auto event = argwhere_one<Functor, Type, Index, align>( //
-        queue, unary, values, out, deps + out_event);
+        queue,
+        unary,
+        values,
+        out,
+        deps + out_event);
     return out.at_device(queue, 0, { event });
 }
 
@@ -126,64 +145,74 @@ inline Index argwhere_one(sycl::queue& queue,
 
     if (align == right) {
         return argwhere_one<Functor, Type, Index, right>( //
-                    queue, unary, values, deps);
+            queue,
+            unary,
+            values,
+            deps);
     }
     if (align == left) {
         return argwhere_one<Functor, Type, Index, left>( //
-                    queue, unary, values, deps);
+            queue,
+            unary,
+            values,
+            deps);
     }
     ONEDAL_ASSERT(false);
     return -1l;
 }
 
 template <typename Type, typename Index, where_alignment align = where_alignment::right>
-sycl::event argmin(sycl::queue& queue, 
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
-                   ndview<Index, 1>& idx_output, 
+sycl::event argmin(sycl::queue& queue,
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
+                   ndview<Index, 1>& idx_output,
                    const event_vector& deps = {});
 
 template <typename Type, typename Index, where_alignment align = where_alignment::right>
-sycl::event argmax(sycl::queue& queue, 
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
-                   ndview<Index, 1>& idx_output, 
+sycl::event argmax(sycl::queue& queue,
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
+                   ndview<Index, 1>& idx_output,
                    const event_vector& deps = {});
 
 template <typename Type, typename Index>
-sycl::event argmin(sycl::queue& queue, 
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
+sycl::event argmin(sycl::queue& queue,
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
                    ndview<Index, 1>& idx_output,
                    where_alignment align,
                    const event_vector& deps = {});
 
 template <typename Type, typename Index>
-sycl::event argmax(sycl::queue& queue, 
-                   const ndview<Type, 1>& values, 
-                   ndview<Type, 1>& val_output, 
+sycl::event argmax(sycl::queue& queue,
+                   const ndview<Type, 1>& values,
+                   ndview<Type, 1>& val_output,
                    ndview<Index, 1>& idx_output,
                    where_alignment align,
                    const event_vector& deps = {});
 
-template <typename Type, typename Index = std::int64_t, where_alignment align = where_alignment::right>
-std::tuple<Type, Index> argmin(sycl::queue& queue, 
+template <typename Type,
+          typename Index = std::int64_t,
+          where_alignment align = where_alignment::right>
+std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                const event_vector& deps = {});
 
-template <typename Type, typename Index = std::int64_t, where_alignment align = where_alignment::right>
-std::tuple<Type, Index> argmax(sycl::queue& queue, 
+template <typename Type,
+          typename Index = std::int64_t,
+          where_alignment align = where_alignment::right>
+std::tuple<Type, Index> argmax(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                const event_vector& deps = {});
 
 template <typename Type, typename Index = std::int64_t>
-std::tuple<Type, Index> argmin(sycl::queue& queue, 
+std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                where_alignment align,
                                const event_vector& deps = {});
 
 template <typename Type, typename Index = std::int64_t>
-std::tuple<Type, Index> argmax(sycl::queue& queue, 
+std::tuple<Type, Index> argmax(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                where_alignment align,
                                const event_vector& deps = {});
