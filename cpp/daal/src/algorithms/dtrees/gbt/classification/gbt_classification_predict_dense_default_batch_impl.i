@@ -195,7 +195,7 @@ protected:
 
     inline void updateResult(algorithmFPType * res, algorithmFPType * val, size_t iRow, size_t i, size_t nClasses, BooleanConstant<true> dispatcher)
     {
-        res[iRow + i] = algorithmFPType(getMaxClass(val + i * nClasses, nClasses));
+        res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
     }
 
     inline void updateResult(algorithmFPType * res, algorithmFPType * val, size_t iRow, size_t i, size_t nClasses, BooleanConstant<false> dispatcher)
