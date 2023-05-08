@@ -1204,8 +1204,9 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
             _helper.checkImpurity(aIdx, n, curImpurity);
 #endif
             split.featureUnordered = _featHelper.isUnordered(iFeature);
+            bool constFeature = false;
             if (!_helper.findSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf,
-                                             totalWeights))
+                                             totalWeights, constFeature))
                 continue;
             idxFeatureValueBestSplit = -1;
             iBestSplit               = i;

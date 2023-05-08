@@ -92,11 +92,11 @@ public:
     template <bool noWeights>
     bool findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, bool & constFeature) const;
 
     bool findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, bool & constFeature) const;
 
 protected: //enables specific functions for UnorderedRespHelperBest
     // Calculate impurity for right child
@@ -334,7 +334,8 @@ template <bool noWeights>
 bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                             size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                             const ImpurityData & curImpurity, TSplitData & split,
-                                                                            const algorithmFPType minWeightLeaf, algorithmFPType totalWeights) const
+                                                                            const algorithmFPType minWeightLeaf, algorithmFPType totalWeights,
+                                                                            bool & constFeature) const
 {
     ClassIndexType iClass = this->_aResponse[aIdx[0]].val;
     _impLeft.init(_nClasses);
@@ -359,10 +360,12 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
     double iStartEqualRespValues = double(0);
     algorithmFPType leftWeights  = algorithmFPType(0);
     const algorithmFPType last   = featureVal[n - nMinSplitPart];
+    algorithmFPType v = 0;
+    bool bSameFeaturePrev;
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
-        const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
+        bSameFeaturePrev = featureVal[i] <= featureVal[i - 1] + accuracy;
         leftWeights += this->_aWeights[aIdx[i - 1]].val;
         if (bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || (totalWeights - leftWeights < minWeightLeaf))
         {
@@ -398,7 +401,7 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
         if (!isPositive<algorithmFPType, cpu>(_impLeft.var)) _impLeft.var = 0;
         if (!isPositive<algorithmFPType, cpu>(_impRight.var)) _impRight.var = 0;
 
-        const algorithmFPType v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var;
+        v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var;
         if (iBest < 0)
         {
             if (bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))
@@ -422,6 +425,8 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
         split.totalWeights = totalWeights;
         if (featureVal[i] < last) continue;
     }
+
+    constFeature = bSameFeaturePrev && v == 0;
 
     if (bFound)
     {
@@ -447,7 +452,8 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
                                                                                 size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                 const ImpurityData & curImpurity, TSplitData & split,
                                                                                 const algorithmFPType minWeightLeaf,
-                                                                                const algorithmFPType totalWeights) const
+                                                                                const algorithmFPType totalWeights,
+                                                                                bool & constFeature) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     _impRight.init(_nClasses);
@@ -555,22 +561,22 @@ public:
 
     bool findSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                              const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                             const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
+                             const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, bool & constFeature) const
     {
         const bool noWeights = !this->_weights;
         if (noWeights)
         {
             return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
+                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature) :
                                             static_cast<const crtp *>(this)->template findSplitOrderedFeature<true>(
-                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
+                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature);
         }
         else
         {
             return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
+                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature) :
                                             static_cast<const crtp *>(this)->template findSplitOrderedFeature<false>(
-                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
+                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature);
         }
     }
     bool terminateCriteria(ImpurityData & imp, algorithmFPType impurityThreshold, size_t nSamples) const { return imp.value() < impurityThreshold; }
@@ -984,11 +990,11 @@ public:
     template <bool noWeights>
     bool findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, bool & constFeature) const;
 
     bool findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, bool & constFeature) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -1339,7 +1345,8 @@ template <bool noWeights>
 bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                               size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                               const ImpurityData & curImpurity, TSplitData & split,
-                                                                              const algorithmFPType minWeightLeaf, algorithmFPType totalWeights) const
+                                                                              const algorithmFPType minWeightLeaf, algorithmFPType totalWeights,
+                                                                              bool & constFeature) const
 {
     this->_impLeft.init(this->_nClasses);
     this->_impRight = curImpurity;
@@ -1362,6 +1369,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
     if (idx >= featureVal[n - nMinSplitPart]
         || idx < featureVal[nMinSplitPart - 1]) //check if sufficient samples will exist, and not a constant feature
     {
+        constFeature = true;
         return bFound;
     }
 
@@ -1464,7 +1472,8 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
                                                                                   size_t n, size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                   const ImpurityData & curImpurity, TSplitData & split,
                                                                                   const algorithmFPType minWeightLeaf,
-                                                                                  const algorithmFPType totalWeights) const
+                                                                                  const algorithmFPType totalWeights,
+                                                                                  bool & constFeature) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     this->_impRight.init(this->_nClasses);
@@ -1483,6 +1492,10 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
         min = featureVal[i] < min ? featureVal[i] : min;
     }
 
+    if(min == max){
+        constFeature = true;
+        return bFound;
+    }
     first = min;
 
     RNGs<algorithmFPType, cpu> rng;
