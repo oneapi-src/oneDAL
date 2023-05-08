@@ -201,15 +201,15 @@ protected:
     inline void updateResult(algorithmFPType * res, algorithmFPType * val, size_t iRow, size_t i, size_t nClasses, BooleanConstant<false> dispatcher)
     {}
 
-    inline algorithmFPType * updateBuffer(algorithmFPType * val, size_t buf_shift, size_t buf_size, BooleanConstant<true> dispatcher)
+    inline algorithmFPType * updateBuffer(algorithmFPType * buff, size_t buf_shift, size_t buf_size, BooleanConstant<true> dispatcher)
     {
-        services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), buf_size);
-        return val;
+        services::internal::service_memset_seq<algorithmFPType, cpu>(buff, algorithmFPType(0), buf_size);
+        return buff;
     }
 
-    inline algorithmFPType * updateBuffer(algorithmFPType * val, size_t buf_shift, size_t buf_size, BooleanConstant<false> dispatcher)
+    inline algorithmFPType * updateBuffer(algorithmFPType * buff, size_t buf_shift, size_t buf_size, BooleanConstant<false> dispatcher)
     {
-        return val + buf_shift;
+        return buff + buf_shift;
     }
 
     inline bool checkForMissing(const algorithmFPType * x, size_t nTrees, size_t nRows, size_t nColumns)
@@ -235,14 +235,14 @@ protected:
     }
 
     template <bool hasUnorderedFeatures, bool hasAnyMissing, bool isResValidPtr, bool reuseBuffer>
-    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * valL,
+    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * buff,
                         algorithmFPType * res)
     {
         dispatcher_t<hasUnorderedFeatures, hasAnyMissing> dispatcher;
         size_t iRow = 0;
         for (; iRow + VECTOR_BLOCK_SIZE <= nRows; iRow += VECTOR_BLOCK_SIZE)
         {
-            algorithmFPType * val = updateBuffer(valL, iRow * nClasses, nClasses * VECTOR_BLOCK_SIZE, BooleanConstant<reuseBuffer>());
+            algorithmFPType * val = updateBuffer(buff, iRow * nClasses, nClasses * VECTOR_BLOCK_SIZE, BooleanConstant<reuseBuffer>());
             predictByTreesVector(val, 0, nTrees, nClasses, x + iRow * nColumns, dispatcher);
             for (size_t i = 0; i < VECTOR_BLOCK_SIZE; ++i)
             {
@@ -251,52 +251,52 @@ protected:
         }
         for (; iRow < nRows; ++iRow)
         {
-            algorithmFPType * val = updateBuffer(valL, iRow * nClasses, nClasses, BooleanConstant<reuseBuffer>());
+            algorithmFPType * val = updateBuffer(buff, iRow * nClasses, nClasses, BooleanConstant<reuseBuffer>());
             predictByTrees(val, 0, nTrees, nClasses, x + iRow * nColumns, dispatcher);
             updateResult(res, val, iRow, 0, nClasses, BooleanConstant<isResValidPtr>());
         }
     }
 
     template <bool hasAnyMissing, bool isResValidPtr, bool reuseBuffer>
-    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * valL,
+    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * buff,
                         algorithmFPType * res)
     {
         if (this->_featHelper.hasUnorderedFeatures())
         {
-            predict<true, hasAnyMissing, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, valL, res);
+            predict<true, hasAnyMissing, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, buff, res);
         }
         else
         {
-            predict<false, hasAnyMissing, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, valL, res);
+            predict<false, hasAnyMissing, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, buff, res);
         }
     }
 
     template <bool isResValidPtr, bool reuseBuffer>
-    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * valL,
+    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * buff,
                         algorithmFPType * res)
     {
         const bool hasAnyMissing = checkForMissing(x, nTrees, nRows, nColumns);
         if (hasAnyMissing)
         {
-            predict<true, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, valL, res);
+            predict<true, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, buff, res);
         }
         else
         {
-            predict<false, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, valL, res);
+            predict<false, isResValidPtr, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, buff, res);
         }
     }
 
     template <bool reuseBuffer>
-    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * valL,
+    inline void predict(size_t nTrees, size_t nClasses, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * buff,
                         algorithmFPType * res)
     {
         if (res)
         {
-            predict<true, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, valL, res);
+            predict<true, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, buff, res);
         }
         else
         {
-            predict<false, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, valL, res);
+            predict<false, reuseBuffer>(nTrees, nClasses, nRows, nColumns, x, buff, res);
         }
     }
 
