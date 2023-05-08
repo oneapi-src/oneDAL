@@ -81,5 +81,5 @@ Refer to :ref:`API Reference: Basic statistics <api_basic_statistics>`.
 Distributed mode
 ----------------
 
-The algorithm supports distributed execution in SMPD mode (only on GPU).
+The algorithm supports distributed execution in SPMD mode (only on GPU).
 
