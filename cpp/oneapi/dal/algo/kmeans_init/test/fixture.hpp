@@ -31,8 +31,9 @@ public:
     using base_t = te::crtp_algo_fixture<TestType, Derived>;
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
+    using desc_t = kmeans_init::descriptor<float_t, method_t>;
 
-    auto get_descriptor(std::int64_t cluster_count) const {
+    desc_t get_descriptor(std::int64_t cluster_count) const {
         return kmeans_init::descriptor<float_t, method_t>{ cluster_count };
     }
 

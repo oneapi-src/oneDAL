@@ -24,6 +24,7 @@ template <typename TestType>
 class kmeans_init_spmd_test : public kmeans_init_test<TestType, kmeans_init_spmd_test<TestType>> {
 public:
     using base_t = kmeans_init_test<TestType, kmeans_init_spmd_test<TestType>>;
+    using desc_t = typename base_t::desc_t;
     using float_t = typename base_t::float_t;
     using task_t = kmeans_init::task::by_default;
     using input_t = kmeans_init::compute_input<task_t>;
@@ -55,7 +56,26 @@ public:
         return split_input;
     }
 
-    bool are_different(const table& a, const table& b) {
+    template <typename... Args>
+    result_t compute_as_single_node(Args&&... args) {
+        return dal::test::engine::float_algo_fixture<float_t>::compute(std::forward<Args>(args)...);
+    }
+
+    void check_consistency(std::int64_t cluster_count, const table& data) {
+        const auto desc = base_t::get_descriptor(cluster_count);
+
+        const auto multi_node_results = this->compute_override(desc, data);
+        const auto single_node_results = this->compute_as_single_node(desc, data);
+
+        const auto& multi_table = multi_node_results.get_centroids();
+        const auto& single_table = single_node_results.get_centroids();
+
+        const bool are_the_same = !are_different(multi_table, single_table);
+
+        REQUIRE(are_the_same);
+    }
+
+    bool are_different(const table& a, const table& b) const {
         const std::int64_t row_count = a.get_row_count();
         const std::int64_t column_count = b.get_column_count();
         const std::int64_t count = row_count * column_count;
@@ -79,7 +99,7 @@ public:
         return false;
     }
 
-    bool are_different(const std::vector<result_t>& results) {
+    bool are_different(const std::vector<result_t>& results) const {
         for (std::size_t i = 0; i < results.size(); ++i) {
             for (std::size_t j = i + 1; j < results.size(); ++j) {
                 const auto& a = results[i].get_centroids();
@@ -122,6 +142,8 @@ TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
     const auto data_table = homogen_table::wrap(data, row_count, column_count);
 
     this->dense_checks(cluster_count, data_table);
+
+    this->check_consistency(cluster_count, data_table);
 }
 
 } // namespace oneapi::dal::kmeans_init::test
