@@ -34,7 +34,8 @@ class kmeans_init_batch_test : public kmeans_init_test<TestType, kmeans_init_bat
 using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
                                               (kmeans_init::method::dense,
                                                kmeans_init::method::random_dense,
-                                               kmeans_init::method::plus_plus_dense));
+                                               kmeans_init::method::plus_plus_dense,
+                                               kmeans_init::method::parallel_plus_dense));
 
 TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
                      "kmeans init dense test random",
