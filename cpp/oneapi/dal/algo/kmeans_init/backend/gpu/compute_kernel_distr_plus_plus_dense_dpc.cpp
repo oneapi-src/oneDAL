@@ -105,17 +105,28 @@ std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     
     ONEDAL_ASSERT(*first == Type(0));
     ONEDAL_ASSERT(std::is_sorted(first, last));
-    const auto iter = std::lower_bound(first, last, value);
 
-    const auto result = (iter == first) ? iter : std::prev(iter);
+    const auto result = std::lower_bound(first, last, value);
 
-    std::cout << "Iter, Value, Result " << *result << ' ' << value << ' ' << *iter << std::endl;
+    const auto curr = *result;
+    const auto next = (result == std::prev(last)) ? std::numeric_limits<Type>::max() : *std::next(result);
+    const auto prev = (result == first) ? std::numeric_limits<Type>::lowest() : *std::prev(result);
 
-    ONEDAL_ASSERT(*result <= value);
-    ONEDAL_ASSERT(value <= *iter);
+    ONEDAL_ASSERT((prev <= curr) && (curr <= next));
 
-    return dal::detail::integral_cast<std::int64_t>(//
-                        std::distance(first, result)); 
+    if ((prev <= value) && (value < curr)) {
+        return dal::detail::integral_cast<std::int64_t>( //
+                        std::distance(first, result) - 1); 
+    }
+
+    if ((curr <= value) && (value < next)) {
+        return dal::detail::integral_cast<std::int64_t>( //
+                        std::distance(first, result) + 0); 
+    }
+
+    ONEDAL_ASSERT(false);
+
+    return std::int64_t(-1);
 }
 
 template <typename Comm, typename Type>
@@ -152,7 +163,7 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
     const auto rank = comm.get_rank();
     const auto target = find_bin(offsets, index);
     const auto rank_count = comm.get_rank_count();
-    //ONEDAL_ASSERT(target <= rank_count);
+    ONEDAL_ASSERT(target <= rank_count);
 
     const auto sample_count = data.get_dimension(0);
     ONEDAL_ASSERT(data.get_dimension(1) == place.get_count());
@@ -164,11 +175,6 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
         const auto start_index = offsets[rank];
         const auto last_index = offsets[rank + 1];
         const auto rel_index = index - start_index;
-
-        auto tmp = pr::ndview<std::int64_t, 1>::wrap(offsets);
-        std::cout << tmp << std::endl;
-        std::cout << rank << ' ' << target << ' ' << rank_count << std::endl;
-        std::cout << start_index << ' ' << index << ' ' << last_index << std::endl;
 
         ONEDAL_ASSERT(start_index <= index && index < last_index);
         ONEDAL_ASSERT(0 <= rel_index && rel_index < sample_count);
@@ -248,8 +254,8 @@ Type get_local_offset(Comm& comm,
 }
 
 template <typename Generator, typename Float, typename GenFloat = float>
-void generate_trials(Generator& rng, pr::ndview<Float, 1>& trls, GenFloat pot) {
-    std::uniform_real_distribution<GenFloat> finalize(0.0f, pot);
+void generate_trials(Generator& rng, pr::ndview<Float, 1>& trls, double pot) {
+    std::uniform_real_distribution<GenFloat> finalize(0.0, pot);
     const auto gen = [&]() -> Float { return finalize(rng); };
     std::generate(bk::begin(trls), bk::end(trls), gen);
 }
@@ -433,7 +439,6 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     std::uniform_int_distribution<std::int64_t> finalize(0, full_count - 1);
 
     const auto first_index = finalize(rng);
-    std::cout << "First index: " << first_index << std::endl;
     auto share_event = extract_and_share_by_index(ctx, first_index, boundaries, samples, slice, deps);
     
     ONEDAL_ASSERT(potential.has_mutable_data());
@@ -452,13 +457,9 @@ sycl::event first_sample(const bk::context_gpu& ctx,
     if (comm.get_rank_count() > 1) {
         sycl::event::wait_and_throw({ local_event });
 
-        std::cout << "First, potential 0: " << curr_potential.to_host(queue) << "; Rank: " << comm.get_rank() << std::endl;
-
         auto arr = array<Float>::wrap(queue, //
             curr_potential.get_mutable_data(), std::int64_t(1));
         comm.allreduce(arr).wait();
-
-        std::cout << "First, potential 1: " << curr_potential.to_host(queue) << std::endl;
     }
 
     return local_event;
@@ -535,6 +536,7 @@ sycl::event fix_indices(sycl::queue& queue,
 template <typename Communicator, typename Float, typename Index>
 sycl::event find_indices(sycl::queue& queue,
                          Communicator& comm,
+                         const std::int64_t offset,
                          const pr::ndview<Float, 1>& points,
                          pr::ndview<Float, 1>& values,
                          pr::ndview<Float, 1>& bounds,
@@ -564,23 +566,16 @@ sycl::event find_indices(sycl::queue& queue,
         comm.allgather(last_val_arr, bnds_arr).wait();
 
         auto cumsum_event = pr::cumulative_sum_1d(queue, bounds);
-
-        std::cout << "Meta cumsum: " << bounds.to_host(queue, {cumsum_event}) << std::endl;
         
         const auto adjustment = bounds.get_slice(rank, rank + 1);
         last_event = add_number(queue, adjustment, values, { cumsum_event });
     }
 
-    std::cout << "Values: " << values.to_host(queue, {last_event}) << std::endl;
-    std::cout << "Points: " << points.to_host(queue, {last_event}) << std::endl;
-
     constexpr auto alignment = pr::search_alignment::left;
     auto search_event = pr::search_sorted_1d(queue, alignment, //
                         values, points, indices, { last_event });
-    std::cout << "Rank: " << rank << "; Not Indices: " << indices.to_host(queue, {search_event}) << std::endl;
-    auto fix_event = fix_indices(queue, comm, rank, points, bounds, indices, { search_event });
 
-    std::cout << "Rank: " << rank << "; Fixed Indices: " << indices.to_host(queue, {fix_event}) << std::endl;
+    auto fix_event = fix_indices(queue, comm, offset, points, bounds, indices, { search_event });
 
     return fix_event;
 }
@@ -622,6 +617,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     
     auto boundaries = get_boundaries(comm, sample_count);
     const std::int64_t full_count = boundaries[ rank_count ];
+    const std::int64_t curr_offset = boundaries[ comm.get_rank() ];
 
     auto bin_boundaries = pr::ndarray<Float, 1>::empty(queue, { rank_count + 1 }, alloc);
 
@@ -647,7 +643,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
 
     sycl::event last_event = first_sample(ctx, rng, full_count, centroids, boundaries,
         samples, potentials, dist_sq, candidate_norms, sample_norms, deps + sample_norms_event);  
-    std::cout << centroids.to_host(queue, { last_event }) << std::endl;
+
     // Obtain potential as a squared distance to the first sample
     Float curr_potential = potentials.at_device(queue, 0, { last_event }); 
     for (std::int64_t i = 1; i < cluster_count; ++i) {
@@ -657,10 +653,8 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
         auto closest_event = pr::copy(queue, closest, dist_sq, { last_event });
 
         auto device_trials = host_trials.to_device(queue, { last_event });
-        auto search_event = find_indices(queue, comm, device_trials, dist_sq, 
-            bin_boundaries, candidate_indices, { last_event, closest_event });
-
-        //std::cout << "Indices: " << candidate_indices.to_host(queue, { search_event }) << "; Boundaries: " << bin_boundaries << std::endl;
+        auto search_event = find_indices(queue, comm, curr_offset, device_trials, 
+            dist_sq, bin_boundaries, candidate_indices, { last_event, closest_event });
 
         auto extract_event = extract_and_share_by_indices(ctx, candidate_indices, 
                                 boundaries, samples, candidates, { search_event });
@@ -684,11 +678,10 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
 
         last_event = std::move(min_event);
         curr_potential = std::move(valmin);
-        std::cout << "Centrids mid: " <<  centroids.to_host(queue, { last_event }) << std::endl;
     }
 
     sycl::event::wait_and_throw({ last_event });
-    std::cout << "Centroids: " << centroids.to_host(queue) << std::endl;
+
     return compute_result<Task>{}.set_centroids(
         homogen_table::wrap(centroids_array, cluster_count, feature_count));
 }

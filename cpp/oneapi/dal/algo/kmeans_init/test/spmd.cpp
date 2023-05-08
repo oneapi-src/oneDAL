@@ -65,8 +65,8 @@ public:
         if (column_count != b.get_column_count())
             return true;
 
-        const auto aarray = row_accessor<const float>(a).pull();
-        const auto barray = row_accessor<const float>(b).pull();
+        const auto aarray = row_accessor<const float_t>(a).pull();
+        const auto barray = row_accessor<const float_t>(b).pull();
 
         REQUIRE(aarray.get_count() == count);
         REQUIRE(barray.get_count() == count);
@@ -92,7 +92,8 @@ public:
     }
 
     result_t merge_compute_result_override(const std::vector<result_t>& results) {
-        REQUIRE(are_different(results));
+        REQUIRE(!are_different(results));
+
         return results[0];
     }
 
@@ -100,7 +101,7 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-using kmeans_init_types = _TE_COMBINE_TYPES_2((float), (kmeans_init::method::plus_plus_dense));
+using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double), (kmeans_init::method::plus_plus_dense));
 
 TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
                      "kmeans init dense test",
