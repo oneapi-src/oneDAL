@@ -45,6 +45,12 @@ bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
     return use_cache;
 }
 
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
+}
+
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
     // TODO optimization/dispatching
     return 16;
@@ -150,19 +156,19 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     std::int32_t* indices_ptr = indices.get_mutable_data();
     const auto fp_max = dal::detail::limits<Float>::max();
 
-    const std::int64_t num_rows =
-        std::min(static_cast<std::int64_t>(bk::device_max_mem_alloc_size(queue) / sizeof(Float)),
-                 static_cast<std::int64_t>(std::numeric_limits<int>::max() / wg_size));
-    std::vector<sycl::event> events;
-    for (std::int64_t start_row = 0; start_row < row_count; start_row += num_rows) {
-        const std::int64_t end_row = std::min(start_row + num_rows, row_count);
+    const auto block_size = propose_block_size<Float>(queue, row_count);
+    const bk::uniform_blocking blocking(row_count, block_size);
+    std::vector<sycl::event> events(blocking.get_block_count());
+    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto first_row = blocking.get_block_start_index(b);
+        const auto last_row = blocking.get_block_end_index(b);
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for<select_min_distance<Float>>(
-                bk::make_multiple_nd_range_2d({ wg_size, end_row - start_row }, { wg_size, 1 }),
+                bk::make_multiple_nd_range_2d({ wg_size, last_row - first_row }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
-                    const std::int64_t global_row_id = item.get_global_id(1) + start_row;
-                    if (global_row_id >= end_row)
+                    const std::int64_t global_row_id = item.get_global_id(1) + first_row;
+                    if (global_row_id >= last_row)
                         return;
                     auto sg = item.get_sub_group();
                     const std::int64_t sg_id = sg.get_group_id()[0];
