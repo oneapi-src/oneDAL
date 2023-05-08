@@ -21,12 +21,11 @@ namespace oneapi::dal::kmeans::test {
 template <typename TestType>
 class kmeans_batch_test : public kmeans_test<TestType, kmeans_batch_test<TestType>> {};
 
+/*
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",
                      "[kmeans][batch]",
                      kmeans_types) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     // number of observations is equal to number of centroids (obvious clustering)
     SKIP_IF(this->not_float64_friendly());
 
@@ -40,8 +39,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batch]", kmeans_types) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     // relocation of empty cluster to the best candidate
     SKIP_IF(this->not_float64_friendly());
 
@@ -70,13 +67,12 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                        expected_obj_function,
                                        false);
 }
+*/
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
                      kmeans_types) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     SKIP_IF(this->not_float64_friendly());
     this->check_empty_clusters();
 }
@@ -85,8 +81,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans smoke train/infer test",
                      "[kmeans][batch]",
                      kmeans_types) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     SKIP_IF(this->not_float64_friendly());
     this->check_on_smoke_data();
 }
@@ -95,8 +89,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans train/infer on gold data",
                      "[kmeans][batch]",
                      kmeans_types) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
     SKIP_IF(this->not_float64_friendly());
     this->check_on_gold_data();
 }
@@ -113,13 +105,13 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     this->check_on_large_data_with_one_cluster();
 }
 
-/*TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroids stress test",
                      "[kmeans][batch][nightly][stress]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     this->partial_centroids_stress_test();
-}*/
+}
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, iters=3",

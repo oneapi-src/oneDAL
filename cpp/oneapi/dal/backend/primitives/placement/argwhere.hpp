@@ -76,7 +76,7 @@ inline sycl::event argwhere_one(sycl::queue& queue,
 
         h.parallel_for(range, accum, [=](sycl::id<1> idx, auto& acc) {
             const bool handle = unary(inp_ptr[idx]);
-            //acc.combine(handle ? Index(idx) : map_t::identity);
+
             if (handle)
                 acc.combine(Index(idx));
         });

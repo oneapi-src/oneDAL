@@ -895,17 +895,6 @@ template <typename T, std::int64_t axis_count, ndorder order>
 ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_host(
     sycl::queue& q,
     const event_vector& deps) const {
-    /*event_vector new_deps{};
-    T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
-    if constexpr (order == ndorder::c) {
-        auto copy_event = dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps);
-        
-        new_deps.push_back(copy_event);
-    }
-    else {
-
-    }*/
-
     T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
     dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
         .wait_and_throw();
