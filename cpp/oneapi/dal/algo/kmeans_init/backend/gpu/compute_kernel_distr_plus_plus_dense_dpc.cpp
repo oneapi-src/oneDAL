@@ -83,18 +83,6 @@ sycl::event min_number(sycl::queue& queue,
 }
 
 template <typename Type>
-sycl::event minimum(sycl::queue& queue,
-                    const pr::ndview<Type, 1>& inp1,
-                    const pr::ndview<Type, 1>& inp2,
-                    pr::ndview<Type, 1>& output,
-                    const bk::event_vector& deps = {}) {
-    constexpr std::plus<Type> kernel{};
-    ONEDAL_ASSERT(inp1.get_count() == inp2.get_count());
-    ONEDAL_ASSERT(inp1.get_count() == output.get_count());
-    return pr::element_wise(queue, kernel, inp1, inp2, output, deps);
-}
-
-template <typename Type>
 std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     const auto* const last = bk::cend(offsets);
     const auto* const first = bk::cbegin(offsets);
@@ -485,11 +473,14 @@ sycl::event fix_indices(sycl::queue& queue,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(fix_indices.kernel, queue);
 
+    constexpr auto max = std::numeric_limits<Float>::max();
+
     ONEDAL_ASSERT(points.has_data());
     ONEDAL_ASSERT(bounds.has_data());
     ONEDAL_ASSERT(indices.has_mutable_data());
 
     const auto count = points.get_count();
+    const auto bnd_count = bounds.get_count();
     ONEDAL_ASSERT(count == indices.get_count());
 
     const auto range = bk::make_range_1d(count);
@@ -504,13 +495,12 @@ sycl::event fix_indices(sycl::queue& queue,
             const auto value = pts_ptr[idx];
             const auto index = ids_ptr[idx];
 
-            const auto curr_upper = bds_ptr[rank];
-            const auto curr_lower = (rank == std::int64_t(0)) ? std::numeric_limits<Float>::lowest()
-                                                              : bds_ptr[rank - 1];
+            const auto curr_lower = bds_ptr[rank];
+            const auto curr_upper = (bnd_count <= rank + 2) ? max : bds_ptr[rank + 1];
 
-            const bool not_this_rank = (value < curr_lower) || (curr_upper <= value);
+            const bool this_rank = (curr_lower <= value) && (value < curr_upper);
 
-            ids_ptr[idx] = not_this_rank ? (index + offset) : std::numeric_limits<Index>::lowest();
+            ids_ptr[idx] = this_rank ? (index + offset) : std::numeric_limits<Index>::lowest();
         });
     });
 }
@@ -558,29 +548,37 @@ sycl::event find_indices(sycl::queue& queue,
     const auto rank_count = comm.get_rank_count();
 
     ONEDAL_ASSERT(bounds.has_mutable_data());
-    ONEDAL_ASSERT(rank_count + 1 == bounds.get_count());
+    ONEDAL_ASSERT((rank_count + 1) == bounds.get_count());
 
     ONEDAL_ASSERT(values.has_mutable_data());
     const auto local_count = values.get_count();
 
     // Computes local cumulative sum
+    //auto fill_bnds_event = pr::fill(queue, bounds, Float(0), deps);
     auto last_event = pr::cumulative_sum_1d(queue, values, deps);
+    auto fill_event = pr::fill(queue, bounds, Float(0), deps);
+
+    const Float* const last_val_ptr = values.get_data() + local_count - 1;
 
     if (rank_count > 1) {
         ONEDAL_PROFILER_TASK(find_indices.boundaries, queue);
 
-        auto fill_event = pr::fill(queue, bounds, Float(0), deps);
         auto bnds_arr = array<Float>::wrap(queue, bounds.get_mutable_data() + 1, rank_count);
         const Float* const last_val_ptr = values.get_data() + local_count - 1;
         auto last_val_arr = array<Float>::wrap(queue, last_val_ptr, 1);
 
-        sycl::event::wait_and_throw({ last_event, fill_event });
+        sycl::event::wait_and_throw({ last_event, fill_event});
         comm.allgather(last_val_arr, bnds_arr).wait();
 
         auto cumsum_event = pr::cumulative_sum_1d(queue, bounds);
 
         const auto adjustment = bounds.get_slice(rank, rank + 1);
         last_event = add_number(queue, adjustment, values, { cumsum_event });
+    }
+    else {
+        auto slice = bounds.get_slice(rank + 1, rank + 2);
+        const auto set = [=](auto&, auto* ptr) -> Float { return *ptr; };
+        last_event = element_wise(queue, set, slice, last_val_ptr, slice, {last_event, fill_event});
     }
 
     constexpr auto alignment = pr::search_alignment::left;
