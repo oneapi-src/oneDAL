@@ -81,12 +81,12 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
                     'daal/includes/*', 'onedal/algorithms/.*/includes/*', 'index-toc.rst']
 
 extlinks = {
-    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
-    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
-    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', ''),
-    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', ''),
-    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sklearnex/%s', ''),
-    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
+    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', None),
+    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', None),
+    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', None),
+    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', None),
+    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sklearnex/%s', None),
+    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', None)
 }
 
 # -- Options for HTML output -------------------------------------------------
