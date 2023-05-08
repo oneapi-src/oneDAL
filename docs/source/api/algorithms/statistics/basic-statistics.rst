@@ -77,3 +77,10 @@ Operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
+
+
+--------
+Examples
+--------
+
+.. include:: ../../../includes/statistics/basic-statistics-examples.rst
