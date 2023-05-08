@@ -567,7 +567,7 @@ sycl::event find_indices(sycl::queue& queue,
         const Float* const last_val_ptr = values.get_data() + local_count - 1;
         auto last_val_arr = array<Float>::wrap(queue, last_val_ptr, 1);
 
-        sycl::event::wait_and_throw({ last_event, fill_event});
+        sycl::event::wait_and_throw({ last_event, fill_event });
         comm.allgather(last_val_arr, bnds_arr).wait();
 
         auto cumsum_event = pr::cumulative_sum_1d(queue, bounds);
@@ -577,8 +577,11 @@ sycl::event find_indices(sycl::queue& queue,
     }
     else {
         auto slice = bounds.get_slice(rank + 1, rank + 2);
-        const auto set = [=](auto&, auto* ptr) -> Float { return *ptr; };
-        last_event = element_wise(queue, set, slice, last_val_ptr, slice, {last_event, fill_event});
+        const auto set = [=](auto&, auto* ptr) -> Float {
+            return *ptr;
+        };
+        last_event =
+            element_wise(queue, set, slice, last_val_ptr, slice, { last_event, fill_event });
     }
 
     constexpr auto alignment = pr::search_alignment::left;
