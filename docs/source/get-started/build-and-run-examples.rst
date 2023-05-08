@@ -15,7 +15,7 @@
 .. *******************************************************************************/
 
 .. |dpcpp_gsg| replace:: Get Started with Intel\ |reg|\  oneAPI DPC++/C++ Compiler
-.. _dpcpp_gsg: https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-dpcpp-compiler/top.html
+.. _dpcpp_gsg: https://www.intel.com/content/www/us/en/docs/dpcpp-cpp-compiler/get-started-guide/current/overview.html
 
 Build and Run Examples
 ~~~~~~~~~~~~~~~~~~~~~~~
