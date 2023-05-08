@@ -46,7 +46,8 @@ public:
         const Float* const inp_row = input_ + lstride_ * row_idx;
         // Exclusive for EU
         Float acc = (override_ || (loc_idx != 0)) //
-            ? binary_.init_value : output_[row_idx];
+                        ? binary_.init_value
+                        : output_[row_idx];
         for (std::int32_t i = loc_idx; i < width_; i += range) {
             acc = binary_.native(acc, unary_(inp_row[i]));
         }
@@ -78,16 +79,15 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue
         : reduction_rm_rw_wide(q, propose_wg_size(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    std::int64_t stride,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps,
-    const bool override) const {
+sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
+                                                                       Float* output,
+                                                                       std::int64_t width,
+                                                                       std::int64_t height,
+                                                                       std::int64_t stride,
+                                                                       const BinaryOp& binary,
+                                                                       const UnaryOp& unary,
+                                                                       const event_vector& deps,
+                                                                       const bool override) const {
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(height);
@@ -98,15 +98,14 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps,
-    const bool override) const {
+sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
+                                                                       Float* output,
+                                                                       std::int64_t width,
+                                                                       std::int64_t height,
+                                                                       const BinaryOp& binary,
+                                                                       const UnaryOp& unary,
+                                                                       const event_vector& deps,
+                                                                       const bool override) const {
     return this->operator()(input, output, width, height, width, binary, unary, deps, override);
 }
 

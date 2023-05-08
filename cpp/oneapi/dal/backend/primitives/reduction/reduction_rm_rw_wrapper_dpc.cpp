@@ -71,7 +71,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const event_vector& deps,
                                                                   const bool override) const {
     const auto method = propose_method(width);
-    return this->operator()(method, input, output, width, height, stride, binary, unary, deps, override);
+    return this->
+    operator()(method, input, output, width, height, stride, binary, unary, deps, override);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -84,7 +85,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   const UnaryOp& unary,
                                                                   const event_vector& deps,
                                                                   const bool override) const {
-    return this->operator()(method, input, output, width, height, width, binary, unary, deps, override);
+    return this->
+    operator()(method, input, output, width, height, width, binary, unary, deps, override);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -97,7 +99,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const event_vector& deps,
                                                                   const bool override) const {
     const auto method = propose_method(width);
-    return this->operator()(method, input, output, width, height, width, binary, unary, deps, override);
+    return this->
+    operator()(method, input, output, width, height, width, binary, unary, deps, override);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_rw<F, B, U>;

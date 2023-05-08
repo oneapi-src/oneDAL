@@ -146,7 +146,7 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     event_vector new_deps{ deps };
     if (override) {
         auto view = ndview<Float, 1>::wrap(output, { width });
-        new_deps.push_back( fill(q_, view, binary.init_value, deps) );
+        new_deps.push_back(fill(q_, view, binary.init_value, deps));
     }
     return reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size>(q_,
                                                                              input,

@@ -44,7 +44,8 @@ public:
         const auto range = it.get_global_range(1);
         // Exclusive for EU
         Float acc = (override_ || (loc_idx == 0)) ? //
-            binary_.init_value : output_[col_idx];
+                        binary_.init_value
+                                                  : output_[col_idx];
         for (std::int64_t i = loc_idx; i < height_; i += range) {
             const Float* const inp_row = input_ + lstride_ * i;
             acc = binary_.native(acc, unary_(inp_row[col_idx]));
@@ -77,16 +78,15 @@ reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive(sycl::que
         : reduction_rm_cw_naive(q, propose_wg_size(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    std::int64_t stride,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps,
-    const bool override) const {
+sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
+                                                                        Float* output,
+                                                                        std::int64_t width,
+                                                                        std::int64_t height,
+                                                                        std::int64_t stride,
+                                                                        const BinaryOp& binary,
+                                                                        const UnaryOp& unary,
+                                                                        const event_vector& deps,
+                                                                        const bool override) const {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     ONEDAL_ASSERT(0 <= width && width <= stride);
     auto event = q_.submit([&](sycl::handler& h) {
@@ -99,15 +99,14 @@ sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps,
-    const bool override) const {
+sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
+                                                                        Float* output,
+                                                                        std::int64_t width,
+                                                                        std::int64_t height,
+                                                                        const BinaryOp& binary,
+                                                                        const UnaryOp& unary,
+                                                                        const event_vector& deps,
+                                                                        const bool override) const {
     return this->operator()(input, output, width, height, width, binary, unary, deps, override);
 }
 

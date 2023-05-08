@@ -336,7 +336,7 @@ sycl::event compute_potential_local(sycl::queue& queue,
                                             sum,
                                             identity,
                                             { min_event },
-                                            /*override =*/ false);
+                                            /*override =*/false);
         }
     }
 

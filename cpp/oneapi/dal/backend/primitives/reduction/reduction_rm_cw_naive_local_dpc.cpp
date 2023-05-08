@@ -51,7 +51,8 @@ public:
         sycl::local_ptr<const Float> local((const Float*)cache_.get_pointer().get());
 
         Float acc = (override_ || (loc_idx == 0)) ? //
-            binary_.init_value : output_[col_idx];
+                        binary_.init_value
+                                                  : output_[col_idx];
         // Loop fot the whole WG
         for (std::int64_t j = 0; j < height_; j += lm) {
             const Float* from = input_ + col_idx + lstride_ * j;
@@ -115,7 +116,8 @@ sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);
-        const auto kernel = get_kernel(h, input, output, lm_, height, stride, binary, unary, override);
+        const auto kernel =
+            get_kernel(h, input, output, lm_, height, stride, binary, unary, override);
         h.parallel_for<kernel_t>(range, kernel);
     });
     return event;

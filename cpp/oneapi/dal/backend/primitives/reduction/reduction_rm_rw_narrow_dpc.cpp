@@ -86,11 +86,11 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps,
     const bool override) const {
-
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(height);
-        const auto kernel = get_kernel(input, output, width, height, stride, binary, unary, override);
+        const auto kernel =
+            get_kernel(input, output, width, height, stride, binary, unary, override);
         h.parallel_for<kernel_t>(range, kernel);
     });
     return event;

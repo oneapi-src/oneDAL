@@ -163,7 +163,7 @@ TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
     this->set_rank_count(GENERATE(2));
 
     const auto dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ row_count, column_count }.fill_uniform(-10.1, +10.1));
+        te::dataframe_builder{ row_count, column_count }.fill_uniform(-10.1, +10.1));
 
     const auto data_table = dataframe.get_table(te::table_id::homogen<double>());
 
