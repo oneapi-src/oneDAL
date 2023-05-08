@@ -393,7 +393,7 @@ bool OrderedRespHelperBest<algorithmFPType, cpu>::findBestSplitCategoricalFeatur
 
         if (i == n)
         {
-            constFeature = nDifferentFeatureValues == 1;
+            constFeature = nDiffFeatureValues == 1;
             if((nDiffFeatureValues == 2) && bFound) break; //only 2 feature values, one possible split, already found
         }
 
@@ -1127,7 +1127,8 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeat
                                                                                     size_t n, size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                     const ImpurityData & curImpurity, TSplitData & split,
                                                                                     const algorithmFPType minWeightLeaf,
-                                                                                    const algorithmFPType totalWeights) const
+                                                                                    const algorithmFPType totalWeights,
+                                                                                    bool & constFeature) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     ImpurityData left;
@@ -1146,6 +1147,12 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeat
     {
         max = featureVal[i] > max ? featureVal[i] : max;
         min = featureVal[i] < min ? featureVal[i] : min;
+    }
+
+    if(max <= min + accuracy)
+    {
+        constFeature = true;
+        return false;
     }
 
     firstVal = min;

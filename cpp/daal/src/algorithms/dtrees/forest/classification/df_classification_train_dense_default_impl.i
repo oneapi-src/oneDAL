@@ -461,6 +461,7 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
     const bool bBestFromOtherFeatures = !(split.impurityDecrease < 0);
     algorithmFPType vBest             = -1;
     IndexType iBest                   = -1;
+    algorithmFPType first;
 
     const algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
     for (size_t i = 0; i < n - nMinSplitPart;)
@@ -469,7 +470,7 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
         auto weights                = this->_aWeights[aIdx[i]].val;
         size_t count                = 1;
         algorithmFPType leftWeights = weights;
-        const algorithmFPType first = featureVal[i];
+        first                       = featureVal[i];
         ClassIndexType xi           = this->_aResponse[aIdx[i]].val;
         _impLeft.hist[xi]           = weights;
         const size_t iStart         = i;
@@ -506,6 +507,9 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
         split.featureValue = first;
         bFound             = true;
     }
+
+    constFeature = first == featureVal[0];
+
     if (bFound)
     {
         const algorithmFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
@@ -1492,10 +1496,11 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
         min = featureVal[i] < min ? featureVal[i] : min;
     }
 
-    if(min == max){
+    if(max <= min + accuracy){
         constFeature = true;
         return bFound;
     }
+
     first = min;
 
     RNGs<algorithmFPType, cpu> rng;
