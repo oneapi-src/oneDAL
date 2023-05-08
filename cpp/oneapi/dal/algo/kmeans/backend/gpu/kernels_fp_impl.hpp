@@ -210,8 +210,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
         events.push_back(event);
     }
-    sycl::event last_event = events.back(); // сохраняем последнее событие в переменной
-    //sycl::event combined_event = sycl::event::wait(events);
+    sycl::event last_event = events.back();
     return last_event;
 }
 
