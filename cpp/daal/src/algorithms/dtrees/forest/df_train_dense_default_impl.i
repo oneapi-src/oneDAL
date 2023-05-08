@@ -1163,28 +1163,26 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
         const bool bUseIndexedFeatures =
             (!_memorySavingMode) && (algorithmFPType(n) > qMax * algorithmFPType(_helper.indexedFeatures().numIndices(iFeature)));
 
-
         if (bUseIndexedFeatures)
         {
-
-        if (!_maxLeafNodes && !_useConstFeatures)
-        {
-            if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
-            if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
+            if (!_maxLeafNodes && !_useConstFeatures)
             {
-                _aConstFeatureIdx[maxFeatures + iFeature] = level + 1;
-                _aConstFeatureIdx[_nConstFeature]         = iFeature;
-                ++_nConstFeature;
-                continue; //all values of the feature are the same, selected feature is new constant feature
+                if (_aConstFeatureIdx[maxFeatures + iFeature] > 0) continue; //selected feature is known constant feature
+                if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n))
+                {
+                    _aConstFeatureIdx[maxFeatures + iFeature] = level + 1;
+                    _aConstFeatureIdx[_nConstFeature]         = iFeature;
+                    ++_nConstFeature;
+                    continue; //all values of the feature are the same, selected feature is new constant feature
+                }
+                else
+                    ++nVisitedFeature;
             }
             else
+            {
                 ++nVisitedFeature;
-        }
-        else
-        {
-            ++nVisitedFeature;
-            if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
-        }
+                if (!_helper.hasDiffFeatureValues(iFeature, aIdx, n)) continue;
+            }
 
             split.featureUnordered = _featHelper.isUnordered(iFeature);
             //index of best feature value in the array of sorted feature values
@@ -1206,22 +1204,22 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
             _helper.checkImpurity(aIdx, n, curImpurity);
 #endif
             split.featureUnordered = _featHelper.isUnordered(iFeature);
-            bool constFeature = false;
+            bool constFeature      = false;
             if (!_helper.findSplitForFeature(featBuf, aIdx, n, _par.minObservationsInLeafNode, _accuracy, curImpurity, split, _minWeightLeaf,
                                              totalWeights, constFeature))
-                {
-                if(constFeature && !_maxLeafNodes && !_useConstFeatures)
+            {
+                if (constFeature && !_maxLeafNodes && !_useConstFeatures)
                 {
                     _aConstFeatureIdx[maxFeatures + iFeature] = level + 1;
                     _aConstFeatureIdx[_nConstFeature]         = iFeature;
                     ++_nConstFeature;
                 }
                 else
-                {   
+                {
                     ++nVisitedFeature;
                 }
                 continue;
-                }
+            }
 
             ++nVisitedFeature;
 

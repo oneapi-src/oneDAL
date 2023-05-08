@@ -360,12 +360,12 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
     double iStartEqualRespValues = double(0);
     algorithmFPType leftWeights  = algorithmFPType(0);
     const algorithmFPType last   = featureVal[n - nMinSplitPart];
-    algorithmFPType v = 0;
+    algorithmFPType v            = 0;
     bool bSameFeaturePrev;
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
-        bSameFeaturePrev = featureVal[i] <= featureVal[i - 1] + accuracy;
+        bSameFeaturePrev              = featureVal[i] <= featureVal[i - 1] + accuracy;
         leftWeights += this->_aWeights[aIdx[i - 1]].val;
         if (bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || (totalWeights - leftWeights < minWeightLeaf))
         {
@@ -452,8 +452,7 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
                                                                                 size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                 const ImpurityData & curImpurity, TSplitData & split,
                                                                                 const algorithmFPType minWeightLeaf,
-                                                                                const algorithmFPType totalWeights,
-                                                                                bool & constFeature) const
+                                                                                const algorithmFPType totalWeights, bool & constFeature) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     _impRight.init(_nClasses);
@@ -570,17 +569,19 @@ public:
         const bool noWeights = !this->_weights;
         if (noWeights)
         {
-            return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature) :
-                                            static_cast<const crtp *>(this)->template findSplitOrderedFeature<true>(
-                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature);
+            return split.featureUnordered ?
+                       static_cast<const crtp *>(this)->findSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split,
+                                                                                    minWeightLeaf, totalWeights, constFeature) :
+                       static_cast<const crtp *>(this)->template findSplitOrderedFeature<true>(
+                           featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature);
         }
         else
         {
-            return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature) :
-                                            static_cast<const crtp *>(this)->template findSplitOrderedFeature<false>(
-                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature);
+            return split.featureUnordered ?
+                       static_cast<const crtp *>(this)->findSplitCategoricalFeature(featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split,
+                                                                                    minWeightLeaf, totalWeights, constFeature) :
+                       static_cast<const crtp *>(this)->template findSplitOrderedFeature<false>(
+                           featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights, constFeature);
         }
     }
     bool terminateCriteria(ImpurityData & imp, algorithmFPType impurityThreshold, size_t nSamples) const { return imp.value() < impurityThreshold; }
@@ -1373,7 +1374,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
     if (idx >= featureVal[n - nMinSplitPart]
         || idx < featureVal[nMinSplitPart - 1]) //check if sufficient samples will exist, and not a constant feature
     {
-        constFeature = featureVal[n-1] <= featureVal[0] + accuracy;
+        constFeature = featureVal[n - 1] <= featureVal[0] + accuracy;
         return bFound;
     }
 
@@ -1476,8 +1477,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
                                                                                   size_t n, size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                   const ImpurityData & curImpurity, TSplitData & split,
                                                                                   const algorithmFPType minWeightLeaf,
-                                                                                  const algorithmFPType totalWeights,
-                                                                                  bool & constFeature) const
+                                                                                  const algorithmFPType totalWeights, bool & constFeature) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     this->_impRight.init(this->_nClasses);
@@ -1496,7 +1496,8 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
         min = featureVal[i] < min ? featureVal[i] : min;
     }
 
-    if(max <= min + accuracy){
+    if (max <= min + accuracy)
+    {
         constFeature = true;
         return bFound;
     }
