@@ -150,7 +150,9 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     std::int32_t* indices_ptr = indices.get_mutable_data();
     const auto fp_max = dal::detail::limits<Float>::max();
 
-    const std::int64_t num_rows = 100;
+    const std::int64_t num_rows =
+        std::min(static_cast<std::int64_t>(bk::device_max_mem_alloc_size(queue) / sizeof(Float)),
+                 static_cast<std::int64_t>(std::numeric_limits<int>::max() / wg_size));
     std::vector<sycl::event> events;
     for (std::int64_t start_row = 0; start_row < row_count; start_row += num_rows) {
         const std::int64_t end_row = std::min(start_row + num_rows, row_count);
@@ -211,6 +213,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
         events.push_back(event);
     }
     sycl::event last_event = events.back();
+    sycl::event::wait(events);
     return last_event;
 }
 
