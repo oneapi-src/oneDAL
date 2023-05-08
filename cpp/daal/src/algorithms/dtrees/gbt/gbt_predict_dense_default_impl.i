@@ -52,14 +52,14 @@ struct PredictDispatcher
 };
 
 template <typename algorithmFPType>
-inline FeatureIndexType UpdateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, false> & dispatcher)
 {
     return idx * 2 + (valueFromDataSet > splitPoints[idx]);
 }
 
 template <typename algorithmFPType>
-inline FeatureIndexType UpdateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, false> & dispatcher)
 {
     // return idx * 2 + (isUnordered ? int(valueFromDataSet) != int(splitPoints[idx]) : valueFromDataSet > splitPoints[idx]); //???///
@@ -67,7 +67,7 @@ inline FeatureIndexType UpdateIndex(FeatureIndexType idx, algorithmFPType valueF
 }
 
 template <typename algorithmFPType>
-inline FeatureIndexType UpdateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, true> & dispatcher)
 {
     if (isnan(valueFromDataSet))
@@ -81,7 +81,7 @@ inline FeatureIndexType UpdateIndex(FeatureIndexType idx, algorithmFPType valueF
 }
 
 template <typename algorithmFPType>
-inline FeatureIndexType UpdateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, true> & dispatcher)
 {
     if (isnan(valueFromDataSet))
@@ -117,7 +117,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
         {
             const FeatureIndexType idx          = i[k];
             const FeatureIndexType splitFeature = fIndexes[idx];
-            i[k] = UpdateIndex(idx, x[splitFeature + k * nFeat], values, yesIfMissing, featTypes, splitFeature, dispatcher);
+            i[k] = updateIndex(idx, x[splitFeature + k * nFeat], values, yesIfMissing, featTypes, splitFeature, dispatcher);
         }
     }
 
@@ -144,7 +144,7 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
     for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
     {
         const FeatureIndexType splitFeature = fIndexes[i];
-        i                                   = UpdateIndex(i, x[splitFeature], values, yesIfMissing, featTypes, splitFeature, dispatcher);
+        i                                   = updateIndex(i, x[splitFeature], values, yesIfMissing, featTypes, splitFeature, dispatcher);
     }
     return values[i];
 }
