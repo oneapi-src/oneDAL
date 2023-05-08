@@ -25,7 +25,7 @@ namespace oneapi::dal::test {
 namespace te = dal::test::engine;
 namespace de = dal::detail;
 
-template<typename Data>
+template <typename Data>
 void check_csr_tables_equal(const csr_table& a, const csr_table& b) {
     REQUIRE(a.get_column_count() == b.get_column_count());
     REQUIRE(a.get_row_count() == b.get_row_count());
@@ -65,9 +65,9 @@ TEST("Serialize/deserialize small CSR table one-based indexing") {
     const std::int64_t element_count{ 9 };
 
     csr_table init_table{ array<float>::wrap(data, element_count),
-                 array<std::int64_t>::wrap(column_indices, element_count),
-                 array<std::int64_t>::wrap(row_indices, row_count + 1),
-                 column_count };
+                          array<std::int64_t>::wrap(column_indices, element_count),
+                          array<std::int64_t>::wrap(row_indices, row_count + 1),
+                          column_count };
     auto deser_table = te::serialize_deserialize(init_table);
 
     check_csr_tables_equal<const float>(init_table, deser_table);
@@ -85,10 +85,10 @@ TEST("Serialize/deserialize small CSR table zero-based indexing") {
     const std::int64_t element_count{ 9 };
 
     csr_table init_table{ array<float>::wrap(data, element_count),
-                 array<std::int64_t>::wrap(column_indices, element_count),
-                 array<std::int64_t>::wrap(row_indices, row_count + 1),
-                 column_count,
-                 sparse_indexing::zero_based };
+                          array<std::int64_t>::wrap(column_indices, element_count),
+                          array<std::int64_t>::wrap(row_indices, row_count + 1),
+                          column_count,
+                          sparse_indexing::zero_based };
     auto deser_table = te::serialize_deserialize(init_table);
 
     check_csr_tables_equal<const float>(init_table, deser_table);
@@ -119,7 +119,8 @@ TEST("Serialize/deserialize big random CSR table one-based indexing") {
         row_offsets_ptr[i] = i + 1;
     }
 
-    auto init_table = csr_table::wrap(data, col_indices, row_offsets, column_count, sparse_indexing::one_based);
+    auto init_table =
+        csr_table::wrap(data, col_indices, row_offsets, column_count, sparse_indexing::one_based);
 
     auto deser_table = te::serialize_deserialize(init_table);
 
@@ -151,12 +152,12 @@ TEST("Serialize/deserialize big random CSR table zero-based indexing") {
         row_offsets_ptr[i] = i;
     }
 
-    auto init_table = csr_table::wrap(data, col_indices, row_offsets, column_count, sparse_indexing::zero_based);
+    auto init_table =
+        csr_table::wrap(data, col_indices, row_offsets, column_count, sparse_indexing::zero_based);
 
     auto deser_table = te::serialize_deserialize(init_table);
 
     check_csr_tables_equal<float>(init_table, deser_table);
 }
-
 
 } // namespace oneapi::dal::test
