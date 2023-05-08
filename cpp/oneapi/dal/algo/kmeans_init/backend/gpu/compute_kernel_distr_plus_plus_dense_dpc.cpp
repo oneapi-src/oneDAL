@@ -254,14 +254,14 @@ template <typename Float>
 std::int64_t propose_sample_block(const sycl::queue& queue,
                                   std::int64_t feature_count,
                                   std::int64_t sample_count) {
-    return std::min<std::int64_t>(sample_count, 4096l);
+    return std::min<std::int64_t>(sample_count, 5l);
 }
 
 template <typename Float>
 std::int64_t propose_candidate_block(const sycl::queue& queue,
                                      std::int64_t feature_count,
                                      std::int64_t trial_count) {
-    return std::min<std::int64_t>(trial_count, 1024l);
+    return std::min<std::int64_t>(trial_count, 5l);
 }
 
 template <typename Float, pr::ndorder order>
@@ -332,6 +332,9 @@ sycl::event compute_potential_local(sycl::queue& queue,
                                       { last_event });
 
             auto min_event = min_number(queue, dist_sp_slice, closest_slice, { dist_event });
+
+
+            std::cout << cd_id <<  ' ' << sp_id << ' ' << pot_cd_slice.to_host(queue, {min_event}) << std::endl;
 
             last_event = pr::reduce_by_rows(queue,
                                             dist_sp_slice,
@@ -705,12 +708,16 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
                                          candidate_indices,
                                          { last_event, closest_event });
 
+        std::cout << "i,r,i:" << i << ',' << comm.get_rank() << candidate_indices.to_host(queue, {search_event}) << std::endl;
+
         auto extract_event = extract_and_share_by_indices(ctx,
                                                           candidate_indices,
                                                           boundaries,
                                                           samples,
                                                           candidates,
                                                           { search_event });
+
+        std::cout << candidates.to_host(queue, {extract_event}) << std::endl;
 
         auto norms_event =
             pr::reduce_by_rows(queue, candidates, candidate_norms, sum, square, { extract_event });

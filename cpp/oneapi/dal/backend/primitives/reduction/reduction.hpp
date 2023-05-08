@@ -62,7 +62,7 @@ inline sycl::event reduce_by_rows(sycl::queue& q,
     static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
                   "UnaryOp must be a special unary operation defined "
                   "at the primitives level");
-    return reduce_by_rows_impl(q, input, output, binary, unary, deps);
+    return reduce_by_rows_impl(q, input, output, binary, unary, deps, override);
 }
 
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
@@ -102,7 +102,7 @@ inline sycl::event reduce_by_columns(sycl::queue& q,
     static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
                   "UnaryOp must be a special unary operation defined "
                   "at the primitives level");
-    return reduce_by_columns_impl(q, input, output, binary, unary, deps);
+    return reduce_by_columns_impl(q, input, output, binary, unary, deps, override);
 }
 
 #endif

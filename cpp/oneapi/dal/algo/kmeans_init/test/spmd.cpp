@@ -167,9 +167,9 @@ TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
     const std::int64_t column_count = GENERATE(3, 7);
     const std::int64_t cluster_count = GENERATE(7, 15);*/
 
-    const std::int64_t row_count = GENERATE(5007);
+    const std::int64_t row_count = GENERATE(10);
     const std::int64_t column_count = GENERATE(3);
-    const std::int64_t cluster_count = GENERATE(7);
+    const std::int64_t cluster_count = GENERATE(3);
 
     this->set_rank_count(GENERATE(2));
 
