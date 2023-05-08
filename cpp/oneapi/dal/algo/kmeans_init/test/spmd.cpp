@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/kmeans_init/test/fixture.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
-#include "oneapi/dal/detail/debug.hpp"
+
 namespace oneapi::dal::kmeans_init::test {
 
 template <typename TestType>
@@ -66,18 +66,14 @@ public:
 
         const auto multi_node_results = this->compute_override(desc, data);
 
-                std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-
         const auto single_node_results = this->compute_as_single_node(desc, data);
 
         const auto multi_table = multi_node_results.get_centroids();
         const auto single_table = single_node_results.get_centroids();
 
         const bool are_the_same = !are_different(multi_table, single_table);
-        using namespace dal::detail;
-        CAPTURE(cluster_count, data.get_row_count(), data.get_column_count());
-        std::cout << multi_table << ' ' << single_table << std::endl;
 
+        CAPTURE(cluster_count, data.get_row_count(), data.get_column_count());
         REQUIRE(are_the_same);
     }
 
@@ -127,13 +123,10 @@ private:
     std::int64_t rank_count_ = -1;
 };
 
-/*using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
-                                              (kmeans_init::method::plus_plus_dense));*/
-
-using kmeans_init_types = _TE_COMBINE_TYPES_2((float),
+using kmeans_init_types = _TE_COMBINE_TYPES_2((float, double),
                                               (kmeans_init::method::plus_plus_dense));
 
-/*TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
+TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
                      "kmeans init dense test",
                      "[kmeans_init][batch]",
                      kmeans_init_types) {
@@ -153,7 +146,7 @@ using kmeans_init_types = _TE_COMBINE_TYPES_2((float),
     this->dense_checks(cluster_count, data_table);
 
     this->check_consistency(cluster_count, data_table);
-}*/
+}
 
 TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
                      "kmeans init dense test random",
@@ -163,13 +156,9 @@ TEMPLATE_LIST_TEST_M(kmeans_init_spmd_test,
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    /*const std::int64_t row_count = GENERATE(513, 5007);
+    const std::int64_t row_count = GENERATE(513, 5007);
     const std::int64_t column_count = GENERATE(3, 7);
-    const std::int64_t cluster_count = GENERATE(7, 15);*/
-
-    const std::int64_t row_count = GENERATE(10);
-    const std::int64_t column_count = GENERATE(3);
-    const std::int64_t cluster_count = GENERATE(3);
+    const std::int64_t cluster_count = GENERATE(7, 15);
 
     this->set_rank_count(GENERATE(2));
 

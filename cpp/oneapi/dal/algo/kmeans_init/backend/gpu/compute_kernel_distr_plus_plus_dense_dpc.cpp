@@ -21,9 +21,6 @@
 
 #include "oneapi/dal/array.hpp"
 
-#include "oneapi/dal/detail/debug.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
-
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
@@ -254,14 +251,14 @@ template <typename Float>
 std::int64_t propose_sample_block(const sycl::queue& queue,
                                   std::int64_t feature_count,
                                   std::int64_t sample_count) {
-    return std::min<std::int64_t>(sample_count, 5l);
+    return std::min<std::int64_t>(sample_count, 4096l);
 }
 
 template <typename Float>
 std::int64_t propose_candidate_block(const sycl::queue& queue,
                                      std::int64_t feature_count,
                                      std::int64_t trial_count) {
-    return std::min<std::int64_t>(trial_count, 5l);
+    return std::min<std::int64_t>(trial_count, 1024l);
 }
 
 template <typename Float, pr::ndorder order>
@@ -333,9 +330,6 @@ sycl::event compute_potential_local(sycl::queue& queue,
 
             auto min_event = min_number(queue, dist_sp_slice, closest_slice, { dist_event });
 
-
-            std::cout << cd_id <<  ' ' << sp_id << ' ' << pot_cd_slice.to_host(queue, {min_event}) << std::endl;
-
             last_event = pr::reduce_by_rows(queue,
                                             dist_sp_slice,
                                             pot_cd_slice,
@@ -371,8 +365,6 @@ sycl::event compute_potential(const bk::context_gpu& ctx,
                                                candidate_norms,
                                                sample_norms,
                                                deps);
-    
-    std::cout << "Local potentials: " << potential.to_host(queue, {local_event}) << std::endl;
 
     if (comm.get_rank_count() > 1) {
         sycl::event::wait_and_throw({ local_event });
@@ -380,8 +372,6 @@ sycl::event compute_potential(const bk::context_gpu& ctx,
             dal::array<Float>::wrap(queue, potential.get_mutable_data(), potential.get_count());
         comm.allreduce(potential_arr).wait();
     }
-
-    std::cout << "Global potentials: " << potential.to_host(queue, {local_event}) << std::endl;
 
     return local_event;
 }
@@ -688,13 +678,8 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
     // Obtain potential as a squared distance to the first sample
     Float curr_potential = potentials.at_device(queue, 0, { last_event });
     for (std::int64_t i = 1; i < cluster_count; ++i) {
-        std::cout << "i, r, p: " << i << ',' << comm.get_rank() << ',' << curr_potential << std::endl;
-
         // Generates sequence (array) of random numbers on host
         generate_trials(rng, host_trials, curr_potential);
-
-
-        std::cout << "i, r, h: " << i << ',' << comm.get_rank() << ',' << host_trials << std::endl;
 
         auto closest_event = pr::copy(queue, closest, dist_sq, { last_event });
 
@@ -708,16 +693,12 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
                                          candidate_indices,
                                          { last_event, closest_event });
 
-        std::cout << "i,r,i:" << i << ',' << comm.get_rank() << candidate_indices.to_host(queue, {search_event}) << std::endl;
-
         auto extract_event = extract_and_share_by_indices(ctx,
                                                           candidate_indices,
                                                           boundaries,
                                                           samples,
                                                           candidates,
                                                           { search_event });
-
-        std::cout << candidates.to_host(queue, {extract_event}) << std::endl;
 
         auto norms_event =
             pr::reduce_by_rows(queue, candidates, candidate_norms, sum, square, { extract_event });
@@ -731,11 +712,7 @@ compute_result<Task> implementation(const bk::context_gpu& ctx,
                                                  sample_norms,
                                                  { norms_event, closest_event });
 
-        std::cout << "i,r,pots: " << potentials.to_host(queue, {potential_event}) << std::endl;
-
         auto [valmin, argmin] = pr::argmin(queue, potentials, { potential_event });
-
-        std::cout << "i,r,v,a: " << i << ',' << comm.get_rank() << ',' << valmin << ',' << argmin << std::endl;
 
         auto centroid = centroids.get_row_slice(i, i + 1);
         auto centroid_1d = centroid.template reshape<1>({ feature_count });

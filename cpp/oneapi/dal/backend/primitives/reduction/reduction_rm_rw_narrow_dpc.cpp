@@ -86,7 +86,7 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps,
     const bool override) const {
-std::cout << "Narrow kernel with " << override << std::endl;
+
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(height);
