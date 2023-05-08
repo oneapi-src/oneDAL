@@ -66,15 +66,15 @@ public:
 
 protected:
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
-    using Dispetcher_t = gbt::prediction::internal::PredictDispetcher<hasUnorderedFeatures, hasAnyMissing>;
+    using dispatcher_t = gbt::prediction::internal::PredictDispatcher<hasUnorderedFeatures, hasAnyMissing>;
 
     services::Status runInternal(services::HostAppIface * pHostApp, NumericTable * result);
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
-                                   const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher);
+                                   const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher);
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res,
-                              const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher);
+                              const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher);
 
     inline bool checkForMissing(const algorithmFPType * x, size_t nTrees, size_t nRows, size_t nColumns)
     {
@@ -102,14 +102,14 @@ protected:
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
         size_t iRow;
-        Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> dispetcher;
+        dispatcher_t<hasUnorderedFeatures, hasAnyMissing> dispatcher;
         for (iRow = 0; iRow + VECTOR_BLOCK_SIZE <= nRows; iRow += VECTOR_BLOCK_SIZE)
         {
-            predictByTreesVector(iTree, nTrees, x + iRow * nColumns, res + iRow, dispetcher);
+            predictByTreesVector(iTree, nTrees, x + iRow * nColumns, res + iRow, dispatcher);
         }
         for (; iRow < nRows; ++iRow)
         {
-            res[iRow] += predictByTrees(iTree, nTrees, x + iRow * nColumns, dispetcher);
+            res[iRow] += predictByTrees(iTree, nTrees, x + iRow * nColumns, dispatcher);
         }
     }
 
@@ -208,11 +208,11 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 template <typename algorithmFPType, CpuType cpu>
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
-                                                                            const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher)
+                                                                            const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher)
 {
     algorithmFPType val = 0;
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
-        val += gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, dispetcher);
+        val += gbt::prediction::internal::predictForTree<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, dispatcher);
     return val;
 }
 
@@ -220,12 +220,12 @@ template <typename algorithmFPType, CpuType cpu>
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
                                                                        algorithmFPType * res,
-                                                                       const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher)
+                                                                       const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher)
 {
     algorithmFPType v[VECTOR_BLOCK_SIZE];
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
     {
-        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v, dispetcher);
+        gbt::prediction::internal::predictForTreeVector<algorithmFPType, TreeType, cpu>(*this->_aTree[iTree], this->_featHelper, x, v, dispatcher);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
