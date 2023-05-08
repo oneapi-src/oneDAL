@@ -1023,7 +1023,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
     if (idx >= featureVal[n - nMinSplitPart]
         || idx < featureVal[nMinSplitPart - 1]) //check if sufficient samples will exist, and not a constant feature
     {
-        constFeature = true;
+        constFeature = featureVal[0] <= featureVal[n-1] + accuracy;
         return false;
     }
 
