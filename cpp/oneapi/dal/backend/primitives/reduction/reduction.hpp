@@ -31,7 +31,8 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
                                 ndview<Float, 1>& output,
                                 const BinaryOp& binary,
                                 const UnaryOp& unary,
-                                const event_vector& deps);
+                                const event_vector& deps,
+                                bool override = true);
 
 /// Reduces `input` rows and stores results into `output`
 ///
@@ -52,7 +53,8 @@ inline sycl::event reduce_by_rows(sycl::queue& q,
                                   ndview<Float, 1>& output,
                                   const BinaryOp& binary = BinaryOp{},
                                   const UnaryOp& unary = UnaryOp{},
-                                  const event_vector& deps = {}) {
+                                  const event_vector& deps = {},
+                                  bool override = true) {
     ONEDAL_PROFILER_TASK(reduction.reduce_by_rows, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "
@@ -69,7 +71,8 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
                                    ndview<Float, 1>& output,
                                    const BinaryOp& binary,
                                    const UnaryOp& unary,
-                                   const event_vector& deps);
+                                   const event_vector& deps,
+                                   bool override = true);
 
 /// Reduces `input` columns and stores results into `output`
 ///
@@ -90,7 +93,8 @@ inline sycl::event reduce_by_columns(sycl::queue& q,
                                      ndview<Float, 1>& output,
                                      const BinaryOp& binary = BinaryOp{},
                                      const UnaryOp& unary = UnaryOp{},
-                                     const event_vector& deps = {}) {
+                                     const event_vector& deps = {},
+                                     bool override = true) {
     ONEDAL_PROFILER_TASK(reduction.reduce_by_columns, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "

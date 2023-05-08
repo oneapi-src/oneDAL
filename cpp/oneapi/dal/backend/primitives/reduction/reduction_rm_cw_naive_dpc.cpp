@@ -27,13 +27,15 @@ public:
                                  std::int64_t height,
                                  std::int32_t lstride,
                                  const BinaryOp& binary,
-                                 const UnaryOp& unary)
+                                 const UnaryOp& unary,
+                                 const bool override)
             : input_{ input },
               output_{ output },
               unary_{ unary },
               binary_{ binary },
               height_{ height },
-              lstride_{ lstride } {}
+              lstride_{ lstride },
+              override_{ override } {}
 
     void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
@@ -41,7 +43,8 @@ public:
         const auto loc_idx = it.get_local_id(1);
         const auto range = it.get_global_range(1);
         // Exclusive for EU
-        Float acc = binary_.init_value;
+        Float acc = (override_ || (loc_idx == 0)) ? //
+            binary_.init_value : output_[col_idx];
         for (std::int64_t i = loc_idx; i < height_; i += range) {
             const Float* const inp_row = input_ + lstride_ * i;
             acc = binary_.native(acc, unary_(inp_row[col_idx]));
@@ -58,6 +61,7 @@ private:
     const BinaryOp binary_;
     const std::int64_t height_;
     const std::int32_t lstride_;
+    const bool override_;
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -81,13 +85,14 @@ sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
-    const event_vector& deps) const {
+    const event_vector& deps,
+    const bool override) const {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     ONEDAL_ASSERT(0 <= width && width <= stride);
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);
-        const auto kernel = get_kernel(input, output, height, stride, binary, unary);
+        const auto kernel = get_kernel(input, output, height, stride, binary, unary, override);
         h.parallel_for<kernel_t>(range, kernel);
     });
     return event;
@@ -101,8 +106,9 @@ sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
-    const event_vector& deps) const {
-    return this->operator()(input, output, width, height, width, binary, unary, deps);
+    const event_vector& deps,
+    const bool override) const {
+    return this->operator()(input, output, width, height, width, binary, unary, deps, override);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -118,13 +124,15 @@ reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
                                                             std::int64_t height,
                                                             std::int64_t stride,
                                                             const BinaryOp& binary,
-                                                            const UnaryOp& unary) {
+                                                            const UnaryOp& unary,
+                                                            const bool override) {
     return kernel_t{ input,
                      output,
                      dal::detail::integral_cast<std::int64_t>(height),
                      dal::detail::integral_cast<std::int32_t>(stride),
                      binary,
-                     unary };
+                     unary,
+                     override };
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_naive<F, B, U>;

@@ -28,7 +28,8 @@ inline sycl::event reduce_rm_rw(sycl::queue& q,
                                 ndview<Float, 1>& output,
                                 const BinaryOp& binary,
                                 const UnaryOp& unary,
-                                const event_vector& deps) {
+                                const event_vector& deps,
+                                bool override = true) {
     ONEDAL_ASSERT(input.has_data());
     ONEDAL_ASSERT(output.has_mutable_data());
     ONEDAL_ASSERT(0 <= input.get_dimension(1));
@@ -41,7 +42,7 @@ inline sycl::event reduce_rm_rw(sycl::queue& q,
     const auto* inp_ptr = input.get_data();
     auto* out_ptr = output.get_mutable_data();
     const kernel_t kernel(q);
-    return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps);
+    return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps, override);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -50,7 +51,8 @@ inline sycl::event reduce_rm_cw(sycl::queue& q,
                                 ndview<Float, 1>& output,
                                 const BinaryOp& binary,
                                 const UnaryOp& unary,
-                                const event_vector& deps) {
+                                const event_vector& deps,
+                                bool override = true) {
     ONEDAL_ASSERT(input.has_data());
     ONEDAL_ASSERT(output.has_mutable_data());
     ONEDAL_ASSERT(0 <= input.get_dimension(1));
@@ -63,7 +65,7 @@ inline sycl::event reduce_rm_cw(sycl::queue& q,
     const auto* inp_ptr = input.get_data();
     auto* out_ptr = output.get_mutable_data();
     const kernel_t kernel(q);
-    return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps);
+    return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps, override);
 }
 
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
@@ -72,14 +74,15 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
                                 ndview<Float, 1>& output,
                                 const BinaryOp& binary,
                                 const UnaryOp& unary,
-                                const event_vector& deps) {
+                                const event_vector& deps,
+                                bool override) {
     ONEDAL_ASSERT(input.get_dimension(0) <= output.get_dimension(0));
     if constexpr (order == ndorder::c) {
-        return reduce_rm_rw(q, input, output, binary, unary, deps);
+        return reduce_rm_rw(q, input, output, binary, unary, deps, override);
     }
     else {
         auto input_tr = input.t();
-        return reduce_rm_cw(q, input_tr, output, binary, unary, deps);
+        return reduce_rm_cw(q, input_tr, output, binary, unary, deps, override);
     }
     ONEDAL_ASSERT(false);
     return sycl::event{};
@@ -91,14 +94,15 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
                                    ndview<Float, 1>& output,
                                    const BinaryOp& binary,
                                    const UnaryOp& unary,
-                                   const event_vector& deps) {
+                                   const event_vector& deps,
+                                   bool override) {
     ONEDAL_ASSERT(input.get_dimension(1) <= output.get_dimension(0));
     if constexpr (order == ndorder::c) {
-        return reduce_rm_cw(q, input, output, binary, unary, deps);
+        return reduce_rm_cw(q, input, output, binary, unary, deps, override);
     }
     else {
         auto input_tr = input.t();
-        return reduce_rm_rw(q, input_tr, output, binary, unary, deps);
+        return reduce_rm_rw(q, input_tr, output, binary, unary, deps, override);
     }
     ONEDAL_ASSERT(false);
     return sycl::event{};
@@ -110,13 +114,15 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
                                                          ndview<F, 1>&,             \
                                                          const B&,                  \
                                                          const U&,                  \
-                                                         const event_vector&);      \
+                                                         const event_vector&,       \
+                                                         bool);                     \
     template sycl::event reduce_by_columns_impl<F, L, B, U>(sycl::queue&,           \
                                                             const ndview<F, 2, L>&, \
                                                             ndview<F, 1>&,          \
                                                             const B&,               \
                                                             const U&,               \
-                                                            const event_vector&);
+                                                            const event_vector&,    \
+                                                            bool);
 
 #define INSTANTIATE_LAYOUT(F, B, U)  \
     INSTANTIATE(F, ndorder::c, B, U) \
