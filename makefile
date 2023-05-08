@@ -1042,8 +1042,6 @@ $(RELEASEDIR.daal)/$1/$2: \
 	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2 --template_name $3
 endef
 
-# $(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,daal_win,_release_c))
-# $(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,daal_win,_release_c))
 $(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,onedal_win,_release_oneapi_c))
 $(eval $(call .release.x.sln,examples/oneapi/dpc,oneDALExamples.sln,onedal_win,_release_oneapi_dpc))
 endif
