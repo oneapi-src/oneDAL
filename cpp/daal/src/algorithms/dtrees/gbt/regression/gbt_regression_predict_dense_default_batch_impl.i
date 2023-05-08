@@ -71,21 +71,27 @@ protected:
     services::Status runInternal(services::HostAppIface * pHostApp, NumericTable * result);
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
-                                   const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing>& dispetcher);
+                                   const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher);
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res,
-                              const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing>& dispetcher);
+                              const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher);
 
-    inline bool checkForMissing(const algorithmFPType* x, size_t nTrees, size_t nRows, size_t nColumns) {
+    inline bool checkForMissing(const algorithmFPType * x, size_t nTrees, size_t nRows, size_t nColumns)
+    {
         size_t nLvlTotal = 0;
-        for (size_t iTree = 0; iTree < nTrees; ++iTree) {
-           nLvlTotal += this->_aTree[iTree]->getMaxLvl();
+        for (size_t iTree = 0; iTree < nTrees; ++iTree)
+        {
+            nLvlTotal += this->_aTree[iTree]->getMaxLvl();
         }
-        if (nLvlTotal <= nColumns) {
+        if (nLvlTotal <= nColumns)
+        {
             // Checking is compicated. Better to do it during inferense.
             return true;
-        } else {
-            for (size_t idx = 0; idx < nRows * nColumns; ++idx) {
+        }
+        else
+        {
+            for (size_t idx = 0; idx < nRows * nColumns; ++idx)
+            {
                 if (isnan(x[idx])) return true;
             }
         }
@@ -93,8 +99,7 @@ protected:
     }
 
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType* x,
-                        algorithmFPType* res)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
         size_t iRow;
         Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> dispetcher;
@@ -109,21 +114,27 @@ protected:
     }
 
     template <bool hasAnyMissing>
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType* x, algorithmFPType* res)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
-        if (this->_featHelper.hasUnorderedFeatures()) {
-            predict<true,  hasAnyMissing>(iTree, nTrees, nRows, nColumns, x, res);
-        } else {
+        if (this->_featHelper.hasUnorderedFeatures())
+        {
+            predict<true, hasAnyMissing>(iTree, nTrees, nRows, nColumns, x, res);
+        }
+        else
+        {
             predict<false, hasAnyMissing>(iTree, nTrees, nRows, nColumns, x, res);
         }
     }
 
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType* x, algorithmFPType* res)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
         const bool hasAnyMissing = checkForMissing(x, nTrees, nRows, nColumns);
-        if (hasAnyMissing) {
+        if (hasAnyMissing)
+        {
             predict<true>(iTree, nTrees, nRows, nColumns, x, res);
-        } else {
+        }
+        else
+        {
             predict<false>(iTree, nTrees, nRows, nColumns, x, res);
         }
     }
@@ -186,7 +197,6 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             algorithmFPType * res = resBD.get() + iStartRow;
 
             predict(iTree, nTreesTotal, nRowsToProcess, dim.nCols, xBD.get(), res);
-
         });
 
         s = safeStat.detach();
@@ -198,7 +208,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 template <typename algorithmFPType, CpuType cpu>
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
-                                                                            const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing>& dispetcher)
+                                                                            const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher)
 {
     algorithmFPType val = 0;
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
@@ -209,7 +219,8 @@ algorithmFPType PredictRegressionTask<algorithmFPType, cpu>::predictByTrees(size
 template <typename algorithmFPType, CpuType cpu>
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
-                                                                       algorithmFPType * res, const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing>& dispetcher)
+                                                                       algorithmFPType * res,
+                                                                       const Dispetcher_t<hasUnorderedFeatures, hasAnyMissing> & dispetcher)
 {
     algorithmFPType v[VECTOR_BLOCK_SIZE];
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
