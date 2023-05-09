@@ -8,7 +8,7 @@
 *     http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS, 
+* distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
@@ -37,6 +37,8 @@ namespace oneapi::dal::kmeans_init::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+// Works consistently with scikit-learn
+// https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L207
 std::int64_t fix_trials_count(std::int64_t trial_count, std::int64_t cluster_count) {
     ONEDAL_ASSERT(trial_count > 0 || trial_count == -1);
 
@@ -72,6 +74,7 @@ sycl::event add_number(sycl::queue& queue,
     });
 }
 
+// Can combine 1D & 2D arrays
 template <typename Type, std::int64_t ax1, std::int64_t ax2>
 sycl::event min_number(sycl::queue& queue,
                        pr::ndview<Type, ax1>& array,
@@ -82,6 +85,10 @@ sycl::event min_number(sycl::queue& queue,
     return element_wise(queue, kernel, array, minimum, array, deps);
 }
 
+// Finds span between two values in the `offsets`
+// array by using standrd library functionality
+// Can utilize `searchsorted` function but it is
+// complicated due to the data location
 template <typename Type>
 std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     const auto* const last = bk::cend(offsets);
@@ -114,6 +121,7 @@ std::int64_t find_bin(const dal::array<Type>& offsets, const Type& value) {
     return std::int64_t(-1);
 }
 
+// Works both for indices and boundary values
 template <typename Comm, typename Type>
 dal::array<Type> get_boundaries(Comm& comm, const Type& local) {
     const auto count = comm.get_rank_count();
@@ -179,6 +187,9 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
     return bk::wait_or_pass(new_deps);
 }
 
+// TODO: Optimize by extracting samples all at once
+// and combining them using allreduce
+// For now it extracts samples across different nodes one by one
 template <typename Float, pr::ndorder order>
 sycl::event extract_and_share_by_indices(const bk::context_gpu& ctx,
                                          const pr::ndview<std::int64_t, 1>& indices,
@@ -404,6 +415,9 @@ sycl::event compute_distances_to_cluster(sycl::queue& queue,
     return dist_event;
 }
 
+// Somewhat complex function with many responsibilities
+// In general it: generates index, extracts it,
+// computes potential and squared distances
 template <typename Generator, typename Float, pr::ndorder order>
 sycl::event first_sample(const bk::context_gpu& ctx,
                          Generator& rng,
@@ -511,6 +525,8 @@ sycl::event fix_indices(sycl::queue& queue,
     });
 }
 
+// checks and adjusts indices in case they
+// belong to a different rank
 template <typename Communicator, typename Float, typename Index>
 sycl::event fix_indices(sycl::queue& queue,
                         Communicator& comm,
@@ -541,6 +557,9 @@ sycl::event fix_indices(sycl::queue& queue,
     }
 }
 
+// Computes cumulative sum, adjusts it in case of distributed
+// execution, finds the best location for randomly generated
+// values in this sequence
 template <typename Communicator, typename Float, typename Index>
 sycl::event find_indices(sycl::queue& queue,
                          Communicator& comm,
