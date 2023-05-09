@@ -36,7 +36,7 @@ feature vectors and class labels from the training data set. This
 classifier induces the class of the query vector from the labels of
 the feature vectors in the training data set to which the query
 vector is similar. A similarity between feature vectors is determined
-by the type of distance (for example, Euclidian) in a
+by the type of distance (for example, Euclidean) in a
 multidimensional feature space.
 
 Details

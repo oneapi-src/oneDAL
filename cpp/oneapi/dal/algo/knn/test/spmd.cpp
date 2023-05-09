@@ -326,17 +326,48 @@ KNN_SPMD_REG_SYNTHETIC_TEST(
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 16390x20x5") {
+KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 17000x20x5") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
-    this->set_rank_count(4);
+    this->set_rank_count(2);
 
-    constexpr std::int64_t train_row_count = 16390;
+    constexpr std::int64_t train_row_count = 17000;
     constexpr std::int64_t infer_row_count = 20;
     constexpr std::int64_t column_count = 5;
+
+    CAPTURE(train_row_count, infer_row_count, column_count);
+
+    const auto train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ train_row_count, column_count }.fill_uniform(-0.2, 0.5));
+    const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id());
+    const auto infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ infer_row_count, column_count }.fill_uniform(-0.3, 1.));
+    const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id());
+
+    const table y_train_table = this->arange(train_row_count);
+
+    const auto knn_desc = this->get_descriptor(train_row_count, 1);
+
+    auto infer_result =
+        this->train_and_infer_spmd(knn_desc, x_train_table, y_train_table, x_infer_table);
+
+    this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
+}
+
+KNN_SPMD_CLS_SYNTHETIC_TEST("distributed knn nearest points test random uniform 1000x34000x3") {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_kd_tree);
+
+    this->set_rank_count(2);
+
+    constexpr std::int64_t train_row_count = 1000;
+    constexpr std::int64_t infer_row_count = 34000;
+    constexpr std::int64_t column_count = 3;
 
     CAPTURE(train_row_count, infer_row_count, column_count);
 

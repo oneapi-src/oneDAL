@@ -24,6 +24,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 1>& parameters,
                                   const ndview<Float, 2>& data,
                                   ndview<Float, 1>& probabilities,
+                                  const bool fit_intercept,
                                   const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -37,7 +38,7 @@ sycl::event compute_probabilities(sycl::queue& q,
     using oneapi::dal::backend::operator+;
 
     auto param_arr = ndarray<Float, 1>::wrap(parameters.get_data(), 1);
-    Float w0 = param_arr.slice(0, 1).to_host(q, deps).at(0); // Poor perfomance
+    Float w0 = fit_intercept ? param_arr.slice(0, 1).to_host(q, deps).at(0) : 0; // Poor perfomance
 
     auto event = gemv(q,
                       data,
@@ -48,11 +49,21 @@ sycl::event compute_probabilities(sycl::queue& q,
                       { fill_event });
     auto* const prob_ptr = probabilities.get_mutable_data();
 
+    const Float bottom = sizeof(Float) == 4 ? 1e-7 : 1e-15;
+    const Float top = Float(1.0) - bottom;
+    // Log Loss is undefined fot p = 0 and p = 1 so probabilities are clipped into [eps, 1 - eps]
+
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(event);
         const auto range = make_range_1d(n);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             prob_ptr[idx] = 1 / (1 + sycl::exp(-prob_ptr[idx]));
+            if (prob_ptr[idx] < bottom) {
+                prob_ptr[idx] = bottom;
+            }
+            if (prob_ptr[idx] > top) {
+                prob_ptr[idx] = top;
+            }
         });
     });
 }
@@ -64,8 +75,9 @@ sycl::event compute_logloss(sycl::queue& q,
                             const ndview<std::int32_t, 1>& labels,
                             const ndview<Float, 1>& probabilities,
                             ndview<Float, 1>& out,
-                            Float L1,
-                            Float L2,
+                            const Float L1,
+                            const Float L2,
+                            const bool fit_intercept,
                             const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -85,36 +97,42 @@ sycl::event compute_logloss(sycl::queue& q,
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         const auto range = make_range_1d(n);
         using oneapi::dal::backend::operator+;
+        using sycl::reduction;
+
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+
+        auto sum_reduction = reduction(out_ptr, sycl::plus<>());
+
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float prob = prob_ptr[idx];
             const std::int32_t label = labels_ptr[idx];
-            Float& out = *out_ptr;
-            sycl::atomic_ref<Float,
-                             sycl::memory_order::relaxed,
-                             sycl::memory_scope::device,
-                             sycl::access::address_space::ext_intel_global_device_space>(out)
-                .fetch_add(-label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob));
+            sum += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
         });
     });
+
+    auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
+    auto* const reg_ptr = out_reg.get_mutable_data();
+    const event_vector vector_out_reg = { out_reg_e };
 
     const auto* const param_ptr = parameters.get_data();
 
     if (L1 > 0 || L2 > 0) {
         auto reg_event = q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ loss_event });
+            cgh.depends_on(vector_out_reg);
             const auto range = make_range_1d(p);
-            cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
+            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
                 const Float param = param_ptr[idx + 1];
-                Float& out = *out_ptr;
-                sycl::atomic_ref<Float,
-                                 sycl::memory_order::relaxed,
-                                 sycl::memory_scope::device,
-                                 sycl::access::address_space::ext_intel_global_device_space>(out)
-                    .fetch_add(L1 * sycl::abs(param) + L2 * param * param);
+                sum += L1 * sycl::abs(param) + L2 * param * param;
             });
         });
-        return reg_event;
+        auto final_event = q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ reg_event, loss_event });
+            cgh.single_task([=] {
+                out_ptr[0] += reg_ptr[0];
+            });
+        });
+        return final_event;
     }
     return loss_event;
 }
@@ -125,8 +143,9 @@ sycl::event compute_logloss(sycl::queue& q,
                             const ndview<Float, 2>& data,
                             const ndview<std::int32_t, 1>& labels,
                             ndview<Float, 1>& out,
-                            Float L1,
-                            Float L2,
+                            const Float L1,
+                            const Float L2,
+                            const bool fit_intercept,
                             const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -139,7 +158,8 @@ sycl::event compute_logloss(sycl::queue& q,
     // out should be filled with zero
 
     auto probabilities = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
-    auto prediction_event = compute_probabilities(q, parameters, data, probabilities, deps);
+    auto prediction_event =
+        compute_probabilities(q, parameters, data, probabilities, fit_intercept, deps);
 
     return compute_logloss(q,
                            parameters,
@@ -149,6 +169,7 @@ sycl::event compute_logloss(sycl::queue& q,
                            out,
                            L1,
                            L2,
+                           fit_intercept,
                            { prediction_event });
 }
 
@@ -160,8 +181,9 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      const ndview<Float, 1>& probabilities,
                                      ndview<Float, 1>& out,
                                      ndview<Float, 1>& out_derivative,
-                                     Float L1,
-                                     Float L2,
+                                     const Float L1,
+                                     const Float L2,
+                                     const bool fit_intercept,
                                      const event_vector& deps) {
     // out, out_derivative should be filled with zeros
 
@@ -193,61 +215,75 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
         using oneapi::dal::backend::operator+;
+        using sycl::reduction;
 
         cgh.depends_on(deps);
+        auto sum_reduction_logloss = reduction(out_ptr, sycl::plus<>());
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
 
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+        cgh.parallel_for(range, sum_reduction_logloss, [=](sycl::nd_item<1> id, auto& sum_logloss) {
             auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
             if (idx >= std::size_t(n))
                 return;
             const Float prob = proba_ptr[idx];
             const float label = labels_ptr[idx];
-
-            Float& out_logloss = *out_ptr;
-            Float& out_der = *out_derivative_ptr;
-            sycl::atomic_ref<Float,
-                             sycl::memory_order::relaxed,
-                             sycl::memory_scope::device,
-                             sycl::access::address_space::ext_intel_global_device_space>(
-                out_logloss)
-                .fetch_add(-label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob));
-
+            sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
             der_obj_ptr[idx] = prob - label;
-
-            sycl::atomic_ref<Float,
-                             sycl::memory_order::relaxed,
-                             sycl::memory_scope::device,
-                             sycl::access::address_space::ext_intel_global_device_space>(out_der)
-                .fetch_add(der_obj_ptr[idx]);
         });
     });
+    sycl::event derw0_event = sycl::event{};
+    if (fit_intercept) {
+        derw0_event = q.submit([&](sycl::handler& cgh) {
+            using oneapi::dal::backend::operator+;
+            using sycl::reduction;
 
+            cgh.depends_on(deps + loss_event);
+            auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
+            const auto wg_size = propose_wg_size(q);
+            const auto range = make_multiple_nd_range_1d(n, wg_size);
+
+            cgh.parallel_for(range,
+                             sum_reduction_derivative_w0,
+                             [=](sycl::nd_item<1> id, auto& sum_dw0) {
+                                 auto idx =
+                                     id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+                                 if (idx >= std::size_t(n))
+                                     return;
+                                 sum_dw0 += der_obj_ptr[idx];
+                             });
+        });
+    }
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
 
     auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
     if (L1 == 0 && L2 == 0) {
         return der_event;
     }
+    auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
+
+    const event_vector reg_deps = { reg_val_e, der_event };
+    auto* const reg_ptr = reg_val.get_mutable_data();
 
     auto reg_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ loss_event, der_event });
+        cgh.depends_on(reg_deps);
         const auto range = make_range_1d(p);
-        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+        auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + 1];
-            Float& out_logloss = *out_ptr;
-            sycl::atomic_ref<Float,
-                             sycl::memory_order::relaxed,
-                             sycl::memory_scope::device,
-                             sycl::access::address_space::ext_intel_global_device_space>(
-                out_logloss)
-                .fetch_add(L1 * sycl::abs(param) + L2 * param * param);
+            sum += L1 * sycl::abs(param) + L2 * param * param;
             out_derivative_ptr[idx + 1] += L2 * 2 * param;
         });
     });
 
-    return reg_event;
+    auto final_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ reg_event, loss_event, derw0_event });
+        cgh.single_task([=] {
+            out_ptr[0] += reg_ptr[0];
+        });
+    });
+
+    return final_event;
 }
 
 template <typename Float>
@@ -257,8 +293,9 @@ sycl::event compute_derivative(sycl::queue& q,
                                const ndview<std::int32_t, 1>& labels,
                                const ndview<Float, 1>& probabilities,
                                ndview<Float, 1>& out_derivative,
-                               Float L1,
-                               Float L2,
+                               const Float L1,
+                               const Float L2,
+                               const bool fit_intercept,
                                const event_vector& deps) {
     // out_derivative should be filled with zeros
 
@@ -286,24 +323,36 @@ sycl::event compute_derivative(sycl::queue& q,
     auto* const out_derivative_ptr = out_derivative.get_mutable_data();
 
     auto loss_event = q.submit([&](sycl::handler& cgh) {
+        using sycl::reduction;
+
         cgh.depends_on(deps);
         const auto wg_size = propose_wg_size(q);
         const auto range = make_multiple_nd_range_1d(n, wg_size);
-
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-            if (idx >= std::size_t(n))
-                return;
-            const Float prob = proba_ptr[idx];
-            const Float label = labels_ptr[idx];
-            der_obj_ptr[idx] = prob - label;
-            Float& out_der = *out_derivative_ptr;
-            sycl::atomic_ref<Float,
-                             sycl::memory_order::relaxed,
-                             sycl::memory_scope::device,
-                             sycl::access::address_space::ext_intel_global_device_space>(out_der)
-                .fetch_add(der_obj_ptr[idx]);
-        });
+        if (fit_intercept) {
+            auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
+            cgh.parallel_for(range,
+                             sum_reduction_derivative_w0,
+                             [=](sycl::nd_item<1> id, auto& sum_dw0) {
+                                 auto idx =
+                                     id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+                                 if (idx >= std::size_t(n))
+                                     return;
+                                 const Float prob = proba_ptr[idx];
+                                 const Float label = labels_ptr[idx];
+                                 der_obj_ptr[idx] = prob - label;
+                                 sum_dw0 += der_obj_ptr[idx];
+                             });
+        }
+        else {
+            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+                auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
+                if (idx >= std::size_t(n))
+                    return;
+                const Float prob = proba_ptr[idx];
+                const Float label = labels_ptr[idx];
+                der_obj_ptr[idx] = prob - label;
+            });
+        }
     });
 
     auto out_der_suffix = out_derivative.get_slice(1, p + 1);
@@ -334,8 +383,9 @@ sycl::event compute_hessian(sycl::queue& q,
                             const ndview<std::int32_t, 1>& labels,
                             const ndview<Float, 1>& probabilities,
                             ndview<Float, 2>& out_hessian,
-                            Float L1,
-                            Float L2,
+                            const Float L1,
+                            const Float L2,
+                            const bool fit_intercept,
                             const event_vector& deps) {
     const int64_t n = data.get_dimension(0);
     const int64_t p = data.get_dimension(1);
@@ -373,6 +423,9 @@ sycl::event compute_hessian(sycl::queue& q,
             const auto param_ind_2 = item.get_global_id(2);
             Float val = 0;
             for (auto k = param_ind_2; k < j + 1; k += wg) {
+                if (!fit_intercept && (j == 0 || k == 0)) {
+                    continue;
+                }
                 val = 0;
                 const std::int64_t last_ind = std::min((obj_ind + 1) * block_size, n);
                 for (auto i = obj_ind * block_size; i < last_ind; ++i) {
@@ -414,14 +467,16 @@ sycl::event compute_hessian(sycl::queue& q,
                                                   const ndview<F, 1>&,               \
                                                   const ndview<F, 2>&,               \
                                                   ndview<F, 1>&,                     \
+                                                  const bool,                        \
                                                   const event_vector&);              \
     template sycl::event compute_logloss<F>(sycl::queue&,                            \
                                             const ndview<F, 1>&,                     \
                                             const ndview<F, 2>&,                     \
                                             const ndview<std::int32_t, 1>&,          \
                                             ndview<F, 1>&,                           \
-                                            F,                                       \
-                                            F,                                       \
+                                            const F,                                 \
+                                            const F,                                 \
+                                            const bool,                              \
                                             const event_vector&);                    \
     template sycl::event compute_logloss<F>(sycl::queue&,                            \
                                             const ndview<F, 1>&,                     \
@@ -429,8 +484,9 @@ sycl::event compute_hessian(sycl::queue& q,
                                             const ndview<std::int32_t, 1>&,          \
                                             const ndview<F, 1>&,                     \
                                             ndview<F, 1>&,                           \
-                                            F,                                       \
-                                            F,                                       \
+                                            const F,                                 \
+                                            const F,                                 \
+                                            const bool,                              \
                                             const event_vector&);                    \
     template sycl::event compute_logloss_with_der<F>(sycl::queue&,                   \
                                                      const ndview<F, 1>&,            \
@@ -439,8 +495,9 @@ sycl::event compute_hessian(sycl::queue& q,
                                                      const ndview<F, 1>&,            \
                                                      ndview<F, 1>&,                  \
                                                      ndview<F, 1>&,                  \
-                                                     F,                              \
-                                                     F,                              \
+                                                     const F,                        \
+                                                     const F,                        \
+                                                     const bool,                     \
                                                      const event_vector&);           \
     template sycl::event compute_derivative<F>(sycl::queue&,                         \
                                                const ndview<F, 1>&,                  \
@@ -448,8 +505,9 @@ sycl::event compute_hessian(sycl::queue& q,
                                                const ndview<std::int32_t, 1>&,       \
                                                const ndview<F, 1>&,                  \
                                                ndview<F, 1>&,                        \
-                                               F,                                    \
-                                               F,                                    \
+                                               const F,                              \
+                                               const F,                              \
+                                               const bool,                           \
                                                const event_vector&);                 \
     template sycl::event compute_hessian<F>(sycl::queue&,                            \
                                             const ndview<F, 1>&,                     \
@@ -457,8 +515,9 @@ sycl::event compute_hessian(sycl::queue& q,
                                             const ndview<std::int32_t, 1>&,          \
                                             const ndview<F, 1>&,                     \
                                             ndview<F, 2>&,                           \
-                                            F,                                       \
-                                            F,                                       \
+                                            const F,                                 \
+                                            const F,                                 \
+                                            const bool,                              \
                                             const event_vector&);
 
 INSTANTIATE(float);
