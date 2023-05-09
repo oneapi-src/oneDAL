@@ -361,7 +361,7 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
     algorithmFPType leftWeights  = algorithmFPType(0);
     const algorithmFPType last   = featureVal[n - nMinSplitPart];
     algorithmFPType v            = 0;
-    bool bSameFeaturePrev;
+    bool bSameFeaturePrev = true;
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
@@ -460,7 +460,7 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
     const bool bBestFromOtherFeatures = !(split.impurityDecrease < 0);
     algorithmFPType vBest             = -1;
     IndexType iBest                   = -1;
-    algorithmFPType first;
+    algorithmFPType first = 0;
 
     const algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
     for (size_t i = 0; i < n - nMinSplitPart;)
