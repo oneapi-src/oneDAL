@@ -52,14 +52,14 @@ struct PredictDispatcher
 };
 
 template <typename algorithmFPType>
-inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, false> & dispatcher)
 {
     return idx * 2 + (valueFromDataSet > splitPoints[idx]);
 }
 
 template <typename algorithmFPType>
-inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, false> & dispatcher)
 {
     // return idx * 2 + (isUnordered ? int(valueFromDataSet) != int(splitPoints[idx]) : valueFromDataSet > splitPoints[idx]); //???///
@@ -67,12 +67,12 @@ inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueF
 }
 
 template <typename algorithmFPType>
-inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, true> & dispatcher)
 {
     if (isnan(valueFromDataSet))
     {
-        return idx * 2 + (yesIfMissing[idx] != 1);
+        return idx * 2 + (defaultLeft[idx] != 1);
     }
     else
     {
@@ -81,12 +81,12 @@ inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueF
 }
 
 template <typename algorithmFPType>
-inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * yesIfMissing,
+inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, true> & dispatcher)
 {
     if (isnan(valueFromDataSet))
     {
-        return idx * 2 + (yesIfMissing[idx] != 1);
+        return idx * 2 + (defaultLeft[idx] != 1);
     }
     else
     {
@@ -101,7 +101,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 {
     const ModelFPType * const values        = t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const int * const yesIfMissing          = t.getYesIfMissingForSplit() - 1;
+    const int * const defaultLeft          = t.getdefaultLeftForSplit() - 1;
     const FeatureIndexType nFeat            = featTypes.getNumberOfFeatures();
 
     FeatureIndexType i[VECTOR_BLOCK_SIZE];
@@ -117,7 +117,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
         {
             const FeatureIndexType idx          = i[k];
             const FeatureIndexType splitFeature = fIndexes[idx];
-            i[k] = updateIndex(idx, x[splitFeature + k * nFeat], values, yesIfMissing, featTypes, splitFeature, dispatcher);
+            i[k] = updateIndex(idx, x[splitFeature + k * nFeat], values, defaultLeft, featTypes, splitFeature, dispatcher);
         }
     }
 
@@ -135,7 +135,7 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 {
     const ModelFPType * const values        = (const ModelFPType *)t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const int * const yesIfMissing          = t.getYesIfMissingForSplit() - 1;
+    const int * const defaultLeft          = t.getdefaultLeftForSplit() - 1;
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
@@ -144,7 +144,7 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
     for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
     {
         const FeatureIndexType splitFeature = fIndexes[i];
-        i                                   = updateIndex(i, x[splitFeature], values, yesIfMissing, featTypes, splitFeature, dispatcher);
+        i                                   = updateIndex(i, x[splitFeature], values, defaultLeft, featTypes, splitFeature, dispatcher);
     }
     return values[i];
 }

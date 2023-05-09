@@ -222,7 +222,7 @@ void setProbabilities(const size_t treeId, const size_t nodeId, const size_t res
 }
 
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
-                                      size_t featureIndex, double featureValue, size_t & res, int yesIfMissing)
+                                      size_t featureIndex, double featureValue, size_t & res, int defaultLeft)
 {
     const size_t noParent = static_cast<size_t>(-1);
     services::Status s;
@@ -240,7 +240,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
     if (parentId == noParent)
     {
         aNode[0].featureIndex           = featureIndex;
-        aNode[0].yesIfMissing           = yesIfMissing;
+        aNode[0].defaultLeft           = defaultLeft;
         aNode[0].leftIndexOrClass       = 0;
         aNode[0].featureValueOrResponse = featureValue;
         nodeId                          = 0;
@@ -259,7 +259,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 aNode[nodeId].featureIndex           = featureIndex;
-                aNode[nodeId].yesIfMissing           = yesIfMissing;
+                aNode[nodeId].defaultLeft           = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
             }
@@ -271,7 +271,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 aNode[nodeId].featureIndex           = featureIndex;
-                aNode[nodeId].yesIfMissing           = yesIfMissing;
+                aNode[nodeId].defaultLeft           = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
             }
@@ -293,7 +293,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
             }
             aNode[nodeId].featureIndex           = featureIndex;
-            aNode[nodeId].yesIfMissing           = yesIfMissing;
+            aNode[nodeId].defaultLeft           = defaultLeft;
             aNode[nodeId].leftIndexOrClass       = 0;
             aNode[nodeId].featureValueOrResponse = featureValue;
             aNode[parentId].leftIndexOrClass     = nodeId;
@@ -329,7 +329,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             if (nodeId < nRows)
             {
                 aNode[nodeId].featureIndex           = featureIndex;
-                aNode[nodeId].yesIfMissing           = yesIfMissing;
+                aNode[nodeId].defaultLeft           = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
             }
