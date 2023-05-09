@@ -85,10 +85,18 @@ to each cluster.
 .. math::
    c_j^{(t + 1)} = \frac{1}{|S_j^{(t)}|} \sum_{x \in S_j^{(t)}} x, \quad 1 \leq j \leq k.
 
+If any of :math:`S_j^{(t)}` are empty, start the empty clusters handling procedure.
+In this case, you can set the value of :math:`c_j^{(t+1)}` as the farthest point from 
+the previously calculated centroids for each empty cluster. This procedure makes sure 
+that the number of clusters remains the same.
+
+.. math::
+   c_j^{(t + 1)} = \mathrm{arg}\max_{x \in X} d^2(x, C^{(t + 1)}).
+
 The steps (1) and (2) are performed until the following **stop condition**,
 
 .. math::
-   \sum_{j=1}^k \big\| c_j^{(t)} - c_j^{(t+1)} \big\|^2 < \varepsilon,
+   \Phi_{X}(C^{(t)}) -  \Phi_{X}(C^{(t + 1)}) < \varepsilon,
 
 is satisfied or number of iterations exceeds the maximal value :math:`T` defined
 by the user.
@@ -119,6 +127,12 @@ Programming Interface
 ---------------------
 
 Refer to :ref:`API Reference: K-Means <api_kmeans>`.
+
+----------------
+Distributed mode
+----------------
+
+The algorithm supports distributed execution in SPMD mode (only on GPU).
 
 -------------
 Usage example

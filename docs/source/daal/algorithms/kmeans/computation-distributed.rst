@@ -26,7 +26,7 @@ The K-Means clustering algorithm in the distributed processing mode has the foll
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for K-Means Computaion (Distributed Processing)
+.. list-table:: Algorithm Parameters for K-Means Computation (Distributed Processing)
    :header-rows: 1
    :widths: 10 10 60
    :align: left
@@ -60,7 +60,7 @@ The K-Means clustering algorithm in the distributed processing mode has the foll
      - The weight to be used in distance calculation for binary categorical features.
    * - ``distanceType``
      - ``euclidean``
-     - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.
+     - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidean distance.
    * - ``assignFlag``
      - ``false``
      - A flag that enables computation of assignments, that is, assigning cluster indices to respective observations.
@@ -76,7 +76,7 @@ Step 1 - on Local Nodes
     :width: 1000
     :alt:
 
-    K-Means Computaion: Distributed Processing, Step 1 - on Local Nodes
+    K-Means Computation: Distributed Processing, Step 1 - on Local Nodes
 
 In this step, the K-Means clustering algorithm accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -84,7 +84,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for K-Means Computaion (Distributed Processing, Step 1)
+.. list-table:: Input for K-Means Computation (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -105,7 +105,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Partial Results for K-Means Computaion (Distributed Processing, Step 1)
+.. list-table:: Partial Results for K-Means Computation (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -154,7 +154,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for K-Means Computaion (Distributed Processing, Step 1)
+.. list-table:: Output for K-Means Computation (Distributed Processing, Step 1)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -179,7 +179,7 @@ Step 2 - on Master Node
     :width: 1000
     :alt:
 
-    K-Means Computaion: Distributed Processing, Step 2 - on Master Node
+    K-Means Computation: Distributed Processing, Step 2 - on Master Node
 
 In this step, the K-Means clustering algorithm accepts the input from each local node described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -187,7 +187,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for K-Means Computaion (Distributed Processing, Step 2)
+.. list-table:: Input for K-Means Computation (Distributed Processing, Step 2)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -203,7 +203,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for K-Means Computaion (Distributed Processing, Step 2)
+.. list-table:: Output for K-Means Computation (Distributed Processing, Step 2)
    :header-rows: 1
    :widths: 10 60
    :align: left

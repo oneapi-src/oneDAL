@@ -302,7 +302,7 @@ jobs:
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
-      pip install -r daal4py/requirements-dev.txt
+      pip install -r daal4py/dependencies-dev
       pip install -r daal4py/requirements-test.txt
     displayName: Create python environment
   - script: |

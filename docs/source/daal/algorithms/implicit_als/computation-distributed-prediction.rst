@@ -29,7 +29,7 @@ At the prediction stage, implicit ALS recommender in the distributed processing 
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computaion (Distributed Processing)
+.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computation (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
@@ -77,7 +77,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
+.. list-table:: Input for Implicit Alternating Least Squares Computation (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :class: longtable
@@ -97,7 +97,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
+.. list-table:: Output for Implicit Alternating Least Squares Computation (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :align: left

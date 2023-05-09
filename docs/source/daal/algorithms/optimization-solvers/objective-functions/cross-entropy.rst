@@ -136,7 +136,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for Cross-entropy Loss Computaion
+.. list-table:: Algorithm Input for Cross-entropy Loss Computation
    :widths: 10 60
    :align: left
    :class: longtable
@@ -170,7 +170,7 @@ Some of them are required only for specific values of the computation method's p
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for Cross-entropy Loss Computaion
+.. list-table:: Algorithm Parameters for Cross-entropy Loss Computation
    :widths: 10 10 60
    :align: left
    :class: longtable
