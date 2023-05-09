@@ -83,6 +83,12 @@ Distributed mode
 
 The algorithm supports distributed execution in SPMD mode (only on GPU).
 
+-------------
+Usage example
+-------------
+
+.. include:: ../../../includes/statistics/basic-statistics-usage-examples.rst
+
 --------
 Examples
 --------
