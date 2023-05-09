@@ -20,6 +20,7 @@ The correlation is dimensionless, while the covariance is measured in units obta
 Another important distinction is that covariance can be affected by the higher variance of one feature, while
 correalation removes the effect of the variances by normalizing the covariance of two features by their square-root of variances.
 Their usage is application-dependent. The covariance algorithm computes the following:
+
 - Means
 - Covariance
 - Correlation
