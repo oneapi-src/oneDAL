@@ -20,12 +20,15 @@ uses the initialization result to partition input data into :math:`k` clusters.
 
 .. |c_math| replace:: :ref:`Computing <kmeans_init_c_math>`
 .. |c_dense| replace:: :ref:`Dense <kmeans_init_c_math_dense>`
-.. |c_input| replace:: :ref:`compute_input <kmeans_init_c_api_input>`
-.. |c_result| replace:: :ref:`compute_result <kmeans_init_c_api_result>`
+.. |c_random_dense| replace:: :ref:`Random dense <kmeans_init_c_math_random_dense>`
+.. |c_plus_plus_dense| replace:: :ref:`K-Means++ <kmeans_init_c_math_plus_plus_dense>`
+.. |c_parallel_plus_dense| replace:: :ref:`K-Means++ parallel <kmeans_init_c_math_parallel_plus_dense>` 
+.. |c_input| replace:: :ref:`compute_input(...) <kmeans_init_c_api_input>`
+.. |c_result| replace:: :ref:`compute_result(...) <kmeans_init_c_api_result>`
 .. |c_op| replace:: :ref:`compute(...) <kmeans_init_c_api>`
 
-=============== =========================== ======== =========== ============
- **Operation**  **Computational methods**     **Programming Interface**
---------------- --------------------------- ---------------------------------
-   |c_math|             |c_dense|            |c_op|   |c_input|   |c_result|
-=============== =========================== ======== =========== ============
+=============== =========== ================== ===================== ========================= ======== =========== ============
+ **Operation**                            **Computational methods**                               **Programming Interface**
+--------------- ------------------------------------------------------------------------------ ---------------------------------
+   |c_math|      |c_dense|   |c_random_dense|   |c_plus_plus_dense|   |c_parallel_plus_dense|   |c_op|   |c_input|   |c_result|
+=============== =========== ================== ===================== ========================= ======== =========== ============

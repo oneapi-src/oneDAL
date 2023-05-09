@@ -36,6 +36,7 @@ ONEDAL = basic_statistics_dense_batch        \
          knn_search_brute_force_dense_batch  \
          linear_kernel_dense_batch           \
          linear_regression_dense_batch       \
+         logloss_dense_batch                 \
          louvain_batch                       \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \

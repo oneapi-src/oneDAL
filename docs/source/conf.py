@@ -85,6 +85,7 @@ extlinks = {
     'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
     'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', ''),
     'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', ''),
+    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sklearnex/%s', ''),
     'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
 }
 
