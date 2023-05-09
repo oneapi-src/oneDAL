@@ -240,7 +240,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
     if (parentId == noParent)
     {
         aNode[0].featureIndex           = featureIndex;
-        aNode[0].defaultLeft           = defaultLeft;
+        aNode[0].defaultLeft            = defaultLeft;
         aNode[0].leftIndexOrClass       = 0;
         aNode[0].featureValueOrResponse = featureValue;
         nodeId                          = 0;
@@ -259,7 +259,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 aNode[nodeId].featureIndex           = featureIndex;
-                aNode[nodeId].defaultLeft           = defaultLeft;
+                aNode[nodeId].defaultLeft            = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
             }
@@ -271,7 +271,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 aNode[nodeId].featureIndex           = featureIndex;
-                aNode[nodeId].defaultLeft           = defaultLeft;
+                aNode[nodeId].defaultLeft            = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
             }
@@ -293,7 +293,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
             }
             aNode[nodeId].featureIndex           = featureIndex;
-            aNode[nodeId].defaultLeft           = defaultLeft;
+            aNode[nodeId].defaultLeft            = defaultLeft;
             aNode[nodeId].leftIndexOrClass       = 0;
             aNode[nodeId].featureValueOrResponse = featureValue;
             aNode[parentId].leftIndexOrClass     = nodeId;
@@ -329,7 +329,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             if (nodeId < nRows)
             {
                 aNode[nodeId].featureIndex           = featureIndex;
-                aNode[nodeId].defaultLeft           = defaultLeft;
+                aNode[nodeId].defaultLeft            = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
             }

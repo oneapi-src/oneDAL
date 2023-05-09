@@ -63,7 +63,7 @@ public:
     DECLARE_SERIALIZABLE();
     using SplitPointType             = HomogenNumericTable<gbt::prediction::internal::ModelFPType>;
     using FeatureIndexesForSplitType = HomogenNumericTable<gbt::prediction::internal::FeatureIndexType>;
-    using defaultLeftForSplitType   = HomogenNumericTable<int>;
+    using defaultLeftForSplitType    = HomogenNumericTable<int>;
 
     GbtDecisionTree(const size_t nNodes, const size_t maxLvl, const size_t sourceNumOfNodes)
         : _nNodes(nNodes),

@@ -101,7 +101,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 {
     const ModelFPType * const values        = t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const int * const defaultLeft          = t.getdefaultLeftForSplit() - 1;
+    const int * const defaultLeft           = t.getdefaultLeftForSplit() - 1;
     const FeatureIndexType nFeat            = featTypes.getNumberOfFeatures();
 
     FeatureIndexType i[VECTOR_BLOCK_SIZE];
@@ -135,7 +135,7 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 {
     const ModelFPType * const values        = (const ModelFPType *)t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const int * const defaultLeft          = t.getdefaultLeftForSplit() - 1;
+    const int * const defaultLeft           = t.getdefaultLeftForSplit() - 1;
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
