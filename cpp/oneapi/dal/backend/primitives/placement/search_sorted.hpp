@@ -72,7 +72,7 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     return wait_or_pass(deps);
 }
 
-/// @brief Finds indices of bins to place points in
+/// @brief Finds indices of bins to place points into
 ///
 /// @tparam Type  Type of values to handle
 /// @tparam Index Type of indices to return
