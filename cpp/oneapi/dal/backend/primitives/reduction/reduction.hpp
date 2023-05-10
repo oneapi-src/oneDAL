@@ -85,7 +85,7 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
 /// @param[in]  queue         The SYCL queue
 /// @param[in]  input         The [n x p] input dataset
 /// @param[out] output        The [p] results of reduction
-/// @param[in]  binary        The binary functor that reduces two values into one
+/// @param[in]  binary        The binary functor that reduces two values to one
 /// @param[in]  unary         The unary functor that performs the element-wise operation before reduction
 /// @param[in]  deps          The vector of `sycl::event` that represents a list of dependencies
 /// @param[in]  override_init Should the value stored in output be used in reduction or overwriten
