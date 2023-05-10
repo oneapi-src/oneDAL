@@ -86,7 +86,7 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
 /// @param[in]  input         The [n x p] input dataset
 /// @param[out] output        The [p] results of reduction
 /// @param[in]  binary        The binary functor that reduces two values into one
-/// @param[in]  unary         The unary functor that performs element-wise operation before reduction
+/// @param[in]  unary         The unary functor that performs the element-wise operation before reduction
 /// @param[in]  deps          The vector of `sycl::event`s that represents list of dependencies
 /// @param[in]  override_init Should the value stored in output be used in reduction or overwriten
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
