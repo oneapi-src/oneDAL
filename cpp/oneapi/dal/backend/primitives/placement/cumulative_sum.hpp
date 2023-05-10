@@ -65,7 +65,7 @@ namespace detail {
 /// @brief Computes partial cumulative sums inplace
 ///        on the `data` array assuming elements have
 ///        `curr_stride` stribe between them and size
-///        of each block equal to `base_stride`.
+///        of each block is equal to `base_stride`.
 /// @note  Usually, `base_stride== wg`.
 /// @note  Always `base_stride <= curr_stride`
 template <typename Type>
