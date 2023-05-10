@@ -66,7 +66,7 @@ namespace detail {
 ///        on the `data` array assuming elements have
 ///        `curr_stride` stribe between them and size
 ///        of each block equal to `base_stride`.
-/// @note  Usually `base_stride== wg`.
+/// @note  Usually, `base_stride== wg`.
 /// @note  Always `base_stride <= curr_stride`
 template <typename Type>
 sycl::event block_cumsum(sycl::queue& queue,
