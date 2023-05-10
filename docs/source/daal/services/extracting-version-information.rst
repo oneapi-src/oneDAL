@@ -50,9 +50,9 @@ Examples
 
 C++: :cpp_example:`services/library_version_info.cpp`
 
-Java*:
- .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
- :java_example:`services/LibraryVersionInfoExample.java`
+.. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+
+Java*: :java_example:`services/LibraryVersionInfoExample.java`
 
 .. Python*: library_version_info.py
 

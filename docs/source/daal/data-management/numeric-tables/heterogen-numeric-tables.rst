@@ -44,10 +44,9 @@ Examples
 
 C++: :cpp_example:`datasource/datastructures_aos.cpp`
 
-Java*: 
- .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+.. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 
-:java_example:`datasource/DataStructuresAOS.java`
+Java*: :java_example:`datasource/DataStructuresAOS.java`
 
 .. Python*: datastructures_aos.py
 

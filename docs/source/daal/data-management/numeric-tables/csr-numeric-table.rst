@@ -57,8 +57,8 @@ Examples
 
 C++: :cpp_example:`datasource/datastructures_csr.cpp`
 
-Java*:
- .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
- :java_example:`datasource/DataStructuresCSR.java`
+.. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+
+Java*: :java_example:`datasource/DataStructuresCSR.java`
 
 .. Python*: datastructures_csr.py
