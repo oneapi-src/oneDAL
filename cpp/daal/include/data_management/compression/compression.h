@@ -39,7 +39,7 @@ namespace data_management
  */
 /**
  * <a name="DAAL-ENUM-DATA_MANAGEMENT__COMPRESSIONLEVEL"></a>
- * \brief %Compression levels
+ * \brief %Compression levels    \DAAL_DEPRECATED
  */
 enum CompressionLevel
 {
@@ -59,7 +59,7 @@ enum CompressionLevel
 
 /**
  * <a name="DAAL-ENUM-DATA_MANAGEMENT__COMPRESSIONMETHOD"></a>
- * \brief %Compression methods
+ * \brief %Compression methods    \DAAL_DEPRECATED
  */
 enum CompressionMethod
 {
@@ -76,7 +76,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-STRUCT-DATA_MANAGEMENT__COMPRESSIONPARAMETER"></a>
- * \brief Parameters for compression and decompression
+ * \brief Parameters for compression and decompression    \DAAL_DEPRECATED
  *
  * \snippet compression/compression.h CompressionParameter source code
  *
@@ -86,19 +86,19 @@ namespace interface1
 /* [CompressionParameter source code] */
 struct DAAL_EXPORT CompressionParameter
 {
-    CompressionLevel level; /*!< Compression level */
+    DAAL_DEPRECATED CompressionLevel level; /*!< Compression level */
 
     /**
      *  Default constructor
      *  \param[in] clevel   %Compression level, \ref CompressionLevel
      */
-    CompressionParameter(CompressionLevel clevel = defaultLevel) : level(clevel) {}
+    DAAL_DEPRECATED CompressionParameter(CompressionLevel clevel = defaultLevel) : level(clevel) {}
 };
 /* [CompressionParameter source code] */
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSIONIFACE"></a>
- * \brief Abstract interface class for compression and decompression
+ * \brief Abstract interface class for compression and decompression    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  */
 class DAAL_EXPORT CompressionIface
@@ -110,41 +110,41 @@ public:
      * \param[in] size     Number of bytes to compress (or decompress) in inBlock
      * \param[in] offset   Offset in bytes, the starting position for compression (or decompression) in inBlock
      */
-    virtual void setInputDataBlock(byte * inBlock, size_t size, size_t offset) = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual void setInputDataBlock(byte * inBlock, size_t size, size_t offset) = 0;
     /**
      * Associates an input data block with a compressor (or decompressor)
      * \param[in] inBlock %DataBlock to compress (or decompress)
      */
-    virtual void setInputDataBlock(DataBlock & inBlock) = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual void setInputDataBlock(DataBlock & inBlock) = 0;
     /**
      * Reports whether an output data block is full after a call to the run() method
      * \return True if an output data block is full, false otherwise
      */
-    virtual bool isOutputDataBlockFull() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual bool isOutputDataBlockFull() = 0;
     /**
      * Returns the number of bytes used after a call to the run() method
      * \return Number of used bytes
      */
-    virtual size_t getUsedOutputDataBlockSize() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual size_t getUsedOutputDataBlockSize() = 0;
     /**
      * Performs compression (or decompression) of a data block
      * \param[out] outBlock Pointer to the data block where compression (or decompression) results are stored. Must be at least size+offset bytes
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for compression (or decompression) in outBlock
      */
-    virtual void run(byte * outBlock, size_t size, size_t offset) = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual void run(byte * outBlock, size_t size, size_t offset) = 0;
     /**
      * Performs compression (or decompression) of a data block
      * \param[out] outBlock %DataBlock where compression (or decompression) results are stored
      */
-    virtual void run(DataBlock & outBlock) = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual void run(DataBlock & outBlock) = 0;
 
-    virtual ~CompressionIface() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~CompressionIface() {}
 };
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSION"></a>
- * \brief %Base class for compression and decompression
+ * \brief %Base class for compression and decompression    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -157,21 +157,21 @@ public:
     /**
      * \brief Compression constructor
      */
-    Compression() : _errors(new services::ErrorCollection())
+    DAAL_DEPRECATED Compression() : _errors(new services::ErrorCollection())
     {
         this->_errors->setCanThrow(false);
         _isOutBlockFull   = false;
         _usedOutBlockSize = 0;
     }
-    bool isOutputDataBlockFull() DAAL_C11_OVERRIDE { return _isOutBlockFull; }
-    size_t getUsedOutputDataBlockSize() DAAL_C11_OVERRIDE { return _usedOutBlockSize; }
-    virtual ~Compression() {}
+    DAAL_DEPRECATED bool isOutputDataBlockFull() DAAL_C11_OVERRIDE { return _isOutBlockFull; }
+    DAAL_DEPRECATED size_t getUsedOutputDataBlockSize() DAAL_C11_OVERRIDE { return _usedOutBlockSize; }
+    DAAL_DEPRECATED_VIRTUAL virtual ~Compression() {}
     /**
      * Basic checks of input block parameters
      * \param[in] inBlock  Pointer to the input data block
      * \param[in] size     Size in bytes of the input data block
      */
-    virtual void checkInputParams(byte * inBlock, size_t size)
+    DAAL_DEPRECATED_VIRTUAL virtual void checkInputParams(byte * inBlock, size_t size)
     {
         if (inBlock == NULL)
         {
@@ -187,7 +187,7 @@ public:
      * \param[in] outBlock Pointer to output data block
      * \param[in] size      Size in bytes of the output data block
      */
-    virtual void checkOutputParams(byte * outBlock, size_t size)
+    DAAL_DEPRECATED_VIRTUAL virtual void checkOutputParams(byte * outBlock, size_t size)
     {
         if (outBlock == NULL)
         {
@@ -199,7 +199,7 @@ public:
         }
     }
 
-    services::SharedPtr<services::ErrorCollection> getErrors() const { return _errors; }
+    DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors() const { return _errors; }
 
 protected:
     bool _isOutBlockFull;
@@ -210,7 +210,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSORIMPL"></a>
- * \brief %Base class for the Compressor.
+ * \brief %Base class for the Compressor.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -223,8 +223,8 @@ public:
     /**
      * \brief %Compressor constructor
      */
-    CompressorImpl() : Compression() { _isInitialized = false; }
-    virtual ~CompressorImpl() {}
+    DAAL_DEPRECATED CompressorImpl() : Compression() { _isInitialized = false; }
+    DAAL_DEPRECATED_VIRTUAL virtual ~CompressorImpl() {}
 
 protected:
     virtual void initialize() { _isInitialized = true; }
@@ -233,7 +233,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__DECOMPRESSORIMPL"></a>
- * \brief %Base class for the Decompressor.
+ * \brief %Base class for the Decompressor.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \par References
@@ -246,8 +246,8 @@ public:
     /**
      * \brief %Decompressor constructor
      */
-    DecompressorImpl() : Compression() { _isInitialized = false; }
-    virtual ~DecompressorImpl() {}
+    DAAL_DEPRECATED DecompressorImpl() : Compression() { _isInitialized = false; }
+    DAAL_DEPRECATED_VIRTUAL virtual ~DecompressorImpl() {}
 
 protected:
     virtual void initialize() { _isInitialized = true; }
@@ -256,7 +256,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__COMPRESSOR"></a>
- * \brief %Compressor class compresses an input data block and writes results into an output data block.
+ * \brief %Compressor class compresses an input data block and writes results into an output data block.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \tparam dcmethod Compression method, \ref CompressionMethod
@@ -272,13 +272,13 @@ public:
     /**
      * \brief %Compressor constructor
      */
-    Compressor() : CompressorImpl() {}
-    virtual ~Compressor() {}
+    DAAL_DEPRECATED Compressor() : CompressorImpl() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Compressor() {}
 };
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__DECOMPRESSOR"></a>
- * \brief %Decompressor class decompresses an input data block and writes results into an output data block.
+ * \brief %Decompressor class decompresses an input data block and writes results into an output data block.    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-COMPRESSION">Data compression usage model</a> -->
  *
  * \tparam dcmethod %Decompression method, \ref CompressionMethod
@@ -294,8 +294,8 @@ public:
     /**
      * \brief %Decompressor constructor
      */
-    Decompressor() : DecompressorImpl() {}
-    virtual ~Decompressor() {}
+    DAAL_DEPRECATED Decompressor() : DecompressorImpl() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Decompressor() {}
 };
 } // namespace interface1
 using interface1::CompressionParameter;
