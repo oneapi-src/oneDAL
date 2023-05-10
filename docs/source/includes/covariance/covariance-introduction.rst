@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Covariance algorithm computes the following set of quantitative dataset characteristics: 
+In statistics, covariance and correlation are two of the most fundamental measures of linear dependence between two random variables.
+The covariance and the correlation represent the joint variability of any two features.
+The correlation is dimensionless, while the covariance is measured in units obtained by multiplying the units of the two features.
+Another important distinction is that covariance can be affected by the higher variance of one feature, while
+correalation removes the effect of the variances by normalizing the covariance of two features by their square-root of variances.
+Their usage is application-dependent. The covariance algorithm computes the following:
 
-- means
-- covariance
-- correlation
+- Means
+- Covariance
+- Correlation
 
 .. |c_math| replace::   :ref:`dense <covariance_c_math>`
 .. |c_dense| replace::  :ref:`dense <covariance_c_math_dense>`

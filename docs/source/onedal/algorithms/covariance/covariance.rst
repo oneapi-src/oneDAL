@@ -33,9 +33,9 @@ Mathematical formulation
 Computing
 ---------
 
-Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`,
-the problem is to compute the sample means or the
-covariance matrix or the correlation matrix:
+Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` observations and :math:`p` features,
+the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
+The means, the covariance, and the correlation are computed with the following formulas:
 
 .. list-table::
    :widths: 10 60
@@ -55,8 +55,8 @@ covariance matrix or the correlation matrix:
 
 Computation method: *dense*
 ---------------------------
-The method computes the means or the
-variance-covariance matrix or the correlation matrix
+The method computes means, variance-covariance, or correlation matrix for the dense data.
+This is the default and the only method supported.
 
 ---------------------
 Programming Interface
