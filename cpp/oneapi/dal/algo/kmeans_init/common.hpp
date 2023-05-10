@@ -180,7 +180,7 @@ public:
 
     /// The number of attempts to find the best
     /// sample in terms of potential value
-    /// If the value is equal to -1 then number
+    /// If the value is equal to -1, the number
     /// of trials will be equal = 2 + int(log(cluster_count))
     /// @invariant :expr:`local_trials > 0` or :expr`local_trials = -1`
     /// @remark default = -1
