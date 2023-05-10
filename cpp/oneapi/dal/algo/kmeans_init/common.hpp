@@ -178,7 +178,7 @@ public:
         return *this;
     }
 
-    /// The number of attempts to find the best
+    /// Number of attempts to find the best
     /// sample in terms of potential value
     /// If the value is equal to -1, the number
     /// of trials is 2 + int(log(cluster_count))
