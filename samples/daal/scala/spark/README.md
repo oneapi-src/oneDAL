@@ -1,6 +1,6 @@
 # Intel(R) oneAPI Data Analytics Library Spark\* Samples
 
-Deprecation Notice: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
 Spark\* samples for the Intel(R) oneAPI Data Analytics Library (oneDAL) are designed to show how to use this library on the Spark cluster in a Scala application.
 

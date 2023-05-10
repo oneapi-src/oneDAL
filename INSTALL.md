@@ -60,7 +60,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
             call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
-4. Deprecation Notice: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+4. Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 Set the environment variables for one of the supported Java\* compilers. For example:
 
     - **Windows\***:

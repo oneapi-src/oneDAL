@@ -89,6 +89,6 @@ and computation step for the distributed processing mode.
 
 - In Java, the generic parameters have no default values, and you need to define them in the constructor during algorithm initialization.
 
-.. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+.. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
 For a list of algorithm parameters, refer to the description of an appropriate algorithm.

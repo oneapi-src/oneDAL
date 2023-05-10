@@ -123,6 +123,6 @@ Examples
   .. tab:: Java*
 
    .. note:: There is no support for Java on GPU.
-   .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`

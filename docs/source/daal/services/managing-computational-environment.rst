@@ -65,7 +65,7 @@ Examples
 C++: :cpp_example:`set_number_of_threads/set_number_of_threads.cpp`
 
 Java*:
- .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+ .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
  :java_example:`set_number_of_threads/SetNumberOfThreads.java`
 
