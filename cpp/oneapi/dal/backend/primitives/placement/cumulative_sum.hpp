@@ -26,7 +26,7 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 /// @brief Computes cumulative sum aka inclusive scan
-///        on array with time complexity of
+///        on array with the time complexity of
 ///        $O(N \log_\text{wg} N / \text{wg})$
 ///        and no additional allocations
 ///
