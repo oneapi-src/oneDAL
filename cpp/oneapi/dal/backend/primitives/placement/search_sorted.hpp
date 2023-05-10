@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 
 enum class search_alignment : std::int64_t { left = 0b0l, right = 0b1l };
 
-/// @brief Finds indices of bins to place points in
+/// @brief Finds indices of bins to place points into 
 ///
 /// @tparam Type  Type of values to handle
 /// @tparam Index Type of indices to return
