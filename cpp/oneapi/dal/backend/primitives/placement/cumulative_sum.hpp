@@ -67,7 +67,7 @@ namespace detail {
 ///        `curr_stride` stribe between them and size
 ///        of each block is equal to `base_stride`.
 /// @note  Usually, `base_stride== wg`.
-/// @note  `base_stride <= curr_stride` always 
+/// @note  `base_stride <= curr_stride` always
 template <typename Type>
 sycl::event block_cumsum(sycl::queue& queue,
                          ndview<Type, 1>& data,
