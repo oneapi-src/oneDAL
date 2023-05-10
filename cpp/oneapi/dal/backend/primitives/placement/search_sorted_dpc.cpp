@@ -52,8 +52,6 @@ inline Index clip_place(std::int64_t count, Index result) {
     }
 }
 
-// Reference numpy implementation:
-// https://github.com/numpy/numpy/blob/main/numpy/core/src/npysort/binsearch.cpp#L61
 template <search_alignment alignment, typename Type, typename Index, bool clip>
 sycl::event search_sorted_1d(sycl::queue& queue,
                              const ndview<Type, 1>& data,

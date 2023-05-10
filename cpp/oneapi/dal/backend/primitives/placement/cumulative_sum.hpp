@@ -25,12 +25,36 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+/// @brief Computes cumulative sum aka inclusive scan
+///        on array with time complexity of
+///        $O(N \log_\text{wg} N / \text{wg})$
+///        and no additional allocations
+///
+/// @tparam Type Type of values to handle
+///
+/// @param[in]      queue       SYCL queue to run kernel on
+/// @param[in, out] data        Both input and output of primitive
+/// @param[in]      base_stride Default size of block. Should be
+///                             smaller or equal to the largest wg
+/// @param[in]      deps        Dependencies for this kernel
+/// @return                     SYCL event to track execution
 template <typename Type>
 sycl::event cumulative_sum_1d(sycl::queue& queue,
                               ndview<Type, 1>& data,
                               std::int64_t base_stride,
                               const event_vector& deps = {});
 
+/// @brief Computes cumulative sum aka inclusive scan
+///        on array with time complexity of
+///        $O(N \log_\text{wg} N / \text{wg})$
+///        and no additional allocations
+///
+/// @tparam Type Type of values to handle
+///
+/// @param[in]      queue       SYCL queue to run kernel on
+/// @param[in, out] data        Both input and output of primitive
+/// @param[in]      deps        Dependencies for this kernel
+/// @return                     SYCL event to track execution
 template <typename Type>
 sycl::event cumulative_sum_1d(sycl::queue& queue,
                               ndview<Type, 1>& data,
@@ -38,6 +62,12 @@ sycl::event cumulative_sum_1d(sycl::queue& queue,
 
 namespace detail {
 
+/// @brief Computes partial cumulative sums inplace
+///        on the `data` array assuming elements have
+///        `curr_stride` stribe between them and size
+///        of each block equal to `base_stride`.
+/// @note  Usually `base_stride== wg`.
+/// @note  Always `base_stride <= curr_stride`
 template <typename Type>
 sycl::event block_cumsum(sycl::queue& queue,
                          ndview<Type, 1>& data,
@@ -45,6 +75,10 @@ sycl::event block_cumsum(sycl::queue& queue,
                          std::int64_t curr_stride,
                          const event_vector& deps = {});
 
+/// @brief Distributes partially computed cumulative
+///        sum values to other elements.
+/// @note  Usually `base_stride== wg`.
+/// @note  Always `base_stride <= curr_stride`
 template <typename Type>
 sycl::event distribute_sum(sycl::queue& queue,
                            ndview<Type, 1>& data,

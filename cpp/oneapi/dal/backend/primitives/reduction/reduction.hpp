@@ -32,7 +32,7 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
                                 const BinaryOp& binary,
                                 const UnaryOp& unary,
                                 const event_vector& deps,
-                                bool override = true);
+                                bool override_init = true);
 
 /// Reduces `input` rows and stores results into `output`
 ///
@@ -41,12 +41,13 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
 /// @tparam BinaryOp Type of binary operator functor
 /// @tparam UnaryOp  Type of unary operator functor
 ///
-/// @param[in]  queue   The SYCL queue
-/// @param[in]  input   The [n x p] input dataset
-/// @param[out] output  The [n] results of reduction
-/// @param[in]  binary  The binary functor that reduces two values into one
-/// @param[in]  unary   The unary functor that performs element-wise operation before reduction
-/// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
+/// @param[in]  queue         The SYCL queue
+/// @param[in]  input         The [n x p] input dataset
+/// @param[out] output        The [n] results of reduction
+/// @param[in]  binary        The binary functor that reduces two values into one
+/// @param[in]  unary         The unary functor that performs element-wise operation before reduction
+/// @param[in]  deps          The vector of `sycl::event`s that represents list of dependencies
+/// @param[in]  override_init Should the value stored in output be used in reduction or overwriten
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 inline sycl::event reduce_by_rows(sycl::queue& q,
                                   const ndview<Float, 2, order>& input,
@@ -54,7 +55,7 @@ inline sycl::event reduce_by_rows(sycl::queue& q,
                                   const BinaryOp& binary = BinaryOp{},
                                   const UnaryOp& unary = UnaryOp{},
                                   const event_vector& deps = {},
-                                  bool override = true) {
+                                  bool override_init = true) {
     ONEDAL_PROFILER_TASK(reduction.reduce_by_rows, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "
@@ -62,7 +63,7 @@ inline sycl::event reduce_by_rows(sycl::queue& q,
     static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
                   "UnaryOp must be a special unary operation defined "
                   "at the primitives level");
-    return reduce_by_rows_impl(q, input, output, binary, unary, deps, override);
+    return reduce_by_rows_impl(q, input, output, binary, unary, deps, override_init);
 }
 
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
@@ -72,7 +73,7 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
                                    const BinaryOp& binary,
                                    const UnaryOp& unary,
                                    const event_vector& deps,
-                                   bool override = true);
+                                   bool override_init = true);
 
 /// Reduces `input` columns and stores results into `output`
 ///
@@ -81,12 +82,13 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
 /// @tparam BinaryOp Type of binary operator functor
 /// @tparam UnaryOp  Type of unary operator functor
 ///
-/// @param[in]  queue   The SYCL queue
-/// @param[in]  input   The [n x p] input dataset
-/// @param[out] output  The [p] results of reduction
-/// @param[in]  binary  The binary functor that reduces two values into one
-/// @param[in]  unary   The unary functor that performs element-wise operation before reduction
-/// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
+/// @param[in]  queue         The SYCL queue
+/// @param[in]  input         The [n x p] input dataset
+/// @param[out] output        The [p] results of reduction
+/// @param[in]  binary        The binary functor that reduces two values into one
+/// @param[in]  unary         The unary functor that performs element-wise operation before reduction
+/// @param[in]  deps          The vector of `sycl::event`s that represents list of dependencies
+/// @param[in]  override_init Should the value stored in output be used in reduction or overwriten
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 inline sycl::event reduce_by_columns(sycl::queue& q,
                                      const ndview<Float, 2, order>& input,
@@ -94,7 +96,7 @@ inline sycl::event reduce_by_columns(sycl::queue& q,
                                      const BinaryOp& binary = BinaryOp{},
                                      const UnaryOp& unary = UnaryOp{},
                                      const event_vector& deps = {},
-                                     bool override = true) {
+                                     bool override_init = true) {
     ONEDAL_PROFILER_TASK(reduction.reduce_by_columns, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "
@@ -102,7 +104,7 @@ inline sycl::event reduce_by_columns(sycl::queue& q,
     static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
                   "UnaryOp must be a special unary operation defined "
                   "at the primitives level");
-    return reduce_by_columns_impl(q, input, output, binary, unary, deps, override);
+    return reduce_by_columns_impl(q, input, output, binary, unary, deps, override_init);
 }
 
 #endif

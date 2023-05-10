@@ -197,10 +197,14 @@ private:
 
 using event_vector = std::vector<sycl::event>;
 
+/// Depending on the `vec` contents it either waits
+/// for all events or returns dummy event
+///
+/// @param[in]  vec  The vector of `sycl::event`s
 inline sycl::event wait_or_pass(const event_vector& vec) {
     if (vec.size() > 1)
         sycl::event::wait_and_throw(vec);
-    return vec.size() > 0 ? vec.at(0) : sycl::event{};
+    return vec.size() > 0 ? vec.back() : sycl::event{};
 }
 
 inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) {

@@ -27,6 +27,21 @@ namespace oneapi::dal::backend::primitives {
 
 enum class search_alignment : std::int64_t { left = 0b0l, right = 0b1l };
 
+/// @brief Finds indices of bins to place points in
+///
+/// @tparam Type  Type of values to handle
+/// @tparam Index Type of indices to return
+/// @tparam clip  Should maximum index be capped
+///               by the number of samples
+///
+/// @param[in]  queue       Queue to run kernels on
+/// @param[in]  alignment   Lower (left) or upper (right)
+///                         bound selector
+/// @param[in]  data        Bin boundaries
+/// @param[in]  points      Points to place into bins
+/// @param[out] results     Output array
+/// @param[in]  deps        Vector of dependencies
+/// @return                 Indices of bins
 template <typename Type, typename Index, bool clip = false>
 inline sycl::event search_sorted_1d(sycl::queue& queue,
                                     search_alignment alignment,
@@ -57,6 +72,21 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     return wait_or_pass(deps);
 }
 
+/// @brief Finds indices of bins to place points in
+///
+/// @tparam Type  Type of values to handle
+/// @tparam Index Type of indices to return
+///
+/// @param[in]  queue       Queue to run kernels on
+/// @param[in]  clip_result Should maximum index be capped
+///                         by the number of samples
+/// @param[in]  alignment   Lower (left) or upper (right)
+///                         bound selector
+/// @param[in]  data        Bin boundaries
+/// @param[in]  points      Points to place into bins
+/// @param[out] results     Output array
+/// @param[in]  deps        Vector of dependencies
+/// @return                 Indices of bins
 template <typename Type, typename Index>
 inline sycl::event search_sorted_1d(sycl::queue& queue,
                                     bool clip_result,
@@ -73,6 +103,23 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     }
 }
 
+/// @brief Finds indices of bins to place points in
+///
+/// @cite https://github.com/numpy/numpy/blob/maintenance/1.24.x/numpy/core/src/npysort/binsearch.cpp
+///
+/// @tparam Type      Type of values to handle
+/// @tparam Index     Type of indices to return
+/// @tparam clip      Should maximum index be capped
+///                   by the number of samples
+/// @tparam alignment Lower (left) or upper (right)
+///                   bound selector
+///
+/// @param[in]  queue       Queue to run kernels on
+/// @param[in]  data        Bin boundaries
+/// @param[in]  points      Points to place into bins
+/// @param[out] results     Output array
+/// @param[in]  deps        Vector of dependencies
+/// @return                 Indices of bins
 template <search_alignment alignment, typename Type, typename Index, bool clip = false>
 sycl::event search_sorted_1d(sycl::queue& queue,
                              const ndview<Type, 1>& data,

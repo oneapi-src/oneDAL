@@ -38,7 +38,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
     sycl::event operator()(const Float* input,
                            Float* output,
                            std::int64_t width,
@@ -46,7 +46,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
 
 private:
     sycl::nd_range<2> get_range(std::int64_t height) const;
@@ -56,7 +56,7 @@ private:
                                std::int64_t stride,
                                const BinaryOp& binary,
                                const UnaryOp& unary,
-                               const bool override);
+                               const bool override_init);
     sycl::queue& q_;
     const std::int64_t wg_;
 };
@@ -78,7 +78,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
     sycl::event operator()(const Float* input,
                            Float* output,
                            std::int64_t width,
@@ -86,7 +86,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
 
 private:
     sycl::nd_range<1> get_range(std::int64_t height) const;
@@ -97,7 +97,7 @@ private:
                                std::int64_t stride,
                                const BinaryOp& binary,
                                const UnaryOp& unary,
-                               const bool override);
+                               const bool override_init);
     sycl::queue& q_;
     const std::int64_t wg_;
 };
@@ -119,7 +119,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
     sycl::event operator()(const Float* input,
                            Float* output,
                            std::int64_t width,
@@ -128,7 +128,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
     sycl::event operator()(reduction_method method,
                            const Float* input,
                            Float* output,
@@ -137,7 +137,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
     sycl::event operator()(const Float* input,
                            Float* output,
                            std::int64_t width,
@@ -145,7 +145,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {},
-                           const bool override = true) const;
+                           const bool override_init = true) const;
 
 private:
     sycl::queue& q_;

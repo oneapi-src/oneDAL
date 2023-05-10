@@ -46,6 +46,23 @@ struct where_alignment_map<Index, where_alignment::right> {
     constexpr static inline auto identity = std::numeric_limits<Index>::max();
 };
 
+/// @brief Finds the single value in array
+///
+/// @tparam Functor Functor that should return `bool` and take
+///                 value of `Type` type as an input
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+/// @tparam align   Determines if the left most or right
+///                 most value that satisfy `Functor`
+///                 should be returned
+///
+/// @param[in]  queue  SYCL queue to run kernel on
+/// @param[in]  unary  Functor that determines if value satisfies
+///                    some criteria
+/// @param[in]  values Sequence of values to search in
+/// @param[out] output Place for a single output value
+/// @param[in]  deps   Vector of events this kernel depends on
+/// @return            SYCL event for the kernel
 template <typename Functor,
           typename Type,
           typename Index,
@@ -83,6 +100,23 @@ inline sycl::event argwhere_one(sycl::queue& queue,
     });
 }
 
+/// @brief Finds the single value in array
+///
+/// @tparam Functor Functor that should return `bool` and take
+///                 value of `Type` type as an input
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+///
+/// @param[in]  queue  SYCL queue to run kernel on
+/// @param[in]  unary  Functor that determines if value satisfies
+///                    some criteria
+/// @param[in]  values Sequence of values to search in
+/// @param[out] output Place for a single output value
+/// @param[in]  align  Determines if the left most or right
+///                    most value that satisfy `Functor`
+///                    should be returned
+/// @param[in]  deps   Vector of events this kernel depends on
+/// @return            SYCL event for the kernel
 template <typename Functor, typename Type, typename Index>
 inline sycl::event argwhere_one(sycl::queue& queue,
                                 const Functor& unary,
@@ -113,6 +147,23 @@ inline sycl::event argwhere_one(sycl::queue& queue,
     return sycl::event{};
 }
 
+/// @brief Finds the single value in array and
+///        transfers it to host
+///
+/// @tparam Functor Functor that should return `bool` and take
+///                 value of `Type` type as an input
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+/// @tparam align   Determines if the left most or right
+///                 most value that satisfy `Functor`
+///                 should be returned
+///
+/// @param[in]  queue  SYCL queue to run kernel on
+/// @param[in]  unary  Functor that determines if value satisfies
+///                    some criteria
+/// @param[in]  values Sequence of values to search in
+/// @param[in]  deps   Vector of events this kernel depends on
+/// @return            Computed value
 template <typename Functor,
           typename Type,
           typename Index = std::int64_t,
@@ -134,6 +185,24 @@ inline Index argwhere_one(sycl::queue& queue,
     return out.at_device(queue, 0, { event });
 }
 
+/// @brief Finds the single value in array and
+///        transfers it to host
+///
+/// @tparam Functor Functor that should return `bool` and take
+///                 value of `Type` type as an input
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+///
+/// @param[in]  queue  SYCL queue to run kernel on
+/// @param[in]  unary  Functor that determines if value satisfies
+///                    some criteria
+/// @param[in]  values Sequence of values to search in
+/// @param[out] output Place for a single output value
+/// @param[in]  align  Determines if the left most or right
+///                    most value that satisfy `Functor`
+///                    should be returned
+/// @param[in]  deps   Vector of events this kernel depends on
+/// @return            Computed value
 template <typename Functor, typename Type, typename Index = std::int64_t>
 inline Index argwhere_one(sycl::queue& queue,
                           const Functor& unary,
@@ -161,6 +230,19 @@ inline Index argwhere_one(sycl::queue& queue,
     return -1l;
 }
 
+/// @brief Finds the single smallest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+/// @tparam align   Determines if the left most or right
+///                 most min value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[out] val_output Place for a single output value
+/// @param[out] idx_output Place for a single output index
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                SYCL event for the kernel
 template <typename Type, typename Index, where_alignment align = where_alignment::right>
 sycl::event argmin(sycl::queue& queue,
                    const ndview<Type, 1>& values,
@@ -168,6 +250,19 @@ sycl::event argmin(sycl::queue& queue,
                    ndview<Index, 1>& idx_output,
                    const event_vector& deps = {});
 
+/// @brief Finds the single largest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+/// @tparam align   Determines if the left most or right
+///                 most max value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[out] val_output Place for a single output value
+/// @param[out] idx_output Place for a single output index
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                SYCL event for the kernel
 template <typename Type, typename Index, where_alignment align = where_alignment::right>
 sycl::event argmax(sycl::queue& queue,
                    const ndview<Type, 1>& values,
@@ -175,6 +270,19 @@ sycl::event argmax(sycl::queue& queue,
                    ndview<Index, 1>& idx_output,
                    const event_vector& deps = {});
 
+/// @brief Finds the single smallest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[out] val_output Place for a single output value
+/// @param[out] idx_output Place for a single output index
+/// @param[in]  align      Determines if the left most or right
+///                        most max value
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                SYCL event for the kernel
 template <typename Type, typename Index>
 sycl::event argmin(sycl::queue& queue,
                    const ndview<Type, 1>& values,
@@ -183,6 +291,19 @@ sycl::event argmin(sycl::queue& queue,
                    where_alignment align,
                    const event_vector& deps = {});
 
+/// @brief Finds the single largest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[out] val_output Place for a single output value
+/// @param[out] idx_output Place for a single output index
+/// @param[in]  align      Determines if the left most or right
+///                        most max value
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                SYCL event for the kernel
 template <typename Type, typename Index>
 sycl::event argmax(sycl::queue& queue,
                    const ndview<Type, 1>& values,
@@ -191,6 +312,17 @@ sycl::event argmax(sycl::queue& queue,
                    where_alignment align,
                    const event_vector& deps = {});
 
+/// @brief Finds the single smallest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+/// @tparam align   Determines if the left most or right
+///                 most min value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                Tuple of the smallest value and its index
 template <typename Type,
           typename Index = std::int64_t,
           where_alignment align = where_alignment::right>
@@ -198,6 +330,17 @@ std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                const event_vector& deps = {});
 
+/// @brief Finds the single largest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+/// @tparam align   Determines if the left most or right
+///                 most max value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                Tuple of the largest value and its index
 template <typename Type,
           typename Index = std::int64_t,
           where_alignment align = where_alignment::right>
@@ -205,12 +348,34 @@ std::tuple<Type, Index> argmax(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                const event_vector& deps = {});
 
+/// @brief Finds the single smallest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[in]  align      Determines if the left most or right
+///                        most max value
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                Tuple of the smallest value and its index
 template <typename Type, typename Index = std::int64_t>
 std::tuple<Type, Index> argmin(sycl::queue& queue,
                                const ndview<Type, 1>& values,
                                where_alignment align,
                                const event_vector& deps = {});
 
+/// @brief Finds the single largest value and its index
+///
+/// @tparam Type    Type of values in sequence to search
+/// @tparam Index   Type of the return value
+///
+/// @param[in]  queue      SYCL queue to run kernel on
+/// @param[in]  values     Sequence of values to search in
+/// @param[in]  align      Determines if the left most or right
+///                        most max value
+/// @param[in]  deps       Vector of events this kernel depends on
+/// @return                Tuple of the largest value and its index
 template <typename Type, typename Index = std::int64_t>
 std::tuple<Type, Index> argmax(sycl::queue& queue,
                                const ndview<Type, 1>& values,

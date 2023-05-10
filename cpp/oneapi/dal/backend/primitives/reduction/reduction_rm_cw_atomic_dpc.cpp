@@ -142,9 +142,9 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps,
-    const bool override) const {
+    const bool override_init) const {
     event_vector new_deps{ deps };
-    if (override) {
+    if (override_init) {
         auto view = ndview<Float, 1>::wrap(output, { width });
         new_deps.push_back(fill(q_, view, binary.init_value, deps));
     }
@@ -168,8 +168,9 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps,
-    const bool override) const {
-    return this->operator()(input, output, width, height, width, binary, unary, deps, override);
+    const bool override_init) const {
+    return this->
+    operator()(input, output, width, height, width, binary, unary, deps, override_init);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_atomic<F, B, U>;
