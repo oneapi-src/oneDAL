@@ -28,7 +28,7 @@ provide input for your algorithm.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for K-Means Computaion (Batch Processing)
+.. list-table:: Algorithm Input for K-Means Computation (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -50,7 +50,7 @@ The K-Means clustering algorithm has the following parameters:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Algorithm Parameters for K-Means Computaion (Batch Processing)
+.. list-table:: Algorithm Parameters for K-Means Computation (Batch Processing)
    :header-rows: 1
    :widths: 10 10 60
    :align: left
@@ -89,7 +89,7 @@ The K-Means clustering algorithm has the following parameters:
      - The weight to be used in distance calculation for binary categorical features.
    * - ``distanceType``
      - ``euclidean``
-     - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidian distance.
+     - The measure of closeness between points (observations) being clustered. The only distance type supported so far is the Euclidean distance.
    * - **DEPRECATED:** ``assignFlag``
 
        **USE INSTEAD:** ``resultsToEvaluate``
@@ -116,7 +116,7 @@ the results of your algorithm.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Output for K-Means Computaion (Batch Processing)
+.. list-table:: Algorithm Output for K-Means Computation (Batch Processing)
    :header-rows: 1
    :widths: 10 60
    :align: left

@@ -28,7 +28,7 @@ At the training stage, the implicit ALS recommender has the following parameters
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Training Parameters for Implicit Alternating Least Squares Computaion (Batch Processing)
+.. list-table:: Training Parameters for Implicit Alternating Least Squares Computation (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
@@ -72,7 +72,7 @@ At the prediction stage, the implicit ALS recommender has the following paramete
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computaion (Batch Processing)
+.. list-table:: Prediction Parameters for Implicit Alternating Least Squares Computation (Batch Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left

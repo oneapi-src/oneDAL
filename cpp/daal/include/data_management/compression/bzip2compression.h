@@ -62,7 +62,7 @@ public:
      *                      defaultLevel is equal to bzip2 compression level 9
      */
     DAAL_DEPRECATED Bzip2CompressionParameter(CompressionLevel clevel = defaultLevel) : data_management::CompressionParameter(clevel) {}
-    ~Bzip2CompressionParameter() {}
+    DAAL_DEPRECATED ~Bzip2CompressionParameter() {}
 };
 /* [Bzip2CompressionParameter source code] */
 
@@ -84,7 +84,7 @@ public:
      * \brief Compressor<bzip2> constructor
      */
     DAAL_DEPRECATED Compressor();
-    ~Compressor();
+    DAAL_DEPRECATED ~Compressor();
     /**
      * Associates an input data block with a compressor
      * \param[in] inBlock Pointer to the data block to compress. Must be at least size+offset bytes
@@ -147,7 +147,7 @@ public:
      * \brief Decompressor<bzip2> constructor
      */
     DAAL_DEPRECATED Decompressor();
-    ~Decompressor();
+    DAAL_DEPRECATED ~Decompressor();
     /**
      * Associates an input data block with a decompressor
      * \param[in] inBlock Pointer to the data block to decompress. Must be at least size+offset bytes

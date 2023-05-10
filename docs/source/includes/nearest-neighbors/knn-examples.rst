@@ -35,3 +35,8 @@
     Batch Processing:
 
     - :daal4py_sycl_example:`bf_knn_classification_batch.py`
+
+    Distributed Processing:
+
+    - :daal4py_sklearnex_example:`knn_bf_classification_spmd.py`
+    - :daal4py_sklearnex_example:`knn_bf_regression_spmd.py`
