@@ -77,7 +77,7 @@ sycl::event block_cumsum(sycl::queue& queue,
 
 /// @brief Distributes partially computed cumulative
 ///        sum values to other elements.
-/// @note  Usually `base_stride== wg`.
+/// @note  Usually, `base_stride== wg`.
 /// @note  Always `base_stride <= curr_stride`
 template <typename Type>
 sycl::event distribute_sum(sycl::queue& queue,
