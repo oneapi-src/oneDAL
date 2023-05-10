@@ -61,9 +61,9 @@ The eigenvector associated with the :math:`k`-th largest eigenvalue of the covar
 is also the :math:`k`-th principal component of the training data set. Based on this,
 the principal components can be computed in three steps:
 
-#. Computation of the covariance (or correlation) matrix
-#. Computation of the eigenvectors and eigenvalues of the covariance (or correlation) matrix
-#. Processing (sorting and storing) the results
+#. Computation of the covariance (or correlation) matrix.
+#. Computation of the eigenvectors and eigenvalues of the covariance (or correlation) matrix.
+#. Processing (sorting and storing) the results.
 
 
 Covariance matrix can be computed in the following way:
@@ -91,25 +91,25 @@ Training method: *SVD*
 
 The singular value decomposition (SVD) is a matrix factorization technique that
 decomposes an observation matrix :math:`X = \{ x_1, \ldots, x_n \}` of :math:`p`-dimensional observations into three matrices as :math:`X = U \Sigma V^*`.
-Here,
+Here:
 
 #. The columns of :math:`U` are the left-singular vectors.
 #. The columns of  :math:`V` are the right-singular vectors.
 #. :math:`V^*` is the conjugate transpose of the matrix :math:`V`.
 #. The diagonal entries of :math:`\Sigma` are the singular values (:math:`\sigma`) of :math:`X`.
 
-The right-singular vectors are the principal components of :math:`X`. The steps of computing principal components using SVD technique
-are as follows:
+The right-singular vectors are the principal components of :math:`X`. The steps of computing principal components using the SVD technique
+are:
 
-#. Mean centering the input data
-#. Decomposing the mean-centered input data to compute the singular values and the singular vectors
-#. Processing (sorting and storing) the results
+#. Mean centering the input data.
+#. Decomposing the mean-centered input data to compute the singular values and the singular vectors.
+#. Processing (sorting and storing) the results.
 
 First step is to mean center the input data :math:`X^{c} = \{ x^{c}_{ij} \}`, where :math:`x^{c}_{ij} = x_{ij} - m(j)`, :math:`i=\overline{1,n}`, :math:`j=\overline{1,p}`, :math:`m(j) = \frac{1}{n}\sum _{i}{x}_{ij}`.
 
 Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k`, and right-singular vectors :math:`V_k` of matrix :math:`X^{c}` can be computed with an arbitrary method as described in [Demmel90]_.
 
-The final step is to find a permutation matrix :math:`Q_{p \times p}` such that the diagonal entries of :math:`\Sigma Q` are sorted in a descending order i.e. :math:`\sigma_{k} \geq \sigma_{k+1}`, for all :math:`k < p` assuming :math:`n > p`.
+The final step is to find a permutation matrix :math:`Q_{p \times p}` such that the diagonal entries of :math:`\Sigma Q` are sorted in descending order, i.e. :math:`\sigma_{k} \geq \sigma_{k+1}`, for all :math:`k < p` assuming :math:`n > p`.
 The rows of the resulting matrix :math:`T = V^{*} Q` are the principal components of :math:`X`. The rows
 of :math:`T` are also the eigenvectors of the covariance matrix of :math:`X`. Additionally, the means and
 variances of the initial dataset are returned.
@@ -117,8 +117,8 @@ variances of the initial dataset are returned.
 Sign-flip technique
 ~~~~~~~~~~~~~~~~~~~
 The eigenvectors (or the right-singular vectors) are not uniquely defined because the negative of any eigenvector is also an eigenvector of the input matrix. The signs of the eigenvectors or the singular vectors
-often depend on the solver used. A sign-flip technique like the one proposed in [Bro07]_ helps remove the ambiguity.
-The sign-flip function modifies the matrix :math:`T` as follows:
+often depend on the solver used. A sign-flip technique, such as the one proposed in [Bro07]_, helps remove the ambiguity.
+The sign-flip function modifies the matrix :math:`T` the following way:
 
 .. math::
    \hat{T}_i = T_i \cdot \mathrm{sgn}(\max_{1 \leq j \leq p } |{T}_{ij}|), \quad 1 \leq i \leq r,
