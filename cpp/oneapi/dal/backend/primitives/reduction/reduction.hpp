@@ -47,7 +47,7 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
 /// @param[in]  binary        The binary functor that reduces two values into one
 /// @param[in]  unary         The unary functor that performs element-wise operation before reduction
 /// @param[in]  deps          The vector of `sycl::event` that represents a list of dependencies
-/// @param[in]  override_init Should the value stored in output be used in reduction or overwriten
+/// @param[in]  override_init Should the value stored in output be used in reduction or be overwritten
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 inline sycl::event reduce_by_rows(sycl::queue& q,
                                   const ndview<Float, 2, order>& input,
