@@ -34,7 +34,7 @@ namespace oneapi::dal::backend::primitives {
 ///
 /// @param[in]      queue       SYCL queue to run kernel on
 /// @param[in, out] data        Both input and output of primitive
-/// @param[in]      base_stride Default size of block. Should be
+/// @param[in]      base_stride Default size of a block. Should be
 ///                             smaller or equal to the largest wg
 /// @param[in]      deps        Dependencies for this kernel
 /// @return                     SYCL event to track execution
