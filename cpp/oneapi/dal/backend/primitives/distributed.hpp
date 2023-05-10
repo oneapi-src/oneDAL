@@ -23,6 +23,11 @@
 
 namespace oneapi::dal::backend::primitives {
 
+/// @brief Computes boundaries/offsets for blocks on different ranks
+///
+/// @param[in] sample_counts Number of samples on each device
+/// @param[in] block_size    Number of samples in one block
+/// @return                  Tuple of node numbers and corresponding offsets
 inline auto get_boundary_indices(const ndview<std::int64_t, 1>& sample_counts,
                                  std::int64_t block_size) {
     ONEDAL_ASSERT(sample_counts.has_data());
