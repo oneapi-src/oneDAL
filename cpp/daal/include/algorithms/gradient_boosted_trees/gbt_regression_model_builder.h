@@ -119,6 +119,7 @@ public:
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] featureIndex    Feature index for splitting
     *  \param[in] featureValue    Feature value for splitting
+    *  \param[in] defaultLeft     Behaviour in case of missing values
     *  \return Node identifier
     */
     NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft = 0)
