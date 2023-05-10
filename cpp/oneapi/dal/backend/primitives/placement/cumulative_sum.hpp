@@ -45,7 +45,7 @@ sycl::event cumulative_sum_1d(sycl::queue& queue,
                               const event_vector& deps = {});
 
 /// @brief Computes cumulative sum aka inclusive scan
-///        on array with time complexity of
+///        on array with the time complexity of
 ///        $O(N \log_\text{wg} N / \text{wg})$
 ///        and no additional allocations
 ///
