@@ -103,7 +103,7 @@ inline sycl::event search_sorted_1d(sycl::queue& queue,
     }
 }
 
-/// @brief Finds indices of bins to place points in
+/// @brief Finds indices of bins to place points into
 ///
 /// @cite https://github.com/numpy/numpy/blob/maintenance/1.24.x/numpy/core/src/npysort/binsearch.cpp
 ///
