@@ -197,7 +197,7 @@ private:
 
 using event_vector = std::vector<sycl::event>;
 
-/// Depending on the `vec` contents it either waits
+/// Depending on the `vec` contents it waits
 /// for all events or returns a dummy event
 ///
 /// @param[in]  vec  The vector of `sycl::event`s
