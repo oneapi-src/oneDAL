@@ -88,5 +88,6 @@ and computation step for the distributed processing mode.
   You can change the template parameters while declaring the algorithm.
 
 - In Java, the generic parameters have no default values, and you need to define them in the constructor during algorithm initialization.
-
+.. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+  
 For a list of algorithm parameters, refer to the description of an appropriate algorithm.

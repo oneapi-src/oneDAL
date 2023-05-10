@@ -150,7 +150,8 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+   .. note:: There is no support for Java on GPU.
+   .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 
     - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
     - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`

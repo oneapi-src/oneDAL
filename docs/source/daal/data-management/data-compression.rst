@@ -153,6 +153,7 @@ C++:
 -  :cpp_example:`compression/compression_online.cpp`
 
 Java*:
+ .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 
 -  :java_example:`compression/CompressorExample.java`
 -  :java_example:`compression/CompressionBatch.java`

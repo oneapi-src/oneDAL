@@ -64,6 +64,8 @@ Examples
 
 C++: :cpp_example:`set_number_of_threads/set_number_of_threads.cpp`
 
-Java*: :java_example:`set_number_of_threads/SetNumberOfThreads.java`
+Java*:
+ .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+ :java_example:`set_number_of_threads/SetNumberOfThreads.java`
 
 .. Python*: set_number_of_threads.py

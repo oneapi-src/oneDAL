@@ -46,6 +46,8 @@ exit /b errorcode
 
 :CorrectArgs
 
+echo "Deprecation Notice: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases."
+
 set class_path=com\intel\daal\examples
 
 :: Setting environment for side javac if the path specified

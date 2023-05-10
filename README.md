@@ -34,6 +34,7 @@ There are different ways for you to build high-performance data science applicat
 - Use [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/) to accelerate existing scikit-learn code without changing it
 - Use [daal4py](https://github.com/intel/scikit-learn-intelex/tree/master/daal4py), a standalone package with Python API for oneDAL
 - Use [Scala and Java interfaces](#apache-spark-mllib) that match Apache Spark MlLib API
+Deprecation Notice: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 
 ## Installation
 
@@ -55,14 +56,15 @@ Python Examples:
 
 <details><summary>Other Examples</summary>
 
-- [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
-- [Apache Arrow](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/arrow)
-- [Java Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/spark)
-- [Scala Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark)
-- [KDB](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/kdb)
 - [MPI](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mpi)
 - [MySQL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mysql)
+Deprecation Notice: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases. This includes Scala, Spark and Hadoop samples
+- [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
+- [Java Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/spark)
+- [Scala Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark)
 - [Hadoop](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/hadoop)
+
+
 
 </details>
 

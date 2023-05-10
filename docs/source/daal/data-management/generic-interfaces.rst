@@ -228,6 +228,7 @@ C++:
 - :cpp_example:`datasource/datastructures_homogen.cpp`
 
 Java*:
+ .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 
 - :java_example:`datasource/DataStructuresMerged.java`
 - :java_example:`datasource/DataStructuresHomogen.java`

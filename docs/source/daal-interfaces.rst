@@ -39,5 +39,6 @@ Examples
 You can find examples on Github*:
 
 - `C++ <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source>`_ (CPU)
+Deprecation Notice: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 - `Java* <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples>`_ (not supported on GPU)
 - `Python* <https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py>`_

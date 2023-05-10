@@ -79,6 +79,7 @@ and return the status of the respective operation.
 
 |short_name| Java\* interfaces handle errors by throwing Java
 exceptions.
+ .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
 
 
 Examples
@@ -89,7 +90,9 @@ C++:
 -  :cpp_example:`error_handling/error_handling_nothrow.cpp`
 -  :cpp_example:`error_handling/error_handling_throw.cpp`
 
-Java*: :java_example:`error_handling/ErrorHandling.java`
+Java*:
+ .. note:: Java interfaces in the oneDAL library have been deprecated and may no longer be supported in future releases.
+s :java_example:`error_handling/ErrorHandling.java`
 
 .. Python*: error_handling_throw.py
 
