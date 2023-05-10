@@ -33,8 +33,8 @@ There are different ways for you to build high-performance data science applicat
 - Use oneDAL C++ interfaces with or without SYCL support ([learn more](https://oneapi-src.github.io/oneDAL/#oneapi-vs-daal-interfaces))
 - Use [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/) to accelerate existing scikit-learn code without changing it
 - Use [daal4py](https://github.com/intel/scikit-learn-intelex/tree/master/daal4py), a standalone package with Python API for oneDAL
-- Use [Scala and Java interfaces](#apache-spark-mllib) that match Apache Spark MlLib API
 Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
+
 
 ## Installation
 
@@ -59,11 +59,6 @@ Python Examples:
 - [MPI](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mpi)
 - [MySQL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mysql)
 Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases. This includes Scala, Spark and Hadoop samples
-- [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
-- [Java Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/spark)
-- [Scala Spark](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/scala/spark)
-- [Hadoop](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/java/hadoop)
-
 
 
 </details>
@@ -84,7 +79,7 @@ Other related documentation:
 
 ## Apache Spark MLlib
 
-oneDAL provides Scala and Java interfaces that match Apache Spark MlLib API and use oneDAL solvers under the hood. This implementation allows you to get a **3-18x** increase in performance compared to the default Apache Spark MLlib.
+oneDAL library is used for Spark MLlib acceleration as part of [OAP MLlib](https://github.com/oap-project/oap-mllib) project and allows you to get a **3-18x** increase in performance compared to the default Apache Spark MLlib.
 
 <img style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
 
