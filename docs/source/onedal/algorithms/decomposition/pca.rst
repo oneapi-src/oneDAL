@@ -33,7 +33,7 @@ Mathematical formulation
 
 Training
 --------
-Given a training data set :math:`X_{n \times p}` with :math:`n`observations and
+Given a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` observations and
 :math:`p` features, the problem is to compute :math:`r, 1 \leq r \leq p` 
 principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the 
 training date set. The eigenvectors can be grouped into the :math:`r \times p` 
@@ -54,11 +54,11 @@ The choice of covariance matrix or correlation matrix is application-dependent.
 More specifically, if scaling of the features is important for a problem, 
 which is often the case, using the correlation matrix to compute principal components is more appropriate.
 By default, oneDAL uses the correlation matrix to compute the principal components. It is possible 
-to use the covariance matrix by passing ``precomputed`` as method and feeding a covariance matrix as input
+to use the covariance matrix by passing "precomputed" as method and feeding a covariance matrix as input
 to the PCA algorithm. To compute the covariance matrix, the :ref:`Covariance <alg_covariance>` algorithm can be used.
 
 The eigenvector associated with the :math:`k`-th largest eigenvalue of the covariance (or correlation) matrix 
-is also the :math:`k`-th principal component of the training data set.  Based on this,
+is also the :math:`k`-th principal component of the training data set. Based on this,
 the principal components can be computed in three steps:
 
 #. Computation of the covariance (or correlation) matrix
@@ -68,12 +68,12 @@ the principal components can be computed in three steps:
 
 Covariance matrix can be computed in the following way:
 
-#. Compute the column means :math:`M = (M_j)`,:math:`j = \overline{1,p}`, :math:`M_j = \frac{1}{n}\sum _{i} X_{ij}`.
-#. Compute the sample covariance matrix :math:`S = (S_{ij})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`, :math:`S_{ij} = \frac{1}{n-1}\sum_{k=1}^{n}(X_{ki} - M_i)(X_{kj}-M_j)`.
+#. Compute the column means :math:`M = \{ m(1), \ldots , m(p) \}`, where :math:`m\left(j\right)=\frac{1}{n}\sum _{i}{x}_{ij}`.
+#. Compute the sample covariance matrix :math:`S = \{ s_{ij} \}`, where :math:`s_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m(i))(x_{kj}-m(j))`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`.
 
 Corelation matrix can be computed from covariance matrix in the following way:
 
-#. Compute the correlation matrix :math:`C = C_{ij}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`,:math:`C_{ij} = \frac{S_{ij}}{\sqrt{S_{ii}\cdot S_{jj}}}`.
+#. Compute the correlation matrix :math:`C = \{ c_{ij} \}`, where :math:`c_{ij}=\frac{s_{ij}}{\sqrt{s_{ii}\cdot s_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`.
 
 
 The eigenvalues :math:`\lambda_k` and eigenvectors :math:`\upsilon_k` can be computed by an arbitrary
@@ -81,7 +81,7 @@ method such as [Ping14]_.
 
 In the final step, the eigenvalues (:math:`\lambda_k`) are sorted in descending order 
 to determine the order of the principal components. Each principal component is 
-stored as a row of the final resulting matrix, :math:`T = (\upsilon_{1j}, \cdots, \upsilon_{rj}), \quad 1 \leq j \leq p`.
+stored as a row of the final resulting matrix, :math:`T = \{ \upsilon_{1}, \cdots, \upsilon_{r} \}`, where :math:`\upsilon_{i}` is the :math:`i`-th principal component of dimension :math:`p`.
 Additionally, the means and variances of the input dataset are returned.
 
 .. _pca_t_math_svd:
@@ -90,8 +90,9 @@ Training method: *SVD*
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The singular value decomposition (SVD) is a matrix factorization technique that
-decomposes an observation matrix :math:`X_{n \times p}` into three matrices as :math:`X = U\SigmaV^*`.
-Here, 
+decomposes an observation matrix :math:`X = \{ x_1, \ldots, x_n \}` of :math:`p`-dimensional observations into three matrices as :math:`X = U \Sigma V^*`.
+Here,
+
 #. The columns of :math:`U` are the left-singular vectors.
 #. The columns of  :math:`V` are the right-singular vectors.
 #. :math:`V^*` is the conjugate transpose of the matrix :math:`V`.
@@ -104,12 +105,12 @@ are as follows:
 #. Decomposing the mean-centered input data to compute the singular values and the singular vectors
 #. Processing (sorting and storing) the results
 
-First step is to mean center the input data :math:`M = M_{ij}`, where :math:`M_{ij} = X_{ij} - \frac{\sum_{i=1}^n X_{ij}}{n}`.
+First step is to mean center the input data :math:`X^{c} = \{ x^{c}_{ij} \}`, where :math:`x^{c}_{ij} = x_{ij} - m(j)`, :math:`i=\overline{1,n}`, :math:`j=\overline{1,p}`, :math:`m(j) = \frac{1}{n}\sum _{i}{x}_{ij}`.
 
-Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k`, and right-singular vectors :math:`V_k` of matrix :math:`M` can be computed with an arbitrary method as described in [Demmel90]_.
+Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k`, and right-singular vectors :math:`V_k` of matrix :math:`X^{c}` can be computed with an arbitrary method as described in [Demmel90]_.
 
-The final step is to find a permutation matrix :math:`Q_{p \times p}` such that the diagonal entries of :math:`\SigmaQ`are sorted in a descending order i.e. :math:`\sigma_k \geq \sigma_{k+1}, for all k < p assuming n > p`.
-The rows of the resulting matrix :math:`T = V^*Q` are the principal components of :math:`X`. The rows
+The final step is to find a permutation matrix :math:`Q_{p \times p}` such that the diagonal entries of :math:`\Sigma Q` are sorted in a descending order i.e. :math:`\sigma_{k} \geq \sigma_{k+1}`, for all :math:`k < p` assuming :math:`n > p`.
+The rows of the resulting matrix :math:`T = V^{*} Q` are the principal components of :math:`X`. The rows
 of :math:`T` are also the eigenvectors of the covariance matrix of :math:`X`. Additionally, the means and
 variances of the initial dataset are returned.
 
@@ -138,18 +139,18 @@ signum function,
 
 Inference
 ---------
-Given the inference data set :math:`X^'_{m \times p}` with :math:`m` observations, :math:`p`features, 
+Given the inference data set :math:`X^{'} = \{ x^{'}_1, \ldots, x^{'}_m \}` with :math:`m` observations and :math:`p` features, 
 and the :math:`r \times p` transformation matrix :math:`T` produced at the training stage, 
-the problem is to transform :math:`X^'_{m \times p}` to :math:`X^{''}_{m \times r}`, where :math:`X^{''}_{i}` is an
+the problem is to transform :math:`X^{'}` to the :math:`m \times r` matrix :math:`X^{''} = \{ x^{''}_1, \ldots, x^{''}_m \}`, where :math:`x^{''}_{i}` is an
 :math:`r`-dimensional transformed observation.
 
-Each individual observation :math:`X^'_{i}` can be transformed by applying the following linear
+Each individual observation :math:`x^{'}_{i}` can be transformed by applying the following linear
 transformation [Lang87]_ defined by the matrix :math:`T`,
 
 .. math::
    :label: x_transform
 
-   X^{''}_{i} = X^'_{i}T^T, \quad 1 \leq i \leq m.
+   x^{''}_{i} = x^{'}_{i} T^{*}, \quad 1 \leq i \leq m, \quad T^{*} = transpose(T).
 
 
 .. _pca_i_math_cov:
