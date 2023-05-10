@@ -181,6 +181,7 @@ nitpick_ignore = [
     ('cpp:identifier', ),
     # kmeans_init
     ('cpp:identifier', 'kmeans_init'),
+    ('cpp:identifier', 'local_trials'),
     ('cpp:identifier', 'kmeans_init::descriptor'),
     ('cpp:identifier', 'kmeans_init::compute_input'),
     ('cpp:identifier', 'kmeans_init::compute_result'),
@@ -321,10 +322,11 @@ nitpick_ignore = [
     # oneapi - kmeans
     ('cpp:identifier', 'oneapi::dal::kmeans'),
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
+    # oneapi - decision_forest
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
-
+    # oneapi - svm
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
