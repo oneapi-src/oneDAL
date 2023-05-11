@@ -375,6 +375,7 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 
 # List examples files to populate release/examples.
 expat = %.java %.cpp %.h %.hpp %.txt %.csv %.cmake
+expat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %_$(_OS).sh)
 release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
@@ -395,7 +396,7 @@ release.CONF = deploy/local/config.txt
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
 spat = %.scala %.java %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
-spat += %_$(_OS).lst %makefile_$(_OS) %.sh
+spat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %makefile_$(_OS) %.sh)
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
