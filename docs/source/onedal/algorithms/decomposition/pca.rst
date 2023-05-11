@@ -33,9 +33,8 @@ Mathematical formulation
 
 Training
 --------
-Given a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` observations and
-:math:`p` features, the problem is to compute :math:`r, 1 \leq r \leq p` 
-principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the 
+Given a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension
+:math:`p`, the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the 
 training date set. The eigenvectors can be grouped into the :math:`r \times p` 
 matrix :math:`T` that contains one eigenvector in each row.
 
@@ -90,7 +89,7 @@ Training method: *SVD*
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The singular value decomposition (SVD) is a matrix factorization technique that
-decomposes an observation matrix :math:`X = \{ x_1, \ldots, x_n \}` of :math:`p`-dimensional observations into three matrices as :math:`X = U \Sigma V^*`.
+decomposes an observation matrix :math:`X = \{ x_1, \ldots, x_n \}` of :math:`p`-dimensional feature vectors into three matrices as :math:`X = U \Sigma V^*`.
 Here:
 
 #. The columns of :math:`U` are the left-singular vectors.
@@ -139,7 +138,7 @@ signum function,
 
 Inference
 ---------
-Given the inference data set :math:`X^{'} = \{ x^{'}_1, \ldots, x^{'}_m \}` with :math:`m` observations and :math:`p` features, 
+Given the inference data set :math:`X^{'} = \{ x^{'}_1, \ldots, x^{'}_m \}` with :math:`m` feature vectors of dimension :math:`p`, 
 and the :math:`r \times p` transformation matrix :math:`T` produced at the training stage, 
 the problem is to transform :math:`X^{'}` to the :math:`m \times r` matrix :math:`X^{''} = \{ x^{''}_1, \ldots, x^{''}_m \}`, where :math:`x^{''}_{i}` is an
 :math:`r`-dimensional transformed observation.

@@ -33,7 +33,7 @@ Mathematical formulation
 Computing
 ---------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` observations and :math:`p` features,
+Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
 the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
 The means, the covariance, and the correlation are computed with the following formulas:
 
