@@ -261,7 +261,7 @@ public:
     request allgather(const array<D>& send, const array<D>& recv) const;
 
     template <typename D>
-    request allgather(D& scalar, const array<D>& recv) const;
+    request allgather(const D& scalar, const array<D>& recv) const;
     /// Collects data from all the ranks within a communicator into a single buffer
     /// and redistribute to all ranks.
     /// The data size send by each rank may be different.

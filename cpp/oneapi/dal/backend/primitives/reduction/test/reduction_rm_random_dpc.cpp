@@ -66,7 +66,9 @@ public:
 
     auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(this->get_queue(), { size });
+        return ndarray<float_t, 1, rm_order>::full(this->get_queue(),
+                                                   { size },
+                                                   binary_t{}.init_value);
     }
 
     void generate_input() {
