@@ -17,7 +17,6 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/blas/syrk.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
