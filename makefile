@@ -842,6 +842,8 @@ $(THR.tmpdir_y)/%_tbb.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 # Java/JNI part
 #===============================================================================
+# Deprecation Notice: Java interfaces in the oneDAL library have been deprecated
+# and may no longer be supported in future releases.
 JAVA.srcdir      := $(DIR)/java
 JAVA.srcdir.full := $(JAVA.srcdir)/com/intel/daal
 JAVA.tmpdir      := $(WORKDIR)/java_tmpdir
