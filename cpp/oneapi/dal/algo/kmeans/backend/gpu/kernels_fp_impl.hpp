@@ -47,8 +47,10 @@ bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
 
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
-    constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
+    const std::int64_t block_size =
+        std::min(static_cast<std::int64_t>(bk::device_local_mem_size(queue) / sizeof(Float)),
+                 row_count);
+    return block_size;
 }
 
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
