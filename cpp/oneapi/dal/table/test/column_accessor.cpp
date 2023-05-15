@@ -20,7 +20,7 @@
 
 namespace oneapi::dal {
 
-TEST("column_accessor_test, can_get_first_column_from_homogen_table") {
+TEST("column_accessor_test can_get_first_column_from_homogen_table") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.f, 2.f, //
@@ -40,7 +40,7 @@ TEST("column_accessor_test, can_get_first_column_from_homogen_table") {
     }
 }
 
-TEST("column_accessor_test, can_get_second_column_from_homogen_table_with_conversion") {
+TEST("column_accessor_test can_get_second_column_from_homogen_table_with_conversion") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
@@ -57,7 +57,7 @@ TEST("column_accessor_test, can_get_second_column_from_homogen_table_with_conver
     }
 }
 
-TEST("column_accessor_test, can_get_first_column_from_homogen_table_with_subset_of_rows") {
+TEST("column_accessor_test can_get_first_column_from_homogen_table_with_subset_of_rows") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
@@ -74,7 +74,7 @@ TEST("column_accessor_test, can_get_first_column_from_homogen_table_with_subset_
     }
 }
 
-TEST("column_accessor_test, can_get_columns_from_homogen_table_builder") {
+TEST("column_accessor_test can_get_columns_from_homogen_table_builder") {
     detail::homogen_table_builder b;
     b.reset(array<float>::zeros(3 * 2), 3, 2);
     {
@@ -108,7 +108,7 @@ TEST("column_accessor_test, can_get_columns_from_homogen_table_builder") {
     }
 }
 
-TEST("column_accessor_test, can_get_column_values_from_column_major_homogen_table") {
+TEST("column_accessor_test can_get_column_values_from_column_major_homogen_table") {
     float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
 
     auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
@@ -122,8 +122,7 @@ TEST("column_accessor_test, can_get_column_values_from_column_major_homogen_tabl
     REQUIRE(col[1] == 6.f);
 }
 
-TEST(
-    "column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion") {
+TEST("column_accessor_test can_get_column_values_from_column_major_homogen_table_with_conversion") {
     float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
 
     auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
@@ -136,7 +135,7 @@ TEST(
     REQUIRE(col[1] == 6);
 }
 
-TEST("column_accessor_bad_arg_test, invalid_range") {
+TEST("column_accessor_bad_arg_test invalid_range") {
     detail::homogen_table_builder b;
     b.reset(array<float>::zeros(3 * 2), 3, 2);
     column_accessor<float> acc{ b };
@@ -151,7 +150,7 @@ TEST("column_accessor_bad_arg_test, invalid_range") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST("column_accessor_dpc_test, can_get_first_column_from_homogen_table") {
+TEST("column_accessor_dpc_test can_get_first_column_from_homogen_table") {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
     auto data = sycl::malloc_shared<float>(data_size, q);
@@ -175,7 +174,7 @@ TEST("column_accessor_dpc_test, can_get_first_column_from_homogen_table") {
     }
 }
 
-TEST("column_accessor_dpc_test, can_get_second_column_from_homogen_table_with_conversion") {
+TEST("column_accessor_dpc_test can_get_second_column_from_homogen_table_with_conversion") {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
     auto data = sycl::malloc_shared<float>(data_size, q);
@@ -199,7 +198,7 @@ TEST("column_accessor_dpc_test, can_get_second_column_from_homogen_table_with_co
     }
 }
 
-TEST("column_accessor_dpc_test, can_get_first_column_from_homogen_table_with_subset_of_rows") {
+TEST("column_accessor_dpc_test can_get_first_column_from_homogen_table_with_subset_of_rows") {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
     auto data = sycl::malloc_shared<float>(data_size, q);
@@ -223,7 +222,7 @@ TEST("column_accessor_dpc_test, can_get_first_column_from_homogen_table_with_sub
     }
 }
 
-TEST("column_accessor_dpc_test, can_get_columns_from_homogen_table_builder") {
+TEST("column_accessor_dpc_test can_get_columns_from_homogen_table_builder") {
     sycl::queue q;
 
     detail::homogen_table_builder b;
@@ -265,7 +264,7 @@ TEST("column_accessor_dpc_test, can_get_columns_from_homogen_table_builder") {
     }
 }
 
-TEST("column_accessor_dpc_test, can_get_column_values_from_column_major_homogen_table") {
+TEST("column_accessor_dpc_test can_get_column_values_from_column_major_homogen_table") {
     sycl::queue q;
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
@@ -293,8 +292,8 @@ TEST("column_accessor_dpc_test, can_get_column_values_from_column_major_homogen_
     sycl::free(data, q);
 }
 
-TEST("column_accessor_dpc_test,
-     can_get_column_values_from_column_major_homogen_table_with_conversion") {
+TEST(
+    "column_accessor_dpc_test can_get_column_values_from_column_major_homogen_table_with_conversion") {
     sycl::queue q;
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
@@ -303,9 +302,9 @@ TEST("column_accessor_dpc_test,
     auto data = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
-    cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
-        data[idx[0]] = idx[0];
-    });
+        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+            data[idx[0]] = idx[0];
+        });
     });
 
     auto t =
@@ -321,7 +320,7 @@ TEST("column_accessor_dpc_test,
     sycl::free(data, q);
 }
 
-TEST("column_accessor_bad_arg_dpc_test, invalid_range") {
+TEST("column_accessor_bad_arg_dpc_test invalid_range") {
     sycl::queue q;
 
     detail::homogen_table_builder b;

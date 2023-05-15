@@ -20,7 +20,7 @@
 using namespace oneapi::dal;
 using namespace oneapi;
 
-TEST("table_test, can_construct_empty_table") {
+TEST("table_test can_construct_empty_table") {
     table t;
 
     REQUIRE(!t.has_data());
@@ -28,7 +28,7 @@ TEST("table_test, can_construct_empty_table") {
     REQUIRE(t.get_column_count() == 0);
 }
 
-TEST("simple_metadata_bad_arg_tests, get_feature_type") {
+TEST("simple_metadata_bad_arg_tests get_feature_type") {
     const std::int64_t n_features = 5;
     auto dtypes = array<data_type>::full(n_features, data_type::int32);
     auto ftypes = array<feature_type>::full(n_features, feature_type::nominal);
@@ -40,7 +40,7 @@ TEST("simple_metadata_bad_arg_tests, get_feature_type") {
     REQUIRE_NOTHROW(md.get_feature_type(0));
 }
 
-TEST("simple_metadata_bad_arg_tests, get_data_type") {
+TEST("simple_metadata_bad_arg_tests get_data_type") {
     const std::int64_t n_features = 5;
     auto dtypes = array<data_type>::full(n_features, data_type::int32);
     auto ftypes = array<feature_type>::full(n_features, feature_type::nominal);
