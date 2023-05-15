@@ -229,8 +229,7 @@ public:
     }
 
     template <typename EdgeValueType>
-    auto create_graph(const graph_base_data& graph_data,
-                            std::vector<EdgeValueType>& weights) {
+    auto create_graph(const graph_base_data& graph_data, std::vector<EdgeValueType>& weights) {
         using graph_type = typename GraphTypeInfo<EdgeValueType>::graph_type;
 
         graph_type graph;

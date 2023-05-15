@@ -122,7 +122,8 @@ TEST("column_accessor_test, can_get_column_values_from_column_major_homogen_tabl
     REQUIRE(col[1] == 6.f);
 }
 
-TEST("column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion") {
+TEST(
+    "column_accessor_test, can_get_column_values_from_column_major_homogen_table_with_conversion") {
     float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
 
     auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
@@ -233,7 +234,8 @@ TEST("column_accessor_dpc_test, can_get_columns_from_homogen_table_builder") {
             auto col = acc.pull(q, col_idx);
 
             REQUIRE(col.get_count() == 3);
-            REQUIRE(sycl::get_pointer_type(col.get_data(), q.get_context()) == sycl::usm::alloc::shared);
+            REQUIRE(sycl::get_pointer_type(col.get_data(), q.get_context()) ==
+                    sycl::usm::alloc::shared);
 
             col.need_mutable_data();
             auto col_data = col.get_mutable_data();
@@ -253,7 +255,8 @@ TEST("column_accessor_dpc_test, can_get_columns_from_homogen_table_builder") {
             const auto col = acc.pull(q, col_idx);
 
             REQUIRE(col.get_count() == 3);
-            REQUIRE(sycl::get_pointer_type(col.get_data(), q.get_context()) == sycl::usm::alloc::shared);
+            REQUIRE(sycl::get_pointer_type(col.get_data(), q.get_context()) ==
+                    sycl::usm::alloc::shared);
 
             for (std::int64_t i = 0; i < col.get_count(); i++) {
                 REQUIRE(Catch::Approx(col[i]) == col_idx + 1);
@@ -300,9 +303,9 @@ TEST("column_accessor_dpc_test,
     auto data = sycl::malloc_shared<float>(data_size, q);
 
     auto event = q.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
-            data[idx[0]] = idx[0];
-        });
+    cgh.parallel_for(sycl::range<1>(data_size), [=](sycl::id<1> idx) {
+        data[idx[0]] = idx[0];
+    });
     });
 
     auto t =
