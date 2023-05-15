@@ -160,11 +160,11 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
     const auto block_size = propose_block_size<Float>(queue, row_count);
     const bk::uniform_blocking blocking(row_count, block_size);
-    std::vector<sycl::event> events(blocking.get_block_count());
+    sycl::event event;
     for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
         const auto first_row = blocking.get_block_start_index(b);
         const auto last_row = blocking.get_block_end_index(b);
-        auto event = queue.submit([&](sycl::handler& cgh) {
+        event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for<select_min_distance<Float>>(
                 bk::make_multiple_nd_range_2d({ wg_size, last_row - first_row }, { wg_size, 1 }),
@@ -218,11 +218,9 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                 });
         });
 
-        events.push_back(event);
     }
-    sycl::event last_event = events.back();
-    sycl::event::wait(events);
-    return last_event;
+    event.wait_and_throw();
+    return event;
 }
 
 template <typename Float>
