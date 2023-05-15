@@ -46,9 +46,11 @@ bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
 }
 
 template <typename Float>
-std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
-    constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
+std::int64_t propose_block_size(const sycl::queue& queue, const std::int64_t row_count) {
+    const std::int64_t block_size =
+        std::min(static_cast<std::int64_t>(bk::device_local_mem_size(queue) / sizeof(Float)),
+                 row_count);
+    return block_size;
 }
 
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
@@ -177,8 +179,8 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                     const std::int64_t sg_global_id = wg_id * sg_num + sg_id;
                     if (sg_global_id >= row_count)
                         return;
-                    const std::int64_t in_offset = sg_global_id * stride;
-                    const std::int64_t out_offset = sg_global_id;
+                    const std::int64_t in_offset = (sg_global_id + first_row) * stride;
+                    const std::int64_t out_offset = sg_global_id + first_row;
 
                     const std::int64_t local_id = sg.get_local_id()[0];
                     const std::int64_t local_range = sg.get_local_range()[0];
