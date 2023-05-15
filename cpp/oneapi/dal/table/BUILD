@@ -38,25 +38,17 @@ dal_test_suite(
         "test/homogen_serialization.cpp",
         "detail/test/csr_accessor.cpp",
         "test/csr.cpp",
+        "test/column_accessor.cpp",
+        "test/common.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",
 )
 
 dal_test_suite(
-    name = "gtest_tests",
-    srcs = [
-        "test/column_accessor.cpp",
-        "test/common.cpp",
-    ],
-    dal_deps = [":table"],
-)
-
-dal_test_suite(
     name = "tests",
     tests = [
         ":private_tests",
-        ":gtest_tests",
         ":catch2_tests",
     ],
 )

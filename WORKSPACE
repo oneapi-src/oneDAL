@@ -109,13 +109,6 @@ onedal_repo(
 )
 
 http_archive(
-    name = "gtest",
-    url = "https://github.com/google/googletest/archive/release-1.10.0.tar.gz",
-    sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-    strip_prefix = "googletest-release-1.10.0",
-)
-
-http_archive(
     name = "catch2",
     url = "https://github.com/catchorg/Catch2/archive/v2.13.10.tar.gz",
     sha256 = "d54a712b7b1d7708bc7a819a8e6e47b2fde9536f487b89ccbca295072a7d9943",
