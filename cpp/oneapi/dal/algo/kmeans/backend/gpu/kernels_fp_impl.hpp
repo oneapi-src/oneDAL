@@ -217,7 +217,6 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                     }
                 });
         });
-
     }
     event.wait_and_throw();
     return event;
