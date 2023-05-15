@@ -46,7 +46,8 @@ bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
 }
 
 template <typename Float>
-std::int64_t propose_block_size(const sycl::queue& queue, const std::int64_t row_count) {
+std::int64_t propose_block_size(const sycl::queue& queue, const std::int64_t row_count  ) {
+    std::cout<<"step 1"<<std::endl;
     const std::int64_t block_size =
         std::min(static_cast<std::int64_t>(bk::device_local_mem_size(queue) / sizeof(Float)),
                  row_count);
@@ -151,21 +152,25 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     const std::int64_t wg_size =
         bk::get_scaled_wg_size_per_row(queue, cluster_count, preffered_wg_size);
     dal::detail::check_mul_overflow(wg_size, stride);
-
+    std::cout<<"step 2"<<std::endl;
     const Float* distances_ptr = distances.get_data();
     const Float* centroid_squares_ptr = centroid_squares.get_data();
     Float* selection_ptr = selection.get_mutable_data();
     std::int32_t* indices_ptr = indices.get_mutable_data();
     const auto fp_max = dal::detail::limits<Float>::max();
-
+    std::cout<<"step 3"<<std::endl;
     const auto block_size = propose_block_size<Float>(queue, row_count);
     const bk::uniform_blocking blocking(row_count, block_size);
+    std::cout<<"step 4"<<std::endl;
     sycl::event last_event;
     for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
         const auto first_row = blocking.get_block_start_index(b);
         const auto last_row = blocking.get_block_end_index(b);
+        std::cout<<"step 5"<<std::endl;
         last_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
+            sycl::stream out(1024, 256, cgh);
+            sycl::stream out_1(1024, 256, cgh);
             cgh.parallel_for<select_min_distance<Float>>(
                 bk::make_multiple_nd_range_2d({ wg_size, last_row - first_row }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -195,9 +200,9 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                             value = cur_val;
                         }
                     }
-
+                    out<<"loop"<<sycl::endl;
                     sg.barrier();
-
+                    
                     const Float final_value =
                         sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());
                     const bool present = (final_value == value);
@@ -210,7 +215,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                         -sycl::reduce_over_group(sg,
                                                  owner ? -index : 1,
                                                  sycl::ext::oneapi::minimum<std::int32_t>());
-
+                    out_1<<"loop2"<<sycl::endl;
                     if (local_id == 0) {
                         indices_ptr[out_offset] = final_index;
                         selection_ptr[out_offset] = final_value;
