@@ -47,7 +47,7 @@ bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
 
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& queue, const std::int64_t row_count  ) {
-    std::cout<<"step 1"<<std::endl;
+    std::cout<<"step propose block"<<std::endl;
     const std::int64_t block_size =
         std::min(static_cast<std::int64_t>(bk::device_local_mem_size(queue) / sizeof(Float)),
                  row_count);
@@ -135,28 +135,31 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                                       pr::ndview<std::int32_t, 2>& indices,
                                       const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(select_min_distance, queue);
+    std::cout<<"step -2"<<std::endl;
     ONEDAL_ASSERT(indices.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(indices.get_dimension(1) == 1);
     ONEDAL_ASSERT(selection.get_dimension(0) == distances.get_dimension(0));
     ONEDAL_ASSERT(selection.get_dimension(1) == 1);
     ONEDAL_ASSERT(centroid_squares.get_dimension(0) == distances.get_dimension(1));
-
+    std::cout<<"step -1"<<std::endl;
     const std::int64_t cluster_count = distances.get_dimension(1);
     const std::int64_t row_count = distances.get_dimension(0);
     const std::int64_t stride = distances.get_dimension(1);
-
+    std::cout<<"step 0"<<std::endl;
     const std::int64_t cluster_count_as_int32 =
         dal::detail::integral_cast<std::int32_t>(cluster_count);
-
+    std::cout<<"step 1"<<std::endl;
     const std::int64_t preffered_wg_size = bk::device_max_wg_size(queue);
     const std::int64_t wg_size =
         bk::get_scaled_wg_size_per_row(queue, cluster_count, preffered_wg_size);
     dal::detail::check_mul_overflow(wg_size, stride);
     std::cout<<"step 2"<<std::endl;
     const Float* distances_ptr = distances.get_data();
+    std::cout<<"step -1"<<std::endl;
     const Float* centroid_squares_ptr = centroid_squares.get_data();
     Float* selection_ptr = selection.get_mutable_data();
     std::int32_t* indices_ptr = indices.get_mutable_data();
+    std::cout<<"step -1"<<std::endl;
     const auto fp_max = dal::detail::limits<Float>::max();
     std::cout<<"step 3"<<std::endl;
     const auto block_size = propose_block_size<Float>(queue, row_count);
@@ -276,6 +279,7 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
         auto closest_distance_block =
             pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
                                        { cur_rows, 1 });
+        std::cout<<"step select"<<std::endl;
         selection_event = select(queue,
                                  distance_block,
                                  centroid_squares,
