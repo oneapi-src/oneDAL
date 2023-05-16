@@ -20,7 +20,7 @@
 
 namespace oneapi::dal {
 
-TEST("Column accessor host test: Can get first column from homogen_table") {
+TEST("Column accessor host test: Can get the first column from homogen_table") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.f, 2.f, //
