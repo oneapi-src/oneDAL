@@ -223,7 +223,7 @@ TEST("Column accessor DPC test: Can get the first column from homogen_table with
     }
 }
 
-TEST("Column accessor dpc test: Can get columns from homogen_table_builder") {
+TEST("Column accessor DPC test: Can get columns from homogen_table_builder") {
     sycl::queue q;
 
     detail::homogen_table_builder b;
