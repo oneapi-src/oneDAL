@@ -199,7 +199,7 @@ TEST("Column accessor dpc test: Can get second column from homogen_table with co
     }
 }
 
-TEST("Column accessor dpc test: Can get first column from homogen_table with subset of rows") {
+TEST("Column accessor DPC test: Can get the first column from homogen_table with subset of rows") {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
     auto data = sycl::malloc_shared<float>(data_size, q);
