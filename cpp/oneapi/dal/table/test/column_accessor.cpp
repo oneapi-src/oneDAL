@@ -321,7 +321,7 @@ TEST(
     sycl::free(data, q);
 }
 
-TEST("Column accessor dpc test: Invalid range") {
+TEST("Column accessor DPC test: Invalid range") {
     sycl::queue q;
 
     detail::homogen_table_builder b;
