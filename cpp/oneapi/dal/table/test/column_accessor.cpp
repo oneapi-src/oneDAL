@@ -287,7 +287,7 @@ TEST("column_accessor_dpc_test can_get_column_values_from_column_major_homogen_t
     REQUIRE(col.get_data() == &data[5]);
 
     REQUIRE(col[0] == Catch::Approx(5.f));
-    REQUIRE(col[1] == Catch::Approx(5.f));
+    REQUIRE(col[1] == Catch::Approx(6.f));
 
     sycl::free(data, q);
 }
