@@ -154,7 +154,6 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     const Float* centroid_squares_ptr = centroid_squares.get_data();
     Float* selection_ptr = selection.get_mutable_data();
     std::int32_t* indices_ptr = indices.get_mutable_data();
-    //const auto fp_max = dal::detail::limits<Float>::max();
 
     const auto block_size = propose_block_size<Float>(queue, row_count);
     const bk::uniform_blocking blocking(row_count, block_size);
@@ -168,9 +167,8 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
         const auto curr_block = last_row - first_row;
         ONEDAL_ASSERT(0 < curr_block);
 
-        const auto range = bk::make_multiple_nd_range_2d( //
-            { curr_block, wg_size },
-            { sg_count, sg_size });
+        const auto range =
+            bk::make_multiple_nd_range_2d({ curr_block, wg_size }, { sg_count, sg_size });
 
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
@@ -198,17 +196,10 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
                 sg.barrier();
 
-                const auto true_min_val = sycl::reduce_over_group( //
-                    sg,
-                    min_val,
-                    minimum_val);
-                const auto handle = (min_val == true_min_val) //
-                                        ? min_idx
-                                        : std::numeric_limits<std::int64_t>::max();
-                const auto true_min_idx = sycl::reduce_over_group( //
-                    sg,
-                    handle,
-                    minimum_idx);
+                const auto true_min_val = sycl::reduce_over_group(sg, min_val, minimum_val);
+                const auto handle =
+                    (min_val == true_min_val) ? min_idx : std::numeric_limits<std::int64_t>::max();
+                const auto true_min_idx = sycl::reduce_over_group(sg, handle, minimum_idx);
 
                 if (local_id == 0) {
                     indices_ptr[row] = true_min_idx;
