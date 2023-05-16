@@ -265,7 +265,7 @@ TEST("Column accessor DPC test: Can get columns from homogen_table_builder") {
     }
 }
 
-TEST("Column accessor dpc test: Can get column values from column major homogen_table") {
+TEST("Column accessor DPC test: Can get column values from column major homogen_table") {
     sycl::queue q;
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
