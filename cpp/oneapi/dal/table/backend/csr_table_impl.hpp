@@ -20,7 +20,11 @@
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
+
+#include <iostream>
 
 namespace oneapi::dal::backend {
 
@@ -46,14 +50,22 @@ public:
               col_count_(column_count),
               layout_(data_layout::row_major),
               indexing_(indexing) {
+        ONEDAL_ASSERT(0 < column_count);
         using error_msg = dal::detail::error_messages;
+        std::cout << "in csr_table_impl()" << std::endl << std::flush;
 
         if (column_count <= 0) {
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
         row_count_ = (row_offsets.get_count() ? row_offsets.get_count() - 1 : 0);
-        const std::int64_t element_count = row_offsets_[row_count_] - row_offsets_[0];
+        ONEDAL_ASSERT(0 < row_count_);
+        if (row_count_ < 0) {
+            throw dal::domain_error(error_msg::rc_leq_zero());
+        }
+
+        std::int64_t element_count = get_non_zero_count(row_count_, row_offsets);
+
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
@@ -110,6 +122,38 @@ public:
     std::int64_t get_non_zero_count() const override {
         std::int64_t row_offsets_count = row_offsets_.get_count();
         return (row_offsets_count ? row_offsets_[row_offsets_count - 1] - row_offsets_[0] : 0);
+    }
+
+    static std::int64_t get_non_zero_count(const detail::default_host_policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
+        if (row_count == 0)
+            return 0;
+
+        return (row_offsets[row_count] - row_offsets[0]);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    static std::int64_t get_non_zero_count(const detail::data_parallel_policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
+        if (row_count == 0)
+            return 0;
+
+        auto q = policy.get_queue();
+        std::int64_t first_row_offset{0L};
+        std::int64_t last_row_offset{0L};
+        dal::backend::copy_usm2host(q, &first_row_offset, row_offsets, 1, {}).wait_and_throw();
+        dal::backend::copy_usm2host(q, &last_row_offset, row_offsets + row_count, 1, {}).wait_and_throw();
+
+        return (last_row_offset - first_row_offset);
+    }
+#endif
+
+    static std::int64_t get_non_zero_count(const std::int64_t row_count, const array<std::int64_t>& row_offsets) {
+    #ifdef ONEDAL_DATA_PARALLEL
+        const auto optional_queue = row_offsets.get_queue();
+        if (optional_queue) {
+            return csr_table_impl::get_non_zero_count(detail::data_parallel_policy{ optional_queue.value() }, row_count, row_offsets.get_data());
+        }
+    #endif
+        return csr_table_impl::get_non_zero_count(detail::default_host_policy{}, row_count, row_offsets.get_data());
     }
 
     sparse_indexing get_indexing() const override {

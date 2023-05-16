@@ -19,6 +19,8 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/array_utils.hpp"
 
+#include <iostream>
+
 namespace oneapi::dal {
 namespace v1 {
 
@@ -105,6 +107,7 @@ public:
                           std::int64_t column_count,
                           sparse_indexing indexing = sparse_indexing::one_based,
                           const std::vector<sycl::event>& dependencies = {}) {
+        std::cout << "in csr_table::wrap() " << std::endl << std:: flush;
         return csr_table{ queue,
                           data_pointer,
                           column_indices_pointer,
@@ -333,30 +336,8 @@ public:
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
-    void check_indices(const std::int64_t* row_offsets,
-                       const std::int64_t row_count,
-                       const std::int64_t column_count,
-                       const sparse_indexing indexing) const {
-        using error_msg = dal::detail::error_messages;
-        const std::int64_t min_index = (indexing == sparse_indexing::zero_based) ? 0 : 1;
-        const std::int64_t max_row_offset = row_offsets[row_count];
-
-        if (row_count <= 0) {
-            throw dal::domain_error(error_msg::rc_leq_zero());
-        }
-
-        if (column_count <= 0) {
-            throw dal::domain_error(error_msg::cc_leq_zero());
-        }
-
-        if (row_offsets[0] != min_index) {
-            throw dal::domain_error(error_msg::invalid_first_row_offset());
-        }
-
-        if (row_offsets[row_count] > max_row_offset) {
-            throw dal::domain_error(error_msg::row_offsets_gt_max_value());
-        }
-    }
+    template <typename Policy>
+    static std::int64_t get_non_zero_count(const Policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets);
 
     template <typename Policy,
               typename Data,
@@ -373,8 +354,9 @@ private:
                    ConstColumnIndicesDeleter&& column_indices_deleter,
                    ConstRowOffsetsDeleter&& row_offsets_deleter,
                    sparse_indexing indexing) {
-        check_indices(row_offsets_pointer, row_count, column_count, indexing);
-        const std::int64_t element_count = row_offsets_pointer[row_count] - row_offsets_pointer[0];
+        std::cout << "in csr.hpp init_impl() " << std::endl << std::flush;
+
+        const std::int64_t element_count = get_non_zero_count(policy, row_count, row_offsets_pointer);
 
         const auto data =
             detail::array_via_policy<Data>::wrap(policy,
@@ -411,7 +393,6 @@ private:
                    sparse_indexing indexing) {
         std::int64_t row_count = row_offsets.get_count();
         row_count = (row_count ? row_count - 1 : std::int64_t(0));
-        check_indices(row_offsets.get_data(), row_count, column_count, indexing);
 
         return init_impl(detail::default_host_policy{},
                          detail::reinterpret_array_cast<byte_t>(data),
