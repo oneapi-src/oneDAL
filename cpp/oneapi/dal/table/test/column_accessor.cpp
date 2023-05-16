@@ -294,7 +294,7 @@ TEST("Column accessor DPC test: Can get column values from column major homogen_
 }
 
 TEST(
-    "Column accessor dpc test: Can get column values from column major homogen_table with conversion") {
+    "Column accessor DPC test: Can get column values from major column homogen_table with conversion") {
     sycl::queue q;
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
