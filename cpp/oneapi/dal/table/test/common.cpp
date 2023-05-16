@@ -28,7 +28,7 @@ TEST("Table test: Can construct empty table") {
     REQUIRE(t.get_column_count() == 0);
 }
 
-TEST("Simple metadata test: Get feature type") {
+TEST("Simple metadata test: Get a feature type") {
     const std::int64_t n_features = 5;
     auto dtypes = array<data_type>::full(n_features, data_type::int32);
     auto ftypes = array<feature_type>::full(n_features, feature_type::nominal);
