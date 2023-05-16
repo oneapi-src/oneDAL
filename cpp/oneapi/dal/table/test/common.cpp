@@ -20,7 +20,7 @@
 using namespace oneapi::dal;
 using namespace oneapi;
 
-TEST("Table test: Can construct empty table") {
+TEST("Table test: Can construct an empty table") {
     table t;
 
     REQUIRE(!t.has_data());
