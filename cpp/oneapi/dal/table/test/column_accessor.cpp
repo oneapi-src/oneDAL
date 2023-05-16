@@ -123,7 +123,7 @@ TEST("Column accessor host test: Can get column values from column major homogen
 }
 
 TEST(
-    "Column accessor host test: Can get column values from column major homogen_table with conversion") {
+    "Column accessor host test: Can get column values from major column homogen_table with conversion") {
     float data[] = { 0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f };
 
     auto t = homogen_table::wrap(data, 4, 3, data_layout::column_major);
