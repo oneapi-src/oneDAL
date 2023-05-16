@@ -40,7 +40,7 @@ TEST("Simple metadata test: Get feature type") {
     REQUIRE_NOTHROW(md.get_feature_type(0));
 }
 
-TEST("Simple metadata test: Get data type") {
+TEST("Simple metadata test: Get a data type") {
     const std::int64_t n_features = 5;
     auto dtypes = array<data_type>::full(n_features, data_type::int32);
     auto ftypes = array<feature_type>::full(n_features, feature_type::nominal);
