@@ -151,7 +151,7 @@ TEST("Column accessor host test: Invalid range") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST("Column accessor dpc test: Can get first column from homogen_table") {
+TEST("Column accessor DPC test: Can get the first column from homogen_table") {
     sycl::queue q;
     constexpr std::int64_t data_size = 8;
     auto data = sycl::malloc_shared<float>(data_size, q);
