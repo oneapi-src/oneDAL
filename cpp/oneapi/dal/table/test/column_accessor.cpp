@@ -40,7 +40,7 @@ TEST("Column accessor host test: Can get first column from homogen_table") {
     }
 }
 
-TEST("Column accessor host test: Can get second column from homogen_table with conversion") {
+TEST("Column accessor host test: Can get the second column from homogen_table with conversion") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
