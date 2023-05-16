@@ -159,7 +159,7 @@ jobs:
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
-      # Download bazelisk
+      # Download Bazelisk
       export SHA256="168851e70cf5f95c0e215e7f3aaca5132ffc3c8dd8f585a4157b0be2b53cfe32 bazelisk-linux-amd64"
       wget https://github.com/bazelbuild/bazelisk/releases/download/v1.16.0/bazelisk-linux-amd64
       echo ${SHA256} | sha256sum --check
