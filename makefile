@@ -271,7 +271,7 @@ ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler
 ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
 
 libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib)))
-libsycl.default = sycl6$d.lib
+libsycl.default = sycl7$d.lib
 endif
 
 #===============================================================================
@@ -375,7 +375,7 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 
 # List examples files to populate release/examples.
 expat = %.java %.cpp %.h %.hpp %.txt %.csv %.cmake
-expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_OS),%_$(_OS).lst %makefile_$(_OS) %_$(_OS).sh)
+expat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %_$(_OS).sh)
 release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
@@ -396,7 +396,7 @@ release.CONF = deploy/local/config.txt
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
 spat = %.scala %.java %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
-spat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %.sh)
+spat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %makefile_$(_OS) %.sh)
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
@@ -1033,29 +1033,6 @@ $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASE
 $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
 $(foreach x,$(release.EXAMPLES.COMMON_CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 $(foreach x,$(release.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
-
-
-#----- releasing VS solutions
-ifeq ($(OS_is_win),yes)
-# $1: Relative examples directiry
-# $2: Solution filename
-# $3: Prefix of solution template
-# $4: Target to trigger
-define .release.x.sln
-$4: $(RELEASEDIR.daal)/$1/$2
-$(RELEASEDIR.daal)/$1/$2: \
-        $1/$3.vcxproj.tpl \
-        $1/$3.vcxproj.filters.tpl \
-        $1/$3.vcxproj.user.tpl \
-        $1/$3.sln.tpl
-	python ./deploy/local/generate_win_solution.py $1 $(RELEASEDIR.daal)/$1 $2 --template_name $3
-endef
-
-$(eval $(call .release.x.sln,examples/daal/cpp,DAALExamples.sln,daal_win,_release_c))
-$(eval $(call .release.x.sln,examples/daal/cpp_sycl,DAALExamples_sycl.sln,daal_win,_release_c))
-$(eval $(call .release.x.sln,examples/oneapi/cpp,oneDALExamples.sln,onedal_win,_release_oneapi_c))
-$(eval $(call .release.x.sln,examples/oneapi/dpc,oneDALExamples.sln,onedal_win,_release_oneapi_dpc))
-endif
 
 #----- releasing environment scripts
 define .release.x
