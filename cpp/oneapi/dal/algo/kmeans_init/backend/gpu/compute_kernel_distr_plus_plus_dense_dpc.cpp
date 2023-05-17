@@ -338,9 +338,16 @@ sycl::event extract_and_share_by_indices(const bk::context_gpu& ctx,
     const auto feature_count = candidates.get_dimension(1);
     ONEDAL_ASSERT(candidate_count == indices.get_count());
 
+    constexpr std::int64_t type_size = sizeof(Float);
     constexpr std::int64_t threshold_count = 131'072l;
+
+    ONEDAL_ASSERT_MUL_OVERFLOW(candidate_count, feature_count);
+    const auto element_count = candidate_count * feature_count;
+
+    ONEDAL_ASSERT_MUL_OVERFLOW(type_size, element_count);
     const bool use_wide = (candidate_count > feature_count) //
-                          && (candidate_count * feature_count > threshold_count);
+                          && (type_size * element_count > threshold_count);
+
     if (use_wide) {
         return extract_and_share_by_indices_wide(ctx, indices, offsets, input, candidates, deps);
     }
