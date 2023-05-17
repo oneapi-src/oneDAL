@@ -171,7 +171,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for<select_min_distance<Float>>(
-                bk::make_multiple_nd_range_2d({ curr_block, wg_size }, { sg_count, sg_size }),
+                bk::make_multiple_nd_range_2d({ curr_block, wg_size }, { sg_count, 1 }),
                 [=](sycl::nd_item<2> item) {
                     constexpr sycl::ext::oneapi::minimum<Float> minimum_val;
                     constexpr sycl::ext::oneapi::minimum<std::int32_t> minimum_idx;
