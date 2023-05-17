@@ -168,28 +168,25 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
         const auto curr_block = last_row - first_row;
         ONEDAL_ASSERT(curr_block > 0);
 
-        // const auto range =
-        //     bk::make_multiple_nd_range_2d({ curr_block, wg_size }, { sg_count, sg_size });
-
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for<select_min_distance<Float>>(
                 bk::make_multiple_nd_range_2d({ curr_block, wg_size }, { sg_count, sg_size }),
                 [=](sycl::nd_item<2> item) {
                     constexpr sycl::ext::oneapi::minimum<Float> minimum_val;
-                    constexpr sycl::ext::oneapi::minimum<std::int64_t> minimum_idx;
+                    constexpr sycl::ext::oneapi::minimum<std::int32_t> minimum_idx;
 
                     const std::int64_t row = item.get_global_id(0) + first_row;
 
                     if (last_row <= row)
                         return;
                     auto sg = item.get_sub_group();
-                    std::int64_t local_id = item.get_local_id(1);
+                    std::int32_t local_id = item.get_local_id(1);
                     auto min_val = std::numeric_limits<Float>::max();
-                    auto min_idx = std::numeric_limits<std::int64_t>::max();
+                    auto min_idx = std::numeric_limits<std::int32_t>::max();
 
                     const auto* const row_ptr = distances_ptr + row * stride;
-                    for (std::int64_t col = local_id; col < cluster_count_as_int32; ++col) {
+                    for (std::int32_t col = local_id; col < cluster_count_as_int32; ++col) {
                         const Float cur_val = row_ptr[col] + centroid_squares_ptr[col];
                         const bool handle = cur_val < min_val;
                         min_val = handle ? cur_val : min_val;
@@ -201,7 +198,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                     const auto final_min_val = sycl::reduce_over_group(sg, min_val, minimum_val);
                     const auto handle = (min_val == final_min_val)
                                             ? min_idx
-                                            : std::numeric_limits<std::int64_t>::max();
+                                            : std::numeric_limits<std::int32_t>::max();
                     const auto final_min_idx = sycl::reduce_over_group(sg, handle, minimum_idx);
 
                     if (local_id == 0) {
@@ -213,9 +210,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
         events.push_back(event);
     }
-    sycl::event last_event = events.back();
-    sycl::event::wait(events);
-    return last_event;
+    return bk::wait_or_pass(events);
 }
 
 template <typename Float>
