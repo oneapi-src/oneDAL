@@ -351,6 +351,9 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
+    const Float* node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
+    Float* left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
+
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
 
@@ -362,19 +365,29 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
         hist_prop_count = impl_const<Index, task::regression>::hist_prop_count_;
     }
 
+    const Index class_count = ctx.class_count_;
+    const Index column_count = ctx.column_count_;
+    const Float imp_threshold = ctx.impurity_threshold_;
+    const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
+    const Index index_max = ctx.index_max_;
+    
+    // following vars are not used for regression, but should present to compile kernel
+    const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
+    Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
+
     const Index selected_ftr_count = ctx.selected_ftr_count_;
-    const max_bin_size = ctx.max_bin_count_among_ftrs_;
+    const Index max_bin_size = ctx.max_bin_count_among_ftrs_;
     const Index local_size = bk::device_max_wg_size(queue);
     // const Index wg_ftr_count = sbg_size;
     const Index node_in_block_count = max_wg_count_;
 
     sycl::event last_event;
 
-    const std::uint32_t local_hist_size = (wg_ftr_count * max_bin_size + 1) * hist_prop_count;
+    const std::uint32_t local_hist_size = (selected_ftr_count * max_bin_size + 1) * hist_prop_count;
     const std::uint32_t best_splits_size = split_info_t::get_cache_without_hist_byte_size() * selected_ftr_count;
 
     for (Index processed_nodes = 0; processed_nodes < node_count; processed_nodes += node_in_block_count){
-        nd_range = make_multiple_nd_range_2d({local_size, node_in_block_count}, {local_size, 1});
+        auto nd_range = bk::make_multiple_nd_range_2d({local_size, node_in_block_count}, {local_size, 1});
         last_event = queue.submit([&](sycl::handler& cgh){
             cgh.depends_on(deps);
 
@@ -382,9 +395,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
             local_accessor_rw_t<byte_t> best_splits(best_splits_size, cgh);
             cgh.parallel_for(
                 nd_range,
-                [=](auto& item)[[intel::reqd_sub_group_size(sbg_size)]] {
-                    const sbg = item.get_sub_group();
-                    const node_idx = item.get_global_id(1);
+                [=](sycl::nd_item<2> item)[[intel::reqd_sub_group_size(sbg_size)]] {
+                    const Index node_idx = item.get_global_id(1);
                     if ((node_idx + processed_nodes) > (node_count - 1)) {
                         return;
                     }
@@ -413,36 +425,32 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                         hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
                         
                         if constexpr (std::is_same_v<Task, task::classification>) {
-                            sycl::ext::oneapi::atomic_ref<Index,
-                                    sycl::ext::oneapi::memory_order_relaxed,
-                                    sycl::ext::oneapi::memory_scope_device,
-                                    sycl::access::address_space::local_space>
-                            hist_resp(local_hist[cur_hist_pos + response_int]);
-                            hist_resp += 1;
+                            // sycl::atomic_ref<Index,
+                            //         sycl::memory_order_relaxed,
+                            //         sycl::memory_scope_device,
+                            //         sycl::access::address_space::local_space>
+                            // hist_resp(local_hist[cur_hist_pos + response_int]);
+                            // hist_resp += 1;
+                            cur_hist[cur_hist_pos + response_int] += 1;
                         }
                         else {
-                            sycl::ext::oneapi::atomic_ref<Float,
-                                    sycl::ext::oneapi::memory_order_relaxed,
-                                    sycl::ext::oneapi::memory_scope_device,
-                                    sycl::access::address_space::local_space>
-                            hist_resp_count(local_hist[cur_hist_pos + 0]);
-                            hist_resp_count += 1;
-                            sycl::ext::oneapi::atomic_ref<Float,
-                                    sycl::ext::oneapi::memory_order_relaxed,
-                                    sycl::ext::oneapi::memory_scope_device,
-                                    sycl::access::address_space::local_space>
-                            hist_resp_sum(local_hist[cur_hist_pos + 1]);
-                            hist_resp_sum += response;
+                            // sycl::atomic_ref<Float,
+                            //         sycl::memory_order_relaxed,
+                            //         sycl::memory_scope_device,
+                            //         sycl::access::address_space::local_space>
+                            // hist_resp_count(local_hist[cur_hist_pos + 0]);
+                            // hist_resp_count += 1;
+                            // sycl::atomic_ref<Float,
+                            //         sycl::memory_order_relaxed,
+                            //         sycl::memory_scope_device,
+                            //         sycl::access::address_space::local_space>
+                            // hist_resp_sum(local_hist[cur_hist_pos + 1]);
+                            // hist_resp_sum += response;
+                            cur_hist[cur_hist_pos + 0] += 1;
+                            cur_hist[cur_hist_pos + 1] += response; 
                         }
                     }
-                    Index min_bin = 
-                        sycl::reduce_over_group(item.get_group(),
-                                                bin < index_max ? bin : max_bin_size,
-                                                minimum<Index>());
-                    Index max_bin =
-                        sycl::reduce_over_group(item.get_group(),
-                                                bin < max_bin_size ? bin : 0,
-                                                maximum<Index>());
+                    item.barrier(sycl::access::fence_space::local_space);
                     if (local_id >= selected_ftr_count) {
                         return;
                     }
@@ -451,7 +459,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     split_info<Float, Index, Task> bs;
                     for (Index ftr_idx = local_id; ftr_idx < selected_ftr_count; ftr_idx += local_size) {
                         bs.init_clear(item, local_hist_ptr + ftr_idx * max_bin_size * hist_prop_count, hist_prop_count);
-                        for (Index cur_bin = min_bin + 1; cur_bin < max_bin; ++cur_bin) {
+                        for (Index cur_bin = 1; cur_bin < max_bin_size; ++cur_bin) {
                             const Index cur_hist_pos = (ftr_idx * max_bin_size + cur_bin + 1) * hist_prop_count;
                             const Index prev_hist_pos = (ftr_idx * max_bin_size + cur_bin) * hist_prop_count;
                             hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
@@ -564,7 +572,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
             });
         });
     }
-
+    return last_event;
 }
 
 // template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
