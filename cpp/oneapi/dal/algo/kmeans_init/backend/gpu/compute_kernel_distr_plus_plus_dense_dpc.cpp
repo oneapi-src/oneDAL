@@ -413,7 +413,7 @@ template <typename Float>
 std::int64_t propose_sample_block(const sycl::queue& queue,
                                   std::int64_t feature_count,
                                   std::int64_t sample_count) {
-    return std::min<std::int64_t>(sample_count, 4096l);
+    return std::min<std::int64_t>(sample_count, 16'384l);
 }
 
 /// @brief Proposes          Number of candidates in slice to process at once
