@@ -50,7 +50,7 @@ public:
 
         sycl::local_ptr<const Float> local((const Float*)cache_.get_pointer().get());
 
-        Float acc = (override_init_ || (loc_idx == 0)) ? //
+        Float acc = (override_init_ || (loc_idx != 0)) ? //
                         binary_.init_value
                                                        : output_[col_idx];
         // Loop fot the whole WG
