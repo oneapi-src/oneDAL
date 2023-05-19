@@ -91,7 +91,7 @@ services::Status HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(algorithmFP
 #if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
-services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * const mklBuff, const double * const sqrA1i, const double sqrA2i,
+inline services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * const mklBuff, const double * const sqrA1i, const double sqrA2i,
                                                                const double coeff, const double expExpThreshold, const size_t n,
                                                                double * const dataRBlock)
 {
@@ -141,7 +141,7 @@ services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * const mk
 }
 
 template <>
-services::Status HelperKernelRBF<float, avx512>::postGemmPart(float * const mklBuff, const float * const sqrA1i, const float sqrA2i,
+inline services::Status HelperKernelRBF<float, avx512>::postGemmPart(float * const mklBuff, const float * const sqrA1i, const float sqrA2i,
                                                               const float coeff, const float expExpThreshold, const size_t n,
                                                               float * const dataRBlock)
 {
