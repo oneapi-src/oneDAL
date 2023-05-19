@@ -18,9 +18,9 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/sort/sort.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/sort.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-
 namespace oneapi::dal::kmeans::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -382,34 +382,22 @@ sycl::event kernels_fp<Float>::compute_objective_function(
     const pr::ndview<Float, 2>& closest_distances,
     pr::ndview<Float, 1>& objective_function,
     const bk::event_vector& deps) {
+    constexpr pr::sum<Float> binary;
+    constexpr pr::identity<Float> unary;
+
     ONEDAL_PROFILER_TASK(compute_objective_function, queue);
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(objective_function.get_dimension(0) == 1);
-    const Float* distance_ptr = closest_distances.get_data();
-    Float* value_ptr = objective_function.get_mutable_data();
-    const auto row_count = closest_distances.get_dimension(0);
-    const auto sg_size_to_set = get_recommended_sg_size(queue);
-    return queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for<compute_obj_function<Float>>(
-            bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::int64_t sg_id = sg.get_group_id()[0];
-                if (sg_id > 0)
-                    return;
-                const std::int64_t local_id = sg.get_local_id()[0];
-                const std::int64_t local_range = sg.get_local_range()[0];
-                Float sum = 0;
-                for (std::int64_t i = local_id; i < row_count; i += local_range) {
-                    sum += distance_ptr[i];
-                }
-                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                if (local_id == 0) {
-                    value_ptr[0] = sum;
-                }
-            });
-    });
+
+    const auto element_count = closest_distances.get_count();
+    const auto closest_distances_1d = closest_distances.template reshape<1>({ element_count });
+    auto fill_event = pr::fill(queue, objective_function, Float(0), deps);
+    return pr::reduce_1d(queue,
+                         closest_distances_1d,
+                         objective_function,
+                         binary,
+                         unary,
+                         { fill_event });
 }
 
 template <typename Float>
@@ -419,38 +407,11 @@ sycl::event kernels_fp<Float>::compute_squares(sycl::queue& queue,
                                                const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(compute_squares, queue);
     ONEDAL_ASSERT(data.get_dimension(0) == squares.get_dimension(0));
-    const Float* data_ptr = data.get_data();
-    Float* squares_ptr = squares.get_mutable_data();
 
-    const std::int64_t row_count = data.get_dimension(0);
-    const std::int64_t column_count = data.get_dimension(1);
-    const std::int64_t wg_size = bk::device_max_sg_size(queue);
+    constexpr pr::sum<Float> binary;
+    constexpr pr::square<Float> unary;
 
-    return queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                if (sg_id > 0)
-                    return;
-                const std::uint64_t sg_local_id = sg.get_local_id()[0];
-                const std::uint32_t sg_local_range = sg.get_local_range()[0];
-                const std::uint64_t wg_id = item.get_global_id(1);
-                const std::uint64_t offset = wg_id * column_count;
-
-                Float sum = Float(0);
-                for (std::int64_t i = sg_local_id; i < column_count; i += sg_local_range) {
-                    const Float value = data_ptr[offset + i];
-                    sum += value * value;
-                }
-                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                if (sg_local_id == 0) {
-                    squares_ptr[wg_id] = sum;
-                }
-            });
-    });
+    return pr::reduce_by_rows(queue, data, squares, binary, unary, deps);
 }
 
 template <typename Float>
