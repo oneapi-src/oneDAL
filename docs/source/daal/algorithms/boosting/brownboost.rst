@@ -190,8 +190,8 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
-
+    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
+      
     Batch Processing:
 
     - :java_example:`BrownBoostDenseBatch.java <boosting/brownboost/BrownBoostDenseBatch.java>`

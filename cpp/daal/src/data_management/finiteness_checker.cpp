@@ -163,7 +163,7 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
     return valuesAreFinite;
 }
 
-#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__INTEL_COMPILER)
 
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
