@@ -233,6 +233,28 @@ struct split_info {
         return buf_ptr;
     }
 
+    inline void store_scalar(byte_t* buf_ptr, Index idx) {
+        Index split_pos = (cache_buf_int_size + cache_buf_float_size) * idx;
+        Index* index_ptr = reinterpret_cast<Index*>(buf_ptr + split_pos);
+        Float* float_ptr = reinterpret_cast<Float*>(buf_ptr + split_pos + cache_buf_int_size);
+        index_ptr[0] = ftr_id;
+        index_ptr[1] = ftr_bin;
+        index_ptr[2] = left_count;
+        float_ptr[0] = left_imp;
+        float_ptr[1] = imp_dec;
+    }
+
+    inline void load_scalar(byte_t* buf_ptr, Index idx) {
+        Index split_pos = (cache_buf_int_size + cache_buf_float_size) * idx;
+        Index* index_ptr = reinterpret_cast<Index*>(buf_ptr + split_pos);
+        Float* float_ptr = reinterpret_cast<Float*>(buf_ptr + split_pos + cache_buf_int_size);
+        ftr_id = index_ptr[0];
+        ftr_bin = index_ptr[1];
+        left_count = index_ptr[2];
+        left_imp = float_ptr[0];
+        imp_dec = float_ptr[1];
+    }
+
     inline byte_t* load_without_hist(byte_t* buf_ptr, Index idx, Index total_block_count) {
         Index* index_buf_ptr = get_buf_ptr<Index>(&buf_ptr, total_block_count * cache_buf_int_size);
         Float* float_buf_ptr =

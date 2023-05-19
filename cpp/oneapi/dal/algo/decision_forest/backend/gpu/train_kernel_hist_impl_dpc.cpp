@@ -1341,6 +1341,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                 last_event = event;
                 {
                     if (ctx.splitter_mode_value_ == splitter_mode::best) {
+                        std::cout << "compute_best_split_by_histogram node_count=" << block_node_count << std::endl;
                         if (ctx.use_private_mem_buf_) {
                             last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
                                 queue_,
@@ -1403,6 +1404,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             if (ctx.splitter_mode_value_ == splitter_mode::best) {
                 // Index max_row_count = node_group.get_max_row_count();
                 // if (max_row_count > node_t::get_elementary_node_max_row_count()) {
+                std::cout << "best_split_single_pass_large node_count=" << grp_node_count << std::endl;
                     last_event =
                         bs_kernels_opt_t::best_split_single_pass_large(queue_,
                                                                        ctx,
