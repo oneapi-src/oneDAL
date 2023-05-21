@@ -33,8 +33,8 @@ namespace internal
 {
 template <>
 inline void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd, const float * KiBlock, const float * kernelDiag,
-                                              const float * grad, const char * I, const float GMin, const float Kii, const float tau, int & Bj,
-                                              float & GMax, float & GMax2, float & delta, SignNuType signNuType)
+                                                     const float * grad, const char * I, const float GMin, const float Kii, const float tau, int & Bj,
+                                                     float & GMax, float & GMax2, float & delta, SignNuType signNuType)
 {
     float fpMax      = MaxVal<float>::get();
     float GMax2Local = -fpMax; // store min(grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2
@@ -179,8 +179,8 @@ inline void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const 
 
 template <>
 inline void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd, const double * KiBlock, const double * kernelDiag,
-                                               const double * grad, const char * I, const double GMin, const double Kii, const double tau, int & Bj,
-                                               double & GMax, double & GMax2, double & delta, SignNuType signNuType)
+                                                      const double * grad, const char * I, const double GMin, const double Kii, const double tau,
+                                                      int & Bj, double & GMax, double & GMax2, double & delta, SignNuType signNuType)
 {
     double fpMax      = MaxVal<double>::get();
     double GMax2Local = -fpMax; // store min(-y[i]*grad[i]) or max(y[i]*grad[i]), y[i]*grad[i] = -GMin2

@@ -92,8 +92,8 @@ services::Status HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(algorithmFP
 
 template <>
 inline services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * const mklBuff, const double * const sqrA1i, const double sqrA2i,
-                                                               const double coeff, const double expExpThreshold, const size_t n,
-                                                               double * const dataRBlock)
+                                                                      const double coeff, const double expExpThreshold, const size_t n,
+                                                                      double * const dataRBlock)
 {
     const double negTwo              = -2.0;
     const __m512d sqrA2iVec          = _mm512_set1_pd(sqrA2i);
@@ -142,8 +142,8 @@ inline services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * c
 
 template <>
 inline services::Status HelperKernelRBF<float, avx512>::postGemmPart(float * const mklBuff, const float * const sqrA1i, const float sqrA2i,
-                                                              const float coeff, const float expExpThreshold, const size_t n,
-                                                              float * const dataRBlock)
+                                                                     const float coeff, const float expExpThreshold, const size_t n,
+                                                                     float * const dataRBlock)
 {
     const float negTwo              = -2.0f;
     const __m512 sqrA2iVec          = _mm512_set1_ps(sqrA2i);

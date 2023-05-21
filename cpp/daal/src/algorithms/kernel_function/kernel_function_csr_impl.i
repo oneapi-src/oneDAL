@@ -88,8 +88,8 @@ algorithmFPType KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct(const
 
 template <>
 inline double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
-                                                                const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                                const double * valuesB, const size_t * indicesB)
+                                                                       const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                       const double * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
@@ -177,8 +177,8 @@ inline double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const siz
 
 template <>
 inline float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
-                                                              const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                              const float * valuesB, const size_t * indicesB)
+                                                                     const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                     const float * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
@@ -279,8 +279,8 @@ inline float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_
 
 template <>
 inline double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
-                                                            const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                            const double * valuesB, const size_t * indicesB)
+                                                                   const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                   const double * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
@@ -385,8 +385,8 @@ inline double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t 
 
 template <>
 inline float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
-                                                          const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                          const float * valuesB, const size_t * indicesB)
+                                                                 const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                 const float * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
