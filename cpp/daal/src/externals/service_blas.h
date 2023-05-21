@@ -38,11 +38,11 @@ template <typename fpType, CpuType cpu>
 class Helper
 {
 public:
-    static void copy(fpType * dsc, const fpType * src, const size_t n);
+    static inline void copy(fpType * dsc, const fpType * src, const size_t n);
 };
 
 template <typename fpType, CpuType cpu>
-void Helper<fpType, cpu>::copy(fpType * dsc, const fpType * src, const size_t n)
+inline void Helper<fpType, cpu>::copy(fpType * dsc, const fpType * src, const size_t n)
 {
     for (size_t i = 0; i < n; ++i)
     {
@@ -50,10 +50,10 @@ void Helper<fpType, cpu>::copy(fpType * dsc, const fpType * src, const size_t n)
     }
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
-void Helper<float, avx512>::copy(float * dsc, const float * src, const size_t n)
+inline void Helper<float, avx512>::copy(float * dsc, const float * src, const size_t n)
 {
     size_t i           = 0;
     const size_t align = ((64 - (reinterpret_cast<size_t>(dsc) & 63)) & 63) >> 2;
@@ -73,7 +73,7 @@ void Helper<float, avx512>::copy(float * dsc, const float * src, const size_t n)
 }
 
 template <>
-void Helper<double, avx512>::copy(double * dsc, const double * src, const size_t n)
+inline void Helper<double, avx512>::copy(double * dsc, const double * src, const size_t n)
 {
     size_t i           = 0;
     const size_t align = ((64 - (reinterpret_cast<size_t>(dsc) & 63)) & 63) >> 3;

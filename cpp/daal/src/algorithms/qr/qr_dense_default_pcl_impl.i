@@ -24,7 +24,7 @@
 #ifndef __QR_KERNEL_DEFAULT_PCL_IMPL_I__
 #define __QR_KERNEL_DEFAULT_PCL_IMPL_I__
 
-#if defined __INTEL_COMPILER
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
     #include "immintrin.h"
 
