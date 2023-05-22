@@ -155,12 +155,22 @@ inline bool float_gt(Float a, Float b) {
     return (a - b) > float_accuracy<Float>::val;
 }
 
+template<typename Float, typename Index>
+struct split_scalar {
+    Index ftr_id;
+    Index ftr_bin;
+    Index left_count;
+    Float left_imp;
+    Float imp_dec;
+};
+
 template <typename Float, typename Index, typename Task>
 struct split_info {
     using task_t = Task;
     using impl_const_t = impl_const<Index, task_t>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using byte_t = std::uint8_t;
+    using split_scalar_t = split_scalar<Float, Index>;
     static constexpr Index cache_buf_int_size = 3; // ftr_id, ftr_bin, left_count
     static constexpr Index cache_buf_float_size = 2; // left_imp, and imp_dec
 
@@ -233,26 +243,22 @@ struct split_info {
         return buf_ptr;
     }
 
-    inline void store_scalar(byte_t* buf_ptr, Index idx) {
-        Index split_pos = (cache_buf_int_size + cache_buf_float_size) * idx;
-        Index* index_ptr = reinterpret_cast<Index*>(buf_ptr + split_pos);
-        Float* float_ptr = reinterpret_cast<Float*>(buf_ptr + split_pos + cache_buf_int_size);
-        index_ptr[0] = ftr_id;
-        index_ptr[1] = ftr_bin;
-        index_ptr[2] = left_count;
-        float_ptr[0] = left_imp;
-        float_ptr[1] = imp_dec;
+    inline void store_scalar(split_scalar_t* buf, Index idx) {
+        auto output = buf[idx];
+        output.ftr_id = ftr_id;
+        output.ftr_bin = ftr_bin;
+        output.left_count = left_count;
+        output.left_imp = left_imp;
+        output.imp_dec = imp_dec;
     }
 
-    inline void load_scalar(byte_t* buf_ptr, Index idx) {
-        Index split_pos = (cache_buf_int_size + cache_buf_float_size) * idx;
-        Index* index_ptr = reinterpret_cast<Index*>(buf_ptr + split_pos);
-        Float* float_ptr = reinterpret_cast<Float*>(buf_ptr + split_pos + cache_buf_int_size);
-        ftr_id = index_ptr[0];
-        ftr_bin = index_ptr[1];
-        left_count = index_ptr[2];
-        left_imp = float_ptr[0];
-        imp_dec = float_ptr[1];
+    inline void load_scalar(split_scalar_t* buf, Index idx) {
+        auto input = buf[idx];
+        ftr_id = input.ftr_id;
+        ftr_bin = input.ftr_bin;
+        left_count = input.left_count;
+        left_imp = input.left_imp;
+        imp_dec = input.imp_dec;
     }
 
     inline byte_t* load_without_hist(byte_t* buf_ptr, Index idx, Index total_block_count) {

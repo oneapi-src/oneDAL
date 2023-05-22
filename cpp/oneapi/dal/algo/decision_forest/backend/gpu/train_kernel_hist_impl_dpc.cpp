@@ -189,9 +189,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ctx.min_observations_in_leaf_node_ = desc.get_min_observations_in_leaf_node();
     ctx.impurity_threshold_ = desc.get_impurity_threshold();
 
-    ctx.min_observations_in_leaf_node_ = desc.get_min_observations_in_leaf_node();
-    ctx.impurity_threshold_ = desc.get_impurity_threshold();
-
     if (0 >= ctx.selected_row_total_count_) {
         throw domain_error(msg::invalid_value_for_observations_per_tree_fraction());
     }
