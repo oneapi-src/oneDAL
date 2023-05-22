@@ -70,7 +70,7 @@ struct sum {
 template <typename T>
 struct max {
     using tag_t = reduce_binary_op_tag;
-    constexpr static inline T init_value = std::numeric_limits<T>::min();
+    constexpr static inline T init_value = std::numeric_limits<T>::lowest();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ext::oneapi::maximum<T> native{};
 #else
