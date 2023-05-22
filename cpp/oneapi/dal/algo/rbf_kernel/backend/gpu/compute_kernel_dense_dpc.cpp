@@ -31,7 +31,7 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-void compute_exponents(sycl::queue& queue,
+auto compute_exponents(sycl::queue& queue,
                        const pr::ndview<Float, 1>& sqr_x_nd,
                        const pr::ndview<Float, 1>& sqr_y_nd,
                        pr::ndview<Float, 2>& res_nd,
@@ -54,7 +54,7 @@ void compute_exponents(sycl::queue& queue,
     const auto range =
         dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
 
-    queue
+    auto event = queue
         .submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             const std::size_t ld = y_row_count;
@@ -69,8 +69,8 @@ void compute_exponents(sycl::queue& queue,
 
                 res_ptr[i * ld + j] = sycl::exp(arg);
             });
-        })
-        .wait_and_throw();
+        });
+    return event;
 }
 
 template <typename Float>
@@ -104,6 +104,7 @@ void compute_rbf(sycl::queue& queue,
                                             { reduce_x_event });
     }
 
+
     constexpr Float alpha = -2.0;
     constexpr Float beta = 0.0;
     sycl::event gemm_event;
@@ -114,7 +115,9 @@ void compute_rbf(sycl::queue& queue,
         gemm_event.wait_and_throw();
     }
 
-    compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
+    auto compute_exponents_event = compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
+    compute_exponents_event.wait_and_throw();
+
 }
 
 template <typename Float>

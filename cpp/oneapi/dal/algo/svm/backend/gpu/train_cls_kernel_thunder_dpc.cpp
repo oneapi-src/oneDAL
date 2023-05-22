@@ -43,7 +43,8 @@ template <typename Float>
 inline auto update_grad(sycl::queue& q,
                         const pr::ndview<Float, 2>& kernel_values_nd,
                         const pr::ndview<Float, 1>& delta_alpha_nd,
-                        pr::ndview<Float, 1>& grad_nd) {
+                        pr::ndview<Float, 1>& grad_nd,
+                        const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(kernel_values_nd.get_dimension(0) == delta_alpha_nd.get_dimension(0));
     ONEDAL_ASSERT(kernel_values_nd.get_dimension(1) == grad_nd.get_dimension(0));
     ONEDAL_PROFILER_TASK(update_grad, q);
@@ -51,7 +52,7 @@ inline auto update_grad(sycl::queue& q,
         delta_alpha_nd.reshape(pr::ndshape<2>{ delta_alpha_nd.get_dimension(0), 1 });
     auto reshape_grad = grad_nd.reshape(pr::ndshape<2>{ grad_nd.get_dimension(0), 1 });
     auto gemm_event =
-        pr::gemm(q, kernel_values_nd.t(), reshape_delta, reshape_grad, Float(1), Float(1));
+        pr::gemm(q, kernel_values_nd.t(), reshape_delta, reshape_grad, Float(1), Float(1), deps);
     return gemm_event;
 }
 
@@ -151,6 +152,10 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     std::int32_t ws_indices_copy_count = 0;
 
     std::int32_t iter = 0;
+
+    auto solve_smo_event = sycl::event();
+    auto update_grad_event = sycl::event();
+
     for (; iter < max_iteration_count; iter++) {
         if (iter != 0) {
             std::tie(ws_indices_copy_count, copy_ws_indices_event) =
@@ -168,25 +173,30 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
         const auto kernel_values_nd =
             svm_cache_ptr->compute(kernel_ptr, data, data_nd, ws_indices_nd);
 
-        auto solve_smo_event = solve_smo<Float>(q,
-                                                kernel_values_nd,
-                                                ws_indices_nd,
-                                                responses_nd,
-                                                grad_nd,
-                                                row_count,
-                                                ws_count,
-                                                max_inner_iterations_count,
-                                                C,
-                                                accuracy_threshold,
-                                                tau,
-                                                alpha_nd,
-                                                delta_alpha_nd,
-                                                f_diff_nd,
-                                                inner_iter_count_nd);
+        solve_smo_event = solve_smo<Float>(q,
+                                            kernel_values_nd,
+                                            ws_indices_nd,
+                                            responses_nd,
+                                            grad_nd,
+                                            row_count,
+                                            ws_count,
+                                            max_inner_iterations_count,
+                                            C,
+                                            accuracy_threshold,
+                                            tau,
+                                            alpha_nd,
+                                            delta_alpha_nd,
+                                            f_diff_nd,
+                                            inner_iter_count_nd,
+                                            {update_grad_event});
+
+
+        update_grad_event = update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd, { solve_smo_event });
+        update_grad_event.wait_and_throw();
+        
         auto f_diff_host = f_diff_nd.to_host(q, { solve_smo_event }).flatten();
         diff = *f_diff_host.get_data();
 
-        update_grad(q, kernel_values_nd, delta_alpha_nd, grad_nd).wait_and_throw();
         if (check_stop_condition<Float>(diff,
                                         prev_diff,
                                         accuracy_threshold,
