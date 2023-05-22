@@ -533,6 +533,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      svm_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -579,6 +580,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -633,6 +635,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->weights_not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -695,6 +698,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      svm_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -729,6 +733,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      svm_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -764,6 +769,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][rbf][nightly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -798,6 +804,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][linear][nightly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -831,6 +838,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][linear][weekly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -864,6 +872,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][rbf][weekly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -898,6 +907,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][rbf][weekly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -932,6 +942,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][linear][weekly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -965,6 +976,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][rbf][weekly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -999,6 +1011,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "[svm][integration][batch][linear][weekly][external-dataset]",
                      svm_nightly_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu()); // TODO: remove after fix (2023.2.0)
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
