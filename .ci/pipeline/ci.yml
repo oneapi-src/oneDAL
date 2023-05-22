@@ -382,10 +382,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 sse42 avx2 avx512" --conda-env ci-env
+      .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 avx2" --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target oneapi_c --optimizations "sse2 sse42 avx2 avx512"
+      .ci/scripts/build.sh --compiler clang --target oneapi_c --optimizations "sse2 avx2"
     displayName: 'make oneapi_c'
   - task: PublishPipelineArtifact@1
     inputs:
