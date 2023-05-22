@@ -226,6 +226,91 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
     return bk::wait_or_pass(new_deps);
 }
 
+/// @brief The version that extracts samples all at once
+template <typename Float, pr::ndorder order>
+sycl::event extract_and_share_by_indices_narrow(const bk::context_gpu& ctx,
+                                                const pr::ndview<std::int64_t, 1>& indices,
+                                                const dal::array<std::int64_t>& offsets,
+                                                const pr::ndview<Float, 2, order>& input,
+                                                pr::ndview<Float, 2>& candidates,
+                                                const bk::event_vector& deps = {}) {
+    const auto candidate_count = candidates.get_dimension(0);
+    const auto feature_count = candidates.get_dimension(1);
+    ONEDAL_ASSERT(candidate_count == indices.get_count());
+    auto* candidate_ptr = candidates.get_mutable_data();
+    const auto* indices_ptr = indices.get_data();
+
+    auto& queue = ctx.get_queue();
+    auto& comm = ctx.get_communicator();
+    ONEDAL_ASSERT(comm.get_rank_count() + 1 == offsets.get_count());
+
+    const auto rank = comm.get_rank();
+    const auto lower_bound = offsets[rank];
+    const auto upper_bound = offsets[rank + 1];
+
+    const auto input_indexer = make_ndindexer(input);
+
+    auto range = bk::make_range_2d(candidate_count, feature_count);
+
+    auto extract_local = queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+
+        h.parallel_for(range, [=](sycl::id<2> idx) {
+            const auto index = indices_ptr[idx[0]];
+            const auto local_index = index - lower_bound;
+            auto* output = candidate_ptr + feature_count * idx[0] + idx[1];
+            const auto handle = (lower_bound <= index) && (index < upper_bound);
+            *output = handle ? input_indexer.at(local_index, idx[1]) : Float(0);
+        });
+    });
+
+    if (comm.get_rank_count() > 1) {
+        sycl::event::wait_and_throw({ extract_local });
+        auto array = dal::array<Float>::wrap(queue,
+                                             candidates.get_mutable_data(), //
+                                             candidate_count * feature_count);
+
+        comm.allreduce(array).wait();
+    }
+
+    return extract_local;
+}
+
+/// @brief The version that extracts samples one by one calling
+///        `extract_and_share_by_index` sequentially
+template <typename Float, pr::ndorder order>
+sycl::event extract_and_share_by_indices_wide(const bk::context_gpu& ctx,
+                                              const pr::ndview<std::int64_t, 1>& indices,
+                                              const dal::array<std::int64_t>& offsets,
+                                              const pr::ndview<Float, 2, order>& input,
+                                              pr::ndview<Float, 2>& candidates,
+                                              const bk::event_vector& deps = {}) {
+    const auto candidate_count = candidates.get_dimension(0);
+    const auto feature_count = candidates.get_dimension(1);
+    ONEDAL_ASSERT(candidate_count == indices.get_count());
+
+    ONEDAL_ASSERT(indices.has_data());
+    auto slice_2d = candidates.get_row_slice(0, 1);
+    auto slice = slice_2d.template reshape<1>({ feature_count });
+
+    auto indices_host = indices.to_host(ctx.get_queue(), deps);
+    auto last_event =
+        extract_and_share_by_index(ctx, indices_host.at(0), offsets, input, slice, deps);
+
+    for (std::int64_t i = 1; i < candidate_count; ++i) {
+        auto result_2d = candidates.get_row_slice(i, i + 1);
+        auto result = result_2d.template reshape<1>({ feature_count });
+        last_event = extract_and_share_by_index(ctx,
+                                                indices_host.at(i),
+                                                offsets,
+                                                input,
+                                                result,
+                                                { last_event });
+    }
+
+    return last_event;
+}
+
 /// @brief Produces the same set of centroids on
 ///        all ranks by global indices
 ///
@@ -253,26 +338,22 @@ sycl::event extract_and_share_by_indices(const bk::context_gpu& ctx,
     const auto feature_count = candidates.get_dimension(1);
     ONEDAL_ASSERT(candidate_count == indices.get_count());
 
-    ONEDAL_ASSERT(indices.has_data());
-    auto slice_2d = candidates.get_row_slice(0, 1);
-    auto slice = slice_2d.template reshape<1>({ feature_count });
+    constexpr std::int64_t type_size = sizeof(Float);
+    constexpr std::int64_t threshold_count = 131'072l;
 
-    auto indices_host = indices.to_host(ctx.get_queue(), deps);
-    auto last_event =
-        extract_and_share_by_index(ctx, indices_host.at(0), offsets, input, slice, deps);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, candidate_count, feature_count);
+    const auto element_count = candidate_count * feature_count;
 
-    for (std::int64_t i = 1; i < candidate_count; ++i) {
-        auto result_2d = candidates.get_row_slice(i, i + 1);
-        auto result = result_2d.template reshape<1>({ feature_count });
-        last_event = extract_and_share_by_index(ctx,
-                                                indices_host.at(i),
-                                                offsets,
-                                                input,
-                                                result,
-                                                { last_event });
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, type_size, element_count);
+    const bool use_wide = (candidate_count > feature_count) //
+                          && (type_size * element_count > threshold_count);
+
+    if (use_wide) {
+        return extract_and_share_by_indices_wide(ctx, indices, offsets, input, candidates, deps);
     }
-
-    return last_event;
+    else {
+        return extract_and_share_by_indices_narrow(ctx, indices, offsets, input, candidates, deps);
+    }
 }
 
 template <typename Comm, typename Type>
@@ -339,7 +420,7 @@ template <typename Float>
 std::int64_t propose_sample_block(const sycl::queue& queue,
                                   std::int64_t feature_count,
                                   std::int64_t sample_count) {
-    return std::min<std::int64_t>(sample_count, 4096l);
+    return std::min<std::int64_t>(sample_count, 16'384l);
 }
 
 /// @brief Proposes          Number of candidates in slice to process at once
