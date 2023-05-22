@@ -243,8 +243,7 @@ struct split_info {
         return buf_ptr;
     }
 
-    inline void store_scalar(split_scalar_t* buf, Index idx) {
-        auto output = buf[idx];
+    inline void store_scalar(split_scalar_t& output) {
         output.ftr_id = ftr_id;
         output.ftr_bin = ftr_bin;
         output.left_count = left_count;
@@ -252,8 +251,7 @@ struct split_info {
         output.imp_dec = imp_dec;
     }
 
-    inline void load_scalar(split_scalar_t* buf, Index idx) {
-        auto input = buf[idx];
+    inline void load_scalar(split_scalar_t& input) {
         ftr_id = input.ftr_id;
         ftr_bin = input.ftr_bin;
         left_count = input.left_count;
