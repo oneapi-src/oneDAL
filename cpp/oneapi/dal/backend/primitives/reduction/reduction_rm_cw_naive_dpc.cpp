@@ -39,11 +39,11 @@ public:
 
     void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
+        const auto loc_idx = it.get_global_id(1);
         const auto col_idx = it.get_global_id(0);
-        const auto loc_idx = it.get_local_id(1);
         const auto range = it.get_global_range(1);
         // Exclusive for EU
-        Float acc = (override_init_ || (loc_idx == 0)) ? //
+        Float acc = (override_init_ || (loc_idx != 0)) ? //
                         binary_.init_value
                                                        : output_[col_idx];
         for (std::int64_t i = loc_idx; i < height_; i += range) {
@@ -51,8 +51,10 @@ public:
             acc = binary_.native(acc, unary_(inp_row[col_idx]));
         }
         // WG reduction
-        auto grp = it.get_group();
-        output_[col_idx] = sycl::reduce_over_group(grp, acc, binary_.native);
+        output_[col_idx] = sycl::reduce_over_group( //
+            it.get_group(),
+            acc,
+            binary_.native);
     }
 
 private:
@@ -90,7 +92,7 @@ sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
     const bool override_init) const {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     ONEDAL_ASSERT(0 <= width && width <= stride);
-    auto event = q_.submit([&](sycl::handler& h) {
+    auto event = q_.submit([&, this](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);
         const auto kernel = get_kernel(input, output, height, stride, binary, unary, override_init);

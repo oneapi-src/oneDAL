@@ -216,7 +216,8 @@ inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) 
             *(oit++) = *(iit);
         }
     };
-    copy(lhs, iter), copy(rhs, iter);
+    copy(lhs, iter);
+    copy(rhs, iter);
     return result;
 }
 

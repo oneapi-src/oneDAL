@@ -34,9 +34,6 @@ auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t widt
             return reduction_method::atomic;
         }
     }
-    if (height >= device_max_wg_size(q_) && height > width) {
-        return reduction_method::naive_local;
-    }
     return reduction_method::naive;
 }
 
