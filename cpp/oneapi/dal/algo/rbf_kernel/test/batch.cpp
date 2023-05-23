@@ -81,13 +81,15 @@ public:
 
         row_accessor<const Float> acc{ result_values };
         for (std::int64_t row = 0; row < row_count; ++row) {
-            auto row_arr = acc.pull({row, row + 1});
+            auto row_arr = acc.pull({ row, row + 1 });
             for (std::int64_t col = 0; col < col_count; ++col) {
                 const auto res = row_arr[col];
                 const auto gtr = reference.get(row, col);
-                const auto rerr = std::abs(res - gtr) / std::max<double>({double(1),std::abs(res), std::abs(gtr)});
+                const auto rerr = std::abs(res - gtr) /
+                                  std::max<double>({ double(1), std::abs(res), std::abs(gtr) });
                 CAPTURE(row_count, col_count, x_data.get_column_count(), row, col, res, gtr, rerr);
-                if (rerr > 1e-4 ) FAIL();
+                if (rerr > 1e-4)
+                    FAIL();
             }
         }
     }

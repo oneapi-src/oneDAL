@@ -94,7 +94,7 @@ void compute_rbf(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(rbf_kernel.reduce, queue);
         reduce_x_event =
             pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
-        reduce_y_event = 
+        reduce_y_event =
             pr::reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
     }
 
@@ -111,8 +111,7 @@ void compute_rbf(sycl::queue& queue,
                       sqr_y_nd,
                       res_nd,
                       sigma,
-                      { gemm_event, reduce_x_event, reduce_y_event }
-    );
+                      { gemm_event, reduce_x_event, reduce_y_event });
 }
 
 template <typename Float>
