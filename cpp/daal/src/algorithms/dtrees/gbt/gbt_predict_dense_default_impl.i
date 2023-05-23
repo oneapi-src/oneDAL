@@ -69,7 +69,8 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    // Check for NaN value
+    if (valueFromDataSet != valueFromDataSet)
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
@@ -83,7 +84,8 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    // Check for NaN value
+    if (valueFromDataSet != valueFromDataSet)
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }

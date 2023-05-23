@@ -92,7 +92,8 @@ protected:
         {
             for (size_t idx = 0; idx < nRows * nColumns; ++idx)
             {
-                if (isnan(x[idx])) return true;
+                // Check for NaN
+                if (x[idx] != x[idx]) return true;
             }
         }
         return false;
