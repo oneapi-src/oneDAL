@@ -5,21 +5,41 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "linear_regression",
-    auto = True,
-    dal_deps = [
+    name = "core",
+    hdrs = glob(["*.hpp"]),
+    srcs = glob(["*.cpp"]),
+    dal_deps = [ 
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/backend/primitives:blas",
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
-        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
-    ],
-    extra_deps = [
-        "@onedal//cpp/daal:core",
-        "@onedal//cpp/daal/src/algorithms/linear_model:kernel",
-        "@onedal//cpp/daal/src/algorithms/linear_regression:kernel",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/backend:model_impl",
     ],
 )
+
+dal_module(
+    name = "linear_regression",
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo/linear_regression:core",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/detail",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/backend",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/parameters",
+    ]
+)
+
+#dal_module(
+#    name = "linear_regression",
+#    auto = True,
+#    dal_deps = [
+#        "@onedal//cpp/oneapi/dal:core",
+#        "@onedal//cpp/oneapi/dal/backend/primitives:blas",
+#        "@onedal//cpp/oneapi/dal/backend/primitives:common",
+#        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
+#        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
+#    ],
+#    extra_deps = [
+#        "@onedal//cpp/daal:core",
+#        "@onedal//cpp/daal/src/algorithms/linear_model:kernel",
+#        "@onedal//cpp/daal/src/algorithms/linear_regression:kernel",
+#    ],
+#)
 
 dal_test_suite(
     name = "interface_tests",
