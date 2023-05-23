@@ -50,18 +50,16 @@ void compute_exponents(sycl::queue& queue,
 
     const Float threshold = dal::backend::exp_low_threshold<Float>();
 
-    const auto wg_size = dal::backend::propose_wg_size(queue);
-    const auto range =
-        dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
+    const auto range = dal::backend::make_range_2d(x_row_count, y_row_count);
 
     queue
         .submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             const std::size_t ld = y_row_count;
 
-            cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
-                const std::size_t i = item.get_global_id(0);
-                const std::size_t j = item.get_global_id(1);
+            cgh.parallel_for(range, [=](sycl::id<2> idx) {
+                const std::size_t i = idx[0];
+                const std::size_t j = idx[1];
                 const Float sqr_x_i = sqr_x_ptr[i];
                 const Float sqr_y_j = sqr_y_ptr[j];
                 const Float res_rbf_ij = res_ptr[i * ld + j];
@@ -84,8 +82,8 @@ void compute_rbf(sycl::queue& queue,
     ONEDAL_ASSERT(y_nd.get_dimension(0) == res_nd.get_dimension(1));
     ONEDAL_ASSERT(x_nd.get_dimension(1) == y_nd.get_dimension(1));
 
-    const std::int64_t x_row_count = x_nd.get_dimension(0);
-    const std::int64_t y_row_count = y_nd.get_dimension(0);
+    const auto x_row_count = x_nd.get_dimension(0);
+    const auto y_row_count = y_nd.get_dimension(0);
 
     auto sqr_x_nd = pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
     auto sqr_y_nd = pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
@@ -96,12 +94,8 @@ void compute_rbf(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(rbf_kernel.reduce, queue);
         reduce_x_event =
             pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
-        reduce_y_event = pr::reduce_by_rows(queue,
-                                            y_nd,
-                                            sqr_y_nd,
-                                            pr::sum<Float>{},
-                                            pr::square<Float>{},
-                                            { reduce_x_event });
+        reduce_y_event = 
+            pr::reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
     }
 
     constexpr Float alpha = -2.0;
@@ -109,10 +103,16 @@ void compute_rbf(sycl::queue& queue,
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(rbf_kernel.gemm, queue);
-        gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, { reduce_y_event });
-    }
 
-    compute_exponents(queue, sqr_x_nd, sqr_y_nd, res_nd, sigma, { gemm_event });
+        gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta, deps);
+    }
+    compute_exponents(queue,
+                      sqr_x_nd,
+                      sqr_y_nd,
+                      res_nd,
+                      sigma,
+                      { gemm_event, reduce_x_event, reduce_y_event }
+    );
 }
 
 template <typename Float>

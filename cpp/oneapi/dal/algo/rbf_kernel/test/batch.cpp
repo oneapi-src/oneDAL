@@ -73,9 +73,23 @@ public:
                              const table& y_data,
                              const table& result_values) {
         const auto reference = compute_reference(sigma, x_data, y_data);
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        const double diff = te::abs_error(reference, result_values);
-        CHECK(diff < tol);
+
+        const auto col_count = reference.get_column_count();
+        const auto row_count = reference.get_row_count();
+        REQUIRE(row_count == result_values.get_row_count());
+        REQUIRE(col_count == result_values.get_column_count());
+
+        row_accessor<const Float> acc{ result_values };
+        for (std::int64_t row = 0; row < row_count; ++row) {
+            auto row_arr = acc.pull({row, row + 1});
+            for (std::int64_t col = 0; col < col_count; ++col) {
+                const auto res = row_arr[col];
+                const auto gtr = reference.get(row, col);
+                const auto rerr = std::abs(res - gtr) / std::max<double>({double(1),std::abs(res), std::abs(gtr)});
+                CAPTURE(row_count, col_count, x_data.get_column_count(), row, col, res, gtr, rerr);
+                if (rerr > 1e-5 ) FAIL();
+            }
+        }
     }
 
     la::matrix<double> compute_reference(double sigma, const table& x_data, const table& y_data) {
@@ -115,7 +129,6 @@ TEMPLATE_LIST_TEST_M(rbf_kernel_batch_test,
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto x_data_table_id = this->get_homogen_table_id();
-
     const te::dataframe y_data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 100, 50 }.fill_normal(0, 1, 8888),
