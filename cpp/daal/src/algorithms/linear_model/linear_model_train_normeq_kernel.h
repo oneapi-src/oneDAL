@@ -211,7 +211,7 @@ public:
      * Merges an array of partial results into one partial result
      * \param[in] n          Number of partial resuts in the input array
      * \param[in] partialxtx Array of n numeric tables of size P x P
-     * \param[in] partialxtx Array of n numeric tables of size Ny x P
+     * \param[in] partialxty Array of n numeric tables of size Ny x P
      * \param[out] xtx       Numeric table of size P x P
      * \param[out] xty       Numeric table of size Ny x P
      * \return Status of the computations
