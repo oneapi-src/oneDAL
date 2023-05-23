@@ -36,15 +36,6 @@ using dal::backend::context_gpu;
 
 namespace be = dal::backend;
 namespace pr = be::primitives;
-<<<<<<< HEAD
-
-template <typename Float>
-std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
-    constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
-}
-=======
->>>>>>> Squashed commits
 
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
