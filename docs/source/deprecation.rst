@@ -19,12 +19,13 @@ Deprecation Notice
 ==================
 
 This page provides information about the deprecations of a specific oneDAL functionality. 
-Refer to `Release Notes <https://www.intel.com/content/www/us/en/developer/articles/release-notes/oneapi-dal-release-notes.html>`_ to learn more. 
 
 Java* Interfaces
 ****************
 
 **Deprecation:** The Java* interfaces in the oneDAL library are marked as deprecated. The future releases of the oneDAL library may no longer include support for these Java* interfaces.
+
 **Reasons for deprecation:** The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
+
 **Alternatives:** Intel(R) Optimized Analytics Package* (OAP) project for the Spark* users. 
 The project offers a comprehensive set of optimized libraries, including the OAP* MLlib* component. For more information, visit https://github.com/oap-project/oap-mllib. 
