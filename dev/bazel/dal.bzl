@@ -91,7 +91,6 @@ def dal_collect_modules(name, root, modules, dal_deps=[], **kwargs):
     for module_path in modules:
         module_name = module_path.replace("/", "_")
         module_label = "{0}/{1}".format(root, module_path)
-        print(module_label)
         dal_module(
             name = module_name,
             hdrs = native.glob(["{}*.hpp".format(module_path)]),
@@ -284,7 +283,7 @@ def dal_collect_parameters(name, root, modules=[], target="parameters", dal_deps
     for module_name in modules:
         module_label = "{0}/{1}:{2}".format(root, module_name, target)
         module_deps.append(module_label)
-    print(module_deps)
+    print("Parametrized: ", module_deps)
     dal_module(
         name = name,
         dal_deps = dal_deps + module_deps,
