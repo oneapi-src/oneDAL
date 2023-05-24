@@ -1116,6 +1116,118 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_initial_imp(
     return last_event;
 }
 
+// template <typename Float, typename Bin, typename Index, typename Task>
+// sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_histogram(
+//     const train_context_t& ctx,
+//     const pr::ndarray<Float, 1>& response,
+//     const pr::ndarray<Index, 1>& tree_order,
+//     pr::ndarray<Index, 1>& node_list,
+//     imp_data_t& imp_data_list,
+//     Index node_count,
+//     const bk::event_vector& deps) {
+
+//     ONEDAL_PROFILER_TASK(compute_initial_histogram, queue_);
+//     sycl::event last_event;
+//     Index hist_prop_count = 0;
+//     if constexpr (std::is_same_v<task::classification, Task>) {
+//         hist_prop_count = ctx.class_count_;
+//     }
+//     else {
+//         hist_prop_count = impl_const_t::hist_prop_count_;
+//     }
+
+//     const Index local_size = bk::device_max_wg_size(queue_);
+//     auto range = bk::make_multiple_nd_range_2d({local_size, node_count}, {local_size, 1});
+//     const auto response_ptr = response.get_data();
+//     const auto tree_order_ptr = tree_order.get_data();
+//     auto node_list_ptr = node_list.get_mutable_data();
+
+//     imp_data_list_ptr_mutable<Float, Index, Task> imp_list_ptr(imp_data_list);
+
+//     std::size_t local_buf_size = local_size * hist_prop_count;
+//     sycl::event fill_event = {};
+//     if constexpr (std::is_same_v<Task, task::classification>) {
+//         fill_event = imp_data_list.class_hist_list_.fill(queue_, 0, deps);
+//     }
+
+//     last_event = queue_.submit([&](sycl::handler& cgh) {
+//         cgh.depends_on(deps);
+//         cgh.depends_on(fill_event);
+//         local_accessor_rw_t<hist_type_t> local_hist(local_buf_size, cgh);
+//         cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
+//             const Index local_id = item.get_local_id(0);
+//             const Index node_id = item.get_global_id(1);
+//             Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
+
+//             const Index row_offset = node_ptr[impl_const_t::ind_ofs];
+//             const Index row_count = node_ptr[impl_const_t::ind_lrc];
+//             const Index rows_per_item = row_count / local_size + bool(row_count % local_size);
+//             hist_type_t* hist_ptr = local_hist.get_pointer().get();
+//             hist_type_t* cur_hist = hist_ptr + local_id * hist_prop_count;
+
+//             for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
+//                 cur_hist[prop_idx] = 0;
+//             }
+
+//             for (Index row_idx = local_id * rows_per_item; row_idx < (local_id + 1) * rows_per_item && row_idx < row_count; ++row_idx) {
+//                 Index id = tree_order_ptr[row_offset + row_idx];
+//                 Float response = response_ptr[id];
+//                 Index response_int = static_cast<Index>(response);
+//                 if constexpr (std::is_same_v<Task, task::classification>) {
+//                     cur_hist[response_int] += 1;
+//                 }
+//                 else {
+//                     Index old_count = cur_hist[0];
+//                     cur_hist[0] += 1;
+//                     cur_hist[1] = (cur_hist[1] * old_count + response) / cur_hist[0];
+//                     cur_hist[2] += (response - cur_hist[1]) * (response - cur_hist[1]); 
+//                 }
+//             }
+
+//             // Merge hists
+//             for (Index i = local_size / 2; i > 0; i >>= 1) {
+//                 item.barrier(sycl::access::fence_space::local_space);
+//                 if (local_id < i) {
+//                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
+//                         cur_hist[prop_idx] += hist_ptr[(local_id + i) * hist_prop_count + prop_idx];
+//                     }
+//                 }
+//             }
+//             // Update global hist
+//             if (local_id == 0) {
+//                 Float* node_imp_ptr = imp_list_ptr.imp_list_ptr_ + node_id * impl_const_t::node_imp_prop_count_;
+//                 if constexpr (std::is_same_v<Task, task::classification>) {
+//                     Index* node_histogram_ptr = imp_list_ptr.class_hist_list_ptr_ + node_id * hist_prop_count;
+//                     // Calc impurity
+//                     Float imp = Float(1);
+//                     Float div = Float(1) / (Float(row_count) * row_count);
+//                     Index max_cls_count = 0;
+//                     Index win_cls = 0;
+//                     for (Index cls = 0; cls < hist_prop_count; ++cls) {
+//                         Index cls_count = cur_hist[cls];
+//                         node_histogram_ptr[cls] = cls_count;
+//                         imp -= Float(cls_count) * cls_count * div;
+//                         if (max_cls_count < cls_count) {
+//                             win_cls = cls;
+//                             max_cls_count = cls_count;
+//                         }
+//                     }
+//                     node_ptr[impl_const_t::ind_win] = win_cls;
+//                     node_imp_ptr[0] = sycl::max(Float(0), imp);
+//                 }
+//                 else {
+//                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx){
+//                         node_imp_ptr[0] = cur_hist[1];
+//                         node_imp_ptr[1] = cur_hist[2];
+//                     }
+//                 }
+//             }
+//         });
+//     });
+//     last_event.wait_and_throw();
+//     return last_event;
+// }
+
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_histogram(
     const train_context_t& ctx,

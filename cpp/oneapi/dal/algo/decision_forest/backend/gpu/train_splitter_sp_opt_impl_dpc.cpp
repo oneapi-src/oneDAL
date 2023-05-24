@@ -387,7 +387,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
 
     const std::uint32_t local_hist_size = total_split_count * hist_prop_count;
     const std::uint32_t best_splits_size = total_split_count;
-
+    // ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_hist_size * sizeof(hist_prop_count) + best_splits_size * sizeof(split_scalar_t)));
     std::cout << "total_split_count=" << total_split_count << ", local_size=" << local_size << ", node_count=" << node_count << std::endl;
     for (Index processed_nodes = 0; processed_nodes < node_count; processed_nodes += node_in_block_count){
         auto nd_range = bk::make_multiple_nd_range_2d({local_size, node_in_block_count}, {local_size, 1});
@@ -419,6 +419,11 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     scalars_buf_ptr[local_id].ftr_id = impl_const_t::leaf_mark_;
                     scalars_buf_ptr[local_id].ftr_bin = impl_const_t::leaf_mark_;
                     scalars_buf_ptr[local_id].left_count = 0;
+
+                    for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
+                        local_hist_ptr[local_id * hist_prop_count + prop_idx] = 0;
+                        tmp_hist_ptr[local_id * hist_prop_count + prop_idx] = 0;
+                    }
 
                     split_smp_t sp_hlp;
 
@@ -501,7 +506,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                             }
                             left_count += Index(cur_hist[0]);
                         }
-
                         ts.init(cur_hist, hist_prop_count);
                         ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
                         ts.ftr_bin = cur_bin;
@@ -518,13 +522,31 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                         else {
                             sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
                         }
-                        ts.store_scalar(scalars_buf_ptr[work_bin]);
+                        if (ts.left_count > min_obs_leaf) {
+                            ts.store_scalar(scalars_buf_ptr[work_bin]);
+                        }
                         // out << scalars_buf_ptr[work_bin].ftr_bin << ", " << scalars_buf_ptr[work_bin].ftr_id << ", " << scalars_buf_ptr[work_bin].left_count << ", left_hist[0]=" << cur_hist[0] << "\n";
                     }
                     item.barrier(sycl::access::fence_space::local_space);
+                    if (local_id == 0) {
+                        Float max_imp_dec = 0;
+                        Index max_idx = 0;
+                        // out <<"node_idx = " << node_idx << "\n";
+                        for (Index work_bin = 0; work_bin < total_split_count; ++work_bin) {
+                            // if (scalars_buf_ptr[work_bin].imp_dec > 0)
+                            //     out << scalars_buf_ptr[work_bin].imp_dec << " ";
+                            if (max_imp_dec < scalars_buf_ptr[work_bin].imp_dec) {
+                                max_imp_dec = scalars_buf_ptr[work_bin].imp_dec;
+                                max_idx = work_bin;
+                            }
+                        }
+                        out  <<"node_idx = " << node_idx << ", max_imp_dec=" << max_imp_dec << ", idx = " << max_idx << "\n";
+                    }
                     // Init best and current split info
                     split_info_t bs;
-                    bs.init_clear(item, tmp_hist_ptr + local_id * hist_prop_count, hist_prop_count);
+                    bs.init(local_hist_ptr + local_id * hist_prop_count, hist_prop_count);
+                    bs.clear_scalar();
+                    // bs.load_scalar(scalars_buf_ptr[local_id]);
                     for (Index work_item = local_id; work_item < total_split_count; work_item += local_size) {
                         ts.init(local_hist_ptr + work_item * hist_prop_count, hist_prop_count);
                         ts.load_scalar(scalars_buf_ptr[work_item]);
@@ -536,6 +558,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                                                     imp_threshold,
                                                     min_obs_leaf);
                     }
+                    bs.store_scalar(scalars_buf_ptr[local_id]);
                     // Tree reduction and selecting best
                     for (Index i = local_size / 2; i > 0; i >>= 1) {
                         item.barrier(sycl::access::fence_space::local_space);
@@ -549,17 +572,17 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                                                         node_id,
                                                         imp_threshold,
                                                         min_obs_leaf);
-                            
+                            bs.store_scalar(scalars_buf_ptr[local_id]);
                             if (local_id == 0) {
                                 // out << "i=" << i << ", ts.ftr_id=" << ts.ftr_id << ", ts.ftr_bin=" << ts.ftr_bin << ", ts.left_count=" << ts.left_count << ", ts.left_hist[0]=" << ts.left_hist[0] << "\n";
                                 // out << "i=" << i << ", bs.ftr_id=" << bs.ftr_id << ", bs.ftr_bin=" << bs.ftr_bin << ", bs.left_count=" << bs.left_count << ", bs.left_hist[0]=" << bs.left_hist[0] << "\n";
-                                out << "bs.imp_dec=" << bs.imp_dec << ", ts.imp_dec=" << ts.imp_dec << "\n";
+                                out << "bs.imp_dec=" << bs.imp_dec << ", ts.imp_dec=" << ts.imp_dec << ", ts.left_count=" << ts.left_count << "\n";
                             }
                         }
                     }
                     // Update global split info
                     if (local_id == 0) {
-                        out << "best: bs.ftr_id=" << bs.ftr_id << ", bs.ftr_bin=" << bs.ftr_bin << ", bs.imp_dec=" << bs.imp_dec << "\n";
+                        out <<"node_idx = " << node_idx << " best: bs.ftr_id=" << bs.ftr_id << ", bs.ftr_bin=" << bs.ftr_bin << ", bs.imp_dec=" << bs.imp_dec << "\n";
                         sp_hlp.update_node_bs_info(bs,
                                                     node_ptr,
                                                     node_imp_decr_list_ptr,

@@ -340,40 +340,6 @@ struct split_smp {
         merge_stat(&left_hist_[0], bin_hist_ptr, elem_count);
     }
 
-    inline void calc_imp_dec_sc(split_info_t& si,
-                             const Index* node_ptr,
-                             Float node_imp,
-                             const hist_type_t* node_class_hist_ptr,
-                             Index class_count,
-                             Index node_id){
-        Index node_row_count = node_ptr[impl_const_t::ind_grc];
-
-        si.right_count = node_row_count - si.left_count;
-
-        const Float divL = (0 < si.left_count)
-                               ? Float(1) / (Float(si.left_count) * Float(si.left_count))
-                               : Float(0);
-        const Float divR = (0 < si.right_count)
-                               ? Float(1) / (Float(si.right_count) * Float(si.right_count))
-                               : Float(0);
-
-        si.left_imp = Float(1);
-        si.right_imp = Float(1);
-
-        for (Index class_id = 0; class_id < class_count; ++class_id) {
-            si.left_imp -= Float(si.left_hist[class_id]) * Float(si.left_hist[class_id]) * divL;
-            si.right_imp -= Float(node_class_hist_ptr[class_id] - si.left_hist[class_id]) *
-                            Float(node_class_hist_ptr[class_id] - si.left_hist[class_id]) * divR;
-        }
-
-        si.left_imp = sycl::max(si.left_imp, Float(0));
-        si.right_imp = sycl::max(si.right_imp, Float(0));
-
-        si.imp_dec =
-            node_imp - (Float(si.left_count) * si.left_imp + Float(si.right_count) * si.right_imp) /
-                        Float(node_row_count);
-    }
-
     // classififcation version
     inline void calc_imp_dec(split_info_t& si,
                              const Index* node_ptr,
