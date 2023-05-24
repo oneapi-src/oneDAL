@@ -89,7 +89,7 @@ public:
                                                     const pr::ndarray<Index, 1>& tree_order,
                                                     const pr::ndarray<Index, 1>& selected_ftr_list,
                                                     const pr::ndarray<Index, 1>& bin_offset_list,
-                                                    imp_data_t& imp_data_list,
+                                                    const imp_data_t& imp_data_list,
                                                     // const pr::ndarray<Index, 1>& node_ind_list,
                                                     // Index node_ind_ofs,
                                                     pr::ndarray<Index, 1>& node_list,

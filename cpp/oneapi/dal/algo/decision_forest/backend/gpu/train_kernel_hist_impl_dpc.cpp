@@ -312,6 +312,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
         // node_hist_list in compute histogram
         required_mem_size_for_one_tree += max_node_count_per_tree * part_hist_size;
     }
+    required_mem_size_for_one_tree *= 2;
 
     // Impurity decrease list
     if (ctx.mdi_required_) {
@@ -320,6 +321,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
 
     ctx.tree_in_block_ = de::integral_cast<Index>(available_mem_size_for_tree_block /
                                                   required_mem_size_for_one_tree);
+    std::cout << "ctx.tree_in_block_=" << ctx.tree_in_block_ << std::endl;
     if (ctx.tree_in_block_ <= 0) {
         // not enough memory even for one tree
         throw domain_error(msg::not_enough_memory_to_build_one_tree());
@@ -1329,7 +1331,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::my_compute_best_spl
     const pr::ndarray<Index, 1>& selected_ftr_list,
     const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
-    /*const*/ imp_data_t& imp_data_list,
+    const imp_data_t& imp_data_list,
     pr::ndarray<Index, 1>& node_list,
     imp_data_t& left_child_imp_data_list,
     pr::ndarray<Float, 1>& node_imp_decrease_list,
@@ -1459,7 +1461,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     const pr::ndarray<Index, 1>& selected_ftr_list,
     const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
-    imp_data_t& imp_data_list,
+    const imp_data_t& imp_data_list,
     pr::ndarray<Index, 1>& node_list,
     imp_data_t& left_child_imp_data_list,
     pr::ndarray<Float, 1>& node_imp_decrease_list,
@@ -1580,7 +1582,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                 last_event = event;
                 {
                     if (ctx.splitter_mode_value_ == splitter_mode::best) {
-                        std::cout << "compute_best_split_by_histogram node_count=" << block_node_count << std::endl;
                         if (ctx.use_private_mem_buf_) {
                             last_event = bs_kernels_prv_t::compute_best_split_by_histogram(
                                 queue_,
@@ -1643,7 +1644,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
             if (ctx.splitter_mode_value_ == splitter_mode::best) {
                 // Index max_row_count = node_group.get_max_row_count();
                 // if (max_row_count > node_t::get_elementary_node_max_row_count()) {
-                std::cout << "best_split_single_pass_large node_count=" << grp_node_count << std::endl;
                     // last_event =
                     //     bs_kernels_opt_t::best_split_single_pass_large(queue_,
                     //                                                    ctx,
@@ -3233,7 +3233,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                             selected_features_com,
                                             random_bins_com,
                                             ftr_bin_offsets_nd_,
-                                            imp_data_holder.get_mutable_data(level), // .get_data(level),
+                                            imp_data_holder.get_data(level),
                                             node_list,
                                             left_child_imp_data,
                                             node_imp_decrease_list,
