@@ -6,8 +6,7 @@ load("@onedal//dev/bazel:dal.bzl",
 
 dal_module(
     name = "core",
-    hdrs = glob(["*.hpp"]),
-    srcs = glob(["*.cpp"]),
+    auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/algo/linear_regression/backend:model_impl",
