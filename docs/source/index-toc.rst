@@ -39,6 +39,7 @@
    oneapi-interfaces.rst
    daal-interfaces.rst
    bibliography.rst
+   deprecation.rst
 
 .. toctree::
    :maxdepth: 3
