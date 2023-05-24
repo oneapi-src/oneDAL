@@ -40,7 +40,6 @@ ALGOS = [
 dal_collect_modules(
     name = "algo",
     modules = ALGOS,
-    dal_deps = [ ":parameters" ],
     root = "@onedal//cpp/oneapi/dal/algo",
 )
 
