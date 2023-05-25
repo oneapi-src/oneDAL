@@ -123,11 +123,14 @@ protected:
     explicit table(detail::table_iface* impl) : impl_(impl) {}
     explicit table(const detail::shared<detail::table_iface>& impl) : impl_(impl) {}
 
+    static void validate_input_dimensions(std::int64_t row_count, std::int64_t column_count);
+
     void init_impl(detail::table_iface* impl) {
         impl_.reset(impl);
     }
 
 private:
+
     void serialize(detail::output_archive& ar) const;
     void deserialize(detail::input_archive& ar);
 

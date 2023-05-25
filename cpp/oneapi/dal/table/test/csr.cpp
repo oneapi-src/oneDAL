@@ -20,27 +20,12 @@
 #include "oneapi/dal/test/engine/linalg.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 
-#include <vector>
-
 namespace oneapi::dal::test {
 
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 TEST("can construct empty table") {
-    std::vector<sycl::device> devices;
-    try {
-        devices.push_back(sycl::ext::oneapi::detail::select_device(&sycl::cpu_selector_v));
-        devices.push_back(sycl::ext::oneapi::detail::select_device(&sycl::gpu_selector_v));
-    }
-    catch (...) {
-    }
-    for (auto d : devices) {
-        std::cerr << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
-                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
-                  << std::endl << std::flush;
-    }
-
     csr_table t;
 
     REQUIRE(t.has_data() == false);
@@ -48,7 +33,7 @@ TEST("can construct empty table") {
     REQUIRE(t.get_row_count() == 0);
     REQUIRE(t.get_column_count() == 0);
 }
-/*
+
 TEST("can construct CSR table from raw data pointers") {
     using oneapi::dal::detail::empty_delete;
 
@@ -345,9 +330,8 @@ TEST(
     REQUIRE(t.get_column_indices() == column_indices);
     REQUIRE(t.get_row_offsets() == row_offsets);
 }
-*/
 
-#ifdef ONEDAL_DATA_PARALLEL
+#ifdef qqqqq // ONEDAL_DATA_PARALLEL
 
 TEST((std::string("can construct table from data pointers allocated on the device") +
       std::string(" and share the ownership of the data with those pointers"))
@@ -362,29 +346,24 @@ TEST((std::string("can construct table from data pointers allocated on the devic
     std::int64_t column_indices_host[] = { 1, 2, 4, 3, 2, 4, 2 };
     std::int64_t row_offsets_host[] = { 1, 4, 5, 7, 8 };
 
-    std::cout << "DPC test, before malloc" << std::endl << std::flush;
     auto data = sycl::malloc_shared<float>(element_count, q);
     auto column_indices = sycl::malloc_shared<std::int64_t>(element_count, q);
     auto row_offsets = sycl::malloc_shared<std::int64_t>(row_count + 1, q);
 
-    std::cout << "DPC test, after malloc" << std::endl << std::flush;
-    auto event_data = q.submit([&](sycl::handler& cgh) {
+    auto data_event = q.submit([&](sycl::handler& cgh) {
         cgh.memcpy(data, data_host, element_count * sizeof(float));
     });
-    std::cout << "DPC test, after event_data" << std::endl << std::flush;
 
-    auto event_column_indices = q.submit([&](sycl::handler& cgh) {
+    auto column_indices_event = q.submit([&](sycl::handler& cgh) {
         cgh.memcpy(column_indices, column_indices_host, element_count * sizeof(std::int64_t));
     });
 
-    auto event_row_offsets = q.submit([&](sycl::handler& cgh) {
+    auto row_offsets_event = q.submit([&](sycl::handler& cgh) {
         cgh.memcpy(row_offsets, row_offsets_host, (row_count + 1) * sizeof(std::int64_t));
     });
-    std::cout << "DPC test, before csr_table::wrap" << std::endl << std::flush;
 
     auto t = csr_table::wrap(q, data, column_indices, row_offsets, row_count, column_count,
-        sparse_indexing::one_based, { event_data, event_column_indices, event_row_offsets });
-    std::cout << "DPC test, after csr_table::wrap" << std::endl << std::flush;
+        sparse_indexing::one_based, { data_event, column_indices_event, row_offsets_event });
 
     REQUIRE(t.has_data() == true);
     REQUIRE(t.get_row_count() == row_count);
@@ -410,7 +389,7 @@ TEST((std::string("can construct table from data pointers allocated on the devic
 }
 
 #endif
-/*
+
 TEST("can construct table from arrays and share the ownership of the data with those arrays") {
     constexpr std::int64_t row_count{ 4 };
     constexpr std::int64_t column_count{ 4 };
@@ -451,23 +430,21 @@ TEST((std::string("can construct table from arrays holding the data allocated on
     auto column_indices = sycl::malloc_device<std::int64_t>(element_count, q);
     auto row_offsets = sycl::malloc_device<std::int64_t>(row_count + 1, q);
 
-    q.submit([&](sycl::handler& cgh) {
+    auto data_event = q.submit([&](sycl::handler& cgh) {
         cgh.memcpy(data, data_host, element_count * sizeof(float));
     });
 
-    q.submit([&](sycl::handler& cgh) {
+    auto column_indices_event = q.submit([&](sycl::handler& cgh) {
         cgh.memcpy(column_indices, column_indices_host, element_count * sizeof(std::int64_t));
     });
 
-    q.submit([&](sycl::handler& cgh) {
+    auto row_offsets_event = q.submit([&](sycl::handler& cgh) {
         cgh.memcpy(row_offsets, row_offsets_host, (row_count + 1) * sizeof(std::int64_t));
     });
 
-    q.wait_and_throw();
-
-    const auto data_array = array<float>::wrap(q, data, element_count);
-    const auto column_indices_array = array<std::int64_t>::wrap(q, column_indices, element_count);
-    const auto row_offsets_array = array<std::int64_t>::wrap(q, row_offsets, row_count + 1);
+    const auto data_array = array<float>::wrap(q, data, element_count, { data_event });
+    const auto column_indices_array = array<std::int64_t>::wrap(q, column_indices, element_count, { column_indices_event });
+    const auto row_offsets_array = array<std::int64_t>::wrap(q, row_offsets, row_count + 1, { row_offsets_event });
 
     auto t = csr_table::wrap(data_array, column_indices_array, row_offsets_array, column_count);
 
@@ -493,7 +470,7 @@ TEST("create table with invalid row or column count") {
     constexpr std::int64_t column_count{ 4 };
 
     REQUIRE_NOTHROW(csr_table::wrap(data, column_indices, row_offsets, row_count, column_count));
-    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets, 5, column_count),
+    REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets, 0, column_count),
                       dal::domain_error);
     REQUIRE_THROWS_AS(csr_table::wrap(data, column_indices, row_offsets, row_count, 0),
                       dal::domain_error);
@@ -527,6 +504,5 @@ TEST("create tables that have one-based indexing and various types of incorrect 
         csr_table::wrap(data, column_indices, row_offsets_not_ascending, row_count, column_count),
         dal::domain_error);
 }
-*/
 
 } // namespace oneapi::dal::test

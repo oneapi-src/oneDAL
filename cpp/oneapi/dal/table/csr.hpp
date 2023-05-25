@@ -19,8 +19,6 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/array_utils.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal {
 namespace v1 {
 
@@ -354,7 +352,7 @@ private:
                    ConstColumnIndicesDeleter&& column_indices_deleter,
                    ConstRowOffsetsDeleter&& row_offsets_deleter,
                    sparse_indexing indexing) {
-        std::cout << "in csr.hpp init_impl() " << std::endl << std::flush;
+        validate_input_dimensions(row_count, column_count);
 
         const std::int64_t element_count = get_non_zero_count(policy, row_count, row_offsets_pointer);
 
@@ -393,6 +391,7 @@ private:
                    sparse_indexing indexing) {
         std::int64_t row_count = row_offsets.get_count();
         row_count = (row_count ? row_count - 1 : std::int64_t(0));
+        validate_input_dimensions(row_count, column_count);
 
         return init_impl(detail::default_host_policy{},
                          detail::reinterpret_array_cast<byte_t>(data),

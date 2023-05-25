@@ -24,12 +24,14 @@
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
-#include <iostream>
+#include <algorithm>
 
 namespace oneapi::dal::backend {
 
 class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
                        public ONEDAL_SERIALIZABLE(csr_table_id) {
+private:
+    enum class out_of_bound_type { less_than_min = -1, within_bounds = 0, greater_than_max = 1 };
 public:
     csr_table_impl()
             : col_count_(0),
@@ -48,24 +50,12 @@ public:
               column_indices_(column_indices),
               row_offsets_(row_offsets),
               col_count_(column_count),
+              row_count_(row_offsets.get_count() - 1),
               layout_(data_layout::row_major),
               indexing_(indexing) {
-        ONEDAL_ASSERT(0 < column_count);
         using error_msg = dal::detail::error_messages;
-        std::cout << "in csr_table_impl()" << std::endl << std::flush;
 
-        if (column_count <= 0) {
-            throw dal::domain_error(error_msg::cc_leq_zero());
-        }
-
-        row_count_ = (row_offsets.get_count() ? row_offsets.get_count() - 1 : 0);
-        ONEDAL_ASSERT(0 < row_count_);
-        if (row_count_ < 0) {
-            throw dal::domain_error(error_msg::rc_leq_zero());
-        }
-
-        std::int64_t element_count = get_non_zero_count(row_count_, row_offsets);
-
+        const std::int64_t element_count = column_indices.get_count();
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
@@ -73,27 +63,20 @@ public:
             throw dal::domain_error(error_msg::invalid_data_block_size());
         }
 
-        for (std::int64_t i = 1; i <= row_count_; i++) {
-            if (row_offsets[i - 1] > row_offsets[i]) {
-                throw dal::domain_error(error_msg::row_offsets_not_ascending());
-            }
-        }
-
-        if (column_indices.get_count() != element_count) {
-            throw dal::domain_error(error_msg::invalid_column_indices_block_size());
+        if (!is_sorted(row_offsets)) {
+            throw dal::domain_error(error_msg::row_offsets_not_ascending());
         }
 
         const std::int64_t min_index = (indexing == sparse_indexing::zero_based) ? 0 : 1;
         const std::int64_t max_index =
             (indexing == sparse_indexing::zero_based) ? column_count - 1 : column_count;
 
-        for (std::int64_t i = 0; i < element_count; i++) {
-            if (column_indices[i] < min_index) {
-                throw dal::domain_error(error_msg::column_indices_lt_min_value());
-            }
-            if (column_indices[i] > max_index) {
-                throw dal::domain_error(error_msg::column_indices_gt_max_value());
-            }
+        out_of_bound_type status = check_bounds(column_indices, min_index, max_index);
+        if (status == out_of_bound_type::less_than_min) {
+            throw dal::domain_error(error_msg::column_indices_lt_min_value());
+        }
+        if (status == out_of_bound_type::greater_than_max) {
+            throw dal::domain_error(error_msg::column_indices_gt_max_value());
         }
     }
 
@@ -119,11 +102,19 @@ public:
         return row_count_;
     }
 
+    /// The number of non-zero elements in the table.
     std::int64_t get_non_zero_count() const override {
-        std::int64_t row_offsets_count = row_offsets_.get_count();
-        return (row_offsets_count ? row_offsets_[row_offsets_count - 1] - row_offsets_[0] : 0);
+        return get_non_zero_count(row_offsets_);
     }
 
+    /// The number of non-zero elements in the table calculated from the row offsets array stored on host.
+    /// This API is needed by ``csr_table`` constructor.
+    ///
+    /// @param[in] policy       Default host execution policy
+    /// @param[in] row_count    The number of rows in the table
+    /// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored on host
+    ///
+    /// @return The number of non-zero elements
     static std::int64_t get_non_zero_count(const detail::default_host_policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
         if (row_count == 0)
             return 0;
@@ -132,6 +123,14 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+    /// The number of non-zero elements in the table calculated from the row offsets array stored in USM
+    /// This API is needed by ``csr_table`` constructor.
+    ///
+    /// @param[in] policy       Data parallel execution policy
+    /// @param[in] row_count    The number of rows in the table
+    /// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored in USM
+    ///
+    /// @return The number of non-zero elements
     static std::int64_t get_non_zero_count(const detail::data_parallel_policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
         if (row_count == 0)
             return 0;
@@ -146,7 +145,19 @@ public:
     }
 #endif
 
-    static std::int64_t get_non_zero_count(const std::int64_t row_count, const array<std::int64_t>& row_offsets) {
+    /// The number of non-zero elements in the table calculated from the row offsets array in CSR format.
+    /// This function dispatches the execution:
+    ///     If data parallel policy is enabled and the row offsets array is associated with a sycl queue,
+    ///         then DPC++ implementation of the function is called.
+    ///     Otherwise, C++ implementation is called.
+    /// This API is needed by ``csr_table_impl`` constructor.
+    ///
+    /// @param[in] row_count    The number of rows in the table
+    /// @param[in] row_offsets  Row offsets array in CSR layout
+    ///
+    /// @return The number of non-zero elements
+    static std::int64_t get_non_zero_count(const array<std::int64_t>& row_offsets) {
+        const std::int64_t row_count = row_offsets.get_count() - 1;
     #ifdef ONEDAL_DATA_PARALLEL
         const auto optional_queue = row_offsets.get_queue();
         if (optional_queue) {
@@ -154,6 +165,107 @@ public:
         }
     #endif
         return csr_table_impl::get_non_zero_count(detail::default_host_policy{}, row_count, row_offsets.get_data());
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template<typename T>
+    static bool is_sorted(sycl::queue& queue, const std::int64_t count, const T* data) {
+        bool result = true;
+        sycl::buffer<bool, 1> result_buf(&result, sycl::range<1>(1));
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
+            cgh.parallel_for<struct sorted_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
+                const int i = idx[0];
+                if (data[i] > data[i + 1]) {
+                    write_result[0] = false;
+                }
+            });
+        });
+        event.wait_and_throw();
+        return result;
+    }
+#endif
+
+    template<typename T>
+    static bool is_sorted(const array<T>& arr) {
+        const T* data = arr.get_data();
+        const std::int64_t count = arr.get_count();
+    #ifdef ONEDAL_DATA_PARALLEL
+        const auto optional_queue = arr.get_queue();
+        if (optional_queue) {
+            sycl::queue q = optional_queue.value();
+            return csr_table_impl::is_sorted(q, count, data);
+        }
+    #endif
+        return std::is_sorted(data, data + count);
+    }
+
+    template<typename T>
+    static out_of_bound_type check_bounds(const std::int64_t count, const T* data, const T& min_value, const T& max_value) {
+        out_of_bound_type result{ out_of_bound_type::within_bounds };
+        for (std::int64_t i = 0; i < count; ++i) {
+            if (data[i] < min_value) {
+                result = out_of_bound_type::less_than_min;
+                break;
+            }
+            if (data[i] > max_value) {
+                result = out_of_bound_type::greater_than_max;
+                break;
+            }
+        }
+        return result;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template<typename T>
+    static out_of_bound_type check_bounds(sycl::queue& queue, const std::int64_t count, const T* data, const T& min_value, const T& max_value) {
+        int result{ 0 /* out_of_bound_type::within_bounds */ };
+        sycl::buffer<int, 1> result_buf(&result, sycl::range<1>(1));
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
+            cgh.parallel_for<struct bounds_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
+                const int i = idx[0];
+                if (data[i] < min_value) {
+                    write_result[0] = -1 /* out_of_bound_type::less_than_min */;
+                }
+                if (data[i] > max_value) {
+                    write_result[0] = 1 /* out_of_bound_type::greater_than_max */;
+                }
+            });
+        });
+        event.wait_and_throw();
+        out_of_bound_type enum_result{ out_of_bound_type::within_bounds };
+        switch(result) {
+        case -1:
+            enum_result = out_of_bound_type::less_than_min;
+            break;
+        case  0:
+            enum_result = out_of_bound_type::within_bounds;
+            break;
+        case  1:
+            enum_result = out_of_bound_type::greater_than_max;
+            break;
+        default:
+            /* TODO: Error handling */
+            break;
+        }
+        return enum_result;
+    }
+#endif
+
+
+    template<typename T>
+    static out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value) {
+        const T* data = arr.get_data();
+        const std::int64_t count = arr.get_count();
+    #ifdef ONEDAL_DATA_PARALLEL
+        const auto optional_queue = arr.get_queue();
+        if (optional_queue) {
+            sycl::queue q = optional_queue.value();
+            return csr_table_impl::check_bounds(q, count, data, min_value, max_value);
+        }
+    #endif
+        return csr_table_impl::check_bounds(count, data, min_value, max_value);
     }
 
     sparse_indexing get_indexing() const override {
