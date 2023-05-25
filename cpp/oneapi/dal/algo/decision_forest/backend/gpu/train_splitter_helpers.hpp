@@ -417,6 +417,15 @@ struct split_smp {
             ts.right_count >= min_observations_in_leaf_node);
     }
 
+    inline bool need_global_update(const split_info_t& bs,
+                                Index* node_ptr,
+                                Float* kernel_imp_buf,
+                                Index ftr_ofs) {
+        Float imp_dec = ftr_ofs > 0 ? kernel_imp_buf[0] : -de::limits<Float>::max();;
+        return Float(0) < bs.imp_dec && bs.ftr_bin != impl_const_t::leaf_mark_ &&
+            (node_ptr[impl_const_t::ind_bin] == impl_const_t::leaf_mark_ || float_gt(bs.imp_dec, imp_dec));
+    }
+
     // universal
     inline void choose_best_split(split_info_t& bs,
                                   const split_info_t& ts,

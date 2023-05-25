@@ -312,8 +312,8 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
         // node_hist_list in compute histogram
         required_mem_size_for_one_tree += max_node_count_per_tree * part_hist_size;
     }
-    required_mem_size_for_one_tree *= 2;
-
+    // Kernel imp dec list
+    required_mem_size_for_one_tree += sizeof(Float) * max_node_count_per_tree;
     // Impurity decrease list
     if (ctx.mdi_required_) {
         required_mem_size_for_one_tree += sizeof(Float) * max_node_count_per_tree;
