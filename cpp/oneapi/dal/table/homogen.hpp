@@ -282,8 +282,6 @@ private:
                    const dal::v1::array<byte_t>& data,
                    const data_type& dtype,
                    data_layout layout);
-
-
 };
 
 } // namespace v1

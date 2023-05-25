@@ -362,8 +362,14 @@ TEST((std::string("can construct table from data pointers allocated on the devic
         cgh.memcpy(row_offsets, row_offsets_host, (row_count + 1) * sizeof(std::int64_t));
     });
 
-    auto t = csr_table::wrap(q, data, column_indices, row_offsets, row_count, column_count,
-        sparse_indexing::one_based, { data_event, column_indices_event, row_offsets_event });
+    auto t = csr_table::wrap(q,
+                             data,
+                             column_indices,
+                             row_offsets,
+                             row_count,
+                             column_count,
+                             sparse_indexing::one_based,
+                             { data_event, column_indices_event, row_offsets_event });
 
     REQUIRE(t.has_data() == true);
     REQUIRE(t.get_row_count() == row_count);
@@ -443,8 +449,10 @@ TEST((std::string("can construct table from arrays holding the data allocated on
     });
 
     const auto data_array = array<float>::wrap(q, data, element_count, { data_event });
-    const auto column_indices_array = array<std::int64_t>::wrap(q, column_indices, element_count, { column_indices_event });
-    const auto row_offsets_array = array<std::int64_t>::wrap(q, row_offsets, row_count + 1, { row_offsets_event });
+    const auto column_indices_array =
+        array<std::int64_t>::wrap(q, column_indices, element_count, { column_indices_event });
+    const auto row_offsets_array =
+        array<std::int64_t>::wrap(q, row_offsets, row_count + 1, { row_offsets_event });
 
     auto t = csr_table::wrap(data_array, column_indices_array, row_offsets_array, column_count);
 

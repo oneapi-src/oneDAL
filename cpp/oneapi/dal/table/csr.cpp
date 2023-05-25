@@ -52,7 +52,9 @@ const std::int64_t* csr_table::get_row_offsets() const {
 }
 
 template <typename Policy>
-std::int64_t csr_table::get_non_zero_count(const Policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
+std::int64_t csr_table::get_non_zero_count(const Policy& policy,
+                                           const std::int64_t row_count,
+                                           const std::int64_t* row_offsets) {
     return backend::csr_table_impl::get_non_zero_count(policy, row_count, row_offsets);
 }
 
@@ -72,18 +74,18 @@ void csr_table::init_impl(const Policy& policy,
                                                   indexing });
 }
 
-#define INSTANTIATE(Policy)                                             \
-    template ONEDAL_EXPORT std::int64_t csr_table::get_non_zero_count(  \
-        const Policy& policy,                                           \
-        const std::int64_t row_count,                                   \
-        const std::int64_t* row_offsets);                               \
-    template ONEDAL_EXPORT void csr_table::init_impl(                   \
-        const Policy&,                                                  \
-        const dal::array<byte_t>& data,                                 \
-        const dal::array<std::int64_t>& column_indices,                 \
-        const dal::array<std::int64_t>& row_offsets,                    \
-        std::int64_t column_count,                                      \
-        const data_type& dtype,                                         \
+#define INSTANTIATE(Policy)                                            \
+    template ONEDAL_EXPORT std::int64_t csr_table::get_non_zero_count( \
+        const Policy& policy,                                          \
+        const std::int64_t row_count,                                  \
+        const std::int64_t* row_offsets);                              \
+    template ONEDAL_EXPORT void csr_table::init_impl(                  \
+        const Policy&,                                                 \
+        const dal::array<byte_t>& data,                                \
+        const dal::array<std::int64_t>& column_indices,                \
+        const dal::array<std::int64_t>& row_offsets,                   \
+        std::int64_t column_count,                                     \
+        const data_type& dtype,                                        \
         sparse_indexing indexing);
 
 INSTANTIATE(detail::default_host_policy)

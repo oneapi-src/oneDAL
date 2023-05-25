@@ -32,6 +32,7 @@ class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
                        public ONEDAL_SERIALIZABLE(csr_table_id) {
 private:
     enum class out_of_bound_type { less_than_min = -1, within_bounds = 0, greater_than_max = 1 };
+
 public:
     csr_table_impl()
             : col_count_(0),
@@ -115,7 +116,9 @@ public:
     /// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored on host
     ///
     /// @return The number of non-zero elements
-    static std::int64_t get_non_zero_count(const detail::default_host_policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
+    static std::int64_t get_non_zero_count(const detail::default_host_policy& policy,
+                                           const std::int64_t row_count,
+                                           const std::int64_t* row_offsets) {
         if (row_count == 0)
             return 0;
 
@@ -131,15 +134,18 @@ public:
     /// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored in USM
     ///
     /// @return The number of non-zero elements
-    static std::int64_t get_non_zero_count(const detail::data_parallel_policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets) {
+    static std::int64_t get_non_zero_count(const detail::data_parallel_policy& policy,
+                                           const std::int64_t row_count,
+                                           const std::int64_t* row_offsets) {
         if (row_count == 0)
             return 0;
 
         auto q = policy.get_queue();
-        std::int64_t first_row_offset{0L};
-        std::int64_t last_row_offset{0L};
+        std::int64_t first_row_offset{ 0L };
+        std::int64_t last_row_offset{ 0L };
         dal::backend::copy_usm2host(q, &first_row_offset, row_offsets, 1, {}).wait_and_throw();
-        dal::backend::copy_usm2host(q, &last_row_offset, row_offsets + row_count, 1, {}).wait_and_throw();
+        dal::backend::copy_usm2host(q, &last_row_offset, row_offsets + row_count, 1, {})
+            .wait_and_throw();
 
         return (last_row_offset - first_row_offset);
     }
@@ -158,50 +164,59 @@ public:
     /// @return The number of non-zero elements
     static std::int64_t get_non_zero_count(const array<std::int64_t>& row_offsets) {
         const std::int64_t row_count = row_offsets.get_count() - 1;
-    #ifdef ONEDAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
         const auto optional_queue = row_offsets.get_queue();
         if (optional_queue) {
-            return csr_table_impl::get_non_zero_count(detail::data_parallel_policy{ optional_queue.value() }, row_count, row_offsets.get_data());
+            return csr_table_impl::get_non_zero_count(
+                detail::data_parallel_policy{ optional_queue.value() },
+                row_count,
+                row_offsets.get_data());
         }
-    #endif
-        return csr_table_impl::get_non_zero_count(detail::default_host_policy{}, row_count, row_offsets.get_data());
+#endif
+        return csr_table_impl::get_non_zero_count(detail::default_host_policy{},
+                                                  row_count,
+                                                  row_offsets.get_data());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template<typename T>
+    template <typename T>
     static bool is_sorted(sycl::queue& queue, const std::int64_t count, const T* data) {
         bool result = true;
         sycl::buffer<bool, 1> result_buf(&result, sycl::range<1>(1));
         auto event = queue.submit([&](sycl::handler& cgh) {
             auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
-            cgh.parallel_for<struct sorted_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
-                const int i = idx[0];
-                if (data[i] > data[i + 1]) {
-                    write_result[0] = false;
-                }
-            });
+            cgh.parallel_for<struct sorted_checker>(sycl::range<1>(count - 1),
+                                                    [=](sycl::id<1> idx) {
+                                                        const int i = idx[0];
+                                                        if (data[i] > data[i + 1]) {
+                                                            write_result[0] = false;
+                                                        }
+                                                    });
         });
         event.wait_and_throw();
         return result;
     }
 #endif
 
-    template<typename T>
+    template <typename T>
     static bool is_sorted(const array<T>& arr) {
         const T* data = arr.get_data();
         const std::int64_t count = arr.get_count();
-    #ifdef ONEDAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
         const auto optional_queue = arr.get_queue();
         if (optional_queue) {
             sycl::queue q = optional_queue.value();
             return csr_table_impl::is_sorted(q, count, data);
         }
-    #endif
+#endif
         return std::is_sorted(data, data + count);
     }
 
-    template<typename T>
-    static out_of_bound_type check_bounds(const std::int64_t count, const T* data, const T& min_value, const T& max_value) {
+    template <typename T>
+    static out_of_bound_type check_bounds(const std::int64_t count,
+                                          const T* data,
+                                          const T& min_value,
+                                          const T& max_value) {
         out_of_bound_type result{ out_of_bound_type::within_bounds };
         for (std::int64_t i = 0; i < count; ++i) {
             if (data[i] < min_value) {
@@ -217,54 +232,55 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template<typename T>
-    static out_of_bound_type check_bounds(sycl::queue& queue, const std::int64_t count, const T* data, const T& min_value, const T& max_value) {
+    template <typename T>
+    static out_of_bound_type check_bounds(sycl::queue& queue,
+                                          const std::int64_t count,
+                                          const T* data,
+                                          const T& min_value,
+                                          const T& max_value) {
         int result{ 0 /* out_of_bound_type::within_bounds */ };
         sycl::buffer<int, 1> result_buf(&result, sycl::range<1>(1));
         auto event = queue.submit([&](sycl::handler& cgh) {
             auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
-            cgh.parallel_for<struct bounds_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
-                const int i = idx[0];
-                if (data[i] < min_value) {
-                    write_result[0] = -1 /* out_of_bound_type::less_than_min */;
-                }
-                if (data[i] > max_value) {
-                    write_result[0] = 1 /* out_of_bound_type::greater_than_max */;
-                }
-            });
+            cgh.parallel_for<struct bounds_checker>(
+                sycl::range<1>(count - 1),
+                [=](sycl::id<1> idx) {
+                    const int i = idx[0];
+                    if (data[i] < min_value) {
+                        write_result[0] = -1 /* out_of_bound_type::less_than_min */;
+                    }
+                    if (data[i] > max_value) {
+                        write_result[0] = 1 /* out_of_bound_type::greater_than_max */;
+                    }
+                });
         });
         event.wait_and_throw();
         out_of_bound_type enum_result{ out_of_bound_type::within_bounds };
-        switch(result) {
-        case -1:
-            enum_result = out_of_bound_type::less_than_min;
-            break;
-        case  0:
-            enum_result = out_of_bound_type::within_bounds;
-            break;
-        case  1:
-            enum_result = out_of_bound_type::greater_than_max;
-            break;
-        default:
-            /* TODO: Error handling */
-            break;
+        switch (result) {
+            case -1: enum_result = out_of_bound_type::less_than_min; break;
+            case 0: enum_result = out_of_bound_type::within_bounds; break;
+            case 1: enum_result = out_of_bound_type::greater_than_max; break;
+            default:
+                /* TODO: Error handling */
+                break;
         }
         return enum_result;
     }
 #endif
 
-
-    template<typename T>
-    static out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value) {
+    template <typename T>
+    static out_of_bound_type check_bounds(const array<T>& arr,
+                                          const T& min_value,
+                                          const T& max_value) {
         const T* data = arr.get_data();
         const std::int64_t count = arr.get_count();
-    #ifdef ONEDAL_DATA_PARALLEL
+#ifdef ONEDAL_DATA_PARALLEL
         const auto optional_queue = arr.get_queue();
         if (optional_queue) {
             sycl::queue q = optional_queue.value();
             return csr_table_impl::check_bounds(q, count, data, min_value, max_value);
         }
-    #endif
+#endif
         return csr_table_impl::check_bounds(count, data, min_value, max_value);
     }
 

@@ -105,7 +105,6 @@ public:
                           std::int64_t column_count,
                           sparse_indexing indexing = sparse_indexing::one_based,
                           const std::vector<sycl::event>& dependencies = {}) {
-        std::cout << "in csr_table::wrap() " << std::endl << std:: flush;
         return csr_table{ queue,
                           data_pointer,
                           column_indices_pointer,
@@ -335,7 +334,9 @@ private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
     template <typename Policy>
-    static std::int64_t get_non_zero_count(const Policy& policy, const std::int64_t row_count, const std::int64_t* row_offsets);
+    static std::int64_t get_non_zero_count(const Policy& policy,
+                                           const std::int64_t row_count,
+                                           const std::int64_t* row_offsets);
 
     template <typename Policy,
               typename Data,
@@ -354,7 +355,8 @@ private:
                    sparse_indexing indexing) {
         validate_input_dimensions(row_count, column_count);
 
-        const std::int64_t element_count = get_non_zero_count(policy, row_count, row_offsets_pointer);
+        const std::int64_t element_count =
+            get_non_zero_count(policy, row_count, row_offsets_pointer);
 
         const auto data =
             detail::array_via_policy<Data>::wrap(policy,

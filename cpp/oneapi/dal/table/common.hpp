@@ -130,7 +130,6 @@ protected:
     }
 
 private:
-
     void serialize(detail::output_archive& ar) const;
     void deserialize(detail::input_archive& ar);
 
