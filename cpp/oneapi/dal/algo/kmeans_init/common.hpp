@@ -40,8 +40,14 @@ namespace v1 {
 /// Tag-type that denotes :ref:`dense <kmeans_init_c_math_dense>`
 /// computational method.
 struct dense {};
+/// Tag-type that denotes :ref:`random_dense <kmeans_init_c_math_random_dense>`
+/// computational method.
 struct random_dense {};
+/// Tag-type that denotes :ref:`plus_plus_dense <kmeans_init_c_math_plus_plus_dense>`
+/// computational method.
 struct plus_plus_dense {};
+/// Tag-type that denotes :ref:`parallel_plus_dense <kmeans_init_c_math_parallel_plus_dense>`
+/// computational method.
 struct parallel_plus_dense {};
 using by_default = dense;
 } // namespace v1
@@ -80,6 +86,9 @@ constexpr bool is_not_default_dense = !std::is_same_v<M, method::dense>;
 template <typename M>
 using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
 
+template <typename M>
+using enable_if_plus_plus_dense = std::enable_if_t<std::is_same_v<M, method::plus_plus_dense>>;
+
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -92,10 +101,12 @@ public:
 
     descriptor_base();
 
+    std::int64_t get_local_trials_count() const;
     std::int64_t get_cluster_count() const;
     std::int64_t get_seed() const;
 
 protected:
+    void set_local_trials_count_impl(std::int64_t);
     void set_cluster_count_impl(std::int64_t);
     void set_seed_impl(std::int64_t value);
 
@@ -164,6 +175,23 @@ public:
     template <typename M = Method, typename = detail::v1::enable_if_not_default_dense<M>>
     auto& set_seed(std::int64_t value) {
         base_t::set_seed_impl(value);
+        return *this;
+    }
+
+    /// Number of attempts to find the best
+    /// sample in terms of potential value
+    /// If the value is equal to -1, the number
+    /// of trials is 2 + int(log(cluster_count))
+    /// @invariant :expr:`local_trials > 0` or :expr`local_trials = -1`
+    /// @remark default = -1
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    auto& get_local_trials_count() const {
+        return base_t::get_local_trials_count();
+    }
+
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    auto& set_local_trials_count(std::int64_t value = -1) {
+        base_t::set_local_trials_count_impl(value);
         return *this;
     }
 };

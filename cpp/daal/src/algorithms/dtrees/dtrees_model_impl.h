@@ -52,6 +52,7 @@ struct DecisionTreeNode
     int featureIndex;                   //split: index of the feature, leaf: -1
     ClassIndexType leftIndexOrClass;    //split: left node index, classification leaf: class index
     ModelFPType featureValueOrResponse; //split: feature value, regression tree leaf: response
+    int defaultLeft;                    //split: if 1: go to the yes branch for missing value
     DAAL_FORCEINLINE bool isSplit() const { return featureIndex != -1; }
     ModelFPType featureValue() const { return featureValueOrResponse; }
 };
@@ -64,6 +65,7 @@ public:
         setFeature<int>(0, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, featureIndex));
         setFeature<ClassIndexType>(1, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, leftIndexOrClass));
         setFeature<ModelFPType>(2, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, featureValueOrResponse));
+        setFeature<int>(3, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, defaultLeft));
         allocateDataMemory();
     }
 };
@@ -342,7 +344,7 @@ void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel);
 void setNode(DecisionTreeNode & node, int featureIndex, double response);
 
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
-                                      size_t featureIndex, double featureValue, size_t & res);
+                                      size_t featureIndex, double featureValue, size_t & res, int defaultLeft = 0);
 
 void setProbabilities(const size_t treeId, const size_t nodeId, const size_t response, const data_management::DataCollectionPtr probTbl,
                       const double * const prob);

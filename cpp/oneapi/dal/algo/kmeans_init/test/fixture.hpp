@@ -31,17 +31,16 @@ public:
     using base_t = te::crtp_algo_fixture<TestType, Derived>;
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
+    using desc_t = kmeans_init::descriptor<float_t, method_t>;
 
-    auto get_descriptor(std::int64_t cluster_count) const {
+    desc_t get_descriptor(std::int64_t cluster_count) const {
         return kmeans_init::descriptor<float_t, method_t>{ cluster_count };
     }
 
     bool not_available_on_device() {
-        constexpr bool is_plus_plus_dense =
-            std::is_same_v<method_t, kmeans_init::method::plus_plus_dense>;
         constexpr bool is_parallel_plus_dense =
             std::is_same_v<method_t, kmeans_init::method::parallel_plus_dense>;
-        return this->get_policy().is_gpu() && (is_plus_plus_dense || is_parallel_plus_dense);
+        return this->get_policy().is_gpu() && is_parallel_plus_dense;
     }
 
     void dense_checks(std::int64_t cluster_count, const table& data) {
@@ -62,15 +61,21 @@ public:
         REQUIRE(centroids.get_row_count() == cluster_count);
         REQUIRE(centroids.get_column_count() == column_count);
 
-        const auto data_array = row_accessor<const float>(data).pull();
-        const auto centroid_array = row_accessor<const float>(centroids).pull();
+        const auto data_array = row_accessor<const float_t>(data).pull();
+        const auto centroid_array = row_accessor<const float_t>(centroids).pull();
 
-        std::unordered_set<std::int64_t> indices;
-        for (std::int64_t i = 0; i < cluster_count; i++) {
-            for (std::int64_t j = 0; j < row_count; j++) {
+        const auto* const data_ptr = data_array.get_data();
+        const auto* const centroid_ptr = centroid_array.get_data();
+
+        std::set<std::int64_t> indices{};
+        for (std::int64_t i = 0; i < cluster_count; ++i) {
+            for (std::int64_t j = 0; j < row_count; ++j) {
                 bool match = true;
-                for (std::int64_t k = 0; k < column_count; k++) {
-                    if (data_array[j * column_count + k] != centroid_array[i * column_count + k]) {
+                for (std::int64_t k = 0; k < column_count; ++k) {
+                    const auto data_val = data_ptr[j * column_count + k];
+                    const auto centroid_val = centroid_ptr[i * column_count + k];
+
+                    if (data_val != centroid_val) {
                         match = false;
                         break;
                     }

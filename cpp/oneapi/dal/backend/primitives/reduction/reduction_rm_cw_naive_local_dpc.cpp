@@ -30,14 +30,16 @@ public:
                                        std::int64_t height,
                                        std::int32_t lstride,
                                        const BinaryOp& binary,
-                                       const UnaryOp& unary)
+                                       const UnaryOp& unary,
+                                       const bool& override_init)
             : cache_{ cache },
               input_{ input },
               output_{ output },
               unary_{ unary },
               binary_{ binary },
               height_{ height },
-              lstride_{ lstride } {}
+              lstride_{ lstride },
+              override_init_{ override_init } {}
 
     void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
@@ -48,7 +50,9 @@ public:
 
         sycl::local_ptr<const Float> local((const Float*)cache_.get_pointer().get());
 
-        Float acc = binary_.init_value;
+        Float acc = (override_init_ || (loc_idx != 0)) ? //
+                        binary_.init_value
+                                                       : output_[col_idx];
         // Loop fot the whole WG
         for (std::int64_t j = 0; j < height_; j += lm) {
             const Float* from = input_ + col_idx + lstride_ * j;
@@ -74,6 +78,7 @@ private:
     const BinaryOp binary_;
     const std::int64_t height_;
     const std::int32_t lstride_;
+    const bool override_init_;
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -103,14 +108,16 @@ sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
-    const event_vector& deps) const {
+    const event_vector& deps,
+    const bool override_init) const {
     ONEDAL_ASSERT(0 <= width && width <= stride);
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     ONEDAL_ASSERT(0 < lm_ && lm_ <= device_local_mem_size(q_));
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);
-        const auto kernel = get_kernel(h, input, output, lm_, height, stride, binary, unary);
+        const auto kernel =
+            get_kernel(h, input, output, lm_, height, stride, binary, unary, override_init);
         h.parallel_for<kernel_t>(range, kernel);
     });
     return event;
@@ -124,8 +131,10 @@ sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
-    const event_vector& deps) const {
-    return this->operator()(input, output, width, height, width, binary, unary, deps);
+    const event_vector& deps,
+    const bool override_init) const {
+    return this->
+    operator()(input, output, width, height, width, binary, unary, deps, override_init);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -143,7 +152,8 @@ reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler&
                                                                   std::int64_t height,
                                                                   std::int64_t stride,
                                                                   const BinaryOp& binary,
-                                                                  const UnaryOp& unary) {
+                                                                  const UnaryOp& unary,
+                                                                  const bool override_init) {
     sycl::local_accessor<Float, 1> local_acc{ sycl::range<1>(lm), h };
     return kernel_t{ local_acc,
                      input,
@@ -151,7 +161,8 @@ reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler&
                      dal::detail::integral_cast<std::int64_t>(height),
                      dal::detail::integral_cast<std::int32_t>(stride),
                      binary,
-                     unary };
+                     unary,
+                     override_init };
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_naive_local<F, B, U>;

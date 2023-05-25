@@ -294,7 +294,7 @@ Pass the ``Input ID`` as a parameter to the methods that provide input for your 
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for Expectation-Maximization Computaion (Batch Processing)
+.. list-table:: Algorithm Input for Expectation-Maximization Computation (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -335,7 +335,7 @@ The EM for GMM algorithm has the following parameters:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
 
-.. list-table:: Algorithm Parameters for Expectation-Maximization Computaion (Batch Processing)
+.. list-table:: Algorithm Parameters for Expectation-Maximization Computation (Batch Processing)
    :widths: 10 20 30
    :header-rows: 1
    :align: left
@@ -390,7 +390,7 @@ of your algorithm.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Output for Expectation-Maximization Computaion (Batch Processing)
+.. list-table:: Algorithm Output for Expectation-Maximization Computation (Batch Processing)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -454,7 +454,9 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+
+
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     Batch Processing:
 

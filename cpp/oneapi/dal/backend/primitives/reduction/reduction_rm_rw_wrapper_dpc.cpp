@@ -44,16 +44,17 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   std::int64_t stride,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary,
-                                                                  const event_vector& deps) const {
+                                                                  const event_vector& deps,
+                                                                  const bool override_init) const {
     // TODO: think about `switch` operator
     if (method == reduction_method::narrow) {
         const narrow_t kernel{ q_ };
-        return kernel(input, output, width, height, stride, binary, unary, deps);
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
     }
     if (method == reduction_method::wide) {
         const auto device_max_wg = device_max_wg_size(q_);
         const wide_t kernel{ q_, std::min(width, device_max_wg) };
-        return kernel(input, output, width, height, stride, binary, unary, deps);
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
     }
     ONEDAL_ASSERT(false);
     return sycl::event{};
@@ -67,9 +68,11 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   std::int64_t stride,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary,
-                                                                  const event_vector& deps) const {
+                                                                  const event_vector& deps,
+                                                                  const bool override_init) const {
     const auto method = propose_method(width);
-    return this->operator()(method, input, output, width, height, stride, binary, unary, deps);
+    return this->
+    operator()(method, input, output, width, height, stride, binary, unary, deps, override_init);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -80,8 +83,10 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   std::int64_t height,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary,
-                                                                  const event_vector& deps) const {
-    return this->operator()(method, input, output, width, height, width, binary, unary, deps);
+                                                                  const event_vector& deps,
+                                                                  const bool override_init) const {
+    return this->
+    operator()(method, input, output, width, height, width, binary, unary, deps, override_init);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -91,9 +96,11 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   std::int64_t height,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary,
-                                                                  const event_vector& deps) const {
+                                                                  const event_vector& deps,
+                                                                  const bool override_init) const {
     const auto method = propose_method(width);
-    return this->operator()(method, input, output, width, height, width, binary, unary, deps);
+    return this->
+    operator()(method, input, output, width, height, width, binary, unary, deps, override_init);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_rw<F, B, U>;

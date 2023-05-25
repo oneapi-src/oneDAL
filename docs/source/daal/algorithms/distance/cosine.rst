@@ -18,7 +18,7 @@ Cosine Distance Matrix
 ======================
 
 Given :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots x_n = (x_{n1}, \ldots, x_{np})`
-of dimension Lmath:`p`,
+of dimension :math:`p`,
 the problem is to compute the symmetric :math:`n \times n` matrix :math:`D_{\text{cos}} = (d_{ij})`
 of distances between feature vectors, where
 
@@ -116,7 +116,9 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+
+
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     Batch Processing:
 

@@ -206,10 +206,21 @@ public:
         return wrap(data.get_mutable_data(), shape);
     }
 
-    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t strides) {
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t& strides) {
         ONEDAL_ASSERT(data.has_mutable_data());
         ONEDAL_ASSERT(data.get_count() >= shape.get_count());
         return wrap(data.get_mutable_data(), shape, strides);
+    }
+
+    template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
+    static ndview wrap(const array<T>& data) {
+        return wrap(data.get_data(), { data.get_count() });
+    }
+
+    template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
+    static ndview wrap_mutable(const array<T>& data) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        return wrap(data.get_mutable_data(), { data.get_count() });
     }
 
     const T* get_data() const {
@@ -245,8 +256,10 @@ public:
             const auto* row = get_data() + id0 * this->get_stride(0);
             return *(row + id1);
         }
-        const auto* const col = get_data() + id1 * this->get_stride(1);
-        return *(col + id0);
+        else {
+            const auto* const col = get_data() + id1 * this->get_stride(1);
+            return *(col + id0);
+        }
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
@@ -265,9 +278,29 @@ public:
             auto* const row = get_mutable_data() + id0 * this->get_stride(0);
             return *(row + id1);
         }
-        auto* const col = get_mutable_data() + id1 * this->get_stride(1);
-        return *(col + id0);
+        else {
+            auto* const col = get_mutable_data() + id1 * this->get_stride(1);
+            return *(col + id0);
+        }
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T at_device(sycl::queue& queue, std::int64_t id, const event_vector& deps = {}) const {
+        return this->get_slice(id, id + 1).to_host(queue, deps).at(0);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    T at_device(sycl::queue& queue,
+                std::int64_t id0,
+                std::int64_t id1,
+                const event_vector& deps = {}) const {
+        return this->get_row_slice(id0, id0 + 1)
+            .get_col_slice(id1, id1 + 1)
+            .to_host(queue, deps)
+            .at(0, 0);
+    }
+#endif // ONEDAL_DATA_PARALLEL
 
     auto t() const {
         using tranposed_ndview_t = ndview<T, axis_count, transposed_ndorder_v<order>>;
@@ -454,6 +487,17 @@ inline sycl::event copy(sycl::queue& q,
         res_event = copy(q, new_dst, new_src, deps);
     }
     return res_event;
+}
+
+template <typename T1, ndorder ord1, typename T2, ndorder ord2>
+inline sycl::event copy(sycl::queue& q,
+                        ndview<T1, 1, ord1>& dst,
+                        const ndview<T2, 1, ord2>& src,
+                        const event_vector& deps = {}) {
+    auto dst_2d = dst.template reshape<2>({ 1l, dst.get_count() });
+    auto src_2d = src.template reshape<2>({ 1l, src.get_count() });
+
+    return copy(q, dst_2d, src_2d, deps);
 }
 
 template <typename T>
@@ -903,3 +947,29 @@ inline auto copy(sycl::queue& q,
 #endif
 
 } // namespace oneapi::dal::backend::primitives
+
+namespace oneapi::dal::backend {
+
+template <typename Type>
+inline Type* begin(const primitives::ndview<Type, 1>& arr) {
+    ONEDAL_ASSERT(arr.has_mutable_data());
+    return arr.get_mutable_data();
+}
+
+template <typename Type>
+inline Type* end(const primitives::ndview<Type, 1>& arr) {
+    return begin(arr) + arr.get_count();
+}
+
+template <typename Type>
+inline const Type* cbegin(const primitives::ndview<Type, 1>& arr) {
+    ONEDAL_ASSERT(arr.has_data());
+    return arr.get_data();
+}
+
+template <typename Type>
+inline const Type* cend(const primitives::ndview<Type, 1>& arr) {
+    return cbegin(arr) + arr.get_count();
+}
+
+} // namespace oneapi::dal::backend

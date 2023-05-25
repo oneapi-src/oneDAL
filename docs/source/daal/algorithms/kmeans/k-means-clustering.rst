@@ -21,7 +21,7 @@ K-Means Clustering
 
 .. note::
 
-   K-Means ans K-Means initialization are also available with oneAPI interfaces:
+   K-Means and K-Means initialization are also available with oneAPI interfaces:
 
    - :ref:`alg_kmeans`
    - :ref:`alg_kmeans_init`
@@ -287,7 +287,9 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+
+
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     Batch Processing:
 

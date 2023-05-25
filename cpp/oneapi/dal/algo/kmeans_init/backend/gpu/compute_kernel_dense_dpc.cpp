@@ -62,8 +62,9 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 template <typename Float, typename Method>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     constexpr bool is_random_dense = std::is_same_v<Method, method::random_dense>;
+    constexpr bool is_plus_plus_dense = std::is_same_v<Method, method::plus_plus_dense>;
     using distr_t = compute_kernel_distr<Float, Method, task_t>;
-    if constexpr (is_random_dense) {
+    if constexpr (is_random_dense || is_plus_plus_dense) {
         return distr_t{}(ctx, desc, input);
     }
     else {

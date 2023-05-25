@@ -15,7 +15,7 @@
 .. *******************************************************************************/
 
 .. |dpcpp_comp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
-.. _dpcpp_comp: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html
+.. _dpcpp_comp: https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html
 
 .. _before_you_begin:
 

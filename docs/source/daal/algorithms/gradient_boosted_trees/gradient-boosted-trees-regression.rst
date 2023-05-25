@@ -25,7 +25,7 @@ boosted trees. For more details, see :ref:`gb_trees`.
 Details
 *******
 
-Given n feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` of :math`n`
+Given n feature vectors :math:`X = \{x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np}) \}` of :math:`n`
 :math:`p`-dimensional feature vectors and a vector of dependent variables :math:`y = (y_1, \ldots, y_n)`, the problem is to build a gradient
 boosted trees regression model that minimizes the loss function based
 on the predicted and true value.
@@ -91,7 +91,9 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+
+
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     - :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
 
@@ -176,7 +178,9 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+
+
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     Batch Processing:
 
