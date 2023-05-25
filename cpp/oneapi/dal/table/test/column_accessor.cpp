@@ -18,7 +18,7 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::test {
 
 TEST("Column accessor host test: Can get the first column from homogen_table") {
     using oneapi::dal::detail::empty_delete;
@@ -219,7 +219,7 @@ TEST("Column accessor DPC test: Can get the first column from homogen_table with
     REQUIRE(sycl::get_pointer_type(col.get_data(), q.get_context()) == sycl::usm::alloc::shared);
 
     for (std::int64_t i = 0; i < col.get_count(); i++) {
-        REQUIRE(Catch::Approx(col[i]) == t.get_data<float>()[2 + i * t.get_column_count()]);
+        REQUIRE(Approx(col[i]) == t.get_data<float>()[2 + i * t.get_column_count()]);
     }
 }
 
@@ -259,7 +259,7 @@ TEST("Column accessor DPC test: Can get columns from homogen_table_builder") {
                     sycl::usm::alloc::shared);
 
             for (std::int64_t i = 0; i < col.get_count(); i++) {
-                REQUIRE(Catch::Approx(col[i]) == col_idx + 1);
+                REQUIRE(Approx(col[i]) == col_idx + 1);
             }
         }
     }
@@ -287,8 +287,8 @@ TEST("Column accessor DPC test: Can get column values from column major homogen_
     REQUIRE(col.get_count() == 2);
     REQUIRE(col.get_data() == &data[5]);
 
-    REQUIRE(col[0] == Catch::Approx(5.f));
-    REQUIRE(col[1] == Catch::Approx(6.f));
+    REQUIRE(col[0] == Approx(5.f));
+    REQUIRE(col[1] == Approx(6.f));
 
     sycl::free(data, q);
 }
@@ -338,4 +338,4 @@ TEST("Column accessor DPC test: Invalid range") {
 }
 #endif
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::test
