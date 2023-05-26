@@ -30,6 +30,8 @@
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/algorithms/dtrees/gbt/gbt_internal.h"
+#include "src/services/service_environment.h"
+#include "src/services/service_defines.h"
 
 namespace daal
 {
@@ -173,16 +175,16 @@ struct TileDimensions
     {
         // Use smaller vectorBlockSize if trees fit to L2
         // Each node contain 3 values
-        size_t nodesSize                = (sizeof(ModelFPType) + sizeof(FeatureIndexType) + sizeof(int)) * nNodes;
-        constexpr float add_hoc_L2_size = 0.85 * 2 * 1024 * 1024;
-        const bool treesFitToL2         = nodesSize < add_hoc_L2_size;
-        vectorBlockSizeFactor           = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
+        size_t nodesSize        = (sizeof(ModelFPType) + sizeof(FeatureIndexType) + sizeof(int)) * nNodes;
+        const bool treesFitToL2 = nodesSize < daal::services::internal::getL2CacheSize();
+        vectorBlockSizeFactor = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
 
-        // Decrease vectorBlockSize if number of rows if too small
+        // Decrease vectorBlockSize if number of rows is too small
         const size_t twoBlocksPerThreadFactor = nRowsTotal / (2 * daal::threader_get_threads_number() * vectorBlockSizeStep);
         if (vectorBlockSizeFactor > twoBlocksPerThreadFactor) vectorBlockSizeFactor = twoBlocksPerThreadFactor;
         if (vectorBlockSizeFactor < minVectorBlockSizeFactor) vectorBlockSizeFactor = minVectorBlockSizeFactor;
 
+        DAAL_SAFE_CPU_CALL({}, vectorBlockSizeFactor = optimalBlockSizeFactor)
         size_t vectorBlockSize = vectorBlockSizeStep * vectorBlockSizeFactor;
         nRowsInBlock           = nRowsTotal > vectorBlockSize ? vectorBlockSize : nRowsTotal;
         nDataBlocks            = nRowsTotal / nRowsInBlock + (nRowsTotal % nRowsInBlock != 0);
