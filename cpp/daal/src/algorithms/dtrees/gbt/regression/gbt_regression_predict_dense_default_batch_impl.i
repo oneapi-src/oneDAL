@@ -298,3 +298,4 @@ void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iF
 } /* namespace daal */
 
 #endif
+
