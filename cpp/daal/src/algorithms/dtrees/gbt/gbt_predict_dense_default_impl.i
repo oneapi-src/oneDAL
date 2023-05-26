@@ -175,7 +175,7 @@ struct TileDimensions
         // Each node contain 3 values
         size_t nodesSize        = (sizeof(ModelFPType) + sizeof(FeatureIndexType) + sizeof(int)) * nNodes;
         const bool treesFitToL2 = nodesSize < daal::services::internal::getL2CacheSize();
-        vectorBlockSizeFactor = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
+        vectorBlockSizeFactor   = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
 
         // Decrease vectorBlockSize if number of rows is too small
         const size_t twoBlocksPerThreadFactor = nRowsTotal / (2 * daal::threader_get_threads_number() * vectorBlockSizeStep);
