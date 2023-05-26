@@ -63,7 +63,6 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, false> & dispatcher)
 {
-    // return idx * 2 + (isUnordered ? int(valueFromDataSet) != int(splitPoints[idx]) : valueFromDataSet > splitPoints[idx]); //???///
     return idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoints[idx] : valueFromDataSet > splitPoints[idx]);
 }
 
@@ -91,7 +90,6 @@ inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueF
     }
     else
     {
-        // return idx * 2 + (isUnordered ? int(valueFromDataSet) != int(splitPoints[idx]) : valueFromDataSet > splitPoints[idx]); //???///
         return idx * 2 + (featTypes.isUnordered(splitFeature) ? valueFromDataSet != splitPoints[idx] : valueFromDataSet > splitPoints[idx]);
     }
 }
