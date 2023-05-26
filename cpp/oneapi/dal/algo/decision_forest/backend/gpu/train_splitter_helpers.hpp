@@ -155,14 +155,24 @@ inline bool float_gt(Float a, Float b) {
     return (a - b) > float_accuracy<Float>::val;
 }
 
-template<typename Float, typename Index>
+template<typename Float, typename Index, typename Task>
 struct split_scalar {
+    using impl_const_t = impl_const<Index, Task>;
     Index ftr_id;
     Index ftr_bin;
     Index left_count;
     Index right_count;
     Float left_imp;
     Float imp_dec;
+
+    void clear(){
+        ftr_id = impl_const_t::leaf_mark_;
+        ftr_bin = impl_const_t::leaf_mark_;
+        left_count = 0;
+        right_count = 0;
+        left_imp = Float(0);
+        imp_dec = -de::limits<Float>::max();
+    }
 };
 
 template <typename Float, typename Index, typename Task>
@@ -171,7 +181,7 @@ struct split_info {
     using impl_const_t = impl_const<Index, task_t>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using byte_t = std::uint8_t;
-    using split_scalar_t = split_scalar<Float, Index>;
+    using split_scalar_t = split_scalar<Float, Index, Task>;
     static constexpr Index cache_buf_int_size = 3; // ftr_id, ftr_bin, left_count
     static constexpr Index cache_buf_float_size = 2; // left_imp, and imp_dec
 
