@@ -18,8 +18,12 @@
 
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {
+
+/// The status of out-of-bound error 
+enum class out_of_bound_type { less_than_min = -1, within_bounds = 0, greater_than_max = 1 };
 
 struct csr_info {
     csr_info(data_type dtype,
@@ -76,5 +80,62 @@ void csr_pull_block(const Policy& policy,
                     array<std::int64_t>& row_indices,
                     alloc_kind requested_alloc_kind,
                     bool preserve_mutability = false);
+
+/// The number of non-zero elements in the table calculated from the row offsets array stored on host.
+///
+/// @param[in] policy       Default host execution policy
+/// @param[in] row_count    The number of rows in the table
+/// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored on host
+///
+/// @return The number of non-zero elements
+std::int64_t csr_get_non_zero_count(const detail::default_host_policy& policy,
+                                    const std::int64_t row_count,
+                                    const std::int64_t* row_offsets);
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+/// The number of non-zero elements in the table calculated from the row offsets array stored in USM
+///
+/// @param[in] policy       Data parallel execution policy
+/// @param[in] row_count    The number of rows in the table
+/// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored in USM
+///
+/// @return The number of non-zero elements
+std::int64_t csr_get_non_zero_count(const detail::data_parallel_policy& policy,
+                                    const std::int64_t row_count,
+                                    const std::int64_t* row_offsets);
+
+#endif
+
+/// The number of non-zero elements in the table calculated from the row offsets array in CSR format.
+///
+/// @param[in] row_offsets  Row offsets array in CSR layout
+///
+/// @return The number of non-zero elements in CSR table
+std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets);
+
+/// Checks that the elements in the input array are not descending
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param arr  Input array
+///
+/// @return true, if the elements in the array are not descending;
+///         false, otherwise
+template <typename T>
+bool is_sorted(const array<T>& arr);
+
+/// Given the array A[0], ..., A[n-1] and two values: `min_value` and `max_value`
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param arr  Input array
+///
+/// @return true, if the elements in the array are not descending;
+///         false, otherwise
+template <typename T>
+out_of_bound_type check_bounds(const array<T>& arr,
+                               const T& min_value,
+                               const T& max_value);
 
 } // namespace oneapi::dal::backend
