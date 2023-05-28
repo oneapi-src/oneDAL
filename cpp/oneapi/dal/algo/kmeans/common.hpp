@@ -181,6 +181,7 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
 public:
     using task_t = Task;
@@ -207,6 +208,8 @@ protected:
     void set_centroids_impl(const table&);
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 
