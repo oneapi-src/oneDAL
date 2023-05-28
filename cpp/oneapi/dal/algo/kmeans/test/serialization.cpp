@@ -16,23 +16,30 @@
 
 #include "oneapi/dal/algo/kmeans/test/data.hpp"
 #include "oneapi/dal/algo/kmeans/test/fixture.hpp"
+
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/serialization.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
-#include "oneapi/dal/test/engine/io.hpp"
+#include "oneapi/dal/test/engine/math.hpp"
+
+#include "oneapi/dal/test/engine/metrics/regression.hpp"
 
 namespace oneapi::dal::kmeans::test {
 
 template <typename TestType>
-class kmeans_serialization_test : public te::float_algo_fixture<TestType> {
+class kmeans_serialization_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
+    using float_t = std::tuple_element_t<0, TestType>;
     using method_t = dal::kmeans::method::lloyd_dense;
     using task_t = dal::kmeans::task::clustering;
-    using descriptor_t = descriptor<TestType, method_t, task_t>;
+    using descriptor_t = descriptor<float_t, method_t, task_t>;
 
     static table get_test_data() {
         constexpr std::int64_t row_count = 5;
         constexpr std::int64_t feature_count = 4;
 
-        static const TestType x_test[] = {
+        static const double x_test[] = {
             -4.7561e+00, -4.5701e+00, 2.0992e-01,  4.9749e-01, //
             -1.8507e+00, 3.5811e+00,  3.5440e+00,  -2.6871e+00, //
             -1.9647e+00, -3.6563e+00, -4.3989e+00, -2.9097e+00, //
@@ -47,7 +54,7 @@ public:
         constexpr std::int64_t row_count = 12;
         constexpr std::int64_t feature_count = 4;
 
-        static const TestType x_train[] = {
+        static const double x_train[] = {
             -3.8900e-01, -3.1999e+00, -7.6768e-01, 3.8425e+00, //
             -5.4482e-01, 2.7248e+00,  -1.4848e+00, -3.9388e+00, //
             -3.6133e+00, 3.0425e+00,  1.3176e+00,  4.9769e+00, //
@@ -65,17 +72,17 @@ public:
         return homogen_table::wrap(x_train, row_count, feature_count);
     }
 
-    descriptor_t get_descriptor() {
+    static descriptor_t get_descriptor() {
         return descriptor_t();
     }
 
-    model<task_t> train_model() const {
+    model<task_t> train_model() {
         const auto x_train = this->get_train_data();
         return this->train(this->get_descriptor(), x_train).get_model();
     }
 
     infer_result<task_t> run_inference(const model<task_t>& m) {
-        return this->infer(this->get_descriptor(), this->get_test_data(), m);
+        return this->infer(this->get_descriptor(), m, this->get_test_data());
     }
 
     void compare_infer_results(const infer_result<task_t>& res,
@@ -86,9 +93,9 @@ public:
 
         const auto r_count = gtr_table.get_column_count();
 
-        const table scr_table = te::mse_score<TestType>(res_table, gtr_table);
+        const table scr_table = te::mse_score<float_t>(res_table, gtr_table);
 
-        const auto score = row_accessor<const TestType>(scr_table).pull({ 0, -1 });
+        const auto score = row_accessor<const float_t>(scr_table).pull({ 0, -1 });
 
         for (std::int64_t r = 0; r < r_count; ++r) {
             REQUIRE(score[r] < tol);
