@@ -6,7 +6,6 @@
 trigger:
   branches:
     include:
-    - develop
     - master
     - rls/*
   paths:
@@ -16,7 +15,6 @@ trigger:
 pr:
   branches:
     include:
-    - develop
     - master
     - rls/*
   paths:
