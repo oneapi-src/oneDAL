@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
         alg_log = open("_log_%s.txt" % (alg_name), "w")
         subprocess.call(["python", "-m", "sklearnex", "-m", "pytest", "-s", "--disable-warnings", "-v", "test_%s.py" % (alg_name)],
-                         stdout=alg_log)
+                         stdout=alg_log, stderr=alg_log)
         alg_log.close()
 
     make_report(algs_filename=algs_filename,

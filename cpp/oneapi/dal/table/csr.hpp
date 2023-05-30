@@ -395,13 +395,13 @@ private:
         row_count = (row_count ? row_count - 1 : std::int64_t(0));
         validate_input_dimensions(row_count, column_count);
 
-        return init_impl(detail::default_host_policy{},
-                         detail::reinterpret_array_cast<byte_t>(data),
-                         column_indices,
-                         row_offsets,
-                         column_count,
-                         detail::make_data_type<Data>(),
-                         indexing);
+        init_impl(detail::default_host_policy{},
+                  detail::reinterpret_array_cast<byte_t>(data),
+                  column_indices,
+                  row_offsets,
+                  column_count,
+                  detail::make_data_type<Data>(),
+                  indexing);
     }
 
     template <typename Policy>

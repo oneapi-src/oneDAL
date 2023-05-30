@@ -272,6 +272,7 @@ void ModelImpl::decisionTreeToGbtTree(const DecisionTreeTable & tree, GbtDecisio
 
     gbt::prediction::internal::ModelFPType * const spitPoints          = newTree.getSplitPoints();
     gbt::prediction::internal::FeatureIndexType * const featureIndexes = newTree.getFeatureIndexesForSplit();
+    int * const defaultLeft                                            = newTree.getdefaultLeftForSplit();
 
     for (size_t i = 0; i < nSourceNodes; ++i)
     {
@@ -295,6 +296,7 @@ void ModelImpl::decisionTreeToGbtTree(const DecisionTreeTable & tree, GbtDecisio
                 sons[nSons++]              = arr + p->leftIndexOrClass;
                 sons[nSons++]              = arr + p->leftIndexOrClass + 1;
                 featureIndexes[idxInTable] = p->featureIndex;
+                defaultLeft[idxInTable]    = p->defaultLeft;
                 DAAL_ASSERT(featureIndexes[idxInTable] >= 0);
                 spitPoints[idxInTable] = p->featureValueOrResponse;
             }
@@ -303,6 +305,7 @@ void ModelImpl::decisionTreeToGbtTree(const DecisionTreeTable & tree, GbtDecisio
                 sons[nSons++]              = p;
                 sons[nSons++]              = p;
                 featureIndexes[idxInTable] = 0;
+                defaultLeft[idxInTable]    = 0;
                 DAAL_ASSERT(featureIndexes[idxInTable] >= 0);
                 spitPoints[idxInTable] = p->featureValueOrResponse;
             }

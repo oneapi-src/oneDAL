@@ -58,7 +58,7 @@ the AdaGrad method accepts the following optional input:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for Adaptive Subgradient Method Computaion
+.. list-table:: Algorithm Input for Adaptive Subgradient Method Computation
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -77,7 +77,7 @@ the AdaGrad method has the following parameters:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
 
-.. list-table:: Algorithm Parameters for Adaptive Subgradient Method Computaion
+.. list-table:: Algorithm Parameters for Adaptive Subgradient Method Computation
    :header-rows: 1
    :align: left
    :widths: 10 10 30
@@ -127,7 +127,7 @@ the AdaGrad method calculates the following optional result:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Output for Adaptive Subgradient Method Computaion
+.. list-table:: Algorithm Output for Adaptive Subgradient Method Computation
    :header-rows: 1
    :widths: 10 60
    :align: left
@@ -150,7 +150,9 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
+
+
+   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
     - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
     - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`

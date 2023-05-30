@@ -106,11 +106,9 @@ inline auto& split_table_inplace(sycl::queue& queue,
         auto tmp = ndarray<T, 2, order>::empty(queue, { block, col_count }, kind);
         auto tmp_slice = tmp.get_row_slice(0, len);
 
-        sycl::event fevent;
-        if (len != block)
-            fevent = fill(queue, tmp, default_value, { fevent });
+        auto fevent = len != block ? fill(queue, tmp, default_value) : sycl::event{};
 
-        events.at(b) = copy(queue, tmp_slice, raw_view);
+        events.at(b) = copy(queue, tmp_slice, raw_view, { fevent });
 
         container.push_back(std::move(tmp));
     }

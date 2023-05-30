@@ -78,12 +78,12 @@ services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentI
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue,
-                                                    NodeId & res)
+                                                    NodeId & res, int defaultLeft)
 {
     gbt::regression::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, res);
+                                                                    featureValue, res, defaultLeft);
 }
 
 } // namespace interface1

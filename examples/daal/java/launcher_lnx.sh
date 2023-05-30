@@ -31,6 +31,8 @@ help_message() {
     echo "Example: launcher.sh build /export/users/test/jdk1.7/lnx32/jdk1.7.0_67"
 }
 
+echo "Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases."
+
 rmode=
 path_to_javac=
 

@@ -87,9 +87,9 @@ algorithmFPType KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct(const
         #if (__CPUID__(DAAL_CPU) == __avx512_mic__)
 
 template <>
-double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
-                                                                const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                                const double * valuesB, const size_t * indicesB)
+inline double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
+                                                                       const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                       const double * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
@@ -176,9 +176,9 @@ double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t sta
 }
 
 template <>
-float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
-                                                              const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                              const float * valuesB, const size_t * indicesB)
+inline float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
+                                                                     const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                     const float * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
@@ -278,9 +278,9 @@ float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t start
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
 template <>
-double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
-                                                            const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                            const double * valuesB, const size_t * indicesB)
+inline double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const double * valuesA,
+                                                                   const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                   const double * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;
@@ -384,9 +384,9 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
 }
 
 template <>
-float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
-                                                          const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
-                                                          const float * valuesB, const size_t * indicesB)
+inline float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startIndexA, const size_t endIndexA, const float * valuesA,
+                                                                 const size_t * indicesA, const size_t startIndexB, const size_t endIndexB,
+                                                                 const float * valuesB, const size_t * indicesB)
 {
     size_t offsetA = startIndexA;
     size_t offsetB = startIndexB;

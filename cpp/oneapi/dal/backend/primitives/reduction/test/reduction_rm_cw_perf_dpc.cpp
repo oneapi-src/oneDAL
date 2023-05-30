@@ -170,12 +170,6 @@ public:
         test_raw_reduce<reduction_t>(name);
     }
 
-    void test_raw_cw_reduce_naive_local() {
-        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
-        const auto name = fmt::format("Local CW Reduction: {}", desc());
-        test_raw_reduce<reduction_t>(name);
-    }
-
     void test_raw_cw_reduce_atomic() {
         using reduction_t = reduction_rm_cw_atomic<float_t, binary_t, unary_t>;
         const auto name = fmt::format("Atomic CW Reduction: {}", desc());
@@ -202,7 +196,6 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     this->generate();
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
-    this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
@@ -216,7 +209,6 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     this->generate_special();
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
-    this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }

@@ -41,7 +41,7 @@ std::int64_t get_max_local_alloc(const sycl::queue& q) {
 
 std::int64_t get_preferred_sub_group(const sycl::queue& queue) {
     const auto max_sg = device_max_sg_size(queue);
-    constexpr std::int64_t preferred_sg = 16;
+    constexpr std::int64_t preferred_sg = 32;
     return std::min(max_sg, preferred_sg);
 }
 

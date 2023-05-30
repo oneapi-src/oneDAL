@@ -57,7 +57,7 @@ struct Parameter : public daal::algorithms::optimization_solver::sum_of_function
     Parameter(size_t numberOfTerms,
               daal::data_management::NumericTablePtr batchIndices =
                   daal::data_management::NumericTablePtr(),
-              const DAAL_UINT64 resultsToCompute =
+              const uint64_t resultsToCompute =
                   daal::algorithms::optimization_solver::objective_function::gradient)
             : super(numberOfTerms, batchIndices, resultsToCompute) {}
 
