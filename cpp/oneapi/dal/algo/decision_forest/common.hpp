@@ -616,7 +616,6 @@ public:
         base_t::set_engine_impl(value);
         return *this;
     }
-    
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
