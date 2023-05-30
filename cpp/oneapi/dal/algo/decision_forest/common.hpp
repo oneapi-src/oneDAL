@@ -21,6 +21,7 @@
 #include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/algo/decision_tree/detail/node_visitor.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -249,6 +250,8 @@ public:
     }
 
     std::int64_t get_seed() const;
+    oneapi::dal::backend::primitives::engine get_engine() const;
+    
 
 protected:
     void set_observations_per_tree_fraction_impl(double value);
@@ -277,6 +280,7 @@ protected:
     voting_mode get_voting_mode_impl() const;
 
     void set_seed_impl(std::int64_t value);
+    void set_engine_impl(oneapi::dal::backend::primitves::engine value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -603,6 +607,16 @@ public:
         base_t::set_seed_impl(value);
         return *this;
     }
+    
+    oneapi::dal::backend::primitives::engine get_engine() const {
+        return base_t::get_engine();
+    }
+
+    auto& set_engine(oneapi::dal::backend::primitives::engine value) {
+        base_t::set_engine_impl(value);
+        return *this;
+    }
+    
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
