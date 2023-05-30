@@ -280,7 +280,7 @@ protected:
     voting_mode get_voting_mode_impl() const;
 
     void set_seed_impl(std::int64_t value);
-    void set_engine_impl(oneapi::dal::backend::primitves::engine value);
+    void set_engine_impl(oneapi::dal::backend::primitives::engine value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
