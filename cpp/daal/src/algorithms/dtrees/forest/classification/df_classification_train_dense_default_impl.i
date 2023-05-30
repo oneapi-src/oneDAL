@@ -1761,13 +1761,13 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
     Result & res, const decision_forest::classification::training::Parameter & par)
 {
     services::Status s;
-    if (par.splitter == decision_forest::training::splitterMode::best)
+    if (par.splitter == decision_forest::training::SplitterMode::best)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,
                                      RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperBest<algorithmFPType, cpu> > >(
             pHostApp, x, y, w, m, res, par, par.memorySavingMode);
     }
-    else if (par.splitter == decision_forest::training::splitterMode::random)
+    else if (par.splitter == decision_forest::training::SplitterMode::random)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,
                                      RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> > >(

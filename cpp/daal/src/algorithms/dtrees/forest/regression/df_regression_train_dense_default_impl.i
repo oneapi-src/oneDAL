@@ -1380,13 +1380,13 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
                                                                                    const Parameter & par)
 {
     services::Status s;
-    if (par.splitter == decision_forest::training::splitterMode::best)
+    if (par.splitter == decision_forest::training::SplitterMode::best)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,
                                      RespHelperBase<algorithmFPType, cpu, OrderedRespHelperBest<algorithmFPType, cpu> > >(pHostApp, x, y, w, m, res,
                                                                                                                           par, par.memorySavingMode);
     }
-    else if (par.splitter == decision_forest::training::splitterMode::random)
+    else if (par.splitter == decision_forest::training::SplitterMode::random)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,
                                      RespHelperBase<algorithmFPType, cpu, OrderedRespHelperRandom<algorithmFPType, cpu> > >(
