@@ -21,10 +21,12 @@
 //--
 */
 
-#include "data_management/compression/bzip2compression.h"
-#include "data_management/compression/lzocompression.h"
-#include "ipp.h"
-#include "services/daal_memory.h"
+#ifndef DAAL_REF
+
+    #include "data_management/compression/bzip2compression.h"
+    #include "data_management/compression/lzocompression.h"
+    #include "ipp.h"
+    #include "services/daal_memory.h"
 
 namespace daal
 {
@@ -105,3 +107,5 @@ void Decompressor<bzip2>::run(byte * out, size_t outLen, size_t off)
 }
 } //namespace data_management
 } //namespace daal
+
+#endif

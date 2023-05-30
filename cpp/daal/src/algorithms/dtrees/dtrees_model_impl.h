@@ -358,7 +358,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
     const size_t noParent = static_cast<size_t>(-1);
     if (prob != nullptr)
     {
-        response = services::internal::getMaxElementIndex<double, sse2>(prob, nClasses);
+        response = services::internal::getMaxElementIndex<double, DAAL_BASE_CPU>(prob, nClasses);
     }
 
     services::Status s;

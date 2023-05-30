@@ -135,10 +135,10 @@ void calculateAccuracy(size_t n, size_t nc, const int * y_label, algorithmFPType
     lCur                  = 0.0;
     for (size_t i = 0; i < n; i++)
     {
-        lCur -= daal::internal::Math<algorithmFPType, cpu>::sLog(P[y_label[i] * n + i]);
+        lCur -= daal::internal::MathInst<algorithmFPType, cpu>::sLog(P[y_label[i] * n + i]);
     }
-    const algorithmFPType diff = daal::internal::Math<algorithmFPType, cpu>::sFabs(lPrev - lCur);
-    acc                        = daal::internal::Math<algorithmFPType, cpu>::sMin(diff, diff / (lPrev + (algorithmFPType)1e-6));
+    const algorithmFPType diff = daal::internal::MathInst<algorithmFPType, cpu>::sFabs(lPrev - lCur);
+    acc                        = daal::internal::MathInst<algorithmFPType, cpu>::sMin(diff, diff / (lPrev + (algorithmFPType)1e-6));
 }
 
 } // namespace internal

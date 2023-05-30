@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/serialization.hpp"
 #include "oneapi/dal/algo/kmeans/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
@@ -31,16 +30,8 @@ public:
 };
 
 template <typename Task>
-class model_impl : public ONEDAL_SERIALIZABLE(kmeans_clustering_model_impl_id) {
+class model_impl : public base {
 public:
-    void serialize(dal::detail::output_archive& ar) const override {
-        ar(centroids);
-    }
-
-    void deserialize(dal::detail::input_archive& ar) override {
-        ar(centroids);
-    }
-
     table centroids;
 };
 
@@ -116,19 +107,7 @@ void model<Task>::set_centroids_impl(const table& value) {
     impl_->centroids = value;
 }
 
-template <typename Task>
-void model<Task>::serialize(dal::detail::output_archive& ar) const {
-    dal::detail::serialize_polymorphic_shared(impl_, ar);
-}
-
-template <typename Task>
-void model<Task>::deserialize(dal::detail::input_archive& ar) {
-    dal::detail::deserialize_polymorphic_shared(impl_, ar);
-}
-
 template class ONEDAL_EXPORT model<task::clustering>;
-
-ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::clustering>)
 
 } // namespace v1
 } // namespace oneapi::dal::kmeans

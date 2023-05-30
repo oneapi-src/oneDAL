@@ -101,9 +101,9 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & rTable
         char up     = 'U';
         char trans  = 'T';
         char nodiag = 'N';
-        Lapack<algorithmFPType, cpu>::xtrtrs(&up, &trans, &nodiag, const_cast<DAAL_INT *>(&nBetasIntercept), const_cast<DAAL_INT *>(&nResponses),
-                                             const_cast<algorithmFPType *>(r), const_cast<DAAL_INT *>(&nBetasIntercept), betaBuffer,
-                                             const_cast<DAAL_INT *>(&nBetasIntercept), &info);
+        LapackInst<algorithmFPType, cpu>::xtrtrs(&up, &trans, &nodiag, const_cast<DAAL_INT *>(&nBetasIntercept), const_cast<DAAL_INT *>(&nResponses),
+                                                 const_cast<algorithmFPType *>(r), const_cast<DAAL_INT *>(&nBetasIntercept), betaBuffer,
+                                                 const_cast<DAAL_INT *>(&nBetasIntercept), &info);
         DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
     }
 

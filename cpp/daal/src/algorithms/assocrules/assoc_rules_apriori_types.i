@@ -249,7 +249,7 @@ struct assocrules_dataset
             supportVals[itemID[i]]++;
         }
         numOfUniqueItems = 0;
-        double ceil      = daal::internal::Math<double, cpu>::sCeil(minSupport * numOfTransactions);
+        double ceil      = daal::internal::MathInst<double, cpu>::sCeil(minSupport * numOfTransactions);
         DAAL_ASSERT(ceil >= 0)
 
         size_t iMinSupport = (size_t)ceil;

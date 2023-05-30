@@ -21,17 +21,19 @@
 //--
 */
 
-#include "data_management/compression/lzocompression.h"
-#include "ipp.h"
-#include "services/daal_memory.h"
+#ifndef DAAL_REF
 
-#if defined(_MSC_VER)
-    #define EXPECT(x, y) (x)
-#else
-    #define EXPECT(x, y) (__builtin_expect((x), (y)))
-#endif
+    #include "data_management/compression/lzocompression.h"
+    #include "ipp.h"
+    #include "services/daal_memory.h"
 
-#define BLOCK_HEADER_BYTES 8
+    #if defined(_MSC_VER)
+        #define EXPECT(x, y) (x)
+    #else
+        #define EXPECT(x, y) (__builtin_expect((x), (y)))
+    #endif
+
+    #define BLOCK_HEADER_BYTES 8
 
 namespace daal
 {
@@ -419,3 +421,5 @@ void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
 }
 } //namespace data_management
 } //namespace daal
+
+#endif

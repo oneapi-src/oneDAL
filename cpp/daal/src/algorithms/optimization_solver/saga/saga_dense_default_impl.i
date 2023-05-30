@@ -323,9 +323,10 @@ services::Status SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIface 
         bool continueCheck = false;
         for (size_t k = 0; k < sizeArgument; k++)
         {
-            continueCheck |=
-                (daal::internal::Math<algorithmFPType, cpu>::sFabs(previous[k] - workValue[k])
-                 >= tolerance * daal::internal::Math<algorithmFPType, cpu>::sMax(1, daal::internal::Math<algorithmFPType, cpu>::sFabs(workValue[k])));
+            continueCheck |= (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(previous[k] - workValue[k])
+                              >= tolerance
+                                     * daal::internal::MathInst<algorithmFPType, cpu>::sMax(
+                                         1, daal::internal::MathInst<algorithmFPType, cpu>::sFabs(workValue[k])));
         }
 
         /* number_of_convergence_checks = 1 at first */

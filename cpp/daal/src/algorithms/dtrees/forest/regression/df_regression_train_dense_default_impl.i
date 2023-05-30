@@ -849,7 +849,7 @@ size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const Inde
     size_t mid;
     size_t l   = minidx;
     size_t idx = maxidx;
-    RNGs<algorithmFPType, cpu> rng;
+    RNGsInst<algorithmFPType, cpu> rng;
     rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
 
     while (l < idx)
@@ -903,7 +903,7 @@ int OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitByHist(size_t nD
     //randomly select a histogram split index
     if (featureUnordered)
     {
-        RNGs<size_t, cpu> rng;
+        RNGsInst<size_t, cpu> rng;
         rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx); //find random index between minidx and maxidx
     }
     else
@@ -1002,7 +1002,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitOrderedFeature(
     size_t i;
 
     //select random split index
-    RNGs<algorithmFPType, cpu> rng;
+    RNGsInst<algorithmFPType, cpu> rng;
     rng.uniform(1, &idx, this->engineImpl->getState(), featureVal[0],
                 featureVal[n - 1]); //this strategy follows sklearn's implementation
 
@@ -1135,7 +1135,7 @@ bool OrderedRespHelperRandom<algorithmFPType, cpu>::findBestSplitCategoricalFeat
 
     firstVal = min;
 
-    RNGs<algorithmFPType, cpu> rng;
+    RNGsInst<algorithmFPType, cpu> rng;
     rng.uniform(1, &idx, this->engineImpl->getState(), min, max); //this strategy follows sklearn's implementation
 
     for (size_t i = 1; i < n; ++i)

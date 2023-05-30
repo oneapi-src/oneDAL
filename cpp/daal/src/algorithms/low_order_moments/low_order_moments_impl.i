@@ -401,8 +401,8 @@ Status computeSumAndVariance(size_t nFeatures, size_t nVectors, algorithmFPType 
 
     const __int64 mklMethod = getMKLMethod<method>();
 
-    const int mklStatus = Statistics<algorithmFPType, cpu>::xSumAndVariance(dataBlock, nFeatures, nVectors, &nPreviousObservations, mklMethod, sums,
-                                                                            mean, raw2Mom, variance);
+    const int mklStatus = StatisticsInst<algorithmFPType, cpu>::xSumAndVariance(dataBlock, nFeatures, nVectors, &nPreviousObservations, mklMethod,
+                                                                                sums, mean, raw2Mom, variance);
 
     if (mklStatus != 0) return Status(services::ErrorLowOrderMomentsInternal);
 
@@ -428,7 +428,7 @@ Status computeSum_Mean_SecondOrderRawMoment_Variance_Variation(size_t nFeatures,
     const __int64 mklMethod = getMKLMethod<method>();
 
     const int mklStatus =
-        Statistics<algorithmFPType, cpu>::xLowOrderMoments(dataBlock, nFeatures, nVectors, mklMethod, sums, mean, raw2Mom, variance, variation);
+        StatisticsInst<algorithmFPType, cpu>::xLowOrderMoments(dataBlock, nFeatures, nVectors, mklMethod, sums, mean, raw2Mom, variance, variation);
 
     return mklStatus ? Status(services::ErrorLowOrderMomentsInternal) : Status();
 }
@@ -867,7 +867,7 @@ void finalize(LowOrderMomentsFinalizeTask<algorithmFPType, cpu> & task)
         mean[i]      = sums[i] * invNObservations;
         raw2Mom[i]   = sumSq[i] * invNObservations;
         variance[i]  = sumSqCen[i] * invNObservationsM1;
-        stDev[i]     = daal::internal::Math<algorithmFPType, cpu>::sSqrt(variance[i]);
+        stDev[i]     = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(variance[i]);
         variation[i] = stDev[i] / mean[i];
     }
 }

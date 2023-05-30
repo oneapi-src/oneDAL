@@ -21,9 +21,11 @@
 //--
 */
 
-#include "data_management/compression/zlibcompression.h"
-#include "data_management/compression/lzocompression.h"
-#include "services/daal_memory.h"
+#ifndef DAAL_REF
+
+    #include "data_management/compression/zlibcompression.h"
+    #include "data_management/compression/lzocompression.h"
+    #include "services/daal_memory.h"
 
 namespace daal
 {
@@ -100,3 +102,5 @@ void Decompressor<zlib>::run(byte * out, size_t outLen, size_t off)
 }
 } //namespace data_management
 } //namespace daal
+
+#endif
