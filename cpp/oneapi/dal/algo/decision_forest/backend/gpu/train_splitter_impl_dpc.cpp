@@ -375,7 +375,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
     // const Index wg_ftr_count = sbg_size;
     const Index node_in_block_count = node_count; // max_wg_count_;
 
-
     sycl::event last_event;
     auto device = queue.get_device();
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
@@ -383,7 +382,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
     const std::uint32_t common_local_data_size = hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
     std::uint32_t ftr_count_per_kernel = (device_local_mem_size - common_local_data_size)/ ftr_local_mem_size;
     ftr_count_per_kernel = std::min<std::uint32_t>(ftr_count_per_kernel, selected_ftr_count);
-
     const Index total_split_count = ftr_count_per_kernel * max_bin_size;
     const std::uint32_t local_hist_size = total_split_count * hist_prop_count;
     const std::uint32_t local_splits_size = total_split_count;
@@ -395,6 +393,8 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
         local_accessor_rw_t<hist_type_t> local_hist(2 * local_hist_size, cgh);
         local_accessor_rw_t<split_scalar_t> scalars_buf(local_splits_size, cgh);
         local_accessor_rw_t<hist_type_t> best_split_hist(hist_prop_count, cgh);
+        local_accessor_rw_t<Float> test_atomic_float(1, cgh);
+        local_accessor_rw_t<Index> test_atomic_index(1, cgh);
         sycl::stream out(1024, 1024, cgh);
         cgh.parallel_for(
             nd_range,
@@ -452,7 +452,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
 
                         if constexpr (std::is_same_v<Task, task::classification>) {
                             sycl::atomic_ref<Index,
-                                sycl::memory_order_acq_rel,
+                                sycl::memory_order_relaxed,
                                 sycl::memory_scope_work_group,
                                 sycl::access::address_space::local_space>
                             hist_resp(local_hist[cur_hist_pos + response_int]);
@@ -460,29 +460,45 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                         }
                         else {
                             sycl::atomic_ref<Float,
-                                    sycl::memory_order_acq_rel,
+                                    sycl::memory_order_relaxed,
                                     sycl::memory_scope_work_group,
                                     sycl::access::address_space::local_space>
                                 hist_count(local_hist[cur_hist_pos + 0]);
-                            sycl::atomic_ref<Float,
-                                    sycl::memory_order_acq_rel,
-                                    sycl::memory_scope_work_group,
-                                    sycl::access::address_space::local_space>
-                                hist_mean(local_hist[cur_hist_pos + 1]);
-                            sycl::atomic_ref<Float,
-                                    sycl::memory_order_acq_rel,
-                                    sycl::memory_scope_work_group,
-                                    sycl::access::address_space::local_space>
-                                hist_s2c(local_hist[cur_hist_pos + 2]);
-                            Float count = hist_count + 1;
-                            Float mean = hist_mean / count;
-                            Float s2c = (response - mean) * (response - mean);
                             hist_count += 1;
-                            hist_mean += mean;
-                            hist_s2c += s2c;
+
+                            sycl::atomic_ref<Float,
+                                    sycl::memory_order_relaxed,
+                                    sycl::memory_scope_work_group,
+                                    sycl::access::address_space::local_space>
+                                hist_sum(local_hist[cur_hist_pos + 1]);
+                            hist_sum += response;
                         }
                     }
                     item.barrier(sycl::access::fence_space::local_space);
+                    // Case for regression
+                    if constexpr (std::is_same_v<Task, task::regression>) {
+                        for (Index idx = local_id * rows_per_item; idx < (local_id + 1) * rows_per_item && idx < working_items; ++idx) {
+                            const Index local_ftr_idx = idx / row_count;
+                            const Index global_ftr_idx = ftr_ofs + local_ftr_idx;
+                            const Index ts_ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
+                            const Index row_idx = idx % row_count;
+                            const Index id = tree_order_ptr[row_ofs + row_idx];
+                            const Index bin = data_ptr[id * column_count + ts_ftr_id];
+                            Float response = response_ptr[id];
+                            const Index cur_hist_pos = local_hist_size + (local_ftr_idx * max_bin_size + bin) * hist_prop_count;
+                            hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
+                            Float count = cur_hist[0];
+                            Float resp_sum = cur_hist[1];
+                            Float mean = resp_sum / count;
+                            sycl::atomic_ref<Float,
+                                    sycl::memory_order_relaxed,
+                                    sycl::memory_scope_work_group,
+                                    sycl::access::address_space::local_space>
+                                hist_s2c(local_hist[cur_hist_pos + 2]);
+                            hist_s2c += (response - mean) * (response - mean);
+                        }
+                        item.barrier(sycl::access::fence_space::local_space);
+                    }
                     split_info_t ts;
                     // Finilize histograms
                     for (Index work_bin = local_id; work_bin < work_size; work_bin += local_size) {
@@ -492,7 +508,6 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                         Index cur_bin = work_bin % max_bin_size;
                         const Index cur_hist_pos = work_bin * hist_prop_count;
                         hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
-                        hist_type_t* init_hist = tmp_hist_ptr + cur_hist_pos;
                         hist_type_t* ftr_hist = tmp_hist_ptr + (work_bin - cur_bin) * hist_prop_count;
                         // Collect all hists on the left side of the current bin
                         Index left_count = 0;
@@ -506,23 +521,20 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                             }
                         }
                         else {
-                            // First bin must be copied
-                            cur_hist[0] = init_hist[0];
-                            cur_hist[1] = init_hist[1];
-                            cur_hist[2] = init_hist[2];
-                            for (Index bin_idx = 0; bin_idx < cur_bin; ++bin_idx){
+                            for (Index bin_idx = 0; bin_idx <= cur_bin; ++bin_idx){
                                 hist_type_t* iter_left_hist = ftr_hist + bin_idx * hist_prop_count;
-                                if (iter_left_hist[0] <= 0) {
+                                if (iter_left_hist[0] <= Float(0)) {
                                     continue;
                                 }
+                                Float source_mean = iter_left_hist[1] / iter_left_hist[0];
                                 Float sum_n1n2 = cur_hist[0] + iter_left_hist[0];
                                 Float mul_n1n2 = cur_hist[0] * iter_left_hist[0];
                                 Float delta_scl = mul_n1n2 / sum_n1n2;
                                 Float mean_scl = Float(1) / sum_n1n2;
-                                Float delta = iter_left_hist[1] - cur_hist[1];
+                                Float delta = source_mean - cur_hist[1];
 
                                 cur_hist[2] = cur_hist[2] + iter_left_hist[2] + delta * delta * delta_scl;
-                                cur_hist[1] = (cur_hist[1] + iter_left_hist[1]) * mean_scl;
+                                cur_hist[1] = (cur_hist[1] * cur_hist[0] + iter_left_hist[1]) * mean_scl;
                                 cur_hist[0] = sum_n1n2;
                             }
                             left_count += Index(cur_hist[0]);
