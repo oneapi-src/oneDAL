@@ -45,7 +45,11 @@ public:
               lstride_{ lstride } {}
 
     void operator()(sycl::nd_item<2> it) const {
-        Float accs[folding] = { BinaryOp::init_value };
+        Float accs[folding];
+        for (std::int32_t i = 0; i < folding; ++i) {
+            accs[i] = BinaryOp::init_value;
+        }
+
         const std::int32_t vid = it.get_global_id(1);
         const std::int32_t hid = it.get_global_id(0);
         const std::int32_t hwg = it.get_global_range(0);
@@ -148,15 +152,16 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
         auto view = ndview<Float, 1>::wrap(output, { width });
         new_deps.push_back(fill(q_, view, binary.init_value, deps));
     }
-    return reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size>(q_,
-                                                                             input,
-                                                                             output,
-                                                                             width,
-                                                                             stride,
-                                                                             height,
-                                                                             binary,
-                                                                             unary,
-                                                                             new_deps);
+    auto res = reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size>(q_,
+                                                                                 input,
+                                                                                 output,
+                                                                                 width,
+                                                                                 stride,
+                                                                                 height,
+                                                                                 binary,
+                                                                                 unary,
+                                                                                 new_deps);
+    return res;
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
