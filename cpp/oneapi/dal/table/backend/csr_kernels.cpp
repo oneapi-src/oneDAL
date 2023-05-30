@@ -337,58 +337,59 @@ std::int64_t csr_get_non_zero_count(const detail::default_host_policy& policy,
 #ifdef ONEDAL_DATA_PARALLEL
 
 std::int64_t csr_get_non_zero_count(const detail::data_parallel_policy& policy,
-                                        const std::int64_t row_count,
-                                        const std::int64_t* row_offsets) {
+                                    const std::int64_t row_count,
+                                    const std::int64_t* row_offsets) {
     if (row_count == 0)
         return 0;
 
     auto q = policy.get_queue();
-    std::int64_t first_row_offset{ 0L };
-    std::int64_t last_row_offset{ 0L };
-    copy_usm2host(q, &first_row_offset, row_offsets, 1, {}).wait_and_throw();
-    copy_usm2host(q, &last_row_offset, row_offsets + row_count, 1, {}).wait_and_throw();
+    std::int64_t first_row_offset{ 0L }, last_row_offset{ 0L };
+    auto first_row_event = copy_usm2host(q, &first_row_offset, row_offsets, 1, {});
+    auto last_row_event = copy_usm2host(q, &last_row_offset, row_offsets + row_count, 1, {});
+    sycl::event::wait_and_throw({ first_row_event, last_row_event });
 
     return (last_row_offset - first_row_offset);
 }
 
 #endif
 
-/// This function dispatches the execution:
-///     If data parallel policy is enabled and there is a sycl queue associated with row offsets array,
-///         then DPC++ implementation of the function is called.
-///     Otherwise, C++ implementation is called.
-/// This API is needed by ``csr_table_impl`` constructor.
 std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets) {
     const std::int64_t row_count = row_offsets.get_count() - 1;
 #ifdef ONEDAL_DATA_PARALLEL
     const auto optional_queue = row_offsets.get_queue();
     if (optional_queue) {
-        return csr_get_non_zero_count(
-            detail::data_parallel_policy{ optional_queue.value() },
-            row_count,
-            row_offsets.get_data());
+        return csr_get_non_zero_count(detail::data_parallel_policy{ optional_queue.value() },
+                                      row_count,
+                                      row_offsets.get_data());
     }
 #endif
-    return csr_get_non_zero_count(detail::default_host_policy{},
-                                  row_count,
-                                  row_offsets.get_data());
+    return csr_get_non_zero_count(detail::default_host_policy{}, row_count, row_offsets.get_data());
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+/// Checks that the elements in the array allocated on device are not descending
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param[in,out] queue    The SYCL* queue object
+/// @param[in]     count    The number of elements in the array
+/// @param[in]     data     The pointer to the input array
+///
+/// @return true, if the elements in the array are not descending;
+///         false, otherwise
 template <typename T>
 bool is_sorted(sycl::queue& queue, const std::int64_t count, const T* data) {
     bool result = true;
     sycl::buffer<bool, 1> result_buf(&result, sycl::range<1>(1));
     auto event = queue.submit([&](sycl::handler& cgh) {
         auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
-        cgh.parallel_for<struct sorted_checker>(sycl::range<1>(count - 1),
-                                                [=](sycl::id<1> idx) {
-                                                    const int i = idx[0];
-                                                    if (data[i] > data[i + 1]) {
-                                                        write_result[0] = false;
-                                                    }
-                                                });
+        cgh.parallel_for<struct sorted_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
+            const int i = idx[0];
+            if (data[i] > data[i + 1]) {
+                write_result[0] = false;
+            }
+        });
     });
     event.wait_and_throw();
     return result;
@@ -410,6 +411,20 @@ bool is_sorted(const array<T>& arr) {
     return std::is_sorted(data, data + count);
 }
 
+/// Given the array A[0], ..., A[n-1] which is alolcated on host and two values:
+/// `min_value` and `max_value`, checks that min_value <= A[i] <= max_value
+/// for each i = 0, ..., n-1.
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param[in]     count     The number of elements in the array
+/// @param[in]     data      The pointer to the input array
+/// @param[in]     min_value The lower boundary for the values in the input array
+/// @param[in]     max_value The upper boundary for the values in the input array
+///
+/// @return less_than_min,    if there exists i for which A[i] < min_value;
+///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
+///         greater_than_max, if there exists i for which A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(const std::int64_t count,
                                const T* data,
@@ -431,6 +446,21 @@ out_of_bound_type check_bounds(const std::int64_t count,
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+/// Given the array A[0], ..., A[n-1] which is alolcated on device and two values:
+/// `min_value` and `max_value`, checks that min_value <= A[i] <= max_value
+/// for each i = 0, ..., n-1.
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param[in,out] queue     The SYCL* queue object
+/// @param[in]     count     The number of elements in the array
+/// @param[in]     data      The pointer to the input array
+/// @param[in]     min_value The lower boundary for the values in the input array
+/// @param[in]     max_value The upper boundary for the values in the input array
+///
+/// @return less_than_min,    if there exists i for which A[i] < min_value;
+///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
+///         greater_than_max, if there exists i for which A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(sycl::queue& queue,
                                const std::int64_t count,
@@ -441,17 +471,15 @@ out_of_bound_type check_bounds(sycl::queue& queue,
     sycl::buffer<int, 1> result_buf(&result, sycl::range<1>(1));
     auto event = queue.submit([&](sycl::handler& cgh) {
         auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
-        cgh.parallel_for<struct bounds_checker>(
-            sycl::range<1>(count - 1),
-            [=](sycl::id<1> idx) {
-                const int i = idx[0];
-                if (data[i] < min_value) {
-                    write_result[0] = -1 /* out_of_bound_type::less_than_min */;
-                }
-                if (data[i] > max_value) {
-                    write_result[0] = 1 /* out_of_bound_type::greater_than_max */;
-                }
-            });
+        cgh.parallel_for<struct bounds_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
+            const int i = idx[0];
+            if (data[i] < min_value) {
+                write_result[0] = -1 /* out_of_bound_type::less_than_min */;
+            }
+            if (data[i] > max_value) {
+                write_result[0] = 1 /* out_of_bound_type::greater_than_max */;
+            }
+        });
     });
     event.wait_and_throw();
     out_of_bound_type enum_result{ out_of_bound_type::within_bounds };
@@ -469,9 +497,7 @@ out_of_bound_type check_bounds(sycl::queue& queue,
 #endif
 
 template <typename T>
-out_of_bound_type check_bounds(const array<T>& arr,
-                               const T& min_value,
-                               const T& max_value) {
+out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value) {
     const T* data = arr.get_data();
     const std::int64_t count = arr.get_count();
 #ifdef ONEDAL_DATA_PARALLEL

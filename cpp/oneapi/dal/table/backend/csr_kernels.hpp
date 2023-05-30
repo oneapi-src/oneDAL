@@ -22,7 +22,7 @@
 
 namespace oneapi::dal::backend {
 
-/// The status of out-of-bound error 
+/// The status of out-of-bound error
 enum class out_of_bound_type { less_than_min = -1, within_bounds = 0, greater_than_max = 1 };
 
 struct csr_info {
@@ -109,12 +109,22 @@ std::int64_t csr_get_non_zero_count(const detail::data_parallel_policy& policy,
 
 /// The number of non-zero elements in the table calculated from the row offsets array in CSR format.
 ///
+/// This function dispatches the execution:
+///     If data parallel policy is enabled and there is a sycl queue associated with row offsets array,
+///         then DPC++ implementation of the function is called.
+///     Otherwise, C++ implementation is called.
+///
 /// @param[in] row_offsets  Row offsets array in CSR layout
 ///
 /// @return The number of non-zero elements in CSR table
 std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets);
 
 /// Checks that the elements in the input array are not descending
+///
+/// This function dispatches the execution:
+///     If data parallel policy is enabled and there is a sycl queue associated with the array `arr`,
+///         then DPC++ implementation of the function is called.
+///     Otherwise, std::is_sorted is called.
 ///
 /// @tparam T   The type of elements in the input array
 ///
@@ -125,17 +135,24 @@ std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets);
 template <typename T>
 bool is_sorted(const array<T>& arr);
 
-/// Given the array A[0], ..., A[n-1] and two values: `min_value` and `max_value`
+/// Given the array A[0], ..., A[n-1] and two values: `min_value` and `max_value`,
+/// checks that min_value <= A[i] <= max_value for each i = 0, ..., n-1.
+///
+/// This function dispatches the execution:
+///     If data parallel policy is enabled and there is a sycl queue associated with the array `arr`,
+///         then DPC++ implementation of the function is called.
+///     Otherwise, C++ implementation is called.
 ///
 /// @tparam T   The type of elements in the input array
 ///
-/// @param arr  Input array
+/// @param[in] arr       Input array
+/// @param[in] min_value The lower boundary for the values in the input array
+/// @param[in] max_value The upper boundary for the values in the input array
 ///
-/// @return true, if the elements in the array are not descending;
-///         false, otherwise
+/// @return less_than_min,    if there exists i for which A[i] < min_value;
+///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
+///         greater_than_max, if there exists i for which A[i] > max_value.
 template <typename T>
-out_of_bound_type check_bounds(const array<T>& arr,
-                               const T& min_value,
-                               const T& max_value);
+out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value);
 
 } // namespace oneapi::dal::backend
