@@ -274,7 +274,7 @@ void descriptor_base<Task>::set_memory_saving_mode_impl(bool value) {
     impl_->memory_saving_mode = value;
 }
 
-template <typename Task>h
+template <typename Task>
 void descriptor_base<Task>::set_bootstrap_impl(bool value) {
     impl_->bootstrap = value;
 }
