@@ -388,6 +388,22 @@ struct split_smp {
                            Float(node_row_count);
     }
 
+    // Check if node impurity valid. True if valid
+    inline bool is_valid_impurity(const Float* node_imp_list_ptr, Index node_id, Float imp_threshold, Index row_count) {
+        Float node_imp = Float(0);
+        if constexpr (std::is_same_v<task_t, task::classification>) {
+            const Float* node_imp_ptr =
+                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
+            node_imp = node_imp_ptr[0];
+        }
+        else {
+            const Float* node_imp_ptr =
+                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
+            node_imp = node_imp_ptr[1] / Float(row_count);
+        }
+        return !float_eq(node_imp, Float(0)) && node_imp >= imp_threshold;
+    }
+
     // regression version
     inline void calc_imp_dec(split_info_t& si,
                              const Index* node_ptr,
@@ -413,13 +429,9 @@ struct split_smp {
 
     inline bool test_split_is_best(const split_info_t& bs,
                                    const split_info_t& ts,
-                                   Index node_id,
-                                   Float node_imp,
-                                   Float impurity_threshold,
                                    Index min_observations_in_leaf_node) {
         return (
-            Float(0) < ts.imp_dec && !float_eq(node_imp, Float(0)) &&
-            node_imp >= impurity_threshold &&
+            Float(0) < ts.imp_dec &&
             (bs.ftr_bin == impl_const_t::leaf_mark_ || float_gt(ts.imp_dec, bs.imp_dec) ||
              (float_eq(ts.imp_dec, bs.imp_dec) &&
               (ts.ftr_id < bs.ftr_id || (bs.ftr_id == ts.ftr_id && ts.ftr_bin < bs.ftr_bin)))) &&
@@ -439,30 +451,9 @@ struct split_smp {
     // universal
     inline void choose_best_split(split_info_t& bs,
                                   const split_info_t& ts,
-                                  const Float* node_imp_list_ptr,
                                   Index hist_elem_count,
-                                  Index node_id,
-                                  Float impurity_threshold,
-                                  Index min_observations_in_leaf_node) {
-        // TODO move check for imp 0 to node split func
-        Float node_imp = Float(0);
-        if constexpr (std::is_same_v<task_t, task::classification>) {
-            const Float* node_imp_ptr =
-                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
-            node_imp = node_imp_ptr[0];
-        }
-        else {
-            const Float* node_imp_ptr =
-                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
-            node_imp = node_imp_ptr[1] / Float(ts.left_count + ts.right_count);
-        }
-
-        if (test_split_is_best(bs,
-                               ts,
-                               node_id,
-                               node_imp,
-                               impurity_threshold,
-                               min_observations_in_leaf_node)) {
+                                  Index min_obs_in_leaf_node) {
+        if (test_split_is_best(bs, ts, min_obs_in_leaf_node)) {
             bs.ftr_id = ts.ftr_id;
             bs.ftr_bin = ts.ftr_bin;
             bs.imp_dec = ts.imp_dec;
