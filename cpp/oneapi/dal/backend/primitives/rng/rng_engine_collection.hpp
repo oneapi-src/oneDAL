@@ -31,7 +31,7 @@ public:
               params_(count),
               technique_(daal::algorithms::engines::internal::family),
               daal_engine_list_(count) {}
-    
+
     explicit engine_collection(Size count, const daal::algorithms::engines::EnginePtr& eng)
             : count_(count),
               engine_(eng),

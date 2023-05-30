@@ -77,7 +77,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_max_tree_depth());
     daal_parameter.minObservationsInLeafNode =
         dal::detail::integral_cast<std::size_t>(desc.get_min_observations_in_leaf_node());
-    
+
     daal_parameter.engine = desc.get_engine().get_enginePtr();
     daal_parameter.impurityThreshold = desc.get_impurity_threshold();
     daal_parameter.memorySavingMode = desc.get_memory_saving_mode();

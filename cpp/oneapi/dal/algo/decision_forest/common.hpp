@@ -251,7 +251,6 @@ public:
 
     std::int64_t get_seed() const;
     oneapi::dal::backend::primitives::engine get_engine() const;
-    
 
 protected:
     void set_observations_per_tree_fraction_impl(double value);
@@ -607,7 +606,7 @@ public:
         base_t::set_seed_impl(value);
         return *this;
     }
-    
+
     oneapi::dal::backend::primitives::engine get_engine() const {
         return base_t::get_engine();
     }

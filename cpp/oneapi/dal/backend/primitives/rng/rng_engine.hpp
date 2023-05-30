@@ -92,7 +92,7 @@ public:
     void* get_state() const {
         return impl_->getState();
     }
-    
+
     daal::algorithms::engines::EnginePtr get_enginePtr() const {
         return engine_;
     }
