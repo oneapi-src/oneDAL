@@ -69,6 +69,7 @@ public:
     voting_mode voting_mode_value = voting_mode::weighted;
 
     std::int64_t seed = 777;
+    oneapi::dal::backend::primitives::engine engine(seed);
 };
 
 template <typename Task>
@@ -180,6 +181,11 @@ std::int64_t descriptor_base<Task>::get_seed() const {
 }
 
 template <typename Task>
+std::int64_t descriptor_base<Task>::get_engine() const {
+    return impl_->engine;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_observations_per_tree_fraction_impl(double value) {
     check_domain_cond((value > 0.0 && value <= 1.0),
                       "observations_per_tree_fraction should be > 0.0 and <= 1.0");
@@ -268,7 +274,7 @@ void descriptor_base<Task>::set_memory_saving_mode_impl(bool value) {
     impl_->memory_saving_mode = value;
 }
 
-template <typename Task>
+template <typename Task>h
 void descriptor_base<Task>::set_bootstrap_impl(bool value) {
     impl_->bootstrap = value;
 }
@@ -297,6 +303,11 @@ void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
 template <typename Task>
 void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
     impl_->seed = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_engine_impl(oneapi::dal::backend::primitives::engine value) {
+    impl_->engine = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
