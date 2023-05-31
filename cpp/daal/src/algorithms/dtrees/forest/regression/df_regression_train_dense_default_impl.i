@@ -1321,7 +1321,7 @@ services::Status computeForSpecificHelper(HostAppIface * pHostApp, const Numeric
     {
         if (!memSave)
         {
-            BinParams prm(par.maxBins, par.minBinSize);
+            BinParams prm(par.maxBins, par.minBinSize, par.binningStrategy);
             s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, &prm);
             DAAL_CHECK_STATUS_VAR(s);
 
