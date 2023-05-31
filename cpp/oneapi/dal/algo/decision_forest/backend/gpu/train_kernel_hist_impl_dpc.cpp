@@ -67,6 +67,15 @@ std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_requ
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
+std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_elem_count(
+    Index selected_ftr_count,
+    Index max_bin_count_among_ftrs,
+    Index hist_prop_count) const {
+    // mul overflow for selected_ftr_count * max_bin_count_among_ftrs and for hist_prop_count were checked before kernel call in compute
+    return selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count;
+}
+
+template <typename Float, typename Bin, typename Index, typename Task>
 void train_kernel_hist_impl<Float, Bin, Index, Task>::validate_input(const descriptor_t& desc,
                                                                      const table& data,
                                                                      const table& labels) const {
@@ -282,7 +291,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_row_total_count_ * 2;
 
     // Max node_count in tree = last level
-    std::uint64_t max_node_count_per_tree = std::pow(2, ctx.max_tree_depth_ - 1);
+    std::uint64_t max_node_count_per_tree = std::pow(2, ctx.max_tree_depth_ - 2);
     // node_lists for one tree
     required_mem_size_for_one_tree +=
         sizeof(Index) * impl_const_t::node_prop_count_ * max_node_count_per_tree;
@@ -294,13 +303,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     // Impurity data for each node
     required_mem_size_for_one_tree +=
         sizeof(Float) * impl_const_t::node_imp_prop_count_ * max_node_count_per_tree;
-    if constexpr (std::is_same_v<task::classification, Task>) {
-        // class_hist_list_ for classification of impurity data
-        required_mem_size_for_one_tree +=
-            sizeof(Index) * max_node_count_per_tree * ctx.class_count_;
-        // node_hist_list in compute histogram
-        required_mem_size_for_one_tree += max_node_count_per_tree * part_hist_size;
-    }
     // Impurity decrease list
     if (ctx.mdi_required_) {
         required_mem_size_for_one_tree += sizeof(Float) * max_node_count_per_tree;

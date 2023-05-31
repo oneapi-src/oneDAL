@@ -147,13 +147,12 @@ struct train_context {
     Index max_part_hist_cumulative_size_ = 0;
     Index oob_prop_count_ = 0;
 
-    static constexpr inline double global_mem_fraction_for_tree_block_ = 0.6;
+    static constexpr inline double global_mem_fraction_for_tree_block_ = 0.7;
     // part of free global mem which can be used for processing block of tree
-    static constexpr inline double global_mem_fraction_for_part_hist_ = 0.2;
+    static constexpr inline double global_mem_fraction_for_part_hist_ = 0.1;
     // part of free global mem which can be used for partial histograms
 
-    static constexpr inline std::uint64_t max_mem_alloc_size_for_algo_ = 1073741824;
-    // 1 Gb it showed better efficiency than using just platform info.maxMemAllocSize
+    static constexpr inline std::uint64_t max_mem_alloc_size_for_algo_ = 4294967296; // 4 GB
     static constexpr inline Index min_row_block_count_to_use_max_part_hist_count_ = 16384;
     static constexpr inline Index min_row_block_count_for_one_hist_ = 128;
     static constexpr inline Index max_part_hist_count_ = 256;
