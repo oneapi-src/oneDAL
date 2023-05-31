@@ -83,19 +83,19 @@ public:
     /// @param[in] node_count                   number of the nodes to compute in the current step
     /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event best_split(sycl::queue& queue,
-                                                    const context_t& ctx,
-                                                    const pr::ndarray<Bin, 2>& data,
-                                                    const pr::ndview<Float, 1>& response,
-                                                    const pr::ndarray<Index, 1>& tree_order,
-                                                    const pr::ndarray<Index, 1>& selected_ftr_list,
-                                                    const pr::ndarray<Index, 1>& bin_offset_list,
-                                                    const imp_data_t& imp_data_list,
-                                                    pr::ndarray<Index, 1>& node_list,
-                                                    imp_data_t& left_child_imp_data_list,
-                                                    pr::ndarray<Float, 1>& node_imp_dec_list,
-                                                    bool update_imp_dec_required,
-                                                    Index node_count,
-                                                    const bk::event_vector& deps = {});
+                                  const context_t& ctx,
+                                  const pr::ndarray<Bin, 2>& data,
+                                  const pr::ndview<Float, 1>& response,
+                                  const pr::ndarray<Index, 1>& tree_order,
+                                  const pr::ndarray<Index, 1>& selected_ftr_list,
+                                  const pr::ndarray<Index, 1>& bin_offset_list,
+                                  const imp_data_t& imp_data_list,
+                                  pr::ndarray<Index, 1>& node_list,
+                                  imp_data_t& left_child_imp_data_list,
+                                  pr::ndarray<Float, 1>& node_imp_dec_list,
+                                  bool update_imp_dec_required,
+                                  Index node_count,
+                                  const bk::event_vector& deps = {});
 
     /// Choses a random split for each feature from
     /// the `selected_ftr_list` using `random_bins_com` values for splitting.
@@ -120,22 +120,22 @@ public:
     /// @param[in] node_count                   number of the nodes to compute in the current step
     /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event random_split(sycl::queue& queue,
-                                                const context_t& ctx,
-                                                const pr::ndarray<Bin, 2>& data,
-                                                const pr::ndview<Float, 1>& response,
-                                                const pr::ndarray<Index, 1>& tree_order,
-                                                const pr::ndarray<Index, 1>& selected_ftr_list,
-                                                const pr::ndarray<Float, 1>& random_bins_com,
-                                                const pr::ndarray<Index, 1>& bin_offset_list,
-                                                const imp_data_t& imp_data_list,
-                                                // const pr::ndarray<Index, 1>& node_ind_list,
-                                                // Index node_ind_ofs,
-                                                pr::ndarray<Index, 1>& node_list,
-                                                imp_data_t& left_child_imp_data_list,
-                                                pr::ndarray<Float, 1>& node_imp_dec_list,
-                                                bool update_imp_dec_required,
-                                                Index node_count,
-                                                const bk::event_vector& deps = {});
+                                    const context_t& ctx,
+                                    const pr::ndarray<Bin, 2>& data,
+                                    const pr::ndview<Float, 1>& response,
+                                    const pr::ndarray<Index, 1>& tree_order,
+                                    const pr::ndarray<Index, 1>& selected_ftr_list,
+                                    const pr::ndarray<Float, 1>& random_bins_com,
+                                    const pr::ndarray<Index, 1>& bin_offset_list,
+                                    const imp_data_t& imp_data_list,
+                                    // const pr::ndarray<Index, 1>& node_ind_list,
+                                    // Index node_ind_ofs,
+                                    pr::ndarray<Index, 1>& node_list,
+                                    imp_data_t& left_child_imp_data_list,
+                                    pr::ndarray<Float, 1>& node_imp_dec_list,
+                                    bool update_imp_dec_required,
+                                    Index node_count,
+                                    const bk::event_vector& deps = {});
 
 private:
     constexpr static Index max_wg_count_ = 8192;

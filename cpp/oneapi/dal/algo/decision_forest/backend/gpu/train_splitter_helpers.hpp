@@ -155,7 +155,7 @@ inline bool float_gt(Float a, Float b) {
     return (a - b) > float_accuracy<Float>::val;
 }
 
-template<typename Float, typename Index, typename Task>
+template <typename Float, typename Index, typename Task>
 struct split_scalar {
     using impl_const_t = impl_const<Index, Task>;
     Index ftr_id;
@@ -165,7 +165,7 @@ struct split_scalar {
     Float left_imp;
     Float imp_dec;
 
-    void clear(){
+    void clear() {
         ftr_id = impl_const_t::leaf_mark_;
         ftr_bin = impl_const_t::leaf_mark_;
         left_count = 0;
@@ -389,7 +389,10 @@ struct split_smp {
     }
 
     // Check if node impurity valid. True if valid
-    inline bool is_valid_impurity(const Float* node_imp_list_ptr, Index node_id, Float imp_threshold, Index row_count) {
+    inline bool is_valid_impurity(const Float* node_imp_list_ptr,
+                                  Index node_id,
+                                  Float imp_threshold,
+                                  Index row_count) {
         Float node_imp = Float(0);
         if constexpr (std::is_same_v<task_t, task::classification>) {
             const Float* node_imp_ptr =

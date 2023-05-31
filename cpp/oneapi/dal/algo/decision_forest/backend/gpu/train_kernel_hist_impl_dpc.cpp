@@ -1214,44 +1214,42 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
-
     using bs_kernels_opt_t = train_splitter_sp_opt_impl<Float, Bin, Index, Task>;
     // using bs_kernels_loc_t = train_splitter_impl<Float, Bin, Index, Task, false>;
 
     sycl::event last_event;
     if (ctx.splitter_mode_value_ == splitter_mode::best) {
-        last_event =
-        bs_kernels_opt_t::best_split(queue_,
-                                                        ctx,
-                                                        data,
-                                                        response,
-                                                        tree_order,
-                                                        selected_ftr_list,
-                                                        bin_offset_list,
-                                                        imp_data_list,
-                                                        node_list,
-                                                        left_child_imp_data_list,
-                                                        node_imp_decrease_list,
-                                                        update_imp_dec_required,
-                                                        node_count,
-                                                        deps);
+        last_event = bs_kernels_opt_t::best_split(queue_,
+                                                  ctx,
+                                                  data,
+                                                  response,
+                                                  tree_order,
+                                                  selected_ftr_list,
+                                                  bin_offset_list,
+                                                  imp_data_list,
+                                                  node_list,
+                                                  left_child_imp_data_list,
+                                                  node_imp_decrease_list,
+                                                  update_imp_dec_required,
+                                                  node_count,
+                                                  deps);
     }
     else {
         last_event = bs_kernels_opt_t::random_split(queue_,
-                                                                ctx,
-                                                                data,
-                                                                response,
-                                                                tree_order,
-                                                                selected_ftr_list,
-                                                                random_bins_com,
-                                                                bin_offset_list,
-                                                                imp_data_list,
-                                                                node_list,
-                                                                left_child_imp_data_list,
-                                                                node_imp_decrease_list,
-                                                                update_imp_dec_required,
-                                                                node_count,
-                                                                { last_event });
+                                                    ctx,
+                                                    data,
+                                                    response,
+                                                    tree_order,
+                                                    selected_ftr_list,
+                                                    random_bins_com,
+                                                    bin_offset_list,
+                                                    imp_data_list,
+                                                    node_list,
+                                                    left_child_imp_data_list,
+                                                    node_imp_decrease_list,
+                                                    update_imp_dec_required,
+                                                    node_count,
+                                                    { last_event });
     }
     return last_event;
 }
