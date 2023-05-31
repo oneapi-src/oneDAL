@@ -40,7 +40,7 @@ template <typename Float,
           typename Index = std::int32_t,
           typename Task = task::by_default,
           Index sbg_size = 32>
-class train_splitter_sp_opt_impl {
+class train_splitter_impl {
     static_assert(std::is_signed_v<Index>);
     static_assert(std::is_integral_v<Index>);
     static_assert(sbg_size > 8);
@@ -53,12 +53,10 @@ class train_splitter_sp_opt_impl {
     using msg = de::error_messages;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using node_t = node<Index>;
-    using node_list_t = node_list<Index>;
-    using node_group_view_t = node_group_view<Index>;
 
 public:
-    train_splitter_sp_opt_impl() = default;
-    ~train_splitter_sp_opt_impl() = default;
+    train_splitter_impl() = default;
+    ~train_splitter_impl() = default;
 
     /// Chooses the best split for each feature from
     /// the `selected_ftr_list` in terms of impurity values.

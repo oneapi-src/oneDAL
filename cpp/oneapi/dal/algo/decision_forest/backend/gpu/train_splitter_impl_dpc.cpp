@@ -39,7 +39,7 @@ using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::random_split(
+sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::random_split(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -49,8 +49,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     const pr::ndarray<Float, 1>& random_bins_com,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
-    // const pr::ndarray<Index, 1>& node_ind_list,
-    // Index node_ind_ofs,
     pr::ndarray<Index, 1>& node_list,
     imp_data_t& left_child_imp_data_list,
     pr::ndarray<Float, 1>& node_imp_dec_list,
@@ -79,7 +77,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     if constexpr (std::is_same_v<Task, task::classification>) {
         ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
     }
-    // ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
     ONEDAL_ASSERT(node_list.get_count() >= node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
                   node_count * impl_const_t::node_imp_prop_count_);
@@ -113,9 +110,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
     const Index selected_ftr_count = ctx.selected_ftr_count_;
     const Index index_max = ctx.index_max_;
 
-    Index max_wg_size = bk::device_max_wg_size(queue);
-    ONEDAL_ASSERT(node_t::get_small_node_max_row_count() <= max_wg_size);
-    Index local_size = std::min(bk::up_pow2(node_t::get_small_node_max_row_count()), max_wg_size);
+    Index local_size = bk::device_max_wg_size(queue);
 
     std::size_t local_hist_buf_size = hist_prop_count * 2; // x2 because bs_hist and ts_hist
 
@@ -308,7 +303,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
 }
 
 template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split(
+sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
     sycl::queue& queue,
     const context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
@@ -317,8 +312,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
     const pr::ndarray<Index, 1>& selected_ftr_list,
     const pr::ndarray<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
-    // const pr::ndarray<Index, 1>& node_ind_list,
-    // Index node_ind_ofs,
     pr::ndarray<Index, 1>& node_list,
     imp_data_t& left_child_imp_data_list,
     pr::ndarray<Float, 1>& node_imp_dec_list,
@@ -326,6 +319,13 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
     Index node_count,
     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(best_split, queue);
+    ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
+    ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
+    ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
+    ONEDAL_ASSERT(selected_ftr_list.get_count() >= node_count * ctx.selected_ftr_count_);
+    ONEDAL_ASSERT(bin_offset_list.get_count() == ctx.column_count_ + 1);
+    ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
+                  node_count * impl_const_t::node_imp_prop_count_);
 
     const Bin* data_ptr = data.get_data();
     const Float* response_ptr = response.get_data();
@@ -369,8 +369,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
 
     const Index selected_ftr_count = ctx.selected_ftr_count_;
     const Index max_bin_size = ctx.max_bin_count_among_ftrs_;
-    // const Index wg_ftr_count = sbg_size;
-    const Index node_in_block_count = node_count; // max_wg_count_;
+    const Index node_in_block_count = node_count;
 
     sycl::event last_event;
     auto device = queue.get_device();
@@ -394,9 +393,6 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
         local_accessor_rw_t<hist_type_t> local_hist(2 * local_hist_size, cgh);
         local_accessor_rw_t<split_scalar_t> scalars_buf(local_splits_size, cgh);
         local_accessor_rw_t<hist_type_t> best_split_hist(hist_prop_count, cgh);
-        local_accessor_rw_t<Float> test_atomic_float(1, cgh);
-        local_accessor_rw_t<Index> test_atomic_index(1, cgh);
-        sycl::stream out(1024, 1024, cgh);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_idx = item.get_global_id(1);
             // Load common data
@@ -627,7 +623,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_
     return last_event;
 }
 
-#define INSTANTIATE(F, B, I, T) template class train_splitter_sp_opt_impl<F, B, I, T>;
+#define INSTANTIATE(F, B, I, T) template class train_splitter_impl<F, B, I, T>;
 
 INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification);
 INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression);
