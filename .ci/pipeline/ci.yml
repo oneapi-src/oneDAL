@@ -53,10 +53,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --target daal --conda-env ci-env
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --target oneapi_c
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c
     displayName: 'make oneapi_c'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -92,7 +92,7 @@ jobs:
 - job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
   variables:
-    release.dir: '__release_lnx_clang'
+    release.dir: '__release_lnx_icx'
     platform.type : 'lnx32e'
   pool:
     vmImage: 'ubuntu-22.04'
@@ -117,11 +117,11 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target daal --conda-env ci-env
+      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/build.sh --compiler clang --target onedal_dpc
+      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal_dpc
     displayName: 'make onedal_dpc'
   - task: PublishPipelineArtifact@1
     inputs:
