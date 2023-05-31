@@ -39,6 +39,13 @@ public:
               technique_(daal::algorithms::engines::internal::family),
               daal_engine_list_(count) {}
 
+    explicit engine_collection(Size count, oneapi::dal::backend::primitives::engine eng)
+            : count_(count),
+              engine_(eng.get_enginePtr()),
+              params_(count),
+              technique_(daal::algorithms::engines::internal::family),
+              daal_engine_list_(count) {}
+
     template <typename Op>
     std::vector<engine> operator()(Op&& op) {
         daal::services::Status status;

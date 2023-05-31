@@ -69,7 +69,7 @@ public:
     voting_mode voting_mode_value = voting_mode::weighted;
 
     std::int64_t seed = 777;
-    oneapi::dal::backend::primitives::engine engine(seed);
+    oneapi::dal::backend::primitives::engine eng;
 };
 
 template <typename Task>
@@ -181,8 +181,8 @@ std::int64_t descriptor_base<Task>::get_seed() const {
 }
 
 template <typename Task>
-std::int64_t descriptor_base<Task>::get_engine() const {
-    return impl_->engine;
+oneapi::dal::backend::primitives::engine descriptor_base<Task>::get_engine() const {
+    return impl_->eng;
 }
 
 template <typename Task>
@@ -307,7 +307,7 @@ void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
 
 template <typename Task>
 void descriptor_base<Task>::set_engine_impl(oneapi::dal::backend::primitives::engine value) {
-    impl_->engine = value;
+    impl_->eng = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
