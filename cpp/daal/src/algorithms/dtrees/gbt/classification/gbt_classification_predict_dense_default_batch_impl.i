@@ -493,4 +493,3 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
 } /* namespace daal */
 
 #endif
-

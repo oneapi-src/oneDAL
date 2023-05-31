@@ -173,16 +173,16 @@ struct TileDimensions
     {
         // Use smaller vectorBlockSize if trees fit to L2
         // Each node contain 3 values
-        size_t nodesSize        = (sizeof(ModelFPType) + sizeof(FeatureIndexType) + sizeof(int)) * nNodes;
-        const bool treesFitToL2 = nodesSize < daal::services::internal::getL2CacheSize();
-        vectorBlockSizeFactor   = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
+        size_t nodesSize               = (sizeof(ModelFPType) + sizeof(FeatureIndexType) + sizeof(int)) * nNodes;
+        const bool treesFitToL2        = nodesSize < daal::services::internal::getL2CacheSize();
+        size_t flexibleBlockSizeFactor = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
 
         // Decrease vectorBlockSize if number of rows is too small
         const size_t twoBlocksPerThreadFactor = nRowsTotal / (2 * daal::threader_get_threads_number() * vectorBlockSizeStep);
-        if (vectorBlockSizeFactor > twoBlocksPerThreadFactor) vectorBlockSizeFactor = twoBlocksPerThreadFactor;
-        if (vectorBlockSizeFactor < minVectorBlockSizeFactor) vectorBlockSizeFactor = minVectorBlockSizeFactor;
+        if (flexibleBlockSizeFactor > twoBlocksPerThreadFactor) flexibleBlockSizeFactor = twoBlocksPerThreadFactor;
+        if (flexibleBlockSizeFactor < minVectorBlockSizeFactor) flexibleBlockSizeFactor = minVectorBlockSizeFactor;
 
-        DAAL_SAFE_CPU_CALL({}, vectorBlockSizeFactor = optimalBlockSizeFactor)
+        DAAL_SAFE_CPU_CALL(vectorBlockSizeFactor = flexibleBlockSizeFactor, vectorBlockSizeFactor = optimalBlockSizeFactor)
         size_t vectorBlockSize = vectorBlockSizeStep * vectorBlockSizeFactor;
         nRowsInBlock           = nRowsTotal > vectorBlockSize ? vectorBlockSize : nRowsTotal;
         nDataBlocks            = nRowsTotal / nRowsInBlock + bool(nRowsTotal % nRowsInBlock);
@@ -199,4 +199,3 @@ struct TileDimensions
 } /* namespace daal */
 
 #endif
-
