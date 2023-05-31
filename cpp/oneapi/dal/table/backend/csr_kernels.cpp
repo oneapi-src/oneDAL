@@ -380,19 +380,28 @@ std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets) {
 ///         false, otherwise
 template <typename T>
 bool is_sorted(sycl::queue& queue, const std::int64_t count, const T* data) {
-    bool result = true;
-    sycl::buffer<bool, 1> result_buf(&result, sycl::range<1>(1));
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
-        cgh.parallel_for<struct sorted_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
-            const int i = idx[0];
-            if (data[i] > data[i + 1]) {
-                write_result[0] = false;
-            }
-        });
-    });
-    event.wait_and_throw();
-    return result;
+    const std::int64_t range_size = count - 1;
+    sycl::buffer<T, 1> data_buf(data, sycl::range<1>(range_size));
+
+    std::int64_t sum_result{ 0 };
+    sycl::buffer<std::int64_t, 1> sum_buf(&sum_result, sycl::range<1>(1));
+    queue
+        .submit([&](sycl::handler& cgh) {
+            sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
+            auto sum_reduction =
+                sycl::reduction(sum_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+
+            cgh.parallel_for(sycl::range<1>(range_size),
+                             sum_reduction,
+                             [=](sycl::id<1> idx, auto& sum) {
+                                 const auto i = idx[0];
+                                 if (data_acc[i] > data_acc[i + 1])
+                                     sum += 1L;
+                             });
+        })
+        .wait_and_throw();
+
+    return (sum_result == 0);
 }
 
 #endif
@@ -467,31 +476,42 @@ out_of_bound_type check_bounds(sycl::queue& queue,
                                const T* data,
                                const T& min_value,
                                const T& max_value) {
-    int result{ 0 /* out_of_bound_type::within_bounds */ };
-    sycl::buffer<int, 1> result_buf(&result, sycl::range<1>(1));
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        auto write_result = result_buf.get_access<sycl::access::mode::read_write>(cgh);
-        cgh.parallel_for<struct bounds_checker>(sycl::range<1>(count - 1), [=](sycl::id<1> idx) {
-            const int i = idx[0];
-            if (data[i] < min_value) {
-                write_result[0] = -1 /* out_of_bound_type::less_than_min */;
-            }
-            if (data[i] > max_value) {
-                write_result[0] = 1 /* out_of_bound_type::greater_than_max */;
-            }
-        });
-    });
-    event.wait_and_throw();
-    out_of_bound_type enum_result{ out_of_bound_type::within_bounds };
-    switch (result) {
-        case -1: enum_result = out_of_bound_type::less_than_min; break;
-        case 0: enum_result = out_of_bound_type::within_bounds; break;
-        case 1: enum_result = out_of_bound_type::greater_than_max; break;
-        default:
-            /* TODO: Error handling */
-            break;
-    }
-    return enum_result;
+    sycl::buffer<T, 1> data_buf(data, sycl::range<1>(count));
+
+    // Number of elements in the data array that are less than the min_value and greater than the max_value
+    std::int64_t sum_lt_min{ 0 }, sum_gt_max{ 0 };
+    sycl::buffer<std::int64_t, 1> sum_lt_buf(&sum_lt_min, sycl::range<1>(1));
+    sycl::buffer<std::int64_t, 1> sum_gt_buf(&sum_gt_max, sycl::range<1>(1));
+
+    queue
+        .submit([&](sycl::handler& cgh) {
+            sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
+            auto sum_lt_reduction =
+                sycl::reduction(sum_lt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+            auto sum_gt_reduction =
+                sycl::reduction(sum_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+
+            cgh.parallel_for(sycl::range<1>(count),
+                             sum_lt_reduction,
+                             sum_gt_reduction,
+                             [=](sycl::id<1> idx, auto& sum_lt, auto& sum_gt) {
+                                 const auto i = idx[0];
+                                 if (data_acc[i] < min_value) {
+                                     sum_lt += 1L;
+                                 }
+                                 if (data_acc[i] > max_value) {
+                                     sum_gt += 1L;
+                                 }
+                             });
+        })
+        .wait_and_throw();
+
+    out_of_bound_type result{ out_of_bound_type::within_bounds };
+    if (sum_lt_min > 0)
+        result = out_of_bound_type::less_than_min;
+    else if (sum_gt_max > 0)
+        result = out_of_bound_type::greater_than_max;
+    return result;
 }
 
 #endif
