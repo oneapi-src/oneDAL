@@ -185,7 +185,7 @@ struct TileDimensions
         DAAL_SAFE_CPU_CALL({}, vectorBlockSizeFactor = optimalBlockSizeFactor)
         size_t vectorBlockSize = vectorBlockSizeStep * vectorBlockSizeFactor;
         nRowsInBlock           = nRowsTotal > vectorBlockSize ? vectorBlockSize : nRowsTotal;
-        nDataBlocks            = nRowsTotal / nRowsInBlock + (nRowsTotal % nRowsInBlock != 0);
+        nDataBlocks            = nRowsTotal / nRowsInBlock + bool(nRowsTotal % nRowsInBlock);
 
         nTreesInBlock = nTreesTotal;
         nTreeBlocks   = 1;
