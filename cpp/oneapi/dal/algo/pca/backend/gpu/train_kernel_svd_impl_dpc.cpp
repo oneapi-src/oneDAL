@@ -65,6 +65,40 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 }
 
 template <typename Float>
+auto centered_data(sycl::queue& q,
+                  const pr::ndview<Float, 2>& data,
+                  const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(centered_data, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) > 0);
+    const std::int64_t column_count = data.get_dimension(1);
+    const std::int64_t row_count = data.get_row_count();
+
+    // Создание копии данных
+    pr::ndarray<Float, 2> data_copy = pr::ndarray<Float, 2>::copy(data, { row_count, column_count });
+
+    // Запуск выполнения центрирования данных на устройстве
+    auto event = q.submit([&](sycl::handler& cgh) {
+        auto data_acc = data_copy.get_mutable_data();
+
+        // Вычисление среднего значения для каждого признака
+        cgh.parallel_for<class centered_data_kernel>(sycl::range<1>(column_count), [=](sycl::id<1> idx) {
+            Float sum = 0.0;
+            for (std::int64_t i = 0; i < row_count; i++) {
+                sum += data_acc[i * column_count + idx[0]];
+            }
+            Float mean = sum / row_count;
+            for (std::int64_t i = 0; i < row_count; i++) {
+                data_acc[i * column_count + idx[0]] -= mean;
+            }
+        });
+    });
+
+    return std::make_tuple(event, deps);
+}
+
+
+template <typename Float>
 result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
