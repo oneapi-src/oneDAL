@@ -149,9 +149,9 @@ bool is_sorted(const array<T>& arr);
 /// @param[in] min_value The lower boundary for the values in the input array
 /// @param[in] max_value The upper boundary for the values in the input array
 ///
-/// @return less_than_min,    if there exists i for which A[i] < min_value;
+/// @return less_than_min,    if there exists i, 0 <= i <= n-1: A[i] < min_value;
 ///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
-///         greater_than_max, if there exists i for which A[i] > max_value.
+///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value);
 

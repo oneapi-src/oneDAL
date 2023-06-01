@@ -383,25 +383,29 @@ bool is_sorted(sycl::queue& queue, const std::int64_t count, const T* data) {
     const std::int64_t range_size = count - 1;
     sycl::buffer<T, 1> data_buf(data, sycl::range<1>(range_size));
 
-    std::int64_t sum_result{ 0 };
-    sycl::buffer<std::int64_t, 1> sum_buf(&sum_result, sycl::range<1>(1));
-    queue
-        .submit([&](sycl::handler& cgh) {
-            sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
-            auto sum_reduction =
-                sycl::reduction(sum_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+    // number of pairs of the subsequent elements in the data array that are sorted in desccending order,
+    // i.e. for which data[i] > data[i + 1] is true.
+    std::int64_t count_descending_pairs{ 0 };
+    sycl::buffer<std::int64_t, 1> count_buf(&count_descending_pairs, sycl::range<1>(1));
 
-            cgh.parallel_for(sycl::range<1>(range_size),
-                             sum_reduction,
-                             [=](sycl::id<1> idx, auto& sum) {
-                                 const auto i = idx[0];
-                                 if (data_acc[i] > data_acc[i + 1])
-                                     sum += 1L;
-                             });
-        })
-        .wait_and_throw();
+    // count the number of pairs of the subsequent elements in the data array that are sorted
+    // in desccending order using sycl::reduction
+    queue.submit([&](sycl::handler& cgh) {
+        sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
+        auto count_descending_reduction =
+            sycl::reduction(count_buf, cgh, std::plus<std::int64_t>());
 
-    return (sum_result == 0);
+        cgh.parallel_for(sycl::nd_range<1>{ range_size, 1 },
+                            count_descending_reduction,
+                            [=](sycl::nd_item<1> idx, auto& count_descending) {
+                                const auto i = idx.get_global_id(0);
+                                if (data_acc[i] > data_acc[i + 1])
+                                    count_descending += 1L;
+                            });
+    })
+    .wait_and_throw();
+
+    return (count_descending_pairs == 0);
 }
 
 #endif
@@ -426,14 +430,14 @@ bool is_sorted(const array<T>& arr) {
 ///
 /// @tparam T   The type of elements in the input array
 ///
-/// @param[in]     count     The number of elements in the array
+/// @param[in]     count     The number of elements in the array, count == n
 /// @param[in]     data      The pointer to the input array
 /// @param[in]     min_value The lower boundary for the values in the input array
 /// @param[in]     max_value The upper boundary for the values in the input array
 ///
-/// @return less_than_min,    if there exists i for which A[i] < min_value;
+/// @return less_than_min,    if there exists i, 0 <= i <= n-1: A[i] < min_value;
 ///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
-///         greater_than_max, if there exists i for which A[i] > max_value.
+///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(const std::int64_t count,
                                const T* data,
@@ -455,21 +459,21 @@ out_of_bound_type check_bounds(const std::int64_t count,
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/// Given the array A[0], ..., A[n-1] which is alolcated on device and two values:
+/// Given the array A[0], ..., A[n-1] which is allocated on device and two values:
 /// `min_value` and `max_value`, checks that min_value <= A[i] <= max_value
 /// for each i = 0, ..., n-1.
 ///
 /// @tparam T   The type of elements in the input array
 ///
 /// @param[in,out] queue     The SYCL* queue object
-/// @param[in]     count     The number of elements in the array
+/// @param[in]     count     The number of elements in the array, count == n
 /// @param[in]     data      The pointer to the input array
 /// @param[in]     min_value The lower boundary for the values in the input array
 /// @param[in]     max_value The upper boundary for the values in the input array
 ///
-/// @return less_than_min,    if there exists i for which A[i] < min_value;
+/// @return less_than_min,    if there exists i, 0 <= i <= n-1: A[i] < min_value;
 ///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
-///         greater_than_max, if there exists i for which A[i] > max_value.
+///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(sycl::queue& queue,
                                const std::int64_t count,
@@ -478,38 +482,48 @@ out_of_bound_type check_bounds(sycl::queue& queue,
                                const T& max_value) {
     sycl::buffer<T, 1> data_buf(data, sycl::range<1>(count));
 
-    // Number of elements in the data array that are less than the min_value and greater than the max_value
-    std::int64_t sum_lt_min{ 0 }, sum_gt_max{ 0 };
-    sycl::buffer<std::int64_t, 1> sum_lt_buf(&sum_lt_min, sycl::range<1>(1));
-    sycl::buffer<std::int64_t, 1> sum_gt_buf(&sum_gt_max, sycl::range<1>(1));
+    // number of elements in the data array that are less than [lt] the min_value,
+    // number of elements in the data array that are greater than [gt] the max_value.
+    std::int64_t count_lt_min{ 0 }, count_gt_max{ 0 };
+    sycl::buffer<std::int64_t, 1> count_lt_buf(&count_lt_min, sycl::range<1>(1));
+    sycl::buffer<std::int64_t, 1> count_gt_buf(&count_gt_max, sycl::range<1>(1));
 
-    queue
-        .submit([&](sycl::handler& cgh) {
-            sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
-            auto sum_lt_reduction =
-                sycl::reduction(sum_lt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
-            auto sum_gt_reduction =
-                sycl::reduction(sum_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+    // count the number of elements which are less than min_vaule using sycl::reduction
+    auto event_count_lt_min = queue.submit([&](sycl::handler& cgh) {
+        sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
+        auto count_lt_reduction = sycl::reduction(count_lt_buf, cgh, std::plus<std::int64_t>());
 
-            cgh.parallel_for(sycl::range<1>(count),
-                             sum_lt_reduction,
-                             sum_gt_reduction,
-                             [=](sycl::id<1> idx, auto& sum_lt, auto& sum_gt) {
-                                 const auto i = idx[0];
-                                 if (data_acc[i] < min_value) {
-                                     sum_lt += 1L;
-                                 }
-                                 if (data_acc[i] > max_value) {
-                                     sum_gt += 1L;
-                                 }
-                             });
-        })
-        .wait_and_throw();
+        cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
+                            count_lt_reduction,
+                            [=](sycl::nd_item<1> idx, auto& count_lt) {
+                                const auto i = idx.get_global_id(0);
+                                if (data_acc[i] < min_value) {
+                                    count_lt += 1L;
+                                }
+                            });
+    });
+
+    // count the number of elements which are greater than max_vaule using sycl::reduction
+    auto event_count_gt_max = queue.submit([&](sycl::handler& cgh) {
+        sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
+        auto count_gt_reduction = sycl::reduction(count_gt_buf, cgh, std::plus<std::int64_t>());
+
+        cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
+                            count_gt_reduction,
+                            [=](sycl::nd_item<1> idx, auto& count_gt) {
+                                const auto i = idx.get_global_id(0);
+                                if (data_acc[i] > max_value) {
+                                    count_gt += 1L;
+                                }
+                            });
+    });
+
+    sycl::event::wait_and_throw({ event_count_lt_min, event_count_gt_max });
 
     out_of_bound_type result{ out_of_bound_type::within_bounds };
-    if (sum_lt_min > 0)
+    if (count_lt_min > 0)
         result = out_of_bound_type::less_than_min;
-    else if (sum_gt_max > 0)
+    else if (count_gt_max > 0)
         result = out_of_bound_type::greater_than_max;
     return result;
 }
