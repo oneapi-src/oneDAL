@@ -117,6 +117,7 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
