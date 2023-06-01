@@ -61,13 +61,22 @@ template <typename Task>
 class model_impl : public ONEDAL_SERIALIZABLE(pca_dim_reduction_model_impl_id) {
 public:
     table eigenvectors;
+    table pMeans;
+    table pVariances;
+    table eigenvalues;
 
     void serialize(dal::detail::output_archive& ar) const override {
         ar(eigenvectors);
+        ar(pMeans);
+        ar(pVariances);
+        ar(eigenvalues);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         ar(eigenvectors);
+        ar(pMeans);
+        ar(pVariances);
+        ar(eigenvalues);
     }
 };
 
@@ -131,6 +140,36 @@ const table& model<Task>::get_eigenvectors() const {
 template <typename Task>
 void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_means() const {
+    return impl_->pMeans;
+}
+
+template <typename Task>
+void model<Task>::set_means_impl(const table& value) {
+    impl_->pMeans = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_variances() const {
+    return impl_->pVariances;
+}
+
+template <typename Task>
+void model<Task>::set_variances_impl(const table& value) {
+    impl_->pVariances = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_eigenvalues() const {
+    return impl_->eigenvalues;
+}
+
+template <typename Task>
+void model<Task>::set_eigenvalues_impl(const table& value) {
+    impl_->eigenvalues = value;
 }
 
 template <typename Task>
