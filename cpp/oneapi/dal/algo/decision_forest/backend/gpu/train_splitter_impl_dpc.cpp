@@ -335,7 +335,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
-    // const Index* node_indices_ptr = node_ind_list.get_data();
     Index* node_list_ptr = node_list.get_mutable_data();
     Float* node_imp_decr_list_ptr =
         update_imp_dec_required ? node_imp_dec_list.get_mutable_data() : nullptr;
@@ -394,9 +393,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
         local_accessor_rw_t<split_scalar_t> scalars_buf(local_splits_size, cgh);
         local_accessor_rw_t<hist_type_t> best_split_hist(hist_prop_count, cgh);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
-            const Index node_idx = item.get_global_id(1);
             // Load common data
-            const Index node_id = node_idx; // node_indices_ptr[node_ind_ofs + node_idx];
+            const Index node_id = item.get_global_id(1);
             Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
 
             const Index local_id = item.get_local_id(0);
@@ -476,7 +474,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
-                // Case for regression
+                // Case for regression: collect MSE, based on collected sum and counts
                 if constexpr (std::is_same_v<Task, task::regression>) {
                     for (Index idx = local_id * rows_per_item;
                          idx < (local_id + 1) * rows_per_item && idx < working_items;
@@ -547,6 +545,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                         }
                         left_count += Index(cur_hist[0]);
                     }
+                    // Calculate impurity decrease for current bin
                     ts.init(cur_hist, hist_prop_count);
                     ts.ftr_id =
                         selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
@@ -572,14 +571,14 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                 split_info_t bs;
                 bs.init(local_hist_ptr + local_id * hist_prop_count, hist_prop_count);
                 bs.clear_scalar();
-                // bs.load_scalar(scalars_buf_ptr[local_id]);
+                // Select best bin among one working-item
                 for (Index work_item = local_id; work_item < work_size; work_item += local_size) {
                     ts.init(local_hist_ptr + work_item * hist_prop_count, hist_prop_count);
                     ts.load_scalar(scalars_buf_ptr[work_item]);
                     sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
                 }
                 bs.store_scalar(scalars_buf_ptr[local_id]);
-                // Tree reduction and selecting best
+                // Tree reduction and selecting best among work-group
                 for (Index i = local_size / 2; i > 0; i >>= 1) {
                     item.barrier(sycl::access::fence_space::local_space);
                     if (local_id < i && (local_id + i) < work_size) {

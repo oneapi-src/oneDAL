@@ -510,32 +510,6 @@ struct split_smp {
             }
         }
     }
-
-    inline bool my_split_is_best_for_sbg(sycl::nd_item<2>& item,
-                                         split_info_t& bs,
-                                         Index* node_ptr,
-                                         Index node_id,
-                                         Index index_max) {
-        auto sbg = item.get_sub_group();
-        const Index sub_group_local_id = sbg.get_local_id();
-
-        const Float best_imp_dec = sycl::reduce_over_group(sbg, bs.imp_dec, maximum<Float>());
-
-        const Index imp_dec_is_best = float_eq(best_imp_dec, bs.imp_dec);
-
-        const Index best_ftr_id =
-            sycl::reduce_over_group(sbg, imp_dec_is_best ? bs.ftr_id : index_max, minimum<Index>());
-        const Index best_ftr_val = sycl::reduce_over_group(
-            sbg,
-            (best_ftr_id == bs.ftr_id && imp_dec_is_best) ? bs.ftr_bin : index_max,
-            minimum<Index>());
-
-        const bool none_split_found_by_sbg =
-            ((impl_const_t::leaf_mark_ == best_ftr_id) && (0 == sub_group_local_id));
-        const bool my_split_is_best = (impl_const_t::leaf_mark_ != best_ftr_id &&
-                                       bs.ftr_id == best_ftr_id && bs.ftr_bin == best_ftr_val);
-        return (none_split_found_by_sbg || my_split_is_best);
-    }
 };
 
 } // namespace oneapi::dal::decision_forest::backend
