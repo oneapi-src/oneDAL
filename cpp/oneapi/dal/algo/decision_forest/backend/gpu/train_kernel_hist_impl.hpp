@@ -55,7 +55,6 @@ class train_kernel_hist_impl {
     using msg = dal::detail::error_messages;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
     using node_t = node<Index>;
-    using node_list_t = node_list<Index>;
 
 public:
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
