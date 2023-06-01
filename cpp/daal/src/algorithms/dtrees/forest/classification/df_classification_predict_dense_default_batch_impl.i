@@ -430,10 +430,11 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const 
 }
 
 template <typename algorithmFPType, CpuType cpu>
-DAAL_FORCEINLINE void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                                    const featureIndexType * const tFI, const leftOrClassType * const tLC,
-                                                                    const algorithmFPType * const tFV, algorithmFPType * const prob,
-                                                                    const size_t iTree)
+DAAL_FORCEINLINE void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock,
+                                                                                     const size_t nCols, const featureIndexType * const tFI,
+                                                                                     const leftOrClassType * const tLC,
+                                                                                     const algorithmFPType * const tFV, algorithmFPType * const prob,
+                                                                                     const size_t iTree)
 {
     predictByTreeCommon(x, sizeOfBlock, nCols, tFI, tLC, tFV, prob, iTree);
 }
@@ -442,8 +443,9 @@ DAAL_FORCEINLINE void PredictClassificationTask<algorithmFPType, cpu>::predictBy
 
 template <>
 DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(const float * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                             const featureIndexType * const feat_idx, const leftOrClassType * const left_son,
-                                                             const float * const split_point, float * const resPtr, const size_t iTree)
+                                                                              const featureIndexType * const feat_idx,
+                                                                              const leftOrClassType * const left_son, const float * const split_point,
+                                                                              float * const resPtr, const size_t iTree)
 {
     if (sizeOfBlock == _DEFAULT_BLOCK_SIZE)
     {
@@ -500,8 +502,10 @@ DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(co
 
 template <>
 DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(const double * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                              const featureIndexType * const feat_idx, const leftOrClassType * const left_son,
-                                                              const double * const split_point, double * const resPtr, const size_t iTree)
+                                                                               const featureIndexType * const feat_idx,
+                                                                               const leftOrClassType * const left_son,
+                                                                               const double * const split_point, double * const resPtr,
+                                                                               const size_t iTree)
 {
     if (sizeOfBlock == _DEFAULT_BLOCK_SIZE)
     {
