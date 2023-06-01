@@ -42,20 +42,6 @@ void run(sycl::queue& q) {
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
-    std::cout << "Means:\n" << result_train.get_means() << std::endl;
-
-    std::cout << "Variances:\n" << result_train.get_variances() << std::endl;
-
-    auto model = result_train.get_model();
-    std::cout<<"From Model:\n"<<std::endl;
-    std::cout << "Eigenvectors:\n" << model.get_eigenvectors() << std::endl;
-
-    std::cout << "Eigenvalues:\n" << model.get_eigenvalues() << std::endl;
-
-    std::cout << "Means:\n" << model.get_means() << std::endl;
-
-    std::cout << "Variances:\n" << model.get_variances() << std::endl;
-
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
