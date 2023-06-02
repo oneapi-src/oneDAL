@@ -430,10 +430,11 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const 
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                                    const featureIndexType * const tFI, const leftOrClassType * const tLC,
-                                                                    const algorithmFPType * const tFV, algorithmFPType * const prob,
-                                                                    const size_t iTree)
+DAAL_FORCEINLINE void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock,
+                                                                                     const size_t nCols, const featureIndexType * const tFI,
+                                                                                     const leftOrClassType * const tLC,
+                                                                                     const algorithmFPType * const tFV, algorithmFPType * const prob,
+                                                                                     const size_t iTree)
 {
     predictByTreeCommon(x, sizeOfBlock, nCols, tFI, tLC, tFV, prob, iTree);
 }
@@ -441,9 +442,10 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algori
 #if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
-void PredictClassificationTask<float, avx512>::predictByTree(const float * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                             const featureIndexType * const feat_idx, const leftOrClassType * const left_son,
-                                                             const float * const split_point, float * const resPtr, const size_t iTree)
+DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(const float * const x, const size_t sizeOfBlock, const size_t nCols,
+                                                                              const featureIndexType * const feat_idx,
+                                                                              const leftOrClassType * const left_son, const float * const split_point,
+                                                                              float * const resPtr, const size_t iTree)
 {
     if (sizeOfBlock == _DEFAULT_BLOCK_SIZE)
     {
@@ -499,9 +501,11 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * const
 }
 
 template <>
-void PredictClassificationTask<double, avx512>::predictByTree(const double * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                              const featureIndexType * const feat_idx, const leftOrClassType * const left_son,
-                                                              const double * const split_point, double * const resPtr, const size_t iTree)
+DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(const double * const x, const size_t sizeOfBlock, const size_t nCols,
+                                                                               const featureIndexType * const feat_idx,
+                                                                               const leftOrClassType * const left_son,
+                                                                               const double * const split_point, double * const resPtr,
+                                                                               const size_t iTree)
 {
     if (sizeOfBlock == _DEFAULT_BLOCK_SIZE)
     {
@@ -610,7 +614,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const 
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(const size_t nTreesTotal)
+DAAL_FORCEINLINE Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(const size_t nTreesTotal)
 {
     if (_nClasses != _cachedNClasses)
     {
@@ -696,7 +700,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
 
 #if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 template <>
-Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t nTreesTotal)
+DAAL_FORCEINLINE Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(const size_t nTreesTotal)
 {
     if (_cachedModel != _model)
     {

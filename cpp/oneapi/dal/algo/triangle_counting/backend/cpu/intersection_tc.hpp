@@ -78,7 +78,7 @@ struct intersection_local_tc<dal::backend::cpu_dispatch_avx512> {
                                                std::int64_t tc_size) {
         std::int64_t total = 0;
         std::int32_t i_u = 0, i_v = 0;
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         while (i_u < (n_u / 16) * 16 && i_v < (n_v / 16) * 16) { // not in last n%16 elements
             // assumes neighbor list is ordered
             std::int32_t min_neigh_u = neigh_u[i_u];

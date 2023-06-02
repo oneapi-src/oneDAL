@@ -30,6 +30,7 @@
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/algorithms/dtrees/gbt/gbt_internal.h"
+#include "data_management/data/internal/finiteness_checker.h"
 
 namespace daal
 {
@@ -69,7 +70,7 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    if (checkFinitenessByComparison(valueFromDataSet))
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
@@ -83,7 +84,7 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    if (checkFinitenessByComparison(valueFromDataSet))
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
