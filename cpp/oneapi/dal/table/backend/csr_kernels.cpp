@@ -394,14 +394,14 @@ bool is_sorted(sycl::queue& queue, const std::int64_t count, const T* data) {
         .submit([&](sycl::handler& cgh) {
             sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
             auto count_descending_reduction =
-                sycl::reduction(count_buf, cgh, std::plus<std::int64_t>());
+                sycl::reduction(count_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
             cgh.parallel_for(sycl::nd_range<1>{ range_size, 1 },
                              count_descending_reduction,
                              [=](sycl::nd_item<1> idx, auto& count_descending) {
                                  const auto i = idx.get_global_id(0);
                                  if (data_acc[i] > data_acc[i + 1])
-                                     count_descending += 1L;
+                                     count_descending.combine(1);
                              });
         })
         .wait_and_throw();
@@ -492,14 +492,14 @@ out_of_bound_type check_bounds(sycl::queue& queue,
     // count the number of elements which are less than min_vaule using sycl::reduction
     auto event_count_lt_min = queue.submit([&](sycl::handler& cgh) {
         sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
-        auto count_lt_reduction = sycl::reduction(count_lt_buf, cgh, std::plus<std::int64_t>());
+        auto count_lt_reduction = sycl::reduction(count_lt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
         cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
                          count_lt_reduction,
                          [=](sycl::nd_item<1> idx, auto& count_lt) {
                              const auto i = idx.get_global_id(0);
                              if (data_acc[i] < min_value) {
-                                 count_lt += 1L;
+                                 count_lt.combine(1);
                              }
                          });
     });
@@ -507,14 +507,14 @@ out_of_bound_type check_bounds(sycl::queue& queue,
     // count the number of elements which are greater than max_vaule using sycl::reduction
     auto event_count_gt_max = queue.submit([&](sycl::handler& cgh) {
         sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
-        auto count_gt_reduction = sycl::reduction(count_gt_buf, cgh, std::plus<std::int64_t>());
+        auto count_gt_reduction = sycl::reduction(count_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
         cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
                          count_gt_reduction,
                          [=](sycl::nd_item<1> idx, auto& count_gt) {
                              const auto i = idx.get_global_id(0);
                              if (data_acc[i] > max_value) {
-                                 count_gt += 1L;
+                                 count_gt.combine(1);
                              }
                          });
     });
