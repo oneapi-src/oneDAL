@@ -24,6 +24,7 @@
 #ifndef __DTREES_FEATURE_TYPE_HELPER_H__
 #define __DTREES_FEATURE_TYPE_HELPER_H__
 
+#include "include/algorithms/decision_forest/decision_forest_training_parameter.h"
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
 
@@ -69,12 +70,20 @@ private:
     int _lastUnordered     = -1;
 };
 
+using daal::algorithms::decision_forest::training::BinningStrategy;
+
 struct BinParams
 {
-    BinParams(size_t _maxBins, size_t _minBinSize) : maxBins(_maxBins), minBinSize(_minBinSize) {}
-    BinParams(const BinParams & o) : maxBins(o.maxBins), minBinSize(o.minBinSize) {}
+    BinParams(size_t _maxBins, size_t _minBinSize, BinningStrategy _binningStrategy = BinningStrategy::quantiles)
+        : maxBins(_maxBins), minBinSize(_minBinSize), binningStrategy(_binningStrategy)
+    {}
+    BinParams(const BinParams & o) : maxBins(o.maxBins), minBinSize(o.minBinSize), binningStrategy(o.binningStrategy) {}
 
-    size_t maxBins    = 256;
+    /* Strategy to create bins for feature values. Default: quantiles */
+    BinningStrategy binningStrategy = BinningStrategy::quantiles;
+    /* Maximum number of bins for indexed data. Default: 256 */
+    size_t maxBins = 256;
+    /* Minimum bin width (number of data points per bin). Default: 5*/
     size_t minBinSize = 5;
 };
 
@@ -103,6 +112,7 @@ public:
     IndexedFeatures() : _data(nullptr), _entries(nullptr), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0), _capacity(0), _maxNumIndices(0) {}
     ~IndexedFeatures();
 
+    //initialize the feature indices, i.e. bins
     template <typename algorithmFPType, CpuType cpu>
     services::Status init(const NumericTable & nt, const FeatureTypes * featureTypes = nullptr, const BinParams * pBimPrm = nullptr);
 
