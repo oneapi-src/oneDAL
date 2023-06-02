@@ -32,6 +32,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_internal.h"
 #include "src/services/service_environment.h"
 #include "src/services/service_defines.h"
+#include "data_management/data/internal/finiteness_checker.h"
 
 namespace daal
 {
@@ -70,7 +71,7 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    if (checkFinitenessByComparison(valueFromDataSet))
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
@@ -84,7 +85,7 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    if (checkFinitenessByComparison(valueFromDataSet))
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
