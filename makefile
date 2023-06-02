@@ -47,7 +47,7 @@ MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
 COMPILERs = icc icx gnu clang vc
 COMPILER ?= icc
 
-BACKEND_CONFIG ?= ref
+BACKEND_CONFIG ?= mkl
 
 RES := $(shell sed 's/{BACKEND}/${BACKEND_CONFIG}/g' cpp/daal/src/externals/config_template.h > cpp/daal/src/externals/config.h)
 
