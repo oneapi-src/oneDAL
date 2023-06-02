@@ -20,6 +20,8 @@
 //  Cpu-dependent initialization of service data structure
 //--
 */
+
+#include "include/services/error_indexes.h"
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/threading/threading.h"
 #include "src/algorithms/service_error_handling.h"
@@ -151,8 +153,22 @@ struct ColIndexTaskBins : public ColIndexTask<IndexType, algorithmFPType, cpu>
 {
     typedef ColIndexTask<IndexType, algorithmFPType, cpu> super;
     ColIndexTaskBins(size_t nRows, const BinParams & prm) : super(nRows), _prm(prm), _bins(_prm.maxBins) {}
+
+    /*
+    * Transform features based on the BinParams _prm.
+    *   - If no BinParams _prm are provided, one bin per unique value in the
+    *     dataset is created
+    *   - If BinParams _prm are provided, the strategy set according to
+    *     BinParams::Strategy is used
+    */
     virtual services::Status makeIndex(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows,
                                        bool bUnorderedFeature) DAAL_C11_OVERRIDE;
+    /* Function to create feature indices for Strategy == quantiles */
+    services::Status makeIndexQuantiles(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows);
+    /* Function to create feature indices for Strategy == averages */
+    services::Status makeIndexAverages(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows);
+    /* Helper to treat constant-valued features */
+    services::Status makeIndexConstant(IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t nRows);
 
 private:
     services::Status assignIndexAccordingToBins(IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t nBins, size_t nRows);
@@ -226,25 +242,37 @@ template <typename IndexType, typename algorithmFPType, CpuType cpu>
 services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(NumericTable & nt, IndexedFeatures::FeatureEntry & entry,
                                                                               IndexType * aRes, size_t iCol, size_t nRows, bool bUnorderedFeature)
 {
+    /* feature is not ordered or fewer data points than bins -> no indexing needed */
     if (bUnorderedFeature || nRows <= _prm.maxBins) return this->template makeIndexDefault<true>(nt, entry, aRes, iCol, nRows, bUnorderedFeature);
 
+    /* sort feature values */
     Status s = this->getSorted(nt, iCol, nRows);
     if (!s) return s;
 
+    /* special case: all values are the same -> constant-valued feature */
     const typename super::FeatureIdx * index = this->_index.get();
     if (index[0].key == index[nRows - 1].key)
     {
-        _bins[0] = nRows;
-        services::internal::service_memset_seq<IndexType, cpu>(aRes, 0, nRows);
-
-        entry.numIndices = 1;
-        s |= entry.allocBorders();
-        DAAL_CHECK(s, s);
-        entry.binBorders[0] = index[nRows - 1].key;
-        return s;
+        return makeIndexConstant(entry, aRes, nRows);
     }
 
-    size_t nBins         = 0;
+    /* Create bins of sorted data according to strategy selected in _prm */
+    switch (_prm.binningStrategy)
+    {
+    case dtrees::internal::BinningStrategy::quantiles: return makeIndexQuantiles(nt, entry, aRes, iCol, nRows);
+    case dtrees::internal::BinningStrategy::averages: return makeIndexAverages(nt, entry, aRes, iCol, nRows);
+    default: return Status(ErrorID::ErrorMethodNotSupported);
+    }
+}
+
+template <typename IndexType, typename algorithmFPType, CpuType cpu>
+services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndexQuantiles(NumericTable & nt, IndexedFeatures::FeatureEntry & entry,
+                                                                                       IndexType * aRes, size_t iCol, size_t nRows)
+{
+    const typename super::FeatureIdx * index = this->_index.get();
+
+    size_t nBins = 0;
+    DAAL_ASSERT(_prm.maxBins > 0);
     const size_t binSize = nRows / _prm.maxBins;
     int64_t remainder    = nRows % _prm.maxBins; //allow for negative values
     size_t dx            = 2 * _prm.maxBins;
@@ -268,44 +296,59 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
         }
         size_t iRight                         = i + newBinSize - 1; //intersperse remainder amongst bins
         const typename super::FeatureIdx & ri = index[iRight];
-        if (ri.key == index[iRight + 1].key)
+
+        if (ri.key != index[iRight + 1].key)
         {
-            //right border can't be placed at iRight because it has to be between different feature values
-            //try moving the border to the right, find the first value bigger than the value at iRight
-            ++iRight;
-            size_t r = iRight + binSize;
-            //at first, roughly locate the value bigger than iRight, jumping by binSize to the right
-            for (; (r < nRows) && (index[r].key == ri.key); r += binSize)
-            {}
-            if (r > nRows) r = nRows;
-            //then locate a new border as the upper_bound between this rough value and iRight
-            iRight = upper_bound<typename super::FeatureIdx>(index + iRight + 1, index + r, ri) - index;
-            //this is the size of the bin
-            newBinSize = iRight - i;
-            //if the value it is too big (number of feature values equal to ri.key is bigger than binSize)
-            //then perhaps left border of the bin can be moved to the right
-            if (newBinSize >= 2 * binSize)
+            // value changed from one bin to the next, append and continue
+            append(_bins, nBins, newBinSize);
+            i += newBinSize;
+            continue;
+        }
+
+        /* when arriving here, the feature value has not changed and
+         * we have to move iRight to the right until we find a new value
+         * r will be located at the first value that is different from ri.key
+         */
+        ++iRight;
+        size_t r = iRight + binSize;
+        while (r < nRows && index[r].key == ri.key)
+        {
+            r += binSize;
+        }
+        if (r > nRows)
+        {
+            r = nRows;
+        }
+        // upper_bound() returns the index of the first value change between
+        // index + iRight + 1 and index + r
+        iRight     = upper_bound<typename super::FeatureIdx>(index + iRight + 1, index + r, ri) - index;
+        newBinSize = iRight - i;
+
+        if (newBinSize >= 2 * binSize)
+        {
+            // the new bin is too wide, try insert an additional bin to the left
+            size_t iClosestSmallerValue = i + binSize - 1;
+            while (iClosestSmallerValue > i && index[iClosestSmallerValue].key == ri.key)
             {
-                size_t iClosestSmallerValue = i + binSize - 1;
-                for (; (iClosestSmallerValue > i) && (index[iClosestSmallerValue].key == ri.key); --iClosestSmallerValue)
-                    ;
-                size_t dist = iClosestSmallerValue - i;
-                if (dist > _prm.minBinSize)
-                {
-                    //add an extra bin at the left
-                    const size_t newLeftBinSize = dist + 1;
-                    append(_bins, nBins, newLeftBinSize);
-                    i += newLeftBinSize;
-                    newBinSize -= newLeftBinSize;
-                }
-                else if ((nBins > 0) && dist)
-                {
-                    //if it is small and not the first bin, then extend previous bin by the value
-                    const size_t nAddToPrevBin = dist + 1;
-                    _bins[nBins - 1] += nAddToPrevBin;
-                    i += nAddToPrevBin;
-                    newBinSize -= nAddToPrevBin;
-                }
+                --iClosestSmallerValue;
+            }
+            size_t dist = iClosestSmallerValue - i;
+            if (dist > _prm.minBinSize)
+            {
+                // add an extra bin at the left
+                const size_t newLeftBinSize = dist + 1;
+                append(_bins, nBins, newLeftBinSize);
+                i += newLeftBinSize;
+                newBinSize -= newLeftBinSize;
+            }
+            else if ((nBins > 0) && dist > 0)
+            {
+                // no room for an extra bin to the left, extend the previous
+                // one if possible
+                const size_t nAddToPrevBin = dist + 1;
+                _bins[nBins - 1] += nAddToPrevBin;
+                i += nAddToPrevBin;
+                newBinSize -= nAddToPrevBin;
             }
             if (remainder > 0)
             { //reset bresenhams line due to unexpected change in remainder
@@ -315,9 +358,13 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
                 D  = dy - _prm.maxBins + nBins + 1;
             }
         }
+
+        // append the bin and continue
         append(_bins, nBins, newBinSize);
         i += newBinSize;
     }
+
+    // collect the remaining data rows in the final bin
     if (i < nRows)
     {
         size_t newBinSize = nRows - i;
@@ -330,6 +377,7 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
             _bins[nBins - 1] += newBinSize;
         }
     }
+
 #if _DEBUG
     #if 0
     //run-time check for bins correctness
@@ -345,6 +393,61 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(Nu
     #endif
 #endif
     return assignIndexAccordingToBins(entry, aRes, nBins, nRows);
+}
+
+template <typename IndexType, typename algorithmFPType, CpuType cpu>
+services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndexAverages(NumericTable & nt, IndexedFeatures::FeatureEntry & entry,
+                                                                                      IndexType * aRes, size_t iCol, size_t nRows)
+{
+    const typename super::FeatureIdx * index = this->_index.get();
+
+    size_t nBins = 0;
+    size_t i     = 0;
+    DAAL_ASSERT(_prm.maxBins > 0);
+    algorithmFPType binSize = (index[nRows - 1].key - index[0].key) / _prm.maxBins;
+    algorithmFPType value   = index[0].key;
+
+    while (i < nRows)
+    {
+        // next bin border to the right of current index
+        size_t iRight = i + 1;
+
+        while ((iRight < nRows) && (index[iRight].key < (value + binSize)))
+        {
+            ++iRight;
+        }
+
+        // found a new binEdge
+        // append the bin and continue
+        size_t newBinSize = iRight - i;
+
+        append(_bins, nBins, newBinSize);
+
+        i     = iRight;
+        value = index[i].key;
+    }
+
+    // assert we picked up all data records
+    DAAL_ASSERT(i == nRows);
+    DAAL_ASSERT(nBins <= _prm.maxBins);
+
+    return assignIndexAccordingToBins(entry, aRes, nBins, nRows);
+}
+
+template <typename IndexType, typename algorithmFPType, CpuType cpu>
+services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndexConstant(IndexedFeatures::FeatureEntry & entry, IndexType * aRes,
+                                                                                      size_t nRows)
+{
+    const typename super::FeatureIdx * index = this->_index.get();
+
+    _bins[0] = nRows;
+    services::internal::service_memset_seq<IndexType, cpu>(aRes, 0, nRows);
+
+    entry.numIndices = 1;
+    Status s         = entry.allocBorders();
+    DAAL_CHECK(s, s);
+    entry.binBorders[0] = index[nRows - 1].key;
+    return s;
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -368,7 +471,7 @@ services::Status IndexedFeatures::init(const NumericTable & nt, const FeatureTyp
 
     daal::tls<TlsTask *> tlsData([=, &nt]() -> TlsTask * {
         const size_t nRows = nt.getNumberOfRows();
-        TlsTask * res      = (pBimPrm ? new BinningTask(nRows, *pBimPrm) : new DefaultTask(nRows));
+        TlsTask * res      = (!pBimPrm || (pBimPrm->maxBins == 0)) ? new DefaultTask(nRows) : new BinningTask(nRows, *pBimPrm);
         if (res && !res->isValid())
         {
             delete res;

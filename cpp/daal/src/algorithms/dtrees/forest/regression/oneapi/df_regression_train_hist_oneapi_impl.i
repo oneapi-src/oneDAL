@@ -810,7 +810,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     kernelReducePartialHistograms     = kernel_factory.getKernel("reducePartialHistograms", status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    dtrees::internal::BinParams prm(par.maxBins, par.minBinSize);
+    dtrees::internal::BinParams prm(par.maxBins, par.minBinSize, par.binningStrategy);
     decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
 

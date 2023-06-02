@@ -609,8 +609,6 @@ protected:
                                   IndexType & iBestFeature, typename DataHelper::TSplitData & split, algorithmFPType totalWeights);
     NodeSplitResult findBestSplitSerial(size_t level, size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity,
                                         IndexType & iBestFeature, typename DataHelper::TSplitData & split, algorithmFPType totalWeights);
-    NodeSplitResult findBestSplitThreaded(size_t level, size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity,
-                                          IndexType & iBestFeature, typename DataHelper::TSplitData & split, algorithmFPType totalWeights);
     NodeSplitResult simpleSplit(size_t iStart, const typename DataHelper::ImpurityData & curImpurity, IndexType & iFeatureBest,
                                 typename DataHelper::TSplitData & split);
     void addImpurityDecrease(IndexType iFeature, size_t n, const typename DataHelper::ImpurityData & curImpurity,
@@ -620,16 +618,6 @@ protected:
     {
         _helper.getColumnValues(iFeature, aIdx, n, featureVal);
         daal::algorithms::internal::qSort<algorithmFPType, int, cpu>(n, featureVal, aIdx);
-    }
-
-    //find features to check in the current split node
-    void chooseFeatures()
-    {
-        const size_t n    = nFeatures();
-        const size_t nGen = (!_memorySavingMode && !_maxLeafNodes && !_useConstFeatures) ? n : _nFeaturesPerNode;
-        *_numElems += n;
-        RNGsInst<IndexType, cpu> rng;
-        rng.drawKFromBufferWithoutReplacement(nGen, _aFeatureIdx.get(), _aFeatureIdx.get() + nGen, _helper.engineImpl->getState(), n);
     }
 
     services::Status computeResults(const dtrees::internal::Tree & t);
@@ -1095,8 +1083,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
 #endif
         return simpleSplit(iStart, curImpurity, iFeatureBest, split);
     }
-    if (_nFeatureBufs == 1) return findBestSplitSerial(level, iStart, n, curImpurity, iFeatureBest, split, totalWeights);
-    return findBestSplitThreaded(level, iStart, n, curImpurity, iFeatureBest, split, totalWeights);
+    return findBestSplitSerial(level, iStart, n, curImpurity, iFeatureBest, split, totalWeights);
 }
 
 //find best split and put it to featureIndexBuf
@@ -1265,17 +1252,6 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
                                                            //then aIdx already contains the best split, no need to copy
     if (bCopyToIdx) services::internal::tmemcpy<IndexType, cpu>(aIdx, bestSplitIdx, n);
     return { st, true };
-}
-
-template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
-NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBestSplitThreaded(
-    size_t level, size_t iStart, size_t n, const typename DataHelper::ImpurityData & curImpurity, IndexType & iFeatureBest,
-    typename DataHelper::TSplitData & split, algorithmFPType totalWeights)
-{
-    chooseFeatures();
-    TArray<typename DataHelper::TSplitData, cpu> aFeatureSplit(_nFeaturesPerNode);
-    //TODO, if parallel for features
-    return { services::Status(services::ErrorMethodNotSupported), false };
 }
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, CpuType cpu>
