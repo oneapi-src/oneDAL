@@ -39,6 +39,9 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto data = input.get_data();
     auto model = input.get_model();
     auto eigenvectors = model.get_eigenvectors();
+    auto means = model.get_means();
+    auto variances = model.get_variances();
+    auto eigenvalues = model.get_eigenvalues();
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t component_count = get_component_count(desc, data);
     dal::detail::check_mul_overflow(row_count, component_count);
