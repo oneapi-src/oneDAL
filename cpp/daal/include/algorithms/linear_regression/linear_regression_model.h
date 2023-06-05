@@ -74,11 +74,6 @@ class DAAL_EXPORT Model : public linear_model::Model
 {
 public:
     DAAL_CAST_OPERATOR(Model)
-
-    /**
-     * Empty contructor for deserialization
-     **/
-    Model();
 };
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;

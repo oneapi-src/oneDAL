@@ -65,7 +65,7 @@ public:
     /**
      * Empty constructor for deserialization
      */
-    Model() {}
+    // Model() : classifier::Model() {}
 
     /**
     * Returns the number of regression coefficients
@@ -91,8 +91,8 @@ public:
     */
     virtual const data_management::NumericTablePtr getBeta() const = 0;
 
-// protected:
-//     Model() : classifier::Model() {}
+protected:
+    Model() : classifier::Model() {}
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;

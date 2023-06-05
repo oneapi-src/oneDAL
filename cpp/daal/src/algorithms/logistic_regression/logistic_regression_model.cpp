@@ -25,6 +25,8 @@
 #include "src/services/serialization_utils.h"
 #include "src/data_management/service_numeric_table.h"
 
+#include <iostream>
+
 using namespace daal::data_management;
 using namespace daal::services;
 using namespace daal::algorithms::logistic_regression::internal;
@@ -78,12 +80,15 @@ services::Status ModelImpl::reset(bool interceptFlag)
 
 services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
+    std::cout << "ModelImpl::serializeImpl" << std::endl;
     auto s = algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
+    std::cout << "auto s = algorithms::classifier::Model::serialImpl<" << std::endl;
     return s.add(this->serialImpl<data_management::InputDataArchive, false>(arch));
 }
 
 services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
+    std::cout << "MODEL IMPL deserializeImpl() invoked" << std::endl;
     auto s = algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
     return s.add(this->serialImpl<const data_management::OutputDataArchive, true>(arch));
 }
