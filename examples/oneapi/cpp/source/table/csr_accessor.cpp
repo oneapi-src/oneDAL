@@ -38,7 +38,8 @@ int main(int argc, char const *argv[]) {
     // in case of one-based indexing
     const auto [subtable_data, subtable_column_indices, subtable_row_offsets] = acc.pull({ 1, 3 });
 
-    std::cout << "Print the original sparse data table as 3 arrays in CSR storage format:" << std::endl;
+    std::cout << "Print the original sparse data table as 3 arrays in CSR storage format:"
+              << std::endl;
     std::cout << "Values of the table:" << std::endl;
     for (std::int64_t i = 0; i < element_count; i++) {
         std::cout << data[i] << ", ";
