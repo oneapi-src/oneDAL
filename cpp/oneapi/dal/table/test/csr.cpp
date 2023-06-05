@@ -336,6 +336,7 @@ TEST(
 TEST((std::string("can construct table from data pointers allocated on the device") +
       std::string(" and share the ownership of the data with those pointers"))
          .c_str()) {
+    std::cout << "In csr_table DPC++ test #1" << std::endl;
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
     constexpr std::int64_t row_count{ 4 };
@@ -362,6 +363,7 @@ TEST((std::string("can construct table from data pointers allocated on the devic
         cgh.memcpy(row_offsets, row_offsets_host, (row_count + 1) * sizeof(std::int64_t));
     });
 
+    std::cout << "Before csr_table::wrap" << std::endl;
     auto t = csr_table::wrap(q,
                              data,
                              column_indices,
@@ -370,6 +372,7 @@ TEST((std::string("can construct table from data pointers allocated on the devic
                              column_count,
                              sparse_indexing::one_based,
                              { data_event, column_indices_event, row_offsets_event });
+    std::cout << "After csr_table::wrap" << std::endl;
 
     REQUIRE(t.has_data() == true);
     REQUIRE(t.get_row_count() == row_count);
@@ -392,6 +395,7 @@ TEST((std::string("can construct table from data pointers allocated on the devic
     sycl::free(data, q);
     sycl::free(column_indices, q);
     sycl::free(row_offsets, q);
+    std::cout << "Test Ok" << std::endl;
 }
 
 #endif
@@ -422,6 +426,7 @@ TEST("can construct table from arrays and share the ownership of the data with t
 TEST((std::string("can construct table from arrays holding the data allocated on the device") +
       std::string(" and share the ownership of the data with those arrays"))
          .c_str()) {
+    std::cout << "In csr_table DPC++ test #2" << std::endl;
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
     constexpr std::int64_t row_count{ 4 };
@@ -454,7 +459,9 @@ TEST((std::string("can construct table from arrays holding the data allocated on
     const auto row_offsets_array =
         array<std::int64_t>::wrap(q, row_offsets, row_count + 1, { row_offsets_event });
 
+    std::cout << "Before csr_table::wrap" << std::endl;
     auto t = csr_table::wrap(data_array, column_indices_array, row_offsets_array, column_count);
+    std::cout << "After csr_table::wrap" << std::endl;
 
     REQUIRE(t.get_data<float>() == data);
     REQUIRE(t.get_column_indices() == column_indices);
@@ -466,6 +473,7 @@ TEST((std::string("can construct table from arrays holding the data allocated on
     sycl::free(data, q);
     sycl::free(column_indices, q);
     sycl::free(row_offsets, q);
+    std::cout << "Test Ok" << std::endl;
 }
 
 #endif

@@ -492,7 +492,8 @@ out_of_bound_type check_bounds(sycl::queue& queue,
     // count the number of elements which are less than min_vaule using sycl::reduction
     auto event_count_lt_min = queue.submit([&](sycl::handler& cgh) {
         sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
-        auto count_lt_reduction = sycl::reduction(count_lt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+        auto count_lt_reduction =
+            sycl::reduction(count_lt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
         cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
                          count_lt_reduction,
@@ -507,7 +508,8 @@ out_of_bound_type check_bounds(sycl::queue& queue,
     // count the number of elements which are greater than max_vaule using sycl::reduction
     auto event_count_gt_max = queue.submit([&](sycl::handler& cgh) {
         sycl::accessor data_acc(data_buf, cgh, sycl::read_only);
-        auto count_gt_reduction = sycl::reduction(count_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+        auto count_gt_reduction =
+            sycl::reduction(count_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
         cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
                          count_gt_reduction,
