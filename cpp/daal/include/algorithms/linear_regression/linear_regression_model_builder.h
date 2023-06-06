@@ -58,6 +58,11 @@ template <typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
 class DAAL_EXPORT ModelBuilder
 {
 public:
+
+    /**
+     * Empty constructor for deserialization
+     */
+    ModelBuilder();
     /**
      * Constructs the Linear Regression model builder
      * \param[in] nFeatures      Number of features in training data
