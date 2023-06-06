@@ -197,14 +197,14 @@ MSG(invalid_set_of_result_options_to_search,
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
 
 /* Objective function */
-MSG(resp_column_count_is_not_eq_to_one, "Responses should be a table of size n*1");
-MSG(params_column_count_is_not_eq_to_one, "Parameters should be a table of size (p + 1) * 1");
-MSG(value_is_not_provided, "Table with value is missing");
-MSG(gradient_is_not_provided, "Table with gradient is missing");
-MSG(hessian_is_not_provided, "Table withj hessian is missing");
-MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct");
+MSG(resp_column_count_is_not_eq_to_one, "Responses should be a table of size n*1")
+MSG(params_column_count_is_not_eq_to_one, "Parameters should be a table of size (p + 1) * 1")
+MSG(value_is_not_provided, "Table with value is missing")
+MSG(gradient_is_not_provided, "Table with gradient is missing")
+MSG(hessian_is_not_provided, "Table withj hessian is missing")
+MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct")
 MSG(regularization_coef_is_less_than_zero,
-    "L1 and L2 regularization coefs should not be less than zero");
+    "L1 and L2 regularization coefs should not be less than zero")
 MSG(regularization_coef_is_nan_or_inf,
     "L1 and L2 regularization coefs should be real decimal numbers")
 

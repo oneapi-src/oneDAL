@@ -57,7 +57,7 @@ public:
     }
 
 private:
-    daal::internal::RNGs<Type, daal::sse2> daal_rng_;
+    daal::internal::RNGsInst<Type, daal::sse2> daal_rng_;
 };
 
 class engine {
