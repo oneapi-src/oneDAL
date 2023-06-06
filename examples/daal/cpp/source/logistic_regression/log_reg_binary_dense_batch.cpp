@@ -107,8 +107,9 @@ void testModel(const training::ResultPtr& trainingResult) {
     daal::data_management::OutputDataArchive out_ar(reinterpret_cast<byte *>(buf_ptr.get()), buf_len);
     std::cout << "Log Reg serialized successfully" << std::endl;
     std::cout << "Deserialization" << std::endl;
-    ModelBuilder<> builder; // (n_features, nClasses);
+    ModelBuilder<> builder; //(n_features, nClasses);
     logistic_regression::interface1::ModelPtr vModelPtr = builder.getModel();
+    std::cout << "Model built successfully" << std::endl;
     vModelPtr->deserialize(out_ar);
     std::cout << "Deserialized successfully" << std::endl;
 

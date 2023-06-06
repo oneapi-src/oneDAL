@@ -71,9 +71,7 @@ public:
     /**
      * Empty constructor for deserialization
      **/
-    ModelBuilder() {
-        ModelBuilder(size_t(0), size_t(0));
-    }
+    ModelBuilder();
 
     /**
      *  Method to set betas to model via NumericTablePtr, size of NumericTable have to be equal to (_nFeatures)*_nClasses
