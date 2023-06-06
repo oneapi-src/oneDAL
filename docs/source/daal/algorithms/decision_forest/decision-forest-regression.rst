@@ -108,35 +108,7 @@ Training
 
 For the description of the input and output, refer to :ref:`regression_usage_model`.
 
-In addition to the decision forest parameters described in :ref:`df_batch`,
-the training algorithm for decision forest regression has the following parameters:
-
-.. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
-
-.. list-table:: Training Parameters for Decision Forest Regression (Batch Processing)
-   :widths: 10 10 60
-   :header-rows: 1
-   :align: left
-   :class: longtable
-
-   * - Parameter
-     - Default Value
-     - Description
-   * - ``algorithmFPType``
-     - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
-   * - ``method``
-     - ``defaultDense``
-     - The computation method used by the decision forest regression.
-
-       For CPU:
-
-       - ``defaultDense`` - default performance-oriented method
-       - ``hist`` - inexact histogram computation method
-
-       For GPU:
-
-       - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
+Decision forest regression training parameters are described in :ref:`df_batch`
 
 
 Output
