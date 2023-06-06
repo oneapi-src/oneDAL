@@ -79,11 +79,6 @@ class DAAL_EXPORT Model : public regression::Model
 public:
     DAAL_CAST_OPERATOR(Model)
 
-    /**
-     *  Empty constructor for deserialization
-     */
-    // Model();
-
     virtual ~Model() {}
 
     /**
