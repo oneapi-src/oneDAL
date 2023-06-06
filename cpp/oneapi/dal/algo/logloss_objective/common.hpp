@@ -120,7 +120,8 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-    /// Creates a new instance of the class with the default property values.
+    /// Creates a new instance of the class with the given :literal:`l1_regularization_coefficient`,
+    /// :literal:`l2_regularization_coefficient` and :literal:`fit_intercept` property values.
     explicit descriptor(double l1_regularization_coefficient = 0.0,
                         double l2_regularization_coefficient = 0.0,
                         bool fit_intercept = true) {
@@ -129,16 +130,10 @@ public:
         set_intercept_flag(fit_intercept);
     }
 
+    /// The L1-regularization strength
+    /// @invariant :expr:`l1_regularization_coefficient >= 0.0`
     double get_l1_regularization_coefficient() const {
         return base_t::get_l1_regularization_coefficient();
-    }
-
-    double get_l2_regularization_coefficient() const {
-        return base_t::get_l2_regularization_coefficient();
-    }
-
-    bool get_intercept_flag() const {
-        return base_t::get_intercept_flag();
     }
 
     auto& set_l1_regularization_coefficient(double value) {
@@ -146,9 +141,20 @@ public:
         return *this;
     }
 
+    /// The L2-regularization strength
+    /// @invariant :expr:`l2_regularization_coefficient >= 0.0`
+    double get_l2_regularization_coefficient() const {
+        return base_t::get_l2_regularization_coefficient();
+    }
+
     auto& set_l2_regularization_coefficient(double value) {
         base_t::set_l2_regularization_coefficient_impl(value);
         return *this;
+    }
+
+    /// The fit_intercept flag.
+    bool get_intercept_flag() const {
+        return base_t::get_intercept_flag();
     }
 
     auto& set_intercept_flag(bool fit_intercept) {
