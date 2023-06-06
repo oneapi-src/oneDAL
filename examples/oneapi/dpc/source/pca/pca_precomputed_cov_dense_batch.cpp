@@ -59,8 +59,8 @@ void run(sycl::queue& q) {
     std::cout << "Before Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
     
     auto model = result_train.get_model();
-    // model.set_means(means);
-    // model.set_eigenvalues(evs);
+    model.set_means(means);
+    model.set_eigenvalues(evs);
     const auto result_infer2 = dal::infer(q, pca_desc, model, x_test);
 
     std::cout << "Transformed data:\n" << result_infer2.get_transformed_data() << std::endl;
