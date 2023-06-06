@@ -55,6 +55,20 @@ sycl::event elementwise_difference(sycl::queue& queue,
                   ndview<Float, 2>& difference,
                   const event_vector& deps = {});
 
+
+/// SQRT of 1-d array
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  src  source array
+/// @param[out]  dst  destination array with elementwise square-root of source array  
+template <typename Float>
+sycl::event elementwise_sqrt(sycl::queue& queue,
+                  const ndview<Float, 1>& src,
+                  ndview<Float, 1>& dst,
+                  const event_vector& deps = {});
+
 /// Divide 2-d array by 1-d array
 ///
 /// @tparam Float Floating-point type used to perform computations

@@ -41,6 +41,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     auto eigenvectors = model.get_eigenvectors();
     auto means = model.get_means();
     auto eigenvalues = model.get_eigenvalues();
+    
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t col_count = data.get_column_count();
     const std::int64_t component_count = get_component_count(desc, data);
@@ -54,17 +55,13 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto eigenvectors_nd =
         pr::table2ndarray<Float>(queue, eigenvectors, sycl::usm::alloc::device);
 
-    sycl::event elementwise_difference_event;
-    {
-        ONEDAL_PROFILER_TASK(elementwise_difference, queue);
-        elementwise_difference_event = pr::elementwise_difference(
-            queue,
-            row_count,
-            data_nd,
-            means_nd,
-            mean_centered_data_nd
-        );
-    }
+    pr::elementwise_difference(
+        queue,
+        row_count,
+        data_nd,
+        means_nd,
+        mean_centered_data_nd
+    );
     
     auto res_nd = pr::ndarray<Float, 2>::empty(queue,
                                                { row_count, component_count },
@@ -77,31 +74,39 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 
     if (eigenvalues.has_data()){
         auto eigenvalues_nd = pr::table2ndarray_1d<Float>(queue, eigenvalues, sycl::usm::alloc::device);
+        auto sqrt_eigenvalues_nd = pr::ndarray<Float, 1>::empty(queue,
+                                               { component_count },
+                                               sycl::usm::alloc::device);
+        pr::elementwise_sqrt(
+            queue,
+            eigenvalues_nd,
+            sqrt_eigenvalues_nd
+        );
+        
         auto result_whitened_nd = pr::ndarray<Float, 2>::empty(queue,
                                                { row_count, component_count },
                                                sycl::usm::alloc::device);
-        sycl::event elementwise_division_event;
+        sycl::event whiten_event;
         {
             ONEDAL_PROFILER_TASK(elementwise_division, queue);
-            elementwise_division_event = pr::elementwise_division(
+            whiten_event = pr::elementwise_division(
                 queue,
                 row_count,
                 res_nd,
-                eigenvalues_nd,
+                sqrt_eigenvalues_nd,
                 result_whitened_nd
-        );
+            );
         }
 
-        const auto res_array_whitened = result_whitened_nd.flatten(queue, { elementwise_division_event });
+        const auto res_array_whitened = result_whitened_nd.flatten(queue, { whiten_event });
         const auto res_table = homogen_table::wrap(res_array_whitened, row_count, component_count);
 
         return result_t{}.set_transformed_data(res_table);
     }
-    else{
-        const auto res_array = res_nd.flatten(queue, { gemm_event });
-        const auto res_table = homogen_table::wrap(res_array, row_count, component_count);
-        return result_t{}.set_transformed_data(res_table);
-    }
+
+    const auto res_array = res_nd.flatten(queue, { gemm_event });
+    const auto res_table = homogen_table::wrap(res_array, row_count, component_count);
+    return result_t{}.set_transformed_data(res_table);
 }
 
 template <typename Float>
