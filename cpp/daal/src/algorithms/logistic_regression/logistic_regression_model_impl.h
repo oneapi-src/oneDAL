@@ -27,8 +27,6 @@
 #include "algorithms/logistic_regression/logistic_regression_model.h"
 #include "src/algorithms/classifier/classifier_model_impl.h"
 
-#include <iostream>
-
 namespace daal
 {
 namespace algorithms
@@ -65,16 +63,11 @@ protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {   
-        std::cout << "ModelImpl::serialImpl()" << std::endl;
         auto st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
         if (!st) return st;
-        std::cout << "classifier::Model::serialImpl<Archive, onDeserialize>(arch);" << std::endl;
         arch->set(ClassificationImplType::_nFeatures);
-        std::cout << "arch->set(ClassificationImplType::_nFeatures);" << std::endl;
         arch->set(_interceptFlag);
-        std::cout << "arch->set(_interceptFlag);" << std::endl;
         arch->setSharedPtrObj(_beta);
-        std::cout << "arch->setSharedPtrObj(_beta);" << std::endl;
         return services::Status();
     }
 

@@ -19,8 +19,6 @@
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
-#include<iostream>
-
 namespace daal
 {
 namespace algorithms
@@ -34,7 +32,6 @@ using namespace daal::data_management;
 template <typename modelFPType>
 ModelBuilder<modelFPType>::ModelBuilder() : _nFeatures(0), _nClasses(0)
 {
-    std::cout <<" ModelBuilder<modelFPType>::ModelBuilder(0, 0)" << std::endl;
     _modelPtr = logistic_regression::ModelPtr(new logistic_regression::internal::ModelImpl());
 }
 
@@ -42,7 +39,6 @@ ModelBuilder<modelFPType>::ModelBuilder() : _nFeatures(0), _nClasses(0)
 template <typename modelFPType>
 ModelBuilder<modelFPType>::ModelBuilder(size_t nFeatures, size_t nClasses) : _nFeatures(nFeatures), _nClasses(nClasses)
 {
-    std::cout <<" ModelBuilder<modelFPType>::ModelBuilder(size_t nFeatures, size_t nClasses)" << std::endl;
     const bool interceptFlag = true; /* default intercept flag is true but can be changed via setInterceptFlag */
     modelFPType dummy        = 1.0;
     _modelPtr = logistic_regression::ModelPtr(new logistic_regression::internal::ModelImpl(_nFeatures, interceptFlag, _nClasses, dummy, &_s));
