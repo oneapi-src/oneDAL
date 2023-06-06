@@ -84,6 +84,11 @@ public:
     }
 
     /**
+     * Constructs the Decision forest classification model builder
+     */
+    ModelBuilder();
+
+    /**
     *  Create certain tree in the decision forest model
     *  \param[in] nNodes  Number of nodes in created tree
     *  \return Tree identifier

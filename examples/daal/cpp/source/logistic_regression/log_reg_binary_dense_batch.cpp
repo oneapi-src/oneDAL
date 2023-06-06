@@ -102,10 +102,7 @@ void testModel(const training::ResultPtr& trainingResult) {
     model_ptr->serialize(ar);
     size_t buf_len = ar.getSizeOfArchive();
     auto buf_ptr = ar.getArchiveAsArraySharedPtr();
-    // auto n_features = model_ptr->getNumberOfFeatures();
-    std::cout << "buf_len=" << buf_len << std::endl;
     daal::data_management::OutputDataArchive out_ar(reinterpret_cast<byte *>(buf_ptr.get()), buf_len);
-    std::cout << "Log Reg serialized successfully" << std::endl;
     ModelBuilder<> builder;
     logistic_regression::interface1::ModelPtr vModelPtr = builder.getModel();
     vModelPtr->deserialize(out_ar);

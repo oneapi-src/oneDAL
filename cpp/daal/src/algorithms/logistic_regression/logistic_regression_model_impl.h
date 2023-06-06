@@ -62,7 +62,7 @@ public:
 protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
-    {   
+    {
         auto st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
         if (!st) return st;
         arch->set(ClassificationImplType::_nFeatures);

@@ -106,13 +106,24 @@ void testModel(const training::ResultPtr& trainingResult) {
 
     loadData(testDatasetFileName, testData, testGroundTruth);
 
+    auto model_ptr = trainingResult->get(classifier::training::model);
+    daal::data_management::InputDataArchive ar;
+    model_ptr->serialize(ar);
+    size_t buf_len = ar.getSizeOfArchive();
+    auto buf_ptr = ar.getArchiveAsArraySharedPtr();
+    ModelBuilder builder;
+    auto des_model_ptr = builder.getModel();
+    daal::data_management::OutputDataArchive out_ar(reinterpret_cast<byte *>(buf_ptr.get()), buf_len);
+    des_model_ptr->deserialize(out_ar);
+
+
     /* Create an algorithm object to predict values of decision forest classification */
     prediction::Batch<> algorithm(nClasses);
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model,
-                        trainingResult->get(classifier::training::model));
+                        des_model_ptr);
     algorithm.parameter().votingMethod = prediction::weighted;
     algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities;
     /* Predict values of decision forest classification */
