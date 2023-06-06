@@ -36,29 +36,32 @@ Computing
 Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`, vector with correct class labels
 :math:`y = \{ y_1, \ldots, y_n \}` and coefficients vector `w = \{ w_0, \ldots, w_p \}`of size :math:`p + 1`. 
 
-.. list-table::
-   :widths: 10 60
-   :header-rows: 1
-   :align: left
 
-   * - Statistic
-     - Definition
-   * - Value
-     - :math:`L(X, w, y) = \sum_{i = 1}^{n} -y_i \log(prob_i) - (1 - y_i) \log(prob_i)`, where :math:`\prob_i = \sigma(w_0 + \sum_{j=1}^{p} w_j x_{i, j})` - predicted probabilities, 
-     - :math:`\sigma(x) = \frac{1}{1 + \exp(-x)}` - sigmoid function. Note that probabilities are binded to interval :math:`[\eps, 1 - \eps]` to avoid problems with computing log function.
-   * - Gradient
-     - :math:`\overline{grad} = \frac{\partial L}{\partial w}`, where :math:`\overline{grad}_0 = \sum_{i=1}^{n} prob_i - y_i`, 
-     - :math:`\overline{grad}_j = \sum_{i=1}^n X_{i, j} (prob_i - y_i) + L1 \cdot |w_j| + 2 \cdot L2 w_j` for :math:`1 \leq j \leq p`
-   * - Hessian 
-     - :math:`H = (h_{ij}) = \frac{\partial L}{\partial w \partial w}`, where 
-     - :math:`h_{0,0}= \sum_{k=1}^n prob_k (1 - prob_k)`, 
-     - :math:`h_{i,0} = h_{0,i} = \sum_{k=1}^n X_{k,i} \cdot prob_k (1 - prob_k) ` for :math:`1 \leq i \leq p`, 
-     - :math:`h_{i,j} = \sum_{k=1}^n X_{k,i} X_{k,j} \cdot prob_k (1 - prob_k) + [i = j] 2 \cdot L2` for :math:`1 \leq i, j \leq p`
+Value 
+#####
 
-.. _logloss_c_math_dense_batch:
+:math:`L(X, w, y) = \sum_{i = 1}^{n} -y_i \log(prob_i) - (1 - y_i) \log(prob_i)`, where :math:`\prob_i = \sigma(w_0 + \sum_{j=1}^{p} w_j x_{i, j})` - predicted probabilities, 
+:math:`\sigma(x) = \frac{1}{1 + \exp(-x)}` - sigmoid function. Note that probabilities are binded to interval :math:`[\eps, 1 - \eps]` to avoid problems with computing log function.
+
+Gradient
+########
+
+:math:`\overline{grad} = \frac{\partial L}{\partial w}`, where :math:`\overline{grad}_0 = \sum_{i=1}^{n} prob_i - y_i`, 
+:math:`\overline{grad}_j = \sum_{i=1}^n X_{i, j} (prob_i - y_i) + L1 \cdot |w_j| + 2 \cdot L2 w_j` for :math:`1 \leq j \leq p`
+
+Hessian
+#######
+
+:math:`H = (h_{ij}) = \frac{\partial L}{\partial w \partial w}`, where 
+:math:`h_{0,0}= \sum_{k=1}^n prob_k (1 - prob_k)`, 
+:math:`h_{i,0} = h_{0,i} = \sum_{k=1}^n X_{k,i} \cdot prob_k (1 - prob_k) ` for :math:`1 \leq i \leq p`, 
+:math:`h_{i,j} = \sum_{k=1}^n X_{k,i} X_{k,j} \cdot prob_k (1 - prob_k) + [i = j] 2 \cdot L2` for :math:`1 \leq i, j \leq p`
+
+
+.. _logloss_c_dense_batch:
 
 Computation method: *dense_batch*
----------------------------
+---------------------------------
 The method computes value of objective function, its gradient or hessian for the dense data.
 This is the default and the only method supported.
 

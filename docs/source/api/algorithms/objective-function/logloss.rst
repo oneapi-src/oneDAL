@@ -34,16 +34,34 @@ Refer to :ref:`Developer Guide: Logistic Loss <alg_logloss>`.
 Programming Interface
 ---------------------
 All types and functions in this section are declared in the
-``oneapi::dal::logloss_objective`` namespace.
+``oneapi::dal::objective_function`` namespace.
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::logloss_objective::descriptor
+.. onedal_class:: oneapi::dal::objective_function::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::method
+.. onedal_tags_namespace:: oneapi::dal::objective_function::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::task
+.. onedal_tags_namespace:: oneapi::dal::objective_function::task
+
+.. _logloss_c_api:
+
+Computation :cpp:expr:`compute(...)`
+------------------------------------
+
+.. _logloss_c_api_input:
+
+Input
+~~~~~
+.. onedal_class:: oneapi::dal::objective_function::compute_input
+
+.. _logloss_c_api_result:
+
+Result
+~~~~~~
+.. onedal_class:: oneapi::dal::objective_function::compute_result
+

@@ -38,7 +38,7 @@ using v1::compute_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::logloss`.
+///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -88,7 +88,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::logloss`.
+///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
 class compute_result : public base {
     static_assert(detail::is_valid_task_v<Task>);

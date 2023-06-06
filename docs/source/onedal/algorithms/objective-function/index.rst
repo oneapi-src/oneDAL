@@ -14,9 +14,9 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==========
+==================
 Objective function
-==========
+==================
 
 Some classification algorithms are designed to minimize the 
 selected objective function. On each iteration its' gradient and sometimes
