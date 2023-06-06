@@ -96,21 +96,10 @@ void testModel(const training::ResultPtr& trainingResult) {
     /* Create an algorithm object to predict values of logistic regression */
     prediction::Batch<> algorithm(nClasses);
 
-    logistic_regression::ModelPtr model_ptr = trainingResult->get(classifier::training::model);
-    std::cout << "Serializing model" << std::endl;
-    daal::data_management::InputDataArchive ar;
-    model_ptr->serialize(ar);
-    size_t buf_len = ar.getSizeOfArchive();
-    auto buf_ptr = ar.getArchiveAsArraySharedPtr();
-    daal::data_management::OutputDataArchive out_ar(reinterpret_cast<byte *>(buf_ptr.get()), buf_len);
-    ModelBuilder<> builder;
-    logistic_regression::interface1::ModelPtr vModelPtr = builder.getModel();
-    vModelPtr->deserialize(out_ar);
-
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model,
-                        vModelPtr);
+                        trainingResult->get(classifier::training::model));
 
     /* Predict values of logistic regression */
     algorithm.compute();
