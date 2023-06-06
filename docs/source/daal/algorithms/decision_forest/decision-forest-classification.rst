@@ -214,6 +214,22 @@ following parameters:
    * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.
+   * - ``maxBins``
+     - :math:`256`
+     - Used with inexact split method only. Maximal number of discrete bins to
+       bucket continuous features. Increasing the number results in higher
+       computation costs. Selecting :math:`0` disables creating buckets.
+   * - ``minBinSize``
+     - :math:`5`
+     - Used with inexact split method only. Minimal number of observations in a bin.
+   * - ``binningStrategy``
+     - ``quantiles``
+     - Used with inexact split method only and CPU only. Selects the algorithm
+       used to calculate bin edges. ``quantiles`` results in bins with a similar
+       amount of training data points. ``averages`` divides the range of values
+       observed in the training data set into equal-width bins of size `(max -
+       min) / maxBins`.
+
 
 Output
 ******
