@@ -51,14 +51,14 @@ sycl::event means(sycl::queue& q,
     });
 }
 
-// Subtract 1-d array from 2-d array elementwise 
+// Subtract 1d array from 2d array elementwise
 template <typename Float>
 sycl::event elementwise_difference(sycl::queue& q,
-                  std::int64_t row_count,
-                  const ndview<Float, 2>& minuend,
-                  const ndview<Float, 1>& subtrahend,
-                  ndview<Float, 2>& difference,
-                  const event_vector& deps) {
+                                   std::int64_t row_count,
+                                   const ndview<Float, 2>& minuend,
+                                   const ndview<Float, 1>& subtrahend,
+                                   ndview<Float, 2>& difference,
+                                   const event_vector& deps) {
     ONEDAL_ASSERT(minuend.has_data());
     ONEDAL_ASSERT(subtrahend.has_data());
     ONEDAL_ASSERT(difference.has_mutable_data());
@@ -80,18 +80,18 @@ sycl::event elementwise_difference(sycl::queue& q,
         cgh.parallel_for(range, [=](sycl::id<2> id) {
             const std::int64_t i = id[0];
             const std::int64_t j = id[1];
-            difference_ptr[i*column_count + j] = minuend_ptr[i*column_count + j] - subtrahend_ptr[j];
+            difference_ptr[i * column_count + j] =
+                minuend_ptr[i * column_count + j] - subtrahend_ptr[j];
         });
     });
 }
 
-// SQRT of 1-d array elementwise
+// SQRT of 1d array elementwise
 template <typename Float>
 sycl::event elementwise_sqrt(sycl::queue& q,
-                    const ndview<Float, 1>& src,
-                    ndview<Float, 1>& dst,
-                    const event_vector& deps) {
-    
+                             const ndview<Float, 1>& src,
+                             ndview<Float, 1>& dst,
+                             const event_vector& deps) {
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     ONEDAL_ASSERT(dst.get_shape() == src.get_shape());
@@ -110,11 +110,11 @@ sycl::event elementwise_sqrt(sycl::queue& q,
 // Divide 2d array by 1d array elementwise
 template <typename Float>
 sycl::event elementwise_division(sycl::queue& q,
-                  std::int64_t row_count,
-                  const ndview<Float, 2>& numerator,
-                  const ndview<Float, 1>& denominator,
-                  ndview<Float, 2>& quotient,
-                  const event_vector& deps) {
+                                 std::int64_t row_count,
+                                 const ndview<Float, 2>& numerator,
+                                 const ndview<Float, 1>& denominator,
+                                 ndview<Float, 2>& quotient,
+                                 const event_vector& deps) {
     ONEDAL_ASSERT(numerator.has_data());
     ONEDAL_ASSERT(denominator.has_data());
     ONEDAL_ASSERT(quotient.has_mutable_data());
@@ -137,7 +137,8 @@ sycl::event elementwise_division(sycl::queue& q,
             const std::int64_t i = id[0];
             const std::int64_t j = id[1];
             ONEDAL_ASSERT(Float(denominator_ptr[j]) != Float(0.0));
-            quotient_ptr[i * column_count + j] = numerator_ptr[i * column_count + j] / denominator_ptr[j];
+            quotient_ptr[i * column_count + j] =
+                numerator_ptr[i * column_count + j] / denominator_ptr[j];
         });
     });
 }
@@ -434,34 +435,33 @@ sycl::event correlation_from_covariance(sycl::queue& q,
 INSTANTIATE_MEANS(float)
 INSTANTIATE_MEANS(double)
 
-
-#define INSTANTIATE_ELEMENWISE_DIFFERENCE(F)                                           \
+#define INSTANTIATE_ELEMENWISE_DIFFERENCE(F)                                          \
     template ONEDAL_EXPORT sycl::event elementwise_difference<F>(sycl::queue&,        \
-                                                std::int64_t,        \
-                                                const ndview<F, 2>&, \
-                                                const ndview<F, 1>&, \
-                                                ndview<F, 2>&,       \
-                                                const event_vector&);
+                                                                 std::int64_t,        \
+                                                                 const ndview<F, 2>&, \
+                                                                 const ndview<F, 1>&, \
+                                                                 ndview<F, 2>&,       \
+                                                                 const event_vector&);
 
 INSTANTIATE_ELEMENWISE_DIFFERENCE(float)
 INSTANTIATE_ELEMENWISE_DIFFERENCE(double)
 
-#define INSTANTIATE_ELEMENWISE_DIVISION(F)                                         \
+#define INSTANTIATE_ELEMENWISE_DIVISION(F)                                          \
     template ONEDAL_EXPORT sycl::event elementwise_division<F>(sycl::queue&,        \
-                                                std::int64_t,        \
-                                                const ndview<F, 2>&, \
-                                                const ndview<F, 1>&, \
-                                                ndview<F, 2>&,       \
-                                                const event_vector&);
+                                                               std::int64_t,        \
+                                                               const ndview<F, 2>&, \
+                                                               const ndview<F, 1>&, \
+                                                               ndview<F, 2>&,       \
+                                                               const event_vector&);
 
 INSTANTIATE_ELEMENWISE_DIVISION(float)
 INSTANTIATE_ELEMENWISE_DIVISION(double)
 
-#define INSTANTIATE_ELEMENWISE_SQRT(F)                                         \
+#define INSTANTIATE_ELEMENWISE_SQRT(F)                                          \
     template ONEDAL_EXPORT sycl::event elementwise_sqrt<F>(sycl::queue&,        \
-                                                const ndview<F, 1>&, \
-                                                ndview<F, 1>&, \
-                                                const event_vector&);
+                                                           const ndview<F, 1>&, \
+                                                           ndview<F, 1>&,       \
+                                                           const event_vector&);
 
 INSTANTIATE_ELEMENWISE_SQRT(float)
 INSTANTIATE_ELEMENWISE_SQRT(double)
@@ -475,8 +475,6 @@ INSTANTIATE_ELEMENWISE_SQRT(double)
 
 INSTANTIATE_COV(float)
 INSTANTIATE_COV(double)
-
-
 
 #define INSTANTIATE_COR_FROM_COV(F)                                                        \
     template ONEDAL_EXPORT sycl::event correlation_from_covariance<F>(sycl::queue&,        \
