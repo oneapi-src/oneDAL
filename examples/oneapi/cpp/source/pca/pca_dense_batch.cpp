@@ -46,7 +46,7 @@ void run(
 
     auto model = result_train.get_model();
 
-    model.set_eigenvalues(ev);
+    // model.set_eigenvalues(ev);
 
     model.set_means(mns);
 
@@ -62,7 +62,7 @@ void run(
 
     const auto result_infer2 = dal::infer(pca_desc, model, x_train);
 
-    std::cout << "After Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+    std::cout << "After Transformed data:\n" << result_infer2.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {

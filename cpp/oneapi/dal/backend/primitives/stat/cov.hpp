@@ -37,6 +37,25 @@ sycl::event means(sycl::queue& queue,
                   ndview<Float, 1>& means,
                   const event_vector& deps = {});
 
+
+/// Subtract 1-d array from 2-d array
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
+/// @param[in]  minuend  A 2-d array, from which another array will be subtracted
+/// @param[in]  subtrahend  A 1-d array, which is to be subtracted from minuend
+/// @param[out] difference The difference between minuend and 
+template <typename Float>
+sycl::event elementwise_difference(sycl::queue& queue,
+                  std::int64_t row_count,
+                  const ndview<Float, 2>& minuend,
+                  const ndview<Float, 1>& subtrahend,
+                  ndview<Float, 2>& difference,
+                  const event_vector& deps = {});
+
+
 /// Computes covariance matrix
 ///
 /// @tparam Float Floating-point type used to perform computations

@@ -22,11 +22,17 @@
 namespace dal = oneapi::dal;
 
 template <typename Method>
-void run(const dal::table& x_train, const std::string& method_name) {
+void run(
+    const dal::table& cov_train,
+    const dal::table& ev,
+    const dal::table& mns,
+    const dal::table& vrs, 
+    const dal::table& x_test,  
+    const std::string& method_name) {
     const auto pca_desc =
-        dal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
+        dal::pca::descriptor<float, Method>().set_component_count(2).set_deterministic(true);
 
-    const auto result_train = dal::train(pca_desc, x_train);
+    const auto result_train = dal::train(pca_desc, cov_train);
 
     std::cout << method_name << "\n" << std::endl;
 
@@ -34,20 +40,48 @@ void run(const dal::table& x_train, const std::string& method_name) {
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
-    const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_train);
+    const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_test);
 
-    std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+    std::cout << "Before Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+
+
+    std::cout << method_name << "\n" << std::endl;
+
+    auto model = result_train.get_model();
+
+    model.set_eigenvalues(ev);
+
+    model.set_means(mns);
+
+    // model.set_variances(vrs);
+
+    std::cout << "Eigenvectors:\n" << model.get_eigenvectors() << std::endl;
+
+    std::cout << "Eigenvalues:\n" << model.get_eigenvalues() << std::endl;
+
+    std::cout << "Means:\n" << model.get_means() << std::endl;
+
+    std::cout << "Variances:\n" << model.get_variances() << std::endl;
+
+    const auto result_infer2 = dal::infer(pca_desc, model, x_test);
+
+    std::cout << "After Transformed data:\n" << result_infer2.get_transformed_data() << std::endl;
+
 }
 
 int main(int argc, char const* argv[]) {
-    const auto cov_data_file_name = get_data_path("precomputed_covariance.csv");
-    const auto cor_data_file_name = get_data_path("precomputed_correlation.csv");
+    const auto infer_name = get_data_path("c_data.csv");
+    const auto cov_name = get_data_path("c_cov.csv");
+    const auto ev_name = get_data_path("c_ev.csv");
+    const auto mn_name = get_data_path("c_mns.csv");
+    const auto vr_name = get_data_path("c_vrs.csv");
 
-    const auto cov_train = dal::read<dal::table>(dal::csv::data_source{ cov_data_file_name });
-    const auto cor_train = dal::read<dal::table>(dal::csv::data_source{ cor_data_file_name });
+    const auto x_test = dal::read<dal::table>(dal::csv::data_source{ infer_name });
+    const auto cov_train = dal::read<dal::table>(dal::csv::data_source{ cov_name });
+    const auto ev = dal::read<dal::table>(dal::csv::data_source{ ev_name });
+    const auto mns = dal::read<dal::table>(dal::csv::data_source{ mn_name });
+    const auto vrs = dal::read<dal::table>(dal::csv::data_source{ vr_name });
 
-    run<dal::pca::method::precomputed>(cov_train, "PCA precomputed method with covariance matrix");
-    run<dal::pca::method::precomputed>(cor_train, "PCA precomputed method with correlation matrix");
-
+    run<dal::pca::method::precomputed>(cov_train, ev, mns, vrs, x_test, "PCA precomputed method with covariance matrix");
     return 0;
 }

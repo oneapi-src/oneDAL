@@ -52,6 +52,68 @@ sycl::event means(sycl::queue& q,
 }
 
 template <typename Float>
+sycl::event elementwise_difference(sycl::queue& q,
+                  std::int64_t row_count,
+                  const ndview<Float, 2>& minuend,
+                  const ndview<Float, 1>& subtrahend,
+                  ndview<Float, 2>& difference,
+                  const event_vector& deps) {
+    ONEDAL_ASSERT(minuend.has_data());
+    ONEDAL_ASSERT(subtrahend.has_data());
+    ONEDAL_ASSERT(difference.has_mutable_data());
+    ONEDAL_ASSERT(is_known_usm(q, minuend.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, subtrahend.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, difference.get_mutable_data()));
+    ONEDAL_ASSERT(minuend.get_dimension(0) == difference.get_dimension(0));
+    ONEDAL_ASSERT(minuend.get_dimension(1) == subtrahend.get_dimension(0));
+
+    const auto column_count = minuend.get_dimension(1);
+
+    const Float* minuend_ptr = minuend.get_data();
+    const Float* subtrahend_ptr = subtrahend.get_data();
+    Float* difference_ptr = difference.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = make_range_2d(row_count, column_count);
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<2> id) {
+            const std::int64_t i = id[0];
+            const std::int64_t j = id[1];
+            difference_ptr[i*column_count+j] = minuend_ptr[i*column_count+j] - subtrahend_ptr[j];
+        });
+    });
+}
+
+// template <typename Float>
+// sycl::event divide_elementwise(sycl::queue& q,
+//                   std::int64_t row_count,
+//                   const ndview<Float, 1>& sums,
+//                   ndview<Float, 1>& means,
+//                   const event_vector& deps) {
+//     ONEDAL_ASSERT(sums.has_data());
+//     ONEDAL_ASSERT(means.has_mutable_data());
+//     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+//     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
+//     ONEDAL_ASSERT(sums.get_dimension(0) == means.get_dimension(0));
+
+//     const auto column_count = sums.get_dimension(0);
+
+//     const Float inv_n = Float(1.0 / double(row_count));
+
+//     const Float* sums_ptr = sums.get_data();
+//     Float* means_ptr = means.get_mutable_data();
+
+//     return q.submit([&](sycl::handler& cgh) {
+//         const auto range = make_range_1d(column_count);
+//         cgh.depends_on(deps);
+//         cgh.parallel_for(range, [=](sycl::id<1> idx) {
+//             const Float s = sums_ptr[idx];
+//             means_ptr[idx] = inv_n * s;
+//         });
+//     });
+// }
+
+template <typename Float>
 inline sycl::event compute_covariance(sycl::queue& q,
                                       std::int64_t row_count,
                                       const ndview<Float, 1>& sums,
@@ -341,6 +403,18 @@ sycl::event correlation_from_covariance(sycl::queue& q,
 
 INSTANTIATE_MEANS(float)
 INSTANTIATE_MEANS(double)
+
+
+#define INSTANTIATE_ELEMENWISE_DIFFERENCE(F)                                           \
+    template ONEDAL_EXPORT sycl::event elementwise_difference<F>(sycl::queue&,        \
+                                                std::int64_t,        \
+                                                const ndview<F, 2>&, \
+                                                const ndview<F, 1>&, \
+                                                ndview<F, 2>&,       \
+                                                const event_vector&);
+
+INSTANTIATE_ELEMENWISE_DIFFERENCE(float)
+INSTANTIATE_ELEMENWISE_DIFFERENCE(double)
 
 #define INSTANTIATE_COV(F)                                                \
     template ONEDAL_EXPORT sycl::event covariance<F>(sycl::queue&,        \
