@@ -64,7 +64,7 @@ public:
     virtual int bernoulliRNG(const size_t n, int * r, const double p, const int method)                       = 0;
     virtual int getSize()                                                                                     = 0;
     virtual void clone(void * dest) const                                                                     = 0;
-    virtual StateIface * clone() const                                                                    = 0;
+    virtual StateIface * clone() const                                                                        = 0;
     virtual void assign(const void * src)                                                                     = 0;
     virtual void discard(size_t nSkip)                                                                        = 0;
 };
@@ -132,11 +132,11 @@ public:
     int getSize() override { return sizeof(ThisType); }
     void clone(void * dest) const override
     {
-        State * destState = static_cast<State *>(dest);
-        destState->_seedSize  = _seedSize;
-        destState->_brngId    = _brngId;
-        destState->_nSkip     = _nSkip;
-        destState->_seed      = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * destState->_seedSize);
+        State * destState    = static_cast<State *>(dest);
+        destState->_seedSize = _seedSize;
+        destState->_brngId   = _brngId;
+        destState->_nSkip    = _nSkip;
+        destState->_seed     = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * destState->_seedSize);
         for (size_t i = 0; i < destState->_seedSize; ++i)
         {
             destState->_seed[i] = _seed[i];
@@ -146,9 +146,9 @@ public:
     void assign(const void * src) override
     {
         const State * srcState = static_cast<const State *>(src);
-        _seedSize                  = srcState->_seedSize;
-        _brngId                    = srcState->_brngId;
-        _nSkip                     = srcState->_nSkip;
+        _seedSize              = srcState->_seedSize;
+        _brngId                = srcState->_brngId;
+        _nSkip                 = srcState->_nSkip;
         if (_seed)
         {
             daal::services::daal_free((void *)_seed);

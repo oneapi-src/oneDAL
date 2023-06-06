@@ -39,28 +39,28 @@ namespace daal
 {
 namespace internal
 {
-    template <typename fpType, CpuType cpu>
-    using BlasBackend = mkl::MklBlas<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using BlasBackend = mkl::MklBlas<fpType, cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using LapackBackend = mkl::MklLapack<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using LapackBackend = mkl::MklLapack<fpType, cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using MathBackend = mkl::MklMath<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using MathBackend = mkl::MklMath<fpType, cpu>;
 
-    template <CpuType cpu>
-    using BaseRngBackend = mkl::BaseRNG<cpu>;
+template <CpuType cpu>
+using BaseRngBackend = mkl::BaseRNG<cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using RNGsBackend = mkl::RNGs<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using RNGsBackend = mkl::RNGs<fpType, cpu>;
 
-    using ServiceBackend = mkl::MklService;
+using ServiceBackend = mkl::MklService;
 
-    template <typename fpType, CpuType cpu>
-    using SpBlasBackend = mkl::MklSpBlas<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using SpBlasBackend = mkl::MklSpBlas<fpType, cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using StatisticsBackend = mkl::MklStatistics<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using StatisticsBackend = mkl::MklStatistics<fpType, cpu>;
 
 } // namespace internal
 } // namespace daal

@@ -39,28 +39,28 @@ namespace daal
 {
 namespace internal
 {
-    template <typename fpType, CpuType cpu>
-    using BlasBackend = ref::OpenBlas<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using BlasBackend = ref::OpenBlas<fpType, cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using LapackBackend = ref::OpenBlasLapack<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using LapackBackend = ref::OpenBlasLapack<fpType, cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using MathBackend = ref::RefMath<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using MathBackend = ref::RefMath<fpType, cpu>;
 
-    template <CpuType cpu>
-    using BaseRngBackend = ref::BaseRNG<cpu>;
+template <CpuType cpu>
+using BaseRngBackend = ref::BaseRNG<cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using RNGsBackend = ref::RNGs<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using RNGsBackend = ref::RNGs<fpType, cpu>;
 
-    using ServiceBackend = ref::RefService;
+using ServiceBackend = ref::RefService;
 
-    template <typename fpType, CpuType cpu>
-    using SpBlasBackend = ref::RefSpBlas<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using SpBlasBackend = ref::RefSpBlas<fpType, cpu>;
 
-    template <typename fpType, CpuType cpu>
-    using StatisticsBackend = ref::RefStatistics<fpType, cpu>;
+template <typename fpType, CpuType cpu>
+using StatisticsBackend = ref::RefStatistics<fpType, cpu>;
 
 } // namespace internal
 } // namespace daal
