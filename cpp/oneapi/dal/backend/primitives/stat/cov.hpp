@@ -55,6 +55,22 @@ sycl::event elementwise_difference(sycl::queue& queue,
                   ndview<Float, 2>& difference,
                   const event_vector& deps = {});
 
+/// Divide 2-d array by 1-d array
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
+/// @param[in]  numerator  A 2-d array
+/// @param[in]  denominator  A 1-d array
+/// @param[out] quotient The result of the division 
+template <typename Float>
+sycl::event elementwise_division(sycl::queue& queue,
+                  std::int64_t row_count,
+                  const ndview<Float, 2>& numerator,
+                  const ndview<Float, 1>& denominator,
+                  ndview<Float, 2>& quotient,
+                  const event_vector& deps = {});
 
 /// Computes covariance matrix
 ///

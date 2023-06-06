@@ -79,39 +79,108 @@ sycl::event elementwise_difference(sycl::queue& q,
         cgh.parallel_for(range, [=](sycl::id<2> id) {
             const std::int64_t i = id[0];
             const std::int64_t j = id[1];
-            difference_ptr[i*column_count+j] = minuend_ptr[i*column_count+j] - subtrahend_ptr[j];
+            difference_ptr[i*column_count + j] = minuend_ptr[i*column_count + j] - subtrahend_ptr[j];
         });
     });
 }
 
+// // factor1 is 2d and factor2 is 1d
 // template <typename Float>
-// sycl::event divide_elementwise(sycl::queue& q,
+// sycl::event elementwise_product(sycl::queue& q,
 //                   std::int64_t row_count,
-//                   const ndview<Float, 1>& sums,
-//                   ndview<Float, 1>& means,
+//                   const ndview<Float, 2>& factor1,
+//                   const ndview<Float, 1>& factor2,
+//                   ndview<Float, 2>& product,
 //                   const event_vector& deps) {
-//     ONEDAL_ASSERT(sums.has_data());
-//     ONEDAL_ASSERT(means.has_mutable_data());
-//     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
-//     ONEDAL_ASSERT(is_known_usm(q, means.get_mutable_data()));
-//     ONEDAL_ASSERT(sums.get_dimension(0) == means.get_dimension(0));
+//     ONEDAL_ASSERT(factor1.has_data());
+//     ONEDAL_ASSERT(factor2.has_data());
+//     ONEDAL_ASSERT(product.has_mutable_data());
+//     ONEDAL_ASSERT(is_known_usm(q, factor1.get_data()));
+//     ONEDAL_ASSERT(is_known_usm(q, factor2.get_data()));
+//     ONEDAL_ASSERT(is_known_usm(q, product.get_mutable_data()));
+//     ONEDAL_ASSERT(factor1.get_dimension(0) == product.get_dimension(0));
+//     ONEDAL_ASSERT(factor1.get_dimension(1) == factor2.get_dimension(1));
 
-//     const auto column_count = sums.get_dimension(0);
+//     const auto column_count = factor1.get_dimension(1);
 
-//     const Float inv_n = Float(1.0 / double(row_count));
+//     const Float* factor1_ptr = factor1.get_data();
+//     const Float* factor2_ptr = factor2.get_data();
+//     Float* product_ptr = product.get_mutable_data();
 
-//     const Float* sums_ptr = sums.get_data();
-//     Float* means_ptr = means.get_mutable_data();
+//     return q.submit([&](sycl::handler& cgh) {
+//         const auto range = make_range_2d(row_count, column_count);
+//         cgh.depends_on(deps);
+//         cgh.parallel_for(range, [=](sycl::id<2> id) {
+//             const std::int64_t i = id[0];
+//             const std::int64_t j = id[1];
+//             product_ptr[i*column_count + j] = factor1_ptr[i*column_count + j] * factor2_ptr[j];
+//         });
+//     });
+// }
+
+// // elementwise inverse of 1d matrix
+// template <typename Float>
+// sycl::event elementwise_inverse(sycl::queue& q,
+//                   std::int64_t row_count,
+//                   std::int64_t col_count,
+//                   const ndview<Float, 1>& source,
+//                   ndview<Float, 1>& inverse,
+//                   const event_vector& deps) {
+//     ONEDAL_ASSERT(source.has_data());
+//     ONEDAL_ASSERT(inverse.has_mutable_data());
+//     ONEDAL_ASSERT(is_known_usm(q, source.get_data()));
+//     ONEDAL_ASSERT(is_known_usm(q, inverse.get_mutable_data()));
+//     ONEDAL_ASSERT(source.get_dimension(0) == inverse.get_dimension(0));
+//     ONEDAL_ASSERT(source.get_dimension(1) == inverse.get_dimension(1));
+
+
+//     const Float* source_ptr = source.get_data();
+//     Float* inverse_ptr = inverse.get_mutable_data();
 
 //     return q.submit([&](sycl::handler& cgh) {
 //         const auto range = make_range_1d(column_count);
 //         cgh.depends_on(deps);
-//         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-//             const Float s = sums_ptr[idx];
-//             means_ptr[idx] = inv_n * s;
+//         cgh.parallel_for(range, [=](sycl::id<1> id) {
+//             ONEDAL_ASSERT(1/source_ptr[id[0]]);
+//             inverse_ptr[id[0]] = 1/source_ptr[id[0]];
 //         });
 //     });
 // }
+
+// numerator is 2d and denominator is 1d
+template <typename Float>
+sycl::event elementwise_division(sycl::queue& q,
+                  std::int64_t row_count,
+                  const ndview<Float, 2>& numerator,
+                  const ndview<Float, 1>& denominator,
+                  ndview<Float, 2>& quotient,
+                  const event_vector& deps) {
+    ONEDAL_ASSERT(numerator.has_data());
+    ONEDAL_ASSERT(denominator.has_data());
+    ONEDAL_ASSERT(quotient.has_mutable_data());
+    ONEDAL_ASSERT(is_known_usm(q, numerator.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, denominator.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, quotient.get_mutable_data()));
+    ONEDAL_ASSERT(numerator.get_dimension(0) == quotient.get_dimension(0));
+    ONEDAL_ASSERT(numerator.get_dimension(1) == denominator.get_dimension(0));
+
+    const auto column_count = numerator.get_dimension(1);
+
+    const Float* numerator_ptr = numerator.get_data();
+    const Float* denominator_ptr = denominator.get_data();
+    Float* quotient_ptr = quotient.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = make_range_2d(row_count, column_count);
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<2> id) {
+            const std::int64_t i = id[0];
+            const std::int64_t j = id[1];
+            ONEDAL_ASSERT(Float(denominator_ptr[j]) != Float(0.0));
+            quotient_ptr[i * column_count + j] = numerator_ptr[i * column_count + j] / denominator_ptr[j];
+        });
+    });
+}
 
 template <typename Float>
 inline sycl::event compute_covariance(sycl::queue& q,
@@ -190,6 +259,7 @@ sycl::event variances(sycl::queue& q,
         });
     });
 }
+
 template <typename Float>
 inline sycl::event prepare_correlation(sycl::queue& q,
                                        std::int64_t row_count,
@@ -416,6 +486,17 @@ INSTANTIATE_MEANS(double)
 INSTANTIATE_ELEMENWISE_DIFFERENCE(float)
 INSTANTIATE_ELEMENWISE_DIFFERENCE(double)
 
+#define INSTANTIATE_ELEMENWISE_DIVISION(F)                                         \
+    template ONEDAL_EXPORT sycl::event elementwise_division<F>(sycl::queue&,        \
+                                                std::int64_t,        \
+                                                const ndview<F, 2>&, \
+                                                const ndview<F, 1>&, \
+                                                ndview<F, 2>&,       \
+                                                const event_vector&);
+
+INSTANTIATE_ELEMENWISE_DIVISION(float)
+INSTANTIATE_ELEMENWISE_DIVISION(double)
+
 #define INSTANTIATE_COV(F)                                                \
     template ONEDAL_EXPORT sycl::event covariance<F>(sycl::queue&,        \
                                                      std::int64_t,        \
@@ -425,6 +506,8 @@ INSTANTIATE_ELEMENWISE_DIFFERENCE(double)
 
 INSTANTIATE_COV(float)
 INSTANTIATE_COV(double)
+
+
 
 #define INSTANTIATE_COR_FROM_COV(F)                                                        \
     template ONEDAL_EXPORT sycl::event correlation_from_covariance<F>(sycl::queue&,        \

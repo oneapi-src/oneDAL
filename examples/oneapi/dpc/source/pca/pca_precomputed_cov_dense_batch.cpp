@@ -49,18 +49,21 @@ void run(sycl::queue& q) {
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
-    auto model = result_train.get_model();
-    model.set_means(means);
+    
 
     std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
+    
+    const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_test);
+    std::cout << "Before Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+    
+    auto model = result_train.get_model();
+    // model.set_means(means);
+    // model.set_eigenvalues(evs);
+    const auto result_infer2 = dal::infer(q, pca_desc, model, x_test);
 
-    std::cout << "Means:\n" << model.get_means() << std::endl;
-
-    const auto result_infer = dal::infer(q, pca_desc, model, x_test);
-
-    std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+    std::cout << "Transformed data:\n" << result_infer2.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
