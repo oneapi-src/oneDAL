@@ -29,3 +29,33 @@ Java* Interfaces
 
 **Alternatives:** Intel(R) Optimized Analytics Package* (OAP) project for the Spark* users. 
 The project offers a comprehensive set of optimized libraries, including the OAP* MLlib* component. For more information, visit https://github.com/oap-project/oap-mllib. 
+
+
+DAAL CPP SYCL Interfaces
+****************
+
+**Deprecation:** The DAAL CPP SYCL Interfaces(examples/daal/cpp_sycl) in the oneDAL library are marked as deprecated. From 2024.0 release of the oneDAL library will no longer include support for these DAAL CPP SYCL Interfaces.
+
+**Reasons for deprecation:** Deprecating initial version of SYCL interfaces in favour of oneDAL SYCL interfaces. The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
+
+**Alternatives:** Use oneDAL SYCL interfaces(examples/oneapi/dpc) instead.
+
+
+Compression functionality
+****************
+
+**Deprecation:** The Compression funtionality in the oneDAL library are marked as deprecated. From 2024.0 release of the oneDAL library will no longer include support for Compression functioanlity.
+
+**Reasons for deprecation:** The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
+
+**Alternatives:** Use external compression mechanics using optimzied impltementation such as Intel IPP in to your application
+
+ABI compatibility
+****************
+
+**Deprecation:** ABI compatibility would be broken as part of 2024.0 release of the oneDAL library. Librariy major version would be increased to 2 to requre relinking of existing aplications
+
+**Reasons for deprecation:**  Clean up of deprecated functionality, interfaces and symbols
+
+**Alternatives:** Relink to newer version. Assume no ABI compatibility with migration to 2024 version
+
