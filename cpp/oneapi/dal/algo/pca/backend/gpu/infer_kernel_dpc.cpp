@@ -43,8 +43,11 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     auto eigenvalues = model.get_eigenvalues();
 
     const std::int64_t row_count = data.get_row_count();
+    ONEDAL_ASSERT(row_count > 0);
     const std::int64_t col_count = data.get_column_count();
+    ONEDAL_ASSERT(col_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
+    ONEDAL_ASSERT(component_count > 0);
     dal::detail::check_mul_overflow(row_count, component_count);
 
     const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
@@ -54,7 +57,12 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto eigenvectors_nd =
         pr::table2ndarray<Float>(queue, eigenvectors, sycl::usm::alloc::device);
 
-    pr::elementwise_difference(queue, row_count, data_nd, means_nd, mean_centered_data_nd);
+    sycl::event mean_center_event;
+    {
+        ONEDAL_PROFILER_TASK(elementwise_difference, queue);
+        mean_center_event =
+            pr::elementwise_difference(queue, row_count, data_nd, means_nd, mean_centered_data_nd);
+    }
 
     auto res_nd = pr::ndarray<Float, 2>::empty(queue,
                                                { row_count, component_count },
@@ -67,7 +75,9 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
                               eigenvectors_nd.t(),
                               res_nd,
                               Float(1.0),
-                              Float(0.0));
+                              Float(0.0),
+                              { mean_center_event });
+        gemm_event.wait_and_throw();
     }
 
     if (eigenvalues.has_data()) {
