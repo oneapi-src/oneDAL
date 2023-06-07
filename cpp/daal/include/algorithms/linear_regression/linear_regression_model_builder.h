@@ -58,7 +58,6 @@ template <typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
 class DAAL_EXPORT ModelBuilder
 {
 public:
-
     /**
      * Empty constructor for deserialization
      */
