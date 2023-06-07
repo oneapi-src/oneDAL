@@ -47,7 +47,8 @@ services::Status ModelBuilder::convertModelInternal()
     return daal::algorithms::gbt::internal::ModelImpl::convertDecisionTreesToGbtTrees(modelImplRef._serializationData);
 }
 
-ModelBuilder::ModelBuilder() {
+ModelBuilder::ModelBuilder()
+{
     auto modelImpl = new gbt::regression::internal::ModelImpl();
     _model.reset(modelImpl);
 }
