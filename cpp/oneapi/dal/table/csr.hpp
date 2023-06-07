@@ -97,7 +97,7 @@ public:
     ///                               :literal:`columns_indices` and :literal:`row_offsets` for reading
     ///                               or writing.
     template <typename Data>
-    static csr_table wrap(const sycl::queue& queue,
+    static csr_table wrap(sycl::queue& queue,
                           const Data* data_pointer,
                           const std::int64_t* column_indices_pointer,
                           const std::int64_t* row_offsets_pointer,
@@ -196,15 +196,31 @@ public:
               ConstColumnIndicesDeleter&& column_indices_deleter,
               ConstRowOffsetsDeleter&& row_offsets_deleter,
               sparse_indexing indexing = sparse_indexing::one_based) {
-        init_impl(detail::default_host_policy{},
-                  data_pointer,
-                  column_indices_pointer,
-                  row_offsets_pointer,
-                  row_count,
+        using error_msg = dal::detail::error_messages;
+        validate_input_dimensions(row_count, column_count);
+        if (!row_offsets_pointer)
+            throw dal::invalid_argument(error_msg::row_offsets_pointer_is_null());
+        const std::int64_t element_count = row_offsets_pointer[row_count] - row_offsets_pointer[0];
+
+        const dal::array<Data> data{ data_pointer,
+                                     element_count,
+                                     std::forward<ConstDataDeleter>(data_deleter) };
+
+        const dal::array<std::int64_t> column_indices{ column_indices_pointer,
+                                                       element_count,
+                                                       std::forward<ConstColumnIndicesDeleter>(
+                                                           column_indices_deleter) };
+
+        const dal::array<std::int64_t> row_offsets{ row_offsets_pointer,
+                                                    row_count + 1,
+                                                    std::forward<ConstRowOffsetsDeleter>(
+                                                        row_offsets_deleter) };
+
+        init_impl(detail::reinterpret_array_cast<byte_t>(data),
+                  column_indices,
+                  row_offsets,
                   column_count,
-                  std::forward<ConstDataDeleter>(data_deleter),
-                  std::forward<ConstColumnIndicesDeleter>(column_indices_deleter),
-                  std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter),
+                  detail::make_data_type<Data>(),
                   indexing);
     }
 
@@ -250,7 +266,7 @@ public:
               typename ConstDataDeleter,
               typename ConstColumnIndicesDeleter,
               typename ConstRowOffsetsDeleter>
-    csr_table(const sycl::queue& queue,
+    csr_table(sycl::queue& queue,
               const Data* data_pointer,
               const std::int64_t* column_indices_pointer,
               const std::int64_t* row_offsets_pointer,
@@ -261,16 +277,38 @@ public:
               ConstRowOffsetsDeleter&& row_offsets_deleter,
               sparse_indexing indexing = sparse_indexing::one_based,
               const std::vector<sycl::event>& dependencies = {}) {
+        validate_input_dimensions(row_count, column_count);
+        const std::int64_t element_count =
+            get_non_zero_count(queue, row_count, row_offsets_pointer, dependencies);
+
+        const dal::array<Data> data{ queue,
+                                     data_pointer,
+                                     element_count,
+                                     std::forward<ConstDataDeleter>(data_deleter),
+                                     dependencies };
+
+        const dal::array<std::int64_t> column_indices{ queue,
+                                                       column_indices_pointer,
+                                                       element_count,
+                                                       std::forward<ConstColumnIndicesDeleter>(
+                                                           column_indices_deleter),
+                                                       dependencies };
+
+        const dal::array<std::int64_t> row_offsets{ queue,
+                                                    row_offsets_pointer,
+                                                    row_count + 1,
+                                                    std::forward<ConstRowOffsetsDeleter>(
+                                                        row_offsets_deleter),
+                                                    dependencies };
+
         init_impl(detail::data_parallel_policy{ queue },
-                  data_pointer,
-                  column_indices_pointer,
-                  row_offsets_pointer,
-                  row_count,
+                  detail::reinterpret_array_cast<byte_t>(data),
+                  column_indices,
+                  row_offsets,
                   column_count,
-                  std::forward<ConstDataDeleter>(data_deleter),
-                  std::forward<ConstColumnIndicesDeleter>(column_indices_deleter),
-                  std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter),
-                  indexing);
+                  detail::make_data_type<Data>(),
+                  indexing,
+                  dependencies);
         sycl::event::wait_and_throw(dependencies);
     }
 #endif
@@ -333,57 +371,12 @@ public:
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
-    template <typename Policy>
-    static std::int64_t get_non_zero_count(const Policy& policy,
+#ifdef ONEDAL_DATA_PARALLEL
+    static std::int64_t get_non_zero_count(sycl::queue& queue,
                                            const std::int64_t row_count,
-                                           const std::int64_t* row_offsets);
-
-    template <typename Policy,
-              typename Data,
-              typename ConstDataDeleter,
-              typename ConstColumnIndicesDeleter,
-              typename ConstRowOffsetsDeleter>
-    void init_impl(const Policy& policy,
-                   const Data* data_pointer,
-                   const std::int64_t* column_indices_pointer,
-                   const std::int64_t* row_offsets_pointer,
-                   std::int64_t row_count,
-                   std::int64_t column_count,
-                   ConstDataDeleter&& data_deleter,
-                   ConstColumnIndicesDeleter&& column_indices_deleter,
-                   ConstRowOffsetsDeleter&& row_offsets_deleter,
-                   sparse_indexing indexing) {
-        validate_input_dimensions(row_count, column_count);
-
-        const std::int64_t element_count =
-            get_non_zero_count(policy, row_count, row_offsets_pointer);
-
-        const auto data =
-            detail::array_via_policy<Data>::wrap(policy,
-                                                 data_pointer,
-                                                 element_count,
-                                                 std::forward<ConstDataDeleter>(data_deleter));
-
-        const auto column_indices = detail::array_via_policy<std::int64_t>::wrap(
-            policy,
-            column_indices_pointer,
-            element_count,
-            std::forward<ConstColumnIndicesDeleter>(column_indices_deleter));
-
-        const auto row_offsets = detail::array_via_policy<std::int64_t>::wrap(
-            policy,
-            row_offsets_pointer,
-            row_count + 1,
-            std::forward<ConstRowOffsetsDeleter>(row_offsets_deleter));
-
-        init_impl(policy,
-                  detail::reinterpret_array_cast<byte_t>(data),
-                  column_indices,
-                  row_offsets,
-                  column_count,
-                  detail::make_data_type<Data>(),
-                  indexing);
-    }
+                                           const std::int64_t* row_offsets,
+                                           const std::vector<sycl::event>& dependencies);
+#endif
 
     template <typename Data>
     void init_impl(const dal::array<Data>& data,
@@ -395,8 +388,7 @@ private:
         row_count = (row_count ? row_count - 1 : std::int64_t(0));
         validate_input_dimensions(row_count, column_count);
 
-        init_impl(detail::default_host_policy{},
-                  detail::reinterpret_array_cast<byte_t>(data),
+        init_impl(detail::reinterpret_array_cast<byte_t>(data),
                   column_indices,
                   row_offsets,
                   column_count,
@@ -404,14 +396,23 @@ private:
                   indexing);
     }
 
-    template <typename Policy>
-    void init_impl(const Policy& policy,
-                   const dal::array<byte_t>& data,
+    void init_impl(const dal::array<byte_t>& data,
                    const dal::array<std::int64_t>& column_indices,
                    const dal::array<std::int64_t>& row_offsets,
                    std::int64_t column_count,
                    const data_type& dtype,
                    sparse_indexing indexing);
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void init_impl(const detail::data_parallel_policy& policy,
+                   const dal::array<byte_t>& data,
+                   const dal::array<std::int64_t>& column_indices,
+                   const dal::array<std::int64_t>& row_offsets,
+                   std::int64_t column_count,
+                   const data_type& dtype,
+                   sparse_indexing indexing,
+                   const std::vector<sycl::event>& dependencies);
+#endif
 };
 
 } // namespace v1

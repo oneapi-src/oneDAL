@@ -57,7 +57,8 @@ public:
             throw dal::domain_error(error_msg::invalid_data_block_size());
         }
 
-        if (!backend::is_sorted(row_offsets)) {
+        const std::int64_t* const row_offsets_ptr = row_offsets.get_data();
+        if (!std::is_sorted(row_offsets_ptr, row_offsets_ptr + row_offsets.get_count())) {
             throw dal::domain_error(error_msg::row_offsets_not_ascending());
         }
 
@@ -73,6 +74,52 @@ public:
             throw dal::domain_error(error_msg::column_indices_gt_max_value());
         }
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    csr_table_impl(const detail::data_parallel_policy& policy,
+                   const array<byte_t>& data,
+                   const array<std::int64_t>& column_indices,
+                   const array<std::int64_t>& row_offsets,
+                   std::int64_t column_count,
+                   data_type dtype,
+                   sparse_indexing indexing,
+                   const std::vector<sycl::event>& dependencies)
+            : meta_(create_metadata(column_count, dtype)),
+              data_(data),
+              column_indices_(column_indices),
+              row_offsets_(row_offsets),
+              col_count_(column_count),
+              row_count_(row_offsets.get_count() - 1),
+              layout_(data_layout::row_major),
+              indexing_(indexing) {
+        using error_msg = dal::detail::error_messages;
+
+        const std::int64_t element_count = column_indices.get_count();
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
+
+        detail::check_mul_overflow(element_count, dtype_size);
+        if (data.get_count() != element_count * dtype_size) {
+            throw dal::domain_error(error_msg::invalid_data_block_size());
+        }
+
+        if (backend::is_sorted(row_offsets, dependencies)) {
+            throw dal::domain_error(error_msg::row_offsets_not_ascending());
+        }
+
+        const std::int64_t min_index = (indexing == sparse_indexing::zero_based) ? 0 : 1;
+        const std::int64_t max_index =
+            (indexing == sparse_indexing::zero_based) ? column_count - 1 : column_count;
+
+        const auto status =
+            backend::check_bounds(column_indices, min_index, max_index, dependencies);
+        if (status == backend::out_of_bound_type::less_than_min) {
+            throw dal::domain_error(error_msg::column_indices_lt_min_value());
+        }
+        if (status == backend::out_of_bound_type::greater_than_max) {
+            throw dal::domain_error(error_msg::column_indices_gt_max_value());
+        }
+    }
+#endif
 
     // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
     detail::access_iface_host& get_access_iface_host() const override {
@@ -101,12 +148,14 @@ public:
         return csr_get_non_zero_count(row_offsets_);
     }
 
-    template <typename Policy>
-    static std::int64_t get_non_zero_count(Policy& policy,
+#ifdef ONEDAL_DATA_PARALLEL
+    static std::int64_t get_non_zero_count(sycl::queue& queue,
                                            const std::int64_t row_count,
-                                           const std::int64_t* row_offsets) {
-        return csr_get_non_zero_count(policy, row_count, row_offsets);
+                                           const std::int64_t* row_offsets,
+                                           const std::vector<sycl::event>& dependencies) {
+        return csr_get_non_zero_count(queue, row_count, row_offsets, dependencies);
     }
+#endif
 
     sparse_indexing get_indexing() const override {
         return indexing_;

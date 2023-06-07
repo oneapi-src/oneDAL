@@ -81,30 +81,19 @@ void csr_pull_block(const Policy& policy,
                     alloc_kind requested_alloc_kind,
                     bool preserve_mutability = false);
 
-/// The number of non-zero elements in the table calculated from the row offsets array stored on host.
-///
-/// @param[in] policy       Default host execution policy
-/// @param[in] row_count    The number of rows in the table
-/// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored on host
-///
-/// @return The number of non-zero elements
-std::int64_t csr_get_non_zero_count(const detail::default_host_policy& policy,
-                                    const std::int64_t row_count,
-                                    const std::int64_t* row_offsets);
-
 #ifdef ONEDAL_DATA_PARALLEL
-
 /// The number of non-zero elements in the table calculated from the row offsets array stored in USM
 ///
-/// @param[in] policy       Data parallel execution policy
+/// @param[in] queue        The SYCL* queue object
 /// @param[in] row_count    The number of rows in the table
 /// @param[in] row_offsets  The pointer to row offsets block in CSR layout stored in USM
+/// @param[in] dependencies Events indicating availability of the `row_offsets` for reading.
 ///
 /// @return The number of non-zero elements
-std::int64_t csr_get_non_zero_count(const detail::data_parallel_policy& policy,
+std::int64_t csr_get_non_zero_count(sycl::queue& queue,
                                     const std::int64_t row_count,
-                                    const std::int64_t* row_offsets);
-
+                                    const std::int64_t* row_offsets,
+                                    const std::vector<sycl::event>& dependencies);
 #endif
 
 /// The number of non-zero elements in the table calculated from the row offsets array in CSR format.
@@ -119,29 +108,24 @@ std::int64_t csr_get_non_zero_count(const detail::data_parallel_policy& policy,
 /// @return The number of non-zero elements in CSR table
 std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets);
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 /// Checks that the elements in the input array are not descending
-///
-/// This function dispatches the execution:
-///     If data parallel policy is enabled and there is a sycl queue associated with the array `arr`,
-///         then DPC++ implementation of the function is called.
-///     Otherwise, std::is_sorted is called.
 ///
 /// @tparam T   The type of elements in the input array
 ///
-/// @param arr  Input array
+/// @param[in] arr          Input array
+/// @param[in] dependencies Events indicating availability of the `arr` for reading.
 ///
 /// @return true, if the elements in the array are not descending;
 ///         false, otherwise
 template <typename T>
-bool is_sorted(const array<T>& arr);
+bool is_sorted(const array<T>& arr, const std::vector<sycl::event>& dependencies);
+
+#endif
 
 /// Given the array A[0], ..., A[n-1] and two values: `min_value` and `max_value`,
 /// checks that min_value <= A[i] <= max_value for each i = 0, ..., n-1.
-///
-/// This function dispatches the execution:
-///     If data parallel policy is enabled and there is a sycl queue associated with the array `arr`,
-///         then DPC++ implementation of the function is called.
-///     Otherwise, C++ implementation is called.
 ///
 /// @tparam T   The type of elements in the input array
 ///
@@ -154,5 +138,28 @@ bool is_sorted(const array<T>& arr);
 ///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value);
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+/// Given the array A[0], ..., A[n-1] and two values: `min_value` and `max_value`,
+/// checks that min_value <= A[i] <= max_value for each i = 0, ..., n-1.
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param[in] arr          Input array
+/// @param[in] min_value    The lower boundary for the values in the input array
+/// @param[in] max_value    The upper boundary for the values in the input array
+/// @param[in] dependencies Events indicating availability of the `arr` for reading.
+///
+/// @return less_than_min,    if there exists i, 0 <= i <= n-1: A[i] < min_value;
+///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
+///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
+template <typename T>
+out_of_bound_type check_bounds(const array<T>& arr,
+                               const T& min_value,
+                               const T& max_value,
+                               const std::vector<sycl::event>& dependencies);
+
+#endif
 
 } // namespace oneapi::dal::backend
