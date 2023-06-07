@@ -7,7 +7,6 @@ dal_test_module(
     name = "common",
     auto = True,
     auto_exclude = [
-        "gtest_main.cpp",
         "catch_main.cpp",
         "mpi*.*",
         "ccl*.*",
@@ -56,19 +55,6 @@ dal_test_module(
     ],
     dal_test_deps = [
         ":common",
-    ],
-)
-
-dal_test_module(
-    name = "gtest_main",
-    srcs = [
-        "gtest_main.cpp",
-    ],
-    dal_test_deps = [
-        ":common",
-    ],
-    extra_deps = [
-        "@gtest//:gtest",
     ],
 )
 
