@@ -33,22 +33,25 @@ Mathematical formulation
 Computing
 ---------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`, vector with correct class labels
-:math:`y = \{ y_1, \ldots, y_n \}` and coefficients vector `w = \{ w_0, \ldots, w_p \}`of size :math:`p + 1`. 
+Algorithm takes dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`, vector with correct class labels
+:math:`y = \{ y_1, \ldots, y_n \}` and coefficients vector `w = \{ w_0, \ldots, w_p \}`of size :math:`p + 1` as input. Then it calculates 
+logistic loss, its gradient or gradient using the following formulas.
 
-
+#####
 Value 
 #####
 
 :math:`L(X, w, y) = \sum_{i = 1}^{n} -y_i \log(prob_i) - (1 - y_i) \log(prob_i)`, where :math:`\prob_i = \sigma(w_0 + \sum_{j=1}^{p} w_j x_{i, j})` - predicted probabilities, 
 :math:`\sigma(x) = \frac{1}{1 + \exp(-x)}` - sigmoid function. Note that probabilities are binded to interval :math:`[\eps, 1 - \eps]` to avoid problems with computing log function.
 
+########
 Gradient
 ########
 
 :math:`\overline{grad} = \frac{\partial L}{\partial w}`, where :math:`\overline{grad}_0 = \sum_{i=1}^{n} prob_i - y_i`, 
 :math:`\overline{grad}_j = \sum_{i=1}^n X_{i, j} (prob_i - y_i) + L1 \cdot |w_j| + 2 \cdot L2 w_j` for :math:`1 \leq j \leq p`
 
+#######
 Hessian
 #######
 
