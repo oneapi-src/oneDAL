@@ -159,24 +159,18 @@ jobs:
     vmImage: 'ubuntu-22.04'
   variables:
     platform.type : 'lnx32e'
-    BAZEL_VERSION: bazel-4.0.0
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
+    BAZEL_VERSION: $(Pipeline.Workspace)/bazelisk-linux-amd64
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
-      # Add bazel repository
-      sudo apt install -y curl gnupg
-      curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
-      sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
-      echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
-        sudo tee /etc/apt/sources.list.d/bazel.list
-
-      sudo apt-get update
-      sudo apt-get install gcc-multilib \
-                           g++-multilib \
-                           binutils \
-                           openjdk-11-jdk \
-                           $(BAZEL_VERSION)
+      # Download Bazelisk
+      export SHA256="168851e70cf5f95c0e215e7f3aaca5132ffc3c8dd8f585a4157b0be2b53cfe32 bazelisk-linux-amd64"
+      wget https://github.com/bazelbuild/bazelisk/releases/download/v1.16.0/bazelisk-linux-amd64
+      echo ${SHA256} | sha256sum --check
+      # "Install" bazelisk
+      chmod +x bazelisk-linux-amd64
+      mv bazelisk-linux-amd64 ${BAZEL_VERSION}
 
     displayName: 'install-deps'
   - script: |
