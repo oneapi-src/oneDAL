@@ -63,11 +63,6 @@ public:
     DECLARE_MODEL(Model, classifier::Model)
 
     /**
-     * Empty constructor for deserialization
-     */
-    // Model() : classifier::Model() {}
-
-    /**
     * Returns the number of regression coefficients
     * \return Number of regression coefficients
     */
