@@ -59,3 +59,11 @@ ABI compatibility
 
 **Alternatives:** Relink to newer version. Assume no ABI compatibility with migration to 2024 version
 
+MacOS support
+****************
+
+**Deprecation:** MacOS support have been depricated for oneDAL and other oneAPI componens with 2023.x releases beeing last providing availability.
+
+**Reasons for deprecation:**  No modern X86 MacOS based systems will be released.
+
+**Alternatives:** Keep using 2023.x version on MacOS
