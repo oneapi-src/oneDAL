@@ -69,6 +69,7 @@ dal_algo_example_suite(
     algos = [
         "connected_components",
         "covariance",
+        "dbscan",
         "decision_forest",
         "kmeans",
         "knn",

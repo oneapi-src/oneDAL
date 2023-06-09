@@ -58,7 +58,8 @@ Parameter::Parameter()
       maxLeafNodes(0),
       minBinSize(5),
       maxBins(256),
-      splitter(best)
+      splitter(best),
+      binningStrategy(quantiles)
 {}
 } // namespace interface2
 Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
@@ -78,7 +79,7 @@ Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
         if (prm.varImportance == MDA_Raw || prm.varImportance == MDA_Scaled) s.add(Error::create(ErrorDFBootstrapVarImportanceIncompatible));
         if (prm.resultsToCompute & computeOutOfBagError) s.add(Error::create(ErrorDFBootstrapOOBIncompatible));
     }
-    DAAL_CHECK_EX((prm.maxBins >= 2), ErrorIncorrectParameter, ParameterName, maxBinsStr());
+    DAAL_CHECK_EX((prm.maxBins >= 0), ErrorIncorrectParameter, ParameterName, maxBinsStr());
     DAAL_CHECK_EX((prm.minBinSize >= 1), ErrorIncorrectParameter, ParameterName, minBinSizeStr());
     return s;
 }
