@@ -24,3 +24,4 @@ This chapter describes programming interfaces of the objective functions impleme
    :titlesonly:
 
    logloss.rst
+   objective-function.rst

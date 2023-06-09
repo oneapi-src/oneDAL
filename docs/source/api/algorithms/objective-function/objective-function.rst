@@ -17,34 +17,51 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
-.. _api_logloss:
+.. _api_objective_function:
 
 ==================
-Logistic Loss
+Objective function
 ==================
 
-.. include::  ../../../includes/objective-function/logloss-introduction.rst
+.. include::  ../../../includes/objective-function/objective-function-introduction.rst
 
 ------------------------
 Mathematical formulation
 ------------------------
 
-Refer to :ref:`Developer Guide: Logistic Loss <alg_logloss>`.
+Refer to :ref:`Developer Guide: Objective function<alg_objective_function>`.
 
 ---------------------
 Programming Interface
 ---------------------
 All types and functions in this section are declared in the
-``oneapi::dal::logloss_objective`` namespace.
+``oneapi::dal::objective_function`` namespace and be available via inclusion of the
+``oneapi/dal/algo/objective_function.hpp`` header file.
 
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::logloss_objective::descriptor
+Result options
+--------------
+.. onedal_class:: oneapi::dal::objective_function::result_option_id
+
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::method
+.. onedal_tags_namespace:: oneapi::dal::objective_function::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::task
+.. onedal_tags_namespace:: oneapi::dal::objective_function::task
+
+.. _objective_function_c_api:
+
+.. _objective_function_c_api_input:
+
+Input
+~~~~~
+.. onedal_class:: oneapi::dal::objective_function::compute_input
+
+.. _objective_function_c_api_result:
+
+Result
+~~~~~~
+.. onedal_class:: oneapi::dal::objective_function::compute_result
+

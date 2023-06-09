@@ -105,6 +105,13 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+/// @tparam Float       The floating-point type that the algorithm uses for
+///                     intermediate computations. Can be :expr:`float` or
+///                     :expr:`double`.
+/// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
+///                     be :expr:`method::dense_batch`.
+/// @tparam Task        Tag-type that specifies the type of the problem to solve. Can
+///                     be :expr:`task::compute`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>

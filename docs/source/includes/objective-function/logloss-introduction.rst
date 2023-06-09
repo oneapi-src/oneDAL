@@ -18,19 +18,13 @@
 
 
 LogisticLoss is a common objective function used for binary classification. 
-LogisticLoss algorithm provides the following functionality.
-- Value
-- Gradient
-- Hessian
+
 
 .. |c_math| replace::   :ref:`dense_batch <logloss_c_math>`
 .. |c_dense| replace::  :ref:`dense_batch <logloss_c_dense_batch>`
-.. |c_input| replace::  :ref:`compute_input <logloss_c_api_input>`
-.. |c_result| replace:: :ref:`compute_result <logloss_c_api_result>`
-.. |c_op| replace::     :ref:`compute(...) <logloss_c_api>`
 
-=============  ===============  =========  =============  ===========
-**Operation**  **Computational  methods**  **Programming  Interface**
--------------  --------------------------  --------------------------
-|c_math|       |c_dense|        |c_op|     |c_input|      |c_result|
-=============  ===============  =========  =============  ===========
+=============  ===============  =========
+**Operation**  **Computational  methods**
+-------------  --------------------------
+|c_math|       |c_dense|
+=============  ===============  =========
