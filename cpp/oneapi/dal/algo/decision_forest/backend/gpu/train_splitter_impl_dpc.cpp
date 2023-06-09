@@ -38,20 +38,20 @@ using sycl::ext::oneapi::plus;
 using sycl::ext::oneapi::minimum;
 using sycl::ext::oneapi::maximum;
 
-template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::random_split(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
     sycl::queue& queue,
     const context_t& ctx,
-    const pr::ndarray<Bin, 2>& data,
+    const pr::ndview<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
-    const pr::ndarray<Index, 1>& tree_order,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Float, 1>& random_bins_com,
-    const pr::ndarray<Index, 1>& bin_offset_list,
+    const pr::ndview<Index, 1>& tree_order,
+    const pr::ndview<Index, 1>& selected_ftr_list,
+    const pr::ndview<Float, 1>& random_bins_com,
+    const pr::ndview<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
-    pr::ndarray<Index, 1>& node_list,
+    pr::ndview<Index, 1>& node_list,
     imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
+    pr::ndview<Float, 1>& node_imp_dec_list,
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
@@ -147,7 +147,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::random_split
 
         cgh.parallel_for(
             nd_range,
-            [=](sycl::nd_item<2> item) [[intel::reqd_sub_group_size(sbg_size)]] {
+            [=](sycl::nd_item<2> item) {
                 auto sbg = item.get_sub_group();
                 const Index node_idx = item.get_global_id(1);
                 if (node_idx > (node_count - 1)) {
@@ -236,7 +236,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::random_split
 
                         Float mean = sum / left_count;
 
-                        Float val_s2c =
+                        const Float val_s2c =
                             (bin <= ts.ftr_bin) ? (val - mean) * (val - mean) : Float(0);
 
                         Float sum2cent = sycl::reduce_over_group(sbg, val_s2c, plus<Float>());
@@ -302,19 +302,19 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::random_split
     return last_event;
 }
 
-template <typename Float, typename Bin, typename Index, typename Task, Index sbg_size>
-sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     sycl::queue& queue,
     const context_t& ctx,
-    const pr::ndarray<Bin, 2>& data,
+    const pr::ndview<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
-    const pr::ndarray<Index, 1>& tree_order,
-    const pr::ndarray<Index, 1>& selected_ftr_list,
-    const pr::ndarray<Index, 1>& bin_offset_list,
+    const pr::ndview<Index, 1>& tree_order,
+    const pr::ndview<Index, 1>& selected_ftr_list,
+    const pr::ndview<Index, 1>& bin_offset_list,
     const imp_data_t& imp_data_list,
-    pr::ndarray<Index, 1>& node_list,
+    pr::ndview<Index, 1>& node_list,
     imp_data_t& left_child_imp_data_list,
-    pr::ndarray<Float, 1>& node_imp_dec_list,
+    pr::ndview<Float, 1>& node_imp_dec_list,
     bool update_imp_dec_required,
     Index node_count,
     const bk::event_vector& deps) {
@@ -327,11 +327,11 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
                   node_count * impl_const_t::node_imp_prop_count_);
 
-    const Bin* data_ptr = data.get_data();
-    const Float* response_ptr = response.get_data();
-    const Index* tree_order_ptr = tree_order.get_data();
+    const Bin* const data_ptr = data.get_data();
+    const Float* const response_ptr = response.get_data();
+    const Index* const tree_order_ptr = tree_order.get_data();
 
-    const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
+    const Index* const selected_ftr_list_ptr = selected_ftr_list.get_data();
 
     imp_data_list_ptr<Float, Index, Task> imp_list_ptr(imp_data_list);
 
@@ -373,16 +373,16 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
     sycl::event last_event;
     auto device = queue.get_device();
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
-    const std::uint32_t ftr_local_mem_size =
+    const std::int64_t ftr_local_mem_size =
         max_bin_size * (2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t));
-    const std::uint32_t common_local_data_size =
+    const std::int64_t common_local_data_size =
         hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
-    std::uint32_t ftr_count_per_kernel =
+    std::int64_t ftr_count_per_kernel =
         (device_local_mem_size - common_local_data_size) / ftr_local_mem_size;
-    ftr_count_per_kernel = std::min<std::uint32_t>(ftr_count_per_kernel, selected_ftr_count);
+    ftr_count_per_kernel = std::min<std::int64_t>(ftr_count_per_kernel, selected_ftr_count);
     const Index total_split_count = ftr_count_per_kernel * max_bin_size;
-    const std::uint32_t local_hist_size = total_split_count * hist_prop_count;
-    const std::uint32_t local_splits_size = total_split_count;
+    const std::int64_t local_hist_size = total_split_count * hist_prop_count;
+    const std::int64_t local_splits_size = total_split_count;
     const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), total_split_count);
 
     auto nd_range =
@@ -443,8 +443,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                     const Index row_idx = idx % row_count;
                     const Index id = tree_order_ptr[row_ofs + row_idx];
                     const Index bin = data_ptr[id * column_count + ts_ftr_id];
-                    Float response = response_ptr[id];
-                    Index response_int = static_cast<Index>(response);
+                    const Float response = response_ptr[id];
+                    const Index response_int = static_cast<Index>(response);
 
                     const Index cur_hist_pos =
                         local_hist_size + (local_ftr_idx * max_bin_size + bin) * hist_prop_count;
@@ -579,7 +579,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task, sbg_size>::best_split(
                 }
                 bs.store_scalar(scalars_buf_ptr[local_id]);
                 // Tree reduction and selecting best among work-group
-                for (Index i = local_size / 2; i > 0; i >>= 1) {
+                for (Index i = local_size / 2; i > 0; i /= 2) {
                     item.barrier(sycl::access::fence_space::local_space);
                     if (local_id < i && (local_id + i) < work_size) {
                         ts.init(local_hist_ptr + (local_id + i) * hist_prop_count, hist_prop_count);

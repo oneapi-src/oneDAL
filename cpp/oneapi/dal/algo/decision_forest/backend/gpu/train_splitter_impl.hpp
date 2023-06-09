@@ -38,12 +38,10 @@ namespace pr = bk::primitives;
 template <typename Float,
           typename Bin = std::uint32_t,
           typename Index = std::int32_t,
-          typename Task = task::by_default,
-          Index sbg_size = 32>
+          typename Task = task::by_default>
 class train_splitter_impl {
     static_assert(std::is_signed_v<Index>);
     static_assert(std::is_integral_v<Index>);
-    static_assert(sbg_size > 8);
 
     using result_t = train_result<Task>;
     using impl_const_t = impl_const<Index, Task>;
@@ -82,15 +80,15 @@ public:
     /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event best_split(sycl::queue& queue,
                                   const context_t& ctx,
-                                  const pr::ndarray<Bin, 2>& data,
+                                  const pr::ndview<Bin, 2>& data,
                                   const pr::ndview<Float, 1>& response,
-                                  const pr::ndarray<Index, 1>& tree_order,
-                                  const pr::ndarray<Index, 1>& selected_ftr_list,
-                                  const pr::ndarray<Index, 1>& bin_offset_list,
+                                  const pr::ndview<Index, 1>& tree_order,
+                                  const pr::ndview<Index, 1>& selected_ftr_list,
+                                  const pr::ndview<Index, 1>& bin_offset_list,
                                   const imp_data_t& imp_data_list,
-                                  pr::ndarray<Index, 1>& node_list,
+                                  pr::ndview<Index, 1>& node_list,
                                   imp_data_t& left_child_imp_data_list,
-                                  pr::ndarray<Float, 1>& node_imp_dec_list,
+                                  pr::ndview<Float, 1>& node_imp_dec_list,
                                   bool update_imp_dec_required,
                                   Index node_count,
                                   const bk::event_vector& deps = {});
@@ -119,18 +117,16 @@ public:
     /// @param[in] deps                         a set of SYCL events this method depends on
     static sycl::event random_split(sycl::queue& queue,
                                     const context_t& ctx,
-                                    const pr::ndarray<Bin, 2>& data,
+                                    const pr::ndview<Bin, 2>& data,
                                     const pr::ndview<Float, 1>& response,
-                                    const pr::ndarray<Index, 1>& tree_order,
-                                    const pr::ndarray<Index, 1>& selected_ftr_list,
-                                    const pr::ndarray<Float, 1>& random_bins_com,
-                                    const pr::ndarray<Index, 1>& bin_offset_list,
+                                    const pr::ndview<Index, 1>& tree_order,
+                                    const pr::ndview<Index, 1>& selected_ftr_list,
+                                    const pr::ndview<Float, 1>& random_bins_com,
+                                    const pr::ndview<Index, 1>& bin_offset_list,
                                     const imp_data_t& imp_data_list,
-                                    // const pr::ndarray<Index, 1>& node_ind_list,
-                                    // Index node_ind_ofs,
-                                    pr::ndarray<Index, 1>& node_list,
+                                    pr::ndview<Index, 1>& node_list,
                                     imp_data_t& left_child_imp_data_list,
-                                    pr::ndarray<Float, 1>& node_imp_dec_list,
+                                    pr::ndview<Float, 1>& node_imp_dec_list,
                                     bool update_imp_dec_required,
                                     Index node_count,
                                     const bk::event_vector& deps = {});
