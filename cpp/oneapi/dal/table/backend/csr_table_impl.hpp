@@ -102,7 +102,7 @@ public:
             throw dal::domain_error(error_msg::invalid_data_block_size());
         }
 
-        if (backend::is_sorted(row_offsets, dependencies)) {
+        if (!backend::is_sorted(row_offsets, dependencies)) {
             throw dal::domain_error(error_msg::row_offsets_not_ascending());
         }
 
