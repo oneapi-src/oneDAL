@@ -84,7 +84,7 @@ public:
     }
 
     /**
-     * Constructs the Decision forest classification model builder
+     * Empty constructor for deserialization
      */
     ModelBuilder();
 
