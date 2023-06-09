@@ -103,7 +103,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
-    const Float* ftr_rnd_ptr = random_bins_com.get_data();
+    const Float* const ftr_rnd_ptr = random_bins_com.get_data();
 
     const Index column_count = ctx.column_count_;
     const Index selected_ftr_count = ctx.selected_ftr_count_;
