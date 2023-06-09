@@ -247,8 +247,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
         device_global_mem_size > used_mem_size ? device_global_mem_size - used_mem_size : 0;
 
     std::uint64_t available_mem_size_for_tree_block =
-        std::min(max_mem_alloc_size,
-                 static_cast<std::uint64_t>(available_global_mem_size));
+        std::min(max_mem_alloc_size, static_cast<std::uint64_t>(available_global_mem_size));
 
     std::uint64_t required_mem_size_for_one_tree =
         ctx.oob_required_ ? train_service_kernels_.get_oob_rows_required_mem_size(
@@ -264,16 +263,19 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     const std::uint64_t max_node_count_per_tree = std::exp2(ctx.max_tree_depth_ - 2);
     // node_lists for one tree
     required_mem_size_for_one_tree +=
-        de::check_mul_overflow(sizeof(Index) * impl_const_t::node_prop_count_, max_node_count_per_tree);
+        de::check_mul_overflow(sizeof(Index) * impl_const_t::node_prop_count_,
+                               max_node_count_per_tree);
     // node_vs_tree_map_list structure
     required_mem_size_for_one_tree +=
         de::check_mul_overflow(sizeof(Index), max_node_count_per_tree);
     // Selected features and random bin tresholds
     required_mem_size_for_one_tree +=
-        de::check_mul_overflow((sizeof(Index) + sizeof(Float)) * ctx.selected_ftr_count_, max_node_count_per_tree);
+        de::check_mul_overflow((sizeof(Index) + sizeof(Float)) * ctx.selected_ftr_count_,
+                               max_node_count_per_tree);
     // Impurity data for each node
     required_mem_size_for_one_tree +=
-        de::check_mul_overflow(sizeof(Float) * impl_const_t::node_imp_prop_count_, max_node_count_per_tree);
+        de::check_mul_overflow(sizeof(Float) * impl_const_t::node_imp_prop_count_,
+                               max_node_count_per_tree);
     // Impurity decrease list
     if (ctx.mdi_required_) {
         required_mem_size_for_one_tree += sizeof(Float) * max_node_count_per_tree;
