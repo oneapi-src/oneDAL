@@ -358,8 +358,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
     const std::int64_t ftr_local_mem_size =
         max_bin_size * (2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t));
-    const std::int64_t common_local_data_size =
-        hist_prop_count * sizeof(hist_type_t);
+    const std::int64_t common_local_data_size = hist_prop_count * sizeof(hist_type_t);
     std::int64_t ftr_count_per_kernel =
         (device_local_mem_size - common_local_data_size) / ftr_local_mem_size;
     ftr_count_per_kernel = std::min<std::int64_t>(ftr_count_per_kernel, selected_ftr_count);
