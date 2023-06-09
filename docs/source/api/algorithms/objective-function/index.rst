@@ -20,8 +20,17 @@ Objective function
 
 This chapter describes programming interfaces of the objective functions implemented in |short_name|:
 
+
+.. toctree::
+   :titlesonly:
+
+   objective-function.rst
+
+##################################
+Descriptors of objective functions
+##################################
+
 .. toctree::
    :titlesonly:
 
    logloss.rst
-   objective-function.rst

@@ -34,15 +34,16 @@ Computing
 ---------
 
 Algorithm takes dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`, vector with correct class labels
-:math:`y = \{ y_1, \ldots, y_n \}` and coefficients vector `w = \{ w_0, \ldots, w_p \}`of size :math:`p + 1` as input. Then it calculates 
+:math:`y = \{ y_1, \ldots, y_n \}` and coefficients vector :math:`w = \{ w_0, \ldots, w_p \}` of size :math:`p + 1` as input. Then it calculates 
 logistic loss, its gradient or gradient using the following formulas.
 
 #####
 Value 
 #####
 
-:math:`L(X, w, y) = \sum_{i = 1}^{n} -y_i \log(prob_i) - (1 - y_i) \log(prob_i)`, where :math:`\prob_i = \sigma(w_0 + \sum_{j=1}^{p} w_j x_{i, j})` - predicted probabilities, 
-:math:`\sigma(x) = \frac{1}{1 + \exp(-x)}` - sigmoid function. Note that probabilities are binded to interval :math:`[\eps, 1 - \eps]` to avoid problems with computing log function.
+:math:`L(X, w, y) = \sum_{i = 1}^{n} -y_i \log(prob_i) - (1 - y_i) \log(prob_i)`, where :math:`prob_i = \sigma(w_0 + \sum_{j=1}^{p} w_j x_{i, j})` - predicted probabilities, 
+:math:`\sigma(x) = \frac{1}{1 + \exp(-x)}` - sigmoid function. Note that probabilities are binded to interval :math:`[\epsilon, 1 - \epsilon]` to avoid problems with 
+computing log function (:math:`\epsilon=10^{-7}` if float type is used and :math:`10^{-15}` otherwise)
 
 ########
 Gradient
@@ -79,3 +80,4 @@ Distributed mode
 ----------------
 
 Currently algorithm does not support distributed execution in SMPD mode.
+
