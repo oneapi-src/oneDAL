@@ -18,6 +18,7 @@
 # Installation from Sources
 
 Required Software:
+
 * C/C++ Compiler
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
 * Java\* JDK
@@ -25,126 +26,104 @@ Required Software:
 * [MSYS2](http://msys2.github.io) (Windows\* only)
 * `make` and `dos2unix` tools; install these packages using MSYS2 on Windows\* as follows:
 
-        pacman -S msys/make msys/dos2unix
+  pacman -S msys/make msys/dos2unix
 
-For details, see [System Requirements for oneDAL](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html).
+For details, see [System Requirements for oneDAL](https://www.intel.com/content/www/us/en/developer/articles/system-requirements/system-requirements-for-oneapi-data-analytics-library.html).
 
 ## Installation Steps
+
 1. Clone the sources from GitHub\* as follows:
 
-        git clone https://github.com/oneapi-src/oneDAL.git
-
+   git clone https://github.com/oneapi-src/oneDAL.git
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
 
-        set PATH=C:\msys64\usr\bin;%PATH%
-
+   set PATH=C:\msys64\usr\bin;%PATH%
 3. Set the environment variables for one of the supported C/C++ compilers. For example:
 
-    - **Microsoft Visual Studio\* 2022**:
+   - **Microsoft Visual Studio\* 2022**:
 
-            call "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
+     call "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" x64
+   - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
 
-    - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
+     call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
+   - **Intel(R) C++ Compiler 19.1 (Linux\*)**:
 
-            call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
+     source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
+   - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Linux\*)**:
 
-    - **Intel(R) C++ Compiler 19.1 (Linux\*)**:
+     source /opt/intel/oneapi/compiler/latest/env/vars.sh
+   - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Windows\*)**:
 
-            source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
-
-    - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Linux\*)**:
-
-            source /opt/intel/oneapi/compiler/latest/env/vars.sh
-
-    - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Windows\*)**:
-
-            call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
-
+     call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 4. Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-Set the environment variables for one of the supported Java\* compilers. For example:
+   Set the environment variables for one of the supported Java\* compilers. For example:
 
-    - **Windows\***:
+   - **Windows\***:
 
-            set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
-            set PATH=%JAVA_HOME%\bin;%PATH%
-            set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+     set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
+     set PATH=%JAVA_HOME%\bin;%PATH%
+     set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+   - **Linux\***:
 
-    - **Linux\***:
-
-            export JAVA_HOME=/usr/jdk/jdk1.6.0_02
-            export PATH=$JAVA_HOME/bin:$PATH
-            export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
-
+     export JAVA_HOME=/usr/jdk/jdk1.6.0_02
+     export PATH=$JAVA_HOME/bin:$PATH
+     export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 5. Download and set an environment for micromkl libs:
 
-    - **Windows\***:
+   - **Windows\***:
 
-            .\dev\download_micromkl.bat
+     .\dev\download_micromkl.bat
+   - **Linux\***:
 
-    - **Linux\***:
-
-            ./dev/download_micromkl.sh
-
+     ./dev/download_micromkl.sh
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
-    Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
-    Set the environment variables for for Intel(R) TBB. For example:
+   Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
+   Set the environment variables for for Intel(R) TBB. For example:
 
-    - oneTBB (Windows\*):
+   - oneTBB (Windows\*):
 
-            call "C:\Program Files (x86)\Intel\oneAPI\tbb\latest\env\vars.bat" intel64
+     call "C:\Program Files (x86)\Intel\oneAPI\tbb\latest\env\vars.bat" intel64
+   - oneTBB (Linux\*):
 
-    - oneTBB (Linux\*):
+     source /opt/intel/oneapi/tbb/latest/env/vars.sh intel64
 
-            source /opt/intel/oneapi/tbb/latest/env/vars.sh intel64
+   Alternatively, you can use scripts to do this for you (Linux\*):
 
-    Alternatively, you can use scripts to do this for you (Linux\*):
-
-            ./dev/download_tbb.sh
-
+   ./dev/download_tbb.sh
 7. Download and install Python (version 3.7 or higher).
-
 8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
-    - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
+   - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 
-            make -f makefile daal PLAT=lnx32e
+     make -f makefile daal PLAT=lnx32e
+   - DAAL interfaces on **Linux\*** using **GNU Compiler Collection\***:
 
-    - DAAL interfaces on **Linux\*** using **GNU Compiler Collection\***:
+     make -f makefile daal PLAT=lnx32e COMPILER=gnu
+   - oneAPI C++/DPC++ interfaces on **Windows\*** using **Intel(R) DPC++ compiler**:
 
-            make -f makefile daal PLAT=lnx32e COMPILER=gnu
+     make -f makefile oneapi PLAT=win32e
+   - oneAPI C++ interfaces on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
-    - oneAPI C++/DPC++ interfaces on **Windows\*** using **Intel(R) DPC++ compiler**:
+     make -f makefile oneapi_c PLAT=win32e COMPILER=vc
+   - DAAL and oneAPI C++ interfaces on **Linux\*** using **GNU Compiler Collection\***:
 
-            make -f makefile oneapi PLAT=win32e
-
-    - oneAPI C++ interfaces on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
-
-            make -f makefile oneapi_c PLAT=win32e COMPILER=vc
-
-    - DAAL and oneAPI C++ interfaces on **Linux\*** using **GNU Compiler Collection\***:
-
-            make -f makefile daal oneapi_c PLAT=lnx32e COMPILER=gnu
+     make -f makefile daal oneapi_c PLAT=lnx32e COMPILER=gnu
 
 It is possible to build oneDAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPUS` makefile defines are used for it.
 
 - To build oneDAL with Linear Regression and Support Vector Machine algorithms, run:
 
-            make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM="linear_regression svm" -j16
-
-
+  make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM="linear_regression svm" -j16
 - To build oneDAL with AVX2 and AVX CPU optimizations, run:
 
-            make -f makefile daal PLAT=win32e REQCPU="avx2 avx" -j16
-
-
+  make -f makefile daal PLAT=win32e REQCPU="avx2 avx" -j16
 - To build oneDAL with Moments of Low Order algorithm and AVX2 CPU optimizations, run:
 
-            make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
-
-
+  make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
 ---
+
 **NOTE:** Built libraries are located in the `__release_{os_name}[_{compiler_name}]/daal` directory.
 
 ---
