@@ -276,67 +276,69 @@ At the training stage, decision forest regression has the following parameters:
    * - Parameter
      - Default Value
      - Description
-   * - ``nTrees``
-     - :math:`100`
-     - The number of trees in the forest.
-   * - ``observationsPerTreeFraction``
-     - :math:`1`
-     - Fraction of the training set S used to form the bootstrap set for a
-       single tree training, :math:`0 < \mathrm{observationsPerTreeFraction} \leq 1`. The
-       observations are sampled randomly with replacement.
+   * - ``algorithmFPType``
+     - ``float``
+     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
+   * - ``binningStrategy``
+     - ``quantiles``
+     - Used only with ``method="hist"`` and CPU only. Selects the algorithm
+       used to calculate bin edges. ``quantiles`` results in bins with a similar
+       amount of training data points. ``averages`` divides the range of values
+       observed in the training data set into equal-width bins of size `(max -
+       min) / maxBins`.
+   * - ``bootstrap``
+     - ``true``
+     - If true, the training set for a tree is a bootstrap of the whole training set.
+       If false, the whole training set is used to build trees.
+   * - ``engine``
+     - ``SharePtr<engines::mt2203::Batch>()>``
+     - Pointer to the random number generator engine.
+
+       The random numbers produced by this engine are used to choose the bootstrap set,
+       split features in every split node in a tree, and generate permutation required in computations
+       of MDA variable importance.
    * - ``featuresPerNode``
      - :math:`0`
      - The number of features tried as possible splits per node. If the
        parameter is set to :math:`0`, the library uses the square root of the number of
        features, :math:`\sqrt{p}`, for classification
        and :math:`\frac{p}{3}` features for regression.
-   * - ``maxTreeDepth``
-     - :math:`0`
-     - Maximal tree depth. Default is :math:`0` (unlimited).
-   * - **DEPRECATED:** ``seed``
-     - :math:`777`
-     - The seed for random number generator, which is used to choose the
-       bootstrap set, split features in every split node in a tree, and
-       generate permutation required in computations of ``MDA`` variable importance.
-
-       .. note::
-
-          This parameter is deprecated and will be removed in future releases. Use ``engine`` instead.
-   * - ``engine``
-     - `SharePtr< engines:: mt2203:: Batch>()`
-     - Pointer to the random number generator engine.
-
-       The random numbers produced by this engine are used to choose the bootstrap set,
-       split features in every split node in a tree, and generate permutation required in computations
-       of MDA variable importance.
    * - ``impurityThreshold``
      - :math:`0`
      - The threshold value used as stopping criteria: if the impurity value in
        the node is smaller than the threshold, the node is not split anymore.
-   * - ``varImportance``
-     - ``none``
-     - The variable importance computation mode.
-
-       Possible values:
-
-       + ``none`` – variable importance is not calculated
-       + ``MDI`` - Mean Decrease of Impurity, also known as the Gini importance or Mean Decrease Gini
-       + ``MDA_Raw`` - Mean Decrease of Accuracy (permutation importance)
-       + ``MDA_Scaled`` - the MDA_Raw value scaled by its standard deviation
-
-   * - ``resultsToCompute``
+   * - ``maxBins``
+     - :math:`256`
+     - Used only with ``method="hist"``. Maximal number of discrete bins to
+       bucket continuous features. Increasing the number results in higher
+       computation costs. Selecting :math:`0` disables creating buckets.
+   * - ``maxLeafNodes``
      - :math:`0`
-     - The 64-bit integer flag that specifies which extra characteristics of
-       the decision forest to compute. Provide one of the following values to
-       request a single characteristic or use bitwise OR to request a
-       combination of the characteristics:
+     - Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
+       Best nodes are defined as relative reduction in impurity.
+       If maximal number of leaf nodes equals zero,
+       then this parameter does not limit the number of leaf nodes, and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion.
+   * - ``maxTreeDepth``
+     - :math:`0`
+     - Maximal tree depth. Default is :math:`0` (unlimited).
+   * - ``method``
+     - ``defaultDense``
+     - The computation method used by the decision forest classification.
 
-       + ``computeOutOfBagError``
-       + ``computeOutOfBagErrorPerObservation``
-   * - ``bootstrap``
-     - ``true``
-     - If true, the training set for a tree is a bootstrap of the whole training set.
-       If false, the whole training set is used to build trees.
+       For CPU:
+
+       - ``defaultDense`` - default performance-oriented method
+       - ``hist`` - inexact histogram computation method
+
+       For GPU:
+
+       - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
+   * - ``minBinSize``
+     - :math:`5`
+     - Used only with ``method="hist"``. Minimal number of observations in a bin.
+   * - ``minImpurityDecreaseInSplitNode``
+     - :math:`0.0`
+     - Minimum amount of impurity decrease required to split a node; it can be any non-negative number.
    * - ``minObservationsInLeafNode``
      - :math:`1` for classification, :math:`5` for regression
      - Minimum number of observations in the leaf node.
@@ -349,16 +351,42 @@ At the training stage, decision forest regression has the following parameters:
        from :math:`0.0` to :math:`0.5`.
 
        All observations have equal weights if the weights of the observations are not provided.
-
-   * - ``minImpurityDecreaseInSplitNode``
-     - :math:`0.0`
-     - Minimum amount of impurity decrease required to split a node; it can be any non-negative number.
-   * - ``maxLeafNodes``
+   * - ``nTrees``
+     - :math:`100`
+     - The number of trees in the forest.
+   * - ``observationsPerTreeFraction``
+     - :math:`1`
+     - Fraction of the training set S used to form the bootstrap set for a
+       single tree training, :math:`0 < \mathrm{observationsPerTreeFraction} \leq 1`. The
+       observations are sampled randomly with replacement.
+   * - ``resultsToCompute``
      - :math:`0`
-     - Grow trees with positive maximal number of leaf nodes in a :ref:`best-first <best_first_strategy>` fashion.
-       Best nodes are defined as relative reduction in impurity.
-       If maximal number of leaf nodes equals zero,
-       then this parameter does not limit the number of leaf nodes, and trees grow in a :ref:`depth-first <depth_first_strategy>` fashion.
+     - The 64-bit integer flag that specifies which extra characteristics of
+       the decision forest to compute. Provide one of the following values to
+       request a single characteristic or use bitwise OR to request a
+       combination of the characteristics:
+
+       + ``computeOutOfBagError``
+       + ``computeOutOfBagErrorPerObservation``
+   * - **DEPRECATED:** ``seed``
+     - :math:`777`
+     - The seed for random number generator, which is used to choose the
+       bootstrap set, split features in every split node in a tree, and
+       generate permutation required in computations of ``MDA`` variable importance.
+
+       .. note::
+
+          This parameter is deprecated and will be removed in future releases. Use ``engine`` instead.
+   * - ``varImportance``
+     - ``none``
+     - The variable importance computation mode.
+
+       Possible values:
+
+       + ``none`` – variable importance is not calculated
+       + ``MDI`` - Mean Decrease of Impurity, also known as the Gini importance or Mean Decrease Gini
+       + ``MDA_Raw`` - Mean Decrease of Accuracy (permutation importance)
+       + ``MDA_Scaled`` - the MDA_Raw value scaled by its standard deviation
 
 
 

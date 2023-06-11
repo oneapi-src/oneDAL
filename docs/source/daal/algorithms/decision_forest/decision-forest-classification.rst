@@ -195,25 +195,10 @@ following parameters:
    * - Parameter
      - Default Value
      - Description
-   * - ``algorithmFPType``
-     - ``float``
-     - The floating-point type that the algorithm uses for intermediate computations. Can be ``float`` or ``double``.
-   * - ``method``
-     - ``defaultDense``
-     - The computation method used by the decision forest classification.
-
-       For CPU:
-
-       - ``defaultDense`` - default performance-oriented method
-       - ``hist`` - inexact histogram computation method
-
-       For GPU:
-
-       - ``hist`` - :ref:`inexact histogram computation method <df_inexact_hist_method>`
-
    * - ``nClasses``
      - Not applicable
      - The number of classes. A required parameter.
+
 
 Output
 ******
