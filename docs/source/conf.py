@@ -188,6 +188,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'compute'),
     # objective_function
     ('cpp:identifier', 'objective_function'),
+    ('cpp:identifier', 'objective_t'),
     ('cpp:identifier', 'objective_function::descriptor'),
     ('cpp:identifier', 'objective_function::compute_result'),
     ('cpp:identifier', 'objective_function::compute_input'),
