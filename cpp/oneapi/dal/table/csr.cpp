@@ -66,6 +66,20 @@ void csr_table::init_impl(const dal::array<byte_t>& data,
                           std::int64_t column_count,
                           const data_type& dtype,
                           sparse_indexing indexing) {
+#ifdef ONEDAL_DATA_PARALLEL
+    if (data.get_queue().has_value()) {
+        table::init_impl(
+            new backend::csr_table_impl{ detail::data_parallel_policy{ data.get_queue().value() },
+                                         data,
+                                         column_indices,
+                                         row_offsets,
+                                         column_count,
+                                         dtype,
+                                         indexing,
+                                         {} });
+        return;
+    }
+#endif
     table::init_impl(new backend::csr_table_impl{ data,
                                                   column_indices,
                                                   row_offsets,
