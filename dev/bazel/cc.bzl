@@ -36,13 +36,14 @@ ModuleInfo = onedal_cc_common.ModuleInfo
 
 def _init_cc_rule(ctx, features=[], disable_features=[]):
     toolchain = ctx.toolchains["@bazel_tools//tools/cpp:toolchain_type"]
+    cc_toolchain = toolchain.cc
     feature_config = cc_common.configure_features(
         ctx = ctx,
-        cc_toolchain = toolchain,
+        cc_toolchain = cc_toolchain,
         requested_features = ctx.features + features,
         unsupported_features = ctx.disabled_features + disable_features,
     )
-    return toolchain, feature_config
+    return cc_toolchain, feature_config
 
 def _cc_module_impl(ctx):
     toolchain, feature_config = _init_cc_rule(ctx)

@@ -30,6 +30,12 @@ namespace internal
 template <typename DataType>
 DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN);
 
+template <typename DataType>
+bool checkFinitenessByComparison(DataType value)
+{
+    return value != value;
+}
+
 } // namespace internal
 } // namespace data_management
 } // namespace daal

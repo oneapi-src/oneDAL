@@ -224,9 +224,12 @@ struct GraphTypeInfo<std::int32_t> {
 
 class louvain_test {
 public:
+    static bool is_nan(double x) {
+        return x != x;
+    }
+
     template <typename EdgeValueType>
-    const auto create_graph(const graph_base_data& graph_data,
-                            std::vector<EdgeValueType>& weights) {
+    auto create_graph(const graph_base_data& graph_data, std::vector<EdgeValueType>& weights) {
         using graph_type = typename GraphTypeInfo<EdgeValueType>::graph_type;
 
         graph_type graph;
@@ -279,7 +282,7 @@ public:
                                   std::vector<std::int32_t>& expected_labels,
                                   std::int64_t expected_community_count) {
         UNSCOPED_INFO("Modularity is NaN");
-        REQUIRE(!std::isnan(result.get_modularity()));
+        REQUIRE(!is_nan(result.get_modularity()));
         UNSCOPED_INFO("Modularity value is not in [-1/2; 1]");
         REQUIRE(Approx(result.get_modularity()) <= 1.0);
         UNSCOPED_INFO("Modularity value is not in [-1/2; 1]");
@@ -340,7 +343,7 @@ public:
         const auto result = dal::preview::vertex_partitioning(louvain_desc, graph);
         if (is_modularity_valid) {
             UNSCOPED_INFO("Modularity is NaN");
-            REQUIRE(!std::isnan(result.get_modularity()));
+            REQUIRE(!is_nan(result.get_modularity()));
             UNSCOPED_INFO("Modularity value is not in [-1/2; 1]");
             REQUIRE(Approx(result.get_modularity()) <= 1.0);
             UNSCOPED_INFO("Modularity value is not in [-1/2; 1]");

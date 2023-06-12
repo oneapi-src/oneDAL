@@ -90,10 +90,22 @@ enum ResultToComputeId
  * <a name="DAAL-ENUM-ALGORITHMS__DECISION_FOREST__TRAINING__SPLITTER_MODE"></a>
  * \brief Node splitting mode
  */
-enum splitterMode
+enum SplitterMode
 {
     best,  /* Calculates best split from aggregate best feature splits for every node. */
     random /* Calculates best split from aggregate random feature splits for every node. */
+};
+
+/**
+ * <a name = "DAAL-ENUM-ALGORITHMS__DECISION_FOREST__TRAINING__BINNINGSTRATEGY"></a>
+ * \brief Available strategies to compute data bins in 'hist' method
+ */
+enum BinningStrategy
+{
+    /* Frequency quantiles -> same number of data points per bin */
+    quantiles,
+    /* Same feature value range per bin */
+    averages
 };
 
 /**
@@ -144,7 +156,10 @@ public:
                                                  Default is 256. Increasing the number results in higher computation costs */
     size_t minBinSize;                     /*!< Used with 'hist' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
-    splitterMode splitter;                 /*!< Sets node splitting method. Default is best */
+    SplitterMode splitter;                 /*!< Sets node splitting method. Default is best */
+    BinningStrategy binningStrategy;       /*!< Used with 'hist' split finding method only.
+                                                 Selects the strategy to group data points into bins.
+                                                 Allowed values are 'quantiles' (default), 'averages' */
 };
 /* [Parameter source code] */
 } // namespace interface2
