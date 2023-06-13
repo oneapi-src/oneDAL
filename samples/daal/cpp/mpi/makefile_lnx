@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name                - sample name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name       - can be intel or gnu. Default value is intel."
+	@echo "compiler_name       - can be intel, icx or gnu. Default value is intel."
 	@echo
 	@echo "mode_name           - can be build or run. Default is run"
 
@@ -46,7 +46,9 @@ help:
 include daal.lst
 
 ifneq ($(compiler),gnu)
-    override compiler = intel
+	ifneq ($(compiler),icx)
+		override compiler = intel
+	endif
 endif
 
 ifndef DAALROOT
@@ -60,7 +62,7 @@ TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
 
 DAAL_PATH = "$(DAALROOT)/lib/intel64"
 DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
-COPTS := -Wall -w
+COPTS := -Wall -w -diag-disable=10441
 RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)
 
 ifneq ($(mode),build)
@@ -77,7 +79,15 @@ override proc = 4
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
-CC = mpiicc
+
+ifeq ($(compiler),intel)
+	override CC = mpiicc
+endif
+
+ifeq ($(compiler),icx)
+	override CC = mpiicpx
+endif
+
 ifeq ($(compiler),gnu)
 	override CC = mpigxx
 endif
