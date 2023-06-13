@@ -363,8 +363,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
         (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
     const Index all_bin_count = selected_ftr_count * max_bin_size;
     bin_cnt_per_krn = std::min<std::int64_t>(bin_cnt_per_krn, all_bin_count);
-    const Index ftr_count_per_kernel = bin_cnt_per_krn / max_bin_size;
-    // const Index total_split_count = ftr_count_per_kernel * max_bin_size;
     const std::int64_t local_hist_size = bin_cnt_per_krn * hist_prop_count;
     const std::int64_t local_splits_size = bin_cnt_per_krn;
     const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), bin_cnt_per_krn);
@@ -405,7 +403,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
                 const Index real_bin_count =
                     sycl::min<Index>(all_bin_count - gbin_ofs, bin_cnt_per_krn);
-                // const Index work_size = real_ftr_count * max_bin_size;
                 // Clear local memory before use
                 for (Index work_bin = local_id; work_bin < bin_cnt_per_krn;
                      work_bin += local_size) {
@@ -417,7 +414,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
                 item.barrier(sycl::access::fence_space::local_space);
                 // Calculate histogram
-                Index working_items = sycl::max<Index>(1, real_bin_count / max_bin_size) * row_count;
+                Index working_items =
+                    sycl::max<Index>(1, real_bin_count / max_bin_size) * row_count;
                 Index rows_per_item = working_items / local_size + bool(working_items % local_size);
                 for (Index idx = local_id * rows_per_item;
                      idx < (local_id + 1) * rows_per_item && idx < working_items;
@@ -498,7 +496,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
                 split_info_t ts;
                 // Finilize histograms
-                for (Index work_bin = local_id; work_bin < work_size; work_bin += local_size) {
+                for (Index work_bin = local_id; work_bin < real_bin_count; work_bin += local_size) {
                     Index local_ftr_idx = work_bin / max_bin_size;
                     Index global_ftr_idx = ftr_ofs + local_ftr_idx;
 
@@ -565,7 +563,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 bs.init(local_hist_ptr + local_id * hist_prop_count, hist_prop_count);
                 bs.clear_scalar();
                 // Select best bin among one working-item
-                for (Index work_item = local_id; work_item < work_size; work_item += local_size) {
+                for (Index work_item = local_id; work_item < real_bin_count;
+                     work_item += local_size) {
                     ts.init(local_hist_ptr + work_item * hist_prop_count, hist_prop_count);
                     ts.load_scalar(scalars_buf_ptr[work_item]);
                     sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
@@ -574,7 +573,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 // Tree reduction and selecting best among work-group
                 for (Index i = local_size / 2; i > 0; i /= 2) {
                     item.barrier(sycl::access::fence_space::local_space);
-                    if (local_id < i && (local_id + i) < work_size) {
+                    if (local_id < i && (local_id + i) < real_bin_count) {
                         ts.init(local_hist_ptr + (local_id + i) * hist_prop_count, hist_prop_count);
                         ts.load_scalar(scalars_buf_ptr[local_id + i]);
                         sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
