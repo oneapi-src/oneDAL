@@ -356,16 +356,18 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     sycl::event last_event;
     auto device = queue.get_device();
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
-    const std::int64_t ftr_local_mem_size =
-        max_bin_size * (2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t));
+    const std::int64_t bin_local_mem_size =
+        (2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t));
     const std::int64_t common_local_data_size = hist_prop_count * sizeof(hist_type_t);
-    std::int64_t ftr_count_per_kernel =
-        (device_local_mem_size - common_local_data_size) / ftr_local_mem_size;
-    ftr_count_per_kernel = std::min<std::int64_t>(ftr_count_per_kernel, selected_ftr_count);
-    const Index total_split_count = ftr_count_per_kernel * max_bin_size;
-    const std::int64_t local_hist_size = total_split_count * hist_prop_count;
-    const std::int64_t local_splits_size = total_split_count;
-    const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), total_split_count);
+    std::int64_t bin_cnt_per_krn =
+        (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
+    const Index all_bin_count = selected_ftr_count * max_bin_size;
+    bin_cnt_per_krn = std::min<std::int64_t>(bin_cnt_per_krn, all_bin_count);
+    const Index ftr_count_per_kernel = bin_cnt_per_krn / max_bin_size;
+    // const Index total_split_count = ftr_count_per_kernel * max_bin_size;
+    const std::int64_t local_hist_size = bin_cnt_per_krn * hist_prop_count;
+    const std::int64_t local_splits_size = bin_cnt_per_krn;
+    const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), bin_cnt_per_krn);
 
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
@@ -393,16 +395,19 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 global_bs.init_clear(item, best_split_hist.get_pointer().get(), hist_prop_count);
             }
             // Due to local memory limitations need to proccess smaller blocks of features
-            for (Index ftr_ofs = 0; ftr_ofs < selected_ftr_count; ftr_ofs += ftr_count_per_kernel) {
+            for (Index gbin_ofs = 0; gbin_ofs < all_bin_count; gbin_ofs += bin_cnt_per_krn) {
                 hist_type_t* local_hist_ptr = local_hist.get_pointer().get();
                 hist_type_t* tmp_hist_ptr = local_hist_ptr + local_hist_size;
                 split_scalar_t* scalars_buf_ptr = scalars_buf.get_pointer().get();
 
-                const Index real_ftr_count =
-                    sycl::min<Index>(selected_ftr_count - ftr_ofs, ftr_count_per_kernel);
-                const Index work_size = real_ftr_count * max_bin_size;
+                const Index ftr_ofs = gbin_ofs / max_bin_size;
+                const Index bin_ofs = gbin_ofs % max_bin_size;
+
+                const Index real_bin_count =
+                    sycl::min<Index>(all_bin_count - gbin_ofs, bin_cnt_per_krn);
+                // const Index work_size = real_ftr_count * max_bin_size;
                 // Clear local memory before use
-                for (Index work_bin = local_id; work_bin < total_split_count;
+                for (Index work_bin = local_id; work_bin < bin_cnt_per_krn;
                      work_bin += local_size) {
                     scalars_buf_ptr[work_bin].clear();
                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
@@ -412,7 +417,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
                 item.barrier(sycl::access::fence_space::local_space);
                 // Calculate histogram
-                Index working_items = real_ftr_count * row_count;
+                Index working_items = sycl::max<Index>(1, real_bin_count / max_bin_size) * row_count;
                 Index rows_per_item = working_items / local_size + bool(working_items % local_size);
                 for (Index idx = local_id * rows_per_item;
                      idx < (local_id + 1) * rows_per_item && idx < working_items;
@@ -424,7 +429,10 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
                     const Index row_idx = idx % row_count;
                     const Index id = tree_order_ptr[row_ofs + row_idx];
-                    const Index bin = data_ptr[id * column_count + ts_ftr_id];
+                    const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
+                    if (bin >= bin_cnt_per_krn) {
+                        continue;
+                    }
                     const Float response = response_ptr[id];
                     const Index response_int = static_cast<Index>(response);
 
@@ -467,7 +475,10 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
                         const Index row_idx = idx % row_count;
                         const Index id = tree_order_ptr[row_ofs + row_idx];
-                        const Index bin = data_ptr[id * column_count + ts_ftr_id];
+                        const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
+                        if (bin >= bin_cnt_per_krn) {
+                            continue;
+                        }
                         Float response = response_ptr[id];
                         const Index cur_hist_pos =
                             local_hist_size +
@@ -531,7 +542,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     ts.init(cur_hist, hist_prop_count);
                     ts.ftr_id =
                         selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
-                    ts.ftr_bin = cur_bin;
+                    ts.ftr_bin = cur_bin + bin_ofs;
                     ts.left_count = left_count;
                     if constexpr (std::is_same_v<Task, task::classification>) {
                         sp_hlp.calc_imp_dec(ts,
