@@ -428,7 +428,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     const Index row_idx = idx % row_count;
                     const Index id = tree_order_ptr[row_ofs + row_idx];
                     const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
-                    if (bin < 0  || bin >= bin_cnt_per_krn) {
+                    if (bin < 0 || bin >= bin_cnt_per_krn) {
                         continue;
                     }
                     const Float response = response_ptr[id];
