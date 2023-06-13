@@ -428,7 +428,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     const Index row_idx = idx % row_count;
                     const Index id = tree_order_ptr[row_ofs + row_idx];
                     const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
-                    // Shift the real bin index by bin offset and check if it should 
+                    // Shift the real bin index by bin offset and check if it should
                     // be processed in current batch
                     if (bin < 0 || bin >= bin_cnt_per_krn) {
                         continue;
@@ -475,7 +475,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
                         const Index row_idx = idx % row_count;
                         const Index id = tree_order_ptr[row_ofs + row_idx];
-                        // Shift the real bin index by bin offset and check if it should 
+                        // Shift the real bin index by bin offset and check if it should
                         // be processed in current batch
                         const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
                         if (bin < 0 || bin >= bin_cnt_per_krn) {
