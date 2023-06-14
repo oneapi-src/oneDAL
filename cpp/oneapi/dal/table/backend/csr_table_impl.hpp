@@ -22,6 +22,7 @@
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
+
 namespace oneapi::dal::backend {
 
 class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
@@ -47,7 +48,6 @@ public:
               layout_(data_layout::row_major),
               indexing_(indexing) {
         using error_msg = dal::detail::error_messages;
-
         if (column_count <= 0) {
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
