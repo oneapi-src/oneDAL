@@ -413,6 +413,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         tmp_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
                     }
                 }
+                // Load last bin if it is required
                 if (local_id == 0 && bin_ofs > 0) {
                     for (Index cls = 0; cls < hist_prop_count; ++cls) {
                         local_hist_ptr[cls] = last_bin[cls];
@@ -433,7 +434,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
                     const Index row_idx = idx % row_count;
                     const Index id = tree_order_ptr[row_ofs + row_idx];
-                    const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
+                    const Index bin = data_ptr[id * column_count + ts_ftr_id] -
+                                      Index(local_ftr_idx == 0) * bin_ofs;
                     // Shift the real bin index by bin offset and check if it should
                     // be processed in current batch
                     if (bin < 0 || bin >= bin_cnt_per_krn) {
@@ -483,7 +485,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         const Index id = tree_order_ptr[row_ofs + row_idx];
                         // Shift the real bin index by bin offset and check if it should
                         // be processed in current batch
-                        const Index bin = data_ptr[id * column_count + ts_ftr_id] - bin_ofs;
+                        const Index bin = data_ptr[id * column_count + ts_ftr_id] -
+                                          Index(local_ftr_idx == 0) * bin_ofs;
                         if (bin < 0 || bin >= bin_cnt_per_krn) {
                             continue;
                         }
@@ -556,7 +559,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     ts.init(cur_hist, hist_prop_count);
                     ts.ftr_id =
                         selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
-                    ts.ftr_bin = cur_bin + bin_ofs;
+                    ts.ftr_bin = cur_bin + Index(local_ftr_idx == 0) * bin_ofs;
                     ts.left_count = left_count;
                     if constexpr (std::is_same_v<Task, task::classification>) {
                         sp_hlp.calc_imp_dec(ts,
