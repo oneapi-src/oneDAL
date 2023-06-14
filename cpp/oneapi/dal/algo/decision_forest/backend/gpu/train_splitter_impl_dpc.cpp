@@ -399,7 +399,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
                 const Index ftr_ofs = gbin_ofs / max_bin_size;
                 // Bin ofset is non-zero only for the first feature in batch
-                const Index bin_ofs = Index((local_id / max_bin_size) < 1) * gbin_ofs % max_bin_size;
+                const Index bin_ofs =
+                    Index((local_id / max_bin_size) < 1) * gbin_ofs % max_bin_size;
 
                 const Index real_bin_count =
                     sycl::min<Index>(all_bin_count - gbin_ofs, bin_cnt_per_krn);
