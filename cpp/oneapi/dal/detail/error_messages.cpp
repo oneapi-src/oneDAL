@@ -103,6 +103,7 @@ MSG(invalid_first_row_offset, "Invalid row offset for the first row is provided"
 MSG(row_offsets_lt_min_value, "Row offsets are less than the minimum acceptable value")
 MSG(row_offsets_gt_max_value, "Row offsets are larger than the maximum acceptable value")
 MSG(row_offsets_not_ascending, "Row offsets are are not stored in the ascending order")
+MSG(row_offsets_pointer_is_null, "Null input row offsets pointer is not supported")
 MSG(column_indices_lt_min_value, "Column indices are less than the minimum acceptable value")
 MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acceptable value")
 MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for CSR table")
