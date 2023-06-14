@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -115,8 +115,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
     const std::size_t local_buf_int_size = local_size * sizeof(Index);
     const std::size_t local_buf_float_size = local_size * sizeof(Float);
 
-    sycl::event last_event;
-
     const Index class_count = ctx.class_count_;
     const Float imp_threshold = ctx.impurity_threshold_;
     const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
@@ -138,7 +136,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
 
-    last_event = queue.submit([&](sycl::handler& cgh) {
+    sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
 
@@ -353,12 +351,11 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const Index max_bin_size = ctx.max_bin_count_among_ftrs_;
     const Index node_in_block_count = node_count;
 
-    sycl::event last_event;
     auto device = queue.get_device();
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
     const std::int64_t bin_local_mem_size =
         (2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t));
-    const std::int64_t common_local_data_size = hist_prop_count * sizeof(hist_type_t);
+    const std::int64_t common_local_data_size = 2 * hist_prop_count * sizeof(hist_type_t);
     std::int64_t bin_cnt_per_krn =
         (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
     const Index all_bin_count = selected_ftr_count * max_bin_size;
@@ -369,11 +366,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
-    last_event = queue.submit([&](sycl::handler& cgh) {
+    sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> local_hist(2 * local_hist_size, cgh);
         local_accessor_rw_t<split_scalar_t> scalars_buf(local_splits_size, cgh);
         local_accessor_rw_t<hist_type_t> best_split_hist(hist_prop_count, cgh);
+        local_accessor_rw_t<hist_type_t> last_bin_prev_batch(hist_prop_count, cgh);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             // Load common data
             const Index node_id = item.get_global_id(1);
@@ -396,10 +394,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             for (Index gbin_ofs = 0; gbin_ofs < all_bin_count; gbin_ofs += bin_cnt_per_krn) {
                 hist_type_t* local_hist_ptr = local_hist.get_pointer().get();
                 hist_type_t* tmp_hist_ptr = local_hist_ptr + local_hist_size;
+                hist_type_t* last_bin = last_bin_prev_batch.get_pointer().get();
                 split_scalar_t* scalars_buf_ptr = scalars_buf.get_pointer().get();
 
                 const Index ftr_ofs = gbin_ofs / max_bin_size;
-                const Index bin_ofs = gbin_ofs % max_bin_size;
+                // Bin ofset is non-zero only for the first feature in batch
+                const Index bin_ofs = Index((local_id / max_bin_size) < 1) * gbin_ofs % max_bin_size;
 
                 const Index real_bin_count =
                     sycl::min<Index>(all_bin_count - gbin_ofs, bin_cnt_per_krn);
@@ -410,6 +410,11 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
                         local_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
                         tmp_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
+                    }
+                }
+                if (local_id == 0 && bin_ofs > 0) {
+                    for (Index cls = 0; cls < hist_prop_count; ++cls) {
+                        local_hist_ptr[cls] = last_bin[cls];
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
@@ -539,6 +544,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             cur_hist[0] = sum_n1n2;
                         }
                         left_count += Index(cur_hist[0]);
+                    }
+                    // Save last bin to proccess rest bins in next batch
+                    if (work_bin == (real_bin_count - 1)) {
+                        for (Index cls = 0; cls < hist_prop_count; ++cls) {
+                            last_bin[cls] = cur_hist[cls];
+                        }
                     }
                     // Calculate impurity decrease for current bin
                     ts.init(cur_hist, hist_prop_count);

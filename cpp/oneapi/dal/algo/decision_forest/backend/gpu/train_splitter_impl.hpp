@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,24 +60,21 @@ public:
     /// the `selected_ftr_list` in terms of impurity values.
     /// This kernel does not require pre-computed histograms because it computes
     /// histograms while processing nodes.
-    /// Large case evolves computation among the whole work-group.
     ///
-    /// @param[in] queue                        SYCL parallel queue
-    /// @param[in] ctx                          a training context structure for the GPU backend
-    /// @param[in] data                         an input data with the cast to Bin for each row_count * column_count
-    /// @param[in] response                     an input array of training response values
-    /// @param[in] tree_order                   column indices map for the corresponding tree
-    /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
-    /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
-    /// @param[in] imp_data_list                a node impurity data array
-    /// @param[in] node_ind_list                a node indices array
-    /// @param[in] node_ind_ofs                 a node indices offset
-    /// @param[in] node_list                    a node data structure containing split information
-    /// @param[in] left_child_imp_data_list     an impurity array for left-child
-    /// @param[in] node_imp_dec_list            an array for node impurity decrease data
-    /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
-    /// @param[in] node_count                   number of the nodes to compute in the current step
-    /// @param[in] deps                         a set of SYCL events this method depends on
+    /// @param[in] queue                            SYCL parallel queue
+    /// @param[in] ctx                              a training context structure for the GPU backend
+    /// @param[in] data                             an input data with the cast to Bin for each row_count * column_count
+    /// @param[in] response                         an input array of training response values
+    /// @param[in] tree_order                       column indices map for the corresponding tree
+    /// @param[in] selected_ftr_list                a subset of feature indices selected for each node
+    /// @param[in] bin_offset_list                  a bin offset list for each feature in dataset
+    /// @param[in] imp_data_list                    a node impurity data array
+    /// @param[in, out] node_list                   a node data structure containing split information
+    /// @param[in, out] left_child_imp_data_list    an impurity array for left-child
+    /// @param[in, out] node_imp_dec_list           an array for node impurity decrease data
+    /// @param[in] update_imp_dec_required          boolean indicator to update impurity decrease structure
+    /// @param[in] node_count                       number of the nodes to compute in the current step
+    /// @param[in] deps                             a set of SYCL events this method depends on
     static sycl::event best_split(sycl::queue& queue,
                                   const context_t& ctx,
                                   const pr::ndview<Bin, 2>& data,
@@ -107,11 +104,9 @@ public:
     /// @param[in] random_bins_com              random bin tresholds for each selected feature scaled at [0.0, 1.0] uniformly
     /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
     /// @param[in] imp_data_list                a node impurity data array
-    /// @param[in] node_ind_list                a node indices array
-    /// @param[in] node_ind_ofs                 a node indices offset
-    /// @param[in] node_list                    a node data structure containing split information
-    /// @param[in] left_child_imp_data_list     an impurity array for left child
-    /// @param[in] node_imp_dec_list            an array for node impurity decrease data
+    /// @param[in, out] node_list                    a node data structure containing split information
+    /// @param[in, out] left_child_imp_data_list     an impurity array for left child
+    /// @param[in, out] node_imp_dec_list            an array for node impurity decrease data
     /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
     /// @param[in] node_count                   number of the nodes to compute in the current step
     /// @param[in] deps                         a set of SYCL events this method depends on
