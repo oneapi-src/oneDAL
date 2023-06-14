@@ -137,7 +137,7 @@ bool is_sorted(const array<T>& arr, const std::vector<sycl::event>& dependencies
 ///         within_bounds,    if min_value <= A[i] <= max_value for each i = 0, ..., n-1;
 ///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
 template <typename T>
-out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value);
+out_of_bound_type check_bounds(const array<T>& arr, T min_value, T max_value);
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -156,8 +156,8 @@ out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T&
 ///         greater_than_max, if there exists i, 0 <= i <= n-1: A[i] > max_value.
 template <typename T>
 out_of_bound_type check_bounds(const array<T>& arr,
-                               const T& min_value,
-                               const T& max_value,
+                               T min_value,
+                               T max_value,
                                const std::vector<sycl::event>& dependencies);
 
 #endif

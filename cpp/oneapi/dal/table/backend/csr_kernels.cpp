@@ -385,7 +385,7 @@ bool is_sorted(sycl::queue& queue,
                const std::vector<sycl::event>& dependencies) {
     // number of pairs of the subsequent elements in the data array that are sorted in desccending order,
     // i.e. for which data[i] > data[i + 1] is true.
-    std::int64_t count_descending_pairs{ 0 };
+    std::int64_t count_descending_pairs = 0L;
     sycl::buffer<std::int64_t, 1> count_buf(&count_descending_pairs, sycl::range<1>(1));
 
     // count the number of pairs of the subsequent elements in the data array that are sorted
@@ -425,7 +425,7 @@ bool is_sorted(const array<T>& arr, const std::vector<sycl::event>& dependencies
 #endif
 
 template <typename T>
-out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T& max_value) {
+out_of_bound_type check_bounds(const array<T>& arr, T min_value, T max_value) {
     const T* const data = arr.get_data();
     const auto count = arr.get_count();
     out_of_bound_type result{ out_of_bound_type::within_bounds };
@@ -446,8 +446,8 @@ out_of_bound_type check_bounds(const array<T>& arr, const T& min_value, const T&
 
 template <typename T>
 out_of_bound_type check_bounds(const array<T>& arr,
-                               const T& min_value,
-                               const T& max_value,
+                               T min_value,
+                               T max_value,
                                const std::vector<sycl::event>& dependencies) {
     auto optional_queue = arr.get_queue();
     if (!optional_queue)
@@ -459,7 +459,7 @@ out_of_bound_type check_bounds(const array<T>& arr,
 
     // number of elements in the data array that are less than [lt] the min_value,
     // number of elements in the data array that are greater than [gt] the max_value.
-    std::int64_t count_lt_min{ 0 }, count_gt_max{ 0 };
+    std::int64_t count_lt_min = 0L, count_gt_max = 0L;
     sycl::buffer<std::int64_t, 1> count_lt_buf(&count_lt_min, sycl::range<1>(1));
     sycl::buffer<std::int64_t, 1> count_gt_buf(&count_gt_max, sycl::range<1>(1));
 
@@ -527,15 +527,15 @@ INSTANTIATE_HOST_POLICY(double)
 INSTANTIATE_HOST_POLICY(std::int32_t)
 
 template out_of_bound_type check_bounds(const array<std::int64_t>& arr,
-                                        const std::int64_t& min_value,
-                                        const std::int64_t& max_value);
+                                        std::int64_t min_value,
+                                        std::int64_t max_value);
 
 #ifdef ONEDAL_DATA_PARALLEL
 template bool is_sorted(const array<std::int64_t>& arr,
                         const std::vector<sycl::event>& dependencies);
 template out_of_bound_type check_bounds(const array<std::int64_t>& arr,
-                                        const std::int64_t& min_value,
-                                        const std::int64_t& max_value,
+                                        std::int64_t min_value,
+                                        std::int64_t max_value,
                                         const std::vector<sycl::event>& dependencies);
 
 #endif

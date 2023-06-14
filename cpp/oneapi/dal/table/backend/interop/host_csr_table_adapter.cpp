@@ -162,9 +162,13 @@ host_csr_table_adapter<Data>::host_csr_table_adapter(const csr_table& table, sta
         ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
         ptr_index_t{ column_indices, daal_object_owner(table) },
         ptr_index_t{ row_offsets, daal_object_owner(table) });
+    if (!this->_status.ok())
+        return;
 
     _defaultFeature.setType<Data>();
     this->_status |= this->_ddict->setAllFeatures(_defaultFeature);
+    if (!this->_status.ok())
+        return;
 
     original_table_ = table;
 
