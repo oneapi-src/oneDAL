@@ -238,7 +238,13 @@ class DAAL_EXPORT DistributedBase : public daal::algorithms::Analysis<distribute
 public:
     typedef algorithms::kmeans::init::Parameter ParameterType;
     /** Default destructor */
-    virtual ~DistributedBase() {}
+    virtual ~DistributedBase()
+    {
+        if (_par)
+        {
+            delete _par;
+        }
+    }
 
 protected:
     DistributedBase() {}
