@@ -22,6 +22,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/backend/dispatcher_cpu.hpp"
+#include "oneapi/dal/backend/threading.hpp"
 
 #define KERNEL_SPEC(spec, ...) ::oneapi::dal::backend::kernel_spec<spec, __VA_ARGS__>
 
