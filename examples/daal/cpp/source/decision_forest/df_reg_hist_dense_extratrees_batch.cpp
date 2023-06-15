@@ -75,7 +75,7 @@ training::ResultPtr trainModel() {
     algorithm.parameter().nTrees = nTrees;
     algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDI;
     /* Enable ExtraTrees regression algorithm with bootstrap=false and random splitter*/
-    algorithm.parameter().splitter = algorithms::decision_forest::training::random;
+    algorithm.parameter().splitter = daal::algorithms::decision_forest::training::random;
     algorithm.parameter().bootstrap = false;
 
     /* Build the decision forest regression model */
