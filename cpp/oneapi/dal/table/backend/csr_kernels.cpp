@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/memory.hpp"
 
 #include <algorithm>
-#include <iostream>
 
 namespace oneapi::dal::backend {
 
