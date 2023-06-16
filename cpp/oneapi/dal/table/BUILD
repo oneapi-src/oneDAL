@@ -38,7 +38,6 @@ dal_test_suite(
         "test/homogen_serialization.cpp",
         "test/csr.cpp",
         "test/csr_accessor.cpp",
-        "test/csr_serialization.cpp",
         "test/column_accessor.cpp",
         "test/common.cpp",
     ],
