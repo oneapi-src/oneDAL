@@ -88,4 +88,35 @@ sycl::event compute_hessian(sycl::queue& q,
                             bool fit_intercept = true,
                             const event_vector& deps = {});
 
+template <typename Float>
+sycl::event compute_raw_hessian(sycl::queue& q,
+                                const ndview<Float, 1>& probabilities,
+                                ndview<Float, 1>& out_hessian,
+                                const event_vector& deps = {});
+
+template <typename Float>
+class logloss_hessp {
+public:
+    logloss_hessp(sycl::queue& q,
+                  const ndview<Float, 2>& data,
+                  const Float L2 = Float(0),
+                  const bool fit_intercept = true);
+
+    sycl::event set_raw_hessian(const ndview<Float, 1>& raw_hessian, const event_vector& deps = {});
+
+    sycl::event operator()(const ndview<Float, 1>& vec,
+                           ndview<Float, 1>& out,
+                           const event_vector& deps = {});
+
+private:
+    sycl::queue q_;
+    ndarray<Float, 1> raw_hessian_;
+    const ndview<Float, 2> data_;
+    ndarray<Float, 1> buffer_;
+    const Float L2_;
+    const bool fit_intercept_;
+    const std::int64_t n_;
+    const std::int64_t p_;
+};
+
 } // namespace oneapi::dal::backend::primitives

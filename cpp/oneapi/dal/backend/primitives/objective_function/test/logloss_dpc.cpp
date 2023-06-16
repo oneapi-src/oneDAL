@@ -21,6 +21,10 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+
+// #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
@@ -206,6 +210,17 @@ public:
                                           { out_hess_e });
 
         auto hessian_host = out_hessian.to_host(this->get_queue(), { hess_event });
+
+        auto out_raw_hessian =
+            ndarray<float_t, 1>::empty(this->get_queue(), { n }, sycl::usm::alloc::device);
+
+        auto raw_hess_event =
+            compute_raw_hessian(this->get_queue(), out_predictions, out_raw_hessian, {});
+
+        auto hessp = logloss_hessp(this->get_queue(), data_gpu, L2, fit_intercept);
+
+        hessp.set_raw_hessian(out_raw_hessian, { raw_hess_event });
+
         test_formula_derivative(data_host,
                                 predictions_host,
                                 params_host,
@@ -233,12 +248,14 @@ public:
                                     fit_intercept,
                                     rtol,
                                     atol);
+
+        test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
     }
 
-    float_t test_predictions_and_logloss(const ndarray<float_t, 2>& data_host,
-                                         const ndarray<float_t, 1>& params_host,
-                                         const ndarray<std::int32_t, 1>& labels_host,
-                                         const ndarray<float_t, 1>& probabilities,
+    float_t test_predictions_and_logloss(const ndview<float_t, 2>& data_host,
+                                         const ndview<float_t, 1>& params_host,
+                                         const ndview<std::int32_t, 1>& labels_host,
+                                         const ndview<float_t, 1>& probabilities,
                                          const float_t L1,
                                          const float_t L2,
                                          bool fit_intercept,
@@ -269,9 +286,9 @@ public:
         return logloss;
     }
 
-    double naive_logloss(const ndarray<float_t, 2>& data_host,
-                         const ndarray<float_t, 1>& params_host,
-                         const ndarray<std::int32_t, 1>& labels_host,
+    double naive_logloss(const ndview<float_t, 2>& data_host,
+                         const ndview<float_t, 1>& params_host,
+                         const ndview<std::int32_t, 1>& labels_host,
                          const float_t L1,
                          const float_t L2,
                          bool fit_intercept) {
@@ -296,11 +313,11 @@ public:
         return logloss;
     }
 
-    void naive_derivative(const ndarray<float_t, 2>& data,
-                          const ndarray<float_t, 1>& probabilities,
-                          const ndarray<float_t, 1>& params,
-                          const ndarray<std::int32_t, 1>& labels,
-                          ndarray<double, 1>& out_der,
+    void naive_derivative(const ndview<float_t, 2>& data,
+                          const ndview<float_t, 1>& probabilities,
+                          const ndview<float_t, 1>& params,
+                          const ndview<std::int32_t, 1>& labels,
+                          ndview<double, 1>& out_der,
                           float_t L1,
                           float_t L2,
                           bool fit_intercept) {
@@ -322,9 +339,9 @@ public:
         }
     }
 
-    void naive_hessian(const ndarray<float_t, 2>& data_host,
-                       const ndarray<float_t, 1>& probabilities_host,
-                       ndarray<double, 2>& out_hessian,
+    void naive_hessian(const ndview<float_t, 2>& data_host,
+                       const ndview<float_t, 1>& probabilities_host,
+                       ndview<double, 2>& out_hessian,
                        float_t L2,
                        bool fit_intercept) {
         const std::int64_t n = data_host.get_dimension(0);
@@ -353,11 +370,11 @@ public:
         }
     }
 
-    void test_formula_derivative(const ndarray<float_t, 2>& data,
-                                 const ndarray<float_t, 1>& probabilities,
-                                 const ndarray<float_t, 1>& params,
-                                 const ndarray<std::int32_t, 1>& labels,
-                                 const ndarray<float_t, 1>& derivative,
+    void test_formula_derivative(const ndview<float_t, 2>& data,
+                                 const ndview<float_t, 1>& probabilities,
+                                 const ndview<float_t, 1>& params,
+                                 const ndview<std::int32_t, 1>& labels,
+                                 const ndview<float_t, 1>& derivative,
                                  const float_t L1,
                                  const float_t L2,
                                  bool fit_intercept,
@@ -381,9 +398,9 @@ public:
         }
     }
 
-    void test_formula_hessian(const ndarray<float_t, 2>& data,
-                              const ndarray<float_t, 1>& probabilities,
-                              const ndarray<float_t, 2>& hessian,
+    void test_formula_hessian(const ndview<float_t, 2>& data,
+                              const ndview<float_t, 1>& probabilities,
+                              const ndview<float_t, 2>& hessian,
                               const float_t L2,
                               bool fit_intercept,
                               const float_t rtol = 1e-3,
@@ -401,11 +418,11 @@ public:
         }
     }
 
-    void test_derivative_and_hessian(const ndarray<float_t, 2>& data,
-                                     const ndarray<std::int32_t, 1>& labels,
-                                     const ndarray<float_t, 1>& derivative,
-                                     const ndarray<float_t, 2>& hessian,
-                                     const ndarray<float_t, 1>& params_host,
+    void test_derivative_and_hessian(const ndview<float_t, 2>& data,
+                                     const ndview<std::int32_t, 1>& labels,
+                                     const ndview<float_t, 1>& derivative,
+                                     const ndview<float_t, 2>& hessian,
+                                     const ndview<float_t, 1>& params_host,
                                      const float_t L1,
                                      const float_t L2,
                                      bool fit_intercept,
@@ -516,6 +533,42 @@ public:
                 }
             }
             cur_param[i] += step;
+        }
+    }
+
+    void test_hessian_product(const ndview<float_t, 2>& hessian_host,
+                              logloss_hessp<float_t>& hessp,
+                              bool fit_intercept,
+                              double L2,
+                              const float_t rtol = 1e-3,
+                              const float_t atol = 1e-3,
+                              std::int32_t num_checks = 5) {
+        const std::int64_t p = hessian_host.get_dimension(0) - 1;
+        const std::int64_t k = fit_intercept ? p + 1 : p;
+
+        primitives::rng<float_t> rn_gen;
+        auto vec_host =
+            ndarray<float_t, 1>::empty(this->get_queue(), { k }, sycl::usm::alloc::host);
+
+        for (std::int32_t ij = 0; ij < num_checks; ++ij) {
+            primitives::engine eng(2007 + k * num_checks + ij);
+            rn_gen.uniform(k, vec_host.get_mutable_data(), eng.get_state(), -1.0, 1.0);
+            auto vec_gpu = vec_host.to_device(this->get_queue());
+            auto out_vector =
+                ndarray<float_t, 1>::empty(this->get_queue(), { k }, sycl::usm::alloc::device);
+            hessp(vec_gpu, out_vector, {}).wait_and_throw();
+
+            auto out_vector_host = out_vector.to_host(this->get_queue());
+
+            const std::int64_t st = fit_intercept ? 0 : 1;
+            float_t correct;
+            for (std::int64_t i = st; i < p + 1; ++i) {
+                correct = 0;
+                for (std::int64_t j = st; j < p + 1; ++j) {
+                    correct += vec_host.at(j - st) * hessian_host.at(i, j);
+                }
+                check_val(out_vector_host.at(i - st), correct, rtol, atol);
+            }
         }
     }
 
