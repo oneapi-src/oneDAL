@@ -594,7 +594,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cSetDouble(JNIEnv * env, jobject, jlong numTableAddr,
                                                                                                        jlong row, jlong column, jdouble value)
 {
     HomogenNumericTable<double> * nt = static_cast<HomogenNumericTable<double> *>(((SerializationIfacePtr *)numTableAddr)->get());
@@ -606,7 +606,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJF)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cSetFloat(JNIEnv * env, jobject, jlong numTableAddr,
                                                                                                        jlong row, jlong column, jfloat value)
 {
     HomogenNumericTable<float> * nt = static_cast<HomogenNumericTable<float> *>(((SerializationIfacePtr *)numTableAddr)->get());
@@ -618,7 +618,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cSetLong(JNIEnv * env, jobject, jlong numTableAddr,
                                                                                                        jlong row, jlong column, jlong value)
 {
     HomogenNumericTable<long> * nt = static_cast<HomogenNumericTable<long> *>(((SerializationIfacePtr *)numTableAddr)->get());
@@ -630,7 +630,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    set
  * Signature: (JJI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_set(JNIEnv * env, jobject, jlong numTableAddr,
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cSetInt(JNIEnv * env, jobject, jlong numTableAddr,
                                                                                                        jlong row, jlong column, jint value)
 {
     HomogenNumericTable<int> * nt = static_cast<HomogenNumericTable<int> *>(((SerializationIfacePtr *)numTableAddr)->get());
@@ -642,7 +642,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
  * Method:    getDouble
  * Signature: (JJ)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getDouble(JNIEnv * env, jobject,
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cGetDouble(JNIEnv * env, jobject,
                                                                                                                 jlong numTableAddr, jlong row,
                                                                                                                 jlong column)
 {
@@ -655,7 +655,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
  * Method:    getFloat
  * Signature: (JJ)F
  */
-JNIEXPORT jfloat JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getFloat(JNIEnv * env, jobject,
+JNIEXPORT jfloat JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cGetFloat(JNIEnv * env, jobject,
                                                                                                               jlong numTableAddr, jlong row,
                                                                                                               jlong column)
 {
@@ -668,7 +668,7 @@ JNIEXPORT jfloat JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeri
  * Method:    getLong
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getLong(JNIEnv * env, jobject, jlong numTableAddr,
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cGetLong(JNIEnv * env, jobject, jlong numTableAddr,
                                                                                                             jlong row, jlong column, jlong value)
 {
     HomogenNumericTable<long> * nt = static_cast<HomogenNumericTable<long> *>(((SerializationIfacePtr *)numTableAddr)->get());
@@ -680,7 +680,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
  * Method:    getInt
  * Signature: (JJ)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_getInt(JNIEnv * env, jobject, jlong numTableAddr,
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericTableByteBufferImpl_cGetInt(JNIEnv * env, jobject, jlong numTableAddr,
                                                                                                           jlong row, jlong column)
 {
     HomogenNumericTable<int> * nt = static_cast<HomogenNumericTable<int> *>(((SerializationIfacePtr *)numTableAddr)->get());
