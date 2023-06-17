@@ -1,4 +1,4 @@
-/* file: df_reg_hist_dense_extratrees_Ebatch.cpp */
+/* file: df_reg_hist_dense_extratrees_batch.cpp */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
 *
