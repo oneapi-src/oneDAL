@@ -1,6 +1,6 @@
-/* file: df_cls_hist_dense_batch.cpp */
+/* file: df_reg_default_dense_extratrees_batch.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,41 +17,33 @@
 
 /*
 !  Content:
-!    C++ example of decision forest classification in the batch processing mode.
+!    C++ example of decision forest regression in the batch processing mode
+!    using the Extremely Randomized Trees algorithm.
 !
-!    The program trains the decision forest classification model on a training
-!    datasetFileName and computes classification for the test data.
+!    The program trains the decision forest regression model on a training
+!    datasetFileName and computes regression for the test data.
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-DF_CLS_HIST_DENSE_BATCH"></a>
- * \example df_cls_hist_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-DF_REG_DEFAULT_DENSE_EXTRATREES_BATCH"></a>
+ * \example df_reg_default_dense_extratrees_batch.cpp
  */
 
 #include "daal.h"
 #include "service.h"
 
 using namespace daal;
-using namespace daal::algorithms;
 using namespace daal::data_management;
-using namespace daal::algorithms::decision_forest::classification;
+using namespace daal::algorithms::decision_forest::regression;
 
 /* Input data set parameters */
-const std::string trainDatasetFileName = "../data/batch/df_classification_train.csv";
-const std::string testDatasetFileName = "../data/batch/df_classification_test.csv";
-const size_t categoricalFeaturesIndices[] = { 2 };
-const size_t nFeatures = 3; /* Number of features in training and testing data sets */
+const std::string trainDatasetFileName = "../data/batch/df_regression_train.csv";
+const std::string testDatasetFileName = "../data/batch/df_regression_test.csv";
+const size_t categoricalFeaturesIndices[] = { 3 };
+const size_t nFeatures = 13; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees = 10;
-const size_t minObservationsInLeafNode = 8;
-const size_t minObservationsInSplitNode = 16;
-const double minWeightFractionInLeafNode = 0.0; /* It must be in segment [0.0, 0.5] */
-const double minImpurityDecreaseInSplitNode = 0.0; /* It must be greater than or equal to 0.0 */
-const size_t maxBins = 256; /* Default value */
-const size_t minBinSize = 5; /* Default value */
-
-const size_t nClasses = 5; /* Number of classes */
+const size_t nTrees = 100;
 
 training::ResultPtr trainModel();
 void testModel(const training::ResultPtr& res);
@@ -73,33 +65,26 @@ training::ResultPtr trainModel() {
 
     loadData(trainDatasetFileName, trainData, trainDependentVariable);
 
-    /* Create an algorithm object to train the decision forest classification model */
-    training::Batch<float, training::hist> algorithm(nClasses);
+    /* Create an algorithm object to train the decision forest regression model with the default method */
+    training::Batch<float, training::defaultDense> algorithm;
 
     /* Pass a training data set and dependent values to the algorithm */
-    algorithm.input.set(classifier::training::data, trainData);
-    algorithm.input.set(classifier::training::labels, trainDependentVariable);
+    algorithm.input.set(training::data, trainData);
+    algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
     algorithm.parameter().nTrees = nTrees;
-    algorithm.parameter().featuresPerNode = nFeatures;
-    algorithm.parameter().minObservationsInLeafNode = minObservationsInLeafNode;
-    algorithm.parameter().minObservationsInSplitNode = minObservationsInSplitNode;
-    algorithm.parameter().minWeightFractionInLeafNode = minWeightFractionInLeafNode;
-    algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
-    algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute =
-        algorithms::decision_forest::training::computeOutOfBagError;
-    algorithm.parameter().maxBins = maxBins;
-    algorithm.parameter().minBinSize = minBinSize;
+    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDI;
+    /* Enable ExtraTrees regression algorithm with bootstrap=false and random splitter*/
+    algorithm.parameter().splitter = daal::algorithms::decision_forest::training::random;
+    algorithm.parameter().bootstrap = false;
 
-    /* Build the decision forest classification model */
+    /* Build the decision forest regression model */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
     return trainingResult;
 }
 
@@ -110,25 +95,20 @@ void testModel(const training::ResultPtr& trainingResult) {
 
     loadData(testDatasetFileName, testData, testGroundTruth);
 
-    /* Create an algorithm object to predict values of decision forest classification */
-    prediction::Batch<> algorithm(nClasses);
+    /* Create an algorithm object to predict values of decision forest regression */
+    prediction::Batch<> algorithm;
 
     /* Pass a testing data set and the trained model to the algorithm */
-    algorithm.input.set(classifier::prediction::data, testData);
-    algorithm.input.set(classifier::prediction::model,
-                        trainingResult->get(classifier::training::model));
-    algorithm.parameter().votingMethod = prediction::weighted;
-    algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities;
-    /* Predict values of decision forest classification */
+    algorithm.input.set(prediction::data, testData);
+    algorithm.input.set(prediction::model, trainingResult->get(training::model));
+
+    /* Predict values of decision forest regression */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(classifier::prediction::prediction),
+    prediction::ResultPtr predictionResult = algorithm.getResult();
+    printNumericTable(predictionResult->get(prediction::prediction),
                       "Decision forest prediction results (first 10 rows):",
-                      10);
-    printNumericTable(predictionResult->get(classifier::prediction::probabilities),
-                      "Decision forest probabilities results (first 10 rows):",
                       10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }

@@ -1,6 +1,6 @@
-/* file: df_cls_hist_dense_batch.cpp */
+/* file: df_cls_hist_dense_extratrees_batch.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@
 
 /*
 !  Content:
-!    C++ example of decision forest classification in the batch processing mode.
+!    C++ example of decision forest classification in the batch processing mode
+!    using the Extremely Randomized Trees algorithm.
 !
 !    The program trains the decision forest classification model on a training
 !    datasetFileName and computes classification for the test data.
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-DF_CLS_HIST_DENSE_BATCH"></a>
- * \example df_cls_hist_dense_batch.cpp
+ * <a name="DAAL-EXAMPLE-CPP-DF_CLS_HIST_DENSE_EXTRATREES_BATCH"></a>
+ * \example df_cls_hist_dense_extratrees_batch.cpp
  */
 
 #include "daal.h"
@@ -87,10 +88,11 @@ training::ResultPtr trainModel() {
     algorithm.parameter().minWeightFractionInLeafNode = minWeightFractionInLeafNode;
     algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
     algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute =
-        algorithms::decision_forest::training::computeOutOfBagError;
     algorithm.parameter().maxBins = maxBins;
     algorithm.parameter().minBinSize = minBinSize;
+    /* Enable ExtraTrees classification algorithm with bootstrap=false and random splitter*/
+    algorithm.parameter().splitter = algorithms::decision_forest::training::random;
+    algorithm.parameter().bootstrap = false;
 
     /* Build the decision forest classification model */
     algorithm.compute();
@@ -99,7 +101,6 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
     return trainingResult;
 }
 
