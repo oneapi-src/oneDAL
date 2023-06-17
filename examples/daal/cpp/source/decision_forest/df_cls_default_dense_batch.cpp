@@ -58,13 +58,18 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
 int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    training::ResultPtr trainingResult = trainModel();
+    /* Random Forest classification algorithm */
+    training::ResultPtr trainingResult = trainModel(false);
+    testModel(trainingResult);
+
+    /* Extra Trees classification algorithm */
+    training::ResultPtr trainingResult = trainModel(true);
     testModel(trainingResult);
 
     return 0;
 }
 
-training::ResultPtr trainModel() {
+training::ResultPtr trainModel(bool extraTrees) {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
@@ -85,8 +90,15 @@ training::ResultPtr trainModel() {
     algorithm.parameter().minWeightFractionInLeafNode = minWeightFractionInLeafNode;
     algorithm.parameter().minImpurityDecreaseInSplitNode = minImpurityDecreaseInSplitNode;
     algorithm.parameter().varImportance = algorithms::decision_forest::training::MDI;
-    algorithm.parameter().resultsToCompute =
-        algorithms::decision_forest::training::computeOutOfBagError;
+    if (extraTrees) {
+        /* Extra Trees is set through two parameters which are different by default */
+        algorithm.parameter().bootstrap = false;
+        algorithm.parameter().splitter = algorithms::decision_forest::training::random;
+    }
+    else {
+        algorithm.parameter().resultsToCompute =
+            algorithms::decision_forest::training::computeOutOfBagError;
+    }
 
     /* Build the decision forest classification model */
     algorithm.compute();
@@ -95,7 +107,9 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    if (extraTrees) {
+        printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+    }
     return trainingResult;
 }
 

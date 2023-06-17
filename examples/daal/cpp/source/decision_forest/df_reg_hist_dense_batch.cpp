@@ -51,13 +51,18 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
 int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    training::ResultPtr trainingResult = trainModel();
+    /* Random Forest regression algorithm */
+    training::ResultPtr trainingResult = trainModel(false);
+    testModel(trainingResult);
+
+    /* Extra Trees regression algorithm */
+    training::ResultPtr trainingResult = trainModel(true);
     testModel(trainingResult);
 
     return 0;
 }
 
-training::ResultPtr trainModel() {
+training::ResultPtr trainModel(bool extraTrees) {
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData;
     NumericTablePtr trainDependentVariable;
@@ -72,10 +77,20 @@ training::ResultPtr trainModel() {
     algorithm.input.set(training::dependentVariable, trainDependentVariable);
 
     algorithm.parameter().nTrees = nTrees;
-    algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDA_Raw;
-    algorithm.parameter().resultsToCompute =
-        daal::algorithms::decision_forest::training::computeOutOfBagError |
-        daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
+    if (extraTrees) {
+        algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDI;
+
+        /* Extra Trees is set through two parameters which are different by default */
+        algorithm.parameter().bootstrap = false;
+        algorithm.parameter().splitter = daal::algorithms::decision_forest::training::random;
+    }
+    else {
+        /* MDA_Raw only available when boostrap == true */
+        algorithm.parameter().varImportance = daal::algorithms::decision_forest::training::MDA_Raw;
+        algorithm.parameter().resultsToCompute =
+            daal::algorithms::decision_forest::training::computeOutOfBagError |
+            daal::algorithms::decision_forest::training::computeOutOfBagErrorPerObservation;
+    }
 
     /* Build the decision forest regression model */
     algorithm.compute();
@@ -84,10 +99,14 @@ training::ResultPtr trainModel() {
     training::ResultPtr trainingResult = algorithm.getResult();
     printNumericTable(trainingResult->get(training::variableImportance),
                       "Variable importance results: ");
-    printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
-    printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
-                      "OOB error per observation (first 10 rows):",
-                      10);
+
+    /* Out-of-Bag calculations not available for the Extra Trees algorithm */
+    if (!extraTrees) {
+        printNumericTable(trainingResult->get(training::outOfBagError), "OOB error: ");
+        printNumericTable(trainingResult->get(training::outOfBagErrorPerObservation),
+                          "OOB error per observation (first 10 rows):",
+                          10);
+    }
     return trainingResult;
 }
 
