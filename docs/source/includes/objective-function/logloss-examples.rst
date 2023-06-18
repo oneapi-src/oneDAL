@@ -14,24 +14,14 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
+.. tabs::
 
-Algorithms
-==========
+  .. group-tab:: oneAPI DPC++
 
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
+    Batch Processing:
 
-.. toctree::
-   :maxdepth: 2
+  .. group-tab:: oneAPI C++
 
-   clustering/index.rst
-   covariance/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   graph/index.rst
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   objective-function/index.rst
-   pairwise-distances/index.rst
-   statistics/index.rst
-   svm/index.rst
+    Batch Processing:
+
+    - :ref:`cpp_logloss_dense_batch.cpp`
