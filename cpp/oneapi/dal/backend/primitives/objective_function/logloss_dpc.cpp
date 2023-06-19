@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
+#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -473,16 +474,12 @@ sycl::event compute_raw_hessian(sycl::queue& q,
     ONEDAL_ASSERT(probabilities.has_data());
     ONEDAL_ASSERT(out_hessian.has_mutable_data());
 
-    auto* const hes_ptr = out_hessian.get_mutable_data();
-    const auto* const proba_ptr = probabilities.get_data();
+    const auto kernel = [=](const Float& val, Float*) -> Float {
+        constexpr Float one(1);
+        return val * (one - val);
+    };
 
-    return q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        const auto range = make_range_1d(n);
-        cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            hes_ptr[idx] = proba_ptr[idx] * (1 - proba_ptr[idx]);
-        });
-    });
+    return element_wise(q, kernel, probabilities, nullptr, out_hessian, deps);
 }
 
 template <typename Float>
@@ -508,68 +505,75 @@ sycl::event logloss_hessp<Float>::set_raw_hessian(const ndview<Float, 1>& raw_he
 }
 
 template <typename Float>
-sycl::event logloss_hessp<Float>::operator()(const ndview<Float, 1>& vec,
-                                             ndview<Float, 1>& out,
-                                             const event_vector& deps) {
+ndview<Float, 1>& logloss_hessp<Float>::get_raw_hessian() {
+    return raw_hessian_;
+}
+
+template <typename Float>
+sycl::event logloss_hessp<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
+                                                             ndview<Float, 1>& out,
+                                                             const event_vector& deps) {
     auto* const buffer_ptr = buffer_.get_mutable_data();
     const auto* const hess_ptr = raw_hessian_.get_data();
     auto* const out_ptr = out.get_mutable_data();
-    auto* const vec_ptr = vec.get_data();
+    ONEDAL_ASSERT(vec.get_dimension(0) == p_ + 1);
+    ONEDAL_ASSERT(out.get_dimension(0) == p_ + 1);
+    auto fill_buffer_event = fill<Float>(q_, buffer_, Float(1), deps);
+    auto out_suf = out.get_slice(1, p_ + 1);
+    auto out_bias = out.get_slice(0, 1);
+    auto vec_suf = vec.get_slice(1, p_ + 1);
 
+    sycl::event fill_out_event = copy(q_, out_suf, vec_suf, deps);
+    sycl::event fill_out0_event = fill<Float>(q_, out_bias, Float(0), deps);
+
+    Float v0 = vec.at_device(q_, 0, deps);
+    sycl::event event_xv = gemv(q_, data_, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
+
+    sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ event_xv, fill_out_event, fill_out0_event });
+        const auto range = make_range_1d(n_);
+        auto sum_reduction = sycl::reduction(out_ptr, sycl::plus<>());
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
+            buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
+            sum_v0 += buffer_ptr[idx];
+        });
+    });
+    auto event_xtdxv =
+        gemv(q_, data_.t(), buffer_, out_suf, Float(1), L2_ * 2, { event_dxv, fill_out_event });
+    return event_xtdxv;
+}
+
+template <typename Float>
+sycl::event logloss_hessp<Float>::compute_without_fit_intercept(const ndview<Float, 1>& vec,
+                                                                ndview<Float, 1>& out,
+                                                                const event_vector& deps) {
+    ONEDAL_ASSERT(vec.get_dimension(0) == p_);
+    ONEDAL_ASSERT(out.get_dimension(0) == p_);
+
+    sycl::event fill_out_event = copy(q_, out, vec, deps);
+
+    auto event_xv = gemv(q_, data_, vec, buffer_, Float(1), Float(0), deps);
+
+    auto buf_ndview = static_cast<ndview<Float, 1>&>(buffer_);
+    auto hess_ndview = static_cast<ndview<Float, 1>&>(raw_hessian_);
+    constexpr sycl::multiplies<Float> kernel_mul{};
+    auto event_dxv =
+        element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
+
+    auto event_xtdxv =
+        gemv(q_, data_.t(), buffer_, out, Float(1), L2_ * 2, { event_dxv, fill_out_event });
+    return event_xtdxv;
+}
+
+template <typename Float>
+sycl::event logloss_hessp<Float>::operator()(const ndview<Float, 1>& vec,
+                                             ndview<Float, 1>& out,
+                                             const event_vector& deps) {
     if (fit_intercept_) {
-        ONEDAL_ASSERT(vec.get_dimension(0) == p_ + 1);
-        ONEDAL_ASSERT(out.get_dimension(0) == p_ + 1);
-        auto fill_buffer_event = fill<Float>(q_, buffer_, Float(1), deps);
-        auto out_suf = out.get_slice(1, p_ + 1);
-        auto vec_suf = vec.get_slice(1, p_ + 1);
-
-        sycl::event fill_out_event = q_.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            const auto range = make_range_1d(p_ + 1);
-            cgh.parallel_for(range, [=](sycl::id<1> idx) {
-                out_ptr[idx] = idx > 0 ? vec_ptr[idx] : 0;
-            });
-        });
-
-        Float v0 = vec.get_slice(0, 1).to_host(q_, deps).at(0);
-
-        sycl::event event_xv =
-            gemv(q_, data_, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
-
-        sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ event_xv, fill_out_event });
-            const auto range = make_range_1d(n_);
-            auto sum_reduction = sycl::reduction(out_ptr, sycl::plus<>());
-            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
-                buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
-                sum_v0 += buffer_ptr[idx];
-            });
-        });
-        auto event_xtdxv =
-            gemv(q_, data_.t(), buffer_, out_suf, Float(1), L2_ * 2, { event_dxv, fill_out_event });
-        return event_xtdxv;
+        return compute_with_fit_intercept(vec, out, deps);
     }
     else {
-        ONEDAL_ASSERT(vec.get_dimension(0) == p_);
-        ONEDAL_ASSERT(out.get_dimension(0) == p_);
-        sycl::event fill_out_event = q_.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            const auto range = make_range_1d(p_);
-            cgh.parallel_for(range, [=](sycl::id<1> idx) {
-                out_ptr[idx] = vec_ptr[idx];
-            });
-        });
-        auto event_xv = gemv(q_, data_, vec, buffer_, Float(1), Float(0), deps);
-        auto event_dxv = q_.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ event_xv });
-            const auto range = make_range_1d(n_);
-            cgh.parallel_for(range, [=](sycl::id<1> idx) {
-                buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
-            });
-        });
-        auto event_xtdxv =
-            gemv(q_, data_.t(), buffer_, out, Float(1), L2_ * 2, { event_dxv, fill_out_event });
-        return event_xtdxv;
+        return compute_without_fit_intercept(vec, out, deps);
     }
 }
 

@@ -23,8 +23,6 @@
 
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
-// #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
-
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
@@ -214,12 +212,12 @@ public:
         auto out_raw_hessian =
             ndarray<float_t, 1>::empty(this->get_queue(), { n }, sycl::usm::alloc::device);
 
-        auto raw_hess_event =
-            compute_raw_hessian(this->get_queue(), out_predictions, out_raw_hessian, {});
-
         auto hessp = logloss_hessp(this->get_queue(), data_gpu, L2, fit_intercept);
 
-        hessp.set_raw_hessian(out_raw_hessian, { raw_hess_event });
+        auto raw_hess_event =
+            compute_raw_hessian(this->get_queue(), out_predictions, hessp.get_raw_hessian(), {});
+
+        raw_hess_event.wait_and_throw();
 
         test_formula_derivative(data_host,
                                 predictions_host,
@@ -561,9 +559,8 @@ public:
             auto out_vector_host = out_vector.to_host(this->get_queue());
 
             const std::int64_t st = fit_intercept ? 0 : 1;
-            float_t correct;
             for (std::int64_t i = st; i < p + 1; ++i) {
-                correct = 0;
+                float_t correct = 0;
                 for (std::int64_t j = st; j < p + 1; ++j) {
                     correct += vec_host.at(j - st) * hessian_host.at(i, j);
                 }

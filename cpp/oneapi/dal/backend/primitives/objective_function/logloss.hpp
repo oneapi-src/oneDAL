@@ -104,11 +104,20 @@ public:
 
     sycl::event set_raw_hessian(const ndview<Float, 1>& raw_hessian, const event_vector& deps = {});
 
+    ndview<Float, 1>& get_raw_hessian();
+
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
                            const event_vector& deps = {});
 
 private:
+    sycl::event compute_with_fit_intercept(const ndview<Float, 1>& vec,
+                                           ndview<Float, 1>& out,
+                                           const event_vector& deps);
+    sycl::event compute_without_fit_intercept(const ndview<Float, 1>& vec,
+                                              ndview<Float, 1>& out,
+                                              const event_vector& deps);
+
     sycl::queue q_;
     ndarray<Float, 1> raw_hessian_;
     const ndview<Float, 2> data_;
