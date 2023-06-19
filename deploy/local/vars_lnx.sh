@@ -238,6 +238,7 @@ case "${my_script_path}" in
   *)
     export DALROOT=$ONEAPI_ROOT
     export DAALROOT=$ONEAPI_ROOT
+    export CPATH=$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}
     export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
   ;;
 esac
