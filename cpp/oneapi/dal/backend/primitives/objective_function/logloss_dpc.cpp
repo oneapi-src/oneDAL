@@ -554,8 +554,8 @@ sycl::event logloss_hessp<Float>::compute_without_fit_intercept(const ndview<Flo
 
     auto event_xv = gemv(q_, data_, vec, buffer_, Float(1), Float(0), deps);
 
-    auto buf_ndview = static_cast<ndview<Float, 1>&>(buffer_);
-    auto hess_ndview = static_cast<ndview<Float, 1>&>(raw_hessian_);
+    auto& buf_ndview = static_cast<ndview<Float, 1>&>(buffer_);
+    auto& hess_ndview = static_cast<ndview<Float, 1>&>(raw_hessian_);
     constexpr sycl::multiplies<Float> kernel_mul{};
     auto event_dxv =
         element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
