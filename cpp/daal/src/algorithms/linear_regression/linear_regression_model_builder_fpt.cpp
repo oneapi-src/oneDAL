@@ -30,6 +30,11 @@ namespace interface1
 using namespace daal::data_management;
 
 template <typename modelFPType>
+ModelBuilder<modelFPType>::ModelBuilder()
+    : _nFeatures(0), _nResponses(0), _modelPtr(linear_regression::ModelPtr(new linear_regression::internal::ModelImpl()))
+{}
+
+template <typename modelFPType>
 ModelBuilder<modelFPType>::ModelBuilder(size_t nFeatures, size_t nResponses) : _nFeatures(nFeatures), _nResponses(nResponses)
 {
     Parameter * p     = new Parameter;

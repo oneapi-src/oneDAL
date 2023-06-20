@@ -73,6 +73,11 @@ public:
     static const NodeId noParent = static_cast<size_t>(-1); /*!< %Reserved value for root nodes */
 
     /**
+     * Empty constructor for deserialization
+     */
+    ModelBuilder();
+
+    /**
      * Constructs the gradient boosted trees classification model builder
      * \param[in] nFeatures    Number of features in training data
      * \param[in] nIterations  Number of trees in model for each class

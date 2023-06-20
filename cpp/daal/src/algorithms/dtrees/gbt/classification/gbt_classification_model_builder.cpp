@@ -48,6 +48,8 @@ services::Status ModelBuilder::convertModelInternal()
     return daal::algorithms::gbt::internal::ModelImpl::convertDecisionTreesToGbtTrees(modelImplRef._serializationData);
 }
 
+ModelBuilder::ModelBuilder() : _nClasses(1), _nIterations(1), _model(new gbt::classification::internal::ModelImpl()) {}
+
 services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations, size_t nClasses)
 {
     services::Status s;

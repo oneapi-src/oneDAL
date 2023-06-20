@@ -69,6 +69,11 @@ public:
     ModelBuilder(size_t nFeatures, size_t nClasses);
 
     /**
+     * Empty constructor for deserialization
+     **/
+    ModelBuilder();
+
+    /**
      *  Method to set betas to model via NumericTablePtr, size of NumericTable have to be equal to (_nFeatures)*_nClasses
      *  in case when intercept flag is suppose to be false and (_nFeatures + 1)*_nClasses when intercept flag is true
      *  \param[in] beta       NumericTablePtr represent support vectors
