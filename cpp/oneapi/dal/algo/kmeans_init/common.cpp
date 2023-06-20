@@ -23,6 +23,7 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
+    std::int64_t local_trials_count = -1;
     std::int64_t cluster_count = 2;
     std::int64_t seed = 777;
 };
@@ -41,6 +42,11 @@ std::int64_t descriptor_base<Task>::get_seed() const {
 }
 
 template <typename Task>
+std::int64_t descriptor_base<Task>::get_local_trials_count() const {
+    return impl_->local_trials_count;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
@@ -51,6 +57,14 @@ void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
 template <typename Task>
 void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
     impl_->seed = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_local_trials_count_impl(std::int64_t value) {
+    if (value <= 0) {
+        throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
+    }
+    impl_->local_trials_count = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::init>;

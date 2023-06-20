@@ -175,6 +175,13 @@ sed.eol.mac =
 sed.eol.win = \r
 sed.eol.lnx =
 
+# sed's end of word
+sed.eow = $(sed.eol.$(_OS))
+# macOS default sed doesn't support it
+sed.eow.mac =
+sed.eow.win = \b
+sed.eow.lnx = \b
+
 # sed
 PATCHBIN = $(patchbin.cmd)
 patchbin.cmd = cp $< $@.patchbin.tmp && $(patchbin.workaround.$(_OS)) sed -n $(sed.-i) $(sed.-b) -e $(PATCHBIN.OPTS) -e "w $@" $@.patchbin.tmp && rm -f $@.patchbin.tmp || { rm -f $@ $@.patchbin.tmp; false; }

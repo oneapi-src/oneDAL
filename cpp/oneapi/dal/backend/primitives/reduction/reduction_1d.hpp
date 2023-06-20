@@ -80,12 +80,12 @@ inline Float reduce_1d(sycl::queue& q,
 /// @param[in]  unary   The unary functor that performs element-wise operation before reduction
 /// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_1d(sycl::queue& q,
-                      const ndview<Float, 1>& input,
-                      ndview<Float, 1>& output,
-                      const BinaryOp& binary = {},
-                      const UnaryOp& unary = {},
-                      const event_vector& deps = {}) {
+inline sycl::event reduce_1d(sycl::queue& q,
+                             const ndview<Float, 1>& input,
+                             ndview<Float, 1>& output,
+                             const BinaryOp& binary = {},
+                             const UnaryOp& unary = {},
+                             const event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(reduction.reduce_1d, q);
     static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
                   "BinaryOp must be a special binary operation defined "

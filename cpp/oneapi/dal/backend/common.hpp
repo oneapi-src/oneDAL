@@ -33,8 +33,44 @@
 
 namespace oneapi::dal::backend {
 
+template <typename Type>
+inline Type* begin(const dal::array<Type>& arr) {
+    ONEDAL_ASSERT(arr.has_mutable_data());
+    return arr.get_mutable_data();
+}
+
+template <typename Type>
+inline Type* end(const dal::array<Type>& arr) {
+    return begin(arr) + arr.get_count();
+}
+
+template <typename Type>
+inline const Type* cbegin(const dal::array<Type>& arr) {
+    return arr.get_data();
+}
+
+template <typename Type>
+inline const Type* cend(const dal::array<Type>& arr) {
+    return cbegin(arr) + arr.get_count();
+}
+
 template <std::int64_t axis_count>
 using ndindex = std::array<std::int64_t, axis_count>;
+
+template <typename Integer>
+inline constexpr Integer up_log(Integer x, Integer b = 2) {
+    static_assert(std::is_integral_v<Integer>);
+    ONEDAL_ASSERT(x > 0);
+
+    Integer res = 0, val = 1;
+
+    while (val < x) {
+        res += 1;
+        val *= b;
+    }
+
+    return res;
+}
 
 /// Finds the largest multiple of `multiple` not larger than `x`
 /// Return `x`, if `x` is already multiple of `multiple`
@@ -161,6 +197,16 @@ private:
 
 using event_vector = std::vector<sycl::event>;
 
+/// Depending on the `vec` contents it waits
+/// for all events or returns a dummy event
+///
+/// @param[in]  vec  The vector of `sycl::event`s
+inline sycl::event wait_or_pass(const event_vector& vec) {
+    if (vec.size() > 1)
+        sycl::event::wait_and_throw(vec);
+    return vec.size() > 0 ? vec.back() : sycl::event{};
+}
+
 inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) {
     const auto res_size = rhs.size() + lhs.size();
     event_vector result(res_size);
@@ -170,7 +216,8 @@ inline event_vector operator+(const event_vector& lhs, const event_vector& rhs) 
             *(oit++) = *(iit);
         }
     };
-    copy(lhs, iter), copy(rhs, iter);
+    copy(lhs, iter);
+    copy(rhs, iter);
     return result;
 }
 
@@ -416,7 +463,7 @@ inline std::int64_t device_max_sg_size(const sycl::queue& q) {
 inline std::int64_t propose_wg_size(const sycl::queue& q) {
     // TODO: a temporary solution that limits work item count used on the device.
     // Needs to change to more smart logic in the future.
-    return std::min<std::int64_t>(512, device_max_wg_size(q));
+    return std::min<std::int64_t>(1024, device_max_wg_size(q));
 }
 
 /// Finds the workgroup size for specified data set width

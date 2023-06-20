@@ -33,6 +33,8 @@ help_message() {
     echo "Example: launcher.sh"
 }
 
+echo "Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases."
+
 while [ "$1" != "" ]; do
     case $1 in
         ia32|intel64)          echo "Please switch to new params, 32-bit support deprecated "

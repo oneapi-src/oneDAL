@@ -50,7 +50,7 @@ To do the computations, iterate :math:`t` from :math:`1` until :math:`\text{nIte
 #. Convergence check:
 
    Stop if :math:`\frac {{|U|}_d} {\max (1, {|| \theta_{t-1} ||}_d )} < \epsilon` where :math:`U` is an algorithm-specific vector
-   (argument or gradient) and d is an algorithm-specific power of Lebesgue space
+   (argument or gradient) and d is an algorithm-specific power of `Lebesgue space <https://en.wikipedia.org/wiki/Lp_space>`_
 
 #. Compute :math:`\theta_t` using the algorithm-specific transformation :math:`T` that updates the function's argument:
 

@@ -49,7 +49,7 @@ which include batch processing, online processing, and distributed
 processing, as well as more complex scenarios, such as a combination
 of online and distributed processing.
 
-One of key concepts of Data Management in |short_name| is a data set.
+One key concept of Data Management in |short_name| is a data set.
 A *data set* is a collection of data of a defined structure that
 characterizes an analyzed and modeled object. Specifically, the
 object is characterized by a set of attributes (Features), which

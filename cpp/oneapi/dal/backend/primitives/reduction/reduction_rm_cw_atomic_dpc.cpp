@@ -45,7 +45,11 @@ public:
               lstride_{ lstride } {}
 
     void operator()(sycl::nd_item<2> it) const {
-        Float accs[folding] = { BinaryOp::init_value };
+        Float accs[folding];
+        for (std::int32_t i = 0; i < folding; ++i) {
+            accs[i] = BinaryOp::init_value;
+        }
+
         const std::int32_t vid = it.get_global_id(1);
         const std::int32_t hid = it.get_global_id(0);
         const std::int32_t hwg = it.get_global_range(0);
@@ -141,16 +145,23 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
-    const event_vector& deps) const {
-    return reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size>(q_,
-                                                                             input,
-                                                                             output,
-                                                                             width,
-                                                                             stride,
-                                                                             height,
-                                                                             binary,
-                                                                             unary,
-                                                                             deps);
+    const event_vector& deps,
+    const bool override_init) const {
+    event_vector new_deps{ deps };
+    if (override_init) {
+        auto view = ndview<Float, 1>::wrap(output, { width });
+        new_deps.push_back(fill(q_, view, binary.init_value, deps));
+    }
+    auto res = reduction_impl<Float, BinaryOp, UnaryOp, max_folding, block_size>(q_,
+                                                                                 input,
+                                                                                 output,
+                                                                                 width,
+                                                                                 stride,
+                                                                                 height,
+                                                                                 binary,
+                                                                                 unary,
+                                                                                 new_deps);
+    return res;
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -161,8 +172,10 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
-    const event_vector& deps) const {
-    return this->operator()(input, output, width, height, width, binary, unary, deps);
+    const event_vector& deps,
+    const bool override_init) const {
+    return this->
+    operator()(input, output, width, height, width, binary, unary, deps, override_init);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_atomic<F, B, U>;

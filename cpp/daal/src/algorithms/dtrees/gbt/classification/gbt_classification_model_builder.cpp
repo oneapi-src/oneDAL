@@ -48,6 +48,8 @@ services::Status ModelBuilder::convertModelInternal()
     return daal::algorithms::gbt::internal::ModelImpl::convertDecisionTreesToGbtTrees(modelImplRef._serializationData);
 }
 
+ModelBuilder::ModelBuilder() : _nClasses(1), _nIterations(1), _model(new gbt::classification::internal::ModelImpl()) {}
+
 services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations, size_t nClasses)
 {
     services::Status s;
@@ -128,12 +130,12 @@ services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentI
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue,
-                                                    NodeId & res)
+                                                    NodeId & res, int defaultLeft)
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, res);
+                                                                    featureValue, res, defaultLeft);
 }
 
 } // namespace interface1

@@ -24,7 +24,7 @@ It provides interfaces for computations covering a variety of usage scenarios.
 Basic methods that you typically call are ``compute()`` and ``finalizeCompute()``.
 In a very generic form algorithms accept one or several numeric tables or models as an input and return one or several numeric tables and models as an output.
 Algorithms may also require algorithm-specific parameters that you can modify by accessing the ``parameter`` field of the algorithm.
-Because most of algorithm parameters are preset with default values, you can often omit initialization of the parameter.
+Because most of the algorithm parameters are preset with default values, you can often omit initialization of the parameter.
 
 Algorithm Input
 ***************
@@ -73,7 +73,7 @@ Follow these steps to provide user allocated memory for partial or final results
 Algorithm Parameters
 ********************
 
-Most of algorithms in |short_name| have a set of algorithm-specific parameters.
+Most of the algorithms in |short_name| have a set of algorithm-specific parameters.
 Because most of the parameters are optional and preset with default values, you can often omit parameter modification.
 Provide required parameters to the algorithm using the constructor during algorithm initialization.
 If you need to change the parameters, you can do it by accessing the public field parameter of the algorithm.
@@ -88,5 +88,7 @@ and computation step for the distributed processing mode.
   You can change the template parameters while declaring the algorithm.
 
 - In Java, the generic parameters have no default values, and you need to define them in the constructor during algorithm initialization.
+
+.. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
 For a list of algorithm parameters, refer to the description of an appropriate algorithm.

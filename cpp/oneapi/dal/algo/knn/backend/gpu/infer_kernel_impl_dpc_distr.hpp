@@ -25,6 +25,7 @@
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
+#include "oneapi/dal/backend/primitives/distributed.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/regression.hpp"
@@ -40,6 +41,11 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::knn::backend {
+
+template <typename Float>
+inline std::int64_t propose_distributed_block_size(const sycl::queue& queue, std::int64_t fcount) {
+    return 16 * pr::propose_train_block<Float>(queue, fcount);
+}
 
 template <typename Float, typename Task>
 class knn_callback_distr {
@@ -286,10 +292,16 @@ public:
                                    copy_current_indc_event,
                                    copy_actual_resp_event,
                                    copy_current_resp_event });
-        auto resps_event =
-            select_indexed(queue_, min_indc_dest, part_responses_, min_resp_dest, { selt_event });
-        auto final_event =
-            select_indexed(queue_, min_indc_dest, part_indices_, min_indc_dest, { resps_event });
+        auto resps_event = select_indexed(queue_,
+                                          min_indc_dest,
+                                          part_responses_.get_row_slice(first, last),
+                                          min_resp_dest,
+                                          { selt_event });
+        auto final_event = select_indexed(queue_,
+                                          min_indc_dest,
+                                          part_indices_.get_row_slice(first, last),
+                                          min_indc_dest,
+                                          { resps_event });
         if (last_iteration_) {
             final_event = finalize(qb_id, indices_, distances_, { final_event });
         }
@@ -540,8 +552,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     }
     const auto ccount = desc.get_class_count();
 
-    auto block_size = pr::get_block_size<Float>();
     auto rank_count = comm.get_rank_count();
+    auto block_size = propose_distributed_block_size<Float>(queue, fcount);
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
 
     comm.allgather(tcount, node_sample_counts.flatten()).wait();

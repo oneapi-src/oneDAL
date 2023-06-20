@@ -176,7 +176,7 @@ spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
 
 template <typename MemoryAccessKind, typename T, enable_if_primitive_t<T>* = nullptr>
 spmd::request allgather(const spmd::communicator<MemoryAccessKind>& comm,
-                        T& scalar,
+                        const T& scalar,
                         const array<T>& recv) {
     auto send = array<T>::full(1, T(scalar));
     return allgather(comm, send, recv);

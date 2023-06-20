@@ -70,6 +70,7 @@ int main(int argc, char const* argv[]) {
 
         run<dal::kmeans_init::method::dense>(q, x_train, "dense");
         run<dal::kmeans_init::method::random_dense>(q, x_train, "random_dense");
+        run<dal::kmeans_init::method::plus_plus_dense>(q, x_train, "plus_plus_dense");
     }
     return 0;
 }

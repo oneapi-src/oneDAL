@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/algo/linear_regression.hpp"
 #include "oneapi/dal/io/csv.hpp"
-
 #include "oneapi/dal/exceptions.hpp"
 #include "example_util/utils.hpp"
 

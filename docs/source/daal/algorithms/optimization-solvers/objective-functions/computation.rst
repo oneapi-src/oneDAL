@@ -26,7 +26,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for Objective Function Computaion
+.. list-table:: Input for Objective Function Computation
    :widths: 10 60
    :align: left
 
@@ -42,7 +42,7 @@ The objective function has the following parameters:
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Parameters for Objective Function Computaion
+.. list-table:: Parameters for Objective Function Computation
    :widths: 15 15 70
    :align: left
    :class: longtable
@@ -89,7 +89,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for Objective Function Computaion
+.. list-table:: Output for Objective Function Computation
    :widths: 10 60
    :align: left
    :class: longtable
@@ -129,7 +129,7 @@ For more details, see :ref:`algorithms`.
     except for PackedSymmetricMatrix, PackedTriangularMatrix, and CSRNumericTable.
 
   - Hessian matrix is computed for the objective function :math:`F(\theta) \in C^2`.
-    For the objective functions :math:`F(\theta) \in C^p` with :math`p < 2` the library
+    For the objective functions :math:`F(\theta) \in C^p` with :math:`p < 2` the library
     will stop computations and report the status on non-availability of the computation of the Hessian.
 
   - If Lipschitz constant constantOfLipschitz is not estimated explicitly,

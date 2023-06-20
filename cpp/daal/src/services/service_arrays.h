@@ -19,6 +19,7 @@
 #define __SERVICE_ARRAYS_H__
 
 #include "src/services/service_allocators.h"
+#include "src/services/service_utils.h"
 
 namespace daal
 {
@@ -36,13 +37,13 @@ public:
 
     explicit DynamicArray(size_t size) { allocate(size); }
 
-    DynamicArray(DynamicArray && other) { moveImpl(other); }
+    DynamicArray(DynamicArray && other) { moveImpl(forward<cpu, DynamicArray<T, Allocator, ConstructionPolicy, cpu> >(other)); }
 
     ~DynamicArray() { destroy(); }
 
     DynamicArray & operator=(DynamicArray && other)
     {
-        moveImpl(other);
+        moveImpl(forward<cpu, DynamicArray<T, Allocator, ConstructionPolicy, cpu> >(other));
         return *this;
     }
 

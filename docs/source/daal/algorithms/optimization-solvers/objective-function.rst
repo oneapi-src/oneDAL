@@ -49,7 +49,7 @@ where :math:`F(\theta)` is a smooth and :math:`M(\theta)` is a non-smooth functi
 
     x \in R^p
 
-- The objective function specific Lipschwitz constant, :math:`\text{constantOfLipschitz} \leq |\nabla| F(\theta)`.
+- The objective function specific Lipschitz constant, :math:`\text{constantOfLipschitz} \leq |\nabla| F(\theta)`.
 
 .. toctree::
    :maxdepth: 1

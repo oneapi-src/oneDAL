@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/backend/primitives/debug.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::backend::primitives::test {

@@ -27,13 +27,22 @@ if /i [%1]==[build]       (set rmode=build)       & shift
 if /i [%1]==[run]         (set rmode=run)         & shift
 if /i [%1]==[help]                                          goto :Usage
 
+
+if /i "%1"=="" (
+    set compiler=intel
+) else (
+    set compiler=%1
+)
+
 goto :CorrectArgs
 :Usage
-echo Usage: launcher.bat ^{rmode^|help^}
-echo rmode - optional parameter, can be build (for building samples only) or
-echo         run (for running samples only).
-echo         If not specified build and run are performed.
-echo help  - print this message
+echo Usage: launcher.bat ^{rmode^|compiler^|help^}
+echo rmode    - optional parameter, can be build (for building samples only) or
+echo            run (for running samples only).
+echo            If not specified build and run are performed.
+echo compiler - optional parameter, can be intel or icx
+echo            If not specified intel will be used.
+echo help     - print this message
 exit /b errorcode
 
 :CorrectArgs
@@ -60,15 +69,23 @@ if not defined MPI_SAMPLE_LIST (
 )
 set proc_num=4
 
+if "%compiler%"=="intel" (
+    set mpicompile=mpiicc
+    set LFLAGS=-Qdiag-disable:10441 %LFLAGS%
+)
+if "%compiler%"=="icx" (
+    set mpicompile=mpiicx
+)
+
 setlocal enabledelayedexpansion enableextensions
 
 for %%T in (%MPI_SAMPLE_LIST%) do (
 
     if not "%RMODE%"=="run" (
-        echo call mpiicc %CFLAGS% %MPI_CPP_PATH%\%%T.cpp -Fo%RESULT_DIR%\%%T.obj %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
-        call mpiicc %CFLAGS% %MPI_CPP_PATH%\%%T.cpp -Fo%RESULT_DIR%\%%T.obj %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
-        echo call mpiicc %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL_DLL% -Fe%RESULT_DIR%\%%T_dll.exe 2>&1 >> %MPI_LOGFILE%
-        call mpiicc %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL_DLL% -Fe%RESULT_DIR%\%%T_dll.exe 2>&1 >> %MPI_LOGFILE%
+        echo call %mpicompile% %CFLAGS% %MPI_CPP_PATH%\%%T.cpp -Fo%RESULT_DIR%\ %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
+        call %mpicompile% %CFLAGS% %MPI_CPP_PATH%\%%T.cpp -Fo%RESULT_DIR%\ %LFLAGS_DAAL% -Fe%RESULT_DIR%\%%T.exe 2>&1 >> %MPI_LOGFILE%
+        echo call %mpicompile% %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL_DLL% -Fe%RESULT_DIR%\%%T_dll.exe 2>&1 >> %MPI_LOGFILE%
+        call %mpicompile% %LFLAGS% %RESULT_DIR%\%%T.obj %LFLAGS_DAAL_DLL% -Fe%RESULT_DIR%\%%T_dll.exe 2>&1 >> %MPI_LOGFILE%
         del /F /Q %RESULT_DIR%\%%T.obj
     )
 

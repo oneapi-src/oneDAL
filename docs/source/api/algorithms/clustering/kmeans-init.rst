@@ -86,6 +86,13 @@ Operation
       | :expr:`result.centroids.row_count == desc.cluster_count`
       | :expr:`result.centroids.column_count == input.data.column_count`
 
+
+-------------
+Usage example
+-------------
+
+.. include:: ../../../includes/clustering/kmeans-init-usage-examples.rst
+
 --------
 Examples
 --------

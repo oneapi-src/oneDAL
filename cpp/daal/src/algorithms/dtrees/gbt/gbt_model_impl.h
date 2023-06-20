@@ -63,13 +63,15 @@ public:
     DECLARE_SERIALIZABLE();
     using SplitPointType             = HomogenNumericTable<gbt::prediction::internal::ModelFPType>;
     using FeatureIndexesForSplitType = HomogenNumericTable<gbt::prediction::internal::FeatureIndexType>;
+    using defaultLeftForSplitType    = HomogenNumericTable<int>;
 
     GbtDecisionTree(const size_t nNodes, const size_t maxLvl, const size_t sourceNumOfNodes)
         : _nNodes(nNodes),
           _maxLvl(maxLvl),
           _sourceNumOfNodes(sourceNumOfNodes),
           _splitPoints(SplitPointType::create(1, nNodes, NumericTableIface::doAllocate)),
-          _featureIndexes(FeatureIndexesForSplitType::create(1, nNodes, NumericTableIface::doAllocate))
+          _featureIndexes(FeatureIndexesForSplitType::create(1, nNodes, NumericTableIface::doAllocate)),
+          _defaultLeft(defaultLeftForSplitType::create(1, nNodes, NumericTableIface::doAllocate))
     {}
 
     // for serailization only
@@ -79,9 +81,13 @@ public:
 
     gbt::prediction::internal::FeatureIndexType * getFeatureIndexesForSplit() { return _featureIndexes->getArray(); }
 
+    int * getdefaultLeftForSplit() { return _defaultLeft->getArray(); }
+
     const gbt::prediction::internal::ModelFPType * getSplitPoints() const { return _splitPoints->getArray(); }
 
     const gbt::prediction::internal::FeatureIndexType * getFeatureIndexesForSplit() const { return _featureIndexes->getArray(); }
+
+    const int * getdefaultLeftForSplit() const { return _defaultLeft->getArray(); }
 
     size_t getNumberOfNodes() const { return _nNodes; }
 
@@ -181,6 +187,7 @@ protected:
 
         arch->setSharedPtrObj(_splitPoints);
         arch->setSharedPtrObj(_featureIndexes);
+        arch->setSharedPtrObj(_defaultLeft);
 
         return services::Status();
     }
@@ -191,6 +198,7 @@ protected:
     size_t _sourceNumOfNodes;
     services::SharedPtr<SplitPointType> _splitPoints;
     services::SharedPtr<FeatureIndexesForSplitType> _featureIndexes;
+    services::SharedPtr<defaultLeftForSplitType> _defaultLeft;
     services::Collection<size_t> nNodeSplitFeature;
     services::Collection<size_t> CoverFeature;
     services::Collection<double> GainFeature;

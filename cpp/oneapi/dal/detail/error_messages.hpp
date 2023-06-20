@@ -124,6 +124,7 @@ public:
     MSG(row_offsets_lt_min_value);
     MSG(row_offsets_gt_max_value);
     MSG(row_offsets_not_ascending);
+    MSG(row_offsets_pointer_is_null);
     MSG(column_indices_lt_min_value);
     MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);
@@ -243,6 +244,16 @@ public:
 
     /* Minkowski distance */
     MSG(invalid_minkowski_degree);
+
+    /* Objective function */
+    MSG(resp_column_count_is_not_eq_to_one);
+    MSG(params_column_count_is_not_eq_to_one);
+    MSG(value_is_not_provided);
+    MSG(gradient_is_not_provided);
+    MSG(hessian_is_not_provided);
+    MSG(incorrect_output_table_size);
+    MSG(regularization_coef_is_less_than_zero);
+    MSG(regularization_coef_is_nan_or_inf);
 
     /* PCA */
     MSG(component_count_lt_zero);

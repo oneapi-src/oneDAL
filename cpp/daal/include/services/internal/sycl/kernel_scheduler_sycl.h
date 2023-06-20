@@ -403,9 +403,10 @@ public:
     ::sycl::kernel toSycl(const ::sycl::context & ctx) const DAAL_C11_OVERRIDE
     {
         using namespace ::sycl;
-        kernel_bundle<bundle_state::executable> _kernelBundle =
-            make_kernel_bundle<backend::ext_oneapi_level_zero, bundle_state::executable>({ getProgramRef().getModuleLevelZeroPtr()->get() }, ctx);
-        return make_kernel<backend::ext_oneapi_level_zero>({ _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get() }, ctx);
+        kernel_bundle<bundle_state::executable> _kernelBundle = make_kernel_bundle<backend::ext_oneapi_level_zero, bundle_state::executable>(
+            { getProgramRef().getModuleLevelZeroPtr()->get(), ext::oneapi::level_zero::ownership::keep }, ctx);
+        return make_kernel<backend::ext_oneapi_level_zero>(
+            { _kernelBundle, _zeKernelRef.getKernelLevelZeroPtr()->get(), ext::oneapi::level_zero::ownership::keep }, ctx);
     }
 
 private:
