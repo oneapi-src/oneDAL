@@ -483,10 +483,10 @@ sycl::event compute_raw_hessian(sycl::queue& q,
 }
 
 template <typename Float>
-logloss_hessp<Float>::logloss_hessp(sycl::queue& q,
-                                    const ndview<Float, 2>& data,
-                                    const Float L2,
-                                    const bool fit_intercept)
+logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
+                                                        const ndview<Float, 2>& data,
+                                                        const Float L2,
+                                                        const bool fit_intercept)
         : q_(q),
           data_(data),
           L2_{ L2 },
@@ -498,21 +498,21 @@ logloss_hessp<Float>::logloss_hessp(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event logloss_hessp<Float>::set_raw_hessian(const ndview<Float, 1>& raw_hessian,
-                                                  const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::set_raw_hessian(const ndview<Float, 1>& raw_hessian,
+                                                            const event_vector& deps) {
     ONEDAL_ASSERT(raw_hessian.get_dimension(0) == n_);
     return copy(q_, raw_hessian_, raw_hessian, deps);
 }
 
 template <typename Float>
-ndview<Float, 1>& logloss_hessp<Float>::get_raw_hessian() {
+ndview<Float, 1>& logloss_hessian_product<Float>::get_raw_hessian() {
     return raw_hessian_;
 }
 
 template <typename Float>
-sycl::event logloss_hessp<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
-                                                             ndview<Float, 1>& out,
-                                                             const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
+                                                                       ndview<Float, 1>& out,
+                                                                       const event_vector& deps) {
     auto* const buffer_ptr = buffer_.get_mutable_data();
     const auto* const hess_ptr = raw_hessian_.get_data();
     auto* const out_ptr = out.get_mutable_data();
@@ -544,9 +544,10 @@ sycl::event logloss_hessp<Float>::compute_with_fit_intercept(const ndview<Float,
 }
 
 template <typename Float>
-sycl::event logloss_hessp<Float>::compute_without_fit_intercept(const ndview<Float, 1>& vec,
-                                                                ndview<Float, 1>& out,
-                                                                const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
+    const ndview<Float, 1>& vec,
+    ndview<Float, 1>& out,
+    const event_vector& deps) {
     ONEDAL_ASSERT(vec.get_dimension(0) == p_);
     ONEDAL_ASSERT(out.get_dimension(0) == p_);
 
@@ -566,9 +567,9 @@ sycl::event logloss_hessp<Float>::compute_without_fit_intercept(const ndview<Flo
 }
 
 template <typename Float>
-sycl::event logloss_hessp<Float>::operator()(const ndview<Float, 1>& vec,
-                                             ndview<Float, 1>& out,
-                                             const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& vec,
+                                                       ndview<Float, 1>& out,
+                                                       const event_vector& deps) {
     if (fit_intercept_) {
         return compute_with_fit_intercept(vec, out, deps);
     }
@@ -638,7 +639,7 @@ sycl::event logloss_hessp<Float>::operator()(const ndview<Float, 1>& vec,
                                                 const ndview<F, 1>&,                 \
                                                 ndview<F, 1>&,                       \
                                                 const event_vector&);                \
-    template class logloss_hessp<F>;
+    template class logloss_hessian_product<F>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);

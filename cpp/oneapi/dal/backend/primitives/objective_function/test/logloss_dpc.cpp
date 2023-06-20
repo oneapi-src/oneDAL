@@ -212,7 +212,7 @@ public:
         auto out_raw_hessian =
             ndarray<float_t, 1>::empty(this->get_queue(), { n }, sycl::usm::alloc::device);
 
-        auto hessp = logloss_hessp(this->get_queue(), data_gpu, L2, fit_intercept);
+        auto hessp = logloss_hessian_product(this->get_queue(), data_gpu, L2, fit_intercept);
 
         auto raw_hess_event =
             compute_raw_hessian(this->get_queue(), out_predictions, hessp.get_raw_hessian(), {});
@@ -535,7 +535,7 @@ public:
     }
 
     void test_hessian_product(const ndview<float_t, 2>& hessian_host,
-                              logloss_hessp<float_t>& hessp,
+                              logloss_hessian_product<float_t>& hessp,
                               bool fit_intercept,
                               double L2,
                               const float_t rtol = 1e-3,

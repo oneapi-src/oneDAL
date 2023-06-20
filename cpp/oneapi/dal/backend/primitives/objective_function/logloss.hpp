@@ -95,17 +95,16 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 const event_vector& deps = {});
 
 template <typename Float>
-class logloss_hessp {
+class logloss_hessian_product {
 public:
-    logloss_hessp(sycl::queue& q,
-                  const ndview<Float, 2>& data,
-                  const Float L2 = Float(0),
-                  const bool fit_intercept = true);
+    logloss_hessian_product(sycl::queue& q,
+                            const ndview<Float, 2>& data,
+                            const Float L2 = Float(0),
+                            const bool fit_intercept = true);
 
     sycl::event set_raw_hessian(const ndview<Float, 1>& raw_hessian, const event_vector& deps = {});
 
     ndview<Float, 1>& get_raw_hessian();
-
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
                            const event_vector& deps = {});
