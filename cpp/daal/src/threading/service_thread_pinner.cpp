@@ -209,10 +209,7 @@ class thread_pinner_impl_t : public tbb::task_scheduler_observer
     void (*topo_deleter)(void *);
 
 public:
-    thread_pinner_impl_t(
-        void (*read_topo)(int &, int &, int &, int **), 
-        void (*deleter)(void *),
-        const tbb::task_arena& task_arena);
+    thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *), const tbb::task_arena & task_arena);
     void on_scheduler_entry(bool);
     void on_scheduler_exit(bool);
     void init_thread_pinner(int statusToSet, int nthreadsToSet, int max_threadsToSet, int * cpu_queueToSet);
@@ -234,16 +231,13 @@ public:
     int get_status();
     bool get_pinning();
     bool set_pinning(bool p);
+    tbb::task_arena * get_pinner_arena() { return &(pinner_arena); }
     ~thread_pinner_impl_t();
 } * IMPL;
 
-thread_pinner_impl_t::thread_pinner_impl_t(
-    void (*read_topo)(int &, int &, int &, int **), 
-    void (*deleter)(void *),
-    const tbb::task_arena& task_arena):   
-    topo_deleter(deleter),
-    pinner_arena(task_arena),
-    tbb::task_scheduler_observer(pinner_arena)
+thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *),
+                                           const tbb::task_arena & task_arena)
+    : topo_deleter(deleter), pinner_arena(task_arena), tbb::task_scheduler_observer(pinner_arena)
 {
     do_pinning = (nthreads > 0) ? true : false;
     is_pinning.set(0);
@@ -344,11 +338,8 @@ thread_pinner_impl_t::~thread_pinner_impl_t()
     return;
 } /* ~thread_pinner_impl_t() */
 
-DAAL_EXPORT void * _getThreadPinner(
-    bool create_pinner, 
-    void (*read_topo)(int &, int &, int &, int **), 
-    void (*deleter)(void *),
-    const tbb::task_arena& task_arena)
+DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *),
+                                    const tbb::task_arena & task_arena)
 {
     static bool pinner_created = false;
 
@@ -367,10 +358,8 @@ DAAL_EXPORT void * _getThreadPinner(
     return NULL;
 } /* thread_pinner_t* getThreadPinner() */
 
-DAAL_EXPORT void _thread_pinner_thread_pinner_init(
-    void (*read_topo)(int &, int &, int &, int **), 
-    void (*deleter)(void *),
-    const tbb::task_arena& task_arena = NULL)
+DAAL_EXPORT void _thread_pinner_thread_pinner_init(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *),
+                                                   const tbb::task_arena & task_arena = NULL)
 {
     static thread_pinner_impl_t impl(read_topo, deleter, task_arena);
     IMPL = &impl;
@@ -406,21 +395,22 @@ DAAL_EXPORT void _thread_pinner_on_scheduler_exit(bool p)
     IMPL->on_scheduler_exit(p);
 }
 
+DAAL_EXPORT tbb::task_arena * _thread_pinner_get_task_arena()
+{
+    return IMPL->get_pinner_arena();
+}
+
     #else /* if __DO_TBB_LAYER__ is not defined */
 
-DAAL_EXPORT void * _getThreadPinner(
-    bool create_pinner, 
-    void (*read_topo)(int &, int &, int &, int **), 
-    void (*deleter)(void *),
-    const tbb::task_arena& task_arena = NULL)
+DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *),
+                                    const tbb::task_arena & task_arena = NULL)
 {
     return NULL;
 }
 
-DAAL_EXPORT void _thread_pinner_thread_pinner_init(
-    void (*f)(int &, int &, int &, int **), 
-    void (*deleter)(void *),
-    const tbb::task_arena& task_arena = NULL) {}
+DAAL_EXPORT void _thread_pinner_thread_pinner_init(void (*f)(int &, int &, int &, int **), void (*deleter)(void *),
+                                                   const tbb::task_arena & task_arena = NULL)
+{}
 DAAL_EXPORT void _thread_pinner_execute(daal::services::internal::thread_pinner_task_t & task)
 {
     task();
@@ -436,6 +426,11 @@ DAAL_EXPORT bool _thread_pinner_set_pinning(bool p)
 DAAL_EXPORT int _thread_pinner_get_status()
 {
     return 0;
+}
+
+DAAL_EXPORT tbb::task_arena * _thread_pinner_get_task_arena()
+{
+    return NULL;
 }
 
 DAAL_EXPORT void _thread_pinner_on_scheduler_entry(bool p) {}
