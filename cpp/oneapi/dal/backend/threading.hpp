@@ -19,33 +19,51 @@
 #include "tbb/tbb.h"
 #include <tbb/task_arena.h>
 #include <tbb/task_scheduler_observer.h>
+#include "src/threading/service_thread_pinner.h"
+#include "src/services/service_topo.h"
 
 struct threading_policy {
     const int max_threads_per_core;
     const bool thread_pinning;
 
 public:
-    threading_policy():
-        max_threads_per_core(0),
-        thread_pinning(false) {}
-    
-    threading_policy(const int &max_threads_per_core_):
-        max_threads_per_core(max_threads_per_core_),
-        thread_pinning(false) {}
+    threading_policy() : max_threads_per_core(0), thread_pinning(false) {}
 
-    threading_policy(const int &max_threads_per_core_, const bool &thread_pinning_):
-        max_threads_per_core(max_threads_per_core_),
-        thread_pinning(thread_pinning_) {}
+    threading_policy(const int& max_threads_per_core_)
+            : max_threads_per_core(max_threads_per_core_),
+              thread_pinning(false) {}
+
+    threading_policy(const int& max_threads_per_core_, const bool& thread_pinning_)
+            : max_threads_per_core(max_threads_per_core_),
+              thread_pinning(thread_pinning_) {}
 };
 
-inline tbb::task_arena create_task_arena(const threading_policy& policy) {
-
+inline tbb::task_arena* create_task_arena(const threading_policy& policy) {
     if (policy.max_threads_per_core) {
-        tbb::task_arena task_arena{tbb::task_arena::constraints{}.set_max_threads_per_core(policy.max_threads_per_core)};
-        return task_arena;
+        static tbb::task_arena task_arena{ tbb::task_arena::constraints{}.set_max_threads_per_core(
+            policy.max_threads_per_core) };
+        if (policy.thread_pinning) {
+            using daal::services::internal::thread_pinner_t;
+            thread_pinner_t* thread_pinner_ptr =
+                daal::services::internal::getThreadPinner(true,
+                                                          read_topology,
+                                                          delete_topology,
+                                                          task_arena);
+            return thread_pinner_ptr->get_task_arena();
+        }
+        return &task_arena;
     }
     else {
-        tbb::task_arena task_arena{};
-        return task_arena;
+        static tbb::task_arena task_arena{};
+        if (policy.thread_pinning) {
+            using daal::services::internal::thread_pinner_t;
+            thread_pinner_t* thread_pinner_ptr =
+                daal::services::internal::getThreadPinner(true,
+                                                          read_topology,
+                                                          delete_topology,
+                                                          task_arena);
+            return thread_pinner_ptr->get_task_arena();
+        }
+        return &task_arena;
     }
 }
