@@ -34,36 +34,36 @@ The project offers a comprehensive set of optimized libraries, including the OAP
 DAAL CPP SYCL Interfaces
 ************************
 
-**Deprecation:** The DAAL CPP SYCL Interfaces(examples/daal/cpp_sycl) in the oneDAL library are marked as deprecated. From 2024.0 release of the oneDAL library will no longer include support for these DAAL CPP SYCL Interfaces.
+**Deprecation:** The `DAAL CPP SYCL Interfaces <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp_sycl>`_ in the oneDAL library are deprecated. Starting with the 2024.0 release, oneDAL will not support the DAAL CPP SYCL Interfaces.
 
 **Reasons for deprecation:** Deprecating initial version of SYCL interfaces in favour of oneDAL SYCL interfaces. The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
 
-**Alternatives:** Use oneDAL SYCL interfaces(examples/oneapi/dpc) instead.
+**Alternatives:** `oneDAL SYCL interfaces <https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/dpc>`_
 
 
-Compression functionality
+Compression Functionality
 *************************
 
-**Deprecation:** The Compression funtionality in the oneDAL library are marked as deprecated. From 2024.0 release of the oneDAL library will no longer include support for Compression functioanlity.
+**Deprecation:** The compression functionality in the oneDAL library is deprecated. Starting with the 2024.0 release, oneDAL will not support the compression functionality.
 
 **Reasons for deprecation:** The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
 
-**Alternatives:** Use external compression mechanics using optimzied impltementation such as Intel IPP in to your application
+**Alternatives:** The external compression mechanics with optimized into your application implementation. For example, Intel(R) IPP.
 
-ABI compatibility
+ABI Compatibility
 *****************
 
-**Deprecation:** ABI compatibility would be broken as part of 2024.0 release of the oneDAL library. Librariy major version would be increased to 2 to requre relinking of existing aplications
+**Deprecation:** ABI compatibility is to be broken as part of the 2024.0 release of oneDAL. The library's major version is to be incremented to two to enforce the relinking of existing applications.
 
-**Reasons for deprecation:**  Clean up of deprecated functionality, interfaces and symbols
+**Reasons for deprecation:**  The clean-up process of the deprecated functionality, interfaces, and symbols. 
 
-**Alternatives:** Relink to newer version. Assume no ABI compatibility with migration to 2024 version
+**Alternatives:** Relink to a newer version. 
 
-MacOS support
+macOS* Support
 *************
 
-**Deprecation:** MacOS support have been depricated for oneDAL and other oneAPI componens with 2023.x releases beeing last providing availability.
+**Deprecation:** macOS* support is deprecated for oneDAL. The 2023.x releases are the last to provide it. 
 
-**Reasons for deprecation:**  No modern X86 MacOS based systems will be released.
+**Reasons for deprecation:**  No modern X86 macOS*-based systems are to be released.
 
-**Alternatives:** Keep using 2023.x version on MacOS
+**Alternatives:** The 2023.x version on macOS*. 
