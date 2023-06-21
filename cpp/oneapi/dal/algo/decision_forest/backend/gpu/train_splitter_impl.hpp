@@ -125,11 +125,6 @@ public:
                                     bool update_imp_dec_required,
                                     Index node_count,
                                     const bk::event_vector& deps = {});
-
-private:
-    constexpr static Index max_wg_count_ = 8192;
-    constexpr static Index min_local_size_ = 128;
-    constexpr static Index max_feature_worker_per_node_count_ = 2;
 };
 
 #endif

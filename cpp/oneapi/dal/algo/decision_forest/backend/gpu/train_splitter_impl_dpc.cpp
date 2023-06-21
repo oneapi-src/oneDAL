@@ -57,6 +57,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(random_split, queue);
     using split_smp_t = split_smp<Float, Index, Task>;
+    using split_scalar_t = split_scalar<Float, Index, Task>;
     using split_info_t = split_info<Float, Index, Task>;
 
     Index hist_prop_count = 0;
@@ -111,9 +112,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
     Index local_size = bk::device_max_wg_size(queue);
 
-    const std::size_t local_hist_buf_size = hist_prop_count * 2; // x2 because bs_hist and ts_hist
-    const std::size_t local_buf_int_size = local_size * sizeof(Index);
-    const std::size_t local_buf_float_size = local_size * sizeof(Float);
+    const std::size_t bins_per_wg = 2; // 2 for best and current split
+    const std::size_t hist_size = hist_prop_count * bins_per_wg;
 
     const Index class_count = ctx.class_count_;
     const Float imp_threshold = ctx.impurity_threshold_;
@@ -129,8 +129,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
     Index node_in_block_count = node_count;
 
-    std::size_t local_buf_byte_size =
-        local_buf_int_size + local_buf_float_size + local_hist_buf_size * sizeof(hist_type_t);
+    std::size_t local_buf_byte_size = local_size * sizeof(Float) + hist_size * sizeof(hist_type_t);
     ONEDAL_ASSERT(device_has_enough_local_mem(queue, local_buf_byte_size));
 
     const auto nd_range =
@@ -138,8 +137,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        local_accessor_rw_t<byte_t> local_byte_buf(local_buf_byte_size, cgh);
-
+        local_accessor_rw_t<hist_type_t> local_hist_buf(hist_size, cgh);
+        local_accessor_rw_t<Float> local_float_buf(local_size, cgh);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             const Index node_idx = item.get_global_id(1);
@@ -163,21 +162,22 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
             split_info_t bs;
 
             // slm pointers declaration
-            byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
-            hist_type_t* local_hist_buf_ptr =
-                get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
-            Float* local_buf_float_ptr = get_buf_ptr<Float>(&local_byte_buf_ptr, local_size);
+            hist_type_t* hist_ptr = local_hist_buf.get_pointer().get();
+            Float* local_buf_float_ptr = local_float_buf.get_pointer().get();
 
-            bs.init_clear(item, local_hist_buf_ptr + 0 * hist_prop_count, hist_prop_count);
+            bs.init_clear(hist_ptr + 0 * hist_prop_count, hist_prop_count);
+            split_scalar_t& bs_scal = bs.scalars;
 
             for (Index ftr_idx = 0; ftr_idx < selected_ftr_count; ftr_idx++) {
                 split_info_t ts;
-                ts.init(local_hist_buf_ptr + 1 * hist_prop_count, hist_prop_count);
-                ts.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
+                ts.init(hist_ptr + 1 * hist_prop_count, hist_prop_count);
+                split_scalar_t& ts_scal = ts.scalars;
+                ts_scal.ftr_id = selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
                 const Index id =
                     (local_id < row_count) ? tree_order_ptr[row_ofs + local_id] : index_max;
-                const Index bin =
-                    (local_id < row_count) ? data_ptr[id * column_count + ts.ftr_id] : index_max;
+                const Index bin = (local_id < row_count)
+                                      ? data_ptr[id * column_count + ts_scal.ftr_id]
+                                      : index_max;
                 const Float response = (local_id < row_count) ? response_ptr[id] : Float(0);
                 const Index response_int =
                     (local_id < row_count) ? static_cast<Index>(response) : -1;
@@ -193,17 +193,17 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
                 const Float rand_val = ftr_rnd_ptr[node_id * selected_ftr_count + ftr_idx];
                 const Index random_bin_ofs = static_cast<Index>(rand_val * (max_bin - min_bin + 1));
-                ts.ftr_bin = min_bin + random_bin_ofs;
+                ts_scal.ftr_bin = min_bin + random_bin_ofs;
 
-                const Index count = (bin <= ts.ftr_bin) ? 1 : 0;
+                const Index count = Index(bin <= ts_scal.ftr_bin);
 
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     const Index left_count =
                         sycl::reduce_over_group(item.get_group(), count, plus<Index>());
-                    const Index val = (bin <= ts.ftr_bin) ? response_int : -1;
+                    const Index val = (bin <= ts_scal.ftr_bin) ? response_int : -1;
                     Index all_class_count = 0;
 
-                    for (Index class_id = 0; class_id < class_count - 1; class_id++) {
+                    for (Index class_id = 0; class_id < class_count - 1; ++class_id) {
                         Index total_class_count = sycl::reduce_over_group(item.get_group(),
                                                                           Index(class_id == val),
                                                                           plus<Index>());
@@ -211,12 +211,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
                         ts.left_hist[class_id] = total_class_count;
                     }
 
-                    ts.left_count = left_count;
+                    ts_scal.left_count = left_count;
 
-                    ts.left_hist[class_count - 1] = ts.left_count - all_class_count;
+                    ts.left_hist[class_count - 1] = ts_scal.left_count - all_class_count;
                 }
                 else {
-                    const Float val = (bin <= ts.ftr_bin) ? response : Float(0);
+                    const Float val = (bin <= ts_scal.ftr_bin) ? response : Float(0);
 
                     Float left_count = Float(sycl::reduce_over_group(sbg, count, plus<Index>()));
                     Float sum = sycl::reduce_over_group(sbg, val, plus<Float>());
@@ -224,13 +224,13 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
                     Float mean = sum / left_count;
 
                     const Float val_s2c =
-                        (bin <= ts.ftr_bin) ? (val - mean) * (val - mean) : Float(0);
+                        (bin <= ts_scal.ftr_bin) ? (val - mean) * (val - mean) : Float(0);
 
                     Float sum2cent = sycl::reduce_over_group(sbg, val_s2c, plus<Float>());
 
                     reduce_hist_over_group(item, local_buf_float_ptr, left_count, mean, sum2cent);
 
-                    ts.left_count = Index(left_count);
+                    ts_scal.left_count = Index(left_count);
 
                     ts.left_hist[0] = left_count;
                     ts.left_hist[1] = mean;
@@ -267,7 +267,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
                                                  left_child_class_hist_list_ptr,
-                                                 bs.left_imp,
+                                                 bs_scal.left_imp,
                                                  bs.left_hist,
                                                  node_id,
                                                  class_count);
@@ -322,8 +322,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
-    const Float* node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
-    Float* left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
+    const Float* const node_imp_list_ptr = imp_list_ptr.imp_list_ptr_;
+    Float* const left_child_imp_list_ptr = left_imp_list_ptr.imp_list_ptr_;
 
     using split_smp_t = split_smp<Float, Index, Task>;
     using split_scalar_t = split_scalar<Float, Index, Task>;
@@ -388,14 +388,14 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             }
             split_info_t global_bs;
             if (local_id == 0) {
-                global_bs.init_clear(item, best_split_hist.get_pointer().get(), hist_prop_count);
+                global_bs.init_clear(best_split_hist.get_pointer().get(), hist_prop_count);
             }
             // Due to local memory limitations need to proccess smaller blocks of features
             for (Index gbin_ofs = 0; gbin_ofs < all_bin_count; gbin_ofs += bin_cnt_per_krn) {
-                hist_type_t* local_hist_ptr = local_hist.get_pointer().get();
-                hist_type_t* tmp_hist_ptr = local_hist_ptr + local_hist_size;
-                hist_type_t* last_bin = last_bin_prev_batch.get_pointer().get();
-                split_scalar_t* scalars_buf_ptr = scalars_buf.get_pointer().get();
+                hist_type_t* const local_hist_ptr = local_hist.get_pointer().get();
+                hist_type_t* const tmp_hist_ptr = local_hist_ptr + local_hist_size;
+                hist_type_t* const last_bin = last_bin_prev_batch.get_pointer().get();
+                split_scalar_t* const scalars_buf_ptr = scalars_buf.get_pointer().get();
 
                 const Index ftr_ofs = gbin_ofs / max_bin_size;
                 const Index bin_ofs = gbin_ofs % max_bin_size;
@@ -513,8 +513,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
                     Index cur_bin = work_bin % max_bin_size;
                     const Index cur_hist_pos = work_bin * hist_prop_count;
-                    hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
-                    hist_type_t* ftr_hist = tmp_hist_ptr + (work_bin - cur_bin) * hist_prop_count;
+                    hist_type_t* const cur_hist = local_hist_ptr + cur_hist_pos;
+                    hist_type_t* const ftr_hist =
+                        tmp_hist_ptr + (work_bin - cur_bin) * hist_prop_count;
                     // Collect all hists on the left side of the current bin
                     Index left_count = 0;
                     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -555,10 +556,11 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     }
                     // Calculate impurity decrease for current bin
                     ts.init(cur_hist, hist_prop_count);
-                    ts.ftr_id =
+                    split_scalar_t& ts_scal = ts.scalars;
+                    ts_scal.ftr_id =
                         selected_ftr_list_ptr[node_id * selected_ftr_count + global_ftr_idx];
-                    ts.ftr_bin = cur_bin + Index(local_ftr_idx == 0) * bin_ofs;
-                    ts.left_count = left_count;
+                    ts_scal.ftr_bin = cur_bin + Index(local_ftr_idx == 0) * bin_ofs;
+                    ts_scal.left_count = left_count;
                     if constexpr (std::is_same_v<Task, task::classification>) {
                         sp_hlp.calc_imp_dec(ts,
                                             node_ptr,
@@ -570,8 +572,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     else {
                         sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
                     }
-                    if (ts.left_count > min_obs_leaf) {
-                        ts.store_scalar(scalars_buf_ptr[work_bin]);
+                    if (ts_scal.left_count > min_obs_leaf) {
+                        scalars_buf_ptr[work_bin] = ts.scalars;
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
@@ -583,18 +585,18 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 for (Index work_item = local_id; work_item < real_bin_count;
                      work_item += local_size) {
                     ts.init(local_hist_ptr + work_item * hist_prop_count, hist_prop_count);
-                    ts.load_scalar(scalars_buf_ptr[work_item]);
+                    ts.scalars = scalars_buf_ptr[work_item];
                     sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
                 }
-                bs.store_scalar(scalars_buf_ptr[local_id]);
+                scalars_buf_ptr[local_id] = bs.scalars;
                 // Tree reduction and selecting best among work-group
                 for (Index i = local_size / 2; i > 0; i /= 2) {
                     item.barrier(sycl::access::fence_space::local_space);
                     if (local_id < i && (local_id + i) < real_bin_count) {
                         ts.init(local_hist_ptr + (local_id + i) * hist_prop_count, hist_prop_count);
-                        ts.load_scalar(scalars_buf_ptr[local_id + i]);
+                        ts.scalars = scalars_buf_ptr[local_id + i];
                         sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
-                        bs.store_scalar(scalars_buf_ptr[local_id]);
+                        scalars_buf_ptr[local_id] = bs.scalars;
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
@@ -614,7 +616,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 if constexpr (std::is_same_v<Task, task::classification>) {
                     sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
                                                  left_child_class_hist_list_ptr,
-                                                 global_bs.left_imp,
+                                                 global_bs.scalars.left_imp,
                                                  global_bs.left_hist,
                                                  node_id,
                                                  class_count);
