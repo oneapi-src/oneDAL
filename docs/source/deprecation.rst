@@ -60,7 +60,7 @@ ABI Compatibility
 **Alternatives:** Relink to a newer version. 
 
 macOS* Support
-*************
+**************
 
 **Deprecation:** macOS* support is deprecated for oneDAL. The 2023.x releases are the last to provide it. 
 
