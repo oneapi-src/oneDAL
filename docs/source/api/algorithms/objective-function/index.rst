@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,24 +14,23 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
+==================
+Objective function
+==================
 
-Algorithms
-==========
+This chapter describes programming interfaces of the objective functions implemented in |short_name|:
 
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   covariance/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   graph/index.rst
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   objective-function/index.rst
-   pairwise-distances/index.rst
-   statistics/index.rst
-   svm/index.rst
+   objective-function.rst
+
+##################################
+Descriptors of objective functions
+##################################
+
+.. toctree::
+   :titlesonly:
+
+   logloss.rst

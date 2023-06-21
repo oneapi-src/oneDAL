@@ -40,6 +40,9 @@ namespace classification
 {
 namespace interface2
 {
+
+ModelBuilder::ModelBuilder() : _nClasses(0), _model(new decision_forest::classification::internal::ModelImpl()) {}
+
 services::Status ModelBuilder::initialize(const size_t nClasses, const size_t nTrees)
 {
     auto modelImpl = new decision_forest::classification::internal::ModelImpl();

@@ -186,6 +186,15 @@ nitpick_ignore = [
     ('cpp:identifier', 'kmeans_init::compute_input'),
     ('cpp:identifier', 'kmeans_init::compute_result'),
     ('cpp:identifier', 'compute'),
+    # objective_function
+    ('cpp:identifier', 'objective_function'),
+    ('cpp:identifier', 'objective_t'),
+    ('cpp:identifier', 'objective_function::descriptor'),
+    ('cpp:identifier', 'objective_function::compute_result'),
+    ('cpp:identifier', 'objective_function::compute_input'),
+    # logloss_objective
+    ('cpp:identifier', 'logloss_objective'),
+    ('cpp:identifier', 'logloss_objective::descriptor'),
     # pca
     ('cpp:identifier', 'pca'),
     ('cpp:identifier', 'pca::descriptor'),

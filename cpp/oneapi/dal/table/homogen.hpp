@@ -282,16 +282,6 @@ private:
                    const dal::v1::array<byte_t>& data,
                    const data_type& dtype,
                    data_layout layout);
-
-    static void validate_input_dimensions(std::int64_t row_count, std::int64_t column_count) {
-        if (row_count <= 0) {
-            throw domain_error{ detail::error_messages::rc_leq_zero() };
-        }
-
-        if (column_count <= 0) {
-            throw domain_error{ detail::error_messages::cc_leq_zero() };
-        }
-    }
 };
 
 } // namespace v1

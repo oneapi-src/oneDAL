@@ -29,6 +29,7 @@ namespace oneapi::dal::objective_function {
 namespace task {
 namespace v1 {
 
+/// Tag-type that parameterizes entities that are used to compute statistics.
 struct compute {};
 
 /// Alias tag-type for compute task.
@@ -43,7 +44,10 @@ using v1::by_default;
 namespace method {
 namespace v1 {
 
+/// Tag-type that denotes dense_batch computational method.
 struct dense_batch {};
+
+/// Alias tag-type for the dense_batch computational method.
 using by_default = dense_batch;
 
 } // namespace v1
@@ -53,6 +57,8 @@ using v1::by_default;
 
 } // namespace method
 
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
 class result_option_id : public result_option_id_base {
 public:
     constexpr result_option_id() = default;
@@ -69,10 +75,19 @@ ONEDAL_EXPORT result_option_id get_hessian_id();
 
 } // namespace detail
 
+/// Result options are used to define
+/// what should algorithm return
 namespace result_options {
+
+/// Return the value of objective function
 const inline auto value = detail::get_value_id();
+
+/// Return the gradient of objective function
 const inline auto gradient = detail::get_gradient_id();
+
+/// Return the hessian of objective function
 const inline auto hessian = detail::get_hessian_id();
+
 // TODO add packed_gradient and packed_hessian options
 } // namespace result_options
 
@@ -142,6 +157,16 @@ using v1::is_valid_objective_v;
 
 namespace v1 {
 
+/// @tparam Float       The floating-point type that the algorithm uses for
+///                     intermediate computations. Can be :expr:`float` or
+///                     :expr:`double`.
+/// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
+///                     be :expr:`method::dense_batch`.
+/// @tparam Task        Tag-type that specifies the type of the problem to solve. Can
+///                     be :expr:`task::compute`.
+/// @tparam Objective   The descriptor of the objective function to computate. Can be
+///                     :expr:`logloss_objective::descriptor`
+
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -159,9 +184,12 @@ public:
     using task_t = Task;
     using objective_t = Objective;
 
+    /// Creates a new instance of the class with the default property values.
     explicit descriptor()
             : base_t(std::make_shared<detail::objective<objective_t>>(objective_t{})) {}
 
+    /// Creates a new instance of the class with the given :literal:`obj`
+    /// property value
     explicit descriptor(const objective_t& obj) {
         set_objective(obj);
     }
@@ -176,14 +204,15 @@ public:
         return *this;
     }
 
-    auto& set_objective(const objective_t& obj) {
-        base_t::set_objective_impl(std::make_shared<detail::objective<objective_t>>(obj));
-        return *this;
-    }
-
+    /// Choose objective function for calculations
     const objective_t& get_objective() {
         const auto obj = std::static_pointer_cast<objective_t>(base_t::get_objective_impl());
         return obj;
+    }
+
+    auto& set_objective(const objective_t& obj) {
+        base_t::set_objective_impl(std::make_shared<detail::objective<objective_t>>(obj));
+        return *this;
     }
 };
 
