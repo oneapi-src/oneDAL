@@ -17,16 +17,29 @@ rem ============================================================================
 
 setlocal
 call:GetFullPath "%~dp0.."       DAAL
+call:GetFullPath "%~dp0"         SCRIPT_PATH
 call:GetFullPath "%~dp0..\..\.." DAAL_UP
 call:GetFullPath "%~dp0..\.."    DAAL_UP_OLD
 
 set DAAL_IA=intel64
 
 :ParseArgs
-if /i "%1"=="" goto :GoodArgs
+if /i "%1"=="" goto :CheckLayout
 if /i "%1"=="intel64" (set DAAL_IA=intel64) & shift & goto :ParseArgs
 shift
 goto :ParseArgs
+
+:CheckLayout
+if "%SCRIPT_PATH%"=="%DAAL%\env\" (
+  goto :GoodArgs
+) else (
+  set "DALROOT=%ONEAPI_ROOT%"
+  set "DAALROOT=%ONEAPI_ROOT%"
+  set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
+  set "INCLUDE=%ONEAPI_ROOT%\include\dal;%INCLUDE%"
+  set "CPATH=%ONEAPI_ROOT%\include\dal;%CPATH%"
+  goto :GoodArgs2024
+)
 
 :GetFullPath
 set %2=%~f1
@@ -66,4 +79,13 @@ set LD_LIBRARY_PATH=%LD_LIBRARY_PATH%& ^
 set CLASSPATH=%CLASSPATH%& ^
 set CMAKE_PREFIX_PATH=%CMAKE_PREFIX_PATH%& ^
 set PKG_CONFIG_PATH=%PKG_CONFIG_PATH%& ^
+goto:eof
+
+:GoodArgs2024
+endlocal& ^
+set DALROOT=%DAALROOT%& ^
+set DAALROOT=%DAALROOT%& ^
+set CLASSPATH=%CLASSPATH%& ^
+set INCLUDE=%INCLUDE%& ^
+set CPATH=%CPATH%& ^
 goto:eof
