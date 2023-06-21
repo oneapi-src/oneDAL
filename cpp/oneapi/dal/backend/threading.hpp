@@ -22,6 +22,8 @@
 #include "src/threading/service_thread_pinner.h"
 #include "src/services/service_topo.h"
 
+#define TBB_PREVIEW_TASK_ARENA_CONSTRAINTS_EXTENSION 1
+
 struct threading_policy {
     const int max_threads_per_core;
     const bool thread_pinning;
