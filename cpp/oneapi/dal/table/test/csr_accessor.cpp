@@ -134,20 +134,24 @@ protected:
 private:
     static constexpr std::array<table_data_t, element_count> data_ = { 1, 2, 3, 4, 1, 11, 8 };
 
-    static constexpr std::array<std::int64_t, element_count> column_indices_one_based_ = {
-        1, 2, 4, 3, 2, 4, 2
-    };
-    static constexpr std::array<std::int64_t, element_count> column_indices_zero_based_ = {
-        0, 1, 3, 2, 1, 3, 1
-    };
+    static constexpr std::array<std::int64_t, element_count> column_indices_one_based_ = { 1, 2, 4,
+                                                                                           3, 2, 4,
+                                                                                           2 };
+    static constexpr std::array<std::int64_t, element_count> column_indices_zero_based_ = { 0, 1, 3,
+                                                                                            2, 1, 3,
+                                                                                            1 };
     const std::int64_t* column_indices;
 
-    static constexpr std::array<std::int64_t, row_count + 1> row_offsets_one_based_ = {
-        1, 4, 5, 7, 8
-    };
-    static constexpr std::array<std::int64_t, row_count + 1> row_offsets_zero_based_ = {
-        0, 3, 4, 6, 7
-    };
+    static constexpr std::array<std::int64_t, row_count + 1> row_offsets_one_based_ = { 1,
+                                                                                        4,
+                                                                                        5,
+                                                                                        7,
+                                                                                        8 };
+    static constexpr std::array<std::int64_t, row_count + 1> row_offsets_zero_based_ = { 0,
+                                                                                         3,
+                                                                                         4,
+                                                                                         6,
+                                                                                         7 };
     const std::int64_t* row_offsets;
 };
 
