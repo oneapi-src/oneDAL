@@ -128,37 +128,37 @@ TEST("Serialize/deserialize big random CSR table one-based indexing") {
     check_csr_tables_equal<float>(init_table, deser_table);
 }
 
-// TEST("Serialize/deserialize big random CSR table zero-based indexing") {
-//     std::uint32_t seed = 42;
-//     std::mt19937 rng(seed);
-//     std::uniform_real_distribution<float> uniform_data(-3.0f, 3.0f);
-//     std::uniform_int_distribution<std::uint32_t> uniform_columns(0, 31);
+TEST("Serialize/deserialize big random CSR table zero-based indexing") {
+    std::uint32_t seed = 42;
+    std::mt19937 rng(seed);
+    std::uniform_real_distribution<float> uniform_data(-3.0f, 3.0f);
+    std::uniform_int_distribution<std::uint32_t> uniform_columns(0, 31);
 
-//     std::uint32_t row_count = 128;
-//     std::uint32_t column_count = 32;
-//     std::uint32_t nonzero_count = 128; // one non-zero value in one row
-//     dal::array<float> data = dal::array<float>::empty(nonzero_count);
-//     auto data_ptr = data.get_mutable_data();
-//     dal::array<std::int64_t> col_indices = dal::array<std::int64_t>::empty(nonzero_count);
-//     auto col_indices_ptr = col_indices.get_mutable_data();
-//     dal::array<std::int64_t> row_offsets = dal::array<std::int64_t>::empty(row_count + 1);
-//     auto row_offsets_ptr = row_offsets.get_mutable_data();
+    std::uint32_t row_count = 128;
+    std::uint32_t column_count = 32;
+    std::uint32_t nonzero_count = 128; // one non-zero value in one row
+    dal::array<float> data = dal::array<float>::empty(nonzero_count);
+    auto data_ptr = data.get_mutable_data();
+    dal::array<std::int64_t> col_indices = dal::array<std::int64_t>::empty(nonzero_count);
+    auto col_indices_ptr = col_indices.get_mutable_data();
+    dal::array<std::int64_t> row_offsets = dal::array<std::int64_t>::empty(row_count + 1);
+    auto row_offsets_ptr = row_offsets.get_mutable_data();
 
-//     for (std::uint32_t i = 0; i < nonzero_count; ++i) {
-//         data_ptr[i] = uniform_data(rng);
-//         col_indices_ptr[i] = uniform_columns(rng);
-//     }
+    for (std::uint32_t i = 0; i < nonzero_count; ++i) {
+        data_ptr[i] = uniform_data(rng);
+        col_indices_ptr[i] = uniform_columns(rng);
+    }
 
-//     for (std::uint32_t i = 0; i <= row_count; ++i) {
-//         row_offsets_ptr[i] = i;
-//     }
+    for (std::uint32_t i = 0; i <= row_count; ++i) {
+        row_offsets_ptr[i] = i;
+    }
 
-//     auto init_table =
-//         csr_table::wrap(data, col_indices, row_offsets, column_count, sparse_indexing::zero_based);
+    auto init_table =
+        csr_table::wrap(data, col_indices, row_offsets, column_count, sparse_indexing::zero_based);
 
-//     auto deser_table = te::serialize_deserialize(init_table);
+    auto deser_table = te::serialize_deserialize(init_table);
 
-//     check_csr_tables_equal<float>(init_table, deser_table);
-// }
+    check_csr_tables_equal<float>(init_table, deser_table);
+}
 
 } // namespace oneapi::dal::test
