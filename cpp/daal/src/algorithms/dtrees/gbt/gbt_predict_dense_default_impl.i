@@ -30,6 +30,9 @@
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/algorithms/dtrees/gbt/gbt_internal.h"
+#include "src/services/service_environment.h"
+#include "src/services/service_defines.h"
+#include "data_management/data/internal/finiteness_checker.h"
 
 namespace daal
 {
@@ -43,7 +46,6 @@ namespace internal
 {
 typedef float ModelFPType;
 typedef uint32_t FeatureIndexType;
-const FeatureIndexType VECTOR_BLOCK_SIZE = 64;
 
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 struct PredictDispatcher
@@ -69,7 +71,7 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<false, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    if (checkFinitenessByComparison(valueFromDataSet))
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
@@ -83,7 +85,7 @@ template <typename algorithmFPType>
 inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueFromDataSet, const ModelFPType * splitPoints, const int * defaultLeft,
                                     const FeatureTypes & featTypes, FeatureIndexType splitFeature, const PredictDispatcher<true, true> & dispatcher)
 {
-    if (isnan(valueFromDataSet))
+    if (checkFinitenessByComparison(valueFromDataSet))
     {
         return idx * 2 + (defaultLeft[idx] != 1);
     }
@@ -93,7 +95,7 @@ inline FeatureIndexType updateIndex(FeatureIndexType idx, algorithmFPType valueF
     }
 }
 
-template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing>
+template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing, size_t vectorBlockSize>
 inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes & featTypes, const algorithmFPType * x, algorithmFPType v[],
                                  const PredictDispatcher<hasUnorderedFeatures, hasAnyMissing> & dispatcher)
 {
@@ -102,8 +104,8 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
     const int * const defaultLeft           = t.getdefaultLeftForSplit() - 1;
     const FeatureIndexType nFeat            = featTypes.getNumberOfFeatures();
 
-    FeatureIndexType i[VECTOR_BLOCK_SIZE];
-    services::internal::service_memset_seq<FeatureIndexType, cpu>(i, FeatureIndexType(1), VECTOR_BLOCK_SIZE);
+    FeatureIndexType i[vectorBlockSize];
+    services::internal::service_memset_seq<FeatureIndexType, cpu>(i, FeatureIndexType(1), vectorBlockSize);
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
@@ -111,7 +113,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+        for (FeatureIndexType k = 0; k < vectorBlockSize; k++)
         {
             const FeatureIndexType idx          = i[k];
             const FeatureIndexType splitFeature = fIndexes[idx];
@@ -121,7 +123,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+    for (FeatureIndexType k = 0; k < vectorBlockSize; k++)
     {
         v[k] = values[i[k]];
     }
@@ -155,24 +157,36 @@ struct TileDimensions
     size_t nCols         = 0;
     size_t nRowsInBlock  = 0;
     size_t nTreesInBlock = 0;
+    size_t nLargeBlocks  = 0;
     size_t nDataBlocks   = 0;
     size_t nTreeBlocks   = 0;
 
-    TileDimensions(const NumericTable & data, size_t nTrees)
+    // vectorBlockSize = vectorBlockSizeFactor * vectorBlockSizeStep
+    size_t vectorBlockSizeFactor                     = 0;
+    static constexpr size_t maxVectorBlockSizeFactor = 16;
+    static constexpr size_t minVectorBlockSizeFactor = 2;
+    static constexpr size_t vectorBlockSizeStep      = 16;
+    // optimalBlockSizeFactor is selected from benchmarking
+    static constexpr size_t optimalBlockSizeFactor = 3;
+
+    TileDimensions(const NumericTable & data, size_t nTrees, size_t nNodes)
         : nTreesTotal(nTrees), nRowsTotal(data.getNumberOfRows()), nCols(data.getNumberOfColumns())
     {
-        nRowsInBlock = nRowsTotal;
+        // Use smaller vectorBlockSize if trees fit to L2
+        // Each node contain 3 values
+        size_t nodesSize               = (sizeof(ModelFPType) + sizeof(FeatureIndexType) + sizeof(int)) * nNodes;
+        const bool treesFitToL2        = nodesSize < daal::services::internal::getL2CacheSize();
+        size_t flexibleBlockSizeFactor = treesFitToL2 ? optimalBlockSizeFactor : maxVectorBlockSizeFactor;
 
-        if (nRowsTotal > 2 * VECTOR_BLOCK_SIZE)
-        {
-            nRowsInBlock = 2 * VECTOR_BLOCK_SIZE;
+        // Decrease vectorBlockSize if number of rows is too small
+        const size_t twoBlocksPerThreadFactor = nRowsTotal / (2 * daal::threader_get_threads_number() * vectorBlockSizeStep);
+        if (flexibleBlockSizeFactor > twoBlocksPerThreadFactor) flexibleBlockSizeFactor = twoBlocksPerThreadFactor;
+        if (flexibleBlockSizeFactor < minVectorBlockSizeFactor) flexibleBlockSizeFactor = minVectorBlockSizeFactor;
 
-            if (daal::threader_get_threads_number() > nRowsTotal / nRowsInBlock)
-            {
-                nRowsInBlock = VECTOR_BLOCK_SIZE;
-            }
-        }
-        nDataBlocks = nRowsTotal / nRowsInBlock;
+        DAAL_SAFE_CPU_CALL(vectorBlockSizeFactor = flexibleBlockSizeFactor, vectorBlockSizeFactor = optimalBlockSizeFactor)
+        size_t vectorBlockSize = vectorBlockSizeStep * vectorBlockSizeFactor;
+        nRowsInBlock           = nRowsTotal > vectorBlockSize ? vectorBlockSize : nRowsTotal;
+        nDataBlocks            = nRowsTotal / nRowsInBlock + bool(nRowsTotal % nRowsInBlock);
 
         nTreesInBlock = nTreesTotal;
         nTreeBlocks   = 1;

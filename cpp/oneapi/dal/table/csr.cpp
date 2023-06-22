@@ -28,6 +28,7 @@ std::int64_t csr_table::get_non_zero_count() const {
     const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_non_zero_count();
 }
+
 sparse_indexing csr_table::get_indexing() const {
     const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
     return impl.get_indexing();
@@ -50,14 +51,35 @@ const std::int64_t* csr_table::get_row_offsets() const {
     return impl.get_row_offsets().get_data();
 }
 
-template <typename Policy>
-void csr_table::init_impl(const Policy& policy,
-                          const dal::array<byte_t>& data,
+#ifdef ONEDAL_DATA_PARALLEL
+std::int64_t csr_table::get_non_zero_count(sycl::queue& queue,
+                                           const std::int64_t row_count,
+                                           const std::int64_t* row_offsets,
+                                           const std::vector<sycl::event>& dependencies) {
+    return backend::csr_table_impl::get_non_zero_count(queue, row_count, row_offsets, dependencies);
+}
+#endif
+
+void csr_table::init_impl(const dal::array<byte_t>& data,
                           const dal::array<std::int64_t>& column_indices,
                           const dal::array<std::int64_t>& row_offsets,
                           std::int64_t column_count,
                           const data_type& dtype,
                           sparse_indexing indexing) {
+#ifdef ONEDAL_DATA_PARALLEL
+    if (data.get_queue().has_value()) {
+        table::init_impl(
+            new backend::csr_table_impl{ detail::data_parallel_policy{ data.get_queue().value() },
+                                         data,
+                                         column_indices,
+                                         row_offsets,
+                                         column_count,
+                                         dtype,
+                                         indexing,
+                                         {} });
+        return;
+    }
+#endif
     table::init_impl(new backend::csr_table_impl{ data,
                                                   column_indices,
                                                   row_offsets,
@@ -66,17 +88,25 @@ void csr_table::init_impl(const Policy& policy,
                                                   indexing });
 }
 
-#define INSTANTIATE(Policy)                             \
-    template ONEDAL_EXPORT void csr_table::init_impl(   \
-        const Policy&,                                  \
-        const dal::array<byte_t>& data,                 \
-        const dal::array<std::int64_t>& column_indices, \
-        const dal::array<std::int64_t>& row_offsets,    \
-        std::int64_t column_count,                      \
-        const data_type& dtype,                         \
-        sparse_indexing indexing);
-
-INSTANTIATE(detail::default_host_policy)
+#ifdef ONEDAL_DATA_PARALLEL
+void csr_table::init_impl(const detail::data_parallel_policy& policy,
+                          const dal::array<byte_t>& data,
+                          const dal::array<std::int64_t>& column_indices,
+                          const dal::array<std::int64_t>& row_offsets,
+                          std::int64_t column_count,
+                          const data_type& dtype,
+                          sparse_indexing indexing,
+                          const std::vector<sycl::event>& dependencies) {
+    table::init_impl(new backend::csr_table_impl{ policy,
+                                                  data,
+                                                  column_indices,
+                                                  row_offsets,
+                                                  column_count,
+                                                  dtype,
+                                                  indexing,
+                                                  dependencies });
+}
+#endif
 
 } // namespace v1
 } // namespace oneapi::dal

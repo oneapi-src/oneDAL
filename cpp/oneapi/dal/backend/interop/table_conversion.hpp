@@ -181,7 +181,7 @@ inline auto convert_to_daal_csr_table(array<T>& data,
 template <typename Float>
 inline daal::data_management::CSRNumericTablePtr copy_to_daal_csr_table(const csr_table& table) {
     const bool allow_copy = true;
-    auto [data, column_indices, row_offsets] = detail::csr_accessor<const Float>{ table }.pull();
+    auto [data, column_indices, row_offsets] = csr_accessor<const Float>{ table }.pull();
     return convert_to_daal_csr_table(data,
                                      column_indices,
                                      row_offsets,

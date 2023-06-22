@@ -29,3 +29,41 @@ Java* Interfaces
 
 **Alternatives:** Intel(R) Optimized Analytics Package* (OAP) project for the Spark* users. 
 The project offers a comprehensive set of optimized libraries, including the OAP* MLlib* component. For more information, visit https://github.com/oap-project/oap-mllib. 
+
+
+DAAL CPP SYCL Interfaces
+************************
+
+**Deprecation:** The `DAAL CPP SYCL Interfaces <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp_sycl>`_ in the oneDAL library are deprecated. Starting with the 2024.0 release, oneDAL will not support the DAAL CPP SYCL Interfaces.
+
+**Reasons for deprecation:** Deprecating initial version of SYCL interfaces in favour of oneDAL SYCL interfaces. The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
+
+**Alternatives:** `oneDAL SYCL interfaces <https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/dpc>`_
+
+
+Compression Functionality
+*************************
+
+**Deprecation:** The compression functionality in the oneDAL library is deprecated. Starting with the 2024.0 release, oneDAL will not support the compression functionality.
+
+**Reasons for deprecation:** The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features. 
+
+**Alternatives:** The external compression mechanics with optimized into your application implementation. For example, Intel(R) IPP.
+
+ABI Compatibility
+*****************
+
+**Deprecation:** ABI compatibility is to be broken as part of the 2024.0 release of oneDAL. The library's major version is to be incremented to two to enforce the relinking of existing applications.
+
+**Reasons for deprecation:**  The clean-up process of the deprecated functionality, interfaces, and symbols. 
+
+**Alternatives:** Relink to a newer version. 
+
+macOS* Support
+**************
+
+**Deprecation:** macOS* support is deprecated for oneDAL. The 2023.x releases are the last to provide it. 
+
+**Reasons for deprecation:**  No modern X86 macOS*-based systems are to be released.
+
+**Alternatives:** The 2023.x version on macOS*. 

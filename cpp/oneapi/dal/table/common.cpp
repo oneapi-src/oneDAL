@@ -191,6 +191,16 @@ void table::deserialize(detail::input_archive& ar) {
     detail::deserialize_polymorphic_shared(impl_, ar);
 }
 
+void table::validate_input_dimensions(std::int64_t row_count, std::int64_t column_count) {
+    if (row_count <= 0) {
+        throw domain_error{ detail::error_messages::rc_leq_zero() };
+    }
+
+    if (column_count <= 0) {
+        throw domain_error{ detail::error_messages::cc_leq_zero() };
+    }
+}
+
 } // namespace v1
 } // namespace oneapi::dal
 

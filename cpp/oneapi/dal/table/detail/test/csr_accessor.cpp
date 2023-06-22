@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/csr.hpp"
-#include "oneapi/dal/table/detail/csr_accessor.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::detail {
@@ -35,8 +35,7 @@ TEST("can read csr table via csr accessor") {
                  array<std::int64_t>::wrap(column_indices, element_count),
                  array<std::int64_t>::wrap(row_indices, row_count + 1),
                  column_count };
-    const auto [data_array, cidx_array, ridx_array] =
-        detail::csr_accessor<const double>(t).pull({ 0, -1 });
+    const auto [data_array, cidx_array, ridx_array] = csr_accessor<const double>(t).pull({ 0, -1 });
 
     REQUIRE(data == data_array.get_data());
     REQUIRE(column_indices == cidx_array.get_data());
@@ -66,8 +65,7 @@ TEST("can read csr table via csr accessor create smaller block") {
                  array<std::int64_t>::wrap(column_indices, element_count),
                  array<std::int64_t>::wrap(row_indices, row_count + 1),
                  column_count };
-    const auto [data_array, cidx_array, ridx_array] =
-        detail::csr_accessor<const double>(t).pull({ 1, 3 });
+    const auto [data_array, cidx_array, ridx_array] = csr_accessor<const double>(t).pull({ 1, 3 });
 
     REQUIRE(data + 3 == data_array.get_data());
     REQUIRE(column_indices + 3 == cidx_array.get_data());
@@ -97,8 +95,7 @@ TEST("can read csr table via csr accessor with conversion") {
                  array<std::int64_t>::wrap(column_indices, element_count),
                  array<std::int64_t>::wrap(row_indices, row_count + 1),
                  column_count };
-    const auto [data_array, cidx_array, ridx_array] =
-        detail::csr_accessor<const double>(t).pull({ 0, -1 });
+    const auto [data_array, cidx_array, ridx_array] = csr_accessor<const double>(t).pull({ 0, -1 });
 
     REQUIRE((void*)data != (void*)data_array.get_data());
     REQUIRE(column_indices == cidx_array.get_data());
