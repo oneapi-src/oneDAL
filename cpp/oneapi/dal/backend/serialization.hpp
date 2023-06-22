@@ -188,6 +188,9 @@ public:
 
     // Algorithms - Linear Regression
     ID(7010000000, linear_regression_model_impl_id);
+
+    // Algorithms - KMeans
+    ID(8010000000, kmeans_clustering_model_impl_id);
 };
 
 #undef ID

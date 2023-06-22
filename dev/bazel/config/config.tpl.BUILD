@@ -24,6 +24,22 @@ version_info(
 )
 
 config_flag(
+    name = "backend_config",
+    build_setting_default = "mkl",
+    allowed_build_setting_values = [
+        "ref",
+        "mkl",
+    ],
+)
+
+config_setting(
+    name = "backend_ref",
+    flag_values  = {
+        ":backend_config": "ref",
+    },
+)
+
+config_flag(
     name = "test_link_mode",
     build_setting_default = "dev",
     allowed_build_setting_values = [
