@@ -30,6 +30,11 @@ namespace interface1
 using namespace daal::data_management;
 
 template <typename modelFPType>
+ModelBuilder<modelFPType>::ModelBuilder()
+    : _nFeatures(0), _nClasses(0), _modelPtr(logistic_regression::ModelPtr(new logistic_regression::internal::ModelImpl()))
+{}
+
+template <typename modelFPType>
 ModelBuilder<modelFPType>::ModelBuilder(size_t nFeatures, size_t nClasses) : _nFeatures(nFeatures), _nClasses(nClasses)
 {
     const bool interceptFlag = true; /* default intercept flag is true but can be changed via setInterceptFlag */

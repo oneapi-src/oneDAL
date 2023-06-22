@@ -20,7 +20,7 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/csr.hpp"
-#include "oneapi/dal/table/detail/csr_accessor.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/daal_object_owner.hpp"
 #include "oneapi/dal/table/backend/interop/block_info.hpp"
@@ -76,6 +76,8 @@ private:
 
 private:
     csr_table original_table_;
+    array<size_t> one_based_column_indices_;
+    array<size_t> one_based_row_offsets_;
 };
 
 } // namespace oneapi::dal::backend::interop
