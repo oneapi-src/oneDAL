@@ -502,6 +502,12 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
                 "ONEDAL_ENABLE_ASSERT=1",
             ],
             "//conditions:default": [],
+        }) + select({
+            "@config//:backend_ref": [
+                "DAAL_REF",
+                "ONEDAL_REF",
+            ],
+            "//conditions:default": [],
         }),
         deps = _expand_select(deps),
         **kwargs,
