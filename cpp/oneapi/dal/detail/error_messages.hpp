@@ -124,6 +124,7 @@ public:
     MSG(row_offsets_lt_min_value);
     MSG(row_offsets_gt_max_value);
     MSG(row_offsets_not_ascending);
+    MSG(row_offsets_pointer_is_null);
     MSG(column_indices_lt_min_value);
     MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);

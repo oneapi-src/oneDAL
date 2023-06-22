@@ -84,6 +84,11 @@ public:
     }
 
     /**
+     * Empty constructor for deserialization
+     */
+    ModelBuilder();
+
+    /**
     *  Create certain tree in the decision forest model
     *  \param[in] nNodes  Number of nodes in created tree
     *  \return Tree identifier

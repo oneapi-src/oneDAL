@@ -73,6 +73,11 @@ public:
     static const NodeId noParent = static_cast<size_t>(-1); /*!< %Reserved value for root nodes */
 
     /**
+     * Empty constructor for deserialization
+     */
+    ModelBuilder();
+
+    /**
      * Constructs the gradient boosted trees regression model builder
      * \param[in] nIterations  Number of trees in model and iterations performed on training stage of gbt algorithm
      * \param[in] nFeatures    Number of features in training dataset
