@@ -279,6 +279,10 @@ oneapi_a     := $(plib)onedal$d.$a
 oneapi_y     := $(plib)onedal$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 oneapi_a.dpc := $(plib)onedal_dpc$d.$a
 oneapi_y.dpc := $(plib)onedal_dpc$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+parameters_a     := $(plib)onedal_parameters$d.$a
+parameters_y     := $(plib)onedal_parameters$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+parameters_a.dpc := $(plib)onedal_parameters_dpc$d.$a
+parameters_y.dpc := $(plib)onedal_parameters_dpc$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 thr_tbb_a := $(plib)onedal_thread$d.$a
 thr_tbb_y := $(plib)onedal_thread$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
@@ -302,6 +306,14 @@ release.ONEAPI.LIBS_Y := $(oneapi_y)
 release.ONEAPI.LIBS_A.dpc := $(oneapi_a.dpc) \
                              $(if $(OS_is_win),$(foreach ilib,$(oneapi_a.dpc),$(ilib:%.lib=%_dll.lib)),)
 release.ONEAPI.LIBS_Y.dpc := $(oneapi_y.dpc)
+
+release.PARAMETERS.LIBS_A := $(parameters_a) \
+                         $(if $(OS_is_win),$(foreach ilib,$(parameters_a),$(ilib:%.lib=%_dll.lib)),)
+release.PARAMETERS.LIBS_Y := $(parameters_y)
+
+release.PARAMETERS.LIBS_A.dpc := $(parameters_a.dpc) \
+                             $(if $(OS_is_win),$(foreach ilib,$(parameters_a.dpc),$(ilib:%.lib=%_dll.lib)),)
+release.PARAMETERS.LIBS_Y.dpc := $(parameters_y.dpc)
 
 # Libraries required for building
 daaldep.lnx32e.rt.thr := -L$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
@@ -535,8 +547,12 @@ $(CORE.tmpdir_y)/%.res: %.rc | $(CORE.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 ONEAPI.tmpdir_a := $(WORKDIR)/oneapi_static
 ONEAPI.tmpdir_y := $(WORKDIR)/oneapi_dynamic
+PARAMETERS.tmpdir_a := $(WORKDIR)/parameters_static
+PARAMETERS.tmpdir_y := $(WORKDIR)/parameters_dynamic
 ONEAPI.tmpdir_a.dpc := $(WORKDIR)/oneapi_dpc_static
 ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
+PARAMETERS.tmpdir_a.dpc := $(WORKDIR)/parameters_dpc_static
+PARAMETERS.tmpdir_y.dpc := $(WORKDIR)/parameters_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend.incdir) $(TBBDIR.include)
@@ -560,12 +576,14 @@ ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(addprefix $(ONEAPI.srcdir)/io/, $(ONEAPI.IO))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
-ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend)
+ONEAPI.srcdirs.parameters := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
+ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend) $(ONEAPI.srcdirs.parameters)
 
 ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*"
 ONEAPI.srcs.all := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
-                   $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude)))
+                   $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
+                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude)))
 ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
@@ -713,14 +731,31 @@ $(call containing,_neh, $(ONEAPI.objs_y.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAP
 $(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
 $(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
+# Filtering parameter files
+PARAMETERS.objs_a := $(filter %parameter%,$(ONEAPI.objs_a))
+ONEAPI.objs_a := $(filter-out %parameter%,$(ONEAPI.objs_a))
+PARAMETERS.objs_y := $(filter %parameter%,$(ONEAPI.objs_y))
+ONEAPI.objs_y := $(filter-out %parameter%,$(ONEAPI.objs_y))
+PARAMETERS.objs_a.dpc := $(filter %parameter%,$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_a.dpc := $(filter-out %parameter%,$(ONEAPI.objs_a.dpc))
+PARAMETERS.objs_y.dpc := $(filter %parameter%,$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc := $(filter-out %parameter%,$(ONEAPI.objs_y.dpc))
+
+# Actual compilation
 $(foreach x,$(ONEAPI.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
 $(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
+$(foreach x,$(PARAMETERS.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
+$(foreach x,$(PARAMETERS.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
 $(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
 $(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
+$(foreach x,$(PARAMETERS.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
+$(foreach x,$(PARAMETERS.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
 
 # Create Host and DPC++ oneapi libraries
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a),$(ONEAPI.objs_a)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a.dpc),$(ONEAPI.objs_a.dpc)))
 
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
     $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
@@ -733,6 +768,19 @@ $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINAR
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
+endif
+
+$(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
+    $(PARAMETERS.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(parameters_y): \
+    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(parameters_y): LOPT += $(-fPIC)
+$(WORKDIR.lib)/$(parameters_y): LOPT += $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
+$(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
+ifdef OS_is_win
+$(WORKDIR.lib)/$(parameters_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(parameters_y)
 endif
 
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
@@ -748,6 +796,20 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(lib
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
+endif
+
+$(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt): \
+    $(PARAMETERS.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
+$(WORKDIR.lib)/$(parameters_y.dpc): \
+    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(-fPIC)
+$(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(daaldep.rt.dpc)
+$(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
+$(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
+$(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
+ifdef OS_is_win
+$(WORKDIR.lib)/$(parameters_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(parameters_y.dpc)
 endif
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
