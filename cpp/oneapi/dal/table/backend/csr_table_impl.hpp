@@ -22,7 +22,6 @@
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
-
 namespace oneapi::dal::backend {
 
 class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
