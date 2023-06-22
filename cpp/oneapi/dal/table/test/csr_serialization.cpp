@@ -34,8 +34,10 @@ void check_csr_tables_equal(const csr_table& a, const csr_table& b) {
         return;
     }
 
-    auto [a_data_ptr, a_col_ptr, a_row_ptr] = csr_accessor<const Data>(a).pull({ 0, -1 }, a.get_indexing());
-    auto [b_data_ptr, b_col_ptr, b_row_ptr] = csr_accessor<const Data>(b).pull({ 0, -1 }, b.get_indexing());
+    auto [a_data_ptr, a_col_ptr, a_row_ptr] =
+        csr_accessor<const Data>(a).pull({ 0, -1 }, a.get_indexing());
+    auto [b_data_ptr, b_col_ptr, b_row_ptr] =
+        csr_accessor<const Data>(b).pull({ 0, -1 }, b.get_indexing());
 
     for (std::uint32_t i = 0; i < a_data_ptr.get_count(); ++i) {
         REQUIRE(a_data_ptr[i] == b_data_ptr[i]);
