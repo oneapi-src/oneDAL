@@ -111,6 +111,12 @@ html_theme_options = {
     'extra_footer': '<p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>'
 }
 
+html_theme_options = { 
+    "logo": {
+        "text": "oneDAL Documentation",
+    }
+}
+
 # oneDAL project directory is needed for `dalapi` extension
 onedal_enable_listing = False
 onedal_relative_doxyfile_dir = '../doxygen/oneapi'
