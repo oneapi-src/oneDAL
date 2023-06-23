@@ -41,7 +41,6 @@ struct csr_info {
         ONEDAL_ASSERT(row_count_ > 0);
         ONEDAL_ASSERT(column_count_ > 0);
         ONEDAL_ASSERT(element_count_ > 0);
-        ONEDAL_ASSERT(indexing_ == sparse_indexing::one_based);
         ONEDAL_ASSERT(layout_ == data_layout::row_major);
     }
 
@@ -60,7 +59,6 @@ struct block_info {
               indexing_(indexing) {
         ONEDAL_ASSERT(row_offset >= 0);
         ONEDAL_ASSERT(row_count > 0);
-        ONEDAL_ASSERT(indexing == sparse_indexing::one_based);
     }
 
     std::int64_t row_offset_;
