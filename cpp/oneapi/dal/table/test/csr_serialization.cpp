@@ -91,7 +91,6 @@ TEST("Serialize/deserialize small CSR table zero-based indexing") {
                           array<std::int64_t>::wrap(row_indices, row_count + 1),
                           column_count,
                           sparse_indexing::zero_based };
-    std::cout << "TABLE successfully created" << std::endl;
     auto deser_table = te::serialize_deserialize(init_table);
 
     check_csr_tables_equal<const float>(init_table, deser_table);
