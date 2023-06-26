@@ -51,7 +51,7 @@ public:
     /// Check that the test with the particular `TestType` cannot be run on the system
     /// that does not support 64-bit floating point operations.
     ///
-    /// @return True, if this test cannot be run on the system.
+    /// @return True if this test cannot be run on the system.
     ///         False, otherwise.
     bool not_float64_friendly() {
         constexpr bool is_double =
