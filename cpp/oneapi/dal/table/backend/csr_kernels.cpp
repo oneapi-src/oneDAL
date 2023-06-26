@@ -94,7 +94,7 @@ void pull_data_impl(const Policy& policy,
         BlockData* const dst_data = data.get_mutable_data();
 
         backend::convert_vector(policy,
-                                src_data + origin_offset * block_dtype_size,
+                                src_data,
                                 dst_data,
                                 origin_info.dtype_,
                                 block_dtype,
@@ -150,17 +150,10 @@ void pull_column_indices_impl(const Policy& policy,
     else {
         reset_array(policy, column_indices, block_size, kind);
 
-        const auto dtype_size = sizeof(std::int64_t);
-        const std::int64_t* const src_data =
-            origin_column_indices.get_data() + origin_offset * dtype_size;
+        const std::int64_t* const src_data = origin_column_indices.get_data() + origin_offset;
         std::int64_t* const dst_data = column_indices.get_mutable_data();
 
-        backend::convert_vector(policy,
-                                src_data + origin_offset * dtype_size,
-                                dst_data,
-                                data_type::int64,
-                                data_type::int64,
-                                block_size);
+        backend::copy(dst_data, src_data, block_size);
 
         if (indices_offset != 0) {
             shift_array_values(policy, dst_data, block_size, indices_offset);
@@ -210,7 +203,7 @@ void pull_row_offsets_impl(const Policy& policy,
     if (block_info.row_offset_ == 0 && indices_offset == 0) {
         refer_origin_data(origin_row_offsets,
                           0,
-                          block_info.row_count_,
+                          block_info.row_count_ + 1,
                           row_offsets,
                           preserve_mutability);
     }
@@ -221,11 +214,8 @@ void pull_row_offsets_impl(const Policy& policy,
 
         for (std::int64_t i = 0; i < dst_row_offsets_count; i++) {
             dst_row_offsets[i] = src_row_offsets[block_info.row_offset_ + i] -
-                                 src_row_offsets[block_info.row_offset_] + 1;
-        }
-
-        if (indices_offset != 0) {
-            shift_array_values(policy, dst_row_offsets, dst_row_offsets_count, indices_offset);
+                                 src_row_offsets[block_info.row_offset_] +
+                                 std::int64_t{ block_info.indexing_ == sparse_indexing::one_based };
         }
     }
 }
@@ -257,6 +247,7 @@ void pull_csr_block_impl(const Policy& policy,
     const std::int64_t block_size =
         origin_row_offsets[block_info.row_offset_ + block_info.row_count_] -
         origin_row_offsets[block_info.row_offset_];
+
     ONEDAL_ASSERT(block_size >= 0);
 
     const bool same_data_type(block_dtype == origin_info.dtype_);
@@ -267,6 +258,7 @@ void pull_csr_block_impl(const Policy& policy,
                                        block_info.indexing_ == sparse_indexing::one_based)
                                           ? 1
                                           : -1);
+
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
                                       origin_data,
