@@ -208,7 +208,7 @@ private:
 // Generate a sequense of `TestType` template parameters for the `csr_accessor_test`.
 // The first elements in the tuple will be taken from the first list of types;
 // the second elements in the tuple will be taken from the second list of type.
-// As the results, 12 variants of `TestType` parameter are created.
+// As the result, 12 variants of the `TestType` parameter are created.
 using csr_accessor_types = COMBINE_TYPES((std::int32_t, std::int64_t, float, double),
                                          (std::int32_t, float, double));
 
