@@ -59,7 +59,7 @@ public:
         return is_double && !this->get_policy().has_native_float64();
     }
 
-    /// Initialize column indicies and row offsets for the tested data table in CSR format
+    /// Initialize column indices and row offsets for the tested data table in CSR format
     /// based on the table's indexing scheme.
     void initialize_indices() {
         if (table_indexing_ == sparse_indexing::zero_based) {
