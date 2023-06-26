@@ -539,8 +539,18 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
         });
     });
     auto event_xtdxv =
-        gemv(q_, data_.t(), buffer_, out_suf, Float(1), L2_ * 2, { event_dxv, fill_out_event });
-    return event_xtdxv;
+        gemv(q_, data_.t(), buffer_, out_suf, Float(1), Float(0), { event_dxv, fill_out_event });
+
+
+    const Float regul_factor = Float(L2_ * 2);
+
+    const auto kernel_regul = [=](const Float a, const Float param) {
+        return a + param * regul_factor;
+    };
+
+    auto add_regul_event = element_wise(q_, kernel_regul, out_suf, vec_suf, out_suf, {event_xtdxv});
+    return add_regul_event;
+    //return event_xtdxv;
 }
 
 template <typename Float>
