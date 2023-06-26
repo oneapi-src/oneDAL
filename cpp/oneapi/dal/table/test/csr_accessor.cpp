@@ -42,8 +42,8 @@ public:
     using array_d = dal::array<accessor_data_t>;
     using array_i = dal::array<std::int64_t>;
 
-    static constexpr std::int64_t row_count = 4;        // number of rows in the tested table
-    static constexpr std::int64_t column_count = 4;     // number of columns in the tested table
+    static constexpr std::int64_t row_count = 4; // number of rows in the tested table
+    static constexpr std::int64_t column_count = 4; // number of columns in the tested table
 
     // number of non-zero elements in the tested table
     static constexpr std::int64_t element_count = 7;
@@ -209,7 +209,8 @@ private:
 // The first elements in the tuple will be taken from the first list of types;
 // the second elements in the tuple will be taken from the second list of type.
 // As the results, 12 variants of `TestType` parameter are created.
-using csr_accessor_types = COMBINE_TYPES((int, std::int64_t, float, double), (int, float, double));
+using csr_accessor_types = COMBINE_TYPES((std::int32_t, std::int64_t, float, double),
+                                         (std::int32_t, float, double));
 
 TEMPLATE_LIST_TEST_M(csr_accessor_test,
                      "CSR accessor can read the whole table",
