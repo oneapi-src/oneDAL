@@ -559,7 +559,7 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
     ONEDAL_ASSERT(vec.get_dimension(0) == p_);
     ONEDAL_ASSERT(out.get_dimension(0) == p_);
 
-    sycl::event fill_out_event = copy(q_, out, vec, deps);
+    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
     auto event_xv = gemv(q_, data_, vec, buffer_, Float(1), Float(0), deps);
 
@@ -570,8 +570,17 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
         element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
 
     auto event_xtdxv =
-        gemv(q_, data_.t(), buffer_, out, Float(1), L2_ * 2, { event_dxv, fill_out_event });
-    return event_xtdxv;
+        gemv(q_, data_.t(), buffer_, out, Float(1), Float(0), { event_dxv, fill_out_event });
+
+    const Float regul_factor = Float(L2_ * 2);
+
+    const auto kernel_regul = [=](const Float a, const Float param) {
+        return a + param * regul_factor;
+    };
+
+    auto add_regul_event = element_wise(q_, kernel_regul, out, vec, out, { event_xtdxv });
+
+    return add_regul_event;
 }
 
 template <typename Float>
