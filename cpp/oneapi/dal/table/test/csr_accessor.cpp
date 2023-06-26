@@ -108,7 +108,7 @@ public:
     ///                         or -1, if the last pulled row is equal to the last row
     ///                         of the whole table.
     /// @param[in] data_array   The block of values pulled from the table in the CSR layout.
-    /// @param[in] cidx_array   The block of column indicies pulled from the table
+    /// @param[in] cidx_array   The block of column indices pulled from the table
     ///                         in the CSR layout.
     /// @param[in] ridx_array   The block of row offsets pulled from the table
     ///                         in the CSR layout.
