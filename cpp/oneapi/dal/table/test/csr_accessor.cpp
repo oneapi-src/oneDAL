@@ -77,7 +77,7 @@ public:
     /// @param[in] start_idx    Zero-based index of the first row of the block of data
     ///                         to be pulled from the table.
     /// @param[in] end_idx      Either zero-based index of the row that goes after the last row
-    ///                         of the block of data to be pulled from the table,
+    ///                         of the block of data to be pulled from the table;
     ///                         or -1, if the last row to be pulled is equal to the last row
     ///                         of the whole table.
     void pull_checks(std::int64_t start_idx, std::int64_t end_idx) {
