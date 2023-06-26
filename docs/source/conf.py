@@ -111,7 +111,7 @@ html_theme_options = {
     'extra_footer': '<p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>'
 }
 
-html_theme_options = { 
+html_theme_options = {
     "logo": {
         "text": "oneDAL Documentation",
     }
