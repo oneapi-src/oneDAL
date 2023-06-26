@@ -29,7 +29,7 @@ namespace te = dal::test::engine;
 ///     | 0,  8,  0,  0 |
 /// which is stored in CSR format, zero-based or one-based
 ///
-/// @tparam TestType    The puple of two elements.
+/// @tparam TestType    The tuple of two elements.
 ///                     The first element in the tuple has the data type of the elements
 ///                     in the table A.
 ///                     The second elements in the tuple has the data type of the elements
