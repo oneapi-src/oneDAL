@@ -16,17 +16,9 @@
 
 #include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/micromkl/micromkl.hpp"
+#include "oneapi/dal/backend/primitives/lapack/syevd.hpp"
 
 namespace oneapi::dal::backend::primitives {
-
-template <typename... Args>
-inline void syevd(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        using dal::backend::micromkl::syevd;
-        syevd<decltype(cpu)>(std::forward<Args>(args)...);
-    });
-}
 
 template <typename Float>
 void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
@@ -48,7 +40,7 @@ void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     std::int64_t* iwork_ptr = iwork.get_mutable_data();
 
     std::int64_t info;
-    syevd('V', 'U', n, a, lda, w, work_ptr, lwork, iwork_ptr, liwork, info);
+    pr::syevd<jobz::vec, uplo::upper>(n, a, lda, w, work_ptr, lwork, iwork_ptr, liwork, info);
 
     if (info != 0) {
         throw internal_error{ dal::detail::error_messages::failed_to_compute_eigenvectors() };

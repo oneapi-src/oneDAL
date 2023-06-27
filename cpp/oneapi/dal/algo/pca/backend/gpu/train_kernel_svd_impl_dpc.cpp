@@ -66,17 +66,16 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
 template <typename Float>
 auto centered_data(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
-                  const bk::event_vector& deps = {}) {
+                   const pr::ndview<Float, 2>& data,
+                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(centered_data, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) > 0);
     const std::int64_t column_count = data.get_dimension(1);
     const std::int64_t row_count = data.get_row_count();
 
-
-    pr::ndarray<Float, 2> data_copy = pr::ndarray<Float, 2>::copy(data, { row_count, column_count });
-
+    pr::ndarray<Float, 2> data_copy =
+        pr::ndarray<Float, 2>::copy(data, { row_count, column_count });
 
     auto event = q.submit([&](sycl::handler& cgh) {
         auto data_acc = data_copy.get_mutable_data();
@@ -97,12 +96,15 @@ auto centered_data(sycl::queue& q,
 }
 
 template <typename Float>
-auto svd_decomposition(sycl::queue& q, pr::ndview<Float, 2>& data, std::size_t row_count, std::size_t column_count) {
-    auto U = pr::ndarray<Float, 2>::empty({row_count, row_count});
-    auto S = pr::ndarray<Float, 1>::empty({column_count});
-    auto V_T = pr::ndarray<Float, 2>::empty({column_count, column_count});
+auto svd_decomposition(sycl::queue& q,
+                       pr::ndview<Float, 2>& data,
+                       std::size_t row_count,
+                       std::size_t column_count) {
+    auto U = pr::ndarray<Float, 2>::empty({ row_count, row_count });
+    auto S = pr::ndarray<Float, 1>::empty({ column_count });
+    auto V_T = pr::ndarray<Float, 2>::empty({ column_count, column_count });
 
-
+    //auto result = mkl::lapack::gesvd(queue, uplo, trans, n, k, alpha, a, lda, beta, c, ldc, deps);
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
@@ -112,7 +114,6 @@ auto svd_decomposition(sycl::queue& q, pr::ndview<Float, 2>& data, std::size_t r
     const std::size_t max_dim = std::max(row_count, column_count);
     const std::size_t num_iters = 100;
 
-
     q.submit([&](sycl::handler& cgh) {
         auto data_acc = sycl::accessor(data_ptr, cgh, sycl::read_write);
         auto U_acc = sycl::accessor(U_ptr, cgh, sycl::write);
@@ -120,23 +121,36 @@ auto svd_decomposition(sycl::queue& q, pr::ndview<Float, 2>& data, std::size_t r
         auto V_T_acc = sycl::accessor(V_T_ptr, cgh, sycl::write);
 
         cgh.parallel_for(sycl::range<1>(1), [=](sycl::id<1> idx) {
-
             for (std::size_t iter = 0; iter < num_iters; ++iter) {
+                matrix_multiply(data_acc.get_pointer(),
+                                data_acc.get_pointer(),
+                                U_acc.get_pointer(),
+                                row_count,
+                                column_count,
+                                row_count,
+                                column_count,
+                                row_count,
+                                row_count);
 
-                matrix_multiply(data_acc.get_pointer(), data_acc.get_pointer(), U_acc.get_pointer(),
-                                row_count, column_count, row_count, column_count, row_count, row_count);
+                singular_value_decomposition(U_acc.get_pointer(),
+                                             min_dim,
+                                             max_dim,
+                                             U_acc.get_pointer(),
+                                             S_acc.get_pointer(),
+                                             V_T_acc.get_pointer());
 
-                
-                singular_value_decomposition(U_acc.get_pointer(), min_dim, max_dim, U_acc.get_pointer(),
-                                             S_acc.get_pointer(), V_T_acc.get_pointer());
-
-
-                matrix_multiply(U_acc.get_pointer(), S_acc.get_pointer(), V_T_acc.get_pointer(),
-                                row_count, min_dim, min_dim, max_dim, row_count, column_count);
+                matrix_multiply(U_acc.get_pointer(),
+                                S_acc.get_pointer(),
+                                V_T_acc.get_pointer(),
+                                row_count,
+                                min_dim,
+                                min_dim,
+                                max_dim,
+                                row_count,
+                                column_count);
             }
         });
     });
-
 
     q.wait();
 
