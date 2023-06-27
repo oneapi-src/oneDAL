@@ -158,13 +158,12 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
 def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
-             framework="gtest", data=[], tags=[], private=False,
+             framework="catch2", data=[], tags=[], private=False,
              mpi=False, ccl=False, mpi_ranks=0, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
-    if not framework in ["gtest", "catch2", "none"]:
+    if not framework in ["catch2", "none"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
-    is_gtest = framework == "gtest"
     is_catch2 = framework == "catch2"
     module_name = "_" + name
     dal_module(
@@ -182,8 +181,6 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             dal_test_deps +
             _test_link_mode_deps(dal_deps)
         ) + ([
-            "@onedal//cpp/oneapi/dal/test/engine:gtest_main",
-        ] if is_gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:common",
             "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
         ] if is_catch2 else []) + ([

@@ -17,6 +17,9 @@
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
 #include "oneapi/dal/table/backend/convert.hpp"
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/memory.hpp"
+
+#include <algorithm>
 
 namespace oneapi::dal::backend {
 
@@ -91,7 +94,7 @@ void pull_data_impl(const Policy& policy,
         BlockData* const dst_data = data.get_mutable_data();
 
         backend::convert_vector(policy,
-                                src_data + origin_offset * block_dtype_size,
+                                src_data,
                                 dst_data,
                                 origin_info.dtype_,
                                 block_dtype,
@@ -147,17 +150,10 @@ void pull_column_indices_impl(const Policy& policy,
     else {
         reset_array(policy, column_indices, block_size, kind);
 
-        const auto dtype_size = sizeof(std::int64_t);
-        const std::int64_t* const src_data =
-            origin_column_indices.get_data() + origin_offset * dtype_size;
+        const std::int64_t* const src_data = origin_column_indices.get_data() + origin_offset;
         std::int64_t* const dst_data = column_indices.get_mutable_data();
 
-        backend::convert_vector(policy,
-                                src_data + origin_offset * dtype_size,
-                                dst_data,
-                                data_type::int64,
-                                data_type::int64,
-                                block_size);
+        backend::copy(dst_data, src_data, block_size);
 
         if (indices_offset != 0) {
             shift_array_values(policy, dst_data, block_size, indices_offset);
@@ -207,7 +203,7 @@ void pull_row_offsets_impl(const Policy& policy,
     if (block_info.row_offset_ == 0 && indices_offset == 0) {
         refer_origin_data(origin_row_offsets,
                           0,
-                          block_info.row_count_,
+                          block_info.row_count_ + 1,
                           row_offsets,
                           preserve_mutability);
     }
@@ -218,11 +214,8 @@ void pull_row_offsets_impl(const Policy& policy,
 
         for (std::int64_t i = 0; i < dst_row_offsets_count; i++) {
             dst_row_offsets[i] = src_row_offsets[block_info.row_offset_ + i] -
-                                 src_row_offsets[block_info.row_offset_] + 1;
-        }
-
-        if (indices_offset != 0) {
-            shift_array_values(policy, dst_row_offsets, dst_row_offsets_count, indices_offset);
+                                 src_row_offsets[block_info.row_offset_] +
+                                 std::int64_t{ block_info.indexing_ == sparse_indexing::one_based };
         }
     }
 }
@@ -254,6 +247,7 @@ void pull_csr_block_impl(const Policy& policy,
     const std::int64_t block_size =
         origin_row_offsets[block_info.row_offset_ + block_info.row_count_] -
         origin_row_offsets[block_info.row_offset_];
+
     ONEDAL_ASSERT(block_size >= 0);
 
     const bool same_data_type(block_dtype == origin_info.dtype_);
@@ -264,6 +258,7 @@ void pull_csr_block_impl(const Policy& policy,
                                        block_info.indexing_ == sparse_indexing::one_based)
                                           ? 1
                                           : -1);
+
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
                                       origin_data,
@@ -322,6 +317,188 @@ void csr_pull_block(const Policy& policy,
     }
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
+
+std::int64_t csr_get_non_zero_count(sycl::queue& queue,
+                                    const std::int64_t row_count,
+                                    const std::int64_t* row_offsets,
+                                    const std::vector<sycl::event>& dependencies) {
+    if (row_count <= 0)
+        return 0;
+
+    std::int64_t first_row_offset{ 0L }, last_row_offset{ 0L };
+    auto first_row_event = copy_usm2host(queue, &first_row_offset, row_offsets, 1, dependencies);
+    auto last_row_event =
+        copy_usm2host(queue, &last_row_offset, row_offsets + row_count, 1, dependencies);
+    sycl::event::wait_and_throw({ first_row_event, last_row_event });
+
+    return (last_row_offset - first_row_offset);
+}
+
+#endif
+
+std::int64_t csr_get_non_zero_count(const std::int64_t row_count, const std::int64_t* row_offsets) {
+    if (row_count <= 0)
+        return 0;
+    return row_offsets[row_count] - row_offsets[0];
+}
+
+std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets) {
+    const std::int64_t row_count = row_offsets.get_count() - 1;
+#ifdef ONEDAL_DATA_PARALLEL
+    auto optional_queue = row_offsets.get_queue();
+    if (optional_queue) {
+        return csr_get_non_zero_count(optional_queue.value(),
+                                      row_count,
+                                      row_offsets.get_data(),
+                                      {});
+    }
+#endif
+    return csr_get_non_zero_count(row_count, row_offsets.get_data());
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+/// Checks that the elements in the array allocated on device are not descending
+///
+/// @tparam T   The type of elements in the input array
+///
+/// @param[in,out] queue        The SYCL* queue object
+/// @param[in]     count        The number of elements in the array
+/// @param[in]     data         The pointer to the input array
+/// @param[in]     dependencies Events indicating availability of the `data` for reading
+///
+/// @return true, if the elements in the array are not descending;
+///         false, otherwise
+template <typename T>
+bool is_sorted(sycl::queue& queue,
+               const std::int64_t count,
+               const T* data,
+               const std::vector<sycl::event>& dependencies) {
+    // number of pairs of the subsequent elements in the data array that are sorted in desccending order,
+    // i.e. for which data[i] > data[i + 1] is true.
+    std::int64_t count_descending_pairs = 0L;
+    sycl::buffer<std::int64_t, 1> count_buf(&count_descending_pairs, sycl::range<1>(1));
+
+    // count the number of pairs of the subsequent elements in the data array that are sorted
+    // in desccending order using sycl::reduction
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(dependencies);
+            auto count_descending_reduction =
+                sycl::reduction(count_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+
+            cgh.parallel_for(sycl::nd_range<1>{ count - 1, 1 },
+                             count_descending_reduction,
+                             [=](sycl::nd_item<1> idx, auto& count_descending) {
+                                 const auto i = idx.get_global_id(0);
+                                 if (data[i] > data[i + 1])
+                                     count_descending.combine(1);
+                             });
+        })
+        .wait_and_throw();
+
+    return (count_descending_pairs == 0);
+}
+
+template <typename T>
+bool is_sorted(const array<T>& arr, const std::vector<sycl::event>& dependencies) {
+    const std::int64_t count = arr.get_count();
+#ifdef ONEDAL_DATA_PARALLEL
+    auto optional_queue = arr.get_queue();
+    if (optional_queue) {
+        return is_sorted(optional_queue.value(), count, arr.get_data(), dependencies);
+    }
+#endif
+    const T* const data = arr.get_data();
+    return std::is_sorted(data, data + count);
+}
+
+#endif
+
+template <typename T>
+out_of_bound_type check_bounds(const array<T>& arr, T min_value, T max_value) {
+    const T* const data = arr.get_data();
+    const auto count = arr.get_count();
+    out_of_bound_type result{ out_of_bound_type::within_bounds };
+    for (std::int64_t i = 0; i < count; ++i) {
+        if (data[i] < min_value) {
+            result = out_of_bound_type::less_than_min;
+            break;
+        }
+        if (data[i] > max_value) {
+            result = out_of_bound_type::greater_than_max;
+            break;
+        }
+    }
+    return result;
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+template <typename T>
+out_of_bound_type check_bounds(const array<T>& arr,
+                               T min_value,
+                               T max_value,
+                               const std::vector<sycl::event>& dependencies) {
+    auto optional_queue = arr.get_queue();
+    if (!optional_queue)
+        return check_bounds(arr, min_value, max_value);
+
+    auto queue = optional_queue.value();
+    const T* const data = arr.get_data();
+    const auto count = arr.get_count();
+
+    // number of elements in the data array that are less than [lt] the min_value,
+    // number of elements in the data array that are greater than [gt] the max_value.
+    std::int64_t count_lt_min = 0L, count_gt_max = 0L;
+    sycl::buffer<std::int64_t, 1> count_lt_buf(&count_lt_min, sycl::range<1>(1));
+    sycl::buffer<std::int64_t, 1> count_gt_buf(&count_gt_max, sycl::range<1>(1));
+
+    // count the number of elements which are less than min_vaule using sycl::reduction
+    auto event_count_lt_min = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(dependencies);
+        auto count_lt_reduction =
+            sycl::reduction(count_lt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+
+        cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
+                         count_lt_reduction,
+                         [=](sycl::nd_item<1> idx, auto& count_lt) {
+                             const auto i = idx.get_global_id(0);
+                             if (data[i] < min_value) {
+                                 count_lt.combine(1);
+                             }
+                         });
+    });
+
+    // count the number of elements which are greater than max_vaule using sycl::reduction
+    auto event_count_gt_max = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(dependencies);
+        auto count_gt_reduction =
+            sycl::reduction(count_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
+
+        cgh.parallel_for(sycl::nd_range<1>{ count, 1 },
+                         count_gt_reduction,
+                         [=](sycl::nd_item<1> idx, auto& count_gt) {
+                             const auto i = idx.get_global_id(0);
+                             if (data[i] > max_value) {
+                                 count_gt.combine(1);
+                             }
+                         });
+    });
+
+    sycl::event::wait_and_throw({ event_count_lt_min, event_count_gt_max });
+
+    out_of_bound_type result{ out_of_bound_type::within_bounds };
+    if (count_lt_min > 0)
+        result = out_of_bound_type::less_than_min;
+    else if (count_gt_max > 0)
+        result = out_of_bound_type::greater_than_max;
+    return result;
+}
+
+#endif
+
 #define INSTANTIATE(Policy, BlockData)                                             \
     template void csr_pull_block(const Policy& policy,                             \
                                  const csr_info& origin_info,                      \
@@ -340,5 +517,19 @@ void csr_pull_block(const Policy& policy,
 INSTANTIATE_HOST_POLICY(float)
 INSTANTIATE_HOST_POLICY(double)
 INSTANTIATE_HOST_POLICY(std::int32_t)
+
+template out_of_bound_type check_bounds(const array<std::int64_t>& arr,
+                                        std::int64_t min_value,
+                                        std::int64_t max_value);
+
+#ifdef ONEDAL_DATA_PARALLEL
+template bool is_sorted(const array<std::int64_t>& arr,
+                        const std::vector<sycl::event>& dependencies);
+template out_of_bound_type check_bounds(const array<std::int64_t>& arr,
+                                        std::int64_t min_value,
+                                        std::int64_t max_value,
+                                        const std::vector<sycl::event>& dependencies);
+
+#endif
 
 } // namespace oneapi::dal::backend
