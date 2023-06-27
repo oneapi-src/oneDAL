@@ -28,6 +28,9 @@ while [[ $# -gt 0 ]]; do
         --target)
         target="$2"
         ;;
+        --backend_config)
+        backend_config="$2"
+        ;;
         --conda-env)
         conda_env="$2"
         ;;
@@ -45,6 +48,7 @@ OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
 optimizations=${optimizations:-avx2}
+backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
@@ -83,8 +87,14 @@ else
 fi
 
 #main actions
-echo "Call mkl and tbb scripts"
-$(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
+echo "Call env scripts"
+if [ "${backend_config}" == "mkl" ]; then
+    $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
+elif [ "${backend_config}" == "ref" ]; then
+    $(pwd)/.ci/env/openblas.sh
+else
+    echo "Not supported backend env"
+fi
 $(pwd)/dev/download_tbb.sh
 echo "Set Java PATH and CPATH from JAVA_HOME=${JAVA_HOME}"
 export PATH=$JAVA_HOME/bin:$PATH
@@ -93,6 +103,7 @@ echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}"
+    BACKEND_CONFIG="${backend_config}"
 err=$?
 
 if [ ${err} -ne 0 ]; then
