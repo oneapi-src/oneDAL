@@ -34,13 +34,12 @@ void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     ONEDAL_ASSERT(liwork > n);
 
     const auto work = ndarray<Float, 1>::empty(lwork);
-    const auto iwork = ndarray<std::int64_t, 1>::empty(liwork);
 
+    sycl::queue queue_;
     Float* work_ptr = work.get_mutable_data();
-    std::int64_t* iwork_ptr = iwork.get_mutable_data();
 
     std::int64_t info;
-    pr::syevd<jobz::vec, uplo::upper>(n, a, lda, w, work_ptr, lwork, iwork_ptr, liwork, info);
+    auto event = syevd<mkl::job::vec, mkl::uplo::upper>(queue_, n, a, lda, w, work_ptr, lwork, {});
 
     if (info != 0) {
         throw internal_error{ dal::detail::error_messages::failed_to_compute_eigenvectors() };

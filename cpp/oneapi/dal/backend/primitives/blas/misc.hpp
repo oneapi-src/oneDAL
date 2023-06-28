@@ -54,7 +54,7 @@ inline constexpr mkl::jobsvd ident_jobsvd(mkl::jobsvd order) {
     constexpr auto vectors = mkl::jobsvd::vectors;
     constexpr auto somevec = mkl::jobsvd::somevec;
     constexpr auto vectorsina = mkl::jobsvd::vectorsina;
-    constexpr auto novec = mkl::job::novec;
+    constexpr auto novec = mkl::jobsvd::novec;
 
     if (order == vectors)
         return vectors;
