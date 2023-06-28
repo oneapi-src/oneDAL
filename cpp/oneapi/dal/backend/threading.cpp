@@ -13,10 +13,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+#define TBB_PREVIEW_TASK_ARENA_CONSTRAINTS_EXTENSION 1
 
 #include "oneapi/dal/backend/threading.hpp"
 
-#define TBB_PREVIEW_TASK_ARENA_CONSTRAINTS_EXTENSION 1
 
 namespace oneapi::dal::backend {
 

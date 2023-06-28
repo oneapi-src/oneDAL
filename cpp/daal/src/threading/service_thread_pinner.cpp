@@ -343,8 +343,6 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
 {
     static bool pinner_created = false;
 
-    std::cout << "pinner_created = " << pinner_created << std::endl;
-
     if (create_pinner == true || pinner_created == true)
     {
         static daal::services::internal::thread_pinner_t thread_pinner(read_topo, deleter, task_arena);
