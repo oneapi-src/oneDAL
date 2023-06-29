@@ -234,8 +234,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     else {
         hist_prop_count = impl_const_t::hist_prop_count_;
     }
-    const auto max_mem_alloc_size =
-        std::min(device_max_mem_alloc_size, std::uint64_t(ctx.max_mem_alloc_size_for_algo_));
 
     std::uint64_t used_mem_size =
         sizeof(Float) * ctx.row_count_ * (ctx.column_count_ + 1); // input table size + response
@@ -247,7 +245,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
         device_global_mem_size > used_mem_size ? device_global_mem_size - used_mem_size : 0;
 
     std::uint64_t available_mem_size_for_tree_block =
-        std::min(max_mem_alloc_size, static_cast<std::uint64_t>(available_global_mem_size));
+        std::min(device_max_mem_alloc_size, static_cast<std::uint64_t>(available_global_mem_size));
 
     std::uint64_t required_mem_size_for_one_tree =
         ctx.oob_required_ ? train_service_kernels_.get_oob_rows_required_mem_size(

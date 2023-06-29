@@ -145,8 +145,6 @@ struct train_context {
     Index tree_in_block_ = 0;
     Index oob_prop_count_ = 0;
 
-    static constexpr inline std::uint64_t max_mem_alloc_size_for_algo_ = 4294967296; // 4 GB
-
     // update _nNode naming
     static constexpr inline Index node_group_count_ = 3;
     // all nodes are split on groups (big, medium, small)
