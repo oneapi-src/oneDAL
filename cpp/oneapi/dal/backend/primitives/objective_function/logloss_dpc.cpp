@@ -523,14 +523,13 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
     auto out_bias = out.get_slice(0, 1);
     auto vec_suf = vec.get_slice(1, p_ + 1);
 
-    sycl::event fill_out_event = copy(q_, out_suf, vec_suf, deps);
-    sycl::event fill_out0_event = fill<Float>(q_, out_bias, Float(0), deps);
+    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
     Float v0 = vec.at_device(q_, 0, deps);
     sycl::event event_xv = gemv(q_, data_, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
 
     sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ event_xv, fill_out_event, fill_out0_event });
+        cgh.depends_on({ event_xv, fill_out_event });
         const auto range = make_range_1d(n_);
         auto sum_reduction = sycl::reduction(out_ptr, sycl::plus<>());
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
@@ -539,8 +538,17 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
         });
     });
     auto event_xtdxv =
-        gemv(q_, data_.t(), buffer_, out_suf, Float(1), L2_ * 2, { event_dxv, fill_out_event });
-    return event_xtdxv;
+        gemv(q_, data_.t(), buffer_, out_suf, Float(1), Float(0), { event_dxv, fill_out_event });
+
+    const Float regularization_factor = L2_ * 2;
+
+    const auto kernel_regularization = [=](const Float a, const Float param) {
+        return a + param * regularization_factor;
+    };
+
+    auto add_regularization_event =
+        element_wise(q_, kernel_regularization, out_suf, vec_suf, out_suf, { event_xtdxv });
+    return add_regularization_event;
 }
 
 template <typename Float>
@@ -551,7 +559,7 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
     ONEDAL_ASSERT(vec.get_dimension(0) == p_);
     ONEDAL_ASSERT(out.get_dimension(0) == p_);
 
-    sycl::event fill_out_event = copy(q_, out, vec, deps);
+    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
     auto event_xv = gemv(q_, data_, vec, buffer_, Float(1), Float(0), deps);
 
@@ -562,8 +570,18 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
         element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
 
     auto event_xtdxv =
-        gemv(q_, data_.t(), buffer_, out, Float(1), L2_ * 2, { event_dxv, fill_out_event });
-    return event_xtdxv;
+        gemv(q_, data_.t(), buffer_, out, Float(1), Float(0), { event_dxv, fill_out_event });
+
+    const Float regularization_factor = L2_ * 2;
+
+    const auto kernel_regularization = [=](const Float a, const Float param) {
+        return a + param * regularization_factor;
+    };
+
+    auto add_regularization_event =
+        element_wise(q_, kernel_regularization, out, vec, out, { event_xtdxv });
+
+    return add_regularization_event;
 }
 
 template <typename Float>
