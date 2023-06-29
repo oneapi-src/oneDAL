@@ -130,11 +130,11 @@ auto compute_correlation_from_covariance(sycl::queue& q,
 }
 
 template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
+auto compute_eigenvectors(sycl::queue& q,
+                          pr::ndarray<Float, 2>&& corr,
+                          std::int64_t component_count,
+                          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvectors);
     ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
@@ -144,8 +144,8 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
 
-    auto host_corr = corr.to_host(q, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+    auto host_corr = corr;
+    pr::sym_eigvals_descending(q, host_corr, component_count, eigvecs, eigvals);
 
     return std::make_tuple(eigvecs, eigvals);
 }
@@ -203,7 +203,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
             compute_correlation_from_covariance(q_, rows_count_global, cov, { gemm_event });
 
         auto [eigvecs, eigvals] =
-            compute_eigenvectors_on_host(q_, std::move(corr), component_count, { corr_event });
+            compute_eigenvectors(q_, std::move(corr), component_count, { corr_event });
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }
