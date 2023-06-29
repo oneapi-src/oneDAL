@@ -355,10 +355,10 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
     // Regression task with double precision requires more memory to handle atomic operations
     const std::int64_t float_factor =
-        sizeof(Float) == 4 && std::is_same_v<Task, task::regression> ? 1 : 4;
+        sizeof(Float) == 4 && std::is_same_v<Task, task::regression> ? 1 : 8;
     // Compute memory requirements depending on task and device specs
     const std::int64_t bin_local_mem_size =
-        2 * float_factor * (hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t));
+        2 * float_factor * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
     const std::int64_t common_local_data_size = 2 * hist_prop_count * sizeof(hist_type_t);
     std::int64_t bin_cnt_per_krn =
         (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
@@ -366,7 +366,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     bin_cnt_per_krn = std::min<std::int64_t>(bin_cnt_per_krn, all_bin_count);
     const std::int64_t local_hist_size = bin_cnt_per_krn * hist_prop_count;
     const std::int64_t local_splits_size = bin_cnt_per_krn;
-    const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), bin_cnt_per_krn);
+    bin_cnt_per_krn = std::min<Index>(bk::device_max_wg_size(queue), bin_cnt_per_krn);
+    const Index local_size = bin_cnt_per_krn;
+    // const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), bin_cnt_per_krn);
 
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
@@ -450,11 +452,27 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         local_hist_size + (local_ftr_idx * max_bin_size + bin) * hist_prop_count;
 
                     if constexpr (std::is_same_v<Task, task::classification>) {
-                        bk::atomic_local_add(local_hist_ptr + cur_hist_pos + response_int, 1);
+                        sycl::atomic_ref<Index,
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
+                            hist_resp(local_hist[cur_hist_pos + response_int]);
+                        hist_resp += 1;
                     }
                     else {
-                        bk::atomic_local_add<Float>(local_hist_ptr + cur_hist_pos, Float(1));
-                        bk::atomic_local_add<Float>(local_hist_ptr + cur_hist_pos + 1, response);
+                        sycl::atomic_ref<Float,
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
+                            hist_count(local_hist[cur_hist_pos + 0]);
+                        hist_count += 1;
+
+                        sycl::atomic_ref<Float,
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
+                            hist_sum(local_hist[cur_hist_pos + 1]);
+                        hist_sum += response;
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
@@ -485,7 +503,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         Float resp_sum = cur_hist[1];
                         Float mean = resp_sum / count;
                         Float mse = (response - mean) * (response - mean);
-                        bk::atomic_local_add<Float>(local_hist_ptr + cur_hist_pos + 2, mse);
+                        sycl::atomic_ref<Float,
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
+                            hist_s2c(local_hist[cur_hist_pos + 2]);
+                        hist_s2c += mse;
                     }
                     item.barrier(sycl::access::fence_space::local_space);
                 }
