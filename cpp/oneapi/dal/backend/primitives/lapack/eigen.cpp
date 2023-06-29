@@ -38,12 +38,12 @@ void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     sycl::queue queue_;
     Float* work_ptr = work.get_mutable_data();
 
-    std::int64_t info;
+    // std::int64_t info;
     auto event = syevd<mkl::job::vec, mkl::uplo::upper>(queue_, n, a, lda, w, work_ptr, lwork, {});
 
-    if (info != 0) {
-        throw internal_error{ dal::detail::error_messages::failed_to_compute_eigenvectors() };
-    }
+    // if (info != 0) {
+    //     throw internal_error{ dal::detail::error_messages::failed_to_compute_eigenvectors() };
+    // }
 }
 
 template <typename Float>
