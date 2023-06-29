@@ -540,15 +540,15 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
     auto event_xtdxv =
         gemv(q_, data_.t(), buffer_, out_suf, Float(1), Float(0), { event_dxv, fill_out_event });
 
-    const Float regul_factor = Float(L2_ * 2);
+    const Float regularization_factor = L2_ * 2;
 
-    const auto kernel_regul = [=](const Float a, const Float param) {
-        return a + param * regul_factor;
+    const auto kernel_regularization = [=](const Float a, const Float param) {
+        return a + param * regularization_factor;
     };
 
-    auto add_regul_event =
-        element_wise(q_, kernel_regul, out_suf, vec_suf, out_suf, { event_xtdxv });
-    return add_regul_event;
+    auto add_regularization_event =
+        element_wise(q_, kernel_regularization, out_suf, vec_suf, out_suf, { event_xtdxv });
+    return add_regularization_event;
 }
 
 template <typename Float>
@@ -572,15 +572,16 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
     auto event_xtdxv =
         gemv(q_, data_.t(), buffer_, out, Float(1), Float(0), { event_dxv, fill_out_event });
 
-    const Float regul_factor = Float(L2_ * 2);
+    const Float regularization_factor = L2_ * 2;
 
-    const auto kernel_regul = [=](const Float a, const Float param) {
-        return a + param * regul_factor;
+    const auto kernel_regularization = [=](const Float a, const Float param) {
+        return a + param * regularization_factor;
     };
 
-    auto add_regul_event = element_wise(q_, kernel_regul, out, vec, out, { event_xtdxv });
+    auto add_regularization_event =
+        element_wise(q_, kernel_regularization, out, vec, out, { event_xtdxv });
 
-    return add_regul_event;
+    return add_regularization_event;
 }
 
 template <typename Float>
