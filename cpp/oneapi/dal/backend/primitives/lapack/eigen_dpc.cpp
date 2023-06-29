@@ -46,6 +46,7 @@ sycl::event sym_eigvals_impl(sycl::queue& q,
     return event;
 }
 
+template <typename Float>
 sycl::event flip_eigvals_impl(sycl::queue& q,
                               Float* a,
                               Float* w,
