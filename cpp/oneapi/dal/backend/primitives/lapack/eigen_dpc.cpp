@@ -25,7 +25,7 @@ sycl::event sym_eigvals_impl(sycl::queue& q,
                              std::int64_t n,
                              std::int64_t lda,
                              Float* w,
-                             const event_vector& deps = {}) {
+                             const event_vector& deps) {
     ONEDAL_ASSERT(a);
     ONEDAL_ASSERT(w);
     ONEDAL_ASSERT(n > 0);
@@ -41,7 +41,7 @@ sycl::event sym_eigvals_impl(sycl::queue& q,
 
     Float* work_ptr = work.get_mutable_data();
 
-    auto event = syevd<mkl::job::vec, mkl::uplo::upper>(q, n, a, lda, w, work_ptr, lwork, {});
+    auto event = syevd<mkl::job::vec, mkl::uplo::upper>(q, n, a, lda, w, work_ptr, lwork, deps);
 
     return event;
 }
@@ -55,7 +55,7 @@ sycl::event flip_eigvals_impl(sycl::queue& q,
                               float* a_flipped,
                               std::int64_t lda_flipped,
                               float* w_flipped,
-                              const event_vector& deps = {}) {
+                              const event_vector& deps) {
     ONEDAL_ASSERT(a);
     ONEDAL_ASSERT(w);
     ONEDAL_ASSERT(a_flipped);
@@ -71,7 +71,7 @@ sycl::event flip_eigvals_impl(sycl::queue& q,
         auto a_flipped_accessor = a_flipped;
         auto w_flipped_accessor = w_flipped;
 
-        cgh.depends_on(dep);
+        cgh.depends_on(deps);
 
         cgh.parallel_for(cl::sycl::range<1>(n / 2), [=](cl::sycl::id<1> idx) {
             const std::int64_t i = idx[0];
