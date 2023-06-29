@@ -47,14 +47,14 @@ sycl::event sym_eigvals_impl(sycl::queue& q,
 }
 
 sycl::event flip_eigvals_impl(sycl::queue& q,
-                              float* a,
-                              float* w,
+                              Float* a,
+                              Float* w,
                               std::int64_t n,
                               std::int64_t lda,
                               std::int64_t w_count,
-                              float* a_flipped,
+                              Float* a_flipped,
                               std::int64_t lda_flipped,
-                              float* w_flipped,
+                              Float* w_flipped,
                               const event_vector& deps) {
     ONEDAL_ASSERT(a);
     ONEDAL_ASSERT(w);
@@ -99,6 +99,17 @@ sycl::event flip_eigvals_impl(sycl::queue& q,
     });
 }
 
+#define INSTANTIATE_SYM(Float)                                 \
+    template sycl::event sym_eigvals_impl<Float>(sycl::queue&, \
+                                                 Float*,       \
+                                                 std::int64_t, \
+                                                 std::int64_t, \
+                                                 Float*,       \
+                                                 const event_vector&);
+
+INSTANTIATE_SYM(float)
+INSTANTIATE_SYM(double)
+
 #define INSTANTIATE_FLIP(Float)                                 \
     template sycl::event flip_eigvals_impl<Float>(sycl::queue&, \
                                                   Float*,       \
@@ -113,16 +124,5 @@ sycl::event flip_eigvals_impl(sycl::queue& q,
 
 INSTANTIATE_FLIP(float)
 INSTANTIATE_FLIP(double)
-
-#define INSTANTIATE_SYM(Float)                                 \
-    template sycl::event sym_eigvals_impl<Float>(sycl::queue&, \
-                                                 Float*,       \
-                                                 std::int64_t, \
-                                                 std::int64_t, \
-                                                 Float*,       \
-                                                 const event_vector&);
-
-INSTANTIATE_SYM(float)
-INSTANTIATE_SYM(double)
 
 } // namespace oneapi::dal::backend::primitives
