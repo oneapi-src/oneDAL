@@ -97,6 +97,7 @@ auto svd_decomposition(sycl::queue& q,
     return std::make_tuple(U, S, V_T);
 }
 
+template <typename Float>
 result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto* data = input.get_data();
@@ -108,7 +109,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
-    pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, *data, pr::alloc::device);
+    pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, *data, alloc::device);
     //sycl::event mean_center_event;
     // {
     //     ONEDAL_PROFILER_TASK(elementwise_difference, q_);
@@ -116,7 +117,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     //                                                    mean_centered_data_nd);
     // }
 
-    auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, pr::alloc::device);
+    auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, q_);

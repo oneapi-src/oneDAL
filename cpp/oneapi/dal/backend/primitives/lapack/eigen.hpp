@@ -27,7 +27,7 @@ sycl::event sym_eigvals_impl(sycl::queue& q,
                              std::int64_t n,
                              std::int64_t lda,
                              Float* w,
-                             const event_vector& deps);
+                             const event_vector& deps = {});
 
 template <typename Float>
 sycl::event flip_eigvals_impl(sycl::queue& queue,
@@ -39,7 +39,7 @@ sycl::event flip_eigvals_impl(sycl::queue& queue,
                               Float* a_flipped,
                               std::int64_t lda_flipped,
                               Float* w_flipped,
-                              const event_vector& deps);
+                              const event_vector& deps = {});
 
 /// Computes eigenvectors and eigenvalues in-place.
 ///
