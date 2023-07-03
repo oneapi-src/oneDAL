@@ -20,16 +20,32 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, typename HessProduct>
-sycl::event cg_solve(sycl::event& queue,
-                     HessProduct& hessp,
+template <typename Float, typename MatrixOperator>
+sycl::event cg_solve(sycl::queue& queue,
+                     MatrixOperator& mul_operator,
                      const ndview<Float, 1>& b,
                      ndview<Float, 1>& x,
                      ndview<Float, 1>& residual,
                      ndview<Float, 1>& conj_vector,
+                     ndview<Float, 1>& buffer,
                      const Float tol = 1e-5,
                      const Float atol = -1,
                      const std::int32_t maxiter = 100,
                      const event_vector& deps = {});
+
+template <typename Float>
+class matrix_operator {
+public:
+    matrix_operator(sycl::queue& q,
+               const ndview<Float, 2>& A);
+
+    sycl::event operator()(const ndview<Float, 1>& vec,
+                           ndview<Float, 1>& out,
+                           const event_vector& deps = {});
+
+private:
+    sycl::queue q_;
+    const ndview<Float, 2> A_;
+};
 
 } // namespace oneapi::dal::backend::primitives
