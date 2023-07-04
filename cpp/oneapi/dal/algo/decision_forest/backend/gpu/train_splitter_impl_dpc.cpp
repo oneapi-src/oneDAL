@@ -348,31 +348,35 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
     const Index selected_ftr_count = ctx.selected_ftr_count_;
-    const Index max_bin_size = ctx.max_bin_count_among_ftrs_;
+    const Index bin_count = ctx.max_bin_count_among_ftrs_;
     const Index node_in_block_count = node_count;
 
     auto device = queue.get_device();
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
-    // Regression task with double precision requires more memory to handle atomic operations
-    const std::int64_t float_factor =
-        sizeof(Float) == 4 && std::is_same_v<Task, task::regression> ? 1 : 8;
+    // Regression task with double precision requires different memory size
+    // to handle atomic operations
+    // float factor is aligned with Intel(R) Data Center GPU Max 1100 L1 cache
+    // to achive best perfomance
+    std::int64_t float_factor =
+        sizeof(Float) == 4 && std::is_same_v<Task, task::regression> ? 32 : 16;
+    float_factor = std::is_same_v<Task, task::regression> ? float_factor : 4;
     // Compute memory requirements depending on task and device specs
     const std::int64_t bin_local_mem_size =
         2 * float_factor * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
     const std::int64_t common_local_data_size = 2 * hist_prop_count * sizeof(hist_type_t);
-    std::int64_t bin_cnt_per_krn =
-        (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
-    const Index all_bin_count = selected_ftr_count * max_bin_size;
-    bin_cnt_per_krn = std::min<std::int64_t>(bin_cnt_per_krn, all_bin_count);
-    const std::int64_t local_hist_size = bin_cnt_per_krn * hist_prop_count;
-    const std::int64_t local_splits_size = bin_cnt_per_krn;
-    const Index local_size = std::min<Index>(bk::device_max_wg_size(queue), bin_cnt_per_krn);
+    std::int64_t batch_size = (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
+    const Index all_bin_count = selected_ftr_count * bin_count;
+    batch_size = std::min<std::int64_t>(batch_size, all_bin_count);
+    const std::int64_t local_hist_size = batch_size * hist_prop_count;
+    const std::int64_t local_splits_size = batch_size;
+    const Index local_size = bk::device_max_wg_size(queue);
 
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        local_accessor_rw_t<hist_type_t> local_hist(2 * local_hist_size, cgh);
+        local_accessor_rw_t<hist_type_t> local_hist(local_hist_size, cgh);
+        local_accessor_rw_t<hist_type_t> buf_hist(local_hist_size, cgh);
         local_accessor_rw_t<split_scalar_t> scalars_buf(local_splits_size, cgh);
         local_accessor_rw_t<hist_type_t> best_split_hist(hist_prop_count, cgh);
         local_accessor_rw_t<hist_type_t> last_bin_prev_batch(hist_prop_count, cgh);
@@ -396,32 +400,35 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 global_bs.init_clear(best_split_hist.get_pointer().get(), hist_prop_count);
             }
             hist_type_t* const local_hist_ptr = local_hist.get_pointer().get();
-            hist_type_t* const tmp_hist_ptr = local_hist_ptr + local_hist_size;
+            hist_type_t* const buf_hist_ptr = buf_hist.get_pointer().get();
             hist_type_t* const last_bin = last_bin_prev_batch.get_pointer().get();
             split_scalar_t* const scalars_buf_ptr = scalars_buf.get_pointer().get();
             Index* const last_bin_idx_ptr = last_bin_index.get_pointer().get();
             // Due to local memory limitations need to proccess smaller blocks of features
-            for (Index gbin_ofs = 0; gbin_ofs < all_bin_count; gbin_ofs += bin_cnt_per_krn) {
-                const Index ftr_ofs = gbin_ofs / max_bin_size;
-                const Index bin_ofs = Index(gbin_ofs > 0) * last_bin_idx_ptr[0];
-                const Index new_bin_ofs = (gbin_ofs - (max_bin_size - bin_ofs)) % max_bin_size;
-
+            for (Index batch_idx = 0; batch_idx < all_bin_count; batch_idx += batch_size) {
                 const Index real_bin_count =
-                    sycl::min<Index>(all_bin_count - gbin_ofs, bin_cnt_per_krn);
+                    sycl::min<Index>(all_bin_count - batch_idx, batch_size);
+                const Index ftr_ofs = batch_idx / bin_count;
+                const Index bin_ofs = Index(batch_idx > 0) * last_bin_idx_ptr[0];
+                const Index rest_bins = bin_count - bin_ofs;
+                const Index new_bin_ofs = (real_bin_count + bin_ofs) % bin_count;
+
                 // Clear local memory before use
-                for (Index work_bin = local_id; work_bin < bin_cnt_per_krn;
-                     work_bin += local_size) {
+                for (Index work_bin = local_id; work_bin < real_bin_count; work_bin += local_size) {
                     scalars_buf_ptr[work_bin].clear();
                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
                         local_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
-                        tmp_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
+                    }
+                    for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
+                        buf_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
                 // Calculate histogram
-                Index batch_ftr_count = sycl::max<Index>(1, real_bin_count / max_bin_size);
-                Index working_items = batch_ftr_count * row_count;
-                Index rows_per_item = working_items / local_size + bool(working_items % local_size);
+                const Index batch_ftr_count = sycl::max(1, real_bin_count / bin_count) + 2;
+                const Index working_items = batch_ftr_count * row_count;
+                const Index rows_per_item =
+                    working_items / local_size + bool(working_items % local_size);
                 for (Index idx = local_id * rows_per_item;
                      idx < (local_id + 1) * rows_per_item && idx < working_items;
                      ++idx) {
@@ -436,25 +443,22 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     // be processed in current batch
                     const Index bin = data_ptr[id * column_count + ts_ftr_id] -
                                       Index(local_ftr_idx == 0) * bin_ofs;
-                    if (local_ftr_idx == 0 || local_ftr_idx == (batch_ftr_count - 1)) {
-                        if (bin < 0 || bin >= bin_cnt_per_krn ||
-                            (local_ftr_idx == (batch_ftr_count - 1) && bin > new_bin_ofs) ||
-                            (local_ftr_idx == 0 && bin >= (max_bin_size - bin_ofs))) {
-                            continue;
-                        }
+                    if (bin < 0 || (local_ftr_idx == (batch_ftr_count - 1) && bin >= new_bin_ofs)) {
+                        continue;
                     }
                     const Float response = response_ptr[id];
                     const Index response_int = static_cast<Index>(response);
 
-                    const Index cur_hist_pos =
-                        local_hist_size + (local_ftr_idx * max_bin_size + bin) * hist_prop_count;
-
+                    const Index cur_hist_pos = (local_ftr_idx * bin_count + bin) * hist_prop_count;
+                    if ((cur_hist_pos + hist_prop_count) >= local_hist_size) {
+                        break;
+                    }
                     if constexpr (std::is_same_v<Task, task::classification>) {
                         sycl::atomic_ref<Index,
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
                                          sycl::access::address_space::local_space>
-                            hist_resp(local_hist[cur_hist_pos + response_int]);
+                            hist_resp(buf_hist[cur_hist_pos + response_int]);
                         hist_resp += 1;
                     }
                     else {
@@ -462,14 +466,14 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
                                          sycl::access::address_space::local_space>
-                            hist_count(local_hist[cur_hist_pos + 0]);
+                            hist_count(buf_hist[cur_hist_pos + 0]);
                         hist_count += 1;
 
                         sycl::atomic_ref<Float,
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
                                          sycl::access::address_space::local_space>
-                            hist_sum(local_hist[cur_hist_pos + 1]);
+                            hist_sum(buf_hist[cur_hist_pos + 1]);
                         hist_sum += response;
                     }
                 }
@@ -489,17 +493,16 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         // be processed in current batch
                         const Index bin = data_ptr[id * column_count + ts_ftr_id] -
                                           Index(local_ftr_idx == 0) * bin_ofs;
-                        if (local_ftr_idx == 0 || local_ftr_idx == (batch_ftr_count - 1)) {
-                            if (bin < 0 || bin >= bin_cnt_per_krn ||
-                                (local_ftr_idx == (batch_ftr_count - 1) && bin > new_bin_ofs) ||
-                                (local_ftr_idx == 0 && bin >= (max_bin_size - bin_ofs))) {
-                                continue;
-                            }
+                        if (bin < 0 ||
+                            (local_ftr_idx == (batch_ftr_count - 1) && bin >= new_bin_ofs)) {
+                            continue;
                         }
                         Float response = response_ptr[id];
                         const Index cur_hist_pos =
-                            local_hist_size +
-                            (local_ftr_idx * max_bin_size + bin) * hist_prop_count;
+                            (local_ftr_idx * bin_count + bin) * hist_prop_count;
+                        if ((cur_hist_pos + hist_prop_count) >= local_hist_size) {
+                            break;
+                        }
                         hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
                         Float count = cur_hist[0];
                         Float resp_sum = cur_hist[1];
@@ -509,30 +512,33 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
                                          sycl::access::address_space::local_space>
-                            hist_s2c(local_hist[cur_hist_pos + 2]);
+                            hist_s2c(buf_hist[cur_hist_pos + 2]);
                         hist_s2c += mse;
                     }
                     item.barrier(sycl::access::fence_space::local_space);
                 }
-                // Load last bin if it is required
-                if (local_id == 0 && bin_ofs > 0) {
-                    for (Index cls = 0; cls < hist_prop_count; ++cls) {
-                        local_hist_ptr[cls] = last_bin[cls];
-                    }
-                }
                 split_info_t ts;
                 // Finilize histograms
                 for (Index work_bin = local_id; work_bin < real_bin_count; work_bin += local_size) {
-                    Index local_ftr_idx = work_bin / max_bin_size;
+                    Index local_ftr_idx = (work_bin + bin_ofs) / bin_count;
                     Index global_ftr_idx = ftr_ofs + local_ftr_idx;
 
-                    Index cur_bin = work_bin % max_bin_size;
+                    Index cur_bin =
+                        (work_bin - Index(local_ftr_idx > 0 && bin_ofs > 0) * rest_bins) %
+                        bin_count;
                     const Index cur_hist_pos = work_bin * hist_prop_count;
                     hist_type_t* const cur_hist = local_hist_ptr + cur_hist_pos;
                     hist_type_t* const ftr_hist =
-                        tmp_hist_ptr + (work_bin - cur_bin) * hist_prop_count;
-                    // Collect all hists on the left side of the current bin
+                        buf_hist_ptr + (work_bin - cur_bin) * hist_prop_count;
                     Index left_count = 0;
+                    // Load last bin if it is required
+                    if (local_ftr_idx == 0 && bin_ofs > 0) {
+                        for (Index cls = 0; cls < hist_prop_count; ++cls) {
+                            cur_hist[cls] = last_bin[cls];
+                            left_count += Index(cur_hist[cls]);
+                        }
+                    }
+                    // Collect all hists on the left side of the current bin
                     if constexpr (std::is_same_v<Task, task::classification>) {
                         for (Index bin_idx = 0; bin_idx <= cur_bin; ++bin_idx) {
                             for (Index cls = 0; cls < hist_prop_count; ++cls) {
@@ -566,7 +572,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     // Save last bin to proccess rest bins in next batch
                     if (work_bin == (real_bin_count - 1)) {
                         for (Index cls = 0; cls < hist_prop_count; ++cls) {
-                            last_bin[cls] = Index(new_bin_ofs > 0) * cur_hist[cls];
+                            last_bin[cls] = cur_hist[cls];
                         }
                         last_bin_idx_ptr[0] = new_bin_ofs;
                     }
