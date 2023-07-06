@@ -443,38 +443,34 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     // be processed in current batch
                     const Index bin = data_ptr[id * column_count + ts_ftr_id] -
                                       Index(local_ftr_idx == 0) * bin_ofs;
-                    if (bin < 0 || (local_ftr_idx == (batch_ftr_count - 1) && bin >= new_bin_ofs)) {
-                        continue;
-                    }
                     const Float response = response_ptr[id];
                     const Index response_int = static_cast<Index>(response);
 
                     const Index cur_hist_pos = (local_ftr_idx * bin_count + bin) * hist_prop_count;
-                    if ((cur_hist_pos + hist_prop_count) >= local_hist_size) {
-                        break;
-                    }
-                    if constexpr (std::is_same_v<Task, task::classification>) {
-                        sycl::atomic_ref<Index,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_resp(buf_hist[cur_hist_pos + response_int]);
-                        hist_resp += 1;
-                    }
-                    else {
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_count(buf_hist[cur_hist_pos + 0]);
-                        hist_count += 1;
+                    if (bin >= 0 && (cur_hist_pos + hist_prop_count) < local_hist_size) {
+                        if constexpr (std::is_same_v<Task, task::classification>) {
+                            sycl::atomic_ref<Index,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_resp(buf_hist[cur_hist_pos + response_int]);
+                            hist_resp += 1;
+                        }
+                        else {
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_count(buf_hist[cur_hist_pos + 0]);
+                            hist_count += 1;
 
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_sum(buf_hist[cur_hist_pos + 1]);
-                        hist_sum += response;
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_sum(buf_hist[cur_hist_pos + 1]);
+                            hist_sum += response;
+                        }
                     }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
@@ -493,27 +489,25 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         // be processed in current batch
                         const Index bin = data_ptr[id * column_count + ts_ftr_id] -
                                           Index(local_ftr_idx == 0) * bin_ofs;
-                        if (bin < 0 ||
-                            (local_ftr_idx == (batch_ftr_count - 1) && bin >= new_bin_ofs)) {
+                        if (bin < 0) {
                             continue;
                         }
                         Float response = response_ptr[id];
                         const Index cur_hist_pos =
                             (local_ftr_idx * bin_count + bin) * hist_prop_count;
-                        if ((cur_hist_pos + hist_prop_count) >= local_hist_size) {
-                            break;
+                        if (bin >= 0 && (cur_hist_pos + hist_prop_count) < local_hist_size) {
+                            hist_type_t* cur_hist = buf_hist_ptr + cur_hist_pos;
+                            Float count = cur_hist[0];
+                            Float resp_sum = cur_hist[1];
+                            Float mean = resp_sum / count;
+                            Float mse = (response - mean) * (response - mean);
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_s2c(buf_hist[cur_hist_pos + 2]);
+                            hist_s2c += mse;
                         }
-                        hist_type_t* cur_hist = local_hist_ptr + cur_hist_pos;
-                        Float count = cur_hist[0];
-                        Float resp_sum = cur_hist[1];
-                        Float mean = resp_sum / count;
-                        Float mse = (response - mean) * (response - mean);
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_s2c(buf_hist[cur_hist_pos + 2]);
-                        hist_s2c += mse;
                     }
                     item.barrier(sycl::access::fence_space::local_space);
                 }
