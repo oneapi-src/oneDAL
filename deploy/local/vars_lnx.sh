@@ -213,21 +213,32 @@ fi
 
 # ############################################################################
 my_script_path=$(get_script_path "${vars_script_name:-}")
-component_root=$(dirname -- "${my_script_path}")
+component_root=$(dirname -- "${my_script_path}")/..
 
 __daal_tmp_dir="<INSTALLDIR>"
-__daal_tmp_dir=$__daal_tmp_dir/dal
 if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
-export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
-export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
-export DALROOT=$__daal_tmp_dir
-export DAALROOT=$__daal_tmp_dir
-export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
-export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
-export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
-export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
+case "${my_script_path}" in
+  *"env"*)
+    component_root=$(dirname -- "${my_script_path}")
+    __daal_tmp_dir=${component_root}
+    export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
+    export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
+    export DALROOT=$__daal_tmp_dir
+    export DAALROOT=$__daal_tmp_dir
+    export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
+    export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
+    export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+    export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
+    export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
+    export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
+  ;;
+  *)
+    export DALROOT=$ONEAPI_ROOT
+    export DAALROOT=$ONEAPI_ROOT
+    export CPATH=$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}
+    export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
+  ;;
+esac
