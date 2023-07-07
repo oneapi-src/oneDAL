@@ -175,7 +175,7 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                     split_info_t bs;
 
                     // slm pointers declaration
-                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer();
                     hist_type_t* local_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
                     Float* local_buf_float_ptr =
@@ -479,7 +479,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     split_info<Float, Index, Task> bs;
 
                     // slm pointers declaration
-                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer();
                     hist_type_t* local_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
                     Float* local_buf_float_ptr =
@@ -792,7 +792,7 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     split_info<Float, Index, Task> bs;
 
                     // slm pointers declaration
-                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+                    byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer();
 
                     hist_type_t* local_bs_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr,

@@ -228,7 +228,7 @@ public:
         idx_t pbuff_ids[pbuff_size] = { idx_default };
         std::int32_t pbuff_count, prev_count;
 
-        sel_t* const heaps = heaps_.get_pointer().get();
+        sel_t* const heaps = heaps_.get_pointer();
         sel_t* const curr_heap = heaps + k_ * sid;
 
         // Heap initialization

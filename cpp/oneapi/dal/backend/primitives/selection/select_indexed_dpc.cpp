@@ -102,8 +102,13 @@ sycl::event select_indexed_local(sycl::queue& q,
                                         ? (bid + 1) * block
                                         : src_count;
             sycl::global_ptr<const Type> global((const Type*)(src_ptr + from));
-            sycl::local_ptr<const Type> local((const Type*)(cache.get_pointer().get()));
-            it.async_work_group_copy(local, global, to - from).wait();
+            sycl::local_ptr<const Type> local((const Type*)(cache.get_pointer()));
+            it.async_work_group_copy(
+                  cache.template get_multi_ptr<sycl::access::decorated::yes>(),
+                  sycl::address_space_cast<sycl::access::address_space::global_space,
+                                           sycl::access::decorated::yes>(src_ptr + from),
+                  to - from)
+                .wait();
             const auto cid = it.get_global_id(1);
             for (std::int32_t r = 0; r < row_count; ++r) {
                 const auto idx = *(ids_ptr + ids_str * r + cid);

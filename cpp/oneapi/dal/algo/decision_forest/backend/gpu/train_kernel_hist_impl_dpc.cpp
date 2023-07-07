@@ -901,7 +901,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
             const Index* node_tree_order_ptr = &tree_order_ptr[row_offset];
 
             hist_type_t* local_buf_ptr = nullptr;
-            local_buf_ptr = local_buf.get_pointer().get();
+            local_buf_ptr = local_buf.get_pointer();
             if (use_private_mem_buf) {
                 compute_hist_for_node<Float, Index, true>(item,
                                                           ind_start,
@@ -977,7 +977,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
 
             const Index* node_tree_order_ptr = &tree_order_ptr[row_offset];
 
-            Float* local_buf_ptr = local_buf.get_pointer().get();
+            Float* local_buf_ptr = local_buf.get_pointer();
 
             Float sum = Float(0);
             for (Index i = local_id; i < row_count; i += local_size) {
@@ -1053,7 +1053,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
 
             const Float mean = sum_list_ptr[node_id] / global_row_count;
 
-            Float* local_buf_ptr = local_buf.get_pointer().get();
+            Float* local_buf_ptr = local_buf.get_pointer();
 
             Float sum2cent = Float(0);
             for (Index i = local_id; i < row_count; i += local_size) {
@@ -2186,7 +2186,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
             const Index local_id = item.get_local_id()[1];
             const Index local_size = item.get_local_range()[1];
 
-            hist_type_t* buf_ptr = buf.get_pointer().get();
+            hist_type_t* buf_ptr = buf.get_pointer();
 
             for (Index prop = 0; prop < hist_prop_count; ++prop) {
                 buf_ptr[local_id * hist_prop_count + prop] = 0;
@@ -2265,7 +2265,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
             const Index local_id = item.get_local_id()[1];
             const Index local_size = item.get_local_range()[1];
 
-            Float* buf_ptr = buf.get_pointer().get();
+            Float* buf_ptr = buf.get_pointer();
 
             for (Index prop = 0; prop < hist_prop_count; ++prop) {
                 buf_ptr[local_id * hist_prop_count + prop] = 0;
