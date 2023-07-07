@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
-#include <iostream>
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel_hist_impl.hpp"
@@ -234,7 +234,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     else {
         hist_prop_count = impl_const_t::hist_prop_count_;
     }
-    std::cout << "DATASET SIZE: " << ctx.row_count_ * (ctx.column_count_ + 1) << std::endl;
+
     std::uint64_t used_mem_size =
         sizeof(Float) * ctx.row_count_ * (ctx.column_count_ + 1); // input table size + response
     used_mem_size +=

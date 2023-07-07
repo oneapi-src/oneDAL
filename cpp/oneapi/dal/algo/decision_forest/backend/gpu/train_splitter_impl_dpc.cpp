@@ -359,7 +359,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     // to achive best perfomance
     std::int64_t float_factor =
         sizeof(Float) == 4 && std::is_same_v<Task, task::regression> ? 32 : 16;
-    float_factor = std::is_same_v<Task, task::regression> ? float_factor : 4;
+    float_factor = std::is_same_v<Task, task::regression> ? float_factor : 2;
     // Compute memory requirements depending on task and device specs
     const std::int64_t bin_local_mem_size =
         2 * float_factor * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
@@ -410,7 +410,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     sycl::min<Index>(all_bin_count - batch_idx, batch_size);
                 const Index ftr_ofs = batch_idx / bin_count;
                 const Index bin_ofs = Index(batch_idx > 0) * last_bin_idx_ptr[0];
-                const Index rest_bins = bin_count - bin_ofs;
                 const Index new_bin_ofs = (real_bin_count + bin_ofs) % bin_count;
 
                 // Clear local memory before use
@@ -443,12 +442,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     // be processed in current batch
                     const Index bin = data_ptr[id * column_count + ts_ftr_id] -
                                       Index(local_ftr_idx == 0) * bin_ofs;
-                    const Float response = response_ptr[id];
-                    const Index response_int = static_cast<Index>(response);
 
                     const Index cur_hist_pos = (local_ftr_idx * bin_count + bin) * hist_prop_count;
                     if (bin >= 0 && (cur_hist_pos + hist_prop_count) < local_hist_size) {
+                        const Float response = response_ptr[id];
                         if constexpr (std::is_same_v<Task, task::classification>) {
+                            const Index response_int = static_cast<Index>(response);
                             sycl::atomic_ref<Index,
                                              sycl::memory_order_relaxed,
                                              sycl::memory_scope_work_group,
@@ -489,18 +488,15 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         // be processed in current batch
                         const Index bin = data_ptr[id * column_count + ts_ftr_id] -
                                           Index(local_ftr_idx == 0) * bin_ofs;
-                        if (bin < 0) {
-                            continue;
-                        }
-                        Float response = response_ptr[id];
                         const Index cur_hist_pos =
                             (local_ftr_idx * bin_count + bin) * hist_prop_count;
                         if (bin >= 0 && (cur_hist_pos + hist_prop_count) < local_hist_size) {
+                            const Float response = response_ptr[id];
                             hist_type_t* cur_hist = buf_hist_ptr + cur_hist_pos;
-                            Float count = cur_hist[0];
-                            Float resp_sum = cur_hist[1];
-                            Float mean = resp_sum / count;
-                            Float mse = (response - mean) * (response - mean);
+                            const Float count = cur_hist[0];
+                            const Float resp_sum = cur_hist[1];
+                            const Float mean = resp_sum / count;
+                            const Float mse = (response - mean) * (response - mean);
                             sycl::atomic_ref<Float,
                                              sycl::memory_order_relaxed,
                                              sycl::memory_scope_work_group,
@@ -514,10 +510,10 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 split_info_t ts;
                 // Finilize histograms
                 for (Index work_bin = local_id; work_bin < real_bin_count; work_bin += local_size) {
-                    Index local_ftr_idx = (work_bin + bin_ofs) / bin_count;
-                    Index global_ftr_idx = ftr_ofs + local_ftr_idx;
-
-                    Index cur_bin =
+                    const Index local_ftr_idx = (work_bin + bin_ofs) / bin_count;
+                    const Index global_ftr_idx = ftr_ofs + local_ftr_idx;
+                    const Index rest_bins = bin_count - bin_ofs;
+                    const Index cur_bin =
                         (work_bin - Index(local_ftr_idx > 0 && bin_ofs > 0) * rest_bins) %
                         bin_count;
                     const Index cur_hist_pos = work_bin * hist_prop_count;
@@ -548,12 +544,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             if (iter_left_hist[0] <= Float(0)) {
                                 continue;
                             }
-                            Float source_mean = iter_left_hist[1] / iter_left_hist[0];
-                            Float sum_n1n2 = cur_hist[0] + iter_left_hist[0];
-                            Float mul_n1n2 = cur_hist[0] * iter_left_hist[0];
-                            Float delta_scl = mul_n1n2 / sum_n1n2;
-                            Float mean_scl = Float(1) / sum_n1n2;
-                            Float delta = source_mean - cur_hist[1];
+                            const Float source_mean = iter_left_hist[1] / iter_left_hist[0];
+                            const Float sum_n1n2 = cur_hist[0] + iter_left_hist[0];
+                            const Float mul_n1n2 = cur_hist[0] * iter_left_hist[0];
+                            const Float delta_scl = mul_n1n2 / sum_n1n2;
+                            const Float mean_scl = Float(1) / sum_n1n2;
+                            const Float delta = source_mean - cur_hist[1];
 
                             cur_hist[2] =
                                 cur_hist[2] + iter_left_hist[2] + delta * delta * delta_scl;
