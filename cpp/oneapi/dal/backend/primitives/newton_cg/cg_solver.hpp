@@ -36,8 +36,7 @@ sycl::event cg_solve(sycl::queue& queue,
 template <typename Float>
 class matrix_operator {
 public:
-    matrix_operator(sycl::queue& q,
-               const ndview<Float, 2>& A);
+    matrix_operator(sycl::queue& q, const ndview<Float, 2>& A);
 
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,

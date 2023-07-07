@@ -23,45 +23,51 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-matrix_operator<Float>::matrix_operator(sycl::queue& q,
-                              const ndview<Float, 2>& A)
-        : q_(q),
-          A_(A) {
-}
+matrix_operator<Float>::matrix_operator(sycl::queue& q, const ndview<Float, 2>& A) : q_(q),
+                                                                                     A_(A) {}
 
 template <typename Float>
 sycl::event matrix_operator<Float>::operator()(const ndview<Float, 1>& vec,
-                                          ndview<Float, 1>& out,
-                                          const event_vector& deps){
+                                               ndview<Float, 1>& out,
+                                               const event_vector& deps) {
     ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
     ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
-    return gemv(q_, A_, vec, out, Float(1), Float(0), {fill_out_event});
+    return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
 }
 
 template <typename Float>
 sycl::event dot_product(sycl::queue& queue,
                         const ndview<Float, 1>& x,
                         const ndview<Float, 1>& y,
-                        Float* const res_gpu,
-                        Float* const res_host,
+                        Float* res_gpu,
+                        Float* res_host,
                         const event_vector& deps = {}) {
     const std::int64_t n = x.get_dimension(0);
+    auto* x_ptr = x.get_mutable_data();
+    auto* y_ptr = y.get_mutable_data();
     sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.single_task([=](){
+        cgh.single_task([=]() {
             *res_gpu = 0;
         });
     });
-    queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({fill_res_event});
-        const auto range = make_range_1d(n);
-        auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
-        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-            sum += x.at(idx) * y.at(idx);
-        });
-    }).wait_and_throw();
-    return queue.memcpy(res_host, res_gpu, 1);
+    fill_res_event.wait_and_throw();
+
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.depends_on(fill_res_event);
+            const auto range = make_range_1d(n);
+            auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
+            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
+                sum += x_ptr[idx] * y_ptr[idx];
+            });
+        })
+        .wait_and_throw();
+
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.memcpy(res_host, res_gpu, sizeof(Float));
+    });
 }
 
 template <typename Float, typename MatrixOperator>
@@ -87,80 +93,112 @@ sycl::event cg_solve(sycl::queue& queue,
     ONEDAL_ASSERT(residual.get_dimension(0) == p);
     ONEDAL_ASSERT(conj_vector.get_dimension(0) == p);
     ONEDAL_ASSERT(buffer.get_dimension(0) == p);
-    
-    
 
     Float alpha = 0, beta = 0;
     Float r_norm = 0, b_norm = 0;
 
-    const auto kernel_minus = [=](const Float& a, const Float& b) -> Float {
+    const auto kernel_minus = [=](const Float a, const Float b) -> Float {
         return a - b;
     };
 
-    const auto update_conj_kernel = [=](const Float& residual_val, const Float& conj_val) -> Float {
-        return -residual_val + beta * conj_val;
-    };
+    auto compute_ax0_event = mul_operator(x, residual, deps); // r = Ax0
 
-    const auto update_x_kernel = [=](const Float& x_val, const Float& conj_val) -> Float {
-        return x_val + alpha * conj_val;
-    };
-
-    //constexpr sycl::plus<Float> kernel_plus{};
-
-    auto compute_ax0_event = mul_operator(x, residual, deps);  // r = Ax0
-
-    auto compute_r0_event =
-        element_wise(queue, kernel_minus, residual, b, residual, {compute_ax0_event}); // r0 = Ax0 - b
-    
-    auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device); 
+    auto compute_r0_event = element_wise(queue,
+                                         kernel_minus,
+                                         residual,
+                                         b,
+                                         residual,
+                                         { compute_ax0_event }); // r0 = Ax0 - b
+    // compute_r0_event.wait_and_throw();
+    auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
     auto tmp_ptr = tmp_gpu.get_mutable_data();
-    
+
     dot_product<Float>(queue, b, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute b^T b
-    Float threshold = std::max(tol * b_norm, atol);
 
-    
+    // Tolerances for convergence norm(residual) <= max(tol*norm(b), atol)
+    Float threshold = std::max(tol * tol * b_norm, atol * atol);
 
-    auto compute_conj_event = element_wise(queue, update_conj_kernel, residual, conj_vector, conj_vector, {compute_r0_event}); // p0 = -r0 + 0 * p
-    dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, {compute_r0_event}).wait_and_throw(); // compute r^T r
-    
+    const auto init_conj_kernel = [=](const Float residual_val, const Float conj_val) -> Float {
+        return -residual_val;
+    };
+    auto compute_conj_event = element_wise(queue,
+                                           init_conj_kernel,
+                                           residual,
+                                           conj_vector,
+                                           conj_vector,
+                                           { compute_r0_event }); // p0 = -r0 + 0 * p
+    compute_conj_event.wait_and_throw();
+    auto conj_host = conj_vector.to_host(queue, {});
+    dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { compute_r0_event })
+        .wait_and_throw(); // compute r^T r
+
     for (std::int32_t iter_num = 0; iter_num < maxiter; ++iter_num) {
         if (r_norm < threshold) {
             break;
         }
-        auto compute_matmul_event = mul_operator(conj_vector, buffer, {compute_conj_event}); // compute A p_i
-        dot_product<Float>(queue, conj_vector, buffer, tmp_ptr, &alpha, {compute_matmul_event}).wait_and_throw(); // compute p_i^T A p_i
+        auto compute_matmul_event =
+            mul_operator(conj_vector, buffer, { compute_conj_event }); // compute A p_i
+        dot_product<Float>(queue, conj_vector, buffer, tmp_ptr, &alpha, { compute_matmul_event })
+            .wait_and_throw(); // compute p_i^T A p_i
+        ONEDAL_ASSERT(alpha > 1e-15);
         alpha = r_norm / alpha;
-        auto update_x_event = element_wise(queue, update_x_kernel, x, conj_vector, x, {compute_conj_event}); // x_i+1 = x_i + alpha * p_i
-        auto update_residual_event = element_wise(queue, update_x_kernel, residual, buffer, residual, {compute_matmul_event}); // r_i+1 = r_i + alpha * A p_i
+        const auto update_x_kernel = [=](const Float x_val, const Float conj_val) -> Float {
+            return x_val + alpha * conj_val;
+        };
+        auto update_x_event = element_wise(queue,
+                                           update_x_kernel,
+                                           x,
+                                           conj_vector,
+                                           x,
+                                           { compute_conj_event }); // x_i+1 = x_i + alpha * p_i
+        update_x_event.wait_and_throw();
+        auto update_residual_event =
+            element_wise(queue,
+                         update_x_kernel,
+                         residual,
+                         buffer,
+                         residual,
+                         { compute_matmul_event }); // r_i+1 = r_i + alpha * A p_i
+        update_residual_event.wait_and_throw();
         beta = r_norm;
-        dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, {update_residual_event}).wait_and_throw(); // compute r^T r
+        dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { update_residual_event })
+            .wait_and_throw(); // compute r^T r
         beta = r_norm / beta; // beta = r_i+1^T r_i+1 / (r_i^T r_i)
-        compute_conj_event = element_wise(queue, update_conj_kernel, residual, conj_vector, conj_vector, {update_x_event, update_residual_event}); // p_i+1 = -r_i+1 + beta * p_i
+
+        const auto update_conj_kernel = [=](const Float residual_val,
+                                            const Float conj_val) -> Float {
+            return -residual_val + beta * conj_val;
+        };
+        compute_conj_event =
+            element_wise(queue,
+                         update_conj_kernel,
+                         residual,
+                         conj_vector,
+                         conj_vector,
+                         { update_x_event, update_residual_event }); // p_i+1 = -r_i+1 + beta * p_i
     }
     return compute_conj_event;
 }
 
-#define INSTANTIATE(F, MatrixOperator)                                                               \
-template sycl::event cg_solve<F, MatrixOperator>(sycl::queue&,\
-                     MatrixOperator&,\
-                     const ndview<F, 1>&,\
-                     ndview<F, 1>& ,\
-                     ndview<F, 1>& ,\
-                     ndview<F, 1>& ,\
-                     ndview<F, 1>& ,\
-                     const F ,\
-                     const F ,\
-                     const std::int32_t,\
-                     const event_vector&);
+#define INSTANTIATE(F, MatrixOperator)                                    \
+    template sycl::event cg_solve<F, MatrixOperator>(sycl::queue&,        \
+                                                     MatrixOperator&,     \
+                                                     const ndview<F, 1>&, \
+                                                     ndview<F, 1>&,       \
+                                                     ndview<F, 1>&,       \
+                                                     ndview<F, 1>&,       \
+                                                     ndview<F, 1>&,       \
+                                                     const F,             \
+                                                     const F,             \
+                                                     const std::int32_t,  \
+                                                     const event_vector&);
 
 template class matrix_operator<float>;
 template class matrix_operator<double>;
-
 
 INSTANTIATE(float, logloss_hessian_product<float>);
 INSTANTIATE(double, logloss_hessian_product<double>);
 INSTANTIATE(float, matrix_operator<float>);
 INSTANTIATE(double, matrix_operator<double>);
-
 
 } // namespace oneapi::dal::backend::primitives
