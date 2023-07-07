@@ -301,17 +301,19 @@ void csr_pull_block(const Policy& policy,
                     bool preserve_mutability) {
     switch (origin_info.layout_) {
         case data_layout::row_major:
-            pull_csr_block_impl(policy,
-                                origin_info,
-                                block_info,
-                                origin_data,
-                                origin_column_indices,
-                                origin_row_offsets,
-                                data,
-                                column_indices,
-                                row_offsets,
-                                requested_alloc_kind,
-                                preserve_mutability);
+            override_policy(policy, origin_data, data, [&](auto overriden_policy) {
+                pull_csr_block_impl(overriden_policy,
+                                    origin_info,
+                                    block_info,
+                                    origin_data,
+                                    origin_column_indices,
+                                    origin_row_offsets,
+                                    data,
+                                    column_indices,
+                                    row_offsets,
+                                    requested_alloc_kind,
+                                    preserve_mutability);
+            });
             break;
         default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }

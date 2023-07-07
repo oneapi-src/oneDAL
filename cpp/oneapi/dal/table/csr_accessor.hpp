@@ -83,6 +83,42 @@ public:
         return std::make_tuple(data, column_indices, row_offsets);
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Provides access to the rows of the table in CSR format.
+    /// The method return arrays that directly point to the memory within the table
+    /// if it is possible. In that case, the arrays refer to the memory as to immutable data.
+    /// Otherwise, new memory blocks are allocated, the data from the table rows is converted
+    /// and copied into those blocks. In this case, arrays refer to the blocks as to mutable data.
+    ///
+    /// @param[in] queue     The SYCL* queue object.
+    /// @param[in] row_range The range of rows that data is returned from the accessor.
+    /// @param[in] indexing  The indexing scheme used to access the data in the returned arrays
+    ///                      in CSR layout. Should be :literal:`sparse_indexing::zero_based` or
+    ///                      :literal:`sparse_indexing::one_based`.
+    /// @param[in] alloc     The requested kind of USM in the returned block.
+    ///
+    /// @return A tuple of three arrays: values, column indicies and row offsets, that represent a sub-table
+    ///         in CSR format that contain the data from the original table corresponding to the rows from the `row_range`
+    ///         and with the requested indexing scheme.
+    std::tuple<array_d, array_i, array_i> pull(
+        sycl::queue& queue,
+        const range& row_range = { 0, -1 },
+        const sparse_indexing indexing = sparse_indexing::one_based,
+        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
+        array_d data;
+        array_i column_indices;
+        array_i row_offsets;
+        pull_iface_->pull_csr_block(detail::data_parallel_policy{ queue },
+                                    data,
+                                    column_indices,
+                                    row_offsets,
+                                    indexing,
+                                    row_range,
+                                    alloc);
+        return std::make_tuple(data, column_indices, row_offsets);
+    }
+#endif
+
     /// Provides access to the rows of the table in CSR format.
     /// The method return arrays that directly point to the memory within the table
     /// if it is possible. In that case, the arrays refer to the memory as to immutable data.
@@ -123,6 +159,54 @@ public:
                                     row_range);
         return get_block_data(data, column_indices, row_offsets);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Provides access to the rows of the table in CSR format.
+    /// The method return arrays that directly point to the memory within the table
+    /// if it is possible. In that case, the arrays refer to the memory as to immutable data.
+    /// Otherwise, new memory blocks are allocated, the data from the table rows is converted
+    /// and copied into those blocks. In this case, arrays refer to the blocks as to mutable data.
+    /// The method updates :expr:`data`, :expr:`column_indices` and :expr:`row_offsets` arrays.
+    ///
+    /// @param[in] queue              The SYCL* queue object.
+    /// @param[in,out] data           The block which memory is reused (if it is possible) to obtain
+    ///                               the values from the table.
+    /// @param[in,out] column_indices The block which memory is reused (if it is possible) to obtain
+    ///                               the column indices from the table.
+    /// @param[in,out] row_offsets    The block which memory is reused (if it is possible) to obtain
+    ///                               the row offsets from the table.
+    ///                               The memory of `data`, `column_indices` and `row_offsets` blocks
+    ///                               are reset either when their size is not big enough, or when the blocks
+    ///                               contain immutable data, or when direct memory from the table
+    ///                               can be used. If the blocks are reset to use direct memory pointers
+    ///                               from the object, they refer to those pointers as to immutable memory
+    ///                               blocks.
+    /// @param[in] row_range          The range of rows that data is returned from the accessor.
+    /// @param[in] indexing           The indexing scheme used to access the data in the returned arrays
+    ///                               in CSR layout. Should be :literal:`sparse_indexing::zero_based` or
+    ///                               :literal:`sparse_indexing::one_based`.
+    /// @param[in] alloc              The requested kind of USM in the returned block.
+    ///
+    /// @return A tuple of three pointers: values, column indicies and row offsets, that represent
+    ///         a sub-table in CSR format that contain the data from the original table corresponding
+    ///         to the rows from the `row_range` and with the requested indexing scheme.
+    std::tuple<T*, I*, I*> pull(sycl::queue& queue,
+                                array_d& data,
+                                array_i& column_indices,
+                                array_i& row_offsets,
+                                const range& row_range = { 0, -1 },
+                                const sparse_indexing indexing = sparse_indexing::one_based,
+                                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
+        pull_iface_->pull_csr_block(detail::data_parallel_policy{ queue },
+                                    data,
+                                    column_indices,
+                                    row_offsets,
+                                    indexing,
+                                    row_range,
+                                    alloc);
+        return get_block_data(data, column_indices, row_offsets);
+    }
+#endif
 
 private:
     static std::tuple<T*, I*, I*> get_block_data(const array_d& data,
