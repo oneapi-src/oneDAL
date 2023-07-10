@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::backend {
 

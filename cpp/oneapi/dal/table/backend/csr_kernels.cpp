@@ -16,8 +16,6 @@
 
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
 #include "oneapi/dal/table/backend/convert.hpp"
-#include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/backend/memory.hpp"
 
 #include <algorithm>
 
@@ -31,6 +29,33 @@ ONEDAL_FORCEINLINE void check_origin_data(const array<byte_t>& origin_data,
                                           std::int64_t block_dtype_size) {
     detail::check_mul_overflow(element_count, std::max(origin_dtype_size, block_dtype_size));
     ONEDAL_ASSERT(origin_data.get_count() >= element_count * origin_dtype_size);
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+std::int64_t csr_get_non_zero_count(sycl::queue& queue,
+                                    const std::int64_t row_count,
+                                    const std::int64_t* const row_offsets,
+                                    const std::vector<sycl::event>& dependencies = {}) {
+    if (row_count <= 0)
+        return 0;
+
+    std::int64_t first_row_offset{ 0L }, last_row_offset{ 0L };
+    auto first_row_event = copy_usm2host(queue, &first_row_offset, row_offsets, 1, dependencies);
+    auto last_row_event =
+        copy_usm2host(queue, &last_row_offset, row_offsets + row_count, 1, dependencies);
+    sycl::event::wait_and_throw({ first_row_event, last_row_event });
+
+    return (last_row_offset - first_row_offset);
+}
+
+#endif
+
+std::int64_t csr_get_non_zero_count(const std::int64_t row_count,
+                                    const std::int64_t* const row_offsets) {
+    if (row_count <= 0)
+        return 0;
+    return row_offsets[row_count] - row_offsets[0];
 }
 
 /// Provides access to the block of rows in `data` array of the table in CSR format.
@@ -152,9 +177,15 @@ void pull_column_indices_impl(const Policy& policy,
 
         const std::int64_t* const src_data = origin_column_indices.get_data() + origin_offset;
         std::int64_t* const dst_data = column_indices.get_mutable_data();
-
-        backend::copy(dst_data, src_data, block_size);
-
+#ifdef ONEDAL_DATA_PARALLEL
+        if constexpr (detail::is_data_parallel_policy_v<Policy>) {
+            backend::copy(policy.get_queue(), dst_data, src_data, block_size);
+        }
+        else
+#endif
+        {
+            backend::copy(dst_data, src_data, block_size);
+        }
         if (indices_offset != 0) {
             shift_array_values(policy, dst_data, block_size, indices_offset);
         }
@@ -212,11 +243,24 @@ void pull_row_offsets_impl(const Policy& policy,
         std::int64_t* const dst_row_offsets = row_offsets.get_mutable_data();
         const std::int64_t dst_row_offsets_count = block_info.row_count_ + 1;
 
-        for (std::int64_t i = 0; i < dst_row_offsets_count; i++) {
-            dst_row_offsets[i] = src_row_offsets[block_info.row_offset_ + i] -
-                                 src_row_offsets[block_info.row_offset_] +
-                                 std::int64_t{ block_info.indexing_ == sparse_indexing::one_based };
+#ifdef ONEDAL_DATA_PARALLEL
+        if constexpr (detail::is_data_parallel_policy_v<Policy>) {
+            backend::copy(policy.get_queue(),
+                          dst_row_offsets,
+                          &src_row_offsets[block_info.row_offset_],
+                          dst_row_offsets_count);
         }
+        else
+#endif
+        {
+            backend::copy(dst_row_offsets,
+                          &src_row_offsets[block_info.row_offset_],
+                          dst_row_offsets_count);
+        }
+        std::int64_t shift = -src_row_offsets[block_info.row_offset_];
+        if (block_info.indexing_ == sparse_indexing::one_based)
+            shift++;
+        shift_array_values(policy, dst_row_offsets, dst_row_offsets_count, shift);
     }
 }
 
@@ -240,15 +284,8 @@ void pull_csr_block_impl(const Policy& policy,
     // overflows checked here
     check_origin_data(origin_data, origin_info.element_count_, origin_dtype_size, block_dtype_size);
 
-    const std::int64_t origin_offset =
-        origin_row_offsets[block_info.row_offset_] - origin_row_offsets[0];
-    ONEDAL_ASSERT(origin_offset >= 0);
-
-    const std::int64_t block_size =
-        origin_row_offsets[block_info.row_offset_ + block_info.row_count_] -
-        origin_row_offsets[block_info.row_offset_];
-
-    ONEDAL_ASSERT(block_size >= 0);
+    std::int64_t origin_offset = 0LL;
+    std::int64_t block_size = 0LL;
 
     const bool same_data_type(block_dtype == origin_info.dtype_);
 
@@ -258,6 +295,27 @@ void pull_csr_block_impl(const Policy& policy,
                                        block_info.indexing_ == sparse_indexing::one_based)
                                           ? 1
                                           : -1);
+
+    const auto* const origin_row_offsets_ptr = origin_row_offsets.get_data();
+#ifdef ONEDAL_DATA_PARALLEL
+    if constexpr (detail::is_data_parallel_policy_v<Policy>) {
+        sycl::queue& q = policy.get_queue();
+        origin_offset =
+            csr_get_non_zero_count(q, block_info.row_offset_, origin_row_offsets_ptr, {});
+        block_size = csr_get_non_zero_count(q,
+                                            block_info.row_count_,
+                                            &origin_row_offsets_ptr[block_info.row_offset_]);
+    }
+    else
+#endif
+    {
+        origin_offset = csr_get_non_zero_count(block_info.row_offset_, origin_row_offsets_ptr);
+        block_size = csr_get_non_zero_count(block_info.row_count_,
+                                            &origin_row_offsets_ptr[block_info.row_offset_]);
+    }
+
+    ONEDAL_ASSERT(origin_offset >= 0);
+    ONEDAL_ASSERT(block_size >= 0);
 
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
@@ -299,50 +357,17 @@ void csr_pull_block(const Policy& policy,
                     array<std::int64_t>& row_offsets,
                     alloc_kind requested_alloc_kind,
                     bool preserve_mutability) {
-    switch (origin_info.layout_) {
-        case data_layout::row_major:
-            override_policy(policy, origin_data, data, [&](auto overriden_policy) {
-                pull_csr_block_impl(overriden_policy,
-                                    origin_info,
-                                    block_info,
-                                    origin_data,
-                                    origin_column_indices,
-                                    origin_row_offsets,
-                                    data,
-                                    column_indices,
-                                    row_offsets,
-                                    requested_alloc_kind,
-                                    preserve_mutability);
-            });
-            break;
-        default: throw dal::domain_error(error_msg::unsupported_data_layout());
-    }
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-
-std::int64_t csr_get_non_zero_count(sycl::queue& queue,
-                                    const std::int64_t row_count,
-                                    const std::int64_t* row_offsets,
-                                    const std::vector<sycl::event>& dependencies) {
-    if (row_count <= 0)
-        return 0;
-
-    std::int64_t first_row_offset{ 0L }, last_row_offset{ 0L };
-    auto first_row_event = copy_usm2host(queue, &first_row_offset, row_offsets, 1, dependencies);
-    auto last_row_event =
-        copy_usm2host(queue, &last_row_offset, row_offsets + row_count, 1, dependencies);
-    sycl::event::wait_and_throw({ first_row_event, last_row_event });
-
-    return (last_row_offset - first_row_offset);
-}
-
-#endif
-
-std::int64_t csr_get_non_zero_count(const std::int64_t row_count, const std::int64_t* row_offsets) {
-    if (row_count <= 0)
-        return 0;
-    return row_offsets[row_count] - row_offsets[0];
+    pull_csr_block_impl(policy,
+                        origin_info,
+                        block_info,
+                        origin_data,
+                        origin_column_indices,
+                        origin_row_offsets,
+                        data,
+                        column_indices,
+                        row_offsets,
+                        requested_alloc_kind,
+                        preserve_mutability);
 }
 
 std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets) {
@@ -515,10 +540,17 @@ out_of_bound_type check_bounds(const array<T>& arr,
                                  bool preserve_mutability);
 
 #define INSTANTIATE_HOST_POLICY(Data) INSTANTIATE(detail::default_host_policy, Data)
+#define INSTANTIATE_DP_POLICY(Data)   INSTANTIATE(detail::data_parallel_policy, Data)
 
 INSTANTIATE_HOST_POLICY(float)
 INSTANTIATE_HOST_POLICY(double)
 INSTANTIATE_HOST_POLICY(std::int32_t)
+
+#ifdef ONEDAL_DATA_PARALLEL
+INSTANTIATE_DP_POLICY(float)
+INSTANTIATE_DP_POLICY(double)
+INSTANTIATE_DP_POLICY(std::int32_t)
+#endif
 
 template out_of_bound_type check_bounds(const array<std::int64_t>& arr,
                                         std::int64_t min_value,
