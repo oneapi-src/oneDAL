@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SERVICE_CONFIG_REF_H__
-#define __SERVICE_CONFIG_REF_H__
+#ifndef __CONFIG_REF_H__
+#define __CONFIG_REF_H__
 
 #include "services/daal_defines.h"
 #include "services/env_detect.h"
