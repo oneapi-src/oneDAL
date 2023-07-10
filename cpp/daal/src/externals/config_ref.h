@@ -1,4 +1,4 @@
-/* file: service_blas_ref.h */
+/* file: config_ref.h */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
 *
