@@ -17,8 +17,8 @@
 #pragma once
 
 #include "tbb/tbb.h"
-#include <tbb/task_arena.h>
-#include <tbb/task_scheduler_observer.h>
+// #include <tbb/task_arena.h>
+// #include <tbb/task_scheduler_observer.h>
 #include "src/threading/service_thread_pinner.h"
 #include "src/services/service_topo.h"
 
@@ -32,6 +32,18 @@ struct threading_policy {
               max_threads_per_core(max_threads_per_core_) {}
 };
 
-tbb::task_arena* create_task_arena(const threading_policy& policy);
+class task_executor {
+    threading_policy policy_;
+    tbb::task_arena *task_arena_;
+    daal::services::internal::thread_pinner_t *thread_pinner_;
+    tbb::task_arena* create_task_arena(const threading_policy& policy);
+public:
+    template<typename F> 
+    auto execute(F&& f) -> decltype(f());
+    task_executor(threading_policy &policy) {
+      policy_ = policy;
+      task_arena_ = create_task_arena(policy_);
+    }
+};
 
 } // namespace oneapi::dal::backend

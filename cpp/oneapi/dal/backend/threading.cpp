@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::backend {
 
-tbb::task_arena* create_task_arena(const threading_policy& policy) {
+tbb::task_arena* oneapi::dal::backend::task_executor::create_task_arena(const threading_policy& policy) {
     if (policy.max_threads_per_core) {
         static tbb::task_arena task_arena{ tbb::task_arena::constraints{}.set_max_threads_per_core(
             policy.max_threads_per_core) };
@@ -47,6 +47,16 @@ tbb::task_arena* create_task_arena(const threading_policy& policy) {
             return thread_pinner_ptr->get_task_arena();
         }
         return &task_arena;
+    }
+}
+
+template<typename F> 
+auto oneapi::dal::backend::task_executor::execute(F&& f) -> decltype(f()){
+    if (this->policy_.thread_pinning) {
+        return this->thread_pinner_->execute(f);
+    }
+    else {
+        return this->task_arena_->execute(f);
     }
 }
 
