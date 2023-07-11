@@ -18,8 +18,8 @@
 
 #include <iostream>
 
-#include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
+//#include "oneapi/dal/table/common.hpp"
+//#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -35,7 +35,7 @@ inline auto& print_array_shape(std::ostream& s, const array<Float>& a) {
     return s << "Array of size " << c << "\n";
 }
 
-inline auto& print_table_shape(std::ostream& s, const table& t) {
+/*inline auto& print_table_shape(std::ostream& s, const table& t) {
     const auto h = t.get_row_count();
     const auto w = t.get_column_count();
 
@@ -43,7 +43,7 @@ inline auto& print_table_shape(std::ostream& s, const table& t) {
         return s << "Empty table \n";
 
     return s << "Table with shape height,width=" << h << ',' << w << "\n";
-}
+}*/
 
 template <typename Float>
 inline auto& print_array_content(std::ostream& s, const array<Float>& arr) {
@@ -65,7 +65,7 @@ inline auto& print_array_content(std::ostream& s, const array<Float>& arr) {
     return s;
 }
 
-template <typename Float = float>
+/*template <typename Float = float>
 inline auto& print_table_content(std::ostream& s, const table& t) {
     [[maybe_unused]] const auto w = t.get_column_count();
     const auto h = t.get_row_count();
@@ -79,7 +79,7 @@ inline auto& print_table_content(std::ostream& s, const table& t) {
     }
 
     return s;
-}
+}*/
 
 template <typename Float>
 inline std::ostream& operator<<(std::ostream& s, const array<Float>& arr) {
@@ -88,12 +88,12 @@ inline std::ostream& operator<<(std::ostream& s, const array<Float>& arr) {
     return s << std::endl;
 }
 
-template <typename Float = float>
+/*template <typename Float = float>
 inline std::ostream& operator<<(std::ostream& s, const table& t) {
     print_table_shape(s, t);
     print_table_content<Float>(s, t);
     return s << std::endl;
-}
+}*/
 
 #endif
 

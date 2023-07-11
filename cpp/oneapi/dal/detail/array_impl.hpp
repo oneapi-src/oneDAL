@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-
+#include <iostream>
 #include <variant>
 #include <optional>
 
@@ -66,13 +66,22 @@ class array_impl : public base {
     template <typename U>
     friend class array_impl;
 
+    friend class chunked_array_base;
+
 public:
+    using data_t = T;
+
     template <typename Policy, typename Allocator>
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
         auto data = alloc.allocate(count);
         return new array_impl<T>(policy, data, count, [alloc, count](T* ptr) {
             alloc.deallocate(ptr, count);
         });
+    }
+
+    template <typename Policy, typename Allocator>
+    static unique<array_impl<T>> empty_unique(const Policy& policy, std::int64_t count, const Allocator& alloc) {
+        return unique<array_impl<T>>{ array_impl<T>::empty(policy, count, alloc) };
     }
 
     template <typename Policy, typename K, typename Allocator>
@@ -110,6 +119,68 @@ public:
     template <typename Y, typename K>
     array_impl(const array_impl<Y>& ref, K* data, std::int64_t count) {
         reset(ref, data, count);
+    }
+
+    array_impl(const array_impl<T>& ref) {
+        reset(ref);
+    }
+
+    array_impl(array_impl<T>&& ref) {
+        reset(std::forward<array_impl>(ref));
+    }
+
+    array_impl& operator=(const array_impl<T>& ref) {
+        reset(ref);
+        return *this;
+    }
+
+    /*array_impl& operator=(array_impl<T>&& ref) {
+        reset(std::forward<array_impl>(ref));
+        return *this;
+    };*/
+
+    array_impl& operator=(array_impl<T>&& ref) = default;
+
+    // We want to be explicit about type conversion
+    template <typename Y>
+    static array_impl<T> reinterpret(const array_impl<Y>& ref) {
+        array_impl<T> res;
+
+        const auto ref_size_in_bytes = ref.get_size_in_bytes();
+        const auto count = ref_size_in_bytes / sizeof(T);
+
+        if (ref.has_mutable_data()) {
+            T* data = reinterpret_cast<T*>(ref.get_mutable_data());
+            res = array_impl<T>(ref, data, count);
+        }
+        else {
+            const T* data = reinterpret_cast<const T*>(ref.get_data());
+            res = array_impl<T>(ref, data, count);
+        }
+
+        ONEDAL_ASSERT(res.get_size_in_bytes() == ref_size_in_bytes);
+
+        return res;
+    }
+
+    array_impl<T> get_slice(std::int64_t first, std::int64_t last) const {
+        array_impl<T> res;
+
+        ONEDAL_ASSERT(0l <= first);
+        ONEDAL_ASSERT(first <= last);
+        ONEDAL_ASSERT(last <= get_count());
+        const auto new_count = last - first;
+
+        if (has_mutable_data()) {
+            T* new_data = get_mutable_data() + first;
+            res.reset(*this, new_data, new_count);
+        }
+        else {
+            const T* new_data = get_data() + first;
+            res.reset(*this, new_data, new_count);
+        }
+
+        return res;
     }
 
     std::int64_t get_count() const noexcept {
@@ -153,6 +224,10 @@ public:
         data_owned_ = std::variant<cshared, shared>();
         count_ = 0;
         reset_policy();
+    }
+
+    void reset(array_impl<T>&& ref) {
+
     }
 
     template <typename Policy, typename Allocator>
@@ -215,6 +290,16 @@ public:
         reset_policy(ref);
     }
 
+    template <typename Y>
+    void reset(const array_impl<Y>& ref) {
+        if (ref.has_mutable_data()) {
+            reset(ref, ref.get_mutable_data(), ref.get_count());
+        }
+        else {
+            reset(ref, ref.get_data(), ref.get_count());
+        }
+    }
+
     void serialize(output_archive& ar) const {
         static_assert(is_trivially_serializable_v<T>,
                       "Serialization for non-trivial types is not implemented");
@@ -222,7 +307,7 @@ public:
         using data_t = detail::trivial_serialization_type_t<T>;
         const byte_t* data_bytes = reinterpret_cast<const byte_t*>(get_data());
         const data_type dtype = make_data_type<data_t>();
-        const std::int64_t size_in_bytes = check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
+        const std::int64_t size_in_bytes = get_size_in_bytes();
 
         __ONEDAL_IF_QUEUE__(get_queue(), {
             ONEDAL_ASSERT(dp_policy_.has_value());
@@ -281,6 +366,11 @@ public:
     }
 #endif
 
+    std::int64_t get_size_in_bytes() const {
+        ONEDAL_ASSERT(std::int64_t{ 0l } <= count_);
+        return check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
+    }
+
 private:
     void reset_policy() {
 #ifdef ONEDAL_DATA_PARALLEL
@@ -331,11 +421,29 @@ private:
         return std::get_if<shared>(&data_owned_);
     }
 
+    using dhp_t = default_host_policy;
+#ifdef ONEDAL_DATA_PARALLEL
+    using dpp_t = data_parallel_policy;
+    using policy_var_t = std::variant<dpp_t, dhp_t>;
+#else // ONEDAL_DATA_PARALLEL
+    using policy_var_t = std::variant<dhp_t>;
+#endif
+
+    policy_var_t get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        if (dp_policy_.has_value()) {
+            return policy_var_t{ dp_policy_.value() };
+        }
+#endif // ONEDAL_DATA_PARALLEL
+        const default_host_policy host_policy{};
+        return policy_var_t{ host_policy };
+    }
+
     std::variant<cshared, shared> data_owned_;
     std::int64_t count_;
 #ifdef ONEDAL_DATA_PARALLEL
     std::optional<data_parallel_policy> dp_policy_;
-#endif
+#endif // ONEDAL_DATA_PARALLEL
 };
 
 } // namespace v2
@@ -349,6 +457,8 @@ class array_impl : public base {
 
     template <typename U>
     friend class array_impl;
+
+    friend class chunked_array_base;
 
 public:
     template <typename Policy, typename Allocator>

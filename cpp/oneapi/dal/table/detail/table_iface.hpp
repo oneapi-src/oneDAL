@@ -21,6 +21,8 @@
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
 
+#include "oneapi/dal/chunked_array.hpp"
+
 namespace oneapi::dal {
 namespace v1 {
 class table_metadata;
@@ -57,6 +59,11 @@ public:
 class homogen_table_iface : public table_iface {
 public:
     virtual dal::array<byte_t> get_data() const = 0;
+};
+
+class heterogen_table_iface : public table_iface {
+public:
+    virtual dal::chunked_array<byte_t> get_column(std::int64_t) const = 0;
 };
 
 class csr_table_iface : public table_iface {
@@ -152,6 +159,25 @@ public:
     }
 };
 
+/// Heterogen table template must implement row and column accessor, but not CSR.
+template <typename Derived>
+class heterogen_table_template : public heterogen_table_iface,
+                                 public pull_rows_template<Derived>,
+                                 public pull_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return nullptr;
+    }
+};
+
 /// CSR table template must implement CSR acessors, however row and column accessor are
 /// optional and not assumed by default. At the same time the methods that returns
 /// corresponding access interfaces may be overloaded in particualar CSR table implementation.
@@ -203,6 +229,8 @@ using v1::table_iface;
 using v1::generic_table_template;
 using v1::homogen_table_iface;
 using v1::homogen_table_template;
+using v1::heterogen_table_iface;
+using v1::heterogen_table_template;
 using v1::csr_table_iface;
 using v1::csr_table_template;
 using v1::table_builder_iface;

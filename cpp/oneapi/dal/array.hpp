@@ -35,6 +35,11 @@ class array {
     template <typename U>
     friend class array;
 
+    template <typename U>
+    friend class chunked_array;
+
+    friend class chunked_array_base;
+
     using impl_t = detail::array_impl<T>;
 
 public:
@@ -655,6 +660,12 @@ public:
     }
 #endif
 
+    /// Creates slice of this array
+    array<T> get_slice(std::int64_t first, std::int64_t last) const {
+        const auto slice_impl = impl_->get_slice(first, last);
+        return array<T>{ new impl_t{ std::move(slice_impl) } };
+    }
+
 private:
     static void swap(array<T>& a, array<T>& b) {
         std::swap(a.impl_, b.impl_);
@@ -709,8 +720,28 @@ private:
     std::int64_t count_;
 };
 
+template <typename Type>
+struct is_array {
+    constexpr static bool value = false;
+};
+
+template <typename Type>
+struct is_array<array<Type>> {
+    constexpr static bool value = true;
+};
+
+/// @tparam T Type to be checked for being an array
+template <typename T>
+constexpr bool is_array_v = is_array<T>::value;
+
+/// @tparam T Type to be checked for being an array
+template <typename T>
+using enable_if_array_t = std::enable_if_t<is_array_v<T>>;
+
 } // namespace v2
 
 using v2::array;
+using v2::is_array_v;
+using v2::enable_if_array_t;
 
 } // namespace oneapi::dal
