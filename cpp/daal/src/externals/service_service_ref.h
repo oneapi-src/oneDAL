@@ -73,7 +73,7 @@ struct RefService
     static int serv_get_ht()
     {
         // TODO: real detection of hypertheading
-        return 1;
+        return 0;
     }
 
     static int serv_get_ncpus()
