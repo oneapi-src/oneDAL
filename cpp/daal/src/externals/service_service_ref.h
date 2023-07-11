@@ -1,4 +1,4 @@
-/* file: service_service_refh */
+/* file: service_service_ref.h */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
 *
@@ -24,6 +24,7 @@
 #ifndef __SERVICE_SERVICE_REF_H__
 #define __SERVICE_SERVICE_REF_H__
 
+#include <cstdlib>
 #include "services/daal_defines.h"
 
 // Necessary to activate safe functions

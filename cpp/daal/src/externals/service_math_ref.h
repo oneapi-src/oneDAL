@@ -25,6 +25,7 @@
 #define __SERVICE_MATH_REF_H__
 
 #include <math.h>
+#include <cmath>
 #include "src/services/service_defines.h"
 
 namespace daal
@@ -46,7 +47,7 @@ struct RefMath<double, cpu>
 {
     typedef size_t SizeType;
 
-    static double sFabs(double in) { return (in >= 0.0f) ? in : -in; }
+    static double sFabs(double in) { return std::abs(in); }
 
     static double sMin(double in1, double in2) { return (in1 > in2) ? in2 : in1; }
 
@@ -126,7 +127,7 @@ struct RefMath<float, cpu>
 {
     typedef size_t SizeType;
 
-    static float sFabs(float in) { return (in >= 0.0) ? in : -in; }
+    static float sFabs(float in) { return std::abs(in); }
 
     static float sMin(float in1, float in2) { return (in1 > in2) ? in2 : in1; }
 

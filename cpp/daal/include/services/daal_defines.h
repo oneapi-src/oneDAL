@@ -28,11 +28,11 @@
 
 #include <cstddef> // for size_t
 
-#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
+#if (defined(DAAL_INTEL_CPP_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
     #define DAAL_INTEL_CPP_COMPILER
 #endif
 
-#if !(defined(_MSC_VER) || defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER))
+#if !(defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER) || defined(__INTEL_LLVM_COMPILER))
     #define __int32 int
     #define __int64 long long int
 #endif
@@ -54,7 +54,7 @@
 #endif
 
 /* Intel(R) oneDAL 64-bit integer types */
-#if !(defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && defined(_MSC_VER)
+#if !(defined(DAAL_INTEL_CPP_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && defined(_MSC_VER)
     #define DAAL_INT64  __int64
     #define DAAL_UINT64 unsigned __int64
 #else
@@ -85,7 +85,7 @@
 #if defined(DAAL_HIDE_DEPRECATED)
     #define DAAL_DEPRECATED_VIRTUAL
 #else
-    #ifdef __INTEL_COMPILER
+    #ifdef DAAL_INTEL_CPP_COMPILER
         #define DAAL_DEPRECATED_VIRTUAL DAAL_DEPRECATED
     #else
         #define DAAL_DEPRECATED_VIRTUAL

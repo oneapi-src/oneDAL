@@ -34,9 +34,6 @@ namespace ref
 {
 extern "C"
 {
-    extern void openblas_set_num_threads(int num_threads);
-    extern int openblas_get_num_threads(void);
-
     extern void ssyrk_(const char *, const char *, const DAAL_INT *, const DAAL_INT *, const float *, float *, const DAAL_INT *, const float *,
                        float *, const DAAL_INT *);
     extern void dsyrk_(const char *, const char *, const DAAL_INT *, const DAAL_INT *, const double *, double *, const DAAL_INT *, const double *,

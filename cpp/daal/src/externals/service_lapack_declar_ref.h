@@ -34,9 +34,6 @@ namespace ref
 {
 extern "C"
 {
-    extern void openblas_set_num_threads(int num_threads);
-    extern int openblas_get_num_threads(void);
-
     extern void sgetrf_(DAAL_INT *, DAAL_INT *, float *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
     extern void dgetrf_(DAAL_INT *, DAAL_INT *, double *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
 

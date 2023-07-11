@@ -60,15 +60,18 @@ struct RefSpBlas
     {
         csrmm(m, n, k, alpha, val, indx, pntrb, b, ldb, beta, c, ldc);
     }
-    inline static fpType csracc(DAAL_INT row, DAAL_INT col, const DAAL_INT * n, const fpType * val, const DAAL_INT * indx, const DAAL_INT * pntrb)
+    inline static fpType csracc(DAAL_INT row, DAAL_INT col, const fpType * val, const DAAL_INT * indx, const DAAL_INT * pntrb)
     {
         DAAL_INT offset = pntrb[row] - 1;
         DAAL_INT nnz    = pntrb[row + 1] - pntrb[row];
         DAAL_INT csrcol = col + 1;
-        for (DAAL_INT i = 0; i < nnz; ++i)
+        #pragma omp simd
         {
-            if (csrcol < indx[offset + i]) break;
-            if (csrcol == indx[offset + i]) return val[offset + i];
+            for (DAAL_INT i = 0; i < nnz; ++i)
+            {
+                if (csrcol < indx[offset + i]) break;
+                if (csrcol == indx[offset + i]) return val[offset + i];
+            }
         }
         return fpType(0);
     }
@@ -77,18 +80,21 @@ struct RefSpBlas
     {
         DAAL_INT ldbVal = *ldb;
         DAAL_INT ldcVal = *ldc;
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, ldbVal, *n);
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, ldcVal, *n);
-        DAAL_OVERFLOW_CHECK_BY_ADDING_THROW_IF_POSSIBLE(DAAL_INT, ldbVal * ((*n) - 1), *k);
-        DAAL_OVERFLOW_CHECK_BY_ADDING_THROW_IF_POSSIBLE(DAAL_INT, ldcVal * ((*n) - 1), *m);
+        DAAL_INT nVal   = *n;
+        DAAL_INT mVal   = *m;
+        DAAL_INT kVal   = *k;
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, ldbVal, nVal);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, ldcVal, nVal);
+        DAAL_OVERFLOW_CHECK_BY_ADDING_THROW_IF_POSSIBLE(DAAL_INT, ldbVal * ((*n) - 1), kVal);
+        DAAL_OVERFLOW_CHECK_BY_ADDING_THROW_IF_POSSIBLE(DAAL_INT, ldcVal * ((*n) - 1), mVal);
 
-        for (DAAL_INT mInd = 0; mInd < *m; ++mInd)
+        for (DAAL_INT mInd = 0; mInd < mVal; ++mInd)
             for (DAAL_INT nInd = 0; nInd < *n; ++nInd)
             {
                 fpType sum = 0.0;
-                for (DAAL_INT kInd = 0; kInd < *k; ++kInd)
+                for (DAAL_INT kInd = 0; kInd < kVal; ++kInd)
                 {
-                    fpType ail  = csracc(mInd, kInd, n, a, indx, pntrb);
+                    fpType ail  = csracc(mInd, kInd, a, indx, pntrb);
                     fpType btlj = b[ldbVal * nInd + kInd];
                     sum += ail * btlj;
                 }

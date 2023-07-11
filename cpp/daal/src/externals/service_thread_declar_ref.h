@@ -1,6 +1,6 @@
-/* file: config_template.h */
+/* file: service_rng.h */
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright 2014 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,13 +17,35 @@
 
 /*
 //++
-//  Defines a template to generate backend-specific config
+//  Auxiliary class to set/restore OpenBLAS threads
 //--
 */
 
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
+namespace daal
+{
+namespace internal
+{
+namespace ref
+{
+extern "C"
+{
+    extern void openblas_set_num_threads(int num_threads);
+    extern int openblas_get_num_threads(void);
+}
 
-#include "src/externals/config_{BACKEND}.h"
+class openblas_thread_setter {
+public:
+    openblas_thread_setter(int n_threads = 1) {
+        previous_thread_count = openblas_get_num_threads();
+        openblas_set_num_threads(n_threads);
+    }
+    ~openblas_thread_setter() {
+        openblas_set_num_threads(previous_thread_count);
+    }
+private:
+    int previous_thread_count = 1;
+};
 
-#endif
+} // namespace ref
+} // namespace internal
+} // namespace daal

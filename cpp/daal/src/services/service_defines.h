@@ -37,7 +37,7 @@ bool daal_check_is_intel_cpu();
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #define PRAGMA_IVDEP            _Pragma("ivdep")
     #define PRAGMA_NOVECTOR         _Pragma("novector")
     #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector aligned")
@@ -78,7 +78,7 @@ bool daal_check_is_intel_cpu();
     #define DAAL_TYPENAME typename
 #endif
 
-#if defined __APPLE__ && defined __INTEL_COMPILER && (__INTEL_COMPILER == 1600)
+#if defined __APPLE__ && defined DAAL_INTEL_CPP_COMPILER && (DAAL_INTEL_CPP_COMPILER == 1600)
     #undef PRAGMA_ICC_TO_STR
     #define PRAGMA_ICC_TO_STR(ARGS) _Pragma(#ARGS)
     #undef PRAGMA_ICC_OMP

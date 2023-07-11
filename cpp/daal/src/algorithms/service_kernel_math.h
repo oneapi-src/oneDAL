@@ -43,7 +43,7 @@
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #include "immintrin.h"
 #endif
 

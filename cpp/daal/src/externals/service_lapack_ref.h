@@ -25,6 +25,7 @@
 #define __SERVICE_LAPACK_REF_H__
 
 #include "service_lapack_declar_ref.h"
+#include "service_thread_declar_ref.h"
 
 namespace daal
 {
@@ -52,10 +53,8 @@ struct OpenBlasLapack<double, cpu>
 
     static void xxgetrf(DAAL_INT * m, DAAL_INT * n, double * a, DAAL_INT * lda, DAAL_INT * ipiv, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dgetrf_(m, n, a, lda, ipiv, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgetrs(char * trans, DAAL_INT * n, DAAL_INT * nrhs, double * a, DAAL_INT * lda, DAAL_INT * ipiv, double * b, DAAL_INT * ldb,
@@ -67,20 +66,16 @@ struct OpenBlasLapack<double, cpu>
     static void xxgetrs(char * trans, DAAL_INT * n, DAAL_INT * nrhs, double * a, DAAL_INT * lda, DAAL_INT * ipiv, double * b, DAAL_INT * ldb,
                         DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dgetrs_(trans, n, nrhs, a, lda, ipiv, b, ldb, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpotrf(char * uplo, DAAL_INT * p, double * ata, DAAL_INT * ldata, DAAL_INT * info) { dpotrf_(uplo, p, ata, ldata, info); }
 
     static void xxpotrf(char * uplo, DAAL_INT * p, double * ata, DAAL_INT * ldata, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dpotrf_(uplo, p, ata, ldata, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpotrs(char * uplo, DAAL_INT * p, DAAL_INT * ny, double * ata, DAAL_INT * ldata, double * beta, DAAL_INT * ldaty, DAAL_INT * info)
@@ -90,20 +85,16 @@ struct OpenBlasLapack<double, cpu>
 
     static void xxpotrs(char * uplo, DAAL_INT * p, DAAL_INT * ny, double * ata, DAAL_INT * ldata, double * beta, DAAL_INT * ldaty, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dpotrs_(uplo, p, ny, ata, ldata, beta, ldaty, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpotri(char * uplo, DAAL_INT * p, double * ata, DAAL_INT * ldata, DAAL_INT * info) { dpotri_(uplo, p, ata, ldata, info); }
 
     static void xxpotri(char * uplo, DAAL_INT * p, double * ata, DAAL_INT * ldata, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dpotri_(uplo, p, ata, ldata, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgerqf(DAAL_INT * m, DAAL_INT * n, double * a, DAAL_INT * lda, double * tau, double * work, DAAL_INT * lwork, DAAL_INT * info)
@@ -113,10 +104,8 @@ struct OpenBlasLapack<double, cpu>
 
     static void xxgerqf(DAAL_INT * m, DAAL_INT * n, double * a, DAAL_INT * lda, double * tau, double * work, DAAL_INT * lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dgerqf_(m, n, a, lda, tau, work, lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xormrq(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
@@ -128,10 +117,8 @@ struct OpenBlasLapack<double, cpu>
     static void xxormrq(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
                         DAAL_INT * ldc, double * work, DAAL_INT * lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dormrq_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xtrtrs(char * uplo, char * trans, char * diag, DAAL_INT * n, DAAL_INT * nrhs, double * a, DAAL_INT * lda, double * b, DAAL_INT * ldb,
@@ -143,20 +130,16 @@ struct OpenBlasLapack<double, cpu>
     static void xxtrtrs(char * uplo, char * trans, char * diag, DAAL_INT * n, DAAL_INT * nrhs, double * a, DAAL_INT * lda, double * b, DAAL_INT * ldb,
                         DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dtrtrs_(uplo, trans, diag, n, nrhs, a, lda, b, ldb, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpptrf(char * uplo, DAAL_INT * n, double * ap, DAAL_INT * info) { dpptrf_(uplo, n, ap, info); }
 
     static void xxpptrf(char * uplo, DAAL_INT * n, double * ap, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dpptrf_(uplo, n, ap, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgeqrf(DAAL_INT m, DAAL_INT n, double * a, DAAL_INT lda, double * tau, double * work, DAAL_INT lwork, DAAL_INT * info)
@@ -166,10 +149,8 @@ struct OpenBlasLapack<double, cpu>
 
     static void xxgeqrf(DAAL_INT m, DAAL_INT n, double * a, DAAL_INT lda, double * tau, double * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dgeqrf_(&m, &n, a, &lda, tau, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgeqp3(const DAAL_INT m, const DAAL_INT n, double * a, const DAAL_INT lda, DAAL_INT * jpvt, double * tau, double * work,
@@ -181,10 +162,8 @@ struct OpenBlasLapack<double, cpu>
     static void xxgeqp3(DAAL_INT m, DAAL_INT n, double * a, DAAL_INT lda, DAAL_INT * jpvt, double * tau, double * work, DAAL_INT lwork,
                         DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dgeqp3_(&m, &n, a, &lda, jpvt, tau, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xorgqr(const DAAL_INT m, const DAAL_INT n, const DAAL_INT k, double * a, const DAAL_INT lda, const double * tau, double * work,
@@ -195,10 +174,8 @@ struct OpenBlasLapack<double, cpu>
 
     static void xxorgqr(DAAL_INT m, DAAL_INT n, DAAL_INT k, double * a, DAAL_INT lda, double * tau, double * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dorgqr_(&m, &n, &k, a, &lda, tau, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgesvd(char jobu, char jobvt, DAAL_INT m, DAAL_INT n, double * a, DAAL_INT lda, double * s, double * u, DAAL_INT ldu, double * vt,
@@ -210,10 +187,8 @@ struct OpenBlasLapack<double, cpu>
     static void xxgesvd(char jobu, char jobvt, DAAL_INT m, DAAL_INT n, double * a, DAAL_INT lda, double * s, double * u, DAAL_INT ldu, double * vt,
                         DAAL_INT ldvt, double * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xsyevd(char * jobz, char * uplo, DAAL_INT * n, double * a, DAAL_INT * lda, double * w, double * work, DAAL_INT * lwork,
@@ -225,10 +200,8 @@ struct OpenBlasLapack<double, cpu>
     static void xxsyevd(char * jobz, char * uplo, DAAL_INT * n, double * a, DAAL_INT * lda, double * w, double * work, DAAL_INT * lwork,
                         DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
@@ -240,10 +213,8 @@ struct OpenBlasLapack<double, cpu>
     static void xxormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
                         DAAL_INT * ldc, double * work, DAAL_INT * lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         dormqr_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 };
 
@@ -260,10 +231,8 @@ struct OpenBlasLapack<float, cpu>
 
     static void xxgetrf(DAAL_INT * m, DAAL_INT * n, float * a, DAAL_INT * lda, DAAL_INT * ipiv, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sgetrf_(m, n, a, lda, ipiv, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgetrs(char * trans, DAAL_INT * n, DAAL_INT * nrhs, float * a, DAAL_INT * lda, DAAL_INT * ipiv, float * b, DAAL_INT * ldb,
@@ -275,20 +244,16 @@ struct OpenBlasLapack<float, cpu>
     static void xxgetrs(char * trans, DAAL_INT * n, DAAL_INT * nrhs, float * a, DAAL_INT * lda, DAAL_INT * ipiv, float * b, DAAL_INT * ldb,
                         DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sgetrs_(trans, n, nrhs, a, lda, ipiv, b, ldb, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpotrf(char * uplo, DAAL_INT * p, float * ata, DAAL_INT * ldata, DAAL_INT * info) { spotrf_(uplo, p, ata, ldata, info); }
 
     static void xxpotrf(char * uplo, DAAL_INT * p, float * ata, DAAL_INT * ldata, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         spotrf_(uplo, p, ata, ldata, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpotrs(char * uplo, DAAL_INT * p, DAAL_INT * ny, float * ata, DAAL_INT * ldata, float * beta, DAAL_INT * ldaty, DAAL_INT * info)
@@ -298,20 +263,16 @@ struct OpenBlasLapack<float, cpu>
 
     static void xxpotrs(char * uplo, DAAL_INT * p, DAAL_INT * ny, float * ata, DAAL_INT * ldata, float * beta, DAAL_INT * ldaty, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         spotrs_(uplo, p, ny, ata, ldata, beta, ldaty, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpotri(char * uplo, DAAL_INT * p, float * ata, DAAL_INT * ldata, DAAL_INT * info) { spotri_(uplo, p, ata, ldata, info); }
 
     static void xxpotri(char * uplo, DAAL_INT * p, float * ata, DAAL_INT * ldata, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         spotri_(uplo, p, ata, ldata, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgerqf(DAAL_INT * m, DAAL_INT * n, float * a, DAAL_INT * lda, float * tau, float * work, DAAL_INT * lwork, DAAL_INT * info)
@@ -321,10 +282,8 @@ struct OpenBlasLapack<float, cpu>
 
     static void xxgerqf(DAAL_INT * m, DAAL_INT * n, float * a, DAAL_INT * lda, float * tau, float * work, DAAL_INT * lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sgerqf_(m, n, a, lda, tau, work, lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xormrq(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,
@@ -336,10 +295,8 @@ struct OpenBlasLapack<float, cpu>
     static void xxormrq(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,
                         DAAL_INT * ldc, float * work, DAAL_INT * lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sormrq_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xtrtrs(char * uplo, char * trans, char * diag, DAAL_INT * n, DAAL_INT * nrhs, float * a, DAAL_INT * lda, float * b, DAAL_INT * ldb,
@@ -351,20 +308,16 @@ struct OpenBlasLapack<float, cpu>
     static void xxtrtrs(char * uplo, char * trans, char * diag, DAAL_INT * n, DAAL_INT * nrhs, float * a, DAAL_INT * lda, float * b, DAAL_INT * ldb,
                         DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         strtrs_(uplo, trans, diag, n, nrhs, a, lda, b, ldb, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xpptrf(char * uplo, DAAL_INT * n, float * ap, DAAL_INT * info) { spptrf_(uplo, n, ap, info); }
 
     static void xxpptrf(char * uplo, DAAL_INT * n, float * ap, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         spptrf_(uplo, n, ap, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgeqrf(DAAL_INT m, DAAL_INT n, float * a, DAAL_INT lda, float * tau, float * work, DAAL_INT lwork, DAAL_INT * info)
@@ -374,10 +327,8 @@ struct OpenBlasLapack<float, cpu>
 
     static void xxgeqrf(DAAL_INT m, DAAL_INT n, float * a, DAAL_INT lda, float * tau, float * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sgeqrf_(&m, &n, a, &lda, tau, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgeqp3(const DAAL_INT m, const DAAL_INT n, float * a, const DAAL_INT lda, DAAL_INT * jpvt, float * tau, float * work,
@@ -388,10 +339,8 @@ struct OpenBlasLapack<float, cpu>
 
     static void xxgeqp3(DAAL_INT m, DAAL_INT n, float * a, DAAL_INT lda, DAAL_INT * jpvt, float * tau, float * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sgeqp3_(&m, &n, a, &lda, jpvt, tau, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xorgqr(const DAAL_INT m, const DAAL_INT n, const DAAL_INT k, float * a, const DAAL_INT lda, const float * tau, float * work,
@@ -402,10 +351,8 @@ struct OpenBlasLapack<float, cpu>
 
     static void xxorgqr(DAAL_INT m, DAAL_INT n, DAAL_INT k, float * a, DAAL_INT lda, float * tau, float * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sorgqr_(&m, &n, &k, a, &lda, tau, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xgesvd(char jobu, char jobvt, DAAL_INT m, DAAL_INT n, float * a, DAAL_INT lda, float * s, float * u, DAAL_INT ldu, float * vt,
@@ -417,10 +364,8 @@ struct OpenBlasLapack<float, cpu>
     static void xxgesvd(char jobu, char jobvt, DAAL_INT m, DAAL_INT n, float * a, DAAL_INT lda, float * s, float * u, DAAL_INT ldu, float * vt,
                         DAAL_INT ldvt, float * work, DAAL_INT lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xsyevd(char * jobz, char * uplo, DAAL_INT * n, float * a, DAAL_INT * lda, float * w, float * work, DAAL_INT * lwork, DAAL_INT * iwork,
@@ -432,10 +377,8 @@ struct OpenBlasLapack<float, cpu>
     static void xxsyevd(char * jobz, char * uplo, DAAL_INT * n, float * a, DAAL_INT * lda, float * w, float * work, DAAL_INT * lwork,
                         DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         ssyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
-        openblas_set_num_threads(old_threads);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,
@@ -447,10 +390,8 @@ struct OpenBlasLapack<float, cpu>
     static void xxormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,
                         DAAL_INT * ldc, float * work, DAAL_INT * lwork, DAAL_INT * info)
     {
-        int old_threads = openblas_get_num_threads();
-        openblas_set_num_threads(1);
+        openblas_thread_setter ots(1);
         sormqr_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
-        openblas_set_num_threads(old_threads);
     }
 };
 
