@@ -104,6 +104,8 @@ extern "C"
     DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *),
                                         const tbb::task_arena & task_arena = NULL);
     DAAL_EXPORT tbb::task_arena * _thread_pinner_get_task_arena();
+    DAAL_EXPORT int _thread_pinner_get_is_pinning();
+    DAAL_EXPORT void _thread_pinner_set_is_pinning(int is_p);
 }
 
 namespace daal
@@ -122,11 +124,13 @@ public:
     void read_topology() { _thread_pinner_read_topology(); }
     void on_scheduler_entry(bool p) { _thread_pinner_on_scheduler_entry(p); }
     void on_scheduler_exit(bool p) { _thread_pinner_on_scheduler_exit(p); }
-    void execute(thread_pinner_task_t & task) { _thread_pinner_execute(task); }
+    auto execute(thread_pinner_task_t & task)->decltype(task()) { _thread_pinner_execute(task); }
     int get_status() { return _thread_pinner_get_status(); }
     bool get_pinning() { return _thread_pinner_get_pinning(); }
     bool set_pinning(bool p) { return _thread_pinner_set_pinning(p); }
     tbb::task_arena * get_task_arena() { return _thread_pinner_get_task_arena(); }
+    int get_is_pinning() { return _thread_pinner_get_is_pinning(); }
+    void set_is_pinning(int is_p) { _thread_pinner_set_is_pinning(is_p); }
 };
 
 inline thread_pinner_t * getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *),
