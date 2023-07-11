@@ -24,27 +24,21 @@
 
 namespace oneapi::dal::backend {
 
-class heterogen_table_impl : public detail::csr_table_template<csr_table_impl>,
+/*class heterogen_table_impl : public detail::heterogen_table_template<heterogen_table_impl>,
                              public ONEDAL_SERIALIZABLE(heterogen_table_id) {
 public:
     heterogen_table_impl()
             : col_count_(0),
-              row_count_(0),
-              layout_(data_layout::row_major),
-              indexing_(sparse_indexing::one_based) {}
+             {}
 
-    csr_table_impl(std::int64_t row_count,
+    heterogen_table_impl(std::int64_t row_count,
                    std::int64_t column_count,
-                   data_type dtype,
-                   sparse_indexing indexing)
+                   data_type dtype)
             : meta_(create_metadata(column_count, dtype)),
               data_(data),
               column_indices_(column_indices),
               row_offsets_(row_offsets),
-              col_count_(column_count),
-              row_count_(row_offsets.get_count() - 1),
-              layout_(data_layout::row_major),
-              indexing_(indexing) {
+              col_count_(column_count)  {
         using error_msg = dal::detail::error_messages;
 
         const std::int64_t element_count = column_indices.get_count();
@@ -169,8 +163,6 @@ public:
         return layout_;
     }
 
-
-
     void serialize(detail::output_archive& ar) const override {
         ar(meta_, data_, column_indices_, row_offsets_, col_count_, row_count_, layout_, indexing_);
     }
@@ -191,6 +183,6 @@ private:
     table_metadata meta_;
     std::int64_t col_count_;
     std::int64_t row_count_;
-};
+};*/
 
 } // namespace oneapi::dal::backend

@@ -171,15 +171,28 @@ auto chunked_array_base::flatten_impl(const data_parallel_policy& policy,
 #endif // ONEDAL_DATA_PARALLEL
 
 std::int64_t chunked_array_base::get_size_in_bytes() const {
+    constexpr std::int64_t zero{0l};
     const auto chunk_count = this->get_chunk_count();
 
-    std::int64_t acc = 0l;
-    for (std::int64_t c = 0l; c < chunk_count; ++c) {
-        const auto& chunk = this->get_chunk_impl(c);
-        acc += chunk.get_size_in_bytes();
+    if (chunk_count == zero) {
+        return zero;
     }
 
-    return acc;
+#ifdef ONEDAL_ENABLE_ASSERT
+    std::int64_t size_acc = 0l;
+    for (std::int64_t c = 0l; c < chunk_count; ++c) {
+        const auto& chunk = this->get_chunk_impl(c);
+        size_acc += chunk.get_size_in_bytes();
+    }
+#endif // ONEDAL_ENABLE_ASSERT
+
+    const auto accessor = impl_->immutable_access();
+    const auto raw_size = accessor.get_offsets().back();
+    const auto casted_size = detail::integral_cast<std::int64_t>(raw_size);
+
+    ONEDAL_ASSERT(casted_size == size_acc);
+
+    return casted_size;
 }
 
 bool chunked_array_base::validate() const noexcept {
