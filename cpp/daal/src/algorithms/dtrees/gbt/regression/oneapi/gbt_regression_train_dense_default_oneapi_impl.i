@@ -41,7 +41,6 @@
 #include "src/services/service_algo_utils.h"
 #include "services/internal/sycl/types.h"
 
-using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::internal;
 using namespace daal::algorithms::gbt::regression::internal;
 

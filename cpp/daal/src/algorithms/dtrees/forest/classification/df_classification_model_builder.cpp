@@ -72,7 +72,7 @@ services::Status ModelBuilder::createTreeInternal(const size_t nNodes, TreeId & 
 }
 
 services::Status ModelBuilder::addLeafNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel,
-                                                   NodeId & res)
+                                                   const double cover, NodeId & res)
 {
     decision_forest::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<decision_forest::classification::internal::ModelImpl, ModelPtr>(_model);
@@ -81,7 +81,7 @@ services::Status ModelBuilder::addLeafNodeInternal(const TreeId treeId, const No
         return services::Status(services::ErrorID::ErrorIncorrectParameter);
     }
     return daal::algorithms::dtrees::internal::addLeafNodeInternal<size_t>(modelImplRef._serializationData, treeId, parentId, position, classLabel,
-                                                                           res, modelImplRef._probTbl);
+                                                                           cover, res, modelImplRef._probTbl);
 }
 
 bool checkProba(const double * const proba, const size_t nClasses)
@@ -104,7 +104,7 @@ bool checkProba(const double * const proba, const size_t nClasses)
 }
 
 services::Status ModelBuilder::addLeafNodeByProbaInternal(const TreeId treeId, const NodeId parentId, const size_t position,
-                                                          const double * const proba, NodeId & res)
+                                                          const double * const proba, const double cover, NodeId & res)
 {
     decision_forest::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<decision_forest::classification::internal::ModelImpl, ModelPtr>(_model);
@@ -112,17 +112,17 @@ services::Status ModelBuilder::addLeafNodeByProbaInternal(const TreeId treeId, c
     {
         return services::Status(services::ErrorID::ErrorIncorrectParameter);
     }
-    return daal::algorithms::dtrees::internal::addLeafNodeInternal<size_t>(modelImplRef._serializationData, treeId, parentId, position, 0, res,
+    return daal::algorithms::dtrees::internal::addLeafNodeInternal<size_t>(modelImplRef._serializationData, treeId, parentId, position, 0, cover, res,
                                                                            modelImplRef._probTbl, proba, _nClasses);
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
-                                                    const double featureValue, NodeId & res)
+                                                    const double featureValue, const double cover, NodeId & res)
 {
     decision_forest::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<decision_forest::classification::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, res);
+                                                                    featureValue, cover, res);
 }
 
 } // namespace interface2

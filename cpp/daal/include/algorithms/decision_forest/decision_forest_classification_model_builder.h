@@ -112,7 +112,8 @@ public:
     NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel)
     {
         NodeId resId;
-        _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, resId);
+        const double cover = 0.0; // TODO: Add cover
+        _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, cover, resId);
         services::throwIfPossible(_status);
         return resId;
     }
@@ -128,7 +129,8 @@ public:
     NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba)
     {
         NodeId resId;
-        _status |= addLeafNodeByProbaInternal(treeId, parentId, position, proba, resId);
+        const double cover = 0.0; // TODO: Add cover
+        _status |= addLeafNodeByProbaInternal(treeId, parentId, position, proba, cover, resId);
         services::throwIfPossible(_status);
         return resId;
     }
@@ -145,7 +147,8 @@ public:
     NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex, const double featureValue)
     {
         NodeId resId;
-        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, resId);
+        const double cover = 0.0; // TODO: Add cover
+        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, cover, resId);
         services::throwIfPossible(_status);
         return resId;
     }
@@ -184,11 +187,12 @@ protected:
     services::Status _status;
     services::Status initialize(const size_t nClasses, const size_t nTrees);
     services::Status createTreeInternal(const size_t nNodes, TreeId & resId);
-    services::Status addLeafNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, NodeId & res);
+    services::Status addLeafNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel,
+                                         const double cover, NodeId & res);
     services::Status addLeafNodeByProbaInternal(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba,
-                                                NodeId & res);
+                                                const double cover, NodeId & res);
     services::Status addSplitNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
-                                          const double featureValue, NodeId & res);
+                                          const double featureValue, const double cover, NodeId & res);
 
 private:
     size_t _nClasses;

@@ -25,14 +25,15 @@
 #ifndef __GBT_PREDICT_DENSE_DEFAULT_IMPL_I__
 #define __GBT_PREDICT_DENSE_DEFAULT_IMPL_I__
 
-#include "src/algorithms/dtrees/dtrees_model_impl.h"
-#include "src/algorithms/dtrees/dtrees_train_data_helper.i"
-#include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
-#include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
-#include "src/algorithms/dtrees/gbt/gbt_internal.h"
-#include "src/services/service_environment.h"
-#include "src/services/service_defines.h"
 #include "data_management/data/internal/finiteness_checker.h"
+#include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
+#include "src/algorithms/dtrees/dtrees_model_impl.h"
+#include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
+#include "src/algorithms/dtrees/dtrees_train_data_helper.i"
+#include "src/algorithms/dtrees/gbt/gbt_internal.h"
+#include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
+#include "src/services/service_defines.h"
+#include "src/services/service_environment.h"
 
 namespace daal
 {
@@ -44,8 +45,9 @@ namespace prediction
 {
 namespace internal
 {
-typedef float ModelFPType;
-typedef uint32_t FeatureIndexType;
+using gbt::internal::ModelFPType;
+using gbt::internal::FeatureIndexType;
+// typedef gbt::internal::FeatureIndexType FeatureIndexType;
 
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 struct PredictDispatcher
@@ -101,7 +103,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 {
     const ModelFPType * const values        = t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const int * const defaultLeft           = t.getdefaultLeftForSplit() - 1;
+    const int * const defaultLeft           = t.getDefaultLeftForSplit() - 1;
     const FeatureIndexType nFeat            = featTypes.getNumberOfFeatures();
 
     FeatureIndexType i[vectorBlockSize];
@@ -135,7 +137,7 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 {
     const ModelFPType * const values        = (const ModelFPType *)t.getSplitPoints() - 1;
     const FeatureIndexType * const fIndexes = t.getFeatureIndexesForSplit() - 1;
-    const int * const defaultLeft           = t.getdefaultLeftForSplit() - 1;
+    const int * const defaultLeft           = t.getDefaultLeftForSplit() - 1;
 
     const FeatureIndexType maxLvl = t.getMaxLvl();
 
@@ -167,7 +169,7 @@ struct TileDimensions
     static constexpr size_t minVectorBlockSizeFactor = 2;
     static constexpr size_t vectorBlockSizeStep      = 16;
     // optimalBlockSizeFactor is selected from benchmarking
-    static constexpr size_t optimalBlockSizeFactor = 3;
+    static constexpr size_t optimalBlockSizeFactor = 5;
 
     TileDimensions(const NumericTable & data, size_t nTrees, size_t nNodes)
         : nTreesTotal(nTrees), nRowsTotal(data.getNumberOfRows()), nCols(data.getNumberOfColumns())

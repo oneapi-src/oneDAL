@@ -104,9 +104,16 @@ namespace interface1
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
-    Parameter() : daal::algorithms::Parameter(), nIterations(0) {}
-    Parameter(const Parameter & o) : daal::algorithms::Parameter(o), nIterations(o.nIterations) {}
-    size_t nIterations; /*!< Number of iterations of the trained model to be uses for prediction*/
+    Parameter() : daal::algorithms::Parameter(), nIterations(0), predShapContributions(false), predShapInteractions(false) {}
+    Parameter(const Parameter & o)
+        : daal::algorithms::Parameter(o),
+          nIterations(o.nIterations),
+          predShapContributions(o.predShapContributions),
+          predShapInteractions(o.predShapInteractions)
+    {}
+    size_t nIterations;         /*!< Number of iterations of the trained model to be uses for prediction*/
+    bool predShapContributions; /*!< Predict SHAP contributions */
+    bool predShapInteractions;  /*!< Predict SHAP interactions */
 };
 /* [Parameter source code] */
 

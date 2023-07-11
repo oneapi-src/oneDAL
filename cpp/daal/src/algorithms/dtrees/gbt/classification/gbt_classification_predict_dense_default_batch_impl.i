@@ -88,7 +88,7 @@ public:
             TArray<algorithmFPType, cpu> expValPtr(nRows);
             algorithmFPType * expVal = expValPtr.get();
             DAAL_CHECK_MALLOC(expVal);
-            s = super::runInternal(pHostApp, this->_res);
+            s = super::runInternal(pHostApp, this->_res, false, false);
             if (!s) return s;
 
             auto nBlocks           = daal::threader_get_threads_number();
@@ -120,7 +120,7 @@ public:
             algorithmFPType * expVal = expValPtr.get();
             NumericTablePtr expNT    = HomogenNumericTableCPU<algorithmFPType, cpu>::create(expVal, 1, nRows, &s);
             DAAL_CHECK_MALLOC(expVal);
-            s = super::runInternal(pHostApp, expNT.get());
+            s = super::runInternal(pHostApp, expNT.get(), false, false);
             if (!s) return s;
 
             auto nBlocks           = daal::threader_get_threads_number();
@@ -143,7 +143,7 @@ public:
             DAAL_CHECK_BLOCK_STATUS(resBD);
             const algorithmFPType label[2] = { algorithmFPType(1.), algorithmFPType(0.) };
             algorithmFPType * res          = resBD.get();
-            s                              = super::runInternal(pHostApp, this->_res);
+            s                              = super::runInternal(pHostApp, this->_res, false, false);
             if (!s) return s;
 
             for (size_t iRow = 0; iRow < nRows; ++iRow)
