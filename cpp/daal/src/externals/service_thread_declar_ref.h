@@ -33,15 +33,16 @@ extern "C"
     extern int openblas_get_num_threads(void);
 }
 
-class openblas_thread_setter {
+class openblas_thread_setter
+{
 public:
-    openblas_thread_setter(int n_threads = 1) {
+    openblas_thread_setter(int n_threads = 1)
+    {
         previous_thread_count = openblas_get_num_threads();
         openblas_set_num_threads(n_threads);
     }
-    ~openblas_thread_setter() {
-        openblas_set_num_threads(previous_thread_count);
-    }
+    ~openblas_thread_setter() { openblas_set_num_threads(previous_thread_count); }
+
 private:
     int previous_thread_count = 1;
 };
