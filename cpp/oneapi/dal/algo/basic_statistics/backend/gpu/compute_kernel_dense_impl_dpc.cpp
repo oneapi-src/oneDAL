@@ -1360,15 +1360,17 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
 }
 
 template <typename Func>
-void measureExecutionTime(Func func, const std::string& functionName) {
+void measureExecutionTime(Func func, const std::string& functionName, int rank) {
     auto start_time = std::chrono::high_resolution_clock::now();
     func();
     auto end_time = std::chrono::high_resolution_clock::now();
 
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
-    std::cout << "Function: " << functionName << std::endl;
-    std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
+    if (rank == 0) {
+        std::cout << "Function: " << functionName << std::endl;
+        std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
+    }
 }
 
 template <typename Float, bs_list List>
