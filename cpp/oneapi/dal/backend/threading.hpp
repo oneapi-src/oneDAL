@@ -32,6 +32,50 @@ struct threading_policy {
               max_threads_per_core(max_threads_per_core_) {}
 };
 
+template<typename Functor>
+class NonVoidTaskAdapter : public daal::services::internal::thread_pinner_task_t {
+public:
+    typedef std::invoke_result_t<Functor> result_t;
+
+    explicit NonVoidTaskAdapter(Functor&& func, result_t* place)
+        : functor{ std::forward<Functor>(func) }, placement{ place } {}
+
+    void operator() () final {
+        auto temp = functor();
+        new (placement) result_t{ std::move(temp) };
+    }
+
+private:
+    Functor&& functor;
+    result_t* placement;
+};
+
+template<typename Functor>
+class VoidTaskAdapter : public daal::services::internal::thread_pinner_task_t {
+public:
+    explicit VoidTaskAdapter(Functor&& func) 
+        : functor{ std::forward<Functor>(func) } {}
+
+    void operator() () final {
+        functor();
+    }
+
+private:
+    Functor&& functor;
+};
+
+/*template<typename Functor>
+auto wrap_functor(Functor&& func) {
+  using res_t = std::result_of_t<Functor>;
+
+  if constexpr (std::is_same_v<res_t, void>) {
+    return VoidTaskAdapter<Functor>(std::forward<Functor>(functor));
+  }
+  else {
+
+  }
+}*/
+
 class task_executor {
     threading_policy policy_;
     tbb::task_arena *task_arena_;
@@ -45,5 +89,27 @@ public:
       task_arena_ = create_task_arena(policy_);
     }
 };
+
+template<typename F> 
+auto task_executor::execute(F&& f) -> decltype(f()){
+    if (this->policy_.thread_pinning) {
+        using res_t = decltype(f());
+        constexpr auto is_void = std::is_same_v<res_t, void>;
+        if constexpr (is_void) {
+          VoidTaskAdapter wrapper(std::forward<F>(f));
+          thread_pinner_->execute(wrapper);
+          return;
+        }
+        else {
+          res_t result;
+          NonVoidTaskAdapter wrapper(std::forward<F>(f), &result);
+          thread_pinner_->execute(wrapper);
+          return result;
+        }
+    }
+    else {
+        return this->task_arena_->execute(f);
+    }
+}
 
 } // namespace oneapi::dal::backend
