@@ -25,6 +25,7 @@
 #define __SERVICE_SERVICE_REF_H__
 
 #include <cstdlib>
+#include <string.h>
 #include "services/daal_defines.h"
 
 // Necessary to activate safe functions
@@ -55,19 +56,13 @@ struct RefService
     static int serv_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize)
     {
         if (destSize < srcSize) return static_cast<int>(ENOMEM);
-        memcpy(dest, src, srcSize);
-        return 0;
-        // TODO: safe funtion
-        // return memcpy_s(dest, destSize, src, srcSize);
+        return memcpy_s(dest, destSize, src, srcSize);
     }
 
     static int serv_memmove_s(void * dest, size_t destSize, const void * src, size_t smax)
     {
         if (destSize < smax) return static_cast<int>(ENOMEM);
-        memmove(dest, src, smax);
-        return 0;
-        // TODO: safe funtion
-        // return memmove_s(dest, destSize, src, smax);
+        return memmove_s(dest, destSize, src, smax);
     }
 
     static int serv_get_ht()
@@ -98,28 +93,20 @@ struct RefService
 
     static size_t serv_strnlen_s(const char * src, size_t slen)
     {
-        size_t i = 0;
-        for (; (i < slen) && (src[i] != '\0'); ++i)
-            ;
-        return i;
+        return strnlen_s(src, slen);
+        ;
     }
 
     static int serv_strncpy_s(char * dest, size_t dmax, const char * src, size_t slen)
     {
         if (dmax < slen + 1) return static_cast<int>(ENOMEM);
-        strncpy(dest, src, slen);
-        return 0;
-        // TODO: safe funtion
-        // return strncpy_s(dest, dmax, src, slen);
+        return strncpy_s(dest, dmax, src, slen);
     }
 
     static int serv_strncat_s(char * dest, size_t dmax, const char * src, size_t slen)
     {
         if (dmax < slen + 1) return static_cast<int>(ENOMEM);
-        strncat(dest, src, slen);
-        return 0;
-        // TODO: safe funtion
-        // return strncat_s(dest, dmax, src, slen);
+        return strncat_s(dest, dmax, src, slen);
     }
 
     // TODO: not a safe function - no control for the input buffer end
@@ -158,19 +145,9 @@ struct RefService
         return val;
     }
 
-    static int serv_int_to_string(char * buffer, size_t n, int value)
-    {
-        return snprintf(buffer, n, "%d", value);
-        // TODO: safe funtion
-        // return snprintf_s(buffer, n, "%d", value);
-    }
+    static int serv_int_to_string(char * buffer, size_t n, int value) { return snprintf_s(buffer, n, "%d", value); }
 
-    static int serv_double_to_string(char * buffer, size_t n, double value)
-    {
-        return snprintf(buffer, n, "%E", value);
-        // TODO: safe funtion
-        // return snprintf_s(buffer, n, "%E", value);
-    }
+    static int serv_double_to_string(char * buffer, size_t n, double value) { return snprintf_s(buffer, n, "%E", value); }
 };
 
 } // namespace ref

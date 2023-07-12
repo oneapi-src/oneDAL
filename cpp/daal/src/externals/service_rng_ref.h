@@ -75,25 +75,22 @@ class State : public StateIface
     using ThisType = State<Gen>;
 
 public:
-    int uniformRNG(const size_t n, size_t * r, const size_t a, const size_t b, const int method) override { return iUniform(n, r, a, b, method); }
+    int uniformRNG(const size_t n, size_t * r, const size_t a, const size_t b, const int method) final { return iUniform(n, r, a, b, method); }
 
-    int uniformRNG(const size_t n, int * r, const int a, const int b, const int method) override { return iUniform(n, r, a, b, method); }
+    int uniformRNG(const size_t n, int * r, const int a, const int b, const int method) final { return iUniform(n, r, a, b, method); }
 
-    int uniformRNG(const size_t n, float * r, const float a, const float b, const int method) override { return fUniform(n, r, a, b, method); }
+    int uniformRNG(const size_t n, float * r, const float a, const float b, const int method) final { return fUniform(n, r, a, b, method); }
 
-    int uniformRNG(const size_t n, double * r, const double a, const double b, const int method) override { return fUniform(n, r, a, b, method); }
+    int uniformRNG(const size_t n, double * r, const double a, const double b, const int method) final { return fUniform(n, r, a, b, method); }
 
-    int gaussianRNG(const size_t n, float * r, const float a, const float sigma, const int method) override
+    int gaussianRNG(const size_t n, float * r, const float a, const float sigma, const int method) final { return fGaussian(n, r, a, sigma, method); }
+
+    int gaussianRNG(const size_t n, double * r, const double a, const double sigma, const int method) final
     {
         return fGaussian(n, r, a, sigma, method);
     }
 
-    int gaussianRNG(const size_t n, double * r, const double a, const double sigma, const int method) override
-    {
-        return fGaussian(n, r, a, sigma, method);
-    }
-
-    int bernoulliRNG(const size_t n, int * r, const double p, const int method) override { return iBernoulli(n, r, p, method); }
+    int bernoulliRNG(const size_t n, int * r, const double p, const int method) final { return iBernoulli(n, r, p, method); }
 
     State(const int brngId, const size_t seedSize, const unsigned int * seed)
         : _gen(0), _brngId(brngId), _seedSize(seedSize), _seed(nullptr), _nSkip(0)
@@ -129,21 +126,19 @@ public:
             _seed = nullptr;
         }
     }
-    int getSize() override { return sizeof(ThisType); }
-    void clone(void * dest) const override
+    int getSize() final { return sizeof(ThisType); }
+    void clone(void * dest) const final
     {
+        constexpr elSize     = sizeof(unsigned int);
         State * destState    = static_cast<State *>(dest);
         destState->_seedSize = _seedSize;
         destState->_brngId   = _brngId;
         destState->_nSkip    = _nSkip;
         destState->_seed     = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * destState->_seedSize);
-        for (size_t i = 0; i < destState->_seedSize; ++i)
-        {
-            destState->_seed[i] = _seed[i];
-        }
+        ServiceInst::serv_memcpy_s(destState->_seed, destState->_seedSize * elSize, _seed, _seedSize * elSize);
     }
-    StateIface * clone() const override { return new ThisType(*this); }
-    void assign(const void * src) override
+    StateIface * clone() const final { return new ThisType(*this); }
+    void assign(const void * src) final
     {
         const State * srcState = static_cast<const State *>(src);
         _seedSize              = srcState->_seedSize;
@@ -156,16 +151,14 @@ public:
         }
         if (srcState->_seedSize > 0 && srcState->_seed != nullptr)
         {
-            _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
-            for (size_t i = 0; i < _seedSize; ++i)
-            {
-                _seed[i] = srcState->_seed[i];
-            }
+            constexpr elSize = sizeof(unsigned int);
+            _seed            = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
+            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, srcState->_seed, srcState->_seedSize * elSize, );
             _gen.seed(_seed[0]);
             _gen.discard(_nSkip);
         }
     }
-    void discard(size_t nSkip) override
+    void discard(size_t nSkip) final
     {
         _nSkip += nSkip;
         _gen.discard(nSkip);
@@ -180,11 +173,10 @@ public:
     {
         int errcode = 0;
         if (rngSeedSize() == 0 || rngSeed() == nullptr) return services::ErrorNullInput;
-        if (!std::is_integral<T>::value) return services::ErrorDataTypeNotSupported;
         std::uniform_int_distribution<T> distrib(a, b - 1);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] = distrib(_gen);
+            r[i] << distrib(_gen);
         }
         _nSkip += n;
         return errcode;
@@ -194,11 +186,10 @@ public:
     {
         int errcode = 0;
         if (rngSeedSize() == 0 || rngSeed() == nullptr) return services::ErrorNullInput;
-        if (!std::is_floating_point<T>::value) return services::ErrorDataTypeNotSupported;
-        std::uniform_real_distribution<double> distrib(static_cast<double>(a), static_cast<double>(b));
+        std::uniform_real_distribution<T> distrib(a, b);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] = static_cast<T>(distrib(_gen));
+            r[i] << distrib(_gen);
         }
         _nSkip += n;
         return errcode;
@@ -212,7 +203,7 @@ public:
         std::normal_distribution<T> distrib(a, sigma);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] = distrib(_gen);
+            r[i] << distrib(_gen);
         }
         _nSkip += n;
         return errcode;
@@ -226,7 +217,7 @@ public:
         std::bernoulli_distribution distrib(p);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] = distrib(_gen);
+            r[i] << distrib(_gen);
         }
         _nSkip += n;
         return errcode;

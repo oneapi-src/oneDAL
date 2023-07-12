@@ -26,6 +26,7 @@
 
 #include <math.h>
 #include <cmath>
+#include <limits>
 #include "src/services/service_defines.h"
 
 namespace daal
@@ -60,62 +61,79 @@ struct RefMath<double, cpu>
     static double sCeil(double in) { return ceil(in); }
 
     // Not implemented
-    static double sErfInv(double in) { return 1.0; }
+    static double sErfInv(double in) { return std::numeric_limits<double>::quiet_NaN(); }
 
     static double sErf(double in) { return erf(in); }
 
     static double sLog(double in) { return log(in); }
 
     // Not implemented
-    static double sCdfNormInv(double in) { return 1.0; }
+    static double sCdfNormInv(double in) { return std::numeric_limits<double>::quiet_NaN(); }
 
     static void vPowx(SizeType n, const double * in, double in1, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = pow(in[i], in1);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
     }
 
     static void vCeil(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = ceil(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
     }
 
     // Not implemented
-    static void vErfInv(SizeType n, const double * in, double * out) {}
+    static void vErfInv(SizeType n, const double * in, double * out)
+    {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 
     static void vErf(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = erf(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
     }
 
     static void vExp(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = exp(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
     }
 
-    static double vExpThreshold() { return -650.0; }
+    static double vExpThreshold()
+    {
+        return -650.0;
+    }
 
     static void vTanh(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = tanh(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
     }
 
     static void vSqrt(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = sqrt(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
     }
 
     static void vLog(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = log(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
     }
 
     static void vLog1p(SizeType n, const double * in, double * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = log1p(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
     }
 
     // Not implemented
-    static void vCdfNormInv(SizeType n, const double * in, double * out) {}
+    static void vCdfNormInv(SizeType n, const double * in, double * out)
+    {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 };
 
 /*
@@ -140,62 +158,79 @@ struct RefMath<float, cpu>
     static float sCeil(float in) { return ceil(in); }
 
     // Not implemented
-    static float sErfInv(float in) { return 1.f; }
+    static float sErfInv(float in) { return std::numeric_limits<float>::quiet_NaN(); }
 
     static float sErf(float in) { return erf(in); }
 
     static float sLog(float in) { return log(in); }
 
     // Not implemented
-    static float sCdfNormInv(float in) { return 1.f; }
+    static float sCdfNormInv(float in) { return return std::numeric_limits<float>::quiet_NaN(); }
 
     static void vPowx(SizeType n, const float * in, float in1, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = pow(in[i], in1);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
     }
 
     static void vCeil(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = ceil(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
     }
 
     // Not implemented
-    static void vErfInv(SizeType n, const float * in, float * out) {}
+    static void vErfInv(SizeType n, const float * in, float * out)
+    {
+        return return std::numeric_limits<float>::quiet_NaN();
+    }
 
     static void vErf(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = erf(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; + i) out[i] = erf(in[i]);
     }
 
     static void vExp(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = exp(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
     }
 
-    static float vExpThreshold() { return -75.0f; }
+    static float vExpThreshold()
+    {
+        return -75.0f;
+    }
 
     static void vTanh(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = tanh(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
     }
 
     static void vSqrt(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = sqrt(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
     }
 
     static void vLog(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = log(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
     }
 
     static void vLog1p(SizeType n, const float * in, float * out)
     {
-        for (SizeType i = 0; i < n; i++) out[i] = log1p(in[i]);
+#pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
     }
 
     // Not implemented
-    static void vCdfNormInv(SizeType n, const float * in, float * out) {}
+    static void vCdfNormInv(SizeType n, const float * in, float * out)
+    {
+        return return std::numeric_limits<float>::quiet_NaN();
+    }
 };
 
 } // namespace ref
