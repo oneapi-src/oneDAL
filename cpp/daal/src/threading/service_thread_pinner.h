@@ -25,14 +25,13 @@
 #define __SERVICE_THREAD_PINNER_H__
 
 #include "services/daal_defines.h"
+#include "tbb/tbb.h"
 #if !defined(DAAL_THREAD_PINNING_DISABLED)
 
     #include <cstdlib>
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdint.h>
-
-    #include "tbb/tbb.h"
 
     #ifdef __FreeBSD__
         #ifndef _GNU_SOURCE
@@ -90,9 +89,8 @@ public:
 
 extern "C"
 {
-    DAAL_EXPORT void _thread_pinner_thread_pinner_init(void(int &, int &, int &, int **), void (*deleter)(void *),
-                                                       const tbb::task_arena & task_arena);
     DAAL_EXPORT void _thread_pinner_thread_pinner_init(void(int &, int &, int &, int **), void (*deleter)(void *));
+    DAAL_EXPORT void _thread_pinner_init_with_task_arena(void(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena);
     DAAL_EXPORT void _thread_pinner_read_topology();
     DAAL_EXPORT void _thread_pinner_on_scheduler_entry(bool);
     DAAL_EXPORT void _thread_pinner_on_scheduler_exit(bool);
@@ -102,11 +100,10 @@ extern "C"
     DAAL_EXPORT bool _thread_pinner_get_pinning();
     DAAL_EXPORT bool _thread_pinner_set_pinning(bool p);
 
-    DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *),
-                                        const tbb::task_arena & task_arena);
-    DAAL_EXPORT tbb::task_arena * _thread_pinner_get_task_arena();
-    DAAL_EXPORT int _thread_pinner_get_is_pinning();
-    DAAL_EXPORT void _thread_pinner_set_is_pinning(int is_p);
+    DAAL_EXPORT tbb::task_arena* _thread_pinner_get_task_arena();
+
+    DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *));
+    DAAL_EXPORT void * _getThreadPinnerFromTaskArena(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena);
 }
 
 namespace daal
@@ -118,14 +115,8 @@ namespace internal
 class thread_pinner_t
 {
 public:
-    thread_pinner_t(void (*f)(int &, int &, int &, int **), void (*deleter)(void *), const tbb::task_arena & task_arena)
-    {
-        _thread_pinner_thread_pinner_init(f, deleter, task_arena);
-    }
-    thread_pinner_t(void (*f)(int &, int &, int &, int **), void (*deleter)(void *))
-    {
-        _thread_pinner_thread_pinner_init(f, deleter, NULL);
-    }
+    thread_pinner_t(void (*f)(int &, int &, int &, int **), void (*deleter)(void *)) { _thread_pinner_thread_pinner_init(f, deleter); }
+    thread_pinner_t(void (*f)(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena) { _thread_pinner_init_with_task_arena(f, deleter, task_arena); }
     void read_topology() { _thread_pinner_read_topology(); }
     void on_scheduler_entry(bool p) { _thread_pinner_on_scheduler_entry(p); }
     void on_scheduler_exit(bool p) { _thread_pinner_on_scheduler_exit(p); }
@@ -133,20 +124,17 @@ public:
     int get_status() { return _thread_pinner_get_status(); }
     bool get_pinning() { return _thread_pinner_get_pinning(); }
     bool set_pinning(bool p) { return _thread_pinner_set_pinning(p); }
-    tbb::task_arena * get_task_arena() { return _thread_pinner_get_task_arena(); }
-    int get_is_pinning() { return _thread_pinner_get_is_pinning(); }
-    void set_is_pinning(int is_p) { _thread_pinner_set_is_pinning(is_p); }
+    tbb::task_arena* get_task_arena() { return _thread_pinner_get_task_arena(); }
 };
-
-inline thread_pinner_t * getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *),
-                                         const tbb::task_arena & task_arena)
-{
-    return (thread_pinner_t *)_getThreadPinner(create_pinner, read_topo, deleter, task_arena);
-}
 
 inline thread_pinner_t * getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
 {
     return (thread_pinner_t *)_getThreadPinner(create_pinner, read_topo, deleter);
+}
+
+inline thread_pinner_t * getThreadPinnerFromTaskArena(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena)
+{
+    return (thread_pinner_t *)_getThreadPinnerFromTaskArena(create_pinner, read_topo, deleter, task_arena);
 }
 
 } // namespace internal

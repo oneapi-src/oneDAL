@@ -279,7 +279,7 @@ template <typename Op>
 inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     using detail::cpu_extension;
 
-    threading_policy policy(true, 1);
+    threading_policy policy(false, 1);
 
     task_executor task_executor_(policy);
 
