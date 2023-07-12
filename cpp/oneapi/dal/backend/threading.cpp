@@ -50,14 +50,4 @@ tbb::task_arena* oneapi::dal::backend::task_executor::create_task_arena(const th
     }
 }
 
-template<typename F> 
-auto oneapi::dal::backend::task_executor::execute(F&& f) -> decltype(f()){
-    if (this->policy_.thread_pinning) {
-        return this->thread_pinner_->execute(f);
-    }
-    else {
-        return this->task_arena_->execute(f);
-    }
-}
-
 } // namespace oneapi::dal::backend

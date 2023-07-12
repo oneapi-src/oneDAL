@@ -28,7 +28,7 @@ dal_module(
         "@onedal//cpp/oneapi:include_root",
         "@onedal//cpp/daal:services",
         "@onedal//cpp/daal:data_management",
-        "@tbb//:tbb",
+        "@onedal//cpp/daal:threading_tbb",
     ],
     dpc_deps = [
         "@micromkl_dpc//:mkl_dpc",
