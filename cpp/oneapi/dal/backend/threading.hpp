@@ -17,8 +17,6 @@
 #pragma once
 
 #include "tbb/tbb.h"
-// #include <tbb/task_arena.h>
-// #include <tbb/task_scheduler_observer.h>
 #include "src/threading/service_thread_pinner.h"
 #include "src/services/service_topo.h"
 
@@ -32,49 +30,37 @@ struct threading_policy {
               max_threads_per_core(max_threads_per_core_) {}
 };
 
-template<typename Functor>
-class NonVoidTaskAdapter : public daal::services::internal::thread_pinner_task_t {
+template<typename F>
+class non_void_task : public daal::services::internal::thread_pinner_task_t {
 public:
-    typedef std::invoke_result_t<Functor> result_t;
+    typedef std::invoke_result_t<F> result_t;
 
-    explicit NonVoidTaskAdapter(Functor&& func, result_t* place)
-        : functor{ std::forward<Functor>(func) }, placement{ place } {}
+    explicit non_void_task(F&& functor, result_t* result_ptr)
+        : functor_{ std::forward<F>(functor) }, result_ptr_{ result_ptr } {}
 
-    void operator() () final {
-        auto temp = functor();
-        new (placement) result_t{ std::move(temp) };
+    void operator()() final {
+        auto result = functor_();
+        new (result_ptr_) result_t{ std::move(result) };
     }
 
 private:
-    Functor&& functor;
-    result_t* placement;
+    F&& functor_;
+    result_t* result_ptr_;
 };
 
-template<typename Functor>
-class VoidTaskAdapter : public daal::services::internal::thread_pinner_task_t {
+template<typename F>
+class void_task : public daal::services::internal::thread_pinner_task_t {
 public:
-    explicit VoidTaskAdapter(Functor&& func) 
-        : functor{ std::forward<Functor>(func) } {}
+    explicit void_task(F&& functor) 
+        : functor_{ std::forward<F>(functor) } {}
 
-    void operator() () final {
-        functor();
+    void operator()() final {
+        functor_();
     }
 
 private:
-    Functor&& functor;
+    F&& functor_;
 };
-
-/*template<typename Functor>
-auto wrap_functor(Functor&& func) {
-  using res_t = std::result_of_t<Functor>;
-
-  if constexpr (std::is_same_v<res_t, void>) {
-    return VoidTaskAdapter<Functor>(std::forward<Functor>(functor));
-  }
-  else {
-
-  }
-}*/
 
 class task_executor {
     threading_policy policy_;
@@ -93,16 +79,16 @@ public:
 template<typename F> 
 auto task_executor::execute(F&& f) -> decltype(f()){
     if (this->policy_.thread_pinning) {
-        using res_t = decltype(f());
-        constexpr auto is_void = std::is_same_v<res_t, void>;
+        using result_t = decltype(f());
+        constexpr auto is_void = std::is_same_v<result_t, void>;
         if constexpr (is_void) {
-          VoidTaskAdapter wrapper(std::forward<F>(f));
+          void_task wrapper(std::forward<F>(f));
           thread_pinner_->execute(wrapper);
           return;
         }
         else {
-          res_t result;
-          NonVoidTaskAdapter wrapper(std::forward<F>(f), &result);
+          result_t result;
+          non_void_task wrapper(std::forward<F>(f), &result);
           thread_pinner_->execute(wrapper);
           return result;
         }

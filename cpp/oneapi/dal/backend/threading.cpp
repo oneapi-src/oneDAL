@@ -27,7 +27,7 @@ tbb::task_arena* oneapi::dal::backend::task_executor::create_task_arena(const th
         if (policy.thread_pinning) {
             using daal::services::internal::thread_pinner_t;
             thread_pinner_t* thread_pinner_ptr =
-                daal::services::internal::getThreadPinner(true,
+                daal::services::internal::getThreadPinnerFromTaskArena(true,
                                                           read_topology,
                                                           delete_topology,
                                                           task_arena);
@@ -40,7 +40,7 @@ tbb::task_arena* oneapi::dal::backend::task_executor::create_task_arena(const th
         if (policy.thread_pinning) {
             using daal::services::internal::thread_pinner_t;
             thread_pinner_t* thread_pinner_ptr =
-                daal::services::internal::getThreadPinner(true,
+                daal::services::internal::getThreadPinnerFromTaskArena(true,
                                                           read_topology,
                                                           delete_topology,
                                                           task_arena);
