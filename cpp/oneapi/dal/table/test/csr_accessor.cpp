@@ -108,6 +108,16 @@ public:
                                    table_indexing_);
     }
 
+    template <typename Policy>
+    bool is_table_and_block_alloc_similar(const Policy& policy) {
+#ifdef ONEDAL_DATA_PARALLEL
+        if (dal::detail::is_data_parallel_policy_v<Policy>)
+            return (table_alloc_ == accessor_alloc_ && table_alloc_ != sycl::usm::alloc::host);
+        else
+#endif
+            return true;
+    }
+
     /// Check that `pull` method of `csr_accessor` class works correctly.
     ///
     /// @param[in] start_idx    Zero-based index of the first row of the block of data
@@ -184,10 +194,11 @@ public:
         const std::int64_t data_shift = row_offsets_[start_idx] - row_offsets_[0];
 
         // check that no data copying happened when possible
-        if (std::is_same_v<table_data_t, accessor_data_t> && table_alloc_ == accessor_alloc_ &&
-            table_alloc_ != sycl::usm::alloc::host)
+        if (std::is_same_v<table_data_t, accessor_data_t> &&
+            is_table_and_block_alloc_similar(this->get_policy())) {
             REQUIRE(reinterpret_cast<const table_data_t*>(data) + data_shift ==
                     reinterpret_cast<const table_data_t*>(data_array.get_data()));
+        }
 
         // check that the data values in the pulled data block are correct
         for (std::int64_t i = 0; i < data_array.get_count(); i++) {
@@ -198,12 +209,13 @@ public:
         // of the tested table and the accessor
 
         if (table_indexing_ == accessor_indexing_) {
-            if (table_alloc_ == accessor_alloc_ && table_alloc_ != sycl::usm::alloc::host) {
+            if (is_table_and_block_alloc_similar(this->get_policy())) {
                 REQUIRE(column_indices_ + data_shift == cidx_array.get_data());
                 if (start_idx == 0) {
                     REQUIRE(row_offsets_ == ridx_array.get_data());
                 }
             }
+
             for (std::int64_t i = 0; i < data_array.get_count(); i++) {
                 REQUIRE(cidx_array[i] == column_indices_[data_shift + i]);
             }
