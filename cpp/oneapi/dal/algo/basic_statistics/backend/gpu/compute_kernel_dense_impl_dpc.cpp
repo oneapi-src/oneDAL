@@ -1405,7 +1405,8 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
                                           : compute_single_pass<false>(data_nd);
             }
         },
-        "weights.has_data() condition");
+        "weights.has_data() condition",
+        comm_.get_rank());
 
     // Measure the execution time of finalize function
     measureExecutionTime(
@@ -1413,7 +1414,8 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
             std::tie(ndres, last_event) =
                 finalize(std::move(ndres), row_count, column_count, { last_event });
         },
-        "finalize");
+        "finalize",
+        comm_.get_rank());
 
     // Measure the execution time of get_result function
     measureExecutionTime(
@@ -1421,7 +1423,8 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
             return get_result(desc, std::move(ndres), column_count, { last_event })
                 .set_result_options(desc.get_result_options());
         },
-        "get_result");
+        "get_result",
+        comm_.get_rank());
 
     return get_result(desc, std::move(ndres), column_count, { last_event })
         .set_result_options(desc.get_result_options());
