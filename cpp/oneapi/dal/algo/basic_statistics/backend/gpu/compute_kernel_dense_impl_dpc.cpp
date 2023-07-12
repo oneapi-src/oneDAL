@@ -17,7 +17,8 @@
 #include <limits>
 #include <algorithm>
 #include <type_traits>
-
+#include <chrono>
+#include <iostream>
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel_dense_impl.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -1209,7 +1210,7 @@ compute_kernel_dense_impl<Float, List>::compute_by_blocks(const pr::ndview<Float
     DECLSET_IF(Float*, asum2cent_ptr, sum2cent_based_stat, ndbuf.get_sum2cent().get_mutable_data())
 
     const auto* data_ptr = data.get_data();
-    const auto wg_size = be::device_max_wg_size(this->q_);
+    const auto wg_size = be::device_max_wg_size(q_);
     const auto local_size = (wg_size < column_count) ? wg_size : column_count;
 
     const auto row_block_size = (row_count + row_block_count - 1) / row_block_count;
@@ -1358,6 +1359,18 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
     return std::make_tuple(std::forward<local_result_t>(ndres), std::move(last_event));
 }
 
+template <typename Func>
+void measureExecutionTime(Func func, const std::string& functionName) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    func();
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+
+    std::cout << "Function: " << functionName << std::endl;
+    std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
+}
+
 template <typename Float, bs_list List>
 result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& desc,
                                                             const input_t& input) {
@@ -1374,20 +1387,39 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     local_result<Float, List> ndres;
     sycl::event last_event;
 
-    if (weights.has_data()) {
-        const auto weights_nd = pr::table2ndarray<Float>(q_, weights, alloc::device);
-        std::tie(ndres, last_event) =
-            (row_block_count > 1) ? compute_by_blocks<true>(data_nd, row_block_count, weights_nd)
-                                  : compute_single_pass<true>(data_nd, weights_nd);
-    }
-    else {
-        std::tie(ndres, last_event) = (row_block_count > 1)
-                                          ? compute_by_blocks<false>(data_nd, row_block_count)
+    // Measure the execution time of weights.has_data() condition
+    measureExecutionTime(
+        [&]() {
+            if (weights.has_data()) {
+                const auto weights_nd = pr::table2ndarray<Float>(q_, weights, alloc::device);
+                std::tie(ndres, last_event) =
+                    (row_block_count > 1)
+                        ? compute_by_blocks<true>(data_nd, row_block_count, weights_nd)
+                        : compute_single_pass<true>(data_nd, weights_nd);
+            }
+            else {
+                std::tie(ndres, last_event) =
+                    (row_block_count > 1) ? compute_by_blocks<false>(data_nd, row_block_count)
                                           : compute_single_pass<false>(data_nd);
-    }
+            }
+        },
+        "weights.has_data() condition");
 
-    std::tie(ndres, last_event) =
-        finalize(std::move(ndres), row_count, column_count, { last_event });
+    // Measure the execution time of finalize function
+    measureExecutionTime(
+        [&]() {
+            std::tie(ndres, last_event) =
+                finalize(std::move(ndres), row_count, column_count, { last_event });
+        },
+        "finalize");
+
+    // Measure the execution time of get_result function
+    measureExecutionTime(
+        [&]() {
+            return get_result(desc, std::move(ndres), column_count, { last_event })
+                .set_result_options(desc.get_result_options());
+        },
+        "get_result");
 
     return get_result(desc, std::move(ndres), column_count, { last_event })
         .set_result_options(desc.get_result_options());
