@@ -33,6 +33,8 @@
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
+#include <iostream>
+
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;
 
@@ -126,22 +128,10 @@ DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
 
+/*This functionality has been moved to oneDAL side*/
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-
-    /* if HT enabled - set _numThreads to physical cores num */
-    if (daal::internal::Service<>::serv_get_ht())
-    {
-        /* Number of cores = number of cpu packages * number of cores per cpu package */
-        int ncores = daal::internal::Service<>::serv_get_ncpus() * daal::internal::Service<>::serv_get_ncorespercpu();
-
-        /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
-        {
-            daal::services::Environment::setNumberOfThreads(ncores);
-        }
-    }
     isInit = true;
 }
 
