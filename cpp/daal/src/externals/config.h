@@ -1,4 +1,4 @@
-/* file: config_template.h */
+/* file: config.h */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
 *
@@ -25,9 +25,9 @@
 #define __CONFIG_H__
 
 #ifdef DAAL_REF
-#include "src/externals/config_ref.h"
+    #include "src/externals/config_ref.h"
 #else
-#include "src/externals/config_mkl.h"
+    #include "src/externals/config_mkl.h"
 #endif
 
 #endif

@@ -163,37 +163,3 @@ daal_patch_kernel_defines = rule(
     },
     toolchains = ["@onedal//dev/bazel/toolchains:extra"],
 )
-
-def _get_tool_for_backend_config_patching(ctx):
-    return ctx.toolchains["@onedal//dev/bazel/toolchains:extra"] \
-        .extra_toolchain_info.patch_daal_backend_config
-
-def _declare_patched_backend_config_header(ctx):
-    patched_path = ctx.attr.output
-    return ctx.actions.declare_file(patched_path)
-
-def _daal_patch_backend_config_impl(ctx):
-    backend_config_header = _declare_patched_backend_config_header(ctx)
-    ctx.actions.run(
-        executable = _get_tool_for_backend_config_patching(ctx),
-        arguments = [
-            ctx.file.src.path,
-            backend_config_header.path,
-            ctx.attr.backend_impl_name,
-        ],
-        inputs = [ctx.file.src],
-        outputs = [backend_config_header],
-    )
-    return [ DefaultInfo(files=depset([ backend_config_header ])) ]
-
-daal_patch_backend_config = rule(
-    implementation = _daal_patch_backend_config_impl,
-    output_to_genfiles = True,
-    attrs = {
-        "src": attr.label(allow_single_file=True, mandatory=True),
-        "output": attr.string(mandatory=True),
-        "backend_impl_name": attr.string(mandatory=True),
-    },
-    toolchains = ["@onedal//dev/bazel/toolchains:extra"],
-)
-

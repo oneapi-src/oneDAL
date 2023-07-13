@@ -6,7 +6,6 @@ load("@onedal//dev/bazel:daal.bzl",
     "daal_algorithms",
     "daal_generate_version",
     "daal_patch_kernel_defines",
-    "daal_patch_backend_config",
 )
 
 daal_module(
@@ -37,16 +36,6 @@ daal_module(
 daal_patch_kernel_defines(
     name = "kernel_defines",
     src = "include/services/internal/daal_kernel_defines.h",
-)
-
-daal_patch_backend_config(
-    name = "backend_config_header",
-    src = "src/externals/config_template.h",
-    output = "src/externals/config.h",
-    backend_impl_name = select({
-        "@config//:backend_ref": "ref",
-        "//conditions:default":  "mkl",
-        }),
 )
 
 daal_module(
