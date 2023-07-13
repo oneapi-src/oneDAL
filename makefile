@@ -49,8 +49,6 @@ COMPILER ?= icc
 
 BACKEND_CONFIG ?= mkl
 
-RES := $(shell sed 's/{BACKEND}/${BACKEND_CONFIG}/g' cpp/daal/src/externals/config_template.h > cpp/daal/src/externals/config.h)
-
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
 CPUs := sse2 sse42 avx2 avx512

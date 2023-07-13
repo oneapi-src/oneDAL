@@ -24,6 +24,10 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#include "src/externals/config_{BACKEND}.h"
+#ifdef DAAL_REF
+#include "src/externals/config_ref.h"
+#else
+#include "src/externals/config_mkl.h"
+#endif
 
 #endif
