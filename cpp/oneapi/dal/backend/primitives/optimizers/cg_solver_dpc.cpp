@@ -14,11 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/newton_cg/cg_solver.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/cg_solver.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
-#include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -42,7 +42,7 @@ sycl::event dot_product(sycl::queue& queue,
                         const ndview<Float, 1>& y,
                         Float* res_gpu,
                         Float* res_host,
-                        const event_vector& deps = {}) {
+                        const event_vector& deps) {
     const std::int64_t n = x.get_dimension(0);
     auto* x_ptr = x.get_mutable_data();
     auto* y_ptr = y.get_mutable_data();
@@ -180,7 +180,8 @@ sycl::event cg_solve(sycl::queue& queue,
     return compute_conj_event;
 }
 
-#define INSTANTIATE(F, MatrixOperator)                                    \
+
+#define INSTANTIATE_SOLVER(F, MatrixOperator)                             \
     template sycl::event cg_solve<F, MatrixOperator>(sycl::queue&,        \
                                                      MatrixOperator&,     \
                                                      const ndview<F, 1>&, \
@@ -193,12 +194,12 @@ sycl::event cg_solve(sycl::queue& queue,
                                                      const std::int32_t,  \
                                                      const event_vector&);
 
-template class matrix_operator<float>;
-template class matrix_operator<double>;
 
-INSTANTIATE(float, logloss_hessian_product<float>);
-INSTANTIATE(double, logloss_hessian_product<double>);
-INSTANTIATE(float, matrix_operator<float>);
-INSTANTIATE(double, matrix_operator<double>);
+
+
+INSTANTIATE_SOLVER(float, logloss_hessian_product<float>);
+INSTANTIATE_SOLVER(double, logloss_hessian_product<double>);
+INSTANTIATE_SOLVER(float, matrix_operator<float>);
+INSTANTIATE_SOLVER(double, matrix_operator<double>);
 
 } // namespace oneapi::dal::backend::primitives

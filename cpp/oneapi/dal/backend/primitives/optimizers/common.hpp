@@ -17,21 +17,17 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, typename MatrixOperator>
-sycl::event cg_solve(sycl::queue& queue,
-                     MatrixOperator& mul_operator,
-                     const ndview<Float, 1>& b,
-                     ndview<Float, 1>& x,
-                     ndview<Float, 1>& residual,
-                     ndview<Float, 1>& conj_vector,
-                     ndview<Float, 1>& buffer,
-                     const Float tol = 1e-5,
-                     const Float atol = -1,
-                     const std::int32_t maxiter = 100,
-                     const event_vector& deps = {});
+template <typename Float>
+sycl::event dot_product(sycl::queue& queue,
+                        const ndview<Float, 1>& x,
+                        const ndview<Float, 1>& y,
+                        Float* res_gpu,
+                        Float* res_host,
+                        const event_vector& deps = {});
 
 template <typename Float>
 class matrix_operator {
@@ -46,5 +42,31 @@ private:
     sycl::queue q_;
     const ndview<Float, 2> A_;
 };
+
+template <typename Float>
+class logloss_function {
+
+logloss_function(sycl::queue& q, const ndview<Float, 2>& data, const ndview<Float, 1>& labels, const Float L2, const bool fit_intercept);
+
+ndview<Float, 1>& get_gradient();
+
+logloss_hessian_product<Float>& get_hessian_product();
+
+sycl::event compute_gradient();
+
+sycl::event compute_hessian_product();
+
+
+
+private:
+    sycl::queue q_;
+    const ndview<Float, 2> data_;
+    const ndview<Float, 1> labels_;
+    ndview<Float, 1> probabilities_;
+    const Float L2_;
+    const bool fit_intercept_;
+    logloss_hessian_product<Float> hessp_;
+};
+
 
 } // namespace oneapi::dal::backend::primitives

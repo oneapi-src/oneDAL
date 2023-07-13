@@ -17,7 +17,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
-#include "oneapi/dal/backend/primitives/newton_cg/cg_solver.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/cg_solver.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"

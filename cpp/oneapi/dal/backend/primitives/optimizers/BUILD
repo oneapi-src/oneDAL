@@ -5,7 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "newton_cg",
+    name = "optimizers",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
@@ -25,8 +25,7 @@ dal_test_suite(
         "test/*perf*.cpp",
     ]),
     dal_deps = [
-        ":newton_cg",
+        ":optimizers",
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
 )
-
