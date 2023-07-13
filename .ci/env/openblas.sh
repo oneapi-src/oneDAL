@@ -16,5 +16,10 @@
 #===============================================================================
 
 sudo apt-get update
-sudo apt-get install libopenblas-dev
-export OPENBLASROOT=/usr/lib/x86_64-linux-gnu/openblas-pthread
+sudo apt-get install build-essential gcc gfortran
+git clone https://github.com/xianyi/OpenBLAS.git
+pushd OpenBLAS
+  make clean
+  make -j4
+  make install PREFIX=../__deps/open_blas
+popd
