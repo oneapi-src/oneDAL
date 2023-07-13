@@ -47,7 +47,6 @@ daal_module(
 daal_module(
     name = "includes",
     hdrs = [ ":kernel_defines",
-             ":backend_config_header",
     ],
     includes = [ "." ],
     defines = [
