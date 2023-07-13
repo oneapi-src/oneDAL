@@ -89,8 +89,10 @@ fi
 #main actions
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
+    echo "Sourcing MKL env"
     $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
 elif [ "${backend_config}" == "ref" ]; then
+    echo "Sourcing ref(openblas) env"
     $(pwd)/.ci/env/openblas.sh
 else
     echo "Not supported backend env"
@@ -102,7 +104,7 @@ export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \
-    REQCPU="${optimizations}"
+    REQCPU="${optimizations}" \
     BACKEND_CONFIG="${backend_config}"
 err=$?
 
