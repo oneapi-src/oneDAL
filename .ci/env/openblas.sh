@@ -17,3 +17,4 @@
 
 sudo apt-get update
 sudo apt-get install libopenblas-dev
+export OPENBLASROOT=/usr/lib/x86_64-linux-gnu/openblas-pthread
