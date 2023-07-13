@@ -72,7 +72,8 @@ public:
 template <typename Gen = std::mt19937>
 class State : public StateIface
 {
-    using ThisType = State<Gen>;
+    using ThisType   = State<Gen>;
+    constexpr elSize = sizeof(unsigned int);
 
 public:
     int uniformRNG(const size_t n, size_t * r, const size_t a, const size_t b, const int method) final { return iUniform(n, r, a, b, method); }
@@ -98,10 +99,7 @@ public:
         _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
         if (_seedSize > 0 && seed != nullptr)
         {
-            for (size_t i = 0; i < _seedSize; i++)
-            {
-                _seed[i] = seed[i];
-            }
+            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, seed, seedSize * elSize);
             _gen.seed(_seed[0]);
         }
     }
@@ -110,10 +108,7 @@ public:
         if (_seedSize > 0 && other._seed != nullptr)
         {
             _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
-            for (size_t i = 0; i < _seedSize; i++)
-            {
-                _seed[i] = other._seed[i];
-            }
+            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, other._seed, other._seedSize * elSize);
             _gen.seed(_seed[0]);
             _gen.discard(_nSkip);
         }
@@ -129,7 +124,6 @@ public:
     int getSize() final { return sizeof(ThisType); }
     void clone(void * dest) const final
     {
-        constexpr elSize     = sizeof(unsigned int);
         State * destState    = static_cast<State *>(dest);
         destState->_seedSize = _seedSize;
         destState->_brngId   = _brngId;
@@ -151,8 +145,7 @@ public:
         }
         if (srcState->_seedSize > 0 && srcState->_seed != nullptr)
         {
-            constexpr elSize = sizeof(unsigned int);
-            _seed            = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
+            _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
             ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, srcState->_seed, srcState->_seedSize * elSize, );
             _gen.seed(_seed[0]);
             _gen.discard(_nSkip);
