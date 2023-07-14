@@ -22,8 +22,8 @@ micromkl_repo = repos.prebuilt_libs_repo_rule(
         "%{os}/include",
     ],
     libs = [
-        "%{os}/lib/intel64/libdaal_mkl_thread.a",
-        "%{os}/lib/intel64/libdaal_vmlipp_core.a",
+        "%{os}/lib/libdaal_mkl_thread.a",
+        "%{os}/lib/libdaal_vmlipp_core.a",
     ],
     build_template = "@onedal//dev/bazel/deps:micromkl.tpl.BUILD",
 )
@@ -33,7 +33,7 @@ micromkl_dpc_repo = repos.prebuilt_libs_repo_rule(
         "include",
     ],
     libs = [
-        "lib/intel64/libdaal_sycl.a",
+        "lib/libdaal_sycl.a",
     ],
     build_template = "@onedal//dev/bazel/deps:micromkldpc.tpl.BUILD",
 )

@@ -12,7 +12,7 @@ cc_library(
 cc_library(
     name = "mkl_core",
     srcs = [
-        "lib/intel64/libmkl_core.a",
+        "lib/libmkl_core.a",
     ],
     linkopts = [
         "-lpthread",
