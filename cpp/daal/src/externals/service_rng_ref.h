@@ -25,8 +25,6 @@
 #define __SERVICE_RNG_REF_H__
 
 #include "src/externals/service_rng_common.h"
-#include "src/externals/service_service.h"
-
 #include "services/error_indexes.h"
 #include <random>
 
@@ -101,7 +99,7 @@ public:
         _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
         if (_seedSize > 0 && seed != nullptr)
         {
-            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, seed, seedSize * elSize);
+            daal::services::daal_memcpy_s(_seed, _seedSize * elSize, seed, seedSize * elSize);
             _gen.seed(_seed[0]);
         }
     }
@@ -110,7 +108,7 @@ public:
         if (_seedSize > 0 && other._seed != nullptr)
         {
             _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
-            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, other._seed, other._seedSize * elSize);
+            daal::services::daal_memcpy_s(_seed, _seedSize * elSize, other._seed, other._seedSize * elSize);
             _gen.seed(_seed[0]);
             _gen.discard(_nSkip);
         }
@@ -131,7 +129,7 @@ public:
         destState->_brngId   = _brngId;
         destState->_nSkip    = _nSkip;
         destState->_seed     = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * destState->_seedSize);
-        ServiceInst::serv_memcpy_s(destState->_seed, destState->_seedSize * elSize, _seed, _seedSize * elSize);
+        daal::services::daal_memcpy_s(destState->_seed, destState->_seedSize * elSize, _seed, _seedSize * elSize);
     }
     StateIface * clone() const final { return new ThisType(*this); }
     void assign(const void * src) final
@@ -148,7 +146,7 @@ public:
         if (srcState->_seedSize > 0 && srcState->_seed != nullptr)
         {
             _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
-            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, srcState->_seed, srcState->_seedSize * elSize);
+            daal::services::daal_memcpy_s(_seed, _seedSize * elSize, srcState->_seed, srcState->_seedSize * elSize);
             _gen.seed(_seed[0]);
             _gen.discard(_nSkip);
         }
@@ -171,7 +169,7 @@ public:
         std::uniform_int_distribution<T> distrib(a, b - 1);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] << distrib(_gen);
+            r[i] = distrib(_gen);
         }
         _nSkip += n;
         return errcode;
@@ -184,7 +182,7 @@ public:
         std::uniform_real_distribution<T> distrib(a, b);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] << distrib(_gen);
+            r[i] = distrib(_gen);
         }
         _nSkip += n;
         return errcode;
@@ -198,7 +196,7 @@ public:
         std::normal_distribution<T> distrib(a, sigma);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] << distrib(_gen);
+            r[i] = distrib(_gen);
         }
         _nSkip += n;
         return errcode;
@@ -212,7 +210,7 @@ public:
         std::bernoulli_distribution distrib(p);
         for (size_t i = 0; i < n; i++)
         {
-            r[i] << distrib(_gen);
+            r[i] = distrib(_gen);
         }
         _nSkip += n;
         return errcode;

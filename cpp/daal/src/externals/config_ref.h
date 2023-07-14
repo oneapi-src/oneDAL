@@ -27,11 +27,11 @@
 #include "services/daal_defines.h"
 #include "services/env_detect.h"
 
+#include "src/externals/service_service_ref.h"
 #include "src/externals/service_blas_ref.h"
 #include "src/externals/service_lapack_ref.h"
 #include "src/externals/service_math_ref.h"
 #include "src/externals/service_rng_ref.h"
-#include "src/externals/service_service_ref.h"
 #include "src/externals/service_spblas_ref.h"
 #include "src/externals/service_stat_ref.h"
 
