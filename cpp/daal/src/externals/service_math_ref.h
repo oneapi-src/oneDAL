@@ -85,7 +85,7 @@ struct RefMath<double, cpu>
     // Not implemented
     static void vErfInv(SizeType n, const double * in, double * out)
     {
-        return std::numeric_limits<double>::quiet_NaN();
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<double>::quiet_NaN();
     }
 
     static void vErf(SizeType n, const double * in, double * out)
@@ -132,7 +132,7 @@ struct RefMath<double, cpu>
     // Not implemented
     static void vCdfNormInv(SizeType n, const double * in, double * out)
     {
-        return std::numeric_limits<double>::quiet_NaN();
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<double>::quiet_NaN();
     }
 };
 
@@ -165,7 +165,7 @@ struct RefMath<float, cpu>
     static float sLog(float in) { return log(in); }
 
     // Not implemented
-    static float sCdfNormInv(float in) { return return std::numeric_limits<float>::quiet_NaN(); }
+    static float sCdfNormInv(float in) { return std::numeric_limits<float>::quiet_NaN(); }
 
     static void vPowx(SizeType n, const float * in, float in1, float * out)
     {
@@ -182,7 +182,7 @@ struct RefMath<float, cpu>
     // Not implemented
     static void vErfInv(SizeType n, const float * in, float * out)
     {
-        return return std::numeric_limits<float>::quiet_NaN();
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<float>::quiet_NaN();
     }
 
     static void vErf(SizeType n, const float * in, float * out)
@@ -229,7 +229,7 @@ struct RefMath<float, cpu>
     // Not implemented
     static void vCdfNormInv(SizeType n, const float * in, float * out)
     {
-        return return std::numeric_limits<float>::quiet_NaN();
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<float>::quiet_NaN();
     }
 };
 

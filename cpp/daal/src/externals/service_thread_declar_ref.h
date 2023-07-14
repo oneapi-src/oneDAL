@@ -1,4 +1,4 @@
-/* file: service_rng.h */
+/* file: service_thread_declar_ref.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
 *
@@ -20,6 +20,9 @@
 //  Auxiliary class to set/restore OpenBLAS threads
 //--
 */
+
+#ifndef __SERVICE_THREAD_DECRAL_REF_H__
+#define __SERVICE_THREAD_DECRAL_REF_H__
 
 namespace daal
 {
@@ -50,3 +53,5 @@ private:
 } // namespace ref
 } // namespace internal
 } // namespace daal
+
+#endif
