@@ -96,6 +96,7 @@ sycl::event cg_solve(sycl::queue& queue,
 
     Float alpha = 0, beta = 0;
     Float r_norm = 0, b_norm = 0;
+    Float r_l1_norm = 0;
 
     const auto kernel_minus = [=](const Float a, const Float b) -> Float {
         return a - b;
@@ -113,10 +114,10 @@ sycl::event cg_solve(sycl::queue& queue,
     auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
     auto tmp_ptr = tmp_gpu.get_mutable_data();
 
-    dot_product<Float>(queue, b, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute b^T b
+    l1_norm<Float>(queue, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
 
     // Tolerances for convergence norm(residual) <= max(tol*norm(b), atol)
-    Float threshold = std::max(tol * tol * b_norm, atol * atol);
+    Float threshold = std::max(tol * b_norm, atol);
 
     const auto init_conj_kernel = [=](const Float residual_val, const Float conj_val) -> Float {
         return -residual_val;
@@ -127,13 +128,14 @@ sycl::event cg_solve(sycl::queue& queue,
                                            conj_vector,
                                            conj_vector,
                                            { compute_r0_event }); // p0 = -r0 + 0 * p
-    compute_conj_event.wait_and_throw();
     auto conj_host = conj_vector.to_host(queue, {});
     dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { compute_r0_event })
         .wait_and_throw(); // compute r^T r
 
     for (std::int32_t iter_num = 0; iter_num < maxiter; ++iter_num) {
-        if (r_norm < threshold) {
+        l1_norm<Float>(queue, residual, tmp_ptr, &r_l1_norm, { compute_conj_event })
+            .wait_and_throw(); // compute norm(residual)
+        if (r_l1_norm < threshold) {
             break;
         }
         auto compute_matmul_event =
@@ -180,7 +182,6 @@ sycl::event cg_solve(sycl::queue& queue,
     return compute_conj_event;
 }
 
-
 #define INSTANTIATE_SOLVER(F, MatrixOperator)                             \
     template sycl::event cg_solve<F, MatrixOperator>(sycl::queue&,        \
                                                      MatrixOperator&,     \
@@ -193,9 +194,6 @@ sycl::event cg_solve(sycl::queue& queue,
                                                      const F,             \
                                                      const std::int32_t,  \
                                                      const event_vector&);
-
-
-
 
 INSTANTIATE_SOLVER(float, logloss_hessian_product<float>);
 INSTANTIATE_SOLVER(double, logloss_hessian_product<double>);

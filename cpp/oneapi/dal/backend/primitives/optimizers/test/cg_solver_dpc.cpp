@@ -140,8 +140,8 @@ public:
                                                     buffer1,
                                                     buffer2,
                                                     buffer3,
-                                                    1e-3,
-                                                    1e-3,
+                                                    1e-6,
+                                                    1e-5,
                                                     n_,
                                                     {})
             .wait_and_throw();
@@ -154,9 +154,9 @@ public:
                 val += A_host_.at(i, j) * answer_host.at(j);
             }
             val -= b_host_.at(i);
-            r_norm += val * val;
+            r_norm += abs(val);
         }
-        REQUIRE(r_norm < 1e-3);
+        REQUIRE(r_norm < 1e-4);
 
         for (std::int64_t i = 0; i < n_; ++i) {
             check_val(x_host_.at(i), answer_host.at(i), 0.005, 0.005);

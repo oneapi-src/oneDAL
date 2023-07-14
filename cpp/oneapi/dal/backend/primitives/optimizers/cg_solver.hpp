@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/ndarray.hpp"    
-#include "oneapi/dal/backend/primitives/optimizers/common.hpp" 
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -33,7 +33,5 @@ sycl::event cg_solve(sycl::queue& queue,
                      const Float atol = -1,
                      const std::int32_t maxiter = 100,
                      const event_vector& deps = {});
-
-
 
 } // namespace oneapi::dal::backend::primitives
