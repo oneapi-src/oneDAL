@@ -25,6 +25,7 @@
 #define __SERVICE_RNG_REF_H__
 
 #include "src/externals/service_rng_common.h"
+#include "src/externals/service_service.h"
 
 #include "services/error_indexes.h"
 #include <random>
@@ -73,8 +74,8 @@ public:
 template <typename Gen = std::mt19937>
 class State : public StateIface
 {
-    using ThisType                = State<Gen>;
-    constexpr unsigned int elSize = sizeof(unsigned int);
+    using ThisType                       = State<Gen>;
+    static constexpr unsigned int elSize = sizeof(unsigned int);
 
 public:
     int uniformRNG(const size_t n, size_t * r, const size_t a, const size_t b, const int method) final { return iUniform(n, r, a, b, method); }
@@ -147,7 +148,7 @@ public:
         if (srcState->_seedSize > 0 && srcState->_seed != nullptr)
         {
             _seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * _seedSize);
-            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, srcState->_seed, srcState->_seedSize * elSize, );
+            ServiceInst::serv_memcpy_s(_seed, _seedSize * elSize, srcState->_seed, srcState->_seedSize * elSize);
             _gen.seed(_seed[0]);
             _gen.discard(_nSkip);
         }
