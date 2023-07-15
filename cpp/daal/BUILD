@@ -267,7 +267,10 @@ daal_dynamic_lib(
     deps = [
         ":threading_tbb",
     ],
-    def_file = "src/threading/export_lnx32e.def",
+    def_file = select({
+        "@config//:backend_ref": "src/threading/export_lnx32e.ref.def",
+        "//conditions:default": "src/threading/export_lnx32e.mkl.def", 
+        }),
 )
 
 daal_module(
