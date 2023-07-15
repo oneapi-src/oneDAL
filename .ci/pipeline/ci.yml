@@ -92,7 +92,7 @@ jobs:
 - job: 'LinuxMakeGNU_OpenBLAS'
   timeoutInMinutes: 0
   variables:
-    release.dir: '__release_lnx_gnu_openblas'
+    release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
     vmImage: 'ubuntu-22.04'
