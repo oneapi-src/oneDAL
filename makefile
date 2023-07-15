@@ -307,7 +307,7 @@ release.ONEAPI.LIBS_Y.dpc := $(oneapi_y.dpc)
 daaldep.lnx32e.rt.thr := -L$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.lnx32e.threxport := export_lnx32e.def
+daaldep.lnx32e.threxport := export_lnx32e.$(BACKEND_CONFIG).def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
