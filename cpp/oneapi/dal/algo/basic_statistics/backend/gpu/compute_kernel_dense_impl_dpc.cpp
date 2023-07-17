@@ -923,11 +923,6 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(std::int64_t block_co
     ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
     ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
 
-    // ASSERT_IF(bs_list::mean | sum2cent_based_stat,
-    //           com_sum.get_count() == block_count * column_count);
-    // ASSERT_IF(sum2cent_based_stat,
-    //           com_sum2cent.get_count() == block_count * column_count);
-
     DECLSET_IF(Float*,
                rsum_ptr,
                bs_list::mean | sum2cent_based_stat,
@@ -942,49 +937,24 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(std::int64_t block_co
     DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
     DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
 
-    //const Float* rsum2_ptr = ndres.get_sum2().get_data();
-
+    const Float* bsum2_ptr = ndres.get_sum2().get_data();
+    const Float inv_n = Float(1.0 / double(block_count));
     const Float* bsum_ptr = ndres.get_sum().get_data();
     const Float* bsum2cent_ptr = ndres.get_sum2cent().get_data();
-    const Float* bsum2_ptr = ndres.get_sum2().get_data();
     const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
 
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> id) {
-            Float mrgsum = Float(0);
-            Float mrgsum2 = Float(0);
-            Float mrgsum2cent = Float(0);
-            Float mrgvectors = Float(0);
+            Float mrgmean = bsum_ptr[id] * inv_n;
 
-            for (std::int64_t i = 0; i < block_count; ++i) {
-                std::int64_t offset = id + i * block_stride;
-
-                Float sum = Float(0);
-                Float sum2 = Float(0);
-                if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | sum2cent_based_stat,
-                                              List)) {
-                    sum = bsum_ptr[offset];
-                    sum2 = bsum2_ptr[offset]; // assuming you have sum2 in your result
-                }
-
-                Float rcnt = static_cast<Float>(block_count);
-                Float sum2cent = Float(0);
-                if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-                    sum2cent = bsum2cent_ptr[offset];
-                }
-
-                mrgsum += sum;
-                mrgsum2 += sum2;
-                mrgsum2cent += sum2cent;
-                mrgvectors += rcnt;
-            }
-
-            Float mrgmean = mrgsum / mrgvectors;
-            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+            Float mrgvariance = bsum2cent_ptr[id] * (inv_n - Float(1));
             Float mrgstdev = sycl::sqrt(mrgvariance);
             Float mrgvart = mrgstdev / mrgmean;
 
+            if constexpr (check_mask_flag(bs_list::sorm, List)) {
+                rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
+            }
             if constexpr (check_mask_flag(bs_list::mean, List)) {
                 rmean_ptr[id] = mrgmean;
             }
