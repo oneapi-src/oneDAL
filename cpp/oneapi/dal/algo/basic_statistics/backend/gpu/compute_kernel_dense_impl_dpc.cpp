@@ -901,19 +901,13 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     return std::make_tuple(std::move(ndres), std::move(last_event));
 }
 
-/* merge distributed blocks kernel */
 template <typename Float, bs_list List>
 std::tuple<local_result<Float, List>, sycl::event>
-compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
-    const pr::ndarray<std::int64_t, 1>& com_row_count,
-    const pr::ndarray<Float, 1>& com_sum,
-    const pr::ndarray<Float, 1>& com_sum2cent,
-    local_result<Float, List>&& ndres,
-    std::int64_t block_count,
-    std::int64_t column_count,
-    std::int64_t block_stride, // distance between first elemments of blocks',
-    // it can be > column_count for example in case if alignment is ussed
-    const bk::event_vector& deps) {
+compute_kernel_dense_impl<Float, List>::merge_distr_blocks(std::int64_t block_count,
+                                                           local_result<Float, List>&& ndres,
+                                                           std::int64_t column_count,
+                                                           std::int64_t block_stride,
+                                                           const bk::event_vector& deps) {
     ONEDAL_ASSERT(block_count > 0);
     ONEDAL_ASSERT(column_count > 0);
     ONEDAL_ASSERT(block_stride > 0);
@@ -929,12 +923,10 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
     ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
 
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat,
-              com_row_count.get_count() == comm_.get_rank_count());
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat,
-              com_sum.get_count() == comm_.get_rank_count() * column_count);
-    ASSERT_IF(sum2cent_based_stat,
-              com_sum2cent.get_count() == comm_.get_rank_count() * column_count);
+    // ASSERT_IF(bs_list::mean | sum2cent_based_stat,
+    //           com_sum.get_count() == block_count * column_count);
+    // ASSERT_IF(sum2cent_based_stat,
+    //           com_sum2cent.get_count() == block_count * column_count);
 
     DECLSET_IF(Float*,
                rsum_ptr,
@@ -950,68 +942,52 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
     DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
     DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
 
-    const Float* rsum2_ptr = ndres.get_sum2().get_data();
+    //const Float* rsum2_ptr = ndres.get_sum2().get_data();
 
-    const std::int64_t* brc_ptr = com_row_count.get_data();
-    const Float* bsum_ptr = com_sum.get_data();
-    const Float* bsum2cent_ptr = com_sum2cent.get_data();
-
+    const Float* bsum_ptr = ndres.get_sum().get_data();
+    const Float* bsum2cent_ptr = ndres.get_sum2cent().get_data();
+    const Float* bsum2_ptr = ndres.get_sum2().get_data();
     const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
 
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> id) {
             Float mrgsum = Float(0);
-
-            Float mrgvectors = Float(0);
+            Float mrgsum2 = Float(0);
             Float mrgsum2cent = Float(0);
-            Float mrgmean = Float(0);
+            Float mrgvectors = Float(0);
 
             for (std::int64_t i = 0; i < block_count; ++i) {
                 std::int64_t offset = id + i * block_stride;
 
                 Float sum = Float(0);
+                Float sum2 = Float(0);
                 if constexpr (check_mask_flag(bs_list::sum | bs_list::mean | sum2cent_based_stat,
                                               List)) {
                     sum = bsum_ptr[offset];
+                    sum2 = bsum2_ptr[offset]; // assuming you have sum2 in your result
                 }
 
-                Float rcnt = static_cast<Float>(brc_ptr[i]);
+                Float rcnt = static_cast<Float>(block_count);
                 Float sum2cent = Float(0);
                 if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
                     sum2cent = bsum2cent_ptr[offset];
                 }
-                Float mean = sum / rcnt;
-
-                Float sum_n1n2 = mrgvectors + rcnt;
-                Float mul_n1n2 = mrgvectors * rcnt;
-                Float delta_scale = mul_n1n2 / sum_n1n2;
-                Float mean_scale = Float(1) / sum_n1n2;
-                Float delta = mean - mrgmean;
 
                 mrgsum += sum;
-
-                mrgsum2cent = mrgsum2cent + sum2cent + delta * delta * delta_scale;
-                mrgmean = (mrgmean * mrgvectors + mean * rcnt) * mean_scale;
-                mrgvectors = sum_n1n2;
+                mrgsum2 += sum2;
+                mrgsum2cent += sum2cent;
+                mrgvectors += rcnt;
             }
 
-            if constexpr (check_mask_flag(bs_list::sum, List)) {
-                rsum_ptr[id] = mrgsum;
-            }
-            if constexpr (check_mask_flag(bs_list::sum2cent, List)) {
-                rsum2cent_ptr[id] = mrgsum2cent;
-            }
+            Float mrgmean = mrgsum / mrgvectors;
+            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
+            Float mrgstdev = sycl::sqrt(mrgvariance);
+            Float mrgvart = mrgstdev / mrgmean;
+
             if constexpr (check_mask_flag(bs_list::mean, List)) {
                 rmean_ptr[id] = mrgmean;
             }
-            if constexpr (check_mask_flag(bs_list::sorm, List)) {
-                rsorm_ptr[id] = rsum2_ptr[id] / mrgvectors;
-            }
-
-            Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
-            Float mrgstdev = sycl::sqrt(mrgvariance);
-
             if constexpr (check_mask_flag(bs_list::varc, List)) {
                 rvarc_ptr[id] = mrgvariance;
             }
@@ -1019,13 +995,13 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(
                 rstdev_ptr[id] = mrgstdev;
             }
             if constexpr (check_mask_flag(bs_list::vart, List)) {
-                rvart_ptr[id] = mrgstdev / mrgmean;
+                rvart_ptr[id] = mrgvart;
             }
         });
     });
 
     last_event.wait_and_throw();
-    return std::make_tuple(std::forward<local_result_t>(ndres), last_event);
+    return std::make_tuple(std::move(ndres), last_event);
 }
 
 template <typename Float, bs_list List>
@@ -1286,8 +1262,9 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
     }
 
     sycl::event last_event;
-
+    auto rows_count_global = row_count;
     if (distr_mode) {
+        comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
         if constexpr (check_mask_flag(bs_list::min, List)) {
             ONEDAL_PROFILER_TASK(allreduce_min, q_);
             comm_.allreduce(ndres.get_min().flatten(q_, deps), spmd::reduce_op::min).wait();
@@ -1300,52 +1277,18 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             ONEDAL_PROFILER_TASK(allreduce_sum2, q_);
             comm_.allreduce(ndres.get_sum2().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
-
-        pr::ndarray<Float, 1> com_sum;
-        pr::ndarray<Float, 1> com_sum2cent;
-        pr::ndarray<std::int64_t, 1> com_row_count;
-
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
-            auto com_row_count_host =
-                pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
-            {
-                ONEDAL_PROFILER_TASK(allgather_mean_row_count);
-                comm_.allgather(row_count, com_row_count_host.flatten()).wait();
-            }
-
-            com_row_count = com_row_count_host.to_device(q_);
-
-            de::check_mul_overflow(comm_.get_rank_count(), column_count);
-            // sum is required for computing derived statistics, therefore it is suitable to get it by blocks instead of reducing
-            com_sum = pr::ndarray<Float, 1>::empty(q_,
-                                                   { comm_.get_rank_count() * column_count },
-                                                   alloc::device);
-            {
-                ONEDAL_PROFILER_TASK(allgather_mean_sum, q_);
-                comm_.allgather(ndres.get_sum().flatten(q_, deps), com_sum.flatten(q_)).wait();
-            }
-        }
-        else if constexpr (check_mask_flag(bs_list::sum, List)) {
             ONEDAL_PROFILER_TASK(allreduce_sum, q_);
             comm_.allreduce(ndres.get_sum().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
-
-        if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-            com_sum2cent = pr::ndarray<Float, 1>::empty(q_,
-                                                        { comm_.get_rank_count() * column_count },
-                                                        alloc::device);
-
-            ONEDAL_PROFILER_TASK(allgather_sum2cent);
-            comm_.allgather(ndres.get_sum2cent().flatten(q_, deps), com_sum2cent.flatten(q_))
-                .wait();
+        if constexpr (check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, List)) {
+            ONEDAL_PROFILER_TASK(allreduce_sum2cent, q_);
+            comm_.allreduce(ndres.get_sum2cent().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
 
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
-            auto [merge_res, merge_event] = merge_distr_blocks(com_row_count,
-                                                               com_sum,
-                                                               com_sum2cent,
+            auto [merge_res, merge_event] = merge_distr_blocks(rows_count_global,
                                                                std::forward<local_result_t>(ndres),
-                                                               comm_.get_rank_count(),
                                                                column_count,
                                                                column_count);
             ndres = std::move(merge_res);
@@ -1355,7 +1298,6 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
     else {
         sycl::event::wait_and_throw(deps);
     }
-
     return std::make_tuple(std::forward<local_result_t>(ndres), std::move(last_event));
 }
 
