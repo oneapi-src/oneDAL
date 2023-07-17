@@ -17,7 +17,8 @@
 #pragma once
 
 #include <limits>
-
+#include <iomanip>
+#include <iostream>
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -32,6 +33,38 @@ namespace la = te::linalg;
 namespace bs = oneapi::dal::basic_statistics;
 
 constexpr inline std::uint64_t mask_full = 0xffffffffffffffff;
+std::ostream& operator<<(std::ostream& stream, const oneapi::dal::table& table) {
+    auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+    const auto x = arr.get_data();
+
+    if (table.get_row_count() <= 10) {
+        for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+            }
+            std::cout << std::endl;
+        }
+    }
+    else {
+        for (std::int64_t i = 0; i < 5; i++) {
+            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "..." << (table.get_row_count() - 10) << " lines skipped..." << std::endl;
+        for (std::int64_t i = table.get_row_count() - 5; i < table.get_row_count(); i++) {
+            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+            }
+            std::cout << std::endl;
+        }
+    }
+    return stream;
+}
 
 template <typename TestType, typename Derived>
 class basic_statistics_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -239,10 +272,12 @@ public:
             const table ref = homogen_table::wrap(ref_sum2.get_array(), 1l, column_count);
             check_if_close(result.get_sum_squares(), ref, "Sum squares");
         }
-        // if (compute_mode.test(result_options::sum_squares_centered)) {
-        //     const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
-        //     check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
-        // }
+        if (compute_mode.test(result_options::sum_squares_centered)) {
+            const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
+            std::cout << ref << std::endl;
+            std::cout << result.get_sum_squares_centered() << std::endl;
+            check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
+        }
         if (compute_mode.test(result_options::mean)) {
             const table ref = homogen_table::wrap(ref_mean.get_array(), 1l, column_count);
             check_if_close(result.get_mean(), ref, "Mean");

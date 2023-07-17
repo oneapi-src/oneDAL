@@ -939,24 +939,19 @@ compute_kernel_dense_impl<Float, List>::merge_distr_blocks(std::int64_t block_co
 
     const Float* bsum2_ptr = ndres.get_sum2().get_data();
     const Float inv_n = Float(1.0 / double(block_count));
-    const Float* bsum_ptr = ndres.get_sum().get_data();
     const Float* bsum2cent_ptr = ndres.get_sum2cent().get_data();
+    const Float* bmean_ptr = ndres.get_mean().get_data();
     const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
 
     auto last_event = q_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> id) {
-            Float mrgmean = bsum_ptr[id] * inv_n;
-
             Float mrgvariance = bsum2cent_ptr[id] * (inv_n - Float(1));
             Float mrgstdev = sycl::sqrt(mrgvariance);
-            Float mrgvart = mrgstdev / mrgmean;
+            Float mrgvart = mrgstdev / bmean_ptr[id];
 
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
                 rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
-            }
-            if constexpr (check_mask_flag(bs_list::mean, List)) {
-                rmean_ptr[id] = mrgmean;
             }
             if constexpr (check_mask_flag(bs_list::varc, List)) {
                 rvarc_ptr[id] = mrgvariance;
@@ -1251,6 +1246,41 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             ONEDAL_PROFILER_TASK(allreduce_sum, q_);
             comm_.allreduce(ndres.get_sum().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
+        auto local_means = ndres.get_mean().get_data();
+        DECLSET_IF(Float*, rmean_ptr, bs_list::mean, ndres.get_mean().get_mutable_data());
+        DECLSET_IF(Float*,
+                   rsum2cent_ptr,
+                   bs_list::varc | bs_list::stdev | bs_list::vart,
+                   ndres.get_sum2cent().get_mutable_data());
+        const Float* bsum_ptr = ndres.get_sum().get_data();
+        const Float* bsum2cent_ptr = ndres.get_sum2cent().get_data();
+        const Float inv_n = Float(1.0 / double(rows_count_global));
+        //const Float inv_n_local = Float(1.0 / double(row_count));
+        const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
+
+        auto last_event = q_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(range, [=](sycl::id<1> id) {
+                Float mrgmean = bsum_ptr[id] * inv_n;
+                Float mrgsum2cent = bsum2cent_ptr[id];
+
+                Float local_mean = local_means[id];
+
+                Float global_mean = mrgmean;
+                Float delta = local_mean - global_mean;
+                Float delta_scale =
+                    (row_count * rows_count_global) / (row_count + rows_count_global);
+
+                mrgsum2cent += delta * delta * delta_scale;
+                if constexpr (check_mask_flag(bs_list::mean, List)) {
+                    rmean_ptr[id] = mrgmean;
+                }
+                if constexpr (check_mask_flag(bs_list::sum2cent, List)) {
+                    rsum2cent_ptr[id] = mrgsum2cent;
+                }
+            });
+        });
+
         if constexpr (check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, List)) {
             ONEDAL_PROFILER_TASK(allreduce_sum2cent, q_);
             comm_.allreduce(ndres.get_sum2cent().flatten(q_, deps), spmd::reduce_op::sum).wait();
