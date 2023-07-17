@@ -288,6 +288,8 @@ public:
         }
         // if (compute_mode.test(result_options::variance)) {
         //     const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
+        //                 std::cout << ref << std::endl;
+        //     std::cout << result.get_variance() << std::endl;
         //     check_if_close(result.get_variance(), ref, "Variance");
         // }
         // if (compute_mode.test(result_options::standard_deviation)) {
