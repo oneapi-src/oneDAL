@@ -3,7 +3,7 @@ Babel==2.12.1
 beautifulsoup4==4.12.2
 certifi==2022.12.7
 chardet==5.1.0
-click==8.1.4
+click==8.1.5
 colorama==0.4.6
 docutils~=0.18.0
 idna==3.4
@@ -37,4 +37,4 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 typing-extensions==4.7.1
 urllib3==2.0.3
-zipp==3.16.0
+zipp==3.16.2
