@@ -83,7 +83,7 @@ public:
         return te::table_id::homogen<float_t>();
     }
 
-    void general_checks(const te::dataframe& data_fr,
+    void general_checks(const table data,
                         std::shared_ptr<te::dataframe> weights_fr,
                         bs::result_option_id compute_mode) {
         const auto use_weights = bool(weights_fr);
@@ -92,7 +92,7 @@ public:
         const auto bs_desc = get_descriptor(compute_mode);
         const auto data_table_id = this->get_homogen_table_id();
 
-        table weights, data = data_fr.get_table(this->get_policy(), data_table_id);
+        table weights;
 
         bs::compute_result<> compute_result;
         if (use_weights) {

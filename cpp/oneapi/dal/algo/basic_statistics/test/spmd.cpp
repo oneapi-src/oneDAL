@@ -36,7 +36,23 @@ public:
     void set_rank_count(std::int64_t rank_count) {
         rank_count_ = rank_count;
     }
-
+    table get_gold_data() {
+        const std::int64_t row_count = 10;
+        const std::int64_t column_count = 5;
+        static const float_t data[] = {
+            4, 1, 2, 3, 4, //
+            5, 5, 6, 4, 2, //
+            6, 1, 4, 7, 2, //
+            7, 4, 8, 4, 4, //
+            8, 4, 1, 3, 6, //
+            9, 2, 5, 3, 2, //
+            0, 4, 1, 2, 5, //
+            1, 1, 4, 1, 2, //
+            2, 6, 9, 1, 9, //
+            3, 5, 3, 3, 3, //
+        };
+        return homogen_table::wrap(data, row_count, column_count);
+    }
     template <typename... Args>
     result_t compute_override(Args&&... args) {
         return this->compute_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
@@ -69,7 +85,7 @@ public:
                              bs::result_option_id compute_mode,
                              const te::table_id& data_table_id) {
         CAPTURE(static_cast<std::uint64_t>(compute_mode));
-        const table data = data_fr.get_table(this->get_policy(), data_table_id);
+        const table data = get_gold_data();
 
         const auto bs_desc = base_t::get_descriptor(compute_mode);
 
@@ -92,15 +108,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_spmd_test,
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 20, 20 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 7777),
-                           //    te::dataframe_builder{ 200, 530 }.fill_normal(-30, 30, 7777),
-                           //    te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
-                           //    te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
-                           //    te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
+    auto data = this->get_gold_data();
 
     this->set_rank_count(GENERATE(2, 3));
 
