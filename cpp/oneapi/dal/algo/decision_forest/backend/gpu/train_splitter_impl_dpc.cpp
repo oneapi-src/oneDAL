@@ -353,16 +353,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     auto device = queue.get_device();
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
-    // Regression task with double precision requires different memory size
-    // to handle atomic operations
-    // float factor is aligned with Intel(R) Data Center GPU Max 1100 L1 cache
-    // to achive best perfomance
-    std::int64_t float_factor =
-        sizeof(Float) == 4 && std::is_same_v<Task, task::regression> ? 32 : 16;
-    float_factor = std::is_same_v<Task, task::regression> ? float_factor : 2;
     // Compute memory requirements depending on task and device specs
     const std::int64_t bin_local_mem_size =
-        2 * float_factor * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
+        2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
     const std::int64_t common_local_data_size = 2 * hist_prop_count * sizeof(hist_type_t);
     std::int64_t batch_size = (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
     const Index all_bin_count = selected_ftr_count * bin_count;
@@ -456,19 +449,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             hist_resp += 1;
                         }
                         else {
-                            sycl::atomic_ref<Float,
-                                             sycl::memory_order_relaxed,
-                                             sycl::memory_scope_work_group,
-                                             sycl::access::address_space::local_space>
-                                hist_count(buf_hist[cur_hist_pos + 0]);
-                            hist_count += 1;
-
-                            sycl::atomic_ref<Float,
-                                             sycl::memory_order_relaxed,
-                                             sycl::memory_scope_work_group,
-                                             sycl::access::address_space::local_space>
-                                hist_sum(buf_hist[cur_hist_pos + 1]);
-                            hist_sum += response;
+                            buf_hist_ptr[cur_hist_pos + 0] += 1;
+                            buf_hist_ptr[cur_hist_pos + 1] += response;
                         }
                     }
                 }
@@ -497,12 +479,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             const Float resp_sum = cur_hist[1];
                             const Float mean = resp_sum / count;
                             const Float mse = (response - mean) * (response - mean);
-                            sycl::atomic_ref<Float,
-                                             sycl::memory_order_relaxed,
-                                             sycl::memory_scope_work_group,
-                                             sycl::access::address_space::local_space>
-                                hist_s2c(buf_hist[cur_hist_pos + 2]);
-                            hist_s2c += mse;
+                            buf_hist_ptr[cur_hist_pos + 2] += mse;
                         }
                     }
                     item.barrier(sycl::access::fence_space::local_space);
