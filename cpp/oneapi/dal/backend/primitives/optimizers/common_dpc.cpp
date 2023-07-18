@@ -21,18 +21,22 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-matrix_operator<Float>::matrix_operator(sycl::queue& q, const ndview<Float, 2>& A) : q_(q),
-                                                                                     A_(A) {}
+LinearMatrixOperator<Float>::LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A) : 
+    BaseMatrixOperator<Float>(),
+    q_(q),
+    A_(A) {}
 
+/*
 template <typename Float>
-sycl::event matrix_operator<Float>::operator()(const ndview<Float, 1>& vec,
+sycl::event LinearMatrixOperator<Float>::operator()(const ndview<Float, 1>& vec,
                                                ndview<Float, 1>& out,
-                                               const event_vector& deps) {
+                                               const event_vector& deps) override {
     ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
     ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
     return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
 }
+
 
 template <typename Float>
 convex_function<Float>::convex_function(sycl::queue& q,
@@ -54,7 +58,7 @@ ndview<Float, 1>& convex_function<Float>::get_gradient() {
 }
 
 template <typename Float>
-matrix_operator<Float>& convex_function<Float>::get_hessian_product() {
+BaseMatrixOperator<Float>& convex_function<Float>::get_hessian_product() {
     return hessp_;
 }
 
@@ -66,6 +70,7 @@ sycl::event convex_function<Float>::update_x(const ndview<Float, 1>& x, const ev
     auto bias_event = element_wise(q_, kernel_plus, gradient_, b_, gradient_, { gemv_event });
     return bias_event;
 }
+*/
 
 template <typename Float>
 sycl::event dot_product(sycl::queue& queue,
@@ -75,8 +80,8 @@ sycl::event dot_product(sycl::queue& queue,
                         Float* res_host,
                         const event_vector& deps) {
     const std::int64_t n = x.get_dimension(0);
-    auto* x_ptr = x.get_mutable_data();
-    auto* y_ptr = y.get_mutable_data();
+    auto* const x_ptr = x.get_mutable_data();
+    auto* const y_ptr = y.get_mutable_data();
     sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.single_task([=]() {
@@ -108,14 +113,12 @@ sycl::event l1_norm(sycl::queue& queue,
                     Float* res_host,
                     const event_vector& deps) {
     const std::int64_t n = x.get_dimension(0);
-    auto* x_ptr = x.get_mutable_data();
+    auto* const x_ptr = x.get_mutable_data();
+
     sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.single_task([=]() {
-            *res_gpu = 0;
-        });
+        cgh.fill(res_gpu, Float(0), 1);
     });
-    fill_res_event.wait_and_throw();
 
     queue
         .submit([&](sycl::handler& cgh) {
@@ -146,8 +149,10 @@ sycl::event l1_norm(sycl::queue& queue,
                                     F*,                       \
                                     F*,                       \
                                     const event_vector&);     \
-    template class matrix_operator<F>;                        \
-    template class convex_function<F>;
+    template class BaseMatrixOperator<F>;                     \
+    template class LinearMatrixOperator<F>; \
+    template class BaseFunction<F>; \
+    template class ConvexFunction<F>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);

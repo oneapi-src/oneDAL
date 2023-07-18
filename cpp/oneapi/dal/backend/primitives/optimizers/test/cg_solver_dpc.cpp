@@ -123,7 +123,7 @@ public:
         auto A = A_host_.to_device(this->get_queue());
         auto b = b_host_.to_device(this->get_queue());
 
-        matrix_operator<float_t> mul_operator(this->get_queue(), A);
+        LinearMatrixOperator<float_t> mul_operator(this->get_queue(), A);
         auto [x0, x0_init_event] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { n_ }, sycl::usm::alloc::device);
         x0_init_event.wait_and_throw();
@@ -133,7 +133,7 @@ public:
         auto buffer2 = buffer.get_slice(n_, 2 * n_);
         auto buffer3 = buffer.get_slice(2 * n_, 3 * n_);
 
-        cg_solve<float_t, matrix_operator<float_t>>(this->get_queue(),
+        cg_solve<float_t>(this->get_queue(),
                                                     mul_operator,
                                                     b,
                                                     x0,

@@ -21,9 +21,9 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, typename MatrixOperator>
+template <typename Float>
 sycl::event cg_solve(sycl::queue& queue,
-                     MatrixOperator& mul_operator,
+                     BaseMatrixOperator<Float>& mul_operator,
                      const ndview<Float, 1>& b,
                      ndview<Float, 1>& x,
                      ndview<Float, 1>& residual,
@@ -31,7 +31,7 @@ sycl::event cg_solve(sycl::queue& queue,
                      ndview<Float, 1>& buffer,
                      const Float tol = 1e-5,
                      const Float atol = -1,
-                     const std::int32_t maxiter = 100,
+                     const std::int64_t maxiter = 100,
                      const event_vector& deps = {});
 
 } // namespace oneapi::dal::backend::primitives

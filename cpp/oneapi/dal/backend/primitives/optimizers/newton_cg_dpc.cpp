@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/optimizers/common.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/line_search.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/cg_solver.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/newton_cg.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
@@ -25,61 +26,84 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, typename Function>
+template <typename Float>
 sycl::event newton_cg(sycl::queue& queue,
-                      Function& f,
+                      BaseFunction<Float>& f,
                       ndview<Float, 1>& x,
                       Float tol,
-                      std::int32_t maxiter,
+                      std::int64_t maxiter,
                       const event_vector& deps) {
     std::int64_t n = x.get_dimension(0);
 
     const auto kernel_minus = [=](const Float& val, Float*) -> Float {
         return -val;
     };
-    auto buffer = ndarray<Float, 1>::empty(queue, { 3 * n + 1 }, sycl::usm::alloc::device);
+    auto buffer = ndarray<Float, 1>::empty(queue, { 4 * n + 1 }, sycl::usm::alloc::device);
 
     auto buffer1 = buffer.get_slice(0, n);
     auto buffer2 = buffer.get_slice(n, 2 * n);
     auto buffer3 = buffer.get_slice(2 * n, 3 * n);
-    Float* norm_gpu = buffer.get_mutable_data();
-    norm_gpu += n * 3;
+    auto direction = buffer.get_slice(3 * n, 4 * n);
+    Float* tmp_gpu = buffer.get_mutable_data();
+    tmp_gpu += n * 4;
 
-    for (std::int32_t i = 0; i < maxiter; ++i) {
-        auto update_event = f.update_x(x, deps);
+    event_vector last_iter_deps = deps;
+
+    for (std::int64_t i = 0; i < maxiter; ++i) {
+        auto update_event = f.update_x(x, true, last_iter_deps);
         auto gradient = f.get_gradient();
         Float grad_norm = 0;
-        l1_norm(queue, gradient, norm_gpu, &grad_norm, { update_event }).wait_and_throw();
+        l1_norm(queue, gradient, tmp_gpu, &grad_norm, { update_event }).wait_and_throw();
         Float tol_k = std::min(sqrt(grad_norm), 0.5); //
 
         auto prepare_grad_event =
-            element_wise(queue, kernel_minus, gradient, nullptr, gradient, { update_event });
-        auto solve_event = cg_solve(queue,
-                                    f.get_hessian_product(),
-                                    gradient,
-                                    x,
-                                    buffer1,
-                                    buffer2,
-                                    buffer3,
-                                    tol_k,
-                                    Float(0),
-                                    n * 20,
-                                    { prepare_grad_event });
-        solve_event.wait_and_throw();
+            element_wise(queue, kernel_minus, gradient, nullptr, gradient, { update_event }); 
+        // optimization idea
+        // probably we can solve equation Hd = g instead of Hd = -g but then update x in the following way 
+        // xk+1 = xk - alpha * d 
+        auto copy_event = copy(queue, direction, gradient, {prepare_grad_event});
+        Float desc = -1;
+        bool is_first_iter = true;
+        auto last_event = copy_event;
+        while (desc < 0) {
+            if (!is_first_iter) {
+                tol_k /= 10;
+            }
+            is_first_iter = false;
+            auto solve_event = cg_solve(queue,
+                                        f.get_hessian_product(),
+                                        gradient,
+                                        direction,
+                                        buffer1,
+                                        buffer2,
+                                        buffer3,
+                                        tol_k,
+                                        Float(0),
+                                        n * 20,
+                                        { last_event });
+            // -grad^T direction should be > 0 if direction is descent direction
+            last_event = dot_product(queue, gradient, direction, tmp_gpu, &desc, {solve_event});
+            last_event.wait_and_throw();
+        }
+
+        Float alpha_opt = backtracking(queue, f, x, direction, buffer2, Float(1), Float(1e-4), true, {last_event});
+        std::cout << alpha_opt << std::endl;
+        // updated x is in buffer2
+        last_iter_deps = {copy(queue, x, buffer2, {})};
     }
 
     return {};
 }
 
-#define INSTANTIATE(F, Function)                               \
-    template sycl::event newton_cg<F, Function>(sycl::queue&,  \
-                                                Function&,     \
+#define INSTANTIATE(F)                               \
+    template sycl::event newton_cg<F>(sycl::queue&,  \
+                                                BaseFunction<F>&,     \
                                                 ndview<F, 1>&, \
                                                 F,             \
-                                                std::int32_t,  \
+                                                std::int64_t,  \
                                                 const event_vector&);
 
-INSTANTIATE(float, convex_function<float>);
-INSTANTIATE(double, convex_function<double>);
+INSTANTIATE(float);
+INSTANTIATE(double);
 
 } // namespace oneapi::dal::backend::primitives

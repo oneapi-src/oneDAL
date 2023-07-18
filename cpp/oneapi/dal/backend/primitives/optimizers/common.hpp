@@ -18,6 +18,8 @@
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/blas/gemv.hpp"
+#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -37,41 +39,88 @@ sycl::event dot_product(sycl::queue& queue,
                         const event_vector& deps = {});
 
 template <typename Float>
-class matrix_operator {
+class BaseMatrixOperator {
 public:
-    matrix_operator(sycl::queue& q, const ndview<Float, 2>& A);
+    virtual sycl::event operator()(const ndview<Float, 1>& vec,
+                           ndview<Float, 1>& out,
+                           const event_vector& deps = {}) = 0;
+};
+
+template <typename Float>
+class LinearMatrixOperator : public BaseMatrixOperator<Float> {
+public:
+    LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A);
 
     sycl::event operator()(const ndview<Float, 1>& vec,
-                           ndview<Float, 1>& out,
-                           const event_vector& deps = {});
+                                               ndview<Float, 1>& out,
+                                               const event_vector& deps) override {
+        ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
+        ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
+        sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
+        return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
+    }
 
 private:
     sycl::queue q_;
     const ndview<Float, 2> A_;
 };
 
+template<typename Float>
+class BaseFunction {
+public:
+    virtual Float get_value() = 0;
+    virtual ndview<Float, 1>& get_gradient() = 0;
+    virtual BaseMatrixOperator<Float>& get_hessian_product() = 0;
+    virtual sycl::event update_x(const ndview<Float, 1>& x, bool needHessp = false, const event_vector& deps = {}) = 0;
+};
+
+
 // f(x) = 1/2 x^t A x + b^t x
 // df / dx = Ax + b
 // df / d^2x = A
 template <typename Float>
-class convex_function {
+class ConvexFunction : public BaseFunction<Float> {
 public:
-    convex_function(sycl::queue& q, const ndview<Float, 2>& A, const ndview<Float, 1>& b);
+    ConvexFunction(sycl::queue& q, const ndview<Float, 2>& A, const ndview<Float, 1>& b);
 
-    ndview<Float, 1>& get_gradient();
+    Float get_value() override {
+        return value_;
+    }
 
-    matrix_operator<Float>& get_hessian_product();
+    ndview<Float, 1>& get_gradient() override {
+        return gradient_;
+    }
 
-    sycl::event update_x(const ndview<Float, 1>& x, const event_vector& deps);
+    BaseMatrixOperator<Float>& get_hessian_product() override {
+        return hessp_;
+    }
 
-    // we need to have this in public because we will need this memory to store -gradient
-    ndarray<Float, 1> gradient_;
+    sycl::event update_x(const ndview<Float, 1>& x, bool needHessp = false, const event_vector& deps = {}) override {
+        auto fill_gradient_event = fill<Float>(q_, gradient_, Float(0), deps);
+        auto fill_value_event = fill<Float>(q_, tmp_, Float(0), deps);
+        auto gemv_event = gemv(q_, A_, x, gradient_, Float(1), Float(0), { fill_gradient_event }); // Ax
+
+        Float tmp_host = 0;
+        auto xtax_event = dot_product(q_, gradient_, x, tmp_.get_mutable_data(), &tmp_host, {gemv_event}); //x^tAx
+        auto btx_event = dot_product(q_, b_, x, tmp_.get_mutable_data(), &value_, {xtax_event}); // b^t x
+
+        auto kernel_plus = sycl::plus<>();
+        auto bias_event = element_wise(q_, kernel_plus, gradient_, b_, gradient_, { xtax_event });
+        
+        btx_event.wait_and_throw();
+        value_ += tmp_host / 2; // 1/2 x^t A x + b^t x
+        
+        return bias_event;
+    }
 
 private:
     sycl::queue q_;
     const ndview<Float, 2> A_;
     const ndview<Float, 1> b_;
-    matrix_operator<Float> hessp_;
+    Float value_;
+    ndarray<Float, 1> tmp_;
+    ndarray<Float, 1> gradient_;
+    LinearMatrixOperator<Float> hessp_;
 };
 /*
 template <typename Float>

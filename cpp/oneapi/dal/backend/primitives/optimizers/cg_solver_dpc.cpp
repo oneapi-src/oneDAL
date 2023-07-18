@@ -23,56 +23,8 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-matrix_operator<Float>::matrix_operator(sycl::queue& q, const ndview<Float, 2>& A) : q_(q),
-                                                                                     A_(A) {}
-
-template <typename Float>
-sycl::event matrix_operator<Float>::operator()(const ndview<Float, 1>& vec,
-                                               ndview<Float, 1>& out,
-                                               const event_vector& deps) {
-    ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
-    ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
-    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
-    return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
-}
-
-template <typename Float>
-sycl::event dot_product(sycl::queue& queue,
-                        const ndview<Float, 1>& x,
-                        const ndview<Float, 1>& y,
-                        Float* res_gpu,
-                        Float* res_host,
-                        const event_vector& deps) {
-    const std::int64_t n = x.get_dimension(0);
-    auto* x_ptr = x.get_mutable_data();
-    auto* y_ptr = y.get_mutable_data();
-    sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.single_task([=]() {
-            *res_gpu = 0;
-        });
-    });
-    fill_res_event.wait_and_throw();
-
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.depends_on(fill_res_event);
-            const auto range = make_range_1d(n);
-            auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
-            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-                sum += x_ptr[idx] * y_ptr[idx];
-            });
-        })
-        .wait_and_throw();
-
-    return queue.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(res_host, res_gpu, sizeof(Float));
-    });
-}
-
-template <typename Float, typename MatrixOperator>
 sycl::event cg_solve(sycl::queue& queue,
-                     MatrixOperator& mul_operator,
+                     BaseMatrixOperator<Float>& mul_operator,
                      const ndview<Float, 1>& b,
                      ndview<Float, 1>& x,
                      ndview<Float, 1>& residual,
@@ -80,7 +32,7 @@ sycl::event cg_solve(sycl::queue& queue,
                      ndview<Float, 1>& buffer,
                      const Float tol,
                      const Float atol,
-                     const std::int32_t maxiter,
+                     const std::int64_t maxiter,
                      const event_vector& deps) {
     // Solving the equation mul_operator(x) = b
     const std::int64_t p = b.get_dimension(0);
@@ -112,7 +64,7 @@ sycl::event cg_solve(sycl::queue& queue,
                                          { compute_ax0_event }); // r0 = Ax0 - b
     // compute_r0_event.wait_and_throw();
     auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
-    auto tmp_ptr = tmp_gpu.get_mutable_data();
+    auto* const tmp_ptr = tmp_gpu.get_mutable_data();
 
     l1_norm<Float>(queue, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
 
@@ -132,7 +84,7 @@ sycl::event cg_solve(sycl::queue& queue,
     dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { compute_r0_event })
         .wait_and_throw(); // compute r^T r
 
-    for (std::int32_t iter_num = 0; iter_num < maxiter; ++iter_num) {
+    for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
         l1_norm<Float>(queue, residual, tmp_ptr, &r_l1_norm, { compute_conj_event })
             .wait_and_throw(); // compute norm(residual)
         if (r_l1_norm < threshold) {
@@ -182,9 +134,9 @@ sycl::event cg_solve(sycl::queue& queue,
     return compute_conj_event;
 }
 
-#define INSTANTIATE_SOLVER(F, MatrixOperator)                             \
-    template sycl::event cg_solve<F, MatrixOperator>(sycl::queue&,        \
-                                                     MatrixOperator&,     \
+#define INSTANTIATE_SOLVER(F)                             \
+    template sycl::event cg_solve<F>(sycl::queue&,        \
+                                                     BaseMatrixOperator<F>&, \
                                                      const ndview<F, 1>&, \
                                                      ndview<F, 1>&,       \
                                                      ndview<F, 1>&,       \
@@ -192,12 +144,12 @@ sycl::event cg_solve(sycl::queue& queue,
                                                      ndview<F, 1>&,       \
                                                      const F,             \
                                                      const F,             \
-                                                     const std::int32_t,  \
+                                                     const std::int64_t,  \
                                                      const event_vector&);
 
-INSTANTIATE_SOLVER(float, logloss_hessian_product<float>);
-INSTANTIATE_SOLVER(double, logloss_hessian_product<double>);
-INSTANTIATE_SOLVER(float, matrix_operator<float>);
-INSTANTIATE_SOLVER(double, matrix_operator<double>);
+//INSTANTIATE_SOLVER(float, logloss_hessian_product<float>);
+//INSTANTIATE_SOLVER(double, logloss_hessian_product<double>);
+INSTANTIATE_SOLVER(float);
+INSTANTIATE_SOLVER(double);
 
 } // namespace oneapi::dal::backend::primitives
