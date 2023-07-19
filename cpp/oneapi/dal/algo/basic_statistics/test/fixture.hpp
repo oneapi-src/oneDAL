@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <limits>
-#include <iomanip>
 #include <iostream>
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
 
