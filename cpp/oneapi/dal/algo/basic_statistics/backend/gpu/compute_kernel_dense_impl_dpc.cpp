@@ -317,7 +317,7 @@ struct singlepass_processor_kernel {
                 if constexpr (compute_mean)
                     mean += delta * inv_n;
                 if constexpr (compute_sum2cent)
-                    sum2cent += delta * (val - mean); //
+                    sum2cent += delta * (val - mean);
             }
         }
 
@@ -455,7 +455,7 @@ struct block_processor_kernel {
                 const Float inv_n = one / (rel_row + one);
 
                 mean += delta * inv_n;
-                sum2cent += delta * (val - mean); //
+                sum2cent += delta * (val - mean);
             }
         }
 
@@ -555,7 +555,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         }
         Float sum2cent = Float(0);
         if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-            sum2cent = bsum2cent_ptr[offset]; //
+            sum2cent = bsum2cent_ptr[offset];
         }
         Float mean = sum / static_cast<Float>(rcnt);
 
@@ -589,7 +589,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             lrc_ptr[id] += rcnt;
         }
         if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-            lsum2cent_ptr[id] = mrgsum2cent; //
+            lsum2cent_ptr[id] = mrgsum2cent;
         }
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             lmean_ptr[id] = mrgmean;
@@ -625,7 +625,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             }
             Float sum2cent = Float(0);
             if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-                sum2cent = lsum2cent_ptr[offset]; //
+                sum2cent = lsum2cent_ptr[offset];
             }
             Float mean = Float(0);
             if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
@@ -803,7 +803,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
     std::int64_t local_size = bk::device_max_sg_size(q_);
     auto global_size = de::check_mul_overflow(column_count, local_size);
 
-    //constexpr bool deffered_fin_true = true;
+    constexpr bool deffered_fin_true = true;
     constexpr bool deffered_fin_false = false;
 
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(global_size, local_size);
@@ -832,7 +832,37 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
             Float* lsum2cent_ptr = lsum2cent_buf.get_pointer().get();
             Float* lmean_ptr = lmean_buf.get_pointer().get();
 
-            if (!distr_mode) {
+            if (distr_mode) {
+                merge_blocks_kernel<Float, List, deffered_fin_true>(item,
+                                                                    brc_ptr,
+                                                                    bmin_ptr,
+                                                                    bmax_ptr,
+                                                                    bsum_ptr,
+                                                                    bsum2_ptr,
+                                                                    bsum2cent_ptr,
+                                                                    lrc_ptr,
+                                                                    lmin_ptr,
+                                                                    lmax_ptr,
+                                                                    lsum_ptr,
+                                                                    lsum2_ptr,
+                                                                    lsum2cent_ptr,
+                                                                    lmean_ptr,
+                                                                    rmin_ptr,
+                                                                    rmax_ptr,
+                                                                    rsum_ptr,
+                                                                    rsum2_ptr,
+                                                                    rsum2cent_ptr,
+                                                                    rmean_ptr,
+                                                                    rsorm_ptr,
+                                                                    rvarc_ptr,
+                                                                    rstdev_ptr,
+                                                                    rvart_ptr,
+                                                                    id,
+                                                                    group_id,
+                                                                    local_size,
+                                                                    block_count);
+            }
+            else {
                 merge_blocks_kernel<Float, List, deffered_fin_false>(item,
                                                                      brc_ptr,
                                                                      bmin_ptr,
