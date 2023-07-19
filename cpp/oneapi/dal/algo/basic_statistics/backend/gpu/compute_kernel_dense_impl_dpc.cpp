@@ -319,7 +319,7 @@ struct singlepass_processor_kernel {
                 if constexpr (compute_mean)
                     mean += delta * inv_n;
                 if constexpr (compute_sum2cent)
-                    sum2cent += delta * (val - mean);
+                    sum2cent += delta * (val - mean); //
             }
         }
 
@@ -457,7 +457,7 @@ struct block_processor_kernel {
                 const Float inv_n = one / (rel_row + one);
 
                 mean += delta * inv_n;
-                sum2cent += delta * (val - mean);
+                sum2cent += delta * (val - mean); //
             }
         }
 
@@ -557,7 +557,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         }
         Float sum2cent = Float(0);
         if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-            sum2cent = bsum2cent_ptr[offset];
+            sum2cent = bsum2cent_ptr[offset]; //
         }
         Float mean = sum / static_cast<Float>(rcnt);
 
@@ -591,7 +591,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             lrc_ptr[id] += rcnt;
         }
         if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-            lsum2cent_ptr[id] = mrgsum2cent;
+            lsum2cent_ptr[id] = mrgsum2cent; //
         }
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             lmean_ptr[id] = mrgmean;
@@ -627,7 +627,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
             }
             Float sum2cent = Float(0);
             if constexpr (check_mask_flag(sum2cent_based_stat, List)) {
-                sum2cent = lsum2cent_ptr[offset];
+                sum2cent = lsum2cent_ptr[offset]; //
             }
             Float mean = Float(0);
             if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
@@ -1267,11 +1267,6 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             comm_.allgather(row_count, com_row_count_host.flatten()).wait();
         }
 
-        std::int64_t mrgvectors = 0;
-        for (std::int64_t i = 0; i < comm_.get_rank(); ++i) {
-            mrgvectors += com_row_count_host.at(i);
-        }
-
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             ONEDAL_PROFILER_TASK(allreduce_sum, q_);
             comm_.allreduce(ndres.get_sum().flatten(q_, deps), spmd::reduce_op::sum).wait();
@@ -1293,20 +1288,29 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             cgh.parallel_for(range, [=](sycl::id<1> id) {
                 Float mrgsum2cent = bsum2cent_ptr[id];
                 Float mrgmean = bsum_ptr[id] * inv_n;
-                Float sum_n1n2 = mrgvectors + row_count;
-                Float mul_n1n2 = mrgvectors * row_count;
-                Float delta_scale = mul_n1n2 / sum_n1n2;
 
                 Float local_mean = local_means_ptr[id];
 
-                Float delta = local_mean - mrgmean;
+                Float delta = -local_mean + mrgmean;
 
-                mrgsum2cent += delta * delta * delta_scale;
+                mrgsum2cent += delta * delta * row_count;
                 if constexpr (check_mask_flag(bs_list::mean, List)) {
                     rmean_ptr[id] = mrgmean;
                 }
                 if constexpr (check_mask_flag(bs_list::sum2cent, List)) {
                     rsum2cent_ptr[id] = mrgsum2cent;
+                }
+                if constexpr (check_mask_flag(bs_list::varc, List)) {
+                    rvarc_ptr[id] = mrgsum2cent / (rows_count_global - 1);
+                }
+                if constexpr (check_mask_flag(bs_list::sorm, List)) {
+                    rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
+                }
+                if constexpr (check_mask_flag(bs_list::stdev, List)) {
+                    rstdev_ptr[id] = sycl::sqrt(rvarc_ptr[id]);
+                }
+                if constexpr (check_mask_flag(bs_list::vart, List)) {
+                    rvart_ptr[id] = rstdev_ptr[id] / rmean_ptr[id];
                 }
             });
         });
@@ -1315,23 +1319,18 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             ONEDAL_PROFILER_TASK(allreduce_sum2cent, q_);
             comm_.allreduce(ndres.get_sum2cent().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
+        if constexpr (check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, List)) {
+            ONEDAL_PROFILER_TASK(allreduce_sum2cent, q_);
+            comm_.allreduce(ndres.get_varc().flatten(q_, deps), spmd::reduce_op::sum).wait();
+        }
         auto last_event_q = q_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::id<1> id) {
-                Float mrgvariance = rsum2cent_ptr[id] / (rows_count_global - Float(1));
-                Float mrgstdev = sycl::sqrt(mrgvariance);
-                Float mrgvart = mrgstdev / rmean_ptr[id];
-                if constexpr (check_mask_flag(bs_list::sorm, List)) {
-                    rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
-                }
-                if constexpr (check_mask_flag(bs_list::varc, List)) {
-                    rvarc_ptr[id] = mrgvariance;
-                }
                 if constexpr (check_mask_flag(bs_list::stdev, List)) {
-                    rstdev_ptr[id] = mrgstdev;
+                    rstdev_ptr[id] = sycl::sqrt(rvarc_ptr[id]);
                 }
                 if constexpr (check_mask_flag(bs_list::vart, List)) {
-                    rvart_ptr[id] = mrgvart;
+                    rvart_ptr[id] = rstdev_ptr[id] / rmean_ptr[id];
                 }
             });
         });

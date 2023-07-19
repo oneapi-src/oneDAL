@@ -17,8 +17,7 @@
 #pragma once
 
 #include <limits>
-#include <iomanip>
-#include <iostream>
+
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -33,38 +32,6 @@ namespace la = te::linalg;
 namespace bs = oneapi::dal::basic_statistics;
 
 constexpr inline std::uint64_t mask_full = 0xffffffffffffffff;
-std::ostream& operator<<(std::ostream& stream, const oneapi::dal::table& table) {
-    auto arr = oneapi::dal::row_accessor<const float>(table).pull();
-    const auto x = arr.get_data();
-
-    if (table.get_row_count() <= 10) {
-        for (std::int64_t i = 0; i < table.get_row_count(); i++) {
-            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                          << std::setprecision(3) << x[i * table.get_column_count() + j];
-            }
-            std::cout << std::endl;
-        }
-    }
-    else {
-        for (std::int64_t i = 0; i < 5; i++) {
-            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                          << std::setprecision(3) << x[i * table.get_column_count() + j];
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "..." << (table.get_row_count() - 10) << " lines skipped..." << std::endl;
-        for (std::int64_t i = table.get_row_count() - 5; i < table.get_row_count(); i++) {
-            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
-                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
-                          << std::setprecision(3) << x[i * table.get_column_count() + j];
-            }
-            std::cout << std::endl;
-        }
-    }
-    return stream;
-}
 
 template <typename TestType, typename Derived>
 class basic_statistics_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -83,7 +50,7 @@ public:
         return te::table_id::homogen<float_t>();
     }
 
-    void general_checks(const table data,
+    void general_checks(const te::dataframe& data_fr,
                         std::shared_ptr<te::dataframe> weights_fr,
                         bs::result_option_id compute_mode) {
         const auto use_weights = bool(weights_fr);
@@ -92,7 +59,7 @@ public:
         const auto bs_desc = get_descriptor(compute_mode);
         const auto data_table_id = this->get_homogen_table_id();
 
-        table weights;
+        table weights, data = data_fr.get_table(this->get_policy(), data_table_id);
 
         bs::compute_result<> compute_result;
         if (use_weights) {
@@ -274,8 +241,6 @@ public:
         }
         if (compute_mode.test(result_options::sum_squares_centered)) {
             const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
-            std::cout << ref << std::endl;
-            std::cout << result.get_sum_squares_centered() << std::endl;
             check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
         }
         if (compute_mode.test(result_options::mean)) {
@@ -286,20 +251,18 @@ public:
             const table ref = homogen_table::wrap(ref_sorm.get_array(), 1l, column_count);
             check_if_close(result.get_second_order_raw_moment(), ref, "SORM");
         }
-        // if (compute_mode.test(result_options::variance)) {
-        //     const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
-        //                 std::cout << ref << std::endl;
-        //     std::cout << result.get_variance() << std::endl;
-        //     check_if_close(result.get_variance(), ref, "Variance");
-        // }
-        // if (compute_mode.test(result_options::standard_deviation)) {
-        //     const table ref = homogen_table::wrap(ref_stdev.get_array(), 1l, column_count);
-        //     check_if_close(result.get_standard_deviation(), ref, "Std");
-        // }
-        // if (compute_mode.test(result_options::variation)) {
-        //     const table ref = homogen_table::wrap(ref_vart.get_array(), 1l, column_count);
-        //     check_if_close(result.get_variation(), ref, "Variation");
-        // }
+        if (compute_mode.test(result_options::variance)) {
+            const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
+            check_if_close(result.get_variance(), ref, "Variance");
+        }
+        if (compute_mode.test(result_options::standard_deviation)) {
+            const table ref = homogen_table::wrap(ref_stdev.get_array(), 1l, column_count);
+            check_if_close(result.get_standard_deviation(), ref, "Std");
+        }
+        if (compute_mode.test(result_options::variation)) {
+            const table ref = homogen_table::wrap(ref_vart.get_array(), 1l, column_count);
+            check_if_close(result.get_variation(), ref, "Variation");
+        }
     }
 
     void check_for_exception_for_non_requested_results(bs::result_option_id compute_mode,
