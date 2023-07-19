@@ -64,11 +64,6 @@ private:
                                                          std::int64_t column_count,
                                                          std::int64_t block_count,
                                                          const bk::event_vector& deps = {});
-    std::tuple<local_result_t, sycl::event> merge_distr_blocks(std::int64_t com_row_count,
-                                                               local_result_t&& ndres,
-                                                               std::int64_t column_count,
-                                                               std::int64_t block_stride,
-                                                               const bk::event_vector& deps = {});
 
     std::tuple<local_result_t, sycl::event> finalize(local_result_t&& ndres,
                                                      std::int64_t row_count,

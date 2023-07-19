@@ -17,8 +17,6 @@
 #include <limits>
 #include <algorithm>
 #include <type_traits>
-#include <chrono>
-#include <iostream>
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/compute_kernel_dense_impl.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -834,37 +832,7 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
             Float* lsum2cent_ptr = lsum2cent_buf.get_pointer().get();
             Float* lmean_ptr = lmean_buf.get_pointer().get();
 
-            if (distr_mode) {
-                // merge_blocks_kernel<Float, List, deffered_fin_true>(item,
-                //                                                     brc_ptr,
-                //                                                     bmin_ptr,
-                //                                                     bmax_ptr,
-                //                                                     bsum_ptr,
-                //                                                     bsum2_ptr,
-                //                                                     bsum2cent_ptr,
-                //                                                     lrc_ptr,
-                //                                                     lmin_ptr,
-                //                                                     lmax_ptr,
-                //                                                     lsum_ptr,
-                //                                                     lsum2_ptr,
-                //                                                     lsum2cent_ptr,
-                //                                                     lmean_ptr,
-                //                                                     rmin_ptr,
-                //                                                     rmax_ptr,
-                //                                                     rsum_ptr,
-                //                                                     rsum2_ptr,
-                //                                                     rsum2cent_ptr,
-                //                                                     rmean_ptr,
-                //                                                     rsorm_ptr,
-                //                                                     rvarc_ptr,
-                //                                                     rstdev_ptr,
-                //                                                     rvart_ptr,
-                //                                                     id,
-                //                                                     group_id,
-                //                                                     local_size,
-                //                                                     block_count);
-            }
-            else {
+            if (!distr_mode) {
                 merge_blocks_kernel<Float, List, deffered_fin_false>(item,
                                                                      brc_ptr,
                                                                      bmin_ptr,
@@ -899,74 +867,6 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
 
     last_event.wait_and_throw();
     return std::make_tuple(std::move(ndres), std::move(last_event));
-}
-
-template <typename Float, bs_list List>
-std::tuple<local_result<Float, List>, sycl::event>
-compute_kernel_dense_impl<Float, List>::merge_distr_blocks(std::int64_t block_count,
-                                                           local_result<Float, List>&& ndres,
-                                                           std::int64_t column_count,
-                                                           std::int64_t block_stride,
-                                                           const bk::event_vector& deps) {
-    ONEDAL_ASSERT(block_count > 0);
-    ONEDAL_ASSERT(column_count > 0);
-    ONEDAL_ASSERT(block_stride > 0);
-
-    // ndres asserts
-    ASSERT_IF(bs_list::mean | sum2cent_based_stat, ndres.get_sum().get_count() == column_count);
-    ASSERT_IF(bs_list::sum2 | bs_list::sorm, ndres.get_sum2().get_count() == column_count);
-    ASSERT_IF(bs_list::varc | bs_list::stdev | bs_list::vart,
-              ndres.get_sum2cent().get_count() == column_count);
-    ASSERT_IF(bs_list::mean, ndres.get_mean().get_count() == column_count);
-    ASSERT_IF(bs_list::sorm, ndres.get_sorm().get_count() == column_count);
-    ASSERT_IF(bs_list::varc, ndres.get_varc().get_count() == column_count);
-    ASSERT_IF(bs_list::stdev, ndres.get_stdev().get_count() == column_count);
-    ASSERT_IF(bs_list::vart, ndres.get_vart().get_count() == column_count);
-
-    DECLSET_IF(Float*,
-               rsum_ptr,
-               bs_list::mean | sum2cent_based_stat,
-               ndres.get_sum().get_mutable_data())
-    DECLSET_IF(Float*,
-               rsum2cent_ptr,
-               bs_list::varc | bs_list::stdev | bs_list::vart,
-               ndres.get_sum2cent().get_mutable_data())
-    DECLSET_IF(Float*, rmean_ptr, bs_list::mean, ndres.get_mean().get_mutable_data())
-    DECLSET_IF(Float*, rsorm_ptr, bs_list::sorm, ndres.get_sorm().get_mutable_data())
-    DECLSET_IF(Float*, rvarc_ptr, bs_list::varc, ndres.get_varc().get_mutable_data())
-    DECLSET_IF(Float*, rstdev_ptr, bs_list::stdev, ndres.get_stdev().get_mutable_data())
-    DECLSET_IF(Float*, rvart_ptr, bs_list::vart, ndres.get_vart().get_mutable_data())
-
-    const Float* bsum2_ptr = ndres.get_sum2().get_data();
-    const Float inv_n = Float(1.0 / double(block_count));
-    const Float* bsum2cent_ptr = ndres.get_sum2cent().get_data();
-    const Float* bmean_ptr = ndres.get_mean().get_data();
-    const sycl::range<1> range{ de::integral_cast<std::size_t>(column_count) };
-
-    auto last_event = q_.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<1> id) {
-            Float mrgvariance = bsum2cent_ptr[id] * (inv_n - Float(1));
-            Float mrgstdev = sycl::sqrt(mrgvariance);
-            Float mrgvart = mrgstdev / bmean_ptr[id];
-
-            if constexpr (check_mask_flag(bs_list::sorm, List)) {
-                rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
-            }
-            if constexpr (check_mask_flag(bs_list::varc, List)) {
-                rvarc_ptr[id] = mrgvariance;
-            }
-            if constexpr (check_mask_flag(bs_list::stdev, List)) {
-                rstdev_ptr[id] = mrgstdev;
-            }
-            if constexpr (check_mask_flag(bs_list::vart, List)) {
-                rvart_ptr[id] = mrgvart;
-            }
-        });
-    });
-
-    last_event.wait_and_throw();
-    return std::make_tuple(std::move(ndres), last_event);
 }
 
 template <typename Float, bs_list List>
@@ -1261,11 +1161,6 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                 }
             });
         });
-        auto com_row_count_host = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
-        {
-            ONEDAL_PROFILER_TASK(allgather_mean_row_count);
-            comm_.allgather(row_count, com_row_count_host.flatten()).wait();
-        }
 
         if constexpr (check_mask_flag(bs_list::mean | sum2cent_based_stat, List)) {
             ONEDAL_PROFILER_TASK(allreduce_sum, q_);
@@ -1283,7 +1178,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
         const Float inv_n = Float(1.0 / double(rows_count_global));
         //const Float inv_n_local = Float(1.0 / double(row_count));
 
-        auto last_event = q_.submit([&](sycl::handler& cgh) {
+        last_event = q_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::id<1> id) {
                 Float mrgsum2cent = bsum2cent_ptr[id];
@@ -1291,7 +1186,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
 
                 Float local_mean = local_means_ptr[id];
 
-                Float delta = -local_mean + mrgmean;
+                Float delta = mrgmean - local_mean;
 
                 mrgsum2cent += delta * delta * row_count;
                 if constexpr (check_mask_flag(bs_list::mean, List)) {
@@ -1306,15 +1201,9 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                 if constexpr (check_mask_flag(bs_list::sorm, List)) {
                     rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
                 }
-                if constexpr (check_mask_flag(bs_list::stdev, List)) {
-                    rstdev_ptr[id] = sycl::sqrt(rvarc_ptr[id]);
-                }
-                if constexpr (check_mask_flag(bs_list::vart, List)) {
-                    rvart_ptr[id] = rstdev_ptr[id] / rmean_ptr[id];
-                }
             });
         });
-
+        last_event.wait_and_throw();
         if constexpr (check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, List)) {
             ONEDAL_PROFILER_TASK(allreduce_sum2cent, q_);
             comm_.allreduce(ndres.get_sum2cent().flatten(q_, deps), spmd::reduce_op::sum).wait();
@@ -1323,7 +1212,7 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
             ONEDAL_PROFILER_TASK(allreduce_sum2cent, q_);
             comm_.allreduce(ndres.get_varc().flatten(q_, deps), spmd::reduce_op::sum).wait();
         }
-        auto last_event_q = q_.submit([&](sycl::handler& cgh) {
+        last_event = q_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::id<1> id) {
                 if constexpr (check_mask_flag(bs_list::stdev, List)) {
@@ -1334,25 +1223,12 @@ std::tuple<local_result<Float, List>, sycl::event> compute_kernel_dense_impl<Flo
                 }
             });
         });
+        last_event.wait_and_throw();
     }
     else {
         sycl::event::wait_and_throw(deps);
     }
     return std::make_tuple(std::forward<local_result_t>(ndres), std::move(last_event));
-}
-
-template <typename Func>
-void measureExecutionTime(Func func, const std::string& functionName, int rank) {
-    auto start_time = std::chrono::high_resolution_clock::now();
-    func();
-    auto end_time = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-
-    if (rank == 0) {
-        std::cout << "Function: " << functionName << std::endl;
-        std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
-    }
 }
 
 template <typename Float, bs_list List>
@@ -1371,42 +1247,20 @@ result_t compute_kernel_dense_impl<Float, List>::operator()(const descriptor_t& 
     local_result<Float, List> ndres;
     sycl::event last_event;
 
-    // Measure the execution time of weights.has_data() condition
-    measureExecutionTime(
-        [&]() {
-            if (weights.has_data()) {
-                const auto weights_nd = pr::table2ndarray<Float>(q_, weights, alloc::device);
-                std::tie(ndres, last_event) =
-                    (row_block_count > 1)
-                        ? compute_by_blocks<true>(data_nd, row_block_count, weights_nd)
-                        : compute_single_pass<true>(data_nd, weights_nd);
-            }
-            else {
-                std::tie(ndres, last_event) =
-                    (row_block_count > 1) ? compute_by_blocks<false>(data_nd, row_block_count)
+    if (weights.has_data()) {
+        const auto weights_nd = pr::table2ndarray<Float>(q_, weights, alloc::device);
+        std::tie(ndres, last_event) =
+            (row_block_count > 1) ? compute_by_blocks<true>(data_nd, row_block_count, weights_nd)
+                                  : compute_single_pass<true>(data_nd, weights_nd);
+    }
+    else {
+        std::tie(ndres, last_event) = (row_block_count > 1)
+                                          ? compute_by_blocks<false>(data_nd, row_block_count)
                                           : compute_single_pass<false>(data_nd);
-            }
-        },
-        "weights.has_data() condition",
-        comm_.get_rank());
+    }
 
-    // Measure the execution time of finalize function
-    measureExecutionTime(
-        [&]() {
-            std::tie(ndres, last_event) =
-                finalize(std::move(ndres), row_count, column_count, { last_event });
-        },
-        "finalize",
-        comm_.get_rank());
-
-    // Measure the execution time of get_result function
-    measureExecutionTime(
-        [&]() {
-            return get_result(desc, std::move(ndres), column_count, { last_event })
-                .set_result_options(desc.get_result_options());
-        },
-        "get_result",
-        comm_.get_rank());
+    std::tie(ndres, last_event) =
+        finalize(std::move(ndres), row_count, column_count, { last_event });
 
     return get_result(desc, std::move(ndres), column_count, { last_event })
         .set_result_options(desc.get_result_options());
