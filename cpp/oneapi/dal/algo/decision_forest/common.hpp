@@ -21,6 +21,7 @@
 #include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/algo/decision_tree/detail/node_visitor.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::decision_forest {
 
