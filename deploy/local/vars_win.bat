@@ -55,9 +55,18 @@ exit /b 0
 
 :GoodArgs
 set "DAALROOT=%DAAL%"
-set "INCLUDE=%DAAL%\include;%INCLUDE%"
-set "CPATH=%DAAL%\include;%CPATH%"
-set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
+if exist "%DAAL%\include\dal" (
+  set "INCLUDE=%DAAL%\include\dal;%INCLUDE%"
+  set "CPATH=%DAAL%\include\dal;%CPATH%"
+  set "LIB=%DAAL%\lib;%LIB%"
+  set "CLASSPATH=%DAAL%\share\java\onedal.jar;%CLASSPATH%"
+
+) else (
+  set "INCLUDE=%DAAL%\include;%INCLUDE%"
+  set "CPATH=%DAAL%\include;%CPATH%"
+  set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
+  set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
+)
 set "CMAKE_PREFIX_PATH=%DAAL%;%CMAKE_PREFIX_PATH%"
 set "PKG_CONFIG_PATH=%DAAL%\lib\pkgconfig;%PKG_CONFIG_PATH%"
 if exist "%DAAL_UP_OLD%\redist" (
@@ -65,7 +74,6 @@ if exist "%DAAL_UP_OLD%\redist" (
 ) else (
     set "PATH=%DAAL%\redist\%DAAL_IA%;%PATH%"
 )
-set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
 endlocal& ^
 set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
 set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
