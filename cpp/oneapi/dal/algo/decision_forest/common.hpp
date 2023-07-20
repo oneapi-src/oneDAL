@@ -654,11 +654,14 @@ public:
     ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
     template <typename T, typename Visitor>
     void traverse_depth_first(T&& visitor_array) const {
-        dal::detail::threader_for(this->get_tree_count(), this->get_tree_count(), [&](std::int64_t i){
-            traverse_depth_first_impl(
-                i,
-                decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor_array[i])));
-        });
+        dal::detail::threader_for(this->get_tree_count(),
+                                  this->get_tree_count(),
+                                  [&](std::int64_t i) {
+                                      traverse_depth_first_impl(
+                                          i,
+                                          decision_tree::detail::make_node_visitor<dtree_task_t>(
+                                              std::forward<Visitor>(visitor_array[i])));
+                                  });
     }
 
     /// Performs Breadth First Traversal of i-th tree
@@ -680,11 +683,14 @@ public:
     ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
     template <typename T, typename Visitor>
     void traverse_breadth_first(T&& visitor_array) const {
-        dal::detail::threader_for(this->get_tree_count(), this->get_tree_count(), [&](std::int64_t i){
-            traverse_breadth_first_impl(
-                i,
-                decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor_array[i])));
-        });
+        dal::detail::threader_for(this->get_tree_count(),
+                                  this->get_tree_count(),
+                                  [&](std::int64_t i) {
+                                      traverse_breadth_first_impl(
+                                          i,
+                                          decision_tree::detail::make_node_visitor<dtree_task_t>(
+                                              std::forward<Visitor>(visitor_array[i])));
+                                  });
     }
 
 protected:
