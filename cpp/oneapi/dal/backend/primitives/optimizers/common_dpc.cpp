@@ -42,20 +42,18 @@ sycl::event dot_product(sycl::queue& queue,
             *res_gpu = 0;
         });
     });
-    fill_res_event.wait_and_throw();
 
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.depends_on(fill_res_event);
-            const auto range = make_range_1d(n);
-            auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
-            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-                sum += x_ptr[idx] * y_ptr[idx];
-            });
-        })
-        .wait_and_throw();
+    auto reduction_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(fill_res_event);
+        const auto range = make_range_1d(n);
+        auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
+            sum += x_ptr[idx] * y_ptr[idx];
+        });
+    });
 
     return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(reduction_event);
         cgh.memcpy(res_host, res_gpu, sizeof(Float));
     });
 }
@@ -74,19 +72,18 @@ sycl::event l1_norm(sycl::queue& queue,
         cgh.fill(res_gpu, Float(0), 1);
     });
 
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.depends_on(fill_res_event);
-            const auto range = make_range_1d(n);
-            auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
-            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-                Float val = x_ptr[idx];
-                sum += val >= 0 ? val : -val;
-            });
-        })
-        .wait_and_throw();
+    auto reduction_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(fill_res_event);
+        const auto range = make_range_1d(n);
+        auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
+        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
+            Float val = x_ptr[idx];
+            sum += val >= 0 ? val : -val;
+        });
+    });
 
     return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(reduction_event);
         cgh.memcpy(res_host, res_gpu, sizeof(Float));
     });
 }

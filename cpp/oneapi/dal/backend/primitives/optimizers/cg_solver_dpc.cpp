@@ -62,7 +62,7 @@ sycl::event cg_solve(sycl::queue& queue,
                                          b,
                                          residual,
                                          { compute_ax0_event }); // r0 = Ax0 - b
-    // compute_r0_event.wait_and_throw();
+
     auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
     auto* const tmp_ptr = tmp_gpu.get_mutable_data();
 
@@ -107,7 +107,6 @@ sycl::event cg_solve(sycl::queue& queue,
                                            conj_vector,
                                            x,
                                            { compute_conj_event }); // x_i+1 = x_i + alpha * p_i
-        update_x_event.wait_and_throw();
         auto update_residual_event =
             element_wise(queue,
                          update_x_kernel,
@@ -115,9 +114,13 @@ sycl::event cg_solve(sycl::queue& queue,
                          buffer,
                          residual,
                          { compute_matmul_event }); // r_i+1 = r_i + alpha * A p_i
-        update_residual_event.wait_and_throw();
         beta = r_norm;
-        dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { update_residual_event })
+        dot_product<Float>(queue,
+                           residual,
+                           residual,
+                           tmp_ptr,
+                           &r_norm,
+                           { update_x_event, update_residual_event })
             .wait_and_throw(); // compute r^T r
         beta = r_norm / beta; // beta = r_i+1^T r_i+1 / (r_i^T r_i)
 
@@ -136,7 +139,7 @@ sycl::event cg_solve(sycl::queue& queue,
     return compute_conj_event;
 }
 
-#define INSTANTIATE_SOLVER(F)                                \
+#define INSTANTIATE(F)                                       \
     template sycl::event cg_solve<F>(sycl::queue&,           \
                                      BaseMatrixOperator<F>&, \
                                      const ndview<F, 1>&,    \
@@ -149,9 +152,7 @@ sycl::event cg_solve(sycl::queue& queue,
                                      const std::int64_t,     \
                                      const event_vector&);
 
-//INSTANTIATE_SOLVER(float, logloss_hessian_product<float>);
-//INSTANTIATE_SOLVER(double, logloss_hessian_product<double>);
-INSTANTIATE_SOLVER(float);
-INSTANTIATE_SOLVER(double);
+INSTANTIATE(float);
+INSTANTIATE(double);
 
 } // namespace oneapi::dal::backend::primitives

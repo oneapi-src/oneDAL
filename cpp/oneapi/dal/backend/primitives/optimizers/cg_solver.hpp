@@ -21,6 +21,8 @@
 
 namespace oneapi::dal::backend::primitives {
 
+// Method of Conjugate Gradients for Solving Linear Systems
+// https://nvlpubs.nist.gov/nistpubs/jres/049/jresv49n6p409_a1b.pdf
 template <typename Float>
 sycl::event cg_solve(sycl::queue& queue,
                      BaseMatrixOperator<Float>& mul_operator,

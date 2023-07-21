@@ -21,6 +21,9 @@
 
 namespace oneapi::dal::backend::primitives {
 
+// Nocedal, J, and S J Wright. 2006. Numerical Optimization. Springer New York.
+// pp. 168 (also known as the truncated Newton method)
+// https://link.springer.com/book/10.1007/978-0-387-40065-5
 template <typename Float>
 sycl::event newton_cg(sycl::queue& queue,
                       BaseFunction<Float>& f,
