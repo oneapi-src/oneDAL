@@ -48,20 +48,26 @@ sycl::event newton_cg(sycl::queue& queue,
     tmp_gpu += n * 4;
 
     event_vector last_iter_deps = deps;
+    sycl::event last = {};
+
+    Float update_norm = tol + 1;
 
     for (std::int64_t i = 0; i < maxiter; ++i) {
+        if (update_norm < tol) {
+            break;
+        }
         auto update_event = f.update_x(x, true, last_iter_deps);
         auto gradient = f.get_gradient();
+
         Float grad_norm = 0;
         l1_norm(queue, gradient, tmp_gpu, &grad_norm, { update_event }).wait_and_throw();
-        Float tol_k = std::min(sqrt(grad_norm), 0.5); //
+        Float tol_k = std::min(sqrt(grad_norm), 0.5);
 
         auto prepare_grad_event =
-            element_wise(queue, kernel_minus, gradient, nullptr, gradient, { update_event }); 
-        // optimization idea
-        // probably we can solve equation Hd = g instead of Hd = -g but then update x in the following way 
-        // xk+1 = xk - alpha * d 
-        auto copy_event = copy(queue, direction, gradient, {prepare_grad_event});
+            element_wise(queue, kernel_minus, gradient, nullptr, gradient, { update_event });
+
+        auto copy_event = copy(queue, direction, gradient, { prepare_grad_event });
+
         Float desc = -1;
         bool is_first_iter = true;
         auto last_event = copy_event;
@@ -70,6 +76,7 @@ sycl::event newton_cg(sycl::queue& queue,
                 tol_k /= 10;
             }
             is_first_iter = false;
+
             auto solve_event = cg_solve(queue,
                                         f.get_hessian_product(),
                                         gradient,
@@ -79,29 +86,41 @@ sycl::event newton_cg(sycl::queue& queue,
                                         buffer3,
                                         tol_k,
                                         Float(0),
-                                        n * 20,
+                                        10, //n * 20,
                                         { last_event });
+
             // -grad^T direction should be > 0 if direction is descent direction
-            last_event = dot_product(queue, gradient, direction, tmp_gpu, &desc, {solve_event});
+            last_event = dot_product(queue, gradient, direction, tmp_gpu, &desc, { solve_event });
             last_event.wait_and_throw();
         }
 
-        Float alpha_opt = backtracking(queue, f, x, direction, buffer2, Float(1), Float(1e-4), true, {last_event});
-        std::cout << alpha_opt << std::endl;
+        Float alpha_opt = backtracking(queue,
+                                       f,
+                                       x,
+                                       direction,
+                                       buffer2,
+                                       Float(1),
+                                       Float(1e-4),
+                                       true,
+                                       { last_event });
+        update_norm = 0;
+        dot_product(queue, direction, direction, tmp_gpu, &update_norm, { last_event })
+            .wait_and_throw();
+        update_norm = sqrt(update_norm) * alpha_opt;
         // updated x is in buffer2
-        last_iter_deps = {copy(queue, x, buffer2, {})};
+        last = copy(queue, x, buffer2, {});
+        last_iter_deps = { last };
     }
-
-    return {};
+    return last;
 }
 
-#define INSTANTIATE(F)                               \
-    template sycl::event newton_cg<F>(sycl::queue&,  \
-                                                BaseFunction<F>&,     \
-                                                ndview<F, 1>&, \
-                                                F,             \
-                                                std::int64_t,  \
-                                                const event_vector&);
+#define INSTANTIATE(F)                                  \
+    template sycl::event newton_cg<F>(sycl::queue&,     \
+                                      BaseFunction<F>&, \
+                                      ndview<F, 1>&,    \
+                                      F,                \
+                                      std::int64_t,     \
+                                      const event_vector&);
 
 INSTANTIATE(float);
 INSTANTIATE(double);

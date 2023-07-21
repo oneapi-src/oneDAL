@@ -15,17 +15,14 @@
 *******************************************************************************/
 
 #include <type_traits>
-
+#include "oneapi/dal/backend/primitives/optimizers/test/fixture.hpp"
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/cg_solver.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 #include <math.h>
-
-#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
-
-#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -35,64 +32,6 @@ template <typename Param>
 class cg_solver_test : public te::float_algo_fixture<Param> {
 public:
     using float_t = Param;
-
-    void check_val(const float_t real,
-                   const float_t expected,
-                   const float_t rtol,
-                   const float_t atol) {
-        REQUIRE(abs(real - expected) < atol);
-        REQUIRE(abs(real - expected) / std::max(std::abs(expected), (float_t)1.0) < rtol);
-    }
-
-    void gram_schmidt(ndview<float_t, 2>& A) {
-        const std::int64_t n = A.get_dimension(0);
-        for (std::int64_t i = 0; i < n; ++i) {
-            for (std::int64_t j = 0; j < i; ++j) {
-                float_t res = 0;
-                for (std::int64_t k = 0; k < n; ++k) {
-                    res += A.at(i, k) * A.at(j, k);
-                }
-                for (std::int64_t k = 0; k < n; ++k) {
-                    A.at(i, k) -= res * A.at(j, k);
-                }
-            }
-            float_t norm = 0;
-            for (std::int64_t k = 0; k < n; ++k) {
-                norm += A.at(i, k) * A.at(i, k);
-            }
-            norm = sqrt(norm);
-            for (std::int64_t k = 0; k < n; ++k) {
-                A.at(i, k) /= norm;
-            }
-        }
-    }
-
-    void create_stable_matrix(ndview<float_t, 2>& A,
-                              float_t bottom_eig = 1.0,
-                              float_t top_eig = 2.0) {
-        const std::int64_t n = A.get_dimension(0);
-        auto J = ndarray<float_t, 2>::empty(this->get_queue(), { n_, n_ }, sycl::usm::alloc::host);
-        auto eigen_values =
-            ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
-        primitives::rng<float_t> rn_gen;
-        primitives::engine eng(2007 + n);
-
-        rn_gen.uniform(n * n, J.get_mutable_data(), eng.get_state(), -1.0, 1.0);
-        rn_gen.uniform(n, eigen_values.get_mutable_data(), eng.get_state(), bottom_eig, top_eig);
-
-        // orthogonalize matrix J
-        gram_schmidt(J);
-
-        // A = J D J^T so matrix A is symmetric with eigen values equal to diagonal elements of D
-        for (std::int64_t i = 0; i < n_; ++i) {
-            for (std::int64_t j = 0; j < n_; ++j) {
-                A.at(i, j) = 0;
-                for (std::int64_t k = 0; k < n_; ++k) {
-                    A.at(i, j) += J.at(i, k) * J.at(j, k) * eigen_values.at(k);
-                }
-            }
-        }
-    }
 
     void gen_input(std::int64_t n = -1) {
         if (n == -1) {
@@ -109,7 +48,7 @@ public:
         primitives::engine eng(4014 + n_);
         rn_gen.uniform(n_, x_host_.get_mutable_data(), eng.get_state(), -1.0, 1.0);
 
-        create_stable_matrix(A_host_);
+        create_stable_matrix(this->get_queue(), A_host_);
 
         for (std::int64_t i = 0; i < n_; ++i) {
             b_host_.at(i) = 0;
@@ -133,17 +72,17 @@ public:
         auto buffer2 = buffer.get_slice(n_, 2 * n_);
         auto buffer3 = buffer.get_slice(2 * n_, 3 * n_);
 
-        cg_solve<float_t>(this->get_queue(),
-                                                    mul_operator,
-                                                    b,
-                                                    x0,
-                                                    buffer1,
-                                                    buffer2,
-                                                    buffer3,
-                                                    1e-6,
-                                                    1e-5,
-                                                    n_,
-                                                    {})
+        cg_solve(this->get_queue(),
+                 mul_operator,
+                 b,
+                 x0,
+                 buffer1,
+                 buffer2,
+                 buffer3,
+                 float_t(1e-6),
+                 float_t(1e-5),
+                 n_,
+                 {})
             .wait_and_throw();
         auto answer_host = x0.to_host(this->get_queue());
 
@@ -159,7 +98,7 @@ public:
         REQUIRE(r_norm < 1e-4);
 
         for (std::int64_t i = 0; i < n_; ++i) {
-            check_val(x_host_.at(i), answer_host.at(i), 0.005, 0.005);
+            check_val(x_host_.at(i), answer_host.at(i), (float_t)0.005, (float_t)0.005);
         }
     }
 

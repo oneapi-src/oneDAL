@@ -69,7 +69,8 @@ sycl::event cg_solve(sycl::queue& queue,
     l1_norm<Float>(queue, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
 
     // Tolerances for convergence norm(residual) <= max(tol*norm(b), atol)
-    Float threshold = std::max(tol * b_norm, atol);
+    const Float min_eps = sizeof(Float) == 4 ? 1e-7 : 1e-15;
+    Float threshold = std::max(tol * b_norm, std::max(atol, min_eps));
 
     const auto init_conj_kernel = [=](const Float residual_val, const Float conj_val) -> Float {
         return -residual_val;
@@ -87,6 +88,7 @@ sycl::event cg_solve(sycl::queue& queue,
     for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
         l1_norm<Float>(queue, residual, tmp_ptr, &r_l1_norm, { compute_conj_event })
             .wait_and_throw(); // compute norm(residual)
+
         if (r_l1_norm < threshold) {
             break;
         }
@@ -134,18 +136,18 @@ sycl::event cg_solve(sycl::queue& queue,
     return compute_conj_event;
 }
 
-#define INSTANTIATE_SOLVER(F)                             \
-    template sycl::event cg_solve<F>(sycl::queue&,        \
-                                                     BaseMatrixOperator<F>&, \
-                                                     const ndview<F, 1>&, \
-                                                     ndview<F, 1>&,       \
-                                                     ndview<F, 1>&,       \
-                                                     ndview<F, 1>&,       \
-                                                     ndview<F, 1>&,       \
-                                                     const F,             \
-                                                     const F,             \
-                                                     const std::int64_t,  \
-                                                     const event_vector&);
+#define INSTANTIATE_SOLVER(F)                                \
+    template sycl::event cg_solve<F>(sycl::queue&,           \
+                                     BaseMatrixOperator<F>&, \
+                                     const ndview<F, 1>&,    \
+                                     ndview<F, 1>&,          \
+                                     ndview<F, 1>&,          \
+                                     ndview<F, 1>&,          \
+                                     ndview<F, 1>&,          \
+                                     const F,                \
+                                     const F,                \
+                                     const std::int64_t,     \
+                                     const event_vector&);
 
 //INSTANTIATE_SOLVER(float, logloss_hessian_product<float>);
 //INSTANTIATE_SOLVER(double, logloss_hessian_product<double>);

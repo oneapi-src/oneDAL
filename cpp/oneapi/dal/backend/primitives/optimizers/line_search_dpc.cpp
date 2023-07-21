@@ -20,16 +20,16 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float>
-Float backtracking(sycl::queue queue, 
-                    BaseFunction<Float>& f, 
-                    const ndview<Float, 1>& x, 
-                    const ndview<Float, 1>& direction,
-                    ndview<Float, 1>& result, 
-                    Float alpha, 
-                    const Float c1,
-                    bool x0_initialized,
-                    const event_vector& deps) {
+template <typename Float>
+Float backtracking(sycl::queue queue,
+                   BaseFunction<Float>& f,
+                   const ndview<Float, 1>& x,
+                   const ndview<Float, 1>& direction,
+                   ndview<Float, 1>& result,
+                   Float alpha,
+                   const Float c1,
+                   bool x0_initialized,
+                   const event_vector& deps) {
     using dal::backend::operator+;
     sycl::event precompute = {};
     if (!x0_initialized) {
@@ -38,7 +38,8 @@ Float backtracking(sycl::queue queue,
     Float f0 = f.get_value();
     auto grad_f0 = f.get_gradient();
     Float df0 = 0;
-    dot_product(queue, grad_f0, direction, result.get_mutable_data(), &df0, deps + precompute).wait_and_throw();
+    dot_product(queue, grad_f0, direction, result.get_mutable_data(), &df0, deps + precompute)
+        .wait_and_throw();
     bool is_first_iter = true;
     Float cur_val = 0;
     while (is_first_iter || cur_val > f0 + c1 * alpha * df0) {
@@ -50,29 +51,24 @@ Float backtracking(sycl::queue queue,
             return x_val + alpha * dir_val;
         };
 
-        auto update_x_event = element_wise(queue,
-                                           update_x_kernel,
-                                           x,
-                                           direction,
-                                           result,
-                                           { });
-        auto func_event = f.update_x(result, false, {update_x_event});
+        auto update_x_event = element_wise(queue, update_x_kernel, x, direction, result, {});
+        auto func_event = f.update_x(result, false, { update_x_event });
         func_event.wait_and_throw();
         cur_val = f.get_value();
     }
     return alpha;
 }
 
-#define INSTANTIATE(F)                             \
-template F backtracking(sycl::queue,  \
-                    BaseFunction<F>&, \
-                    const ndview<F, 1>&, \
-                    const ndview<F, 1>&, \
-                    ndview<F, 1>&, \
-                    F, \
-                    const F, \
-                    bool,\
-                    const event_vector&);
+#define INSTANTIATE(F)                           \
+    template F backtracking(sycl::queue,         \
+                            BaseFunction<F>&,    \
+                            const ndview<F, 1>&, \
+                            const ndview<F, 1>&, \
+                            ndview<F, 1>&,       \
+                            F,                   \
+                            const F,             \
+                            bool,                \
+                            const event_vector&);
 
 INSTANTIATE(float);
 INSTANTIATE(double);

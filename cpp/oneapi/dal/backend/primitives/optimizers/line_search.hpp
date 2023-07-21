@@ -26,7 +26,7 @@ namespace oneapi::dal::backend::primitives {
 // phi(alpha) = f(x + alpha * d)
 // phi'(alpha) = <f'(x + alpha * d), d>
 /// @brief
-/// @tparam Float 
+/// @tparam Float
 /// @param queue - sycl::queue
 /// @param f - function with update_x, get_value, get_gradient methods
 /// @param x - current point
@@ -35,17 +35,17 @@ namespace oneapi::dal::backend::primitives {
 /// @param alpha - initial constant, should be equal to 1.0 for newton methods
 /// @param c1 - constant for Armicho condition
 /// @param x0_initialized - if function f is computed at point x
-/// @param deps 
-/// @return 
-template<typename Float>
-Float backtracking(sycl::queue queue, 
-                    BaseFunction<Float>& f, 
-                    const ndview<Float, 1>& x, 
-                    const ndview<Float, 1>& direction,
-                    ndview<Float, 1>& result, 
-                    Float alpha = 1, 
-                    const Float c1 = 1e-4,
-                    bool x0_initialized = false,
-                    const event_vector& deps = {});
+/// @param deps
+/// @return
+template <typename Float>
+Float backtracking(sycl::queue queue,
+                   BaseFunction<Float>& f,
+                   const ndview<Float, 1>& x,
+                   const ndview<Float, 1>& direction,
+                   ndview<Float, 1>& result,
+                   Float alpha = 1,
+                   const Float c1 = 1e-4,
+                   bool x0_initialized = false,
+                   const event_vector& deps = {});
 
 } // namespace oneapi::dal::backend::primitives

@@ -1,0 +1,85 @@
+/*******************************************************************************
+* Copyright 2023 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+#pragma once
+
+#include <type_traits>
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+
+namespace oneapi::dal::backend::primitives::test {
+
+template <typename Float>
+void check_val(const Float real, const Float expected, const Float rtol, const Float atol) {
+    REQUIRE(abs(real - expected) < atol);
+    REQUIRE(abs(real - expected) / std::max(std::abs(expected), Float(1.0)) < rtol);
+}
+
+template <typename Float>
+void gram_schmidt(ndview<Float, 2>& A) {
+    const std::int64_t n = A.get_dimension(0);
+    for (std::int64_t i = 0; i < n; ++i) {
+        for (std::int64_t j = 0; j < i; ++j) {
+            Float res = 0;
+            for (std::int64_t k = 0; k < n; ++k) {
+                res += A.at(i, k) * A.at(j, k);
+            }
+            for (std::int64_t k = 0; k < n; ++k) {
+                A.at(i, k) -= res * A.at(j, k);
+            }
+        }
+        Float norm = 0;
+        for (std::int64_t k = 0; k < n; ++k) {
+            norm += A.at(i, k) * A.at(i, k);
+        }
+        norm = sqrt(norm);
+        for (std::int64_t k = 0; k < n; ++k) {
+            A.at(i, k) /= norm;
+        }
+    }
+}
+
+template <typename Float>
+void create_stable_matrix(sycl::queue& queue,
+                          ndview<Float, 2>& A,
+                          Float bottom_eig = 1.0,
+                          Float top_eig = 2.0) {
+    const std::int64_t n = A.get_dimension(0);
+    ONEDAL_ASSERT(A.get_dimension(1) == n);
+    auto J = ndarray<Float, 2>::empty(queue, { n, n }, sycl::usm::alloc::host);
+    auto eigen_values = ndarray<Float, 1>::empty(queue, { n }, sycl::usm::alloc::host);
+    primitives::rng<Float> rn_gen;
+    primitives::engine eng(2007 + n);
+
+    rn_gen.uniform(n * n, J.get_mutable_data(), eng.get_state(), -1.0, 1.0);
+    rn_gen.uniform(n, eigen_values.get_mutable_data(), eng.get_state(), bottom_eig, top_eig);
+
+    // orthogonalize matrix J
+    gram_schmidt(J);
+
+    // A = J D J^T so matrix A is symmetric with eigen values equal to diagonal elements of D
+    for (std::int64_t i = 0; i < n; ++i) {
+        for (std::int64_t j = 0; j < n; ++j) {
+            A.at(i, j) = 0;
+            for (std::int64_t k = 0; k < n; ++k) {
+                A.at(i, j) += J.at(i, k) * J.at(j, k) * eigen_values.at(k);
+            }
+        }
+    }
+}
+} // namespace oneapi::dal::backend::primitives::test

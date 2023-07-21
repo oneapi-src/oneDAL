@@ -21,56 +21,10 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-LinearMatrixOperator<Float>::LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A) : 
-    BaseMatrixOperator<Float>(),
-    q_(q),
-    A_(A) {}
-
-/*
-template <typename Float>
-sycl::event LinearMatrixOperator<Float>::operator()(const ndview<Float, 1>& vec,
-                                               ndview<Float, 1>& out,
-                                               const event_vector& deps) override {
-    ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
-    ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
-    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
-    return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
-}
-
-
-template <typename Float>
-convex_function<Float>::convex_function(sycl::queue& q,
-                                        const ndview<Float, 2>& A,
-                                        const ndview<Float, 1>& b)
-        : q_(q),
-          A_(A),
-          b_(b),
-          hessp_(q, A) {
-    std::int64_t n = A.get_dimension(0);
-    ONEDAL_ASSERT(n == A.get_dimension(1));
-    ONEDAL_ASSERT(n == b.get_dimension(0));
-    gradient_ = ndarray<Float, 1>::empty(q_, { n }, sycl::usm::alloc::device);
-}
-
-template <typename Float>
-ndview<Float, 1>& convex_function<Float>::get_gradient() {
-    return gradient_;
-}
-
-template <typename Float>
-BaseMatrixOperator<Float>& convex_function<Float>::get_hessian_product() {
-    return hessp_;
-}
-
-template <typename Float>
-sycl::event convex_function<Float>::update_x(const ndview<Float, 1>& x, const event_vector& deps) {
-    auto fill_gradient_event = fill<Float>(q_, gradient_, Float(0), deps);
-    auto gemv_event = gemv(q_, A_, x, gradient_, Float(1), Float(0), { fill_gradient_event });
-    auto kernel_plus = sycl::plus<>();
-    auto bias_event = element_wise(q_, kernel_plus, gradient_, b_, gradient_, { gemv_event });
-    return bias_event;
-}
-*/
+LinearMatrixOperator<Float>::LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A)
+        : BaseMatrixOperator<Float>(),
+          q_(q),
+          A_(A) {}
 
 template <typename Float>
 sycl::event dot_product(sycl::queue& queue,
@@ -150,9 +104,9 @@ sycl::event l1_norm(sycl::queue& queue,
                                     F*,                       \
                                     const event_vector&);     \
     template class BaseMatrixOperator<F>;                     \
-    template class LinearMatrixOperator<F>; \
-    template class BaseFunction<F>; \
-    template class ConvexFunction<F>;
+    template class LinearMatrixOperator<F>;                   \
+    template class BaseFunction<F>;                           \
+    template class QuadraticFunction<F>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);

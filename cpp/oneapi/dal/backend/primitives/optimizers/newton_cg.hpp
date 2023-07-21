@@ -17,12 +17,13 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, typename Function>
+template <typename Float>
 sycl::event newton_cg(sycl::queue& queue,
-                      Function& f,
+                      BaseFunction<Float>& f,
                       ndview<Float, 1>& x,
                       Float tol = 1e-5,
                       std::int64_t maxiter = 100,
