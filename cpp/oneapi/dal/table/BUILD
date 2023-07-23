@@ -34,7 +34,7 @@ dal_test_suite(
     name = "catch2_tests",
     srcs = [
         "test/row_accessor.cpp",
-        #"test/heterogen.cpp",
+        "test/heterogen.cpp",
         "test/homogen.cpp",
         "test/common_serialization.cpp",
         #"test/heterogen_serialization.cpp",

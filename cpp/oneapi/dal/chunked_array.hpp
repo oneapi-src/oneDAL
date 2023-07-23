@@ -243,12 +243,15 @@ public:
         return chunked_array<T>{ std::move(res) };
     }
 
+    /// @brief  Appends multiple arrays to the current
+    ///         one each can be an instance of either
+    ///         `array<T>` or rather `chunked_array<T>`
     template <typename... Arrays>
     chunked_array& append(const Arrays&... arrays) {
         // Check for having the same type
-        ([&](){
-            using ext_t = typename Arrays::data_t;
-            static_assert(std::is_same_v<data_t, ext_t>);
+        ([]() {
+            using arr_t = typename Arrays::data_t;
+            static_assert(std::is_same_v<data_t, arr_t>);
         }(), ...);
 
         base_t::append(arrays...);
