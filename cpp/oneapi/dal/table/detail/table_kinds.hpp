@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/backend/empty_table_impl.hpp"
-#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
-#include "oneapi/dal/table/backend/heterogen_table_impl.hpp"
-#include "oneapi/dal/table/backend/csr_table_impl.hpp"
+#include "oneapi/dal/table/common.hpp"
 
-using oneapi::dal::backend::empty_table_impl;
-using oneapi::dal::backend::homogen_table_impl;
-//using oneapi::dal::backend::heterogen_table_impl;
-using oneapi::dal::backend::csr_table_impl;
+namespace oneapi::dal::detail {
+namespace v1 {
 
-ONEDAL_REGISTER_SERIALIZABLE(empty_table_impl)
-ONEDAL_REGISTER_SERIALIZABLE(homogen_table_impl)
-//ONEDAL_REGISTER_SERIALIZABLE(heterogen_table_impl)
-ONEDAL_REGISTER_SERIALIZABLE(csr_table_impl)
-ONEDAL_REGISTER_SERIALIZABLE_INIT(tables)
+ONEDAL_EXPORT std::int64_t get_empty_table_kind();
+ONEDAL_EXPORT std::int64_t get_homogen_table_kind();
+ONEDAL_EXPORT std::int64_t get_csr_table_kind();
+ONEDAL_EXPORT std::int64_t get_heterogen_table_kind();
+
+} /// namespace v1
+
+using v1::get_empty_table_kind;
+using v1::get_homogen_table_kind;
+using v1::get_csr_table_kind;
+using v1::get_heterogen_table_kind;
+
+} /// oneapi::dal::detail

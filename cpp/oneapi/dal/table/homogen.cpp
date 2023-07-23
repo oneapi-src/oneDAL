@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/detail/table_kinds.hpp"
 #include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
@@ -28,8 +29,8 @@ static std::shared_ptr<detail::homogen_table_iface> get_homogen_iface(const tabl
     return std::make_shared<backend::homogen_table_impl>();
 }
 
-int64_t homogen_table::kind() {
-    return 1;
+std::int64_t homogen_table::kind() {
+    return detail::get_homogen_table_kind();
 }
 
 homogen_table::homogen_table() : homogen_table(new backend::homogen_table_impl{}) {}

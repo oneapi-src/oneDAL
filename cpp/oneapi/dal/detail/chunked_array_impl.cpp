@@ -171,26 +171,25 @@ auto chunked_array_base::flatten_impl(const data_parallel_policy& policy,
 #endif // ONEDAL_DATA_PARALLEL
 
 std::int64_t chunked_array_base::get_size_in_bytes() const {
-    constexpr std::int64_t zero{0l};
+    constexpr std::int64_t zero{ 0l };
     const auto chunk_count = this->get_chunk_count();
 
     if (chunk_count == zero) {
         return zero;
     }
 
-#ifdef ONEDAL_ENABLE_ASSERT
-    std::int64_t size_acc = 0l;
-    for (std::int64_t c = 0l; c < chunk_count; ++c) {
-        const auto& chunk = this->get_chunk_impl(c);
-        size_acc += chunk.get_size_in_bytes();
-    }
-#endif // ONEDAL_ENABLE_ASSERT
-
     const auto accessor = impl_->immutable_access();
     const auto raw_size = accessor.get_offsets().back();
     const auto casted_size = detail::integral_cast<std::int64_t>(raw_size);
 
+#ifdef ONEDAL_ENABLE_ASSERT
+    std::int64_t size_acc = zero;
+    for (std::int64_t c = zero; c < chunk_count; ++c) {
+        const auto& chunk = this->get_chunk_impl(c);
+        size_acc += chunk.get_size_in_bytes();
+    }
     ONEDAL_ASSERT(casted_size == size_acc);
+#endif // ONEDAL_ENABLE_ASSERT
 
     return casted_size;
 }
@@ -312,7 +311,7 @@ array_impl<byte_t>& chunked_array_base::get_mut_chunk_impl(std::int64_t i) const
     return *std::next(begin, element);
 }
 
-void chunked_array_base::set_chunk_impl(std::int64_t i, array_impl_t&& array) {
+void chunked_array_base::set_chunk_impl(std::int64_t i, array_impl_t array) {
     auto accessor = impl_->mutable_access();
     const auto begin = accessor.get_chunks().begin();
 
@@ -325,24 +324,20 @@ void chunked_array_base::set_chunk_impl(std::int64_t i, array_impl_t&& array) {
 #endif // ONEDAL_ENABLE_ASSERT
 
     auto iterator = std::next(begin, position);
-    *iterator = std::forward<array_impl_t>(array);
+    *iterator = std::move(array);
 
+#ifdef ONEDAL_ENABLE_ASSERT
     ONEDAL_ASSERT((*iterator).get_data() == ptr_check);
     ONEDAL_ASSERT((*iterator).get_size_in_bytes() == size_check);
+#endif // ONEDAL_ENABLE_ASSERT
 }
 
-void chunked_array_base::append_impl(array_impl_t&& arr) const {
+void chunked_array_base::append_impl(array_impl_t arr) const {
     auto accessor = impl_->mutable_access();
-    accessor.get_chunks().emplace_back( //
-                        std::forward<array_impl_t>(arr));
+    accessor.get_chunks().emplace_back( std::move(arr) );
 }
 
-void chunked_array_base::append_impl(const array_impl_t& arr) const {
-    auto accessor = impl_->mutable_access();
-    accessor.get_chunks().emplace_back(arr);
-}
-
-void chunked_array_base::append_impl(const chunked_array_base& arr) const {
+void chunked_array_base::append_impl(chunked_array_base arr) const {
     const auto chunk_count = arr.get_chunk_count();
     [[maybe_unused]] const auto init_count = this->get_chunk_count();
 

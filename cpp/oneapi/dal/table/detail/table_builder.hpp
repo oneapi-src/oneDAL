@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/detail/homogen_utils.hpp"
 
 namespace oneapi::dal::detail {
@@ -125,6 +126,76 @@ private:
         return cast_impl<homogen_table_builder_iface>(*this);
     }
 };
+
+/*class ONEDAL_EXPORT heterogen_table_builder : public table_builder {
+public:
+    heterogen_table_builder();
+
+    heterogen_table_builder(const table_metadata& meta);
+
+    heterogen_table build() {
+        //return detail::make_private<heterogen_table>( //
+        //    get_impl().build_heterogen());
+        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+    }
+
+    auto& reset(const table_metadata& meta) {
+        //get_impl().reset_data();
+        //get_impl().set_metadata(meta);
+
+        return *this;
+    }
+
+    auto& reset(const heterogen_table& t) {
+        const auto input_meta = t.get_metadata();
+        const auto column_count = t.get_column_count();
+        ONEDAL_ASSERT(column_count == input_meta.get_feature_count());
+
+        this->reset(input_meta);
+
+        for (std::int64_t c = 0l; c < column_count; ++ c) {
+            chunked_array_base feature = t.get_column(c);
+            this->set_feature(c, std::move(feature));
+        }
+
+        return *this;
+    }
+
+    auto& set_data_type(std::int64_t column, data_type dt) {
+        //get_impl().set_data_type(column, dt);
+        return *this;
+    }
+
+    auto& set_feature_type(std::int64_t column, feature_type ft) {
+        //get_impl().set_feature_type(column, ft);
+        return *this;
+    }
+
+    template <typename T>
+    auto& set_feature(std::int64_t column, array<T> data) {
+        //constexpr data_type dt = detail::make_data_type<T>();
+        //get_impl().set_feature(column, dt, std::move(data));
+        return *this;
+    }
+
+    template <typename T>
+    auto& set_feature(std::int64_t column, chunked_array<T> data) {
+        //constexpr data_type dt = detail::make_data_type<T>();
+        //get_impl().set_feature(column, dt, std::move(data));
+        return *this;
+    }
+
+private:
+    heterogen_table_builder& set_feature(std::int64_t column, detail::chunked_array_base data) {
+        //constexpr data_type dt = detail::make_data_type<T>();
+        //get_impl().set_feature(column, dt, std::move(data));
+        return *this;
+    }
+
+    heterogen_table_builder_iface& get_impl() {
+        return cast_impl<heterogen_table_builder_iface>(*this);
+    }
+};*/
 
 } // namespace v1
 

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 
@@ -32,24 +34,39 @@ public:
 
     template <typename... Arrays>
     static heterogen_table wrap(Arrays&&... arrays) {
+        using detail::integral_cast;
+
+        const std::size_t ccount = sizeof...(Arrays);
+        const auto count = integral_cast<std::int64_t>(ccount);
+        auto result = heterogen_table::empty(count);
+
+        ([&](){ result.set_column( //
+            std::forward<Arrays>(arrays) ); }(), ...);
+
+        return result;
     }
 
-    template <typename... Arrays>
-    static heterogen_table wrap(std::int64_t column_count) {
+    static heterogen_table empty(std::int64_t column_count) {
+        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 
     template <typename T>
-    chunked_array<T> get_column(std::int64_t i) const {
-
+    chunked_array<T> get_column(std::int64_t column) const {
+        auto [dtype, arr] = this->get_column_impl(column);
+        ONEDAL_ASSERT(dtype == detail::make_data_type<T>());
+        return chunked_array<T>{ std::move(arr) };
     }
 
     template <typename T>
-    heterogen_table& set_column(std::int64_t i, array<T>&& arr) {
+    heterogen_table& set_column(std::int64_t column, array<T> arr) {
+        auto as_chunked = chunked_array<T>{ std::move(arr) };
+        this->set_column(column, std::move(as_chunked) );
         return *this;
     }
 
     template <typename T>
-    heterogen_table& set_column(std::int64_t i, chunked_array<T>&& arr) {
+    heterogen_table& set_column(std::int64_t column, chunked_array<T> arr) {
+        this->set_column_impl(column, std::move(arr));
         return *this;
     }
 
@@ -59,69 +76,11 @@ public:
     }
 
 private:
-    template <typename Data>
-    homogen_table(const dal::array<Data>& data,
-                  std::int64_t row_count,
-                  std::int64_t column_count,
-                  data_layout layout = data_layout::row_major) {
-        init_impl(data, row_count, column_count, layout);
-    }
+    void set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base&& arr);
+    std::pair<data_type, detail::chunked_array_base> get_column_impl(std::int64_t column) const;
 
-    explicit homogen_table(detail::homogen_table_iface* impl) : table(impl) {}
-    explicit homogen_table(const detail::shared<detail::homogen_table_iface>& impl) : table(impl) {}
-
-    template <typename Policy, typename Data, typename ConstDeleter>
-    void init_impl(const Policy& policy,
-                   std::int64_t row_count,
-                   std::int64_t column_count,
-                   const Data* data_pointer,
-                   ConstDeleter&& data_deleter,
-                   data_layout layout) {
-        validate_input_dimensions(row_count, column_count);
-
-        const auto data = detail::array_via_policy<Data>::wrap(
-            policy,
-            data_pointer,
-            detail::check_mul_overflow(row_count, column_count),
-            std::forward<ConstDeleter>(data_deleter));
-
-        init_impl(policy,
-                  row_count,
-                  column_count,
-                  detail::reinterpret_array_cast<byte_t>(data),
-                  detail::make_data_type<Data>(),
-                  layout);
-    }
-
-    template <typename Data>
-    void init_impl(const dal::array<Data>& data,
-                   std::int64_t row_count,
-                   std::int64_t column_count,
-                   data_layout layout) {
-        validate_input_dimensions(row_count, column_count);
-
-        if (data.get_count() < detail::check_mul_overflow(row_count, column_count)) {
-            using msg = detail::error_messages;
-            throw invalid_argument{ msg::rc_and_cc_do_not_match_element_count_in_array() };
-        }
-
-        detail::dispath_by_policy(data, [&](auto policy) {
-            init_impl(policy,
-                      row_count,
-                      column_count,
-                      detail::reinterpret_array_cast<byte_t>(data),
-                      detail::make_data_type<Data>(),
-                      layout);
-        });
-    }
-
-    template <typename Policy>
-    void init_impl(const Policy& policy,
-                   std::int64_t row_count,
-                   std::int64_t column_count,
-                   const dal::array<byte_t>& data,
-                   const data_type& dtype,
-                   data_layout layout);
+    explicit heterogen_table(detail::heterogen_table_iface* impl) : table(impl) {}
+    explicit heterogen_table(const detail::shared<detail::heterogen_table_iface>& impl) : table(impl) {}
 };*/
 
 } // namespace v1

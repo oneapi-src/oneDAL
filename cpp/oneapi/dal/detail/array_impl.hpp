@@ -94,7 +94,7 @@ public:
         return array;
     }
 
-    array_impl() : count_(0) {}
+    /*array_impl() : count_(0) {}
 
     template <typename Policy>
     array_impl(const Policy& policy, const shared& data, std::int64_t count) {
@@ -127,19 +127,52 @@ public:
 
     array_impl(array_impl<T>&& ref) {
         reset(std::forward<array_impl>(ref));
+    }*/
+
+    // Old
+    array_impl() : count_(0) {}
+
+    template <typename Policy>
+    array_impl(const Policy& policy, const shared& data, std::int64_t count) {
+        reset(policy, data, count);
+    }
+
+    template <typename Policy>
+    array_impl(const Policy& policy, const cshared& data, std::int64_t count) {
+        reset(policy, data, count);
+    }
+
+    template <typename Policy, typename Deleter>
+    array_impl(const Policy& policy, T* data, std::int64_t count, Deleter&& d) {
+        reset(policy, data, count, std::forward<Deleter>(d));
+    }
+
+    template <typename Policy, typename ConstDeleter>
+    array_impl(const Policy& policy, const T* data, std::int64_t count, ConstDeleter&& d) {
+        reset(policy, data, count, std::forward<ConstDeleter>(d));
+    }
+
+    template <typename Y, typename K>
+    array_impl(const array_impl<Y>& ref, K* data, std::int64_t count) {
+        reset(ref, data, count);
+    }
+
+    /*array_impl(const array_impl<T>& ref) {
+        reset(ref);
     }
 
     array_impl& operator=(const array_impl<T>& ref) {
         reset(ref);
         return *this;
-    }
+    }*/
 
-    /*array_impl& operator=(array_impl<T>&& ref) {
-        reset(std::forward<array_impl>(ref));
-        return *this;
-    };*/
+    array_impl(array_impl<T>&& ref) = default;
 
     array_impl& operator=(array_impl<T>&& ref) = default;
+
+    array_impl(const array_impl<T>& ref) = default;
+
+    array_impl& operator=(const array_impl<T>& ref) = default;
 
     // We want to be explicit about type conversion
     template <typename Y>
@@ -220,14 +253,14 @@ public:
         }
     }
 
+    bool has_data() const {
+        return get_data() != nullptr;
+    }
+
     void reset() {
         data_owned_ = std::variant<cshared, shared>();
         count_ = 0;
         reset_policy();
-    }
-
-    void reset(array_impl<T>&& ref) {
-
     }
 
     template <typename Policy, typename Allocator>
@@ -292,7 +325,10 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref) {
-        if (ref.has_mutable_data()) {
+        if (ref.has_data()) {
+            reset();
+        }
+        else if (ref.has_mutable_data()) {
             reset(ref, ref.get_mutable_data(), ref.get_count());
         }
         else {

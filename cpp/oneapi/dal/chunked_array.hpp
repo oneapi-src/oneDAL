@@ -41,22 +41,46 @@ class ONEDAL_EXPORT chunked_array : public detail::chunked_array_base {
 public:
     using data_t = T;
 
+    /// @brief
+    /// @param array
     chunked_array(chunked_array&& array)
         : chunked_array_base{ std::forward<base_t>(array) } {}
 
+    /// @brief       Zero copy construct `chunked_array`
+    /// @param array Source array
     chunked_array(const chunked_array& array)
         : chunked_array_base{ array } {}
 
+    /// @brief             Coonstructs an empty `chunked_array`
+    ///                    with unpopulated chunks
+    /// @param chunk_count Number of empty chunks in the
+    ///                    constructed `chunked_array`
     chunked_array(std::int64_t chunk_count)
         : chunked_array_base{ chunk_count } {}
 
+    /// @brief       Consumes one contiguous array and converts
+    ///              it to a chunked_array
+    /// @param array Particular array source
     chunked_array(dal::array<T>&& array)
         : chunked_array_base{ std::forward<dal::array<T>>(array) } {}
 
+    /// @brief            Construct `chunked_array` from list of arrays
+    ///                   of the same type or rather `chunked_array`s
+    /// @tparam ...Arrays Types of arrays
+    /// @param ...arrays  Constant references to arrays
     template <typename... Arrays>
     chunked_array(Arrays&&... arrays)
         : chunked_array_base{ std::forward<Arrays>(arrays)... } {}
 
+    /// @brief         Constructs dense array from current `chunked_array`
+    /// @tparam Policy Should be either `default_host or `data_parallel` policy
+    /// @tparam Alloc  Either `host_allocator` or `data_parallel_allocator`
+    ///                to allocate `byte_t`
+    /// @param policy  Particular instance of policy
+    /// @param alloc   Particular instance of allocator
+    /// @return        Contiguous array of type `T`
+    /// @todo          Optimize to support zero copy in case of
+    ///                contiguous array disguised as a `chunked_array`
     template <typename Policy, typename Alloc>
     array<T> flatten(const Policy& policy, const Alloc& alloc) const {
         ONEDAL_ASSERT(base_t::validate());
@@ -66,24 +90,39 @@ public:
         return array<T>{new detail::array_impl<T>{ std::move(impl) }};
     }
 
+    /// @brief         Constructs dense array from current `chunked_array`
+    /// @tparam Policy Should be either `default_host or `data_parallel` policy
+    /// @param policy  Particular instance of policy
+    /// @return        Contiguous array of type `T`
     template <typename Policy>
     array<T> flatten(const Policy& policy) const {
         using alloc_t = detail::policy_allocator_t<Policy>;
         return this->flatten(policy, alloc_t{ policy });
     }
 
+    /// @brief  Constructs dense array from current `chunked_array`
+    /// @return Contiguous array allocated on host with default allocator
     array<T> flatten() const {
         const detail::default_host_policy policy{};
         return this->flatten(policy);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+    /// @brief        Constructs dense array from current `chunked_array`
+    /// @param policy Particular instance of `data_parallel_policy`
+    /// @param deps   Data dependency list
+    /// @return       Contiguous array allocated on `shared` memory
     array<T> flatten(const detail::data_parallel_policy& policy,
                      const std::vector<sycl::event>& deps) const {
         sycl::event::wait_and_throw(deps);
         return this->flatten(policy);
     }
 
+    /// @brief       Constructs dense array from current `chunked_array`
+    /// @param queue Queue that represent device backend
+    /// @param alloc Type of USM allocation
+    /// @param deps  Data dependency list
+    /// @return      Contiguous array allocated according to `alloc` value
     array<T> flatten(sycl::queue& queue,
                      sycl::usm::alloc alloc = sycl::usm::alloc::shared,
                      const std::vector<sycl::event>& deps = {}) const {
@@ -95,10 +134,15 @@ public:
     }
 #endif // ONEDAL_DATA_PARALLEL
 
+    /// @brief         Returns array of pointers to data chunks
+    /// @tparam Policy Defines how an output array will be allocated
+    /// @tparam Alloc  Defines where an output array will be allocated
+    /// @param policy  Specific instance of policy
+    /// @param alloc   Specific instance of allocator
+    /// @return        Array of pointers to memory spans
     template <typename Policy, typename Alloc>
     array<const T*> get_data(const Policy& policy, const Alloc& alloc) const {
         ONEDAL_ASSERT(base_t::validate());
-        //ONEDAL_ASSERT(base_t::has_mutable_data());
 
         const auto raw = base_t::get_data_impl(policy, alloc);
         const auto impl = detail::array_impl<const T*>::reinterpret(raw);
@@ -111,18 +155,29 @@ public:
         return this->get_data(policy, alloc_t{ policy });
     }
 
+    /// @brief  Constructs array of pointers to data chunks
+    /// @return Array of pointers allocated on host device
     array<const T*> get_data() const {
         const detail::default_host_policy policy{};
         return this->get_data(policy);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+    /// @brief        Returns pointer to immutable data chunks
+    /// @param policy Data parallel policy to describe device
+    /// @param deps   List of data dependencies
+    /// @return       Array of pointers to the immutable data
     array<const T*> get_data(const detail::data_parallel_policy& policy,
                         const std::vector<sycl::event>& deps) const {
         sycl::event::wait_and_throw(deps);
         return this->get_data(policy);
     }
 
+    /// @brief       Constructs array of pointers to the data chunksd
+    /// @param queue `sycl::queue` storing information abot the device
+    /// @param alloc Type of memory allocation for the result
+    /// @param deps  List of data dependencies
+    /// @return      Array  of pointers located on the device
     array<const T*> get_data(sycl::queue& queue,
                       sycl::usm::alloc alloc = sycl::usm::alloc::shared,
                       const std::vector<sycl::event>& deps = {}) const {
@@ -134,17 +189,32 @@ public:
     }
 #endif // ONEDAL_DATA_PARALLEL
 
+    /// @brief       Provides access to the chunk as
+    ///              dense array of the same type
+    /// @param chunk Index of chunk in question
+    /// @return      Dense array representing chunk
     array<T> get_chunk(std::int64_t chunk) const {
         const auto& raw = base_t::get_chunk_impl(chunk);
         const auto impl = detail::array_impl<T>::reinterpret(raw);
         return array<T>{ new detail::array_impl<T>{ std::move(impl) } };
     }
 
+    /// @brief     Sets particular chunk
+    /// @param i   Index of chunk to be set
+    /// @param arr Array that will be casted to the chunk
+    /// @return    Reference to the same `chunked_array`
+    /// @note      Can be relatively slow since `offsets`
+    ///            of chunks will be reconstructed
     chunked_array<T>& set_chunk(std::int64_t i, const array<T>& arr) {
         base_t::set_chunk_impl(i, arr);
         return *this;
     }
 
+    /// @brief   Computes number of elements of type `T`
+    ///          in the particular instance of `chunked_array`
+    /// @pre         The `chunked_array` should be valid
+    ///              namely `carray.valid() == true`
+    /// @return  Number of elements in current `chunked_array`
     std::int64_t get_count() const {
         constexpr auto size = static_cast<std::int64_t>(sizeof(T));
         const auto size_in_bytes = base_t::get_size_in_bytes();
@@ -153,6 +223,16 @@ public:
         return count;
     }
 
+    /// @brief       Constructs slice of data from
+    ///              current `chunked_array`
+    /// @pre         The `chunked_array` should be valid
+    ///              namely `carray.valid() == true`
+    /// @param first Index of the first element of slice
+    /// @param last  Index after the last element in slice
+    /// @return      Newly constructed `chunked array`
+    ///              pointing to the same memory
+    /// @note        Zero copy, however - not that performant
+    ///              since require iterating throw all chunks
     chunked_array<T> get_slice(std::int64_t first, std::int64_t last) const {
         constexpr std::int64_t size = sizeof(T);
         const auto first_in_bytes = first * size;
@@ -163,6 +243,19 @@ public:
         return chunked_array<T>{ std::move(res) };
     }
 
+    template <typename... Arrays>
+    chunked_array& append(const Arrays&... arrays) {
+        // Check for having the same type
+        ([&](){
+            using ext_t = typename Arrays::data_t;
+            static_assert(std::is_same_v<data_t, ext_t>);
+        }(), ...);
+
+        base_t::append(arrays...);
+
+        return *this;
+    }
+
 private:
     chunked_array(const chunked_array_base& other)
         : chunked_array_base{ other } {}
@@ -170,22 +263,23 @@ private:
     chunked_array(chunked_array_base&& other)
         : chunked_array_base{ std::forward<chunked_array>(other) } {}
 
+    /// @brief Private methode to store content into
+    ///        memory single span
+    /// @note  Will call `flatten` function on host
     void serialize(detail::output_archive& ar) const {
         ar(get_dtype());
 
         base_t::serialize_impl(ar);
     }
 
+    /// @brief Private method to restore content inplace
+    /// @note  Will construct a single chunk backend
     void deserialize(detail::input_archive& ar) {
         constexpr auto dtype = get_dtype();
         const auto ar_dtype = ar.pop<data_type>();
         ONEDAL_ASSERT(dtype == ar_dtype);
 
         base_t::deserialize_impl(dtype, ar);
-    }
-
-    static void swap(chunked_array<T>& lhs, chunked_array<T>& rhs) {
-        std::swap(lhs.impl_, rhs.impl_);
     }
 
     constexpr static data_type get_dtype() {

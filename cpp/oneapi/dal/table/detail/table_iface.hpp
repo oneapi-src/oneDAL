@@ -119,6 +119,11 @@ public:
 #endif
 };
 
+class heterogen_table_builder_iface : public table_builder_iface {
+public:
+    virtual heterogen_table_iface* build_heterogen() = 0;
+};
+
 /// Generic table template is expected to implement all access interfaces to the table.
 /// The example of the table that implements generic interface is the empty one.
 template <typename Derived>
@@ -223,6 +228,25 @@ public:
     }
 };
 
+template <typename Derived>
+class heterogen_table_builder_template : public heterogen_table_builder_iface,
+                                         public pull_rows_template<Derived>,
+                                         public pull_column_template<Derived>,
+                                         public push_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    push_column_iface* get_push_column_iface() override {
+        return this;
+    }
+};
+
 } // namespace v1
 
 using v1::table_iface;
@@ -236,5 +260,7 @@ using v1::csr_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
 using v1::homogen_table_builder_template;
+using v1::heterogen_table_builder_iface;
+using v1::heterogen_table_builder_template;
 
 } // namespace oneapi::dal::detail

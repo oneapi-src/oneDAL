@@ -15,71 +15,39 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/heterogen.hpp"
+#include "oneapi/dal/table/detail/table_kinds.hpp"
 #include "oneapi/dal/table/detail/table_utils.hpp"
-//#include "oneapi/dal/table/backend/heterogen_table_impl.hpp"
+#include "oneapi/dal/table/backend/heterogen_table_impl.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
 
-/*static std::shared_ptr<detail::homogen_table_iface> get_homogen_iface(const table& other) {
-    if (const auto homogen_iface = detail::get_homogen_table_iface(other)) {
-        return homogen_iface;
+/*static std::shared_ptr<detail::heterogen_table_iface> get_heterogen_iface(const table& other) {
+    if (const auto heterogen_iface = detail::get_heterogen_table_iface(other)) {
+        return heterogen_iface;
     }
-    return std::make_shared<backend::homogen_table_impl>();
+    return std::make_shared<backend::hetero_table_impl>();
 }
 
 std::int64_t heterogen_table::kind() {
-    return 100l;
+    return detail::get_heterogen_table_kind();
 }
 
-homogen_table::homogen_table() : homogen_table(new backend::homogen_table_impl{}) {}
+heterogen_table::heterogen_table() : heterogen_table(new backend::heterogen_table_impl{}) {}
 
-homogen_table::homogen_table(const table& other) : homogen_table(get_homogen_iface(other)) {}
+heterogen_table::heterogen_table(const table& other) : heterogen_table(get_heterogen_iface(other)) {}
 
-template <typename Policy>
-void homogen_table::init_impl(const Policy& policy,
-                              std::int64_t row_count,
-                              std::int64_t column_count,
-                              const dal::array<byte_t>& data,
-                              const data_type& dtype,
-                              data_layout layout) {
-    table::init_impl(
-        new backend::homogen_table_impl{ row_count, column_count, data, dtype, layout });
+void heterogen_table::set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base&& arr) {
+
 }
 
-// This method is needed for compatibility with the oneDAL 2021.1.
-// This should be removed in 2022.1.
-template <typename Policy>
-void homogen_table::init_impl(const Policy& policy,
-                              std::int64_t row_count,
-                              std::int64_t column_count,
-                              const dal::v1::array<byte_t>& data,
-                              const data_type& dtype,
-                              data_layout layout) {
-    table::init_impl(
-        new backend::homogen_table_impl{ row_count, column_count, data.v2(), dtype, layout });
-}
-
-const void* homogen_table::get_data() const {
-    const auto& impl = detail::cast_impl<const detail::homogen_table_iface>(*this);
-    return impl.get_data().get_data();
+std::pair<data_type, detail::chunked_array_base> heterogen_table::get_column_impl(std::int64_t column) const {
+    data_type dtype = this->get_metadata().get_data_type(column);
+    const auto& impl = detail::cast_impl<const detail::heterogen_table_iface>(*this);
+    detail::chunked_array_base array = impl.get_data().get_column(column);
+    return { std::move{ data_type }, std::move{ array } };
 }*/
 
-#define INSTANTIATE(Policy, Array)                                             \
-    template ONEDAL_EXPORT void homogen_table::init_impl(const Policy&,        \
-                                                         std::int64_t,         \
-                                                         std::int64_t,         \
-                                                         const Array<byte_t>&, \
-                                                         const data_type&,     \
-                                                         data_layout);
-
-//INSTANTIATE(detail::default_host_policy, dal::array)
-//INSTANTIATE(detail::default_host_policy, dal::v1::array)
-//
-//#ifdef ONEDAL_DATA_PARALLEL
-//INSTANTIATE(detail::data_parallel_policy, dal::array)
-//INSTANTIATE(detail::data_parallel_policy, dal::v1::array)
-//#endif
 
 } // namespace v1
 } // namespace oneapi::dal

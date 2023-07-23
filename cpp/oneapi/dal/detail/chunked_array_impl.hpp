@@ -51,19 +51,16 @@ public:
     std::int64_t get_size_in_bytes() const;
     std::int64_t get_chunk_count() const noexcept;
 
+protected:
     template <typename... Arrays>
     void append(const Arrays&... arrays) const {
         ([&, this](){ this->append_impl(arrays); }(), ...);
     }
 
-protected:
     chunked_array_base() : chunked_array_base{ make_array_impl(0l) } {}
 
-    template <typename Integral>
-    chunked_array_base(Integral chunk_count) {
-        // Check for being integral is performed underneath
-        auto count = detail::integral_cast<std::int64_t>(chunk_count);
-        impl_ = make_array_impl(count);
+    chunked_array_base(std::int64_t chunk_count) {
+        impl_ = make_array_impl(chunk_count);
     }
 
     template <typename Type>
@@ -97,11 +94,11 @@ protected:
     chunked_array_base(const impl_ptr_t& impl)
         : impl_{ impl } {}
 
-    chunked_array_base(chunked_array_base&& other)
-        : chunked_array_base{ std::move(other.impl_) } {}
+    chunked_array_base(chunked_array_base&& other) = default;
+    chunked_array_base(const chunked_array_base& other) = default;
 
-    chunked_array_base(const chunked_array_base& other)
-        : chunked_array_base{ other.impl_ } {}
+    chunked_array_base& operator=(chunked_array_base&& other) = default;
+    chunked_array_base& operator=(const chunked_array_base& other) = default;
 
     void deserialize_impl(data_type dtype, detail::input_archive& ar);
     void serialize_impl(detail::output_archive& ar) const;
@@ -123,7 +120,7 @@ protected:
                          const std::vector<sycl::event>& deps) const;
 #endif // ONEDAL_DATA_PARALLEL
 
-    void set_chunk_impl(std::int64_t i, array_impl_t&& array);
+    void set_chunk_impl(std::int64_t i, array_impl_t array);
     const array_impl_t& get_chunk_impl(std::int64_t i) const;
     array_impl_t& get_mut_chunk_impl(std::int64_t) const;
 
@@ -149,15 +146,15 @@ protected:
         [[maybe_unused]] const auto init_count = this->get_chunk_count();
         [[maybe_unused]] const auto chunk_count = arr.get_chunk_count();
 
-        const auto& ref = static_cast<const this_t&>(arr);
+        const auto& ref = static_cast<const chunked_array_base&>(arr);
+        ONEDAL_ASSERT(ref.validate());
         this->append_impl(ref);
 
         ONEDAL_ASSERT(this->get_chunk_count() == init_count + chunk_count);
     }
 
-    void append_impl(array_impl_t&& arr) const;
-    void append_impl(const array_impl_t& arr) const;
-    void append_impl(const chunked_array_base& arr) const;
+    void append_impl(array_impl_t arr) const;
+    void append_impl(chunked_array_base arr) const;
 
 private:
     template <typename Type>
