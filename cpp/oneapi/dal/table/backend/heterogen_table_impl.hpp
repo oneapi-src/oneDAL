@@ -28,22 +28,17 @@
 
 namespace oneapi::dal::backend {
 
-/*class heterogen_table_impl : public detail::heterogen_table_template<heterogen_table_impl>,
+class heterogen_table_impl : public detail::heterogen_table_template<heterogen_table_impl>,
                              public ONEDAL_SERIALIZABLE(heterogen_table_id) {
 public:
-    heterogen_table_impl() : col_count_{ 0l } {}
+    heterogen_table_impl() {}
 
-    heterogen_table_impl(std::int64_t column_count) : col_count_{ column_count } {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+    heterogen_table_impl(std::int64_t column_count) {
+        data_ = dal::array<detail::chunked_array_base>::empty(column_count);
     }
-
 
     std::int64_t get_column_count() const override {
-        return col_count_;
-    }
-
-    std::int64_t get_row_count() const override {
-        return row_count_;
+        return get_metadata().get_feature_count();
     }
 
     const table_metadata& get_metadata() const override {
@@ -66,17 +61,34 @@ public:
         throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 
+    // virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;
+    void set_column(std::int64_t column, data_type dt, detail::chunked_array_base arr) override {
+        ONEDAL_ASSERT(column < get_column_count());
+        auto* const ptr = data_.get_mutable_data();
+        *(ptr + column) = std::move(arr);
+    }
+
+    //virtual const detail::chunked_array_base& get_column(std::int64_t) const = 0;
+    const detail::chunked_array_base& get_column(std::int64_t column) const override {
+        ONEDAL_ASSERT(column < get_column_count());
+        const auto* const ptr = data_.get_data();
+        return *(ptr + column);
+    }
+
+    // virtual detail::chunked_array_base& get_column(std::int64_t) = 0;
+    detail::chunked_array_base& get_column(std::int64_t column) override {
+        ONEDAL_ASSERT(column < get_column_count());
+        auto* const ptr = data_.get_mutable_data();
+        return *(ptr + column);
+    }
 
     bool validate() const {
         return true;
     }
 
 private:
-
     table_metadata meta_;
-    std::int64_t col_count_;
-    std::int64_t row_count_;
-    //dal::array<chunked_array_base>
-};*/
+    dal::array<detail::chunked_array_base> data_;
+};
 
 } // namespace oneapi::dal::backend

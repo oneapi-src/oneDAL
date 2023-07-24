@@ -60,13 +60,21 @@ std::tuple<shared<byte_t>, std::int64_t> deserialize_array(const Policy& policy,
 
 template <typename T>
 class array_impl : public base {
-    using cshared = detail::shared<const T>;
     using shared = detail::shared<T>;
+    using cshared = detail::shared<const T>;
 
     template <typename U>
     friend class array_impl;
 
     friend class chunked_array_base;
+
+    using dhp_t = default_host_policy;
+#ifndef ONEDAL_DATA_PARALLEL
+    using policy_var_t = std::variant<dhp_t>;
+#else // ifdef ONEDAL_DATA_PARALLEL
+    using dpp_t = data_parallel_policy;
+    using policy_var_t = std::variant<dhp_t, dpp_t>;
+#endif
 
 public:
     using data_t = T;
@@ -407,6 +415,16 @@ public:
         return check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
     }
 
+    policy_var_t get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        if (dp_policy_.has_value()) {
+            return policy_var_t{ dp_policy_.value() };
+        }
+#endif // ONEDAL_DATA_PARALLEL
+        const default_host_policy host_policy{};
+        return policy_var_t{ host_policy };
+    }
+
 private:
     void reset_policy() {
 #ifdef ONEDAL_DATA_PARALLEL
@@ -455,24 +473,6 @@ private:
 
     const shared* get_if_shared() const noexcept {
         return std::get_if<shared>(&data_owned_);
-    }
-
-    using dhp_t = default_host_policy;
-#ifdef ONEDAL_DATA_PARALLEL
-    using dpp_t = data_parallel_policy;
-    using policy_var_t = std::variant<dpp_t, dhp_t>;
-#else // ONEDAL_DATA_PARALLEL
-    using policy_var_t = std::variant<dhp_t>;
-#endif
-
-    policy_var_t get_policy() const {
-#ifdef ONEDAL_DATA_PARALLEL
-        if (dp_policy_.has_value()) {
-            return policy_var_t{ dp_policy_.value() };
-        }
-#endif // ONEDAL_DATA_PARALLEL
-        const default_host_policy host_policy{};
-        return policy_var_t{ host_policy };
     }
 
     std::variant<cshared, shared> data_owned_;

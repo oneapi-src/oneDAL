@@ -22,11 +22,11 @@
 namespace oneapi::dal {
 namespace v1 {
 
-/*static std::shared_ptr<detail::heterogen_table_iface> get_heterogen_iface(const table& other) {
+static std::shared_ptr<detail::heterogen_table_iface> get_heterogen_iface(const table& other) {
     if (const auto heterogen_iface = detail::get_heterogen_table_iface(other)) {
         return heterogen_iface;
     }
-    return std::make_shared<backend::hetero_table_impl>();
+    return std::make_shared<backend::heterogen_table_impl>();
 }
 
 std::int64_t heterogen_table::kind() {
@@ -37,17 +37,17 @@ heterogen_table::heterogen_table() : heterogen_table(new backend::heterogen_tabl
 
 heterogen_table::heterogen_table(const table& other) : heterogen_table(get_heterogen_iface(other)) {}
 
-void heterogen_table::set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base&& arr) {
-
+void heterogen_table::set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base arr) {
+    ONEDAL_ASSERT(dt == this->get_metadata().get_data_type(column));
+    auto& impl = detail::cast_impl<detail::heterogen_table_iface>(*this);
+    impl.set_column(column, dt, std::move(arr));
 }
 
 std::pair<data_type, detail::chunked_array_base> heterogen_table::get_column_impl(std::int64_t column) const {
     data_type dtype = this->get_metadata().get_data_type(column);
-    const auto& impl = detail::cast_impl<const detail::heterogen_table_iface>(*this);
-    detail::chunked_array_base array = impl.get_data().get_column(column);
-    return { std::move{ data_type }, std::move{ array } };
-}*/
-
+    auto array = detail::cast_impl<const detail::heterogen_table_iface>(*this).get_column(column);
+    return std::make_pair<data_type, detail::chunked_array_base>(std::move(dtype), std::move(array));
+}
 
 } // namespace v1
 } // namespace oneapi::dal

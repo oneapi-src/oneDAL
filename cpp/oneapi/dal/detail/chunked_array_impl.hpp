@@ -51,13 +51,25 @@ public:
     std::int64_t get_size_in_bytes() const;
     std::int64_t get_chunk_count() const noexcept;
 
+    chunked_array_base(impl_ptr_t&& impl)
+        : impl_{ std::forward<impl_ptr_t>(impl) } {}
+
+    chunked_array_base(const impl_ptr_t& impl)
+        : impl_{ impl } {}
+
+    chunked_array_base(chunked_array_base&& other) = default;
+    chunked_array_base(const chunked_array_base& other) = default;
+
+    chunked_array_base& operator=(chunked_array_base&& other) = default;
+    chunked_array_base& operator=(const chunked_array_base& other) = default;
+
+    chunked_array_base() : chunked_array_base{ make_array_impl(0l) } {}
+
 protected:
     template <typename... Arrays>
     void append(const Arrays&... arrays) const {
         ([&, this](){ this->append_impl(arrays); }(), ...);
     }
-
-    chunked_array_base() : chunked_array_base{ make_array_impl(0l) } {}
 
     chunked_array_base(std::int64_t chunk_count) {
         impl_ = make_array_impl(chunk_count);
@@ -87,18 +99,6 @@ protected:
         // Checks that result is full with data
         ONEDAL_ASSERT(this->validate());
     }
-
-    chunked_array_base(impl_ptr_t&& impl)
-        : impl_{ std::forward<impl_ptr_t>(impl) } {}
-
-    chunked_array_base(const impl_ptr_t& impl)
-        : impl_{ impl } {}
-
-    chunked_array_base(chunked_array_base&& other) = default;
-    chunked_array_base(const chunked_array_base& other) = default;
-
-    chunked_array_base& operator=(chunked_array_base&& other) = default;
-    chunked_array_base& operator=(const chunked_array_base& other) = default;
 
     void deserialize_impl(data_type dtype, detail::input_archive& ar);
     void serialize_impl(detail::output_archive& ar) const;
@@ -163,10 +163,6 @@ private:
         const auto& internals = acc.get_pimpl(arr);
         return array_impl_t::reinterpret(*internals);
     }
-
-    template <typename T, typename Policy, typename Alloc>
-    static array_impl<T> copy_to_policy(const array_impl<T>& src,
-                    const Policy& dst_policy, const Alloc& alloc);
 
     static impl_ptr_t make_array_impl(std::int64_t chunk_count);
 

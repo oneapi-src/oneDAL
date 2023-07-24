@@ -63,7 +63,9 @@ public:
 
 class heterogen_table_iface : public table_iface {
 public:
-    virtual dal::chunked_array<byte_t> get_column(std::int64_t) const = 0;
+    virtual detail::chunked_array_base& get_column(std::int64_t) = 0;
+    virtual const detail::chunked_array_base& get_column(std::int64_t) const = 0;
+    virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;
 };
 
 class csr_table_iface : public table_iface {

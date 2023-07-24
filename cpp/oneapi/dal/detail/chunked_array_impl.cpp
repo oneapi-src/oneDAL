@@ -24,6 +24,7 @@
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/array_impl.hpp"
+#include "oneapi/dal/detail/array_utils.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/chunked_array_impl.hpp"
@@ -353,7 +354,7 @@ auto chunked_array_base::make_array_impl(std::int64_t chunk_count) -> impl_ptr_t
     return std::make_shared<impl_t>(chunk_count);
 }
 
-template <typename T, typename Policy, typename Alloc>
+/*template <typename T, typename Policy, typename Alloc>
 array_impl<T> chunked_array_base::copy_to_policy(const array_impl<T>& src,
                                 const Policy& policy, const Alloc& alloc) {
     auto res = array_impl<T>::empty_unique(policy, src.get_count(), alloc);
@@ -370,7 +371,7 @@ array_impl<T> chunked_array_base::copy_to_policy(const array_impl<T>& src,
     std::visit(copy_visitor, src.get_policy());
 
     return *res;
-}
+}*/
 
 
 template <typename Policy, typename Alloc>
@@ -397,7 +398,7 @@ array_impl<const byte_t*> chunked_array_base::get_data_impl(
     }
     else {
         auto tmp = get_data_impl(tmp_policy, tmp_alloc);
-        return copy_to_policy(tmp, dst_policy, alloc);
+        return copy_impl(dst_policy, tmp, alloc);
     }
 }
 
@@ -425,7 +426,7 @@ array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
     }
     else {
         auto tmp = get_mutable_data_impl(tmp_policy, tmp_alloc);
-        return copy_to_policy(tmp, dst_policy, alloc);
+        return copy_impl(dst_policy, tmp, alloc);
     }
 }
 

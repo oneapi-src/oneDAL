@@ -22,32 +22,40 @@
 #include "oneapi/dal/chunked_array.hpp"
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/detail/metadata_utils.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
 
-/*class ONEDAL_EXPORT heterogen_table : public table {
+class ONEDAL_EXPORT heterogen_table : public table {
     friend detail::pimpl_accessor;
 
 public:
     static std::int64_t kind();
 
+    /// Creates a new ``homogen_table`` instance with zero number of rows and columns.
+    heterogen_table();
+
+    /// Casts an object of the base table type to a heterogen table. If cast is
+    /// not possible, the operation is equivalent to a default constructor call.
+    explicit heterogen_table(const table& other);
+
+    static heterogen_table empty(const table_metadata& meta);
+
     template <typename... Arrays>
     static heterogen_table wrap(Arrays&&... arrays) {
         using detail::integral_cast;
 
+        auto meta = detail::make_default_metadata_from_arrays<Arrays...>();
+        heterogen_table result = heterogen_table::empty(meta);
+
         const std::size_t ccount = sizeof...(Arrays);
         const auto count = integral_cast<std::int64_t>(ccount);
-        auto result = heterogen_table::empty(count);
-
-        ([&](){ result.set_column( //
-            std::forward<Arrays>(arrays) ); }(), ...);
+        ([&]() -> void {
+            result.set_column( std::forward<Arrays>(arrays) );
+        }(), ...);
 
         return result;
-    }
-
-    static heterogen_table empty(std::int64_t column_count) {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 
     template <typename T>
@@ -70,21 +78,20 @@ public:
         return *this;
     }
 
-    /// The unique id of the homogen table type.
     std::int64_t get_kind() const {
         return kind();
     }
 
 private:
-    void set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base&& arr);
+    void set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base arr);
     std::pair<data_type, detail::chunked_array_base> get_column_impl(std::int64_t column) const;
 
     explicit heterogen_table(detail::heterogen_table_iface* impl) : table(impl) {}
     explicit heterogen_table(const detail::shared<detail::heterogen_table_iface>& impl) : table(impl) {}
-};*/
+};
 
 } // namespace v1
 
-//using v1::heterogen_table;
+using v1::heterogen_table;
 
-} // namespace oneapi::dal*/
+} // namespace oneapi::dal
