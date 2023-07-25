@@ -93,7 +93,7 @@ public:
                 val += A_host_.at(i, j) * answer_host.at(j);
             }
             val -= b_host_.at(i);
-            r_norm += abs(val);
+            r_norm += val * val;
         }
         REQUIRE(r_norm < 1e-4);
 

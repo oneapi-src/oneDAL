@@ -44,7 +44,7 @@ Float backtracking(sycl::queue queue,
                    const ndview<Float, 1>& direction,
                    ndview<Float, 1>& result,
                    Float alpha = 1,
-                   const Float c1 = 1e-4,
+                   Float c1 = 1e-4,
                    bool x0_initialized = false,
                    const event_vector& deps = {});
 

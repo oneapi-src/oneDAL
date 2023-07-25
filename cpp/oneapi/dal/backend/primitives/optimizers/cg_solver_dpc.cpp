@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -30,9 +31,9 @@ sycl::event cg_solve(sycl::queue& queue,
                      ndview<Float, 1>& residual,
                      ndview<Float, 1>& conj_vector,
                      ndview<Float, 1>& buffer,
-                     const Float tol,
-                     const Float atol,
-                     const std::int64_t maxiter,
+                     Float tol,
+                     Float atol,
+                     std::int64_t maxiter,
                      const event_vector& deps) {
     // Solving the equation mul_operator(x) = b
     const std::int64_t p = b.get_dimension(0);
@@ -46,9 +47,10 @@ sycl::event cg_solve(sycl::queue& queue,
     ONEDAL_ASSERT(conj_vector.get_dimension(0) == p);
     ONEDAL_ASSERT(buffer.get_dimension(0) == p);
 
+    using msg = dal::detail::error_messages;
+
     Float alpha = 0, beta = 0;
     Float r_norm = 0, b_norm = 0;
-    Float r_l1_norm = 0;
 
     const auto kernel_minus = [=](const Float a, const Float b) -> Float {
         return a - b;
@@ -66,19 +68,22 @@ sycl::event cg_solve(sycl::queue& queue,
     auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
     auto* const tmp_ptr = tmp_gpu.get_mutable_data();
 
-    l1_norm<Float>(queue, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
+    dot_product<Float>(queue, b, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
+    b_norm = sqrt(b_norm);
 
     // Tolerances for convergence norm(residual) <= max(tol*norm(b), atol)
-    const Float min_eps = sizeof(Float) == 4 ? 1e-7 : 1e-15;
-    Float threshold = std::max(tol * b_norm, std::max(atol, min_eps));
+    const Float min_eps = std::numeric_limits<Float>::epsilon();
+    tol = std::max(tol, min_eps);
+    atol = std::max(atol, min_eps);
+    Float threshold = std::max(tol * b_norm, atol);
 
-    const auto init_conj_kernel = [=](const Float residual_val, const Float conj_val) -> Float {
+    const auto init_conj_kernel = [=](const Float residual_val, Float*) -> Float {
         return -residual_val;
     };
     auto compute_conj_event = element_wise(queue,
                                            init_conj_kernel,
                                            residual,
-                                           conj_vector,
+                                           nullptr,
                                            conj_vector,
                                            { compute_r0_event }); // p0 = -r0 + 0 * p
     auto conj_host = conj_vector.to_host(queue, {});
@@ -86,17 +91,19 @@ sycl::event cg_solve(sycl::queue& queue,
         .wait_and_throw(); // compute r^T r
 
     for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
-        l1_norm<Float>(queue, residual, tmp_ptr, &r_l1_norm, { compute_conj_event })
-            .wait_and_throw(); // compute norm(residual)
-
-        if (r_l1_norm < threshold) {
+        if (sqrt(r_norm) < threshold) {
             break;
         }
         auto compute_matmul_event =
             mul_operator(conj_vector, buffer, { compute_conj_event }); // compute A p_i
         dot_product<Float>(queue, conj_vector, buffer, tmp_ptr, &alpha, { compute_matmul_event })
             .wait_and_throw(); // compute p_i^T A p_i
-        ONEDAL_ASSERT(alpha > 1e-15);
+
+        if (alpha <= 0) {
+            // if p^t A p is less or equal to zero then matrix A is not positively definite
+            // if residual norm is higher than thr then p != 0
+            throw domain_error(msg::matrix_is_not_positively_definite());
+        }
         alpha = r_norm / alpha;
         const auto update_x_kernel = [=](const Float x_val, const Float conj_val) -> Float {
             return x_val + alpha * conj_val;
@@ -147,9 +154,9 @@ sycl::event cg_solve(sycl::queue& queue,
                                      ndview<F, 1>&,          \
                                      ndview<F, 1>&,          \
                                      ndview<F, 1>&,          \
-                                     const F,                \
-                                     const F,                \
-                                     const std::int64_t,     \
+                                     F,                      \
+                                     F,                      \
+                                     std::int64_t,           \
                                      const event_vector&);
 
 INSTANTIATE(float);

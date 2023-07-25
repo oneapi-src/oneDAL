@@ -27,7 +27,7 @@ Float backtracking(sycl::queue queue,
                    const ndview<Float, 1>& direction,
                    ndview<Float, 1>& result,
                    Float alpha,
-                   const Float c1,
+                   Float c1,
                    bool x0_initialized,
                    const event_vector& deps) {
     using dal::backend::operator+;
@@ -40,13 +40,13 @@ Float backtracking(sycl::queue queue,
     Float df0 = 0;
     dot_product(queue, grad_f0, direction, result.get_mutable_data(), &df0, deps + precompute)
         .wait_and_throw();
-    bool is_first_iter = true;
+    std::int32_t iter_num = 0;
     Float cur_val = 0;
-    while (is_first_iter || cur_val > f0 + c1 * alpha * df0) {
-        if (!is_first_iter) {
+    while ((iter_num == 0 || cur_val > f0 + c1 * alpha * df0) && iter_num < 100) {
+        if (iter_num > 0) {
             alpha /= 2;
         }
-        is_first_iter = false;
+        iter_num++;
         const auto update_x_kernel = [=](const Float x_val, const Float dir_val) -> Float {
             return x_val + alpha * dir_val;
         };
@@ -66,7 +66,7 @@ Float backtracking(sycl::queue queue,
                             const ndview<F, 1>&, \
                             ndview<F, 1>&,       \
                             F,                   \
-                            const F,             \
+                            F,                   \
                             bool,                \
                             const event_vector&);
 

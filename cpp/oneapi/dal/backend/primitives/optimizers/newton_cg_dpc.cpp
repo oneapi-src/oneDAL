@@ -69,13 +69,13 @@ sycl::event newton_cg(sycl::queue& queue,
         auto copy_event = copy(queue, direction, gradient, { prepare_grad_event });
 
         Float desc = -1;
-        bool is_first_iter = true;
+        std::int32_t iter_num = 0;
         auto last_event = copy_event;
-        while (desc < 0) {
-            if (!is_first_iter) {
+        while (desc < 0 && iter_num < 10) {
+            if (iter_num > 0) {
                 tol_k /= 10;
             }
-            is_first_iter = false;
+            iter_num++;
 
             auto solve_event = cg_solve(queue,
                                         f.get_hessian_product(),
@@ -86,12 +86,17 @@ sycl::event newton_cg(sycl::queue& queue,
                                         buffer3,
                                         tol_k,
                                         Float(0),
-                                        10, //n * 20,
+                                        n * 20,
                                         { last_event });
 
-            // -grad^T direction should be > 0 if direction is descent direction
+            // <-grad, direction> should be > 0 if direction is descent direction
             last_event = dot_product(queue, gradient, direction, tmp_gpu, &desc, { solve_event });
             last_event.wait_and_throw();
+        }
+
+        if (desc < 0) {
+            // failed to find a descent direction with cg-solver after 10 atempts
+            return last_event;
         }
 
         Float alpha_opt = backtracking(queue,

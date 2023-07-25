@@ -38,9 +38,7 @@ sycl::event dot_product(sycl::queue& queue,
     auto* const y_ptr = y.get_mutable_data();
     sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.single_task([=]() {
-            *res_gpu = 0;
-        });
+        cgh.fill(res_gpu, Float(0), 1);
     });
 
     auto reduction_event = queue.submit([&](sycl::handler& cgh) {
@@ -77,8 +75,8 @@ sycl::event l1_norm(sycl::queue& queue,
         const auto range = make_range_1d(n);
         auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-            Float val = x_ptr[idx];
-            sum += val >= 0 ? val : -val;
+            const Float val = x_ptr[idx];
+            sum += val < 0 ? -val : val;
         });
     });
 
@@ -102,8 +100,7 @@ sycl::event l1_norm(sycl::queue& queue,
                                     const event_vector&);     \
     template class BaseMatrixOperator<F>;                     \
     template class LinearMatrixOperator<F>;                   \
-    template class BaseFunction<F>;                           \
-    template class QuadraticFunction<F>;
+    template class BaseFunction<F>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);
