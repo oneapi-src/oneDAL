@@ -16,14 +16,33 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/linalg.hpp"
 #include "oneapi/dal/table/csr_accessor.hpp"
-
-#include <iostream>
-#include <typeinfo>
 
 namespace oneapi::dal {
 
 namespace te = dal::test::engine;
+namespace la = te::linalg;
+
+enum class test_alloc_kind {
+    host, /// Non-USM pointer allocated on host
+    usm_host, /// USM pointer allocated by sycl::alloc_host
+    usm_device, /// USM pointer allocated by sycl::alloc_device
+    usm_shared /// USM pointer allocated by sycl::alloc_shared
+};
+
+#ifdef ONEDAL_DATA_PARALLEL
+inline sycl::usm::alloc test_alloc_kind_to_sycl(test_alloc_kind kind) {
+    switch (kind) {
+        case test_alloc_kind::usm_host: return sycl::usm::alloc::host;
+        case test_alloc_kind::usm_device: return sycl::usm::alloc::device;
+        case test_alloc_kind::usm_shared: return sycl::usm::alloc::shared;
+        default:
+            ONEDAL_ASSERT(!"Unsupported test_alloc_kind to sycl::usm::alloc conversion");
+            return sycl::usm::alloc::unknown;
+    }
+}
+#endif
 
 /// Tests dal::csr_accessor class on a fixed data table:
 ///     | 1,  2,  0,  3 |
@@ -78,45 +97,103 @@ public:
     template <typename Policy>
     csr_table get_table(const Policy& policy) {
 #ifdef ONEDAL_DATA_PARALLEL
-        if (dal::detail::is_data_parallel_policy_v<Policy>) {
-            sycl::queue& q = this->get_queue();
-            data_device_ = dal::array<table_data_t>::empty(q, element_count, table_alloc_);
-            column_indices_device_ =
-                dal::array<std::int64_t>::empty(q, element_count, table_alloc_);
-            row_offsets_device_ = dal::array<std::int64_t>::empty(q, row_count + 1, table_alloc_);
+        sycl::queue& q = this->get_queue();
+        if (table_alloc_ != test_alloc_kind::host) {
+            sycl::usm::alloc alloc = test_alloc_kind_to_sycl(table_alloc_);
+            data_usm_ = dal::array<table_data_t>::empty(q, element_count, alloc);
+            column_indices_usm_ = dal::array<std::int64_t>::empty(q, element_count, alloc);
+            row_offsets_usm_ = dal::array<std::int64_t>::empty(q, row_count + 1, alloc);
 
-            q.copy(data_.data(), data_device_.get_mutable_data(), element_count).wait_and_throw();
-            q.copy(column_indices_, column_indices_device_.get_mutable_data(), element_count)
+            q.copy(data_.data(), data_usm_.get_mutable_data(), element_count).wait_and_throw();
+            q.copy(column_indices_, column_indices_usm_.get_mutable_data(), element_count)
                 .wait_and_throw();
-            q.copy(row_offsets_, row_offsets_device_.get_mutable_data(), row_count + 1)
+            q.copy(row_offsets_, row_offsets_usm_.get_mutable_data(), row_count + 1)
                 .wait_and_throw();
+
             return csr_table::wrap(q,
-                                   data_device_.get_data(),
-                                   column_indices_device_.get_data(),
-                                   row_offsets_device_.get_data(),
+                                   data_usm_.get_data(),
+                                   column_indices_usm_.get_data(),
+                                   row_offsets_usm_.get_data(),
                                    row_count,
                                    column_count,
                                    table_indexing_);
         }
+#endif
+        return csr_table::wrap(data_.data(),
+                               column_indices_,
+                               row_offsets_,
+                               row_count,
+                               column_count,
+                               table_indexing_);
+    }
+
+    template <typename Policy>
+    std::tuple<array_d, array_i, array_i> pull_data(const Policy& policy,
+                                                    const csr_table& t,
+                                                    std::int64_t start_idx,
+                                                    std::int64_t end_idx) {
+#ifdef ONEDAL_DATA_PARALLEL
+        if (accessor_alloc_ != test_alloc_kind::host) {
+            return csr_accessor<const accessor_data_t>(t).pull(
+                this->get_queue(),
+                { start_idx, end_idx },
+                accessor_indexing_,
+                test_alloc_kind_to_sycl(accessor_alloc_));
+        }
         else
 #endif
-            return csr_table::wrap(data_.data(),
-                                   column_indices_,
-                                   row_offsets_,
-                                   row_count,
-                                   column_count,
-                                   table_indexing_);
+        {
+            return csr_accessor<const accessor_data_t>(t).pull({ start_idx, end_idx },
+                                                               accessor_indexing_);
+        }
     }
 
     template <typename Policy>
     bool is_table_and_block_alloc_similar(const Policy& policy) {
 #ifdef ONEDAL_DATA_PARALLEL
-        if (dal::detail::is_data_parallel_policy_v<Policy>)
-            return (table_alloc_ == accessor_alloc_ && table_alloc_ != sycl::usm::alloc::host);
-        else
+        if (std::is_same_v<Policy, te::device_test_policy>) {
+            switch (accessor_alloc_) {
+                case test_alloc_kind::host:
+                    return (table_alloc_ == test_alloc_kind::host ||
+                            table_alloc_ == test_alloc_kind::usm_host);
+                    break;
+                case test_alloc_kind::usm_host:
+                    return (table_alloc_ == test_alloc_kind::usm_host);
+                    break;
+                case test_alloc_kind::usm_device:
+                    return (table_alloc_ == test_alloc_kind::usm_device ||
+                            table_alloc_ == test_alloc_kind::usm_shared);
+                    break;
+                case test_alloc_kind::usm_shared:
+                    return (table_alloc_ == test_alloc_kind::usm_shared);
+                    break;
+                default:
+                    ONEDAL_ASSERT(!"Unsupported test_alloc_kind for csr_accessor");
+                    return false;
+            }
+        }
 #endif
-            return true;
+        return true;
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Data>
+    struct USMDataHelper {
+        USMDataHelper(const dal::array<Data>& arr) {
+            m_ = la::matrix<Data>::wrap(arr);
+        }
+
+        const Data* get_data(test_alloc_kind alloc) {
+            if (alloc != test_alloc_kind::host) {
+                return m_.to_host().get_data();
+            }
+            return m_.get_data();
+        }
+
+    private:
+        la::matrix<Data> m_;
+    };
+#endif
 
     /// Check that `pull` method of `csr_accessor` class works correctly.
     ///
@@ -133,39 +210,16 @@ public:
         initialize_indices();
 
         csr_table t = get_table(this->get_policy());
-        std::cout << "Table created successfully ";
-        std::cout << typeid(table_data_t).name() << "\t" << typeid(accessor_data_t).name()
-                  << std::endl;
-#ifdef ONEDAL_DATA_PARALLEL
-        switch (table_alloc_) {
-            case sycl::usm::alloc::host: std::cout << "host "; break;
-            case sycl::usm::alloc::device: std::cout << "device "; break;
-            case sycl::usm::alloc::shared: std::cout << "shared "; break;
-            default: break;
-        }
-        switch (accessor_alloc_) {
-            case sycl::usm::alloc::host: std::cout << "host "; break;
-            case sycl::usm::alloc::device: std::cout << "device "; break;
-            case sycl::usm::alloc::shared: std::cout << "shared "; break;
-            default: break;
-        }
-        std::cout << std::endl;
-#endif
-        const auto [data_array, cidx_array, ridx_array] =
-#ifdef ONEDAL_DATA_PARALLEL
-            csr_accessor<const accessor_data_t>(t).pull(this->get_queue(),
-                                                        { start_idx, end_idx },
-                                                        accessor_indexing_,
-                                                        accessor_alloc_);
-#else
-            csr_accessor<const accessor_data_t>(t).pull({ start_idx, end_idx }, accessor_indexing_);
-#endif
 
-        check_pull_results(start_idx, end_idx, data_array, cidx_array, ridx_array);
+        const auto [data_array, cidx_array, ridx_array] =
+            pull_data(this->get_policy(), t, start_idx, end_idx);
+
+        check_pull_results(t, start_idx, end_idx, data_array, cidx_array, ridx_array);
     }
 
     /// Check that the block of rows in CSR format pulled from the table is correct.
     ///
+    /// @param[in] table        Data table in CSR format from wich the data block was pulled
     /// @param[in] start_idx    Zero-based index of the first row of the block of data
     ///                         pulled from the table.
     /// @param[in] end_idx      Either zero-based index of the row that goes after the last row
@@ -177,7 +231,8 @@ public:
     ///                         in the CSR layout.
     /// @param[in] ridx_array   The block of row offsets pulled from the table
     ///                         in the CSR layout.
-    void check_pull_results(std::int64_t start_idx,
+    void check_pull_results(const csr_table& table,
+                            std::int64_t start_idx,
                             std::int64_t end_idx,
                             const array_d& data_array,
                             const array_i& cidx_array,
@@ -196,13 +251,26 @@ public:
         // check that no data copying happened when possible
         if (std::is_same_v<table_data_t, accessor_data_t> &&
             is_table_and_block_alloc_similar(this->get_policy())) {
-            REQUIRE(reinterpret_cast<const table_data_t*>(data) + data_shift ==
+            REQUIRE(table.get_data<table_data_t>() + data_shift ==
                     reinterpret_cast<const table_data_t*>(data_array.get_data()));
         }
 
+#ifdef ONEDAL_DATA_PARALLEL
+        USMDataHelper<accessor_data_t> data_helper(data_array);
+        USMDataHelper<std::int64_t> cidx_helper(cidx_array);
+        USMDataHelper<std::int64_t> ridx_helper(ridx_array);
+        const auto* const data_array_ptr = data_helper.get_data(accessor_alloc_);
+        const auto* const cidx_array_ptr = cidx_helper.get_data(accessor_alloc_);
+        const auto* const ridx_array_ptr = ridx_helper.get_data(accessor_alloc_);
+#else
+        const auto* const data_array_ptr = data_array.get_data();
+        const auto* const cidx_array_ptr = cidx_array.get_data();
+        const auto* const ridx_array_ptr = ridx_array.get_data();
+#endif
+
         // check that the data values in the pulled data block are correct
         for (std::int64_t i = 0; i < data_array.get_count(); i++) {
-            REQUIRE(data_array[i] == data[data_shift + i]);
+            REQUIRE(data_array_ptr[i] == data[data_shift + i]);
         }
 
         // check column indices and row offsets depending on the indexing schemes
@@ -210,37 +278,37 @@ public:
 
         if (table_indexing_ == accessor_indexing_) {
             if (is_table_and_block_alloc_similar(this->get_policy())) {
-                REQUIRE(column_indices_ + data_shift == cidx_array.get_data());
+                REQUIRE(table.get_column_indices() + data_shift == cidx_array.get_data());
                 if (start_idx == 0) {
-                    REQUIRE(row_offsets_ == ridx_array.get_data());
+                    REQUIRE(table.get_row_offsets() == ridx_array.get_data());
                 }
             }
 
             for (std::int64_t i = 0; i < data_array.get_count(); i++) {
-                REQUIRE(cidx_array[i] == column_indices_[data_shift + i]);
+                REQUIRE(cidx_array_ptr[i] == column_indices_[data_shift + i]);
             }
 
             for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
-                REQUIRE(ridx_array[i] == row_offsets_[start_idx + i] - data_shift);
+                REQUIRE(ridx_array_ptr[i] == row_offsets_[start_idx + i] - data_shift);
             }
         }
         else if (table_indexing_ ==
                  sparse_indexing::zero_based /* && accessor_indexing == one_based */) {
             for (std::int64_t i = 0; i < data_array.get_count(); i++) {
-                REQUIRE(cidx_array[i] - 1 == column_indices_[data_shift + i]);
+                REQUIRE(cidx_array_ptr[i] - 1 == column_indices_[data_shift + i]);
             }
 
             for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
-                REQUIRE(ridx_array[i] - 1 == row_offsets_[start_idx + i] - data_shift);
+                REQUIRE(ridx_array_ptr[i] - 1 == row_offsets_[start_idx + i] - data_shift);
             }
         }
         else /* table_indexing == sparse_indexing::one_based && accessor_indexing == zero_based */ {
             for (std::int64_t i = 0; i < data_array.get_count(); i++) {
-                REQUIRE(cidx_array[i] + 1 == column_indices_[data_shift + i]);
+                REQUIRE(cidx_array_ptr[i] + 1 == column_indices_[data_shift + i]);
             }
 
             for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
-                REQUIRE(ridx_array[i] + 1 == row_offsets_[start_idx + i] - data_shift);
+                REQUIRE(ridx_array_ptr[i] + 1 == row_offsets_[start_idx + i] - data_shift);
             }
         }
     }
@@ -251,12 +319,10 @@ protected:
     sparse_indexing table_indexing_;
     sparse_indexing accessor_indexing_;
 
-#ifdef ONEDAL_DATA_PARALLEL
-    // The requested kind of USM in the table data
-    sycl::usm::alloc table_alloc_;
-    // The requested kind of USM in the returned block
-    sycl::usm::alloc accessor_alloc_;
-#endif
+    // The requested kind of data allocation in the table data
+    test_alloc_kind table_alloc_;
+    // The requested kind of data allocation in the returned block
+    test_alloc_kind accessor_alloc_;
 
 private:
     static constexpr std::array<table_data_t, element_count> data_ = { 1, 2, 3, 4, 1, 11, 8 };
@@ -282,9 +348,9 @@ private:
     const std::int64_t* row_offsets_;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    dal::array<table_data_t> data_device_;
-    dal::array<std::int64_t> column_indices_device_;
-    dal::array<std::int64_t> row_offsets_device_;
+    dal::array<table_data_t> data_usm_;
+    dal::array<std::int64_t> column_indices_usm_;
+    dal::array<std::int64_t> row_offsets_usm_;
 #endif
 };
 
@@ -303,11 +369,20 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
 
     this->table_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
     this->accessor_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
+
 #ifdef ONEDAL_DATA_PARALLEL
-    this->table_alloc_ =
-        GENERATE(sycl::usm::alloc::host, sycl::usm::alloc::device, sycl::usm::alloc::shared);
-    this->accessor_alloc_ =
-        GENERATE(sycl::usm::alloc::host, sycl::usm::alloc::device, sycl::usm::alloc::shared);
+    this->table_alloc_ = GENERATE(test_alloc_kind::host,
+                                  test_alloc_kind::usm_host,
+                                  test_alloc_kind::usm_device,
+                                  test_alloc_kind::usm_shared);
+
+    this->accessor_alloc_ = GENERATE(test_alloc_kind::host,
+                                     test_alloc_kind::usm_host,
+                                     test_alloc_kind::usm_device,
+                                     test_alloc_kind::usm_shared);
+#else
+    this->table_alloc_ = sycl::usm::alloc::host;
+    this->accessor_alloc_ = sycl::usm::alloc::host;
 #endif
 
     this->pull_checks(0, -1);
@@ -321,6 +396,21 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
 
     this->table_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
     this->accessor_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
+
+#ifdef ONEDAL_DATA_PARALLEL
+    this->table_alloc_ = GENERATE(test_alloc_kind::host,
+                                  test_alloc_kind::usm_host,
+                                  test_alloc_kind::usm_device,
+                                  test_alloc_kind::usm_shared);
+
+    this->accessor_alloc_ = GENERATE(test_alloc_kind::host,
+                                     test_alloc_kind::usm_host,
+                                     test_alloc_kind::usm_device,
+                                     test_alloc_kind::usm_shared);
+#else
+    this->table_alloc_ = sycl::usm::alloc::host;
+    this->accessor_alloc_ = sycl::usm::alloc::host;
+#endif
 
     this->pull_checks(1, 3);
 }
