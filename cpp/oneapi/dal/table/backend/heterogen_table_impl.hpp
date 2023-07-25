@@ -37,6 +37,16 @@ public:
         data_ = dal::array<detail::chunked_array_base>::empty(column_count);
     }
 
+    std::int64_t get_row_count() const override {
+        ONEDAL_ASSERT(validate());
+        const auto dt = get_metadata().get_data_type(0l);
+        const auto elem = detail::get_data_type_size(dt);
+        const auto size = get_column(0l).get_size_in_bytes();
+
+        ONEDAL_ASSERT(size % elem == 0l);
+        return size / elem;
+    }
+
     std::int64_t get_column_count() const override {
         return get_metadata().get_feature_count();
     }
@@ -85,6 +95,49 @@ public:
     bool validate() const {
         return true;
     }
+
+    detail::access_iface_host& get_access_iface_host() const override {
+        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+    }
+#ifdef ONEDAL_DATA_PARALLEL
+    detail::access_iface_dpc& get_access_iface_dpc() const override {
+        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+    }
+#endif
+
+    template <typename T>
+    void pull_rows_template(const detail::default_host_policy& policy,
+                            array<T>& block,
+                            const range& rows) const {
+        heterogen_pull_rows(policy, meta_, data_, block, rows, alloc_kind::host);
+    }
+
+    template <typename T>
+    void pull_column_template(const detail::default_host_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) const {
+
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_rows_template(const detail::data_parallel_policy& policy,
+                            array<T>& block,
+                            const range& rows,
+                            sycl::usm::alloc alloc) const {
+
+    }
+
+    template <typename T>
+    void pull_column_template(const detail::data_parallel_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows,
+                              sycl::usm::alloc alloc) const {
+
+    }
+#endif
 
 private:
     table_metadata meta_;

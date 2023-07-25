@@ -216,11 +216,8 @@ public:
     ///              namely `carray.valid() == true`
     /// @return  Number of elements in current `chunked_array`
     std::int64_t get_count() const {
-        constexpr auto size = static_cast<std::int64_t>(sizeof(T));
-        const auto size_in_bytes = base_t::get_size_in_bytes();
-        const std::int64_t count = size_in_bytes / size;
-        ONEDAL_ASSERT(size * count == size_in_bytes);
-        return count;
+        constexpr auto dtype = detail::make_data_type<T>();
+        return detail::get_element_count(dtype, *this);
     }
 
     /// @brief       Constructs slice of data from

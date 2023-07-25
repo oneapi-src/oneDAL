@@ -169,8 +169,19 @@ private:
     impl_ptr_t impl_;
 };
 
+inline std::int64_t get_element_count(data_type dt, const chunked_array_base& arr) {
+    const auto array_size = arr.get_size_in_bytes();
+    const auto elem_size = get_data_type_size(dt);
+
+    const auto result = array_size / elem_size;
+    ONEDAL_ASSERT(result * elem_size == array_size);
+
+    return result;
+}
+
 } // namespace v2
 
 using v2::chunked_array_base;
+using v2::get_element_count;
 
 } // namespace oneapi::dal::detail
