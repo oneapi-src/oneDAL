@@ -42,22 +42,21 @@ public:
         gradient_ = ndarray<Float, 1>::empty(q, { n_ }, sycl::usm::alloc::device);
         tmp_ = ndarray<Float, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
     }
-    ~QuadraticFunction() {}
-    Float get_value() override {
+    Float get_value() final {
         return value_;
     }
 
-    ndview<Float, 1>& get_gradient() override {
+    ndview<Float, 1>& get_gradient() final {
         return gradient_;
     }
 
-    BaseMatrixOperator<Float>& get_hessian_product() override {
+    BaseMatrixOperator<Float>& get_hessian_product() final {
         return hessp_;
     }
 
     sycl::event update_x(const ndview<Float, 1>& x,
                          bool need_hessp = false,
-                         const event_vector& deps = {}) override {
+                         const event_vector& deps = {}) final {
         constexpr Float zero(0), one(1);
         auto fill_gradient_event = fill<Float>(q_, gradient_, zero, deps);
         auto fill_value_event = fill<Float>(q_, tmp_, zero, deps);

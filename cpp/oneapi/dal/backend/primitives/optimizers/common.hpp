@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 
@@ -51,15 +50,9 @@ template <typename Float>
 class LinearMatrixOperator : public BaseMatrixOperator<Float> {
 public:
     LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A);
-    ~LinearMatrixOperator() {}
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
-                           const event_vector& deps) override {
-        ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
-        ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
-        sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
-        return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
-    }
+                           const event_vector& deps) final;
 
 private:
     sycl::queue q_;

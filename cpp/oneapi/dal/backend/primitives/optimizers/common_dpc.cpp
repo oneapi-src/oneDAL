@@ -27,6 +27,16 @@ LinearMatrixOperator<Float>::LinearMatrixOperator(sycl::queue& q, const ndview<F
           A_(A) {}
 
 template <typename Float>
+sycl::event LinearMatrixOperator<Float>::operator()(const ndview<Float, 1>& vec,
+                                                    ndview<Float, 1>& out,
+                                                    const event_vector& deps) {
+    ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
+    ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
+    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
+    return gemv(q_, A_, vec, out, Float(1), Float(0), { fill_out_event });
+}
+
+template <typename Float>
 sycl::event dot_product(sycl::queue& queue,
                         const ndview<Float, 1>& x,
                         const ndview<Float, 1>& y,
@@ -36,10 +46,7 @@ sycl::event dot_product(sycl::queue& queue,
     const std::int64_t n = x.get_dimension(0);
     auto* const x_ptr = x.get_mutable_data();
     auto* const y_ptr = y.get_mutable_data();
-    sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.fill(res_gpu, Float(0), 1);
-    });
+    sycl::event fill_res_event = queue.fill(res_gpu, Float(0), 1, deps);
 
     auto reduction_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_res_event);
@@ -65,10 +72,7 @@ sycl::event l1_norm(sycl::queue& queue,
     const std::int64_t n = x.get_dimension(0);
     auto* const x_ptr = x.get_mutable_data();
 
-    sycl::event fill_res_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.fill(res_gpu, Float(0), 1);
-    });
+    sycl::event fill_res_event = queue.fill(res_gpu, Float(0), 1, deps);
 
     auto reduction_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_res_event);
@@ -76,7 +80,7 @@ sycl::event l1_norm(sycl::queue& queue,
         auto sum_reduction = sycl::reduction(res_gpu, sycl::plus<>());
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float val = x_ptr[idx];
-            sum += val < 0 ? -val : val;
+            sum += sycl::fabs(val);
         });
     });
 
