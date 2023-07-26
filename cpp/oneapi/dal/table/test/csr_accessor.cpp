@@ -388,7 +388,6 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
 #endif
 
     this->pull_checks(0, -1);
-
 }
 
 TEMPLATE_LIST_TEST_M(csr_accessor_test,
