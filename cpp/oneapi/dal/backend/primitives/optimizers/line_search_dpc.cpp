@@ -31,7 +31,7 @@ Float backtracking(sycl::queue queue,
                    bool x0_initialized,
                    const event_vector& deps) {
     using dal::backend::operator+;
-    sycl::event precompute = {};
+    event_vector precompute = {};
     if (!x0_initialized) {
         precompute = f.update_x(x, false, deps);
     }
@@ -52,8 +52,8 @@ Float backtracking(sycl::queue queue,
         };
 
         auto update_x_event = element_wise(queue, update_x_kernel, x, direction, result, {});
-        auto func_event = f.update_x(result, false, { update_x_event });
-        func_event.wait_and_throw();
+        auto func_event_vec = f.update_x(result, false, { update_x_event });
+        wait_or_pass(func_event_vec).wait_and_throw();
         cur_val = f.get_value();
     }
     return alpha;

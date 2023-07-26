@@ -55,15 +55,15 @@ sycl::event newton_cg(sycl::queue& queue,
         if (update_norm < tol) {
             break;
         }
-        auto update_event = f.update_x(x, true, last_iter_deps);
+        auto update_event_vec = f.update_x(x, true, last_iter_deps);
         auto gradient = f.get_gradient();
 
         Float grad_norm = 0;
-        l1_norm(queue, gradient, tmp_gpu, &grad_norm, { update_event }).wait_and_throw();
+        l1_norm(queue, gradient, tmp_gpu, &grad_norm, update_event_vec).wait_and_throw();
         Float tol_k = std::min(sqrt(grad_norm), 0.5);
 
         auto prepare_grad_event =
-            element_wise(queue, kernel_minus, gradient, nullptr, gradient, { update_event });
+            element_wise(queue, kernel_minus, gradient, nullptr, gradient, update_event_vec);
 
         auto copy_event = copy(queue, direction, gradient, { prepare_grad_event });
 

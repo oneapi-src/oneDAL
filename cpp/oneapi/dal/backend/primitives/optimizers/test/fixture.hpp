@@ -54,9 +54,9 @@ public:
         return hessp_;
     }
 
-    sycl::event update_x(const ndview<Float, 1>& x,
-                         bool need_hessp = false,
-                         const event_vector& deps = {}) final {
+    event_vector update_x(const ndview<Float, 1>& x,
+                          bool need_hessp = false,
+                          const event_vector& deps = {}) final {
         constexpr Float zero(0), one(1);
         auto fill_gradient_event = fill<Float>(q_, gradient_, zero, deps);
         auto fill_value_event = fill<Float>(q_, tmp_, zero, deps);
@@ -78,7 +78,7 @@ public:
         btx_event.wait_and_throw();
         value_ = -value_ + tmp_host / 2; // 1/2 x^t A x - b^t x
 
-        return bias_event;
+        return { bias_event };
     }
 
 private:

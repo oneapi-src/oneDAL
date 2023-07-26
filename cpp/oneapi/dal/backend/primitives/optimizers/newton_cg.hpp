@@ -29,7 +29,7 @@ sycl::event newton_cg(sycl::queue& queue,
                       BaseFunction<Float>& f,
                       ndview<Float, 1>& x,
                       Float tol = 1.0e-5,
-                      std::int64_t maxiter = 100,
+                      std::int64_t maxiter = 100l,
                       const event_vector& deps = {});
 
 } // namespace oneapi::dal::backend::primitives

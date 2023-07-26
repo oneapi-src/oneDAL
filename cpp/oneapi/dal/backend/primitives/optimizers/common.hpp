@@ -66,9 +66,9 @@ public:
     virtual Float get_value() = 0;
     virtual ndview<Float, 1>& get_gradient() = 0;
     virtual BaseMatrixOperator<Float>& get_hessian_product() = 0;
-    virtual sycl::event update_x(const ndview<Float, 1>& x,
-                                 bool need_hessp = false,
-                                 const event_vector& deps = {}) = 0;
+    virtual event_vector update_x(const ndview<Float, 1>& x,
+                                  bool need_hessp = false,
+                                  const event_vector& deps = {}) = 0;
 };
 
 } // namespace oneapi::dal::backend::primitives

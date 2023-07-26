@@ -34,7 +34,7 @@ class newton_cg_test : public te::float_algo_fixture<Param> {
 public:
     using float_t = Param;
 
-    void gen_and_test_convex_function(std::int64_t n = -1) {
+    void gen_and_test_quadratic_function(std::int64_t n = -1) {
         if (n == -1) {
             n_ = GENERATE(5, 14, 25, 50, 100);
         }
@@ -69,8 +69,8 @@ public:
         for (std::int32_t test_num = 0; test_num < 5; ++test_num) {
             rn_gen.uniform(n_, x_host.get_mutable_data(), eng.get_state(), -1.0, 1.0);
             auto x_gpu = x_host.to_device(this->get_queue());
-            auto compute_event = func_->update_x(x_gpu, true, {});
-            compute_event.wait_and_throw();
+            auto compute_event_vec = func_->update_x(x_gpu, true, {});
+            wait_or_pass(compute_event_vec).wait_and_throw();
 
             float_t val = func_->get_value();
             auto grad_gpu = func_->get_gradient();
@@ -123,7 +123,7 @@ TEMPLATE_TEST_M(newton_cg_test,
                 "[newton-cg][gpu]",
                 float) {
     SKIP_IF(this->get_policy().is_cpu());
-    this->gen_and_test_convex_function();
+    this->gen_and_test_quadratic_function();
     this->test_newton_cg();
 }
 
@@ -132,7 +132,7 @@ TEMPLATE_TEST_M(newton_cg_test,
                 "[newton-cg][gpu]",
                 double) {
     SKIP_IF(this->get_policy().is_cpu());
-    this->gen_and_test_convex_function();
+    this->gen_and_test_quadratic_function();
     this->test_newton_cg();
 }
 
