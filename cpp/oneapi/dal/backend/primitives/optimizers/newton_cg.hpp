@@ -28,7 +28,7 @@ template <typename Float>
 sycl::event newton_cg(sycl::queue& queue,
                       BaseFunction<Float>& f,
                       ndview<Float, 1>& x,
-                      Float tol = 1e-5,
+                      Float tol = 1.0e-5,
                       std::int64_t maxiter = 100,
                       const event_vector& deps = {});
 

@@ -17,7 +17,6 @@
 #include <type_traits>
 #include <memory>
 #include "oneapi/dal/backend/primitives/optimizers/test/fixture.hpp"
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/cg_solver.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/newton_cg.hpp"
 #include "oneapi/dal/test/engine/common.hpp"

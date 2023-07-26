@@ -31,8 +31,8 @@ sycl::event cg_solve(sycl::queue& queue,
                      ndview<Float, 1>& residual,
                      ndview<Float, 1>& conj_vector,
                      ndview<Float, 1>& buffer,
-                     Float tol = 1e-5,
-                     Float atol = -1,
+                     Float tol = 1.0e-5,
+                     Float atol = -1.0,
                      std::int64_t maxiter = 100,
                      const event_vector& deps = {});
 

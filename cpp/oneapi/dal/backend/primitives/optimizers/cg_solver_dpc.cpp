@@ -18,7 +18,6 @@
 #include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::backend::primitives {
