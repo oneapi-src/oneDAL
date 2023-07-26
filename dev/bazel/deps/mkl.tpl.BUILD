@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "headers",
-    hdrs = glob(["include/**/*.h"]),
+    hdrs = glob(["include/**/*.h", "include/*.h"]),
     includes = [ "include" ],
     defines = [
         "MKL_ILP64"
@@ -22,7 +22,7 @@ cc_library(
 cc_library(
     name = "mkl_intel_ilp64",
     srcs = [
-        "lib/intel64/libmkl_intel_ilp64.a",
+        "lib/libmkl_intel_ilp64.a",
     ],
     deps = [
         ":mkl_core",
@@ -32,7 +32,7 @@ cc_library(
 cc_library(
     name = "libmkl_sequential",
     srcs = [
-        "lib/intel64/libmkl_sequential.a",
+        "lib/libmkl_sequential.a",
     ],
     deps = [
         ":mkl_core",

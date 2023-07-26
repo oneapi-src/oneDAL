@@ -167,11 +167,17 @@ sycl::event solve_smo(sycl::queue& q,
             std::int32_t b_i = 0;
             std::int32_t b_j = 0;
 
-            Float* local_kernel_values_ptr = local_kernel_values.get_pointer();
-            Float* objective_func_ptr = objective_func.get_pointer();
-            Float* sg_cache_values_ptr = sg_cache_values.get_pointer();
-            std::int32_t* sg_cache_index_ptr = sg_cache_index.get_pointer();
-            Float* local_vars_ptr = local_vars.get_pointer();
+            Float* local_kernel_values_ptr =
+                local_kernel_values.template get_multi_ptr<sycl::access::decorated::yes>()
+                    .get_raw();
+            Float* objective_func_ptr =
+                objective_func.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* sg_cache_values_ptr =
+                sg_cache_values.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            std::int32_t* sg_cache_index_ptr =
+                sg_cache_index.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* local_vars_ptr =
+                local_vars.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 
             local_kernel_values_ptr[i] = kernel_values_ptr[i * row_count + ws_index];
             item.barrier(sycl::access::fence_space::local_space);

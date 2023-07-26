@@ -102,7 +102,9 @@ sycl::event select_indexed_local(sycl::queue& q,
                                         ? (bid + 1) * block
                                         : src_count;
             sycl::global_ptr<const Type> global((const Type*)(src_ptr + from));
-            sycl::local_ptr<const Type> local((const Type*)(cache.get_pointer()));
+            sycl::local_ptr<const Type> local(
+                (const Type*)(cache.template get_multi_ptr<sycl::access::decorated::yes>()
+                                  .get_raw()));
             it.async_work_group_copy(
                   cache.template get_multi_ptr<sycl::access::decorated::yes>(),
                   sycl::address_space_cast<sycl::access::address_space::global_space,

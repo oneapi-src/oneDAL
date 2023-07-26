@@ -825,13 +825,20 @@ compute_kernel_dense_impl<Float, List>::merge_blocks(local_buffer_list<Float, Li
             const std::int64_t id = item.get_local_id()[0];
             const std::int64_t group_id = item.get_group().get_group_id(0);
 
-            std::int64_t* lrc_ptr = lrc_buf.get_pointer();
-            Float* lmin_ptr = lmin_buf.get_pointer();
-            Float* lmax_ptr = lmax_buf.get_pointer();
-            Float* lsum_ptr = lsum_buf.get_pointer();
-            Float* lsum2_ptr = lsum2_buf.get_pointer();
-            Float* lsum2cent_ptr = lsum2cent_buf.get_pointer();
-            Float* lmean_ptr = lmean_buf.get_pointer();
+            std::int64_t* lrc_ptr =
+                lrc_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* lmin_ptr =
+                lmin_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* lmax_ptr =
+                lmax_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* lsum_ptr =
+                lsum_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* lsum2_ptr =
+                lsum2_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* lsum2cent_ptr =
+                lsum2cent_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* lmean_ptr =
+                lmean_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 
             if (distr_mode) {
                 merge_blocks_kernel<Float, List, deffered_fin_true>(item,

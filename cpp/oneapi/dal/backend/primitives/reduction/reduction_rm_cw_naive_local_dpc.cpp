@@ -48,7 +48,8 @@ public:
         const auto range = it.get_local_range(1);
         const auto lm = cache_.size();
 
-        sycl::local_ptr<const Float> local((const Float*)cache_.get_pointer());
+        sycl::local_ptr<const Float> local(
+            (const Float*)cache_.template get_multi_ptr<sycl::access::decorated::yes>().get_raw());
 
         Float acc = (override_init_ || (loc_idx != 0)) ? //
                         binary_.init_value

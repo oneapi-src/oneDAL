@@ -645,7 +645,8 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_random_sp
             Index bs_ftr_id = impl_const_t::leaf_mark_;
             Index bs_left_count = 0;
 
-            hist_type_t* local_hist_buf_ptr = local_hist_buf.get_pointer();
+            hist_type_t* local_hist_buf_ptr =
+                local_hist_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 
             hist_type_t* bs_left_hist =
                 fill_zero(local_hist_buf_ptr + 0 * hist_prop_count, hist_prop_count);
@@ -931,7 +932,8 @@ train_splitter_impl<Float, Bin, Index, Task, use_private_mem>::compute_best_spli
             Index bs_ftr_id = impl_const_t::leaf_mark_;
             Index bs_left_count = 0;
 
-            hist_type_t* local_hist_buf_ptr = local_hist_buf.get_pointer();
+            hist_type_t* local_hist_buf_ptr =
+                local_hist_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 
             hist_type_t* bs_left_hist = nullptr;
 
