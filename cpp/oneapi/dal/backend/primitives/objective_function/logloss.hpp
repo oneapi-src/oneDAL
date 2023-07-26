@@ -16,7 +16,10 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/optimizers/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -93,6 +96,61 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 const ndview<Float, 1>& probabilities,
                                 ndview<Float, 1>& out_hessian,
                                 const event_vector& deps = {});
+
+template<typename Float>
+class LogLossHessianProduct : BaseMatrixOperator<Float> {
+public:
+    LogLossHessianProduct(sycl::queue& q, 
+                          const table& data, 
+                          Float L2 = Float(0),
+                          bool fit_intercept = true);
+    sycl::event operator()(const ndview<Float, 1>& vec,
+                           ndview<Float, 1>& out,
+                           const event_vector& deps) final;
+    ndview<Float, 1>& get_raw_hessian();
+private:
+    sycl::queue q_;
+    const table& data_;
+    Float L2_;
+    bool fit_intercept_;
+    ndarray<Float, 1> raw_hessian_;
+    const std::int64_t n_;
+    const std::int64_t p_;
+};
+
+template<typename Float>
+class LogLossFunction : BaseFunction<Float> {
+public:
+    LogLossFunction(sycl::queue queue,
+                    const table& data,
+                    const table& labels,
+                    Float L2 = 0.0,
+                    bool fit_intercept = true);
+    Float get_value() final;
+    ndview<Float, 1>& get_gradient() final;
+    BaseMatrixOperator<Float>& get_hessian_product() final;
+
+    sycl::event update_x(const ndview<Float, 1>& x,
+                         bool need_hessp = false,
+                         const event_vector& deps = {}) final;
+private:
+
+    sycl::queue q_;
+    const table& data_;
+    ndarray<Float, 1> labels_;
+    const std::int64_t n_;
+    const std::int64_t p_;
+    Float L2_;
+    bool fit_intercept_; 
+    const std::int64_t bsz_;
+    ndarray<Float, 1> probabilities_;
+    ndarray<Float, 1> gradient_;
+    ndarray<Float, 1> buffer_;
+    LogLossHessianProduct<Float> hessp_;
+    const std::int64_t dimension_;
+    Float value_;
+    
+};
 
 template <typename Float>
 class logloss_hessian_product {

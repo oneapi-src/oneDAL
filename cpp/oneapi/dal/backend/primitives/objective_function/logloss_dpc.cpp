@@ -20,6 +20,8 @@
 
 namespace oneapi::dal::backend::primitives {
 
+namespace pr = dal::backend::primitives;
+
 template <typename Float>
 sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 1>& parameters,
@@ -481,6 +483,122 @@ sycl::event compute_raw_hessian(sycl::queue& q,
 
     return element_wise(q, kernel, probabilities, nullptr, out_hessian, deps);
 }
+
+
+std::int64_t get_block_size(std::int64_t n, std::int64_t p) {
+    constexpr std::int64_t max_alloc_size = 1 << 21;
+    return p > max_alloc_size ? 512 : max_alloc_size / p;
+}
+
+template<typename Float>
+LogLossFunction<Float>::LogLossFunction(
+                sycl::queue q,
+                const table& data,
+                const table& labels,
+                Float L2,
+                bool fit_intercept):
+                q_(q),
+                data_(data),
+                n_(data.get_row_count()),
+                p_(data.get_column_count()),
+                L2_(L2),
+                fit_intercept_(fit_intercept),
+                bsz_(get_block_size(n_, p_)),
+                hessp_(q, data, L2, fit_intercept),
+                dimension_(fit_intercept ? p_ + 1 : p_) {
+    ONEDAL_ASSERT(labels.get_row_count() == n_);
+
+    labels_ = table2ndarray_1d<Float>(q_, labels, sycl::usm::alloc::device);
+    probabilities_ = ndarray<Float, 1>::empty(q_, {n_}, sycl::usm::alloc::device);
+    gradient_ = ndarray<Float, 1>::empty(q_, {dimension_}, sycl::usm::alloc::device);
+    buffer_ = ndarray<Float, 1>::empty(q_, {dimension_ + 1}, sycl::usm::alloc::device);
+}
+
+template<typename Float>
+sycl::event LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
+                                             bool need_hessp,
+                                             const event_vector& deps) {
+    value_ = 0;
+    auto fill_event = fill(q_, gradient_, Float(0), deps);
+    const uniform_blocking blocking(n_, bsz_);
+
+    sycl::event last_iter_e = fill_event;
+
+    auto grad_batch = buffer_.slice(0, dimension_);
+    auto loss_batch = buffer_.slice(dimension_, dimension_ + 1);
+
+    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto first = blocking.get_block_start_index(b);
+        const auto last = blocking.get_block_end_index(b);
+        const std::int64_t cursize = last - first;
+
+        const auto data_rows =
+            row_accessor<const Float>(data_).pull(q_, { first, last }, sycl::usm::alloc::device);
+        const auto data_batch = ndarray<Float, 2>::wrap(data_rows, { cursize, p_ });
+        const auto labels_batch = labels_.slice(first, cursize);
+        sycl::event prob_e =
+            compute_probabilities(q_, x, data_batch, probabilities_, fit_intercept_, {last_iter_e});
+
+        auto fill_buffer_e = fill(q_, buffer_, Float(0), {last_iter_e});
+
+        sycl::event compute_e = compute_logloss_with_der(q_,
+                                 x,
+                                 data_batch,
+                                 labels_batch,
+                                 probabilities_,
+                                 loss_batch,
+                                 grad_batch,
+                                 Float(0),
+                                 Float(0),
+                                 fit_intercept_,
+                                 { fill_buffer_e, prob_e });
+
+        sycl::event update_grad_e = element_wise(q_, sycl::plus<>(), gradient_, grad_batch, gradient_, {compute_e});
+        
+        value_ += loss_batch.at_device(q_, 0, {compute_e});
+
+        last_iter_e = update_grad_e;
+    }
+
+    if (L2_ > 0) {
+        auto fill_loss_e = fill(q_, loss_batch, Float(0), {last_iter_e});
+        auto loss_ptr = loss_batch.get_mutable_data();
+        auto grad_ptr = gradient_.get_mutable_data();
+        auto w_ptr = x.get_mutable_data();
+        auto regularization_e = q_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ fill_loss_e });
+            const auto range = make_range_1d(p_);
+            const std::int64_t st_id = fit_intercept_;
+            auto sum_reduction = sycl::reduction(loss_ptr, sycl::plus<>());
+            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
+                const Float param = w_ptr[st_id + idx];
+                grad_ptr[st_id + idx] += L2_ * param;
+                sum_v0 += L2_ * param * param / 2;
+            });
+        });
+
+        value_ += loss_batch.at_device(q_, 0, {regularization_e});
+
+        last_iter_e = regularization_e;
+    }
+
+    return {last_iter_e};
+}
+
+template <typename Float>
+Float LogLossFunction<Float>::get_value() {
+    return value_;
+}
+template <typename Float>
+ndview<Float, 1>& LogLossFunction<Float>::get_gradient() {
+    return gradient_;
+}
+
+template <typename Float>
+BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
+    return hessp_;
+}
+
 
 template <typename Float>
 logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
