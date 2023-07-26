@@ -192,9 +192,7 @@ struct singlepass_processor_kernel {
         (DefferedFin && check_mask_flag(bs_list::varc | bs_list::stdev | bs_list::vart, params));
     std::conditional_t<output_sum2cent, Float*, empty> sum2cent_ptr;
 
-    //TODO: optimize
-    constexpr static inline bool output_mean =
-        !DefferedFin || check_mask_flag(bs_list::mean, params);
+    constexpr static inline bool output_mean = check_mask_flag(bs_list::mean, params);
     std::conditional_t<output_mean, Float*, empty> mean_ptr;
 
     constexpr static inline bool compute_min = output_min;
