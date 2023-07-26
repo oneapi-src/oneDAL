@@ -310,8 +310,8 @@ void csr_pull_block(const Policy& policy,
 #ifdef ONEDAL_DATA_PARALLEL
     override_policy(policy, origin_row_offsets, row_offsets, [&](auto overriden_policy) {
         origin_offset = csr_get_non_zero_count(overriden_policy,
-                                                block_info.row_offset_,
-                                                origin_row_offsets_ptr);
+                                               block_info.row_offset_,
+                                               origin_row_offsets_ptr);
         block_size = csr_get_non_zero_count(overriden_policy,
                                             block_info.row_count_,
                                             origin_row_offsets_ptr + block_info.row_offset_);
