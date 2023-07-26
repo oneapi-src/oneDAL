@@ -19,6 +19,8 @@
 #include "oneapi/dal/test/engine/linalg.hpp"
 #include "oneapi/dal/table/csr_accessor.hpp"
 
+#include <iostream>
+
 namespace oneapi::dal {
 
 namespace te = dal::test::engine;
@@ -381,11 +383,12 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                                      test_alloc_kind::usm_device,
                                      test_alloc_kind::usm_shared);
 #else
-    this->table_alloc_ = sycl::usm::alloc::host;
-    this->accessor_alloc_ = sycl::usm::alloc::host;
+    this->table_alloc_ = test_alloc_kind::host;
+    this->accessor_alloc_ = test_alloc_kind::host;
 #endif
 
     this->pull_checks(0, -1);
+
 }
 
 TEMPLATE_LIST_TEST_M(csr_accessor_test,
@@ -408,8 +411,8 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                                      test_alloc_kind::usm_device,
                                      test_alloc_kind::usm_shared);
 #else
-    this->table_alloc_ = sycl::usm::alloc::host;
-    this->accessor_alloc_ = sycl::usm::alloc::host;
+    this->table_alloc_ = test_alloc_kind::host;
+    this->accessor_alloc_ = test_alloc_kind::host;
 #endif
 
     this->pull_checks(1, 3);
