@@ -135,18 +135,13 @@ sycl::event shift_array_values_device(sycl::queue& q,
                                       const std::int64_t element_count,
                                       const T shift,
                                       const event_vector& deps = {}) {
-    const int element_count_int = dal::detail::integral_cast<int>(element_count);
+    const size_t element_count_size_t = dal::detail::integral_cast<size_t>(element_count);
+    const sycl::range<1> range{ element_count_size_t };
 
-    constexpr std::int64_t required_local_size = 256;
-    const std::int64_t local_size = std::min(down_pow2(element_count), required_local_size);
-    const auto range = make_multiple_nd_range_1d(element_count, local_size);
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const int i = id.get_global_id();
-            if (i < element_count_int) {
-                arr[i] += shift;
-            }
+        cgh.parallel_for(range, [=](sycl::id<1> id) {
+            arr[id] += shift;
         });
     });
 }
@@ -155,13 +150,14 @@ template <typename T>
 void shift_array_values(const detail::data_parallel_policy& policy,
                         T* arr,
                         const std::int64_t element_count,
-                        const T shift) {
+                        const T shift,
+                        const event_vector& deps = {}) {
     sycl::queue& q = policy.get_queue();
     if (is_device_friendly_usm(q, arr)) {
-        shift_array_values(detail::default_host_policy{}, arr, element_count, shift);
+        shift_array_values_device(q, arr, element_count, shift, deps).wait_and_throw();
     }
     else {
-        shift_array_values_device(q, arr, element_count, shift).wait_and_throw();
+        shift_array_values(detail::default_host_policy{}, arr, element_count, shift);
     }
 }
 

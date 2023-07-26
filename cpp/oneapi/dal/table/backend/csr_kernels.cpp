@@ -31,6 +31,19 @@ ONEDAL_FORCEINLINE void check_origin_data(const array<byte_t>& origin_data,
     ONEDAL_ASSERT(origin_data.get_count() >= element_count * origin_dtype_size);
 }
 
+std::int64_t csr_get_non_zero_count(const std::int64_t row_count,
+                                    const std::int64_t* const row_offsets) {
+    if (row_count <= 0)
+        return 0;
+    return row_offsets[row_count] - row_offsets[0];
+}
+
+std::int64_t csr_get_non_zero_count(detail::default_host_policy& policy,
+                                    const std::int64_t row_count,
+                                    const std::int64_t* const row_offsets) {
+    return csr_get_non_zero_count(row_count, row_offsets);
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 std::int64_t csr_get_non_zero_count(sycl::queue& queue,
@@ -39,6 +52,9 @@ std::int64_t csr_get_non_zero_count(sycl::queue& queue,
                                     const std::vector<sycl::event>& dependencies = {}) {
     if (row_count <= 0)
         return 0;
+
+    if (!is_device_friendly_usm(queue, row_offsets))
+        return csr_get_non_zero_count(row_count, row_offsets);
 
     std::int64_t first_row_offset{ 0L }, last_row_offset{ 0L };
     auto first_row_event = copy_usm2host(queue, &first_row_offset, row_offsets, 1, dependencies);
@@ -49,14 +65,14 @@ std::int64_t csr_get_non_zero_count(sycl::queue& queue,
     return (last_row_offset - first_row_offset);
 }
 
-#endif
-
-std::int64_t csr_get_non_zero_count(const std::int64_t row_count,
-                                    const std::int64_t* const row_offsets) {
-    if (row_count <= 0)
-        return 0;
-    return row_offsets[row_count] - row_offsets[0];
+std::int64_t csr_get_non_zero_count(detail::data_parallel_policy& policy,
+                                    const std::int64_t row_count,
+                                    const std::int64_t* const row_offsets,
+                                    const std::vector<sycl::event>& dependencies = {}) {
+    return csr_get_non_zero_count(policy.get_queue(), row_count, row_offsets, dependencies);
 }
+
+#endif
 
 /// Provides access to the block of rows in `data` array of the table in CSR format.
 /// The method returns an array that directly points to the memory within the table
@@ -179,14 +195,15 @@ void pull_column_indices_impl(const Policy& policy,
         std::int64_t* const dst_data = column_indices.get_mutable_data();
 #ifdef ONEDAL_DATA_PARALLEL
         if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-            backend::copy(policy.get_queue(), dst_data, src_data, block_size);
+            auto event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
+            if (indices_offset != 0) {
+                shift_array_values(policy, dst_data, block_size, indices_offset, { event });
+            }
         }
         else
 #endif
         {
             backend::copy(dst_data, src_data, block_size);
-        }
-        if (indices_offset != 0) {
             shift_array_values(policy, dst_data, block_size, indices_offset);
         }
     }
@@ -203,9 +220,12 @@ void pull_column_indices_impl(const Policy& policy,
 ///
 /// @param[in] policy                   Execution policy.
 /// @param[in] origin_row_offsets       `row_offsets` array in the CSR table.
-/// @param[in] block_info               Information about the block of rows requested by the pull method.
-///                                     Contains: layout, number of rows, information about data type,
-///                                     indexing, etc.
+/// @param[in] origin_offset            Index of the starting element of the `row_offsets` array
+///                                     in CSR table to be pulled.
+/// @param[in] block_size               Number of elemenst of the `row_offsets` array in CSR table
+///                                     to be pulled.
+/// @param[in] shift                    Zero-based index of the starting element of the `data` and `column_indices` arrays
+///                                     in CSR table to be pulled.
 /// @param[in] indices_offset           The offset between the indices in the CSR table and the indices
 ///                                     requested by the pull method:
 ///                                         0, if the indexing is the same in the table
@@ -222,60 +242,50 @@ void pull_column_indices_impl(const Policy& policy,
 template <typename Policy>
 void pull_row_offsets_impl(const Policy& policy,
                            const array<std::int64_t>& origin_row_offsets,
-                           const block_info& block_info,
+                           const std::int64_t origin_offset,
+                           const std::int64_t block_size,
+                           const std::int64_t shift,
                            const std::int64_t indices_offset,
                            array<std::int64_t>& row_offsets,
                            alloc_kind kind,
                            bool preserve_mutability) {
-    if (row_offsets.get_count() < block_info.row_count_ + 1 || !row_offsets.has_mutable_data() ||
+    if (row_offsets.get_count() < block_size || !row_offsets.has_mutable_data() ||
         alloc_kind_requires_copy(get_alloc_kind(row_offsets), kind)) {
-        reset_array(policy, row_offsets, block_info.row_count_ + 1, kind);
+        reset_array(policy, row_offsets, block_size, kind);
     }
-    if (block_info.row_offset_ == 0 && indices_offset == 0) {
-        refer_origin_data(origin_row_offsets,
-                          0,
-                          block_info.row_count_ + 1,
-                          row_offsets,
-                          preserve_mutability);
+    if (origin_offset == 0 && indices_offset == 0) {
+        refer_origin_data(origin_row_offsets, 0, block_size, row_offsets, preserve_mutability);
     }
     else {
-        const std::int64_t* const src_row_offsets = origin_row_offsets.get_data();
-        std::int64_t* const dst_row_offsets = row_offsets.get_mutable_data();
-        const std::int64_t dst_row_offsets_count = block_info.row_count_ + 1;
+        const std::int64_t* const src_data = origin_row_offsets.get_data() + origin_offset;
+        std::int64_t* const dst_data = row_offsets.get_mutable_data();
 
 #ifdef ONEDAL_DATA_PARALLEL
         if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-            backend::copy(policy.get_queue(),
-                          dst_row_offsets,
-                          &src_row_offsets[block_info.row_offset_],
-                          dst_row_offsets_count);
+            auto event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
+            shift_array_values(policy, dst_data, block_size, shift, { event });
         }
         else
 #endif
         {
-            backend::copy(dst_row_offsets,
-                          &src_row_offsets[block_info.row_offset_],
-                          dst_row_offsets_count);
+            backend::copy(dst_data, src_data, block_size);
+            shift_array_values(policy, dst_data, block_size, shift);
         }
-        std::int64_t shift = -src_row_offsets[block_info.row_offset_];
-        if (block_info.indexing_ == sparse_indexing::one_based)
-            shift++;
-        shift_array_values(policy, dst_row_offsets, dst_row_offsets_count, shift);
     }
 }
 
 template <typename Policy, typename BlockData>
-void pull_csr_block_impl(const Policy& policy,
-                         const csr_info& origin_info,
-                         const block_info& block_info,
-                         const array<byte_t>& origin_data,
-                         const array<std::int64_t>& origin_column_indices,
-                         const array<std::int64_t>& origin_row_offsets,
-                         array<BlockData>& data,
-                         array<std::int64_t>& column_indices,
-                         array<std::int64_t>& row_offsets,
-                         alloc_kind kind,
-                         bool preserve_mutability) {
+void csr_pull_block(const Policy& policy,
+                    const csr_info& origin_info,
+                    const block_info& block_info,
+                    const array<byte_t>& origin_data,
+                    const array<std::int64_t>& origin_column_indices,
+                    const array<std::int64_t>& origin_row_offsets,
+                    array<BlockData>& data,
+                    array<std::int64_t>& column_indices,
+                    array<std::int64_t>& row_offsets,
+                    alloc_kind kind,
+                    bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     constexpr data_type block_dtype = detail::make_data_type<BlockData>();
 
@@ -298,17 +308,16 @@ void pull_csr_block_impl(const Policy& policy,
 
     const auto* const origin_row_offsets_ptr = origin_row_offsets.get_data();
 #ifdef ONEDAL_DATA_PARALLEL
-    if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-        sycl::queue& q = policy.get_queue();
-        origin_offset =
-            csr_get_non_zero_count(q, block_info.row_offset_, origin_row_offsets_ptr, {});
-        block_size = csr_get_non_zero_count(q,
+    override_policy(policy, origin_row_offsets, row_offsets, [&](auto overriden_policy) {
+        origin_offset = csr_get_non_zero_count(overriden_policy,
+                                                block_info.row_offset_,
+                                                origin_row_offsets_ptr);
+        block_size = csr_get_non_zero_count(overriden_policy,
                                             block_info.row_count_,
-                                            &origin_row_offsets_ptr[block_info.row_offset_]);
-    }
-    else
+                                            origin_row_offsets_ptr + block_info.row_offset_);
+    });
 #endif
-    {
+    if (block_size == 0LL) {
         origin_offset = csr_get_non_zero_count(block_info.row_offset_, origin_row_offsets_ptr);
         block_size = csr_get_non_zero_count(block_info.row_count_,
                                             &origin_row_offsets_ptr[block_info.row_offset_]);
@@ -317,57 +326,40 @@ void pull_csr_block_impl(const Policy& policy,
     ONEDAL_ASSERT(origin_offset >= 0);
     ONEDAL_ASSERT(block_size >= 0);
 
-    pull_data_impl<Policy, BlockData>(policy,
-                                      origin_info,
-                                      origin_data,
-                                      same_data_type,
-                                      origin_offset,
-                                      block_size,
-                                      data,
-                                      kind,
-                                      preserve_mutability);
+    override_policy(policy, origin_data, data, [&](auto overriden_policy) {
+        pull_data_impl(overriden_policy,
+                       origin_info,
+                       origin_data,
+                       same_data_type,
+                       origin_offset,
+                       block_size,
+                       data,
+                       kind,
+                       preserve_mutability);
+    });
 
-    pull_column_indices_impl<Policy>(policy,
-                                     origin_column_indices,
-                                     origin_offset,
-                                     block_size,
-                                     indices_offset,
-                                     column_indices,
-                                     kind,
-                                     preserve_mutability);
+    override_policy(policy, origin_column_indices, column_indices, [&](auto overriden_policy) {
+        pull_column_indices_impl(overriden_policy,
+                                 origin_column_indices,
+                                 origin_offset,
+                                 block_size,
+                                 indices_offset,
+                                 column_indices,
+                                 kind,
+                                 preserve_mutability);
+    });
 
-    pull_row_offsets_impl<Policy>(policy,
-                                  origin_row_offsets,
-                                  block_info,
-                                  indices_offset,
-                                  row_offsets,
-                                  kind,
-                                  preserve_mutability);
-}
-
-template <typename Policy, typename BlockData>
-void csr_pull_block(const Policy& policy,
-                    const csr_info& origin_info,
-                    const block_info& block_info,
-                    const array<byte_t>& origin_data,
-                    const array<std::int64_t>& origin_column_indices,
-                    const array<std::int64_t>& origin_row_offsets,
-                    array<BlockData>& data,
-                    array<std::int64_t>& column_indices,
-                    array<std::int64_t>& row_offsets,
-                    alloc_kind requested_alloc_kind,
-                    bool preserve_mutability) {
-    pull_csr_block_impl(policy,
-                        origin_info,
-                        block_info,
-                        origin_data,
-                        origin_column_indices,
-                        origin_row_offsets,
-                        data,
-                        column_indices,
-                        row_offsets,
-                        requested_alloc_kind,
-                        preserve_mutability);
+    override_policy(policy, origin_row_offsets, row_offsets, [&](auto overriden_policy) {
+        pull_row_offsets_impl(overriden_policy,
+                              origin_row_offsets,
+                              block_info.row_offset_,
+                              block_info.row_count_ + 1,
+                              indices_offset - origin_offset,
+                              indices_offset,
+                              row_offsets,
+                              kind,
+                              preserve_mutability);
+    });
 }
 
 std::int64_t csr_get_non_zero_count(const array<std::int64_t>& row_offsets) {

@@ -195,7 +195,7 @@ public:
         csr_info origin_info{ meta_.get_data_type(0),
                               row_count_,
                               col_count_,
-                              row_offsets_[row_count_] - row_offsets_[0],
+                              get_non_zero_count(),
                               indexing_ };
 
         // Overflow is checked here
@@ -227,7 +227,7 @@ public:
         csr_info origin_info{ meta_.get_data_type(0),
                               row_count_,
                               col_count_,
-                              row_offsets_[row_count_] - row_offsets_[0],
+                              get_non_zero_count(),
                               indexing_ };
 
         // Overflow is checked here
