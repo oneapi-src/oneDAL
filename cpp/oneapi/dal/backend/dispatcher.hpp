@@ -289,10 +289,21 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     return op(cpu_dispatch_default{});
 }
 
-template <typename Op>
+template <typename Op, typename DefaultType = float>
 inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op) {
-    using msg = dal::detail::error_messages;
+    // Necessary to make the return type conformant with
+    // other dispatch branches
+    using result_t = std::invoke_result_t<Op, DefaultType>;
+    const auto on_unknown = [](data_type) -> result_t {
+        using msg = dal::detail::error_messages;
+        throw unimplemented{ msg::unsupported_conversion_types() };
+    };
 
+    return dispatch_by_data_type(dtype, std::forward<Op>(op), on_unknown);
+}
+
+template <typename Op, typename OnError>
+inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnError&& on_unknown) {
     switch (dtype) {
         case data_type::int8: return op(std::int8_t{});
         case data_type::uint8: return op(std::uint8_t{});
@@ -304,7 +315,7 @@ inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op) {
         case data_type::uint64: return op(std::uint64_t{});
         case data_type::float32: return op(float{});
         case data_type::float64: return op(double{});
-        default: throw unimplemented{ msg::unsupported_conversion_types() };
+        default: return on_unknown(dtype);
     }
 }
 
