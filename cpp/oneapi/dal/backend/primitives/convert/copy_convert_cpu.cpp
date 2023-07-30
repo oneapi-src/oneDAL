@@ -222,4 +222,13 @@ void copy_convert(const detail::host_policy& policy,
     });
 }
 
+template void copy_convert<__CPU_TAG__>(const detail::host_policy&,
+                                        const std::int64_t*,
+                                        const data_type*,
+                                        const dal::byte_t*,
+                                        const shape_t&,
+                                        data_type,
+                                        dal::byte_t*,
+                                        const shape_t&);
+
 } // namespace oneapi::dal::backend::primitives
