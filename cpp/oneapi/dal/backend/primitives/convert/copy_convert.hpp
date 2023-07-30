@@ -22,26 +22,39 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Type>
-inline void copy_convert(const dal::array<data_type>& input_types,
-                         const dal::array<dal::byte>& input_data,
-                         const shape_t& input_shape,
-                         dal::array<Type>& output_data,
-                         const shape_t& output_strides) {
-    constexpr auto output_type = detail::make_data_type<Type>();
-    return copy_convert(input_types,
-                        input_data,
-                        input_shape,
-                        output_type,
-                        output_data,
-                        output_strides);
-}
-
-void copy_convert(const dal::array<data_type>& input_types,
-                  const dal::array<dal::byte>& input_data,
+void copy_convert(const detail::host_policy& policy,
+                  const dal::array<data_type>& input_types,
+                  const dal::array<dal::byte_t>& input_data,
                   const shape_t& input_shape,
                   data_type output_type,
-                  dal::array<dal::byte>& output_data,
+                  dal::array<dal::byte_t>& output_data,
+                  const shape_t& output_strides);
+
+void copy_convert(const detail::host_policy& policy,
+                  const dal::array<std::int64_t>& input_offsets,
+                  const dal::array<data_type>& input_types,
+                  const dal::array<dal::byte_t>& input_data,
+                  const shape_t& input_shape,
+                  data_type output_type,
+                  dal::array<dal::byte_t>& output_data,
+                  const shape_t& output_strides);
+
+void copy_convert(detail::host_policy& policy,
+                  const std::int64_t* input_offsets,
+                  const data_type* input_types,
+                  const dal::byte_t* input_data,
+                  const shape_t& input_shape,
+                  data_type output_type,
+                  dal::byte_t* output_data,
+                  const shape_t& output_strides);
+
+template <typename CpuType>
+void copy_convert(const std::int64_t* input_offsets,
+                  const data_type* input_types,
+                  const dal::byte_t* input_data,
+                  const shape_t& input_shape,
+                  data_type output_type,
+                  dal::byte_t* output_data,
                   const shape_t& output_strides);
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -49,7 +62,7 @@ void copy_convert(const dal::array<data_type>& input_types,
 template <typename Type>
 inline sycl::event copy_convert(sycl::queue& queue,
                                 const dal::array<data_type>& types,
-                                const dal::array<dal::byte>& input_data,
+                                const dal::array<dal::byte_t>& input_data,
                                 const shape_t& input_shape,
                                 dal::array<Type>& output_data,
                                 const shape_t& output_strides,
@@ -67,10 +80,10 @@ inline sycl::event copy_convert(sycl::queue& queue,
 
 sycl::event copy_convert(sycl::queue& queue,
                          const dal::array<data_type>& types,
-                         const dal::array<dal::byte>& input_data,
+                         const dal::array<dal::byte_t>& input_data,
                          const shape_t& input_shape,
                          data_type output_type,
-                         dal::array<dal::byte>& output_data,
+                         dal::array<dal::byte_t>& output_data,
                          const shape_t& output_strides,
                          const std::vector<sycl::event>& deps = {});
 

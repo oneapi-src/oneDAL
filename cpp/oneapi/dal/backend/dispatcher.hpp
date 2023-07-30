@@ -302,8 +302,8 @@ inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op) {
     return dispatch_by_data_type(dtype, std::forward<Op>(op), on_unknown);
 }
 
-template <typename Op, typename OnError>
-inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnError&& on_unknown) {
+template <typename Op, typename OnUnknown>
+inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnUnknown&& on_unknown) {
     switch (dtype) {
         case data_type::int8: return op(std::int8_t{});
         case data_type::uint8: return op(std::uint8_t{});
@@ -316,6 +316,25 @@ inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnError&& 
         case data_type::float32: return op(float{});
         case data_type::float64: return op(double{});
         default: return on_unknown(dtype);
+    }
+}
+
+template <std::size_t n, typename Op>
+inline constexpr auto dispatch_by_data_types(const data_type* dtypes, Op&& op) {
+    if constexpr (n == 0ul) {
+        return op();
+    }
+    else {
+        auto head_op = [&](auto&& head) {
+            using head_t = decltype(head);
+            return [&](auto&&... tail) {
+                return op(std::forward<head_t>(head),
+                    std::forward<decltype(tail)>(tail)...);
+            };
+        };
+
+        auto new_op = dispatch_by_data_type(*dtypes, head_op);
+        return dispatch_by_data_types<n - 1>(++dtypes, std::move(new_op));
     }
 }
 

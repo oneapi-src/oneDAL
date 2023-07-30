@@ -16,18 +16,19 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/dispatcher.hpp"
+
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename DtypeProvider>
+/*template <typename DtypeProvider>
 void check_array_against_type(const shape_t& array_shape,
                               std::int64_t size_in_bytes,
                               DtypeProvider&& dtype_provider) {
-    const auto row_count = array_shape.first;
-    const auto col_count = array_shape.second;
-
-    [[maybe_unused]] std::int64_t offset = 0l;
+#ifdef ONEDAL_ENABLE_ASSERT
+    std::int64_t offset = 0l;
+    auto [row_count, col_count] = array_shape;
     for (std::int64_t r = 0l; r < row_count; ++r) {
         const data_type dtype = dtype_provider(r);
         const auto tsize = detail::get_data_type_size(dtype);
@@ -36,6 +37,7 @@ void check_array_against_type(const shape_t& array_shape,
         offset = detail::check_sum_overflow(offset, row_size);
         ONEDAL_OFFSET(offset <= size_in_bytes);
     }
+#endif // ONEDAL_ENABLE_ASSERT
 }
 
 void check_dimensions(const dal::array<data_type>& input_types,
@@ -55,6 +57,39 @@ void check_dimensions(const dal::array<data_type>& input_types,
         const std::int64_t output_size = output_data.get_size_in_bytes();
         check_array_against_type(input_shape, output_size, dtype_provider);
     }
+}*/
+
+bool is_known_data_type(data_type dtype) noexcept {
+    const auto op = [](auto type) { return true; };
+    const auto unknown = [](data_type dt) { return false; };
+    return detail::dispatch_by_data_type(dtype, op, unknown);
+}
+
+dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+                            const dal::array<data_type>& input_types) {
+    return compute_offsets(input_shape, input_types.get_data());
+}
+
+dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+                                         const data_type* input_types) {
+    ONEDAL_ASSERT(input_types != nullptr);
+    const auto [row_count, col_count] = input_shape;
+    ONEDAL_ASSERT((0l < row_count) && (0l < col_count));
+    auto result = dal::array<std::int64_t>::empty(row_count);
+    std::int64_t* const result_ptr = result.get_mutable_data();
+
+    std::int64_t offset = 0l;
+    for (std::int64_t row = 0l; row < row_count; ++row) {
+        data_type dtype = input_types[row_signed];
+        ONEDAL_ASSERT(is_known_data_type(dtype));
+
+        auto raw_size = detail::get_size_by_data_type(dtype);
+        auto row_size = detail::check_mul_overflow(raw_size, col_count);
+        offset = detail::check_sum_overflow(offset, row_size);
+        result_ptr[row] = offset;
+    }
+
+    return result;
 }
 
 } // namespace oneapi::dal::backend::primitives

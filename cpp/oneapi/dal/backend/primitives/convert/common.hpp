@@ -22,11 +22,19 @@ namespace oneapi::dal::backend::primitives {
 
 using shape_t = std::pair<std::int64_t, std::int64_t>;
 
-void check_dimensions(const dal::array<data_type>& types,
+/*void check_dimensions(const dal::array<data_type>& types,
                       const dal::array<dal::byte>& input_data,
                       const shape_t& input_shape,
                       data_type output_type,
                       dal::array<Type>& output_data,
-                      const shape_t& output_strides);
+                      const shape_t& output_strides);*/
+
+bool is_known_data_type(data_type dtype) noexcept;
+
+dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+                            const dal::array<data_type>& input_types);
+
+dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+                                        const data_type* input_types);
 
 } // namespace oneapi::dal::backend::primitives

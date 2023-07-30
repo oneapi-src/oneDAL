@@ -24,19 +24,8 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename OutputType>
-struct naive_kernel_state {
-
-};
-
-template <typename InputType, typename OutputType, typename Index>
-inline void naive_kernel_impl(const naive_kernel_state<OutputType>& k, const Index& idx) {
-
-}
-
-template <typename OutputType>
-class naive_kernel : public naive_kernel_state<OutputType> {
-    using base_t = naive_kernel_state<OutputType>;
+/*template <typename OutputType>
+class naive_kernel {
 public:
     naive_copy_convert_kernel() = delete;
 
@@ -45,10 +34,28 @@ public:
     naive_copy_convert_kernel(naive_copy_convert_kernel&&) = default;
     naive_copy_convert_kernel(const naive_copy_convert_kernel&) = default;
 
+    template <typename InputType>
+    void copy_convert(const sycl::id<2>& idx) const {
+        const std::size_t row = idx.get(0);
+        const std::size_t loc = idx.get(1);
+
+        const auto inp_offset = *(off_ptr + row);
+        const auto* raw_row = inp_ptr + inp_offset;
+        const InputType* const inp_row = //
+            reinterpret_cast<const InputType*>(inp_ptr);
+        auto* const out_row = out_ptr + row * row_stride;
+
+        for (std::size_t col = loc; col < width; col += str) {
+            const InputType& inp_val = *(inp + col);
+            auto out_val = static_cast<OutputType>(inp_val);
+            *(out_row + col * col_stride) = std::move(out_val);
+        }
+    }
+
     void operator() (sycl::id<2> idx) const {
         const auto body = [&](auto type) -> void {
             using input_type_t = std::remove_cv_t<decltype(type)>;
-            naive_kernel_impl<input_type_t>(*this, idx);
+            return copy_convert<input_type_t>(idx);
         };
 
         const auto dtype = *(type_ptr + idx.get(0));
@@ -56,7 +63,8 @@ public:
         detail::dispatch_by_dtype(dtype, body, on_unknown);
     }
 
-private:
+    // This member values are constant
+    // thus can be exposed
     const std::size_t str;
     const std::size_t width;
     OutputType* const out_ptr;
@@ -94,8 +102,8 @@ sycl::event copy_convert(sycl::queue& queue,
 
             const sycl::range<2> range{ raw_range.first, raw_range.second };
 
-            const auto* const inp_offsets_ptr = input_offsets.get_data();
-            const auto* const inp_types_ptr = input_types.get_data();
+            const auto* const inp_offset_ptr = input_offsets.get_data();
+            const auto* const inp_type_ptr = input_types.get_data();
             const auto* const inp_data_ptr = input_data.get_data();
 
             using output_type_t = std::remove_cv<decltype(type)>;
@@ -103,7 +111,14 @@ sycl::event copy_convert(sycl::queue& queue,
             auto* const out_data_ptr = reinterpret_cast<output_type_t*>();
 
             const naive_copy_convert_kernel<output_type_t> kernel{
-
+                /*str =   */ raw_range.second,
+                /*width = */ ,
+                /*out_ptr = */ out_data_ptr,
+                /*row_stride = */ out_row_str,
+                /*col_stride = */ out_col_str,
+                /*inp_ptr = */ inp_data_ptr,
+                /*type_ptr = */ inp_type_ptr,
+                /*off_ptr = */ inp_offset_ptr
             };
 
             h.parallel_for(range, kernel);
@@ -111,6 +126,6 @@ sycl::event copy_convert(sycl::queue& queue,
     }
 
     return detail::dispatch_by_data_type(output_type, naive_impl);
-}
+}*/
 
 } // namespace oneapi::dal::backend::primitives
