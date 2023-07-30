@@ -14,11 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include <utility>
+#include <numeric>
+#include <algorithm>
 
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
+#include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -46,13 +50,13 @@ void check_dimensions(const dal::array<data_type>& input_types,
                       data_type output_type,
                       dal::array<dal::byte>& output_data,
                       const shape_t& output_strides) {
-    /* Checking input array*/ {
+    {
         auto dtype_provider = [&](std::int64_t r) { return input_types[r]; };
         const std::int64_t input_size = input_data.get_size_in_bytes();
         check_array_against_type(input_shape, input_size, dtype_provider);
     }
 
-    /* Checking output array*/ {
+    {
         auto dtype_provider = [](std::int64_t) { return output_type; };
         const std::int64_t output_size = output_data.get_size_in_bytes();
         check_array_against_type(input_shape, output_size, dtype_provider);
@@ -62,7 +66,7 @@ void check_dimensions(const dal::array<data_type>& input_types,
 bool is_known_data_type(data_type dtype) noexcept {
     const auto op = [](auto type) { return true; };
     const auto unknown = [](data_type dt) { return false; };
-    return detail::dispatch_by_data_type(dtype, op, unknown);
+    return backend::dispatch_by_data_type(dtype, op, unknown);
 }
 
 dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
@@ -80,10 +84,10 @@ dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
 
     std::int64_t offset = 0l;
     for (std::int64_t row = 0l; row < row_count; ++row) {
-        data_type dtype = input_types[row_signed];
+        const data_type dtype = input_types[row];
         ONEDAL_ASSERT(is_known_data_type(dtype));
 
-        auto raw_size = detail::get_size_by_data_type(dtype);
+        auto raw_size = detail::get_data_type_size(dtype);
         auto row_size = detail::check_mul_overflow(raw_size, col_count);
         offset = detail::check_sum_overflow(offset, row_size);
         result_ptr[row] = offset;

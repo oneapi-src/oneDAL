@@ -14,12 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include <utility>
+#include <numeric>
+#include <algorithm>
 
 #include "oneapi/dal/array.hpp"
-
+#include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
@@ -34,11 +35,11 @@ void copy_convert(const detail::host_policy& policy,
                   const shape_t& output_strides) {
     auto input_offsets = compute_offsets(input_shape, input_types);
     return copy_convert(policy, input_offsets, input_types, input_data,
-                input_shape, output_data, output_data, output_strides);
+                input_shape, output_type, output_data, output_strides);
 }
 
 void copy_convert(const detail::host_policy& policy,
-                  const dal::array<std::size_t>& input_offsets,
+                  const dal::array<std::int64_t>& input_offsets,
                   const dal::array<data_type>& input_types,
                   const dal::array<dal::byte_t>& input_data,
                   const shape_t& input_shape,
@@ -49,14 +50,14 @@ void copy_convert(const detail::host_policy& policy,
     copy_convert(policy,
                  input_offsets.get_data(),
                  input_types.get_data(),
-                 inpu_data.get_data(),
+                 input_data.get_data(),
                  input_shape,
                  output_type,
                  output_data.get_mutable_data(),
                  output_strides);
 }
 
-void copy_convert(detail::host_policy& policy,
+void copy_convert(const detail::host_policy& policy,
                   const std::int64_t* input_offsets,
                   const data_type* input_types,
                   const dal::byte_t* input_data,
@@ -67,9 +68,9 @@ void copy_convert(detail::host_policy& policy,
     const context_cpu context(policy);
 
     dispatch_by_cpu(context, [&](auto type) -> void {
-        using cpu_type = std:remove_cv_t<decltype(type)>;
-        return copy_convert<cpu_type>(input_offsets, input_types,
-            input_data, input_shape, output_data, output_strides);
+        using cpu_type = std::remove_cv_t<decltype(type)>;
+        return copy_convert<cpu_type>(policy, input_offsets, input_types,
+            input_data, input_shape, output_type, output_data, output_strides);
     });
 }
 

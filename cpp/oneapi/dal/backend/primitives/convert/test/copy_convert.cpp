@@ -22,6 +22,7 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
@@ -56,12 +57,6 @@ public:
     constexpr static inline std::int64_t row_count = std::tuple_size_v<sources_t>;
     constexpr static inline auto result_type = detail::make_data_type<result_t>();
 
-    void generate() {
-        col_count = GENERATE(17, 999, 1, 1027);
-        CAPTURE(col_count, row_count);
-        generate_input();
-    }
-
     bool is_initialized() const {
         return col_count > 0l;
     }
@@ -92,7 +87,7 @@ public:
 
             dispatch_by_data_type(dtype, [&](auto type) -> void {
                 using type_t = std::remove_cv_t<decltype(type)>;
-                auto* inp_ptr = reinterpet_cast<type_t*>(inp_raw);
+                auto* inp_ptr = reinterpret_cast<type_t*>(inp_raw);
                 for(std::int64_t col = 0l; col < col_count; ++col) {
                     const int value = dist(generator);
                     inp_ptr[col] = static_cast<type_t>(value);
@@ -108,7 +103,13 @@ public:
         REQUIRE(gtr_offset == gtr_size);
     }
 
-    static auto get_types_array() {
+    void generate() {
+        col_count = GENERATE(17, 999, 1, 1027);
+        CAPTURE(col_count, row_count);
+        generate_input();
+    }
+
+    dal::array<data_type> get_types_array() const {
         auto result = dal::array<data_type>::empty(col_count);
         data_type* const res_ptr = result.get_mutable_data();
         std::copy(data_types.cbegin(), data_types.cend(), res_ptr);
@@ -135,8 +136,8 @@ public:
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(policy, types, input, { row_count, col_count },
-                     result_type, result, { col_count, std::int64_t{1l} });
+        copy_convert(policy, types, inp, { row_count, col_count },
+                     result_type, result, { col_count, 1l });
 
         auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
@@ -145,7 +146,7 @@ public:
 
 private:
     std::int64_t col_count = 0l;
-    dal::array<dal::byte> input;
+    dal::array<dal::byte_t> inp;
     dal::array<result_t> gtr;
 };
 

@@ -14,14 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include <utility>
+#include <numeric>
+#include <algorithm>
 
 #include "oneapi/dal/array.hpp"
-
 #include "oneapi/dal/detail/threading.hpp"
-
 #include "oneapi/dal/backend/dispatcher.hpp"
-
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
@@ -71,8 +70,9 @@ struct copy_converter_impl {
 inline auto decompose_index(std::int64_t idx, std::int64_t block) {
     ONEDAL_ASSERT(0l < block);
 
-    const std::int64_t row = i / block;
-    const std::int64_t col = i - row * block
+    const std::int64_t row = idx / block;
+    const std::int64_t col = idx - row * block;
+    ONEDAL_ASSERT((row * block + col) == idx);
 
     ONEDAL_ASSERT(0l <= row);
     ONEDAL_ASSERT(0l <= col);
@@ -168,19 +168,20 @@ inline auto get_threading_policy(const Shape& workload_shape,
 }
 
 template <typename CpuType>
-void copy_convert(const std::int64_t* input_offsets,
-                  const data_types* input_types,
-                  const dal::byte* input_data,
+void copy_convert(const detail::host_policy& policy,
+                  const std::int64_t* input_offsets,
+                  const data_type* input_types,
+                  const dal::byte_t* input_data,
                   const shape_t& input_shape,
                   data_type output_type,
-                  dal::byte* output_data,
+                  dal::byte_t* output_data,
                   const shape_t& output_strides) {
-
-    const auto [row_count, col_count] = input_shape;
+    const auto col_count = input_shape.second;
     const auto native_thread_count = detail::threader_get_max_threads();
     const auto threading = get_threading_policy<CpuType>(input_shape, native_thread_count);
 
-    const auto [row_threads, col_threads] = threading;
+    auto [row_threads, col_threads] = threading;
+    ONEDAL_ASSERT(row_threads == input_shape.first);
     const auto thread_count = detail::check_mul_overflow(row_threads, col_threads);
 
     detail::threader_for_int64(thread_count, [&](std::int64_t i) -> void {
@@ -191,7 +192,8 @@ void copy_convert(const std::int64_t* input_offsets,
         const auto first = get_fisrt_index(idx, col_threads, col_count);
         const auto last = get_last_index(idx, col_threads, col_count);
 
-        [[maybe_unused]] auto [f_row, f_col] = first, [l_row, l_col] = last;
+        const auto [f_row, f_col] = first;
+        const auto [l_row, l_col] = last;
         ONEDAL_ASSERT((0l <= f_col) && (f_col <= l_col) && (l_col <= col_count));
         ONEDAL_ASSERT((row_idx == f_row) && (row_idx == l_row));
 
@@ -207,8 +209,8 @@ void copy_convert(const std::int64_t* input_offsets,
 
         // Dispatch parameters
         const data_type input_type = input_types[row_idx];
-        const std::array<data_type, 2ul> dtypes{ output_type, input_type };
-        dispatch_by_data_types<2ul>(dtypes.data(), [=](auto output, auto input) {
+        const data_type dtypes[2ul] = { output_type, input_type };
+        dispatch_by_data_types<2ul>(dtypes, [=](auto output, auto input) {
             using out_t = std::remove_cv_t<decltype(output)>;
             using inp_t = std::remove_cv_t<decltype(input)>;
 

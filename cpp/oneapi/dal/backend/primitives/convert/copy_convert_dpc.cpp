@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
 #include "oneapi/dal/array.hpp"
 
 #include "oneapi/dal/backend/atomic.hpp"
@@ -110,16 +108,6 @@ sycl::event copy_convert(sycl::queue& queue,
             auto* const raw_out_ptr = output_data.get_mutable_data();
             auto* const out_data_ptr = reinterpret_cast<output_type_t*>();
 
-            const naive_copy_convert_kernel<output_type_t> kernel{
-                /*str =   */ raw_range.second,
-                /*width = */ ,
-                /*out_ptr = */ out_data_ptr,
-                /*row_stride = */ out_row_str,
-                /*col_stride = */ out_col_str,
-                /*inp_ptr = */ inp_data_ptr,
-                /*type_ptr = */ inp_type_ptr,
-                /*off_ptr = */ inp_offset_ptr
-            };
 
             h.parallel_for(range, kernel);
         });

@@ -39,7 +39,7 @@ void copy_convert(const detail::host_policy& policy,
                   dal::array<dal::byte_t>& output_data,
                   const shape_t& output_strides);
 
-void copy_convert(detail::host_policy& policy,
+void copy_convert(const detail::host_policy& policy,
                   const std::int64_t* input_offsets,
                   const data_type* input_types,
                   const dal::byte_t* input_data,
@@ -49,7 +49,8 @@ void copy_convert(detail::host_policy& policy,
                   const shape_t& output_strides);
 
 template <typename CpuType>
-void copy_convert(const std::int64_t* input_offsets,
+void copy_convert(const detail::host_policy& policy,
+                  const std::int64_t* input_offsets,
                   const data_type* input_types,
                   const dal::byte_t* input_data,
                   const shape_t& input_shape,
@@ -59,7 +60,7 @@ void copy_convert(const std::int64_t* input_offsets,
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Type>
+/*template <typename Type>
 inline sycl::event copy_convert(sycl::queue& queue,
                                 const dal::array<data_type>& types,
                                 const dal::array<dal::byte_t>& input_data,
@@ -85,7 +86,7 @@ sycl::event copy_convert(sycl::queue& queue,
                          data_type output_type,
                          dal::array<dal::byte_t>& output_data,
                          const shape_t& output_strides,
-                         const std::vector<sycl::event>& deps = {});
+                         const std::vector<sycl::event>& deps = {});*/
 
 #endif
 

@@ -16,10 +16,9 @@ dal_module(
 dal_test_suite(
     name = "perf_tests",
     framework = "catch2",
-    compile_as = [ "dpc++" ],
     private = True,
     srcs = glob([
-        "test/*perf_dpc.cpp",
+        "test/*perf*.cpp",
     ]),
     dal_deps = [
         ":convert",
@@ -29,10 +28,9 @@ dal_test_suite(
 dal_test_suite(
     name = "tests",
     framework = "catch2",
-    compile_as = [ "dpc++" ],
     private = True,
     srcs = glob([
-        "test/*_dpc.cpp",
+        "test/*.cpp",
     ], exclude=[
         "test/*perf*.cpp",
     ]),
