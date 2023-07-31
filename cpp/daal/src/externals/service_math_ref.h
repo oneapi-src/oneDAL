@@ -188,7 +188,7 @@ struct RefMath<float, cpu>
     static void vErf(SizeType n, const float * in, float * out)
     {
 #pragma omp simd
-        for (SizeType i = 0; i < n; + i) out[i] = erf(in[i]);
+        for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
     }
 
     static void vExp(SizeType n, const float * in, float * out)
