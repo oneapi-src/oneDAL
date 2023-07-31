@@ -209,8 +209,7 @@ void copy_convert(const detail::host_policy& policy,
 
         // Dispatch parameters
         const data_type input_type = input_types[row_idx];
-        const data_type dtypes[2ul] = { output_type, input_type };
-        dispatch_by_data_types<2ul>(dtypes, [=](auto output, auto input) {
+        multi_dispatch_by_data_type(output_type, input_type, [=](auto output, auto input) {
             using out_t = std::remove_cv_t<decltype(output)>;
             using inp_t = std::remove_cv_t<decltype(input)>;
 

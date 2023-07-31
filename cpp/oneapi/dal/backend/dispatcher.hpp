@@ -319,23 +319,43 @@ inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnUnknown&
     }
 }
 
-template <std::size_t n, typename Op>
-inline constexpr auto dispatch_by_data_types(const data_type* dtypes, Op&& op) {
-    if constexpr (n == 0ul) {
-        return op();
-    }
-    else {
-        auto head_op = [&](auto&& head) {
-            using head_t = decltype(head);
-            return [&](auto&&... tail) {
-                return op(std::forward<head_t>(head),
-                    std::forward<decltype(tail)>(tail)...);
-            };
-        };
+namespace impl {
 
-        auto new_op = dispatch_by_data_type(*dtypes, head_op);
-        return dispatch_by_data_types<n - 1>(++dtypes, std::move(new_op));
+template <typename... Types>
+struct type_holder {
+    template <typename Tail>
+    using add_tail = type_holder<Types..., Tail>;
+
+    template<typename Op>
+    static auto evaluate(Op&& op) {
+        return op(Types{}...);
     }
+};
+
+template <typename TypeHolder, typename Op>
+auto multi_dispatch_by_data_type(Op&& op) {
+    return TypeHolder::evaluate(std::forward<Op>(op));
+}
+
+template <typename TypeHolder, typename Op, typename Head, typename... Tail>
+auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&... tail) {
+    auto functor = [&](auto arg) {
+        using type_t = std::decay_t<decltype(arg)>;
+        using holder_t = typename TypeHolder::template add_tail<type_t>;
+        return multi_dispatch_by_data_type<holder_t>(
+            std::forward<Op>(op), std::forward<Tail>(tail)...);
+    };
+    return dispatch(head, functor);
+}
+
+} // namespace impl
+
+template <typename... Types, typename Op>
+inline constexpr auto multi_dispatch_by_data_type(Types&&... types, Op&& op) {
+    using holder_t = impl::type_holder<>;
+    return impl::multi_dispatch_by_data_type<holder_t>( //
+        std::forward<Op>(op), std::forward<Types>(types)...);
+
 }
 
 } // namespace oneapi::dal::backend
