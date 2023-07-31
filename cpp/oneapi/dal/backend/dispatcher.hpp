@@ -333,29 +333,31 @@ struct type_holder {
 };
 
 template <typename TypeHolder, typename Op>
-auto multi_dispatch_by_data_type(Op&& op) {
+inline constexpr auto multi_dispatch_by_data_type(Op&& op) {
     return TypeHolder::evaluate(std::forward<Op>(op));
 }
 
 template <typename TypeHolder, typename Op, typename Head, typename... Tail>
-auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&... tail) {
+inline constexpr auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&... tail) {
     auto functor = [&](auto arg) {
         using type_t = std::decay_t<decltype(arg)>;
         using holder_t = typename TypeHolder::template add_tail<type_t>;
         return multi_dispatch_by_data_type<holder_t>(
             std::forward<Op>(op), std::forward<Tail>(tail)...);
     };
-    return dispatch(head, functor);
+    return dispatch_by_data_type(head, functor);
 }
 
 } // namespace impl
 
-template <typename... Types, typename Op>
-inline constexpr auto multi_dispatch_by_data_type(Types&&... types, Op&& op) {
+// Signature of this function is slightly different from
+// a simple `dispatch_by_data_type` due to inconsistency
+// with a `std::visit` which it heavily resembles
+template <typename Op, typename... Types>
+inline constexpr auto multi_dispatch_by_data_type(Op&& op, Types&&... types) {
     using holder_t = impl::type_holder<>;
-    return impl::multi_dispatch_by_data_type<holder_t>( //
+    return impl::multi_dispatch_by_data_type<holder_t, Op>( //
         std::forward<Op>(op), std::forward<Types>(types)...);
-
 }
 
 } // namespace oneapi::dal::backend

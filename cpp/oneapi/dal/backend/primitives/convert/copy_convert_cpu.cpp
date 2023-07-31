@@ -121,7 +121,7 @@ inline auto get_last_index(const Index& idx, std::int64_t block,
 
 template <typename Index>
 inline auto get_input_offset(const Index& first_idx, data_type type,
-                             const std::size_t* const offsets) {
+                             const std::int64_t* const offsets) {
     auto [row, first_col] = first_idx;
     const auto data_size = detail::get_data_type_size(type);
     const auto row_offset = (row == 0l) ? 0l : offsets[row - 1l];
@@ -132,13 +132,13 @@ inline auto get_input_offset(const Index& first_idx, data_type type,
 template <typename Index>
 inline auto get_input_offset(const Index& first_idx,
                              const data_type* types,
-                             const std::size_t* offsets) {
+                             const std::int64_t* offsets) {
     auto [row, _first_col] = first_idx;
     return get_input_offset(first_idx, types[row], offsets);
 }
 
 template <typename Index, typename Strides>
-inline auto get_input_offset(const Index& first_idx,
+inline auto get_output_offset(const Index& first_idx,
                 data_type type, const Strides& strides) {
     auto [row, col] = first_idx;
     auto [row_str, col_str] = strides;
@@ -176,12 +176,14 @@ void copy_convert(const detail::host_policy& policy,
                   data_type output_type,
                   dal::byte_t* output_data,
                   const shape_t& output_strides) {
-    const auto col_count = input_shape.second;
+    const std::int64_t col_count = input_shape.second;
     const auto native_thread_count = detail::threader_get_max_threads();
     const auto threading = get_threading_policy<CpuType>(input_shape, native_thread_count);
 
-    auto [row_threads, col_threads] = threading;
-    ONEDAL_ASSERT(row_threads == input_shape.first);
+    // Structural bindings can not be captured
+    const std::int64_t row_threads = threading.first;
+    const std::int64_t col_threads = threading.second;
+    ONEDAL_ASSERT(row_threads == /*row_count*/input_shape.first);
     const auto thread_count = detail::check_mul_overflow(row_threads, col_threads);
 
     detail::threader_for_int64(thread_count, [&](std::int64_t i) -> void {
@@ -209,15 +211,15 @@ void copy_convert(const detail::host_policy& policy,
 
         // Dispatch parameters
         const data_type input_type = input_types[row_idx];
-        multi_dispatch_by_data_type(output_type, input_type, [=](auto output, auto input) {
+        multi_dispatch_by_data_type([=](auto output, auto input) {
             using out_t = std::remove_cv_t<decltype(output)>;
             using inp_t = std::remove_cv_t<decltype(input)>;
 
-            const auto* const inp_ptr = reinterpret_cast<const inp_t*>(raw_inp);
             auto* const out_ptr = reinterpret_cast<out_t*>(raw_out);
+            const auto* const inp_ptr = reinterpret_cast<const inp_t*>(raw_inp);
 
-            copy_converter_impl<CpuType, out_t, inp_t>::run(inp_ptr, out_ptr, count, stride);
-        });
+            copy_converter_impl<CpuType, out_t, inp_t>::run(out_ptr, inp_ptr, count, stride);
+        }, output_type, input_type);
     });
 }
 
