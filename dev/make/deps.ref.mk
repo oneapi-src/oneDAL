@@ -24,8 +24,8 @@ OPENBLASDIR:= $(if $(wildcard $(DIR)/__deps/open_blas/*),$(DIR)/__deps/open_blas
 OPENBLASDIR.include := $(OPENBLASDIR)/include
 OPENBLASDIR.libia := $(OPENBLASDIR)/lib
 
-daaldep.math_backend.thr := $(OPENBLASDIR.libia)/libopenblas.$a
-daaldep.math_backend.seq := $(OPENBLASDIR.libia)/libopenblas.$a
+daaldep.math_backend.thr := $(OPENBLASDIR.libia)/libopenblas.$a $(FORTRANLIBDIR)/libgfortran.a
+daaldep.math_backend.seq := $(OPENBLASDIR.libia)/libopenblas.$a $(FORTRANLIBDIR)/libgfortran.a
 
 daaldep.math_backend.incdir := $(OPENBLASDIR.include)
 daaldep.math_backend_oneapi.incdir := $(OPENBLASDIR.include)
