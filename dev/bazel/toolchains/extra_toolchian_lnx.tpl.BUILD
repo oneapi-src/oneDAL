@@ -5,7 +5,6 @@ load("@onedal//dev/bazel/toolchains:extra_toolchain.bzl", "extra_toolchain")
 extra_toolchain(
     name = "extra_tools",
     patch_daal_kernel_defines = "%{patch_daal_kernel_defines}",
-    patch_daal_backend_config = "%{patch_daal_backend_config}",
 )
 
 toolchain(
