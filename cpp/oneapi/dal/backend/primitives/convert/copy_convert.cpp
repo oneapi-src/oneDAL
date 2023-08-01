@@ -23,7 +23,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
-
+#include "oneapi/dal/detail/debug.hpp"
 namespace oneapi::dal::backend::primitives {
 
 template <bool mut = true>
@@ -34,10 +34,12 @@ auto compute_pointers(const dal::array<dal::byte_t>& data,
     using ptr_t = std::conditional_t<mut, dal::byte_t*, const dal::byte_t*>;
 
     ptr_t source = nullptr;
-    if constexpr (mut)
+    if constexpr (mut) {
         source = data.get_mutable_data();
-    else
+    }
+    else {
         source = data.get_data();
+    }
 
     auto pointers = dal::array<ptr_t>::empty(count);
     ptr_t* raw_pointers = pointers.get_mutable_data();
@@ -106,13 +108,16 @@ void copy_convert(const detail::host_policy& policy,
                   dal::array<dal::byte_t>& output_data,
                   const shape_t& output_strides) {
     const auto [row_count, col_count] = input_shape;
-    const auto [row_stride, col_stride] = input_shape;
+    const auto [row_stride, col_stride] = output_strides;
 
     auto input_offsets = compute_input_offsets(input_shape, input_types);
     auto output_offsets = compute_output_offsets(output_type, input_shape, output_strides);
 
     auto input_pointers = compute_pointers<false>(input_data, input_offsets);
     auto output_pointers = compute_pointers<true>(output_data, output_offsets);
+
+    //using oneapi::dal::detail::operator<<;
+    //std::cout << "Output offsets in bytes: " << output_offsets << std::endl;
 
     auto output_types = dal::array<data_type>::full(row_count, output_type);
     auto output_strides_arr = dal::array<std::int64_t>::full(row_count, col_stride);
@@ -130,6 +135,8 @@ void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& out_types,
                   const dal::array<std::int64_t>& out_strides,
                   const shape_t& shape) {
+    //using oneapi::dal::detail::operator<<;
+    //std::cout << "Out strides in elements: " << out_strides << std::endl;
 
     return copy_convert(policy,
                         inp_pointers.get_data(),

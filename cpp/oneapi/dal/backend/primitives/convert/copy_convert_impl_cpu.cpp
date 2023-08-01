@@ -45,28 +45,27 @@ struct copy_converter_impl {
         ONEDAL_ASSERT(inp != nullptr);
         ONEDAL_ASSERT(0l <= count);
 
-        std::cout << __PRETTY_FUNCTION__ << '\n';
-        std::cout << (out) << ' ' << (inp) << '\n';
-        std::cout << out_stride << ' ' << inp_stride << ' ' << count << std::endl;
+        //std::cout << __PRETTY_FUNCTION__ << '\n';
+        //std::cout << (out) << ' ' << (inp) << '\n';
+        //std::cout << out_stride << ' ' << inp_stride << ' ' << count << std::endl;
 
         if (out_stride == 1l && inp_stride == 1l) {
              return contiguous(out, inp, count);
         }
-
-        if (out_stride == 1l && inp_stride != 1l) {
-             return semi_strided(out, out_stride, inp, count);
+        else if (out_stride == 1l && inp_stride != 1l) {
+            return inp_strided(out, inp, inp_stride, count);
         }
-
-        if (out_stride != 1l && inp_stride == 1l) {
-             return semi_strided(out, inp, inp_stride, count);
+        else if (out_stride != 1l && inp_stride == 1l) {
+            return out_strided(out, out_stride, inp, count);
         }
-
-        return strided(out, out_stride, inp, inp_stride, count);
+        else {
+            return strided(out, out_stride, inp, inp_stride, count);
+        }
     }
 
     static void contiguous(out_t* out, const inp_t* inp, std::int64_t count) {
         if constexpr (std::is_same_v<inp_t, out_t>) {
-            // Hopefully somebody have already wrote good enogh
+            // Hopefully somebody have already wrote good enough
             // implementation of just copying memory
             backend::copy(out, inp, count);
         }
@@ -79,7 +78,7 @@ struct copy_converter_impl {
         }
     }
 
-    static void semi_strided(out_t* out, std::int64_t out_stride,
+    static void out_strided(out_t* out, std::int64_t out_stride,
                             const inp_t* inp, std::int64_t count) {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -90,7 +89,7 @@ struct copy_converter_impl {
     }
 
     // TODO: Optimize with gather instructions
-    static void semi_strided(out_t* out, const inp_t* inp,
+    static void inp_strided(out_t* out, const inp_t* inp,
                     std::int64_t inp_stride, std::int64_t count) {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -106,7 +105,7 @@ struct copy_converter_impl {
         // vectorized or not. It can be suboptimal if strides are
         // too large
         PRAGMA_IVDEP
-        for (std::int64_t i = 0l; i < count; ++i) {
+        for (std::int64_t i = 0l; i < count; ++i){
             const std::int64_t out_offset = i * out_stride;
             const std::int64_t inp_offset = i * inp_stride;
             out[out_offset] = static_cast<out_t>(inp[inp_offset]);
@@ -114,7 +113,7 @@ struct copy_converter_impl {
     }
 };
 
-template <typename CpuType, typename InpType, typename OutType>
+template <typename CpuType, typename OutType, typename InpType>
 inline auto propose_block_size(const detail::host_policy& policy) {
     constexpr std::int64_t out_size = sizeof(OutType);
     constexpr std::int64_t l1_estimation = 16'384l;
@@ -129,7 +128,7 @@ void copy_convert(const detail::host_policy& policy,
                   std::int64_t out_str,
                   std::int64_t count) {
     const auto count_s = detail::integral_cast<std::size_t>(count);
-    auto block_size = propose_block_size<CpuType, InpType, OutType>(policy);
+    auto block_size = propose_block_size<CpuType, OutType, InpType>(policy);
     const auto block_size_s = detail::integral_cast<std::size_t>(block_size);
     //std::cout << __PRETTY_FUNCTION__ << std::endl;
     detail::threader_for_blocked_size(count_s, block_size_s,
@@ -138,8 +137,13 @@ void copy_convert(const detail::host_policy& policy,
         const auto last = detail::integral_cast<std::int64_t>(l);
         const std::int64_t count = last - first;
 
+        const InpType* const off_inp_ptr = inp_ptr + inp_str * first;
+        OutType* const off_out_ptr = out_ptr + out_str * first;
+
+        //std::cout << f << ' ' << l << ' ' << off_inp_ptr << ' ' << off_out_ptr << std::endl;
+
         copy_converter_impl<CpuType, OutType, InpType>::run(
-            out_ptr, out_str, inp_ptr, inp_str, count);
+            off_out_ptr, out_str, off_inp_ptr, inp_str, count);
     });
 }
 

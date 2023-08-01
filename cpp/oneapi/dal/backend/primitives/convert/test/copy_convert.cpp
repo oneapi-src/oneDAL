@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
+#include <chrono>
 #include <array>
 #include <cmath>
 #include <type_traits>
@@ -25,14 +25,17 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
+#include "oneapi/dal/detail/debug.hpp"
+
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
 using convert_types = std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
-                                 std::tuple<float, std::tuple<std::int8_t, double, std::uint64_t>>,
-                                 std::tuple<double, std::tuple<std::int16_t, float, double, float>>>;
+                                 std::tuple<std::int32_t, std::tuple<std::int8_t, double, std::uint64_t>>,
+                                 std::tuple<double, std::tuple<std::int16_t, float, double, std::uint8_t>>,
+                                 std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
 
 template <typename... Types>
 constexpr auto make_types_array(const std::tuple<Types...>*) {
@@ -85,15 +88,20 @@ public:
             auto* inp_raw = inp.get_mutable_data() + inp_offset;
             auto* gtr_ptr = gtr.get_mutable_data() + gtr_offset;
 
-            dispatch_by_data_type(dtype, [&](auto type) -> void {
+            backend::dispatch_by_data_type(dtype,
+            [&](auto type) -> void {
                 using type_t = std::remove_cv_t<decltype(type)>;
                 auto* inp_ptr = reinterpret_cast<type_t*>(inp_raw);
                 for(std::int64_t col = 0l; col < col_count; ++col) {
                     const int value = dist(generator);
                     inp_ptr[col] = static_cast<type_t>(value);
-                    gtr_ptr[col] = static_cast<result_t>(value);
+                    gtr_ptr[col] = static_cast<result_t>(inp_ptr[col]);
+
+                    //std::cout << gtr_ptr[col] << ' ';
                 }
             });
+
+            //std::cout << std::endl;
 
             inp_offset += (type_size * col_count);
             gtr_offset += col_count;
@@ -104,7 +112,7 @@ public:
     }
 
     void generate() {
-        col_count = GENERATE(17, 999, 1, 1027);
+        col_count = GENERATE(1, 17, 127, 1'027, 199'999);
         CAPTURE(col_count, row_count);
         generate_input();
     }
@@ -116,20 +124,24 @@ public:
         return result;
     }
 
-    void compare_with_groundtruth(const dal::array<result_t>& res) {
+    void compare_with_groundtruth_rm(const dal::array<result_t>& res) {
+        REQUIRE(res.get_data() != gtr.get_data());
         const auto count = col_count * row_count;
         REQUIRE(count == gtr.get_count());
         REQUIRE(count == res.get_count());
 
+        const result_t* const res_ptr = res.get_data();
+        const result_t* const gtr_ptr = gtr.get_data();
+
         for (std::int64_t i = 0l; i < count; ++i) {
-            const result_t res_val = res[i];
-            const result_t gtr_val = gtr[i];
+            const result_t res_val = res_ptr[i];
+            const result_t gtr_val = gtr_ptr[i];
             CAPTURE(i, res_val, gtr_val);
             REQUIRE(res_val == gtr_val);
         }
     }
 
-    void test_copy_convert() {
+    void test_copy_convert_rm() {
         auto policy = detail::host_policy::get_default();
 
         const auto res_size = col_count * row_count * sizeof(result_t);
@@ -137,11 +149,49 @@ public:
         dal::array<data_type> types = get_types_array();
 
         copy_convert(policy, types, inp, { row_count, col_count },
-                     result_type, result, { col_count, 1l });
+                     result_type, result, { col_count, 1l});
 
         auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
-        compare_with_groundtruth(temp);
+        compare_with_groundtruth_rm(temp);
+    }
+
+    void compare_with_groundtruth_cm(const dal::array<result_t>& res) {
+        REQUIRE(res.get_data() != gtr.get_data());
+        const auto count = col_count * row_count;
+        REQUIRE(count == gtr.get_count());
+        REQUIRE(count == res.get_count());
+
+        const result_t* const res_ptr = res.get_data();
+        const result_t* const gtr_ptr = gtr.get_data();
+
+        for (std::int64_t i = 0l; i < count; ++i) {
+            const std::int64_t row = i / col_count;
+            const std::int64_t col = i - row * col_count;
+
+            const std::int64_t j = row + row_count * col;
+
+            const result_t gtr_val = gtr_ptr[i];
+            const result_t res_val = res_ptr[j];
+
+            CAPTURE(i, j, row, col, res_val, gtr_val);
+            REQUIRE(res_val == gtr_val);
+        }
+    }
+
+    void test_copy_convert_cm() {
+        auto policy = detail::host_policy::get_default();
+
+        const auto res_size = col_count * row_count * sizeof(result_t);
+        auto result = dal::array<dal::byte_t>::empty(res_size);
+        dal::array<data_type> types = get_types_array();
+
+        copy_convert(policy, types, inp, { row_count, col_count },
+                     result_type, result, { 1l, row_count });
+
+        auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
+        dal::array<result_t> temp(result, res_ptr, col_count * row_count);
+        compare_with_groundtruth_cm(temp);
     }
 
 private:
@@ -151,11 +201,19 @@ private:
 };
 
 TEMPLATE_LIST_TEST_M(copy_convert_cpu_test,
-                     "Determenistica array",
+                     "Determenistic random array - RM",
                      "[convert][2d][small]",
                      convert_types) {
     this->generate();
-    this->test_copy_convert();
+    this->test_copy_convert_rm();
+}
+
+TEMPLATE_LIST_TEST_M(copy_convert_cpu_test,
+                     "Determenistic random array - CM",
+                     "[convert][2d][small]",
+                     convert_types) {
+    this->generate();
+    this->test_copy_convert_cm();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
