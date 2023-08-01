@@ -117,7 +117,7 @@ public:
     }
 
     void compare_with_groundtruth(const dal::array<result_t>& res) {
-        auto count = col_count * row_count;
+        const auto count = col_count * row_count;
         REQUIRE(count == gtr.get_count());
         REQUIRE(count == res.get_count());
 

@@ -31,48 +31,29 @@ void copy_convert(const detail::host_policy& policy,
                   const shape_t& output_strides);
 
 void copy_convert(const detail::host_policy& policy,
-                  const dal::array<std::int64_t>& input_offsets,
-                  const dal::array<data_type>& input_types,
-                  const dal::array<dal::byte_t>& input_data,
-                  const shape_t& input_shape,
-                  data_type output_type,
-                  dal::array<dal::byte_t>& output_data,
-                  const shape_t& output_strides);
+                  const dal::array<const dal::byte_t*>& inp_pointers,
+                  const dal::array<data_type>& inp_types,
+                  const dal::array<std::int64_t>& inp_strides,
+                  const dal::array<dal::byte_t*>& out_pointers,
+                  const dal::array<data_type>& out_types,
+                  const dal::array<std::int64_t>& out_strides,
+                  const shape_t& shape);
 
 void copy_convert(const detail::host_policy& policy,
-                  const std::int64_t* input_offsets,
-                  const data_type* input_types,
-                  const dal::byte_t* input_data,
-                  const shape_t& input_shape,
-                  data_type output_type,
-                  dal::byte_t* output_data,
-                  const shape_t& output_strides);
-
-template <typename CpuType>
-void copy_convert(const detail::host_policy& policy,
-                  const std::int64_t* input_offsets,
-                  const data_type* input_types,
-                  const dal::byte_t* input_data,
-                  const shape_t& input_shape,
-                  data_type output_type,
-                  dal::byte_t* output_data,
-                  const shape_t& output_strides);
-
-void copy_convert(const detail::host_policy& policy,
-                  const dal::byte_t** inp_pointers,
+                  const dal::byte_t* const* inp_pointers,
                   const data_type* inp_types,
                   const std::int64_t* inp_strides,
-                  dal::byte_t** out_pointers,
+                  dal::byte_t* const* out_pointers,
                   const data_type* out_types,
                   const std::int64_t* out_strides,
                   const shape_t& shape);
 
 template <typename CpuType>
 void copy_convert(const detail::host_policy& policy,
-                  const dal::byte_t** inp_pointers,
+                  const dal::byte_t* const* inp_pointers,
                   const data_type* inp_types,
                   const std::int64_t* inp_strides,
-                  dal::byte_t** out_pointers,
+                  dal::byte_t* const* out_pointers,
                   const data_type* out_types,
                   const std::int64_t* out_strides,
                   const shape_t& shape);

@@ -327,13 +327,14 @@ struct type_holder {
     using add_tail = type_holder<Types..., Tail>;
 
     template<typename Op>
-    static auto evaluate(Op&& op) {
+    static inline auto evaluate(Op&& op) {
         return op(Types{}...);
     }
 };
 
 template <typename TypeHolder, typename Op>
 inline constexpr auto multi_dispatch_by_data_type(Op&& op) {
+    //std::cout << "Evaluation: " << __PRETTY_FUNCTION__ << std::endl;
     return TypeHolder::evaluate(std::forward<Op>(op));
 }
 

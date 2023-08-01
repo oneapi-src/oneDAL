@@ -19,8 +19,13 @@
 #include <algorithm>
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/common.hpp"
+
 #include "oneapi/dal/detail/threading.hpp"
+
+#include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
+
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
@@ -40,6 +45,10 @@ struct copy_converter_impl {
         ONEDAL_ASSERT(inp != nullptr);
         ONEDAL_ASSERT(0l <= count);
 
+        std::cout << __PRETTY_FUNCTION__ << '\n';
+        std::cout << (out) << ' ' << (inp) << '\n';
+        std::cout << out_stride << ' ' << inp_stride << ' ' << count << std::endl;
+
         if (out_stride == 1l && inp_stride == 1l) {
              return contiguous(out, inp, count);
         }
@@ -55,17 +64,25 @@ struct copy_converter_impl {
         return strided(out, out_stride, inp, inp_stride, count);
     }
 
-    // TODO: Optimize with memcpy
     static void contiguous(out_t* out, const inp_t* inp, std::int64_t count) {
-
-        for (std::int64_t i = 0l; i < count; ++i) {
-            out[i] = static_cast<out_t>(inp[i]);
+        if constexpr (std::is_same_v<inp_t, out_t>) {
+            // Hopefully somebody have already wrote good enogh
+            // implementation of just copying memory
+            backend::copy(out, inp, count);
+        }
+        else {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (std::int64_t i = 0l; i < count; ++i) {
+                out[i] = static_cast<out_t>(inp[i]);
+            }
         }
     }
 
     static void semi_strided(out_t* out, std::int64_t out_stride,
                             const inp_t* inp, std::int64_t count) {
-
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t out_offset = i * out_stride;
             out[out_offset] = static_cast<out_t>(inp[i]);
@@ -75,7 +92,8 @@ struct copy_converter_impl {
     // TODO: Optimize with gather instructions
     static void semi_strided(out_t* out, const inp_t* inp,
                     std::int64_t inp_stride, std::int64_t count) {
-
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t inp_offset = i * inp_stride;
             out[i] = static_cast<out_t>(inp[inp_offset]);
@@ -84,7 +102,10 @@ struct copy_converter_impl {
 
     static void strided(out_t* out, std::int64_t out_stride,
             const inp_t* inp, std::int64_t inp_stride, std::int64_t count) {
-
+        // Let's trust compiler to decide if the loop should be
+        // vectorized or not. It can be suboptimal if strides are
+        // too large
+        PRAGMA_IVDEP
         for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t out_offset = i * out_stride;
             const std::int64_t inp_offset = i * inp_stride;
@@ -108,9 +129,9 @@ void copy_convert(const detail::host_policy& policy,
                   std::int64_t out_str,
                   std::int64_t count) {
     const auto count_s = detail::integral_cast<std::size_t>(count);
-    const auto block_size = propose_block_size<CpuType, InpType, OutType>(policy);
+    auto block_size = propose_block_size<CpuType, InpType, OutType>(policy);
     const auto block_size_s = detail::integral_cast<std::size_t>(block_size);
-
+    //std::cout << __PRETTY_FUNCTION__ << std::endl;
     detail::threader_for_blocked_size(count_s, block_size_s,
     [=](std::size_t f, std::size_t l) -> void {
         const auto first = detail::integral_cast<std::int64_t>(f);
@@ -124,10 +145,10 @@ void copy_convert(const detail::host_policy& policy,
 
 template <typename CpuType>
 void copy_convert(const detail::host_policy& policy,
-                  const dal::byte_t** inp_ptrs,
+                  const dal::byte_t* const* inp_ptrs,
                   const data_type* inp_types,
                   const std::int64_t* inp_strs,
-                  dal::byte_t** out_ptrs,
+                  dal::byte_t* const* out_ptrs,
                   const data_type* out_types,
                   const std::int64_t* out_strs,
                   const shape_t& shape) {
@@ -147,9 +168,10 @@ void copy_convert(const detail::host_policy& policy,
         const auto inp_type = inp_types[i];
 
         backend::multi_dispatch_by_data_type(
-        [&](auto out, auto inp) -> void {
-            using input_t = std::decay_t<decltype(inp_type)>;
-            using output_t = std::decay_t<decltype(out_type)>;
+        [&](auto output, auto input) -> void {
+            //std::cout << __PRETTY_FUNCTION__ << std::endl;
+            using input_t = std::decay_t<decltype(input)>;
+            using output_t = std::decay_t<decltype(output)>;
 
             auto* out_ptr = reinterpret_cast<output_t*>(out_raw_ptr);
             const auto* inp_ptr = reinterpret_cast<const input_t*>(inp_raw_ptr);
@@ -163,10 +185,10 @@ void copy_convert(const detail::host_policy& policy,
 
 template void copy_convert<__CPU_TAG__>(
                   const detail::host_policy& policy,
-                  const dal::byte_t** inp_ptrs,
+                  const dal::byte_t* const* inp_ptrs,
                   const data_type* inp_types,
                   const std::int64_t* inp_strs,
-                  dal::byte_t** out_ptrs,
+                  dal::byte_t* const* out_ptrs,
                   const data_type* out_types,
                   const std::int64_t* out_strs,
                   const shape_t& shape);
