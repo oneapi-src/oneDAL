@@ -71,7 +71,7 @@ public:
     }
 
     void generate_input(std::int64_t seed = 777) {
-        std::mt19937_64 generator(seed);
+        std::minstd_rand generator(seed);
         std::uniform_int_distribution<int> dist(0, 127);
 
         const auto inp_size = col_size * col_count;
@@ -112,7 +112,7 @@ public:
     }
 
     void generate() {
-        col_count = GENERATE(1, 17, 127, 1'027, 199'999);
+        col_count = GENERATE(1'999'777);
         CAPTURE(col_count, row_count);
         generate_input();
     }
@@ -148,8 +148,10 @@ public:
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(policy, types, inp, { row_count, col_count },
-                     result_type, result, { col_count, 1l});
+        BENCHMARK(__PRETTY_FUNCTION__) {
+            copy_convert(policy, types, inp, { row_count, col_count },
+                        result_type, result, { col_count, 1l});
+        };
 
         auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
@@ -186,8 +188,10 @@ public:
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(policy, types, inp, { row_count, col_count },
-                     result_type, result, { 1l, row_count });
+        BENCHMARK(__PRETTY_FUNCTION__) {
+            copy_convert(policy, types, inp, { row_count, col_count },
+                         result_type, result, { 1l, row_count });
+        };
 
         const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
@@ -201,18 +205,11 @@ private:
 };
 
 TEMPLATE_LIST_TEST_M(copy_convert_cpu_test,
-                     "Determenistic random array - RM",
+                     "Determenistic random array",
                      "[convert][2d][small]",
                      convert_types) {
     this->generate();
     this->test_copy_convert_rm();
-}
-
-TEMPLATE_LIST_TEST_M(copy_convert_cpu_test,
-                     "Determenistic random array - CM",
-                     "[convert][2d][small]",
-                     convert_types) {
-    this->generate();
     this->test_copy_convert_cm();
 }
 
