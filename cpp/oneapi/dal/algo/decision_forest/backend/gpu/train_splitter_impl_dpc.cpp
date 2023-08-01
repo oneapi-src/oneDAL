@@ -283,6 +283,27 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
     return last_event;
 }
 
+/** Best splitter kernel
+ * It utilizes local memory in order to calculate histograms for each bin of data.
+ * The number of simultaneously processed bins is batch_size. And total number of bins is all_bin_count = ftr_count * bin_count.
+ * 
+ * Each batch processing stage is consist of steps:
+ * 1. Clean local data
+ * 2. Load global bin data and responses
+ * 3. Calculate histogram for batch_size bins.
+ * 4. Collect left histogram for all possible splits.
+ * 5. Calculate impurity for batch_size bins.
+ * 6. Select best among batch_size bins and update global best bin data.
+ *
+ * This stage is repeated for all batches in the node.
+ *
+ * The corner case is when batch consist of part of bins (the case when all bins of one feature is not fitted to the local memory).
+ * In this case it is important to save last processed bin from previous batch in order to calculate left histogram.
+ * Also the last bin index should be saved (last_bin_prev_batch, last_bin_index).
+ * 
+ * This kernel also can be considered as a non-overlapping window function among all possible splits, which calculates histogram and impurity during
+ * the steps and selecting best split in terms of impurity.
+ */
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     sycl::queue& queue,
