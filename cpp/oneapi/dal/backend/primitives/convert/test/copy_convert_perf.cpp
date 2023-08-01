@@ -127,23 +127,6 @@ public:
         return result;
     }
 
-    void compare_with_groundtruth_rm(const dal::array<result_t>& res) {
-        REQUIRE(res.get_data() != gtr.get_data());
-        const auto count = col_count * row_count;
-        REQUIRE(count == gtr.get_count());
-        REQUIRE(count == res.get_count());
-
-        const result_t* const res_ptr = res.get_data();
-        const result_t* const gtr_ptr = gtr.get_data();
-
-        for (std::int64_t i = 0l; i < count; ++i) {
-            const result_t res_val = res_ptr[i];
-            const result_t gtr_val = gtr_ptr[i];
-            CAPTURE(i, res_val, gtr_val);
-            REQUIRE(res_val == gtr_val);
-        }
-    }
-
     void test_copy_convert_rm() {
         auto policy = detail::host_policy::get_default();
 
