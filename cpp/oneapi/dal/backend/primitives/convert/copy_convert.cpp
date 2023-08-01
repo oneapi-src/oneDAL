@@ -74,4 +74,21 @@ void copy_convert(const detail::host_policy& policy,
     });
 }
 
+void copy_convert(const detail::host_policy& policy,
+                  const dal::byte_t** inp_pointers,
+                  const data_type* inp_types,
+                  const std::int64_t* inp_strides,
+                  dal::byte_t** out_pointers,
+                  const data_type* out_types,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape) {
+    const context_cpu context(policy);
+
+    dispatch_by_cpu(context, [&](auto type) -> void {
+        using cpu_type = std::remove_cv_t<decltype(type)>;
+        return copy_convert<cpu_type>(policy, inp_pointers, inp_types,
+            inp_strides, out_pointers, out_types, out_strides, shape);
+    });
+}
+
 } // namespace oneapi::dal::backend::primitives

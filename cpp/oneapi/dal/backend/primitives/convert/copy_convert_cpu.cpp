@@ -90,6 +90,9 @@ inline auto get_fisrt_index(const Index& idx, std::int64_t block,
     ONEDAL_ASSERT(0l <= col);
     ONEDAL_ASSERT(col < block);
 
+    std::cout << row  << ' ' << col <<  ' ' << block
+                    << ' ' << col_count << std::endl;
+
     auto col_block = col_count / block;
     ONEDAL_ASSERT(0l < col_block);
 
@@ -147,10 +150,10 @@ inline auto get_output_offset(const Index& first_idx,
 }
 
 template <typename CpuType, typename Shape>
-inline auto get_threading_policy(const Shape& workload_shape,
-                                 std::int64_t native_thread_count) {
+auto get_threading_policy(const Shape& workload_shape,
+                          std::int64_t native_thread_count) {
     // TODO: dispatching by CpuType
-    constexpr std::int64_t max_vec = 16l;
+    constexpr std::int64_t max_vec = 128l * 16l;
 
     auto [row_count, col_count] = workload_shape;
     auto lcm = std::lcm(row_count, native_thread_count);
@@ -177,26 +180,31 @@ void copy_convert(const detail::host_policy& policy,
                   dal::byte_t* output_data,
                   const shape_t& output_strides) {
     const std::int64_t col_count = input_shape.second;
+    // TODO: Here should be logic to detect number of threads in policy
     const auto native_thread_count = detail::threader_get_max_threads();
     const auto threading = get_threading_policy<CpuType>(input_shape, native_thread_count);
 
     // Structural bindings can not be captured
     const std::int64_t row_threads = threading.first;
     const std::int64_t col_threads = threading.second;
-    ONEDAL_ASSERT(row_threads == /*row_count*/input_shape.first);
+    ONEDAL_ASSERT(row_threads == /*row_count*/ input_shape.first);
     const auto thread_count = detail::check_mul_overflow(row_threads, col_threads);
-
+    std::cout << col_count << ' ' << native_thread_count << ' ' << row_threads << ' ' << col_threads << std::endl;
     detail::threader_for_int64(thread_count, [&](std::int64_t i) -> void {
         const auto idx = decompose_index(i, col_threads);
         const auto [row_idx, col_idx] = idx;
         ONEDAL_ASSERT(row_idx < row_threads);
 
+        std::cout << native_thread_count << ' ' << i << ' ' << row_idx << ' '
+            << col_idx << ' ' << col_count << ' ' << input_shape.first << std::endl;
         const auto first = get_fisrt_index(idx, col_threads, col_count);
         const auto last = get_last_index(idx, col_threads, col_count);
 
         const auto [f_row, f_col] = first;
         const auto [l_row, l_col] = last;
-        ONEDAL_ASSERT((0l <= f_col) && (f_col <= l_col) && (l_col <= col_count));
+
+        ONEDAL_ASSERT(f_col <= l_col);
+        ONEDAL_ASSERT((0l <= f_col) && (l_col <= col_count));
         ONEDAL_ASSERT((row_idx == f_row) && (row_idx == l_row));
 
         const auto inp_offset = get_input_offset(first, input_types, input_offsets);

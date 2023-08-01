@@ -58,6 +58,25 @@ void copy_convert(const detail::host_policy& policy,
                   dal::byte_t* output_data,
                   const shape_t& output_strides);
 
+void copy_convert(const detail::host_policy& policy,
+                  const dal::byte_t** inp_pointers,
+                  const data_type* inp_types,
+                  const std::int64_t* inp_strides,
+                  dal::byte_t** out_pointers,
+                  const data_type* out_types,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape);
+
+template <typename CpuType>
+void copy_convert(const detail::host_policy& policy,
+                  const dal::byte_t** inp_pointers,
+                  const data_type* inp_types,
+                  const std::int64_t* inp_strides,
+                  dal::byte_t** out_pointers,
+                  const data_type* out_types,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape);
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 /*template <typename Type>
