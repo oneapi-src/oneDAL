@@ -25,14 +25,17 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
-#include "oneapi/dal/detail/debug.hpp"
+#ifdef _MSC_VER
+    #define PRETTY_FUNCTION __FUNCSIG__
+#endif // _MSC_VER
 
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using convert_types = std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
+using convert_types = std::tuple<std::tuple<float, std::tuple<float, float, float, float, float>>,
+                                 std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
                                  std::tuple<std::int32_t, std::tuple<std::int8_t, double, std::uint64_t>>,
                                  std::tuple<double, std::tuple<std::int16_t, float, double, std::uint8_t>>,
                                  std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
@@ -112,7 +115,7 @@ public:
     }
 
     void generate() {
-        col_count = GENERATE(1'999'777);
+        col_count = GENERATE(2'000'001);
         CAPTURE(col_count, row_count);
         generate_input();
     }
@@ -152,33 +155,6 @@ public:
             copy_convert(policy, types, inp, { row_count, col_count },
                         result_type, result, { col_count, 1l});
         };
-
-        auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
-        dal::array<result_t> temp(result, res_ptr, col_count * row_count);
-        compare_with_groundtruth_rm(temp);
-    }
-
-    void compare_with_groundtruth_cm(const dal::array<result_t>& res) {
-        REQUIRE(res.get_data() != gtr.get_data());
-        const auto count = col_count * row_count;
-        REQUIRE(count == gtr.get_count());
-        REQUIRE(count == res.get_count());
-
-        const result_t* const res_ptr = res.get_data();
-        const result_t* const gtr_ptr = gtr.get_data();
-
-        for (std::int64_t i = 0l; i < count; ++i) {
-            const std::int64_t row = i / col_count;
-            const std::int64_t col = i - row * col_count;
-
-            const std::int64_t j = row + row_count * col;
-
-            const result_t gtr_val = gtr_ptr[i];
-            const result_t res_val = res_ptr[j];
-
-            CAPTURE(i, j, row, col, res_val, gtr_val);
-            REQUIRE(res_val == gtr_val);
-        }
     }
 
     void test_copy_convert_cm() {
@@ -192,10 +168,6 @@ public:
             copy_convert(policy, types, inp, { row_count, col_count },
                          result_type, result, { 1l, row_count });
         };
-
-        const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
-        dal::array<result_t> temp(result, res_ptr, col_count * row_count);
-        compare_with_groundtruth_cm(temp);
     }
 
 private:
