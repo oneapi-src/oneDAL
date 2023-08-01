@@ -349,6 +349,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     const Index selected_ftr_count = ctx.selected_ftr_count_;
     const Index bin_count = ctx.max_bin_count_among_ftrs_;
+    ONEDAL_ASSERT(bin_count > 0);
     const Index node_in_block_count = node_count;
 
     auto device = queue.get_device();
