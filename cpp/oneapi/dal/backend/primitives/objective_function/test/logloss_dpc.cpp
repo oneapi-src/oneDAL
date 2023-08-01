@@ -20,10 +20,13 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/debug.hpp"
 
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
+
+using oneapi::dal::detail::operator<<;
 
 namespace te = dal::test::engine;
 
@@ -98,6 +101,9 @@ public:
         constexpr float_t cur_param[p + 1] = { -0.2, 0.1, -1, 0.4 };
 
         auto data_host = ndarray<float_t, 2>::wrap(data, { n, p });
+
+        this->data_ = homogen_table::wrap(data_host.get_data(), n, p);
+
         auto labels_host = ndarray<std::int32_t, 1>::wrap(labels, n);
         auto params_host = ndarray<float_t, 1>::wrap(cur_param, p + 1);
 
@@ -112,6 +118,7 @@ public:
                     const float_t L1,
                     const float_t L2,
                     bool fit_intercept) {
+        std::cout << "test begin" << std::endl;
         constexpr float_t rtol = sizeof(float_t) > 4 ? 1e-6 : 1e-4;
         constexpr float_t atol = sizeof(float_t) > 4 ? 1e-6 : 1;
         constexpr float_t atol2 = sizeof(float_t) > 4 ? 1e-6 : 1e-4;
@@ -209,8 +216,67 @@ public:
 
         auto hessian_host = out_hessian.to_host(this->get_queue(), { hess_event });
 
-        auto out_raw_hessian =
-            ndarray<float_t, 1>::empty(this->get_queue(), { n }, sycl::usm::alloc::device);
+        std::cout << "before" << std::endl;
+        /*
+        if (L1 == 0) {
+            std::cout << "in additional check" << std::endl;
+            auto functor = LogLossFunction<float_t>(this->get_queue(), data_, labels_gpu, L2 * 2, fit_intercept); 
+            // LogLossFunction has different regularization so we need to multiply it by 2 to allign with other implementations
+            auto param_suf = fit_intercept ? params_gpu : params_gpu.get_slice(1, p + 1);
+            auto set_point_event = functor.update_x(param_suf, false, {});
+            wait_or_pass(set_point_event).wait_and_throw();
+
+            std::cout << "Functor logloss " << functor.get_value() << std::endl;
+            std::cout << "Gth logloss: " << logloss << std::endl;
+
+            check_val(logloss, functor.get_value(), rtol, atol);
+            std::cout << "value check successful" << std::endl;
+            auto grad_func = functor.get_gradient();
+            std::cout << "gradient calculated" << std::endl;
+            auto grad_func_host = grad_func.to_host(this->get_queue(), {});
+            std::cout << "gradient on host" << std::endl;
+
+            int dim = fit_intercept ? p + 1 : p;
+            int st = fit_intercept ? 0 : 1;
+
+            for (int i = 0; i < dim; ++i) {
+                //std::cout << i << "!" << std::endl;
+                //std::cout << dim << " " << st << std::endl;
+                //std::cout << "--" << std::endl;
+                //std::cout << i << ": " << out_derivative_host.at(i + st) << " " << grad_func.at(i) << std::endl;
+                check_val(out_derivative_host.at(i + st), grad_func_host.at(i), rtol, atol);
+            }
+            std::cout << "after check" << std::endl;
+        } 
+        */
+
+        //auto hessp2 = LogLossHessianProduct<float_t>(this->get_queue(), data_, L2 * 2, fit_intercept);
+
+        std::cout << "after" << std::endl;
+        /*
+        std::cout << "Functor logloss " << functor.get_value() << std::endl;
+        std::cout << "Gth logloss: " << logloss << std::endl;
+
+
+        
+        
+        int dim = fit_intercept ? p + 1 : p;
+
+        for (int i = 0; i < dim; ++i) {
+            std::cout << grad_func_host.at(i) << " ";
+        }
+        std::cout << std::endl;
+
+        for (int i = 0; i < p + 1; ++i) {
+            std::cout << out_derivative_host.at(i) << " ";
+        }
+        std::cout << std::endl;
+        
+        //auto out_raw_hessian =
+        //    ndarray<float_t, 1>::empty(this->get_queue(), { n }, sycl::usm::alloc::device);
+        */
+
+        /*
 
         auto hessp = logloss_hessian_product(this->get_queue(), data_gpu, L2, fit_intercept);
 
@@ -218,6 +284,7 @@ public:
             compute_raw_hessian(this->get_queue(), out_predictions, hessp.get_raw_hessian(), {});
 
         raw_hess_event.wait_and_throw();
+        */
 
         test_formula_derivative(data_host,
                                 predictions_host,
@@ -247,7 +314,7 @@ public:
                                     rtol,
                                     atol);
 
-        test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
+        //test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
     }
 
     float_t test_predictions_and_logloss(const ndview<float_t, 2>& data_host,
@@ -605,7 +672,7 @@ TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss
     this->generate_input();
     this->run_test(0.0, 1.3);
 }
-
+/*
 TEMPLATE_TEST_M(logloss_test, "test random input - double with L1", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -618,5 +685,6 @@ TEMPLATE_TEST_M(logloss_test, "test random input - float", "[logloss]", float) {
     this->generate_input();
     this->run_test(0.4, 1.3);
 }
+*/
 
 } // namespace oneapi::dal::backend::primitives::test

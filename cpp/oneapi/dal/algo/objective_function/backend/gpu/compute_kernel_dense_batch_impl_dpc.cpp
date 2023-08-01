@@ -118,30 +118,27 @@ void add_regularization(sycl::queue& q_,
 template <typename Float>
 sycl::event value_and_gradient_iter(sycl::queue& q_,
                                     std::int64_t p,
-                                    const pr::ndarray<Float, 1>& params_nd,
-                                    const pr::ndarray<Float, 2>& data_nd,
-                                    const pr::ndarray<std::int32_t, 1>& responses_nd,
-                                    const pr::ndarray<Float, 1>& probabilities,
-                                    pr::ndarray<Float, 1>& out,
-                                    pr::ndarray<Float, 1>& ans,
+                                    const pr::ndview<Float, 2>& data_nd,
+                                    const pr::ndview<std::int32_t, 1>& responses_nd,
+                                    const pr::ndview<Float, 1>& probabilities,
+                                    pr::ndview<Float, 1>& out,
+                                    pr::ndview<Float, 1>& ans,
                                     bool fit_intercept,
                                     sycl::event& prev_iter) {
     auto fill_event = fill(q_, out, Float(0), {});
 
-    auto out_loss = out.slice(0, 1);
-    auto out_gradient = out.slice(1, p + 1);
+    auto out_loss = out.get_slice(0, 1);
+    auto out_gradient = out.get_slice(1, p + 2);
+    auto out_gradient_suf = fit_intercept ? out_gradient : out_gradient.get_slice(1, p + 1);
 
-    auto loss_event = compute_logloss_with_der(q_,
-                                               params_nd,
-                                               data_nd,
-                                               responses_nd,
-                                               probabilities,
-                                               out_loss,
-                                               out_gradient,
-                                               Float(0),
-                                               Float(0),
-                                               fit_intercept,
-                                               { fill_event });
+    auto loss_event = compute_logloss_with_der2(q_,
+                                                data_nd,
+                                                responses_nd,
+                                                probabilities,
+                                                out_loss,
+                                                out_gradient_suf,
+                                                fit_intercept,
+                                                { fill_event });
 
     const auto* const out_ptr = out.get_data();
     auto* const ans_ptr = ans.get_mutable_data();
@@ -156,26 +153,15 @@ sycl::event value_and_gradient_iter(sycl::queue& q_,
 
 template <typename Float>
 sycl::event value_iter(sycl::queue& q_,
-                       std::int64_t p,
-                       const pr::ndarray<Float, 1>& params_nd,
-                       const pr::ndarray<Float, 2>& data_nd,
-                       const pr::ndarray<std::int32_t, 1>& responses_nd,
-                       const pr::ndarray<Float, 1>& probabilities,
-                       pr::ndarray<Float, 1>& out_loss,
-                       pr::ndarray<Float, 1>& ans_loss,
+                       const pr::ndview<std::int32_t, 1>& responses_nd,
+                       const pr::ndview<Float, 1>& probabilities,
+                       pr::ndview<Float, 1>& out_loss,
+                       pr::ndview<Float, 1>& ans_loss,
                        bool fit_intercept,
                        sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_loss, Float(0), {});
-    auto loss_event = compute_logloss(q_,
-                                      params_nd,
-                                      data_nd,
-                                      responses_nd,
-                                      probabilities,
-                                      out_loss,
-                                      Float(0),
-                                      Float(0),
-                                      fit_intercept,
-                                      { fill_event });
+    auto loss_event =
+        compute_logloss2(q_, responses_nd, probabilities, out_loss, fit_intercept, { fill_event });
     const auto* const out_ptr = out_loss.get_data();
     auto* const ans_loss_ptr = ans_loss.get_mutable_data();
     return q_.submit([&](sycl::handler& cgh) {
@@ -189,7 +175,6 @@ sycl::event value_iter(sycl::queue& q_,
 template <typename Float>
 sycl::event gradient_iter(sycl::queue& q_,
                           std::int64_t p,
-                          const pr::ndarray<Float, 1>& params_nd,
                           const pr::ndarray<Float, 2>& data_nd,
                           const pr::ndarray<std::int32_t, 1>& responses_nd,
                           const pr::ndarray<Float, 1>& probabilities,
@@ -198,16 +183,14 @@ sycl::event gradient_iter(sycl::queue& q_,
                           bool fit_intercept,
                           sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_gradient, Float(0), {});
-    auto grad_event = compute_derivative(q_,
-                                         params_nd,
-                                         data_nd,
-                                         responses_nd,
-                                         probabilities,
-                                         out_gradient,
-                                         Float(0),
-                                         Float(0),
-                                         fit_intercept,
-                                         { fill_event });
+    auto out_grad_suf = fit_intercept ? out_gradient : out_gradient.get_slice(1, p + 1);
+    auto grad_event = compute_derivative2(q_,
+                                          data_nd,
+                                          responses_nd,
+                                          probabilities,
+                                          out_grad_suf,
+                                          fit_intercept,
+                                          { fill_event });
     grad_event.wait_and_throw();
     const auto* const grad_ptr = out_gradient.get_data();
     auto* const ans_grad_ptr = ans_gradient.get_mutable_data();
@@ -333,7 +316,6 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
             desc.get_result_options().test(result_options::gradient)) {
             prev_logloss_e = value_and_gradient_iter(q_,
                                                      p,
-                                                     params_nd,
                                                      data_nd,
                                                      responses_nd,
                                                      probabilities,
@@ -345,9 +327,6 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
         else {
             if (desc.get_result_options().test(result_options::value)) {
                 prev_logloss_e = value_iter(q_,
-                                            p,
-                                            params_nd,
-                                            data_nd,
                                             responses_nd,
                                             probabilities,
                                             out_loss,
@@ -358,7 +337,6 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
             if (desc.get_result_options().test(result_options::gradient)) {
                 prev_grad_e = gradient_iter(q_,
                                             p,
-                                            params_nd,
                                             data_nd,
                                             responses_nd,
                                             probabilities,
