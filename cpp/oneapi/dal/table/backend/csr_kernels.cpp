@@ -196,9 +196,8 @@ void pull_column_indices_impl(const Policy& policy,
 #ifdef ONEDAL_DATA_PARALLEL
         if constexpr (detail::is_data_parallel_policy_v<Policy>) {
             auto event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
-            if (indices_offset != 0) {
-                shift_array_values(policy, dst_data, block_size, indices_offset, { event });
-            }
+            shift_array_values(policy, dst_data, block_size, indices_offset, { event });
+            sycl::event::wait_and_throw({ event });
         }
         else
 #endif
@@ -249,14 +248,13 @@ void pull_row_offsets_impl(const Policy& policy,
                            array<std::int64_t>& row_offsets,
                            alloc_kind kind,
                            bool preserve_mutability) {
-    if (row_offsets.get_count() < block_size || !row_offsets.has_mutable_data() ||
-        alloc_kind_requires_copy(get_alloc_kind(row_offsets), kind)) {
-        reset_array(policy, row_offsets, block_size, kind);
-    }
-    if (origin_offset == 0 && indices_offset == 0) {
+    if (!alloc_kind_requires_copy(get_alloc_kind(origin_row_offsets), kind) && origin_offset == 0 &&
+        indices_offset == 0) {
         refer_origin_data(origin_row_offsets, 0, block_size, row_offsets, preserve_mutability);
     }
     else {
+        reset_array(policy, row_offsets, block_size, kind);
+
         const std::int64_t* const src_data = origin_row_offsets.get_data() + origin_offset;
         std::int64_t* const dst_data = row_offsets.get_mutable_data();
 
@@ -264,6 +262,7 @@ void pull_row_offsets_impl(const Policy& policy,
         if constexpr (detail::is_data_parallel_policy_v<Policy>) {
             auto event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
             shift_array_values(policy, dst_data, block_size, shift, { event });
+            sycl::event::wait_and_throw({ event });
         }
         else
 #endif

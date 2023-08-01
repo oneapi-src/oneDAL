@@ -54,6 +54,9 @@ void shift_array_values(const detail::default_host_policy& policy,
                         T* arr,
                         const std::int64_t element_count,
                         const T shift) {
+    if (shift == T(0))
+        return;
+
     for (std::int64_t i = 0; i < element_count; ++i) {
         arr[i] += shift;
     }
@@ -135,6 +138,9 @@ sycl::event shift_array_values_device(sycl::queue& q,
                                       const std::int64_t element_count,
                                       const T shift,
                                       const event_vector& deps = {}) {
+    if (shift == T(0))
+        return sycl::event();
+
     const size_t element_count_size_t = dal::detail::integral_cast<size_t>(element_count);
     const sycl::range<1> range{ element_count_size_t };
 
@@ -152,6 +158,8 @@ void shift_array_values(const detail::data_parallel_policy& policy,
                         const std::int64_t element_count,
                         const T shift,
                         const event_vector& deps = {}) {
+    if (shift == T(0))
+        return;
     sycl::queue& q = policy.get_queue();
     if (is_device_friendly_usm(q, arr)) {
         shift_array_values_device(q, arr, element_count, shift, deps).wait_and_throw();

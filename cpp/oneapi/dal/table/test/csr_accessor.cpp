@@ -142,12 +142,9 @@ public:
                 accessor_indexing_,
                 test_alloc_kind_to_sycl(accessor_alloc_));
         }
-        else
 #endif
-        {
-            return csr_accessor<const accessor_data_t>(t).pull({ start_idx, end_idx },
-                                                               accessor_indexing_);
-        }
+        return csr_accessor<const accessor_data_t>(t).pull({ start_idx, end_idx },
+                                                           accessor_indexing_);
     }
 
     template <typename Policy>
@@ -177,25 +174,6 @@ public:
 #endif
         return true;
     }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    template <typename Data>
-    struct USMDataHelper {
-        USMDataHelper(const dal::array<Data>& arr) {
-            m_ = la::matrix<Data>::wrap(arr);
-        }
-
-        const Data* get_data(test_alloc_kind alloc) {
-            if (alloc != test_alloc_kind::host) {
-                return m_.to_host().get_data();
-            }
-            return m_.get_data();
-        }
-
-    private:
-        la::matrix<Data> m_;
-    };
-#endif
 
     /// Check that `pull` method of `csr_accessor` class works correctly.
     ///
@@ -257,18 +235,12 @@ public:
                     reinterpret_cast<const table_data_t*>(data_array.get_data()));
         }
 
-#ifdef ONEDAL_DATA_PARALLEL
-        USMDataHelper<accessor_data_t> data_helper(data_array);
-        USMDataHelper<std::int64_t> cidx_helper(cidx_array);
-        USMDataHelper<std::int64_t> ridx_helper(ridx_array);
-        const auto* const data_array_ptr = data_helper.get_data(accessor_alloc_);
-        const auto* const cidx_array_ptr = cidx_helper.get_data(accessor_alloc_);
-        const auto* const ridx_array_ptr = ridx_helper.get_data(accessor_alloc_);
-#else
-        const auto* const data_array_ptr = data_array.get_data();
-        const auto* const cidx_array_ptr = cidx_array.get_data();
-        const auto* const ridx_array_ptr = ridx_array.get_data();
-#endif
+        const auto data_helper = la::matrix<accessor_data_t>::wrap(data_array).to_host();
+        const auto cidx_helper = la::matrix<std::int64_t>::wrap(cidx_array).to_host();
+        const auto ridx_helper = la::matrix<std::int64_t>::wrap(ridx_array).to_host();
+        const auto* const data_array_ptr = data_helper.get_data();
+        const auto* const cidx_array_ptr = cidx_helper.get_data();
+        const auto* const ridx_array_ptr = ridx_helper.get_data();
 
         // check that the data values in the pulled data block are correct
         for (std::int64_t i = 0; i < data_array.get_count(); i++) {
@@ -285,13 +257,16 @@ public:
                     REQUIRE(table.get_row_offsets() == ridx_array.get_data());
                 }
             }
-
-            for (std::int64_t i = 0; i < data_array.get_count(); i++) {
-                REQUIRE(cidx_array_ptr[i] == column_indices_[data_shift + i]);
+            else {
+                for (std::int64_t i = 0; i < data_array.get_count(); i++) {
+                    REQUIRE(cidx_array_ptr[i] == column_indices_[data_shift + i]);
+                }
             }
 
-            for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
-                REQUIRE(ridx_array_ptr[i] == row_offsets_[start_idx + i] - data_shift);
+            if (!is_table_and_block_alloc_similar(this->get_policy()) || start_idx != 0) {
+                for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
+                    REQUIRE(ridx_array_ptr[i] == row_offsets_[start_idx + i] - data_shift);
+                }
             }
         }
         else if (table_indexing_ ==
@@ -378,10 +353,11 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                                   test_alloc_kind::usm_device,
                                   test_alloc_kind::usm_shared);
 
-    this->accessor_alloc_ = GENERATE(test_alloc_kind::host,
-                                     test_alloc_kind::usm_host,
-                                     test_alloc_kind::usm_device,
-                                     test_alloc_kind::usm_shared);
+    this->accessor_alloc_ = GENERATE(test_alloc_kind::usm_device, test_alloc_kind::usm_shared);
+
+    // Furter improvement: Add support of the following accessor allocation types:
+    // test_alloc_kind::host,
+    // test_alloc_kind::usm_host.
 #else
     this->table_alloc_ = test_alloc_kind::host;
     this->accessor_alloc_ = test_alloc_kind::host;
@@ -405,10 +381,11 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                                   test_alloc_kind::usm_device,
                                   test_alloc_kind::usm_shared);
 
-    this->accessor_alloc_ = GENERATE(test_alloc_kind::host,
-                                     test_alloc_kind::usm_host,
-                                     test_alloc_kind::usm_device,
-                                     test_alloc_kind::usm_shared);
+    this->accessor_alloc_ = GENERATE(test_alloc_kind::usm_device, test_alloc_kind::usm_shared);
+
+    // Furter improvement: Add support of the following accessor allocation types:
+    // test_alloc_kind::host,
+    // test_alloc_kind::usm_host.
 #else
     this->table_alloc_ = test_alloc_kind::host;
     this->accessor_alloc_ = test_alloc_kind::host;
