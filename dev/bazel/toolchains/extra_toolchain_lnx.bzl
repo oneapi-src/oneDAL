@@ -19,17 +19,11 @@ def configure_extra_toolchain_lnx(repo_ctx, compiler_id):
         "patch_daal_kernel_defines.sh",
         Label("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines.sh"),
     )
-    repo_ctx.template(
-        "patch_daal_backend_config.sh",
-        Label("@onedal//dev/bazel/toolchains/tools:patch_daal_backend_config.sh"),
-    )
     patch_daal_kernel_defines_path = str(repo_ctx.path("patch_daal_kernel_defines.sh"))
-    patch_daal_backend_config_path = str(repo_ctx.path("patch_daal_backend_config.sh"))
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/toolchains:extra_toolchian_lnx.tpl.BUILD"),
         {
             "%{patch_daal_kernel_defines}": patch_daal_kernel_defines_path,
-            "%{patch_daal_backend_config}": patch_daal_backend_config_path,
         }
     )

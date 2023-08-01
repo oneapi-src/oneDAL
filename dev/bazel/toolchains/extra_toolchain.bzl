@@ -21,7 +21,6 @@ load("@onedal//dev/bazel/toolchains:extra_toolchain_lnx.bzl",
 ExtraToolchainInfo = provider(
     fields = [
         "patch_daal_kernel_defines",
-        "patch_daal_backend_config",
     ],
 )
 
@@ -29,7 +28,6 @@ def _extra_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(
         extra_toolchain_info = ExtraToolchainInfo(
             patch_daal_kernel_defines = ctx.attr.patch_daal_kernel_defines,
-            patch_daal_backend_config = ctx.attr.patch_daal_backend_config,
         ),
     )
     return [toolchain_info]
@@ -38,7 +36,6 @@ extra_toolchain = rule(
     implementation = _extra_toolchain_impl,
     attrs = {
         "patch_daal_kernel_defines": attr.string(mandatory=True),
-        "patch_daal_backend_config" : attr.string(mandatory=True), 
     },
 )
 
