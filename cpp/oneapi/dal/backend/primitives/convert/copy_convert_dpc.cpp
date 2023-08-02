@@ -16,104 +16,52 @@
 
 #include "oneapi/dal/array.hpp"
 
-#include "oneapi/dal/backend/atomic.hpp"
+#include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-/*template <typename OutputType>
-class naive_kernel {
-public:
-    naive_copy_convert_kernel() = delete;
-
-    naive_copy_convert_kernel()
-
-    naive_copy_convert_kernel(naive_copy_convert_kernel&&) = default;
-    naive_copy_convert_kernel(const naive_copy_convert_kernel&) = default;
-
-    template <typename InputType>
-    void copy_convert(const sycl::id<2>& idx) const {
-        const std::size_t row = idx.get(0);
-        const std::size_t loc = idx.get(1);
-
-        const auto inp_offset = *(off_ptr + row);
-        const auto* raw_row = inp_ptr + inp_offset;
-        const InputType* const inp_row = //
-            reinterpret_cast<const InputType*>(inp_ptr);
-        auto* const out_row = out_ptr + row * row_stride;
-
-        for (std::size_t col = loc; col < width; col += str) {
-            const InputType& inp_val = *(inp + col);
-            auto out_val = static_cast<OutputType>(inp_val);
-            *(out_row + col * col_stride) = std::move(out_val);
-        }
-    }
-
-    void operator() (sycl::id<2> idx) const {
-        const auto body = [&](auto type) -> void {
-            using input_type_t = std::remove_cv_t<decltype(type)>;
-            return copy_convert<input_type_t>(idx);
-        };
-
-        const auto dtype = *(type_ptr + idx.get(0));
-        const auto on_unknown = [](data_type) -> void {};
-        detail::dispatch_by_dtype(dtype, body, on_unknown);
-    }
-
-    // This member values are constant
-    // thus can be exposed
-    const std::size_t str;
-    const std::size_t width;
-    OutputType* const out_ptr;
-    const std::size_t row_stride;
-    const std::size_t col_stride;
-    const dal::byte* const inp_ptr;
-    const data_type* const type_ptr;
-    const std::size_t* const off_ptr;
-};
-
-auto get_range(const sycl::queue& q, const shape_t& s) {
-    const auto r_count = detail::integral_cast<std::size_t>(s.first);
-    const auto c_count = detail::integral_cast<std::size_t>(s.second);
-
-    return std::make_pair(r_count, c_count);
+/*template <typename InpType, typename OutType>
+auto propose_range(const sycl::queue& queue, const shape_t& shape) {
+    const auto [row_count, col_count] = shape;
+    const auto raw_wg = propose_wg_size(queue);
+    const auto count = std::max(raw_wg, col_count);
+    return std::make_pair(row_count, count);
 }
 
-sycl::event copy_convert(sycl::queue& queue,
-                         const dal::array<data_type>& input_types,
-                         const dal::array<dal::byte>& input_data,
-                         const dal::array<std::size_t>& input_offsets,
-                         const shape_t& input_shape,
-                         data_type output_type,
-                         dal::array<dal::byte>& output_data,
-                         const shape_t& output_strides,
-                         const std::vector<sycl::event>& deps = {}) {
-    check_dimensions(input_types, input_data, input_shape,
-                     output_type, output_data, output_strides);
+template <typename InpType, typename OutType>
+void copy_convert(sycl::queue& queue,
+                  const InpType* const* inp_pointers,
+                  const std::int64_t* inp_strides,
+                  OutType* const* out_pointers,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape,
+                  const std::vector<sycl::event>& deps) {
+    return queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
 
-    const auto naive_impl = [&](auto type) -> sycl::event {
-        return queue.submit([&](sycl::handler& h) {
-            h.depends_on(deps);
+        const auto range = poropose_range<InpType, OutType>(queue, shape);
+        const auto range_2d = make_range_2d(range.first, range.second);
 
-            const auto raw_range = get_range(queue, input_shape);
+        const std::int64_t col_count = shape.second;
+        const std::int64_t wi_per_row = range.second;
+        h.paralell_for(range_2d, [=](sycl::id<2> idx) -> void {
+            const std::int64_t row = idx[0];
+            OutType* const out_ptr = out_pointers[row];
+            const InpType* const inp_ptr = inp_pointers[row];
 
-            const sycl::range<2> range{ raw_range.first, raw_range.second };
-
-            const auto* const inp_offset_ptr = input_offsets.get_data();
-            const auto* const inp_type_ptr = input_types.get_data();
-            const auto* const inp_data_ptr = input_data.get_data();
-
-            using output_type_t = std::remove_cv<decltype(type)>;
-            auto* const raw_out_ptr = output_data.get_mutable_data();
-            auto* const out_data_ptr = reinterpret_cast<output_type_t*>();
-
-
-            h.parallel_for(range, kernel);
+            for (std::int64_t col = idx[1]; col < col_count; col += wi_per_row) {
+                const std::int64_t out_offset = col * out_str;
+                const std::int64_t inp_offset = col * inp_str;
+                out_ptr[out_offset] = static_cast<OutType>(inp_ptr[inp_offset]);
+            }
         });
-    }
+    });
+}
 
-    return detail::dispatch_by_data_type(output_type, naive_impl);
+auto func_unique_pairs(const data_type* inp, const data_type* out, std::int64_t count) {
+
 }*/
 
 } // namespace oneapi::dal::backend::primitives

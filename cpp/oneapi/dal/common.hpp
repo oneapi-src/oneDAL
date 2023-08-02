@@ -67,7 +67,7 @@ public:
     virtual ~base() = default;
 };
 
-enum class data_type {
+enum class data_type : std::int64_t {
     int8,
     int16,
     int32,

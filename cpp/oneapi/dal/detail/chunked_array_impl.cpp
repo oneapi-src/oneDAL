@@ -354,25 +354,6 @@ auto chunked_array_base::make_array_impl(std::int64_t chunk_count) -> impl_ptr_t
     return std::make_shared<impl_t>(chunk_count);
 }
 
-/*template <typename T, typename Policy, typename Alloc>
-array_impl<T> chunked_array_base::copy_to_policy(const array_impl<T>& src,
-                                const Policy& policy, const Alloc& alloc) {
-    auto res = array_impl<T>::empty_unique(policy, src.get_count(), alloc);
-
-    const auto* const src_ptr = reinterpret_cast<const void*>(src.get_data());
-    auto* const res_ptr = reinterpret_cast<void*>(res->get_mutable_data());
-    const auto size_in_bytes = res->get_size_in_bytes();
-    ONEDAL_ASSERT(size_in_bytes == src.get_size_in_bytes());
-
-    const auto copy_visitor = [&](const auto& src_policy) {
-        memcpy(policy, src_policy, res_ptr, src_ptr, size_in_bytes);
-    };
-
-    std::visit(copy_visitor, src.get_policy());
-
-    return *res;
-}*/
-
 
 template <typename Policy, typename Alloc>
 array_impl<const byte_t*> chunked_array_base::get_data_impl(

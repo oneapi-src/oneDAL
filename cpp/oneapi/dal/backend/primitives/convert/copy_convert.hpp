@@ -88,6 +88,36 @@ sycl::event copy_convert(sycl::queue& queue,
                          const shape_t& output_strides,
                          const std::vector<sycl::event>& deps = {});*/
 
+
+void copy_convert(sycl::queue& queue,
+                  const dal::byte_t* const* inp_pointers,
+                  const data_type* inp_types,
+                  const std::int64_t* inp_strides,
+                  dal::byte_t* const* out_pointers,
+                  const data_type* out_types,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape,
+                  const std::vector<sycl::event>& deps = {});
+
+void copy_convert(sycl::queue& queue,
+                  const dal::byte_t* const* inp_pointers,
+                  data_type inp_type,
+                  const std::int64_t* inp_strides,
+                  dal::byte_t* const* out_pointers,
+                  data_type out_type,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape,
+                  const std::vector<sycl::event>& deps = {});
+
+template <typename InpType, typename OutType>
+void copy_convert(sycl::queue& queue,
+                  const InpType* const* inp_pointers,
+                  const std::int64_t* inp_strides,
+                  OutType* const* out_pointers,
+                  const std::int64_t* out_strides,
+                  const shape_t& shape,
+                  const std::vector<sycl::event>& deps = {});
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives
