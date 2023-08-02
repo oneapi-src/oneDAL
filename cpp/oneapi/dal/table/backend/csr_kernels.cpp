@@ -195,15 +195,20 @@ void pull_column_indices_impl(const Policy& policy,
         std::int64_t* const dst_data = column_indices.get_mutable_data();
 #ifdef ONEDAL_DATA_PARALLEL
         if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-            auto event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
-            shift_array_values(policy, dst_data, block_size, indices_offset, { event });
-            sycl::event::wait_and_throw({ event });
+            auto copy_event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
+            auto shift_event = shift_array_values(policy,
+                                                  dst_data,
+                                                  data_type::int64,
+                                                  block_size,
+                                                  &indices_offset,
+                                                  { copy_event });
+            sycl::event::wait_and_throw({ copy_event, shift_event });
         }
         else
 #endif
         {
             backend::copy(dst_data, src_data, block_size);
-            shift_array_values(policy, dst_data, block_size, indices_offset);
+            shift_array_values(policy, dst_data, data_type::int64, block_size, &indices_offset);
         }
     }
 }
@@ -260,15 +265,20 @@ void pull_row_offsets_impl(const Policy& policy,
 
 #ifdef ONEDAL_DATA_PARALLEL
         if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-            auto event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
-            shift_array_values(policy, dst_data, block_size, shift, { event });
-            sycl::event::wait_and_throw({ event });
+            auto copy_event = backend::copy(policy.get_queue(), dst_data, src_data, block_size);
+            auto shift_event = shift_array_values(policy,
+                                                  dst_data,
+                                                  data_type::int64,
+                                                  block_size,
+                                                  &shift,
+                                                  { copy_event });
+            sycl::event::wait_and_throw({ copy_event, shift_event });
         }
         else
 #endif
         {
             backend::copy(dst_data, src_data, block_size);
-            shift_array_values(policy, dst_data, block_size, shift);
+            shift_array_values(policy, dst_data, data_type::int64, block_size, &shift);
         }
     }
 }

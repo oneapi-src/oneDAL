@@ -49,18 +49,16 @@ void convert_matrix(const detail::default_host_policy& policy,
                     const std::int64_t dst_row_count,
                     const std::int64_t dst_col_count);
 
-template <typename T>
+/// Shifts values in the array `arr` of type `arr_type` by the value pointed
+/// to by the `shift` pointer.
+/// Pseudocode:
+///     for i in range 0, ..., element_count - 1:
+///         arr[i] = arr[i] + shift[0]
 void shift_array_values(const detail::default_host_policy& policy,
-                        T* arr,
+                        void* arr,
+                        data_type arr_type,
                         const std::int64_t element_count,
-                        const T shift) {
-    if (shift == T(0))
-        return;
-
-    for (std::int64_t i = 0; i < element_count; ++i) {
-        arr[i] += shift;
-    }
-}
+                        const void* shift);
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -132,42 +130,18 @@ sycl::event convert_vector_host2device(sycl::queue& q,
                                        std::int64_t element_count,
                                        const std::vector<sycl::event>& deps = {});
 
-template <typename T>
-sycl::event shift_array_values_device(sycl::queue& q,
-                                      T* arr,
-                                      const std::int64_t element_count,
-                                      const T shift,
-                                      const event_vector& deps = {}) {
-    if (shift == T(0))
-        return sycl::event();
-
-    const size_t element_count_size_t = dal::detail::integral_cast<size_t>(element_count);
-    const sycl::range<1> range{ element_count_size_t };
-
-    return q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<1> id) {
-            arr[id] += shift;
-        });
-    });
-}
-
-template <typename T>
-void shift_array_values(const detail::data_parallel_policy& policy,
-                        T* arr,
-                        const std::int64_t element_count,
-                        const T shift,
-                        const event_vector& deps = {}) {
-    if (shift == T(0))
-        return;
-    sycl::queue& q = policy.get_queue();
-    if (is_device_friendly_usm(q, arr)) {
-        shift_array_values_device(q, arr, element_count, shift, deps).wait_and_throw();
-    }
-    else {
-        shift_array_values(detail::default_host_policy{}, arr, element_count, shift);
-    }
-}
+/// Shifts values in the array `arr` of type `arr_type` by the value pointed
+/// to by the `shift` pointer.
+/// Pseudocode:
+///     for i in range 0, ..., element_count - 1:
+///         arr[i] = arr[i] + shift[0]
+/// Array `arr` can be allocated either on device or accessible only on host
+sycl::event shift_array_values(const detail::data_parallel_policy& policy,
+                               void* arr,
+                               data_type arr_type,
+                               const std::int64_t element_count,
+                               const void* shift,
+                               const event_vector& deps = {});
 
 #endif
 
