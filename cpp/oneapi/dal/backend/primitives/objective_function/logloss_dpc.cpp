@@ -155,110 +155,6 @@ sycl::event compute_logloss2(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event compute_logloss(sycl::queue& q,
-                            const ndview<Float, 1>& parameters,
-                            const ndview<Float, 2>& data,
-                            const ndview<std::int32_t, 1>& labels,
-                            const ndview<Float, 1>& probabilities,
-                            ndview<Float, 1>& out,
-                            const Float L1,
-                            const Float L2,
-                            const bool fit_intercept,
-                            const event_vector& deps) {
-    const std::int64_t n = data.get_dimension(0);
-    const std::int64_t p = data.get_dimension(1);
-    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
-    ONEDAL_ASSERT(labels.get_dimension(0) == n);
-    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
-    ONEDAL_ASSERT(labels.has_data());
-    ONEDAL_ASSERT(parameters.has_data());
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(probabilities.has_data());
-
-    const auto* const labels_ptr = labels.get_data();
-    const auto* const prob_ptr = probabilities.get_data();
-
-    auto* const out_ptr = out.get_mutable_data();
-
-    auto loss_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = make_range_1d(n);
-        using oneapi::dal::backend::operator+;
-        using sycl::reduction;
-
-        cgh.depends_on(deps);
-
-        auto sum_reduction = reduction(out_ptr, sycl::plus<>());
-
-        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-            const Float prob = prob_ptr[idx];
-            const std::int32_t label = labels_ptr[idx];
-            sum += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
-        });
-    });
-
-    auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
-    auto* const reg_ptr = out_reg.get_mutable_data();
-    const event_vector vector_out_reg = { out_reg_e };
-    const auto* const param_ptr = parameters.get_data();
-
-    if (L1 > 0 || L2 > 0) {
-        auto reg_event = q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(vector_out_reg);
-            const auto range = make_range_1d(p);
-            auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
-            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-                const Float param = param_ptr[idx + 1];
-                sum += L1 * sycl::abs(param) + L2 * param * param;
-            });
-        });
-        auto final_event = q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ reg_event, loss_event });
-            cgh.single_task([=] {
-                out_ptr[0] += reg_ptr[0];
-            });
-        });
-        return final_event;
-    }
-    return loss_event;
-}
-
-template <typename Float>
-sycl::event compute_logloss(sycl::queue& q,
-                            const ndview<Float, 1>& parameters,
-                            const ndview<Float, 2>& data,
-                            const ndview<std::int32_t, 1>& labels,
-                            ndview<Float, 1>& out,
-                            const Float L1,
-                            const Float L2,
-                            const bool fit_intercept,
-                            const event_vector& deps) {
-    const std::int64_t n = data.get_dimension(0);
-    const std::int64_t p = data.get_dimension(1);
-    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
-    ONEDAL_ASSERT(labels.get_dimension(0) == n);
-    ONEDAL_ASSERT(labels.has_data());
-    ONEDAL_ASSERT(parameters.has_data());
-    ONEDAL_ASSERT(data.has_data());
-
-    // out should be filled with zero
-
-    auto probabilities = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
-    auto prediction_event =
-        compute_probabilities(q, parameters, data, probabilities, fit_intercept, deps);
-
-    return compute_logloss(q,
-                           parameters,
-                           data,
-                           labels,
-                           probabilities,
-                           out,
-                           L1,
-                           L2,
-                           fit_intercept,
-                           { prediction_event });
-}
-
-template <typename Float>
 sycl::event compute_logloss_with_der2(sycl::queue& q,
                                       const ndview<Float, 2>& data,
                                       const ndview<std::int32_t, 1>& labels,
@@ -335,122 +231,10 @@ sycl::event compute_logloss_with_der2(sycl::queue& q,
     }
     auto out_der_suffix = fit_intercept ? out_derivative.get_slice(1, p + 1) : out_derivative;
 
-    auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
+    auto der_event =
+        gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event, derw0_event });
 
     return der_event;
-}
-
-template <typename Float>
-sycl::event compute_logloss_with_der(sycl::queue& q,
-                                     const ndview<Float, 1>& parameters,
-                                     const ndview<Float, 2>& data,
-                                     const ndview<std::int32_t, 1>& labels,
-                                     const ndview<Float, 1>& probabilities,
-                                     ndview<Float, 1>& out,
-                                     ndview<Float, 1>& out_derivative,
-                                     const Float L1,
-                                     const Float L2,
-                                     const bool fit_intercept,
-                                     const event_vector& deps) {
-    // out, out_derivative should be filled with zeros
-
-    const std::int64_t n = data.get_dimension(0);
-    const std::int64_t p = data.get_dimension(1);
-
-    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
-    ONEDAL_ASSERT(labels.get_dimension(0) == n);
-    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
-    ONEDAL_ASSERT(out.get_count() == 1);
-    ONEDAL_ASSERT(out_derivative.get_count() == p + 1);
-
-    ONEDAL_ASSERT(labels.has_data());
-    ONEDAL_ASSERT(parameters.has_data());
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(probabilities.has_data());
-    ONEDAL_ASSERT(out.has_mutable_data());
-    ONEDAL_ASSERT(out_derivative.has_mutable_data());
-
-    // d loss_i / d pred_i
-    auto derivative_object = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
-
-    auto* const der_obj_ptr = derivative_object.get_mutable_data();
-    const auto* const proba_ptr = probabilities.get_data();
-    const auto* const labels_ptr = labels.get_data();
-    const auto* const param_ptr = parameters.get_data();
-    auto* const out_ptr = out.get_mutable_data();
-    auto* const out_derivative_ptr = out_derivative.get_mutable_data();
-
-    auto loss_event = q.submit([&](sycl::handler& cgh) {
-        using oneapi::dal::backend::operator+;
-        using sycl::reduction;
-
-        cgh.depends_on(deps);
-        auto sum_reduction_logloss = reduction(out_ptr, sycl::plus<>());
-        const auto wg_size = propose_wg_size(q);
-        const auto range = make_multiple_nd_range_1d(n, wg_size);
-
-        cgh.parallel_for(range, sum_reduction_logloss, [=](sycl::nd_item<1> id, auto& sum_logloss) {
-            auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-            if (idx >= std::size_t(n))
-                return;
-            const Float prob = proba_ptr[idx];
-            const float label = labels_ptr[idx];
-            sum_logloss += -label * sycl::log(prob) - (1 - label) * sycl::log(1 - prob);
-            der_obj_ptr[idx] = prob - label;
-        });
-    });
-    sycl::event derw0_event = sycl::event{};
-    if (fit_intercept) {
-        derw0_event = q.submit([&](sycl::handler& cgh) {
-            using oneapi::dal::backend::operator+;
-            using sycl::reduction;
-
-            cgh.depends_on(deps + loss_event);
-            auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
-            const auto wg_size = propose_wg_size(q);
-            const auto range = make_multiple_nd_range_1d(n, wg_size);
-
-            cgh.parallel_for(range,
-                             sum_reduction_derivative_w0,
-                             [=](sycl::nd_item<1> id, auto& sum_dw0) {
-                                 auto idx =
-                                     id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-                                 if (idx >= std::size_t(n))
-                                     return;
-                                 sum_dw0 += der_obj_ptr[idx];
-                             });
-        });
-    }
-    auto out_der_suffix = out_derivative.get_slice(1, p + 1);
-
-    auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
-    if (L1 == 0 && L2 == 0) {
-        return der_event;
-    }
-    auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
-
-    const event_vector reg_deps = { reg_val_e, der_event };
-    auto* const reg_ptr = reg_val.get_mutable_data();
-
-    auto reg_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(reg_deps);
-        const auto range = make_range_1d(p);
-        auto sum_reduction = sycl::reduction(reg_ptr, sycl::plus<>());
-        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
-            const Float param = param_ptr[idx + 1];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
-            out_derivative_ptr[idx + 1] += L2 * 2 * param;
-        });
-    });
-
-    auto final_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ reg_event, loss_event, derw0_event });
-        cgh.single_task([=] {
-            out_ptr[0] += reg_ptr[0];
-        });
-    });
-
-    return final_event;
 }
 
 template <typename Float>
@@ -521,96 +305,6 @@ sycl::event compute_derivative2(sycl::queue& q,
     auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
 
     return der_event;
-}
-
-template <typename Float>
-sycl::event compute_derivative(sycl::queue& q,
-                               const ndview<Float, 1>& parameters,
-                               const ndview<Float, 2>& data,
-                               const ndview<std::int32_t, 1>& labels,
-                               const ndview<Float, 1>& probabilities,
-                               ndview<Float, 1>& out_derivative,
-                               const Float L1,
-                               const Float L2,
-                               const bool fit_intercept,
-                               const event_vector& deps) {
-    // out_derivative should be filled with zeros
-
-    const std::int64_t n = data.get_dimension(0);
-    const std::int64_t p = data.get_dimension(1);
-
-    ONEDAL_ASSERT(parameters.get_dimension(0) == p + 1);
-    ONEDAL_ASSERT(labels.get_dimension(0) == n);
-    ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
-    ONEDAL_ASSERT(out_derivative.get_count() == p + 1);
-
-    ONEDAL_ASSERT(labels.has_data());
-    ONEDAL_ASSERT(parameters.has_data());
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(probabilities.has_data());
-    ONEDAL_ASSERT(out_derivative.has_mutable_data());
-
-    // d loss_i / d pred_i
-    auto derivative_object = ndarray<Float, 1>::empty(q, { n }, sycl::usm::alloc::device);
-
-    auto* const der_obj_ptr = derivative_object.get_mutable_data();
-    const auto* const proba_ptr = probabilities.get_data();
-    const auto* const labels_ptr = labels.get_data();
-    const auto* const param_ptr = parameters.get_data();
-    auto* const out_derivative_ptr = out_derivative.get_mutable_data();
-
-    auto loss_event = q.submit([&](sycl::handler& cgh) {
-        using sycl::reduction;
-
-        cgh.depends_on(deps);
-        const auto wg_size = propose_wg_size(q);
-        const auto range = make_multiple_nd_range_1d(n, wg_size);
-        if (fit_intercept) {
-            auto sum_reduction_derivative_w0 = reduction(out_derivative_ptr, sycl::plus<>());
-            cgh.parallel_for(range,
-                             sum_reduction_derivative_w0,
-                             [=](sycl::nd_item<1> id, auto& sum_dw0) {
-                                 auto idx =
-                                     id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-                                 if (idx >= std::size_t(n))
-                                     return;
-                                 const Float prob = proba_ptr[idx];
-                                 const Float label = labels_ptr[idx];
-                                 der_obj_ptr[idx] = prob - label;
-                                 sum_dw0 += der_obj_ptr[idx];
-                             });
-        }
-        else {
-            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-                auto idx = id.get_group_linear_id() * wg_size + id.get_local_linear_id();
-                if (idx >= std::size_t(n))
-                    return;
-                const Float prob = proba_ptr[idx];
-                const Float label = labels_ptr[idx];
-                der_obj_ptr[idx] = prob - label;
-            });
-        }
-    });
-
-    auto out_der_suffix = out_derivative.get_slice(1, p + 1);
-
-    auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
-
-    if (L1 == 0 && L2 == 0) {
-        return der_event;
-    }
-
-    auto reg_event = q.submit([&](sycl::handler& cgh) {
-        using oneapi::dal::backend::operator+;
-        cgh.depends_on({ der_event });
-        const auto range = make_range_1d(p);
-        cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            const Float param = param_ptr[idx + 1];
-            out_derivative_ptr[idx + 1] += L2 * 2 * param;
-        });
-    });
-
-    return reg_event;
 }
 
 template <typename Float>
@@ -1014,17 +708,14 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
 
         std::cout << loss_batch.at_device(q_, 0, { fill_buffer_e }) << std::endl;
 
-        sycl::event compute_e = compute_logloss_with_der(q_,
-                                                         x,
-                                                         data_batch,
-                                                         labels_batch,
-                                                         probabilities_,
-                                                         loss_batch,
-                                                         grad_batch,
-                                                         Float(0),
-                                                         Float(0),
-                                                         fit_intercept_,
-                                                         { fill_buffer_e, prob_e });
+        sycl::event compute_e = compute_logloss_with_der2(q_,
+                                                          data_batch,
+                                                          labels_batch,
+                                                          probabilities_,
+                                                          loss_batch,
+                                                          grad_batch,
+                                                          fit_intercept_,
+                                                          { fill_buffer_e, prob_e });
 
         compute_e.wait_and_throw();
 
@@ -1280,25 +971,6 @@ sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& v
                                              ndview<F, 1>&,                           \
                                              const bool,                              \
                                              const event_vector&);                    \
-    template sycl::event compute_logloss<F>(sycl::queue&,                             \
-                                            const ndview<F, 1>&,                      \
-                                            const ndview<F, 2>&,                      \
-                                            const ndview<std::int32_t, 1>&,           \
-                                            ndview<F, 1>&,                            \
-                                            const F,                                  \
-                                            const F,                                  \
-                                            const bool,                               \
-                                            const event_vector&);                     \
-    template sycl::event compute_logloss<F>(sycl::queue&,                             \
-                                            const ndview<F, 1>&,                      \
-                                            const ndview<F, 2>&,                      \
-                                            const ndview<std::int32_t, 1>&,           \
-                                            const ndview<F, 1>&,                      \
-                                            ndview<F, 1>&,                            \
-                                            const F,                                  \
-                                            const F,                                  \
-                                            const bool,                               \
-                                            const event_vector&);                     \
     template sycl::event compute_logloss_with_der2<F>(sycl::queue&,                   \
                                                       const ndview<F, 2>&,            \
                                                       const ndview<std::int32_t, 1>&, \
@@ -1307,17 +979,6 @@ sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& v
                                                       ndview<F, 1>&,                  \
                                                       const bool,                     \
                                                       const event_vector&);           \
-    template sycl::event compute_logloss_with_der<F>(sycl::queue&,                    \
-                                                     const ndview<F, 1>&,             \
-                                                     const ndview<F, 2>&,             \
-                                                     const ndview<std::int32_t, 1>&,  \
-                                                     const ndview<F, 1>&,             \
-                                                     ndview<F, 1>&,                   \
-                                                     ndview<F, 1>&,                   \
-                                                     const F,                         \
-                                                     const F,                         \
-                                                     const bool,                      \
-                                                     const event_vector&);            \
     template sycl::event compute_derivative2<F>(sycl::queue&,                         \
                                                 const ndview<F, 2>&,                  \
                                                 const ndview<std::int32_t, 1>&,       \
@@ -1325,16 +986,6 @@ sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& v
                                                 ndview<F, 1>&,                        \
                                                 const bool,                           \
                                                 const event_vector&);                 \
-    template sycl::event compute_derivative<F>(sycl::queue&,                          \
-                                               const ndview<F, 1>&,                   \
-                                               const ndview<F, 2>&,                   \
-                                               const ndview<std::int32_t, 1>&,        \
-                                               const ndview<F, 1>&,                   \
-                                               ndview<F, 1>&,                         \
-                                               const F,                               \
-                                               const F,                               \
-                                               const bool,                            \
-                                               const event_vector&);                  \
     template sycl::event add_regularization_loss<F>(sycl::queue&,                     \
                                                     const ndview<F, 1>&,              \
                                                     ndview<F, 1>&,                    \
