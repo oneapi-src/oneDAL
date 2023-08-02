@@ -59,18 +59,17 @@ proc ModulesHelp { } {
 # Define environment variables needed for an isolated component install.
 
 # Set intermediate variables
-set daalroot "$componentroot"
+set dalroot "$componentroot"
 set daal_target_arch "intel64"
 
 # Setup environment variables
 setenv          DAL_MAJOR_BINARY   1
 setenv          DAL_MINOR_BINARY   1
-setenv          DALROOT            "$daalroot"
-setenv          DAALROOT           "$daalroot"
+setenv          DALROOT            "$dalroot"
 
-prepend-path    LD_LIBRARY_PATH    "$daalroot/lib"
-prepend-path    LIBRARY_PATH       "$daalroot/lib"
-prepend-path    CPATH              "$daalroot/include/dal"
-prepend-path    CLASSPATH          "$daalroot/share/java/onedal.jar"
-prepend-path    CMAKE_PREFIX_PATH  "$daalroot"
-prepend-path    PKG_CONFIG_PATH    "$daalroot/lib/pkgconfig"
+prepend-path    LD_LIBRARY_PATH    "$dalroot/lib"
+prepend-path    LIBRARY_PATH       "$dalroot/lib"
+prepend-path    CPATH              "$dalroot/include/dal"
+prepend-path    CLASSPATH          "$dalroot/share/java/onedal.jar"
+prepend-path    CMAKE_PREFIX_PATH  "$dalroot"
+prepend-path    PKG_CONFIG_PATH    "$dalroot/lib/pkgconfig"
