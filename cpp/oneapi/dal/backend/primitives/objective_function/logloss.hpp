@@ -32,14 +32,6 @@ sycl::event compute_probabilities2(sycl::queue& q,
                                    const event_vector& deps = {});
 
 template <typename Float>
-sycl::event compute_probabilities(sycl::queue& q,
-                                  const ndview<Float, 1>& parameters,
-                                  const ndview<Float, 2>& data,
-                                  ndview<Float, 1>& predictions,
-                                  bool fit_intercept = true,
-                                  const event_vector& deps = {});
-
-template <typename Float>
 sycl::event compute_logloss2(sycl::queue& q,
                              const ndview<std::int32_t, 1>& labels,
                              const ndview<Float, 1>& probabilities,
@@ -96,7 +88,6 @@ sycl::event add_regularization_gradient(sycl::queue& q,
 
 template <typename Float>
 sycl::event compute_hessian(sycl::queue& q,
-                            const ndview<Float, 1>& parameters,
                             const ndview<Float, 2>& data,
                             const ndview<std::int32_t, 1>& labels,
                             const ndview<Float, 1>& probabilities,

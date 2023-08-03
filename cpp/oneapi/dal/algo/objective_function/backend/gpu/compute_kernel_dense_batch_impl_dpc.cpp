@@ -208,7 +208,6 @@ sycl::event gradient_iter(sycl::queue& q_,
 template <typename Float>
 sycl::event hessian_iter(sycl::queue& q_,
                          std::int64_t p,
-                         const pr::ndarray<Float, 1>& params_nd,
                          const pr::ndarray<Float, 2>& data_nd,
                          const pr::ndarray<std::int32_t, 1>& responses_nd,
                          const pr::ndarray<Float, 1>& probabilities,
@@ -218,7 +217,6 @@ sycl::event hessian_iter(sycl::queue& q_,
                          sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_hessian, Float(0), {});
     auto hess_event = compute_hessian(q_,
-                                      params_nd,
                                       data_nd,
                                       responses_nd,
                                       probabilities,
@@ -265,6 +263,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
     const bk::uniform_blocking blocking(n, bsz);
 
     const auto params_nd = pr::table2ndarray_1d<Float>(q_, params, alloc::device);
+    const auto params_nd_suf = fit_intercept ? params_nd : params_nd.slice(1, p);
     const auto* const params_ptr = params_nd.get_data();
 
     const auto responses_nd_big = pr::table2ndarray_1d<std::int32_t>(q_, responses, alloc::device);
@@ -309,7 +308,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
         const auto responses_nd = responses_nd_big.slice(first, cursize);
 
         sycl::event prob_e =
-            compute_probabilities(q_, params_nd, data_nd, probabilities, fit_intercept, {});
+            compute_probabilities2(q_, params_nd_suf, data_nd, probabilities, fit_intercept, {});
         prob_e.wait_and_throw();
 
         if (desc.get_result_options().test(result_options::value) &&
@@ -349,7 +348,6 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
         if (desc.get_result_options().test(result_options::hessian)) {
             prev_hess_e = hessian_iter(q_,
                                        p,
-                                       params_nd,
                                        data_nd,
                                        responses_nd,
                                        probabilities,
