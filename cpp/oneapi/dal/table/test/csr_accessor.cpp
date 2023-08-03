@@ -19,8 +19,6 @@
 #include "oneapi/dal/test/engine/linalg.hpp"
 #include "oneapi/dal/table/csr_accessor.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal {
 
 namespace te = dal::test::engine;
