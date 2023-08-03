@@ -28,7 +28,6 @@ dal_collect_modules(
         "heap",
         "intersection",
         "lapack",
-        "optimizers",
         "objective_function",
         "placement",
         "reduction",
@@ -77,7 +76,6 @@ dal_collect_test_suites(
     modules = [
         "blas",
         "lapack",
-        "optimizers",
         "objective_function",
         "reduction",
         "placement",

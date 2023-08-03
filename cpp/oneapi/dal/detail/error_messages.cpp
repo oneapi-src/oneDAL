@@ -209,10 +209,6 @@ MSG(regularization_coef_is_less_than_zero,
 MSG(regularization_coef_is_nan_or_inf,
     "L1 and L2 regularization coefs should be real decimal numbers")
 
-/* Optimizers */
-MSG(matrix_is_not_positively_definite,
-    "Matrix passed to conjugate gradients solver should be positively defined");
-
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")
 MSG(empty_edge_list, "Empty edge list")
