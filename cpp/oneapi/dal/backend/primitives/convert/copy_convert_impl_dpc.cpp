@@ -236,17 +236,21 @@ sycl::event copy_convert(sycl::queue& queue,
                          const std::int64_t* out_strides,
                          const shape_t& shape,
                          const std::vector<sycl::event>& deps) {
-    return backend::multi_dispatch_by_data_type(
-    [&](auto inp, auto out) -> sycl::event {
+    backend::multi_dispatch_by_data_type(
+    [&](auto inp, auto out) -> void {
         using out_t = std::decay_t<decltype(out)>;
         using inp_t = std::decay_t<decltype(inp)>;
 
         auto* const adj_out_ptrs = reinterpret_cast<out_t* const *>(out_pointers);
         auto* const adj_inp_ptrs = reinterpret_cast<const inp_t* const *>(inp_pointers);
 
-        return copy_convert_impl<inp_t, out_t>(queue, adj_inp_ptrs, inp_strides,
+        auto res_event = copy_convert_impl<inp_t, out_t>(queue, adj_inp_ptrs, inp_strides,
                                           adj_out_ptrs, out_strides, shape, deps);
+
+        res_event.wait_and_throw();
     }, inp_type, out_type);
+
+    return sycl::event{};
 }
 
 } // namespace oneapi::dal::backend::primitives
