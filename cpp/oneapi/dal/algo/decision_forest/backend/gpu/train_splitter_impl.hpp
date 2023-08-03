@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021-2022 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_impurity_data.hpp"
 
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_node_helpers.hpp"
+
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -36,9 +38,11 @@ namespace pr = bk::primitives;
 template <typename Float,
           typename Bin = std::uint32_t,
           typename Index = std::int32_t,
-          typename Task = task::by_default,
-          bool use_private_mem = true>
+          typename Task = task::by_default>
 class train_splitter_impl {
+    static_assert(std::is_signed_v<Index>);
+    static_assert(std::is_integral_v<Index>);
+
     using result_t = train_result<Task>;
     using impl_const_t = impl_const<Index, Task>;
     using descriptor_t = detail::descriptor_base<Task>;
@@ -46,79 +50,81 @@ class train_splitter_impl {
     using imp_data_t = impurity_data<Float, Index, Task>;
     using msg = de::error_messages;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
+    using node_t = node<Index>;
 
 public:
     train_splitter_impl() = default;
     ~train_splitter_impl() = default;
 
-    /// Computing the best split for the `node_count` nodes using `selected_ftr_list`
-    /// for splitting and choosing the best split in terms of impurity.
+    /// Chooses the best split for each feature from
+    /// the `selected_ftr_list` in terms of impurity values.
+    /// This kernel does not require pre-computed histograms because it computes
+    /// histograms while processing nodes.
     ///
-    /// @param[in] queue                    SYCL parallel queue
-    /// @param[in] ctx                      a training context structure for the GPU backend
-    /// @param[in] node_hist_list           a pre-calculated histogram for each node
-    /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
-    /// @param[in] bin_offset_list          an array of offsets for each bin
-    /// @param[in] imp_data_list            an array of impurity data for each node
-    /// @param[in] node_ind_list            an array of node indices
-    /// @param[in] node_ind_ofs             global offset for node indices
-    /// @param[in] node_list                a node structure containing split information
-    /// @param[in] left_child_imp_data_list an array of left-child impurity values
-    /// @param[in] node_imp_dec_list        an array of node impurity decrease values
-    /// @param[in] update_imp_dec_required  boolean indicator to update impurity decrease structure
-    /// @param[in] node_count               number of the nodes to compute in the current step
-    /// @param[in] deps                     a set of SYCL events this method depends on
-    static sycl::event compute_best_split_by_histogram(
-        sycl::queue& queue,
-        const context_t& ctx,
-        const pr::ndarray<hist_type_t, 1>& node_hist_list,
-        const pr::ndarray<Index, 1>& selected_ftr_list,
-        const pr::ndarray<Index, 1>& bin_offset_list,
-        const imp_data_t& imp_data_list,
-        const pr::ndarray<Index, 1>& node_ind_list,
-        Index node_ind_ofs,
-        pr::ndarray<Index, 1>& node_list,
-        imp_data_t& left_child_imp_data_list,
-        pr::ndarray<Float, 1>& node_imp_dec_list,
-        bool update_imp_dec_required,
-        Index node_count,
-        const bk::event_vector& deps = {});
+    /// @param[in] queue                            SYCL parallel queue
+    /// @param[in] ctx                              a training context structure for the GPU backend
+    /// @param[in] data                             an input data with the cast to Bin for each row_count * column_count
+    /// @param[in] response                         an input array of training response values
+    /// @param[in] tree_order                       column indices map for the corresponding tree
+    /// @param[in] selected_ftr_list                a subset of feature indices selected for each node
+    /// @param[in] bin_offset_list                  a bin offset list for each feature in dataset
+    /// @param[in] imp_data_list                    a node impurity data array
+    /// @param[in, out] node_list                   a node data structure containing split information
+    /// @param[in, out] left_child_imp_data_list    an impurity array for left-child
+    /// @param[in, out] node_imp_dec_list           an array for node impurity decrease data
+    /// @param[in] update_imp_dec_required          boolean indicator to update impurity decrease structure
+    /// @param[in] node_count                       number of the nodes to compute in the current step
+    /// @param[in] deps                             a set of SYCL events this method depends on
+    static sycl::event best_split(sycl::queue& queue,
+                                  const context_t& ctx,
+                                  const pr::ndview<Bin, 2>& data,
+                                  const pr::ndview<Float, 1>& response,
+                                  const pr::ndview<Index, 1>& tree_order,
+                                  const pr::ndview<Index, 1>& selected_ftr_list,
+                                  const pr::ndview<Index, 1>& bin_offset_list,
+                                  const imp_data_t& imp_data_list,
+                                  pr::ndview<Index, 1>& node_list,
+                                  imp_data_t& left_child_imp_data_list,
+                                  pr::ndview<Float, 1>& node_imp_dec_list,
+                                  bool update_imp_dec_required,
+                                  Index node_count,
+                                  const bk::event_vector& deps = {});
 
-    /// Computing random split for `node_count` nodes using `selected_ftr_list`
-    /// and `random_bins_com` values for splitting. Computes best split among randomly
-    /// selected thresholds for each node.
+    /// Choses a random split for each feature from
+    /// the `selected_ftr_list` using `random_bins_com` values for splitting.
+    /// And computes the best split among those random splits
+    /// based on the impurity decrease calculated for each of those random splits.
     ///
-    /// @param[in] queue                    SYCL parallel queue
-    /// @param[in] ctx                      a training context structure for the GPU backend
-    /// @param[in] node_hist_list           a pre-calculated histogram for each node
-    /// @param[in] selected_ftr_list        a subset of feature indices selected for each node
-    /// @param[in] random_bins_com          a set of random (uniformly distributed) thresholds for each selected feature scaled at [0.0, 1.0]
-    /// @param[in] bin_offset_list          an array of offsets for each bin
-    /// @param[in] imp_data_list            an array of impurity data for each node
-    /// @param[in] node_ind_list            an array of node indices
-    /// @param[in] node_ind_ofs             global offset for node indices
-    /// @param[in] node_list                a node structure containing split information
-    /// @param[in] left_child_imp_data_list an array of left-child impurity values
-    /// @param[in] node_imp_dec_list        an array of node impurity decrease values
-    /// @param[in] update_imp_dec_required  boolean indicator to update impurity decrease structure
-    /// @param[in] node_count               number of the nodes to compute in the current step
-    /// @param[in] deps                     a set of SYCL events this method depends on
-    static sycl::event compute_random_split_by_histogram(
-        sycl::queue& queue,
-        const context_t& ctx,
-        const pr::ndarray<hist_type_t, 1>& node_hist_list,
-        const pr::ndarray<Index, 1>& selected_ftr_list,
-        const pr::ndarray<Float, 1>& random_bins_com,
-        const pr::ndarray<Index, 1>& bin_offset_list,
-        const imp_data_t& imp_data_list,
-        const pr::ndarray<Index, 1>& node_ind_list,
-        Index node_ind_ofs,
-        pr::ndarray<Index, 1>& node_list,
-        imp_data_t& left_child_imp_data_list,
-        pr::ndarray<Float, 1>& node_imp_dec_list,
-        bool update_imp_dec_required,
-        Index node_count,
-        const bk::event_vector& deps = {});
+    /// @param[in] queue                        sycl parallel queue
+    /// @param[in] ctx                          a train context for GPU backend
+    /// @param[in] data                         an input data with the cast to Bin for each row_count * column_count
+    /// @param[in] response                     an input array of training response values
+    /// @param[in] tree_order                   column indices map for the corresponding tree
+    /// @param[in] selected_ftr_list            a subset of feature indices selected for each node
+    /// @param[in] random_bins_com              random bin tresholds for each selected feature scaled at [0.0, 1.0] uniformly
+    /// @param[in] bin_offset_list              a bin offset list for each feature in dataset
+    /// @param[in] imp_data_list                a node impurity data array
+    /// @param[in, out] node_list                    a node data structure containing split information
+    /// @param[in, out] left_child_imp_data_list     an impurity array for left child
+    /// @param[in, out] node_imp_dec_list            an array for node impurity decrease data
+    /// @param[in] update_imp_dec_required      boolean indicator to update impurity decrease structure
+    /// @param[in] node_count                   number of the nodes to compute in the current step
+    /// @param[in] deps                         a set of SYCL events this method depends on
+    static sycl::event random_split(sycl::queue& queue,
+                                    const context_t& ctx,
+                                    const pr::ndview<Bin, 2>& data,
+                                    const pr::ndview<Float, 1>& response,
+                                    const pr::ndview<Index, 1>& tree_order,
+                                    const pr::ndview<Index, 1>& selected_ftr_list,
+                                    const pr::ndview<Float, 1>& random_bins_com,
+                                    const pr::ndview<Index, 1>& bin_offset_list,
+                                    const imp_data_t& imp_data_list,
+                                    pr::ndview<Index, 1>& node_list,
+                                    imp_data_t& left_child_imp_data_list,
+                                    pr::ndview<Float, 1>& node_imp_dec_list,
+                                    bool update_imp_dec_required,
+                                    Index node_count,
+                                    const bk::event_vector& deps = {});
 };
 
 #endif
