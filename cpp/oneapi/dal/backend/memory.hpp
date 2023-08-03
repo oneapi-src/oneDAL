@@ -259,10 +259,10 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
 /// @return Event indicating availability of the `dest` for reading
 template <typename T>
 inline sycl::event copy(sycl::queue& queue,
-                                T* dest,
-                                const T* src,
-                                std::int64_t count,
-                                const event_vector& deps = {}) {
+                        T* dest,
+                        const T* src,
+                        std::int64_t count,
+                        const event_vector& deps = {}) {
     ONEDAL_ASSERT(count > 0);
     const std::size_t n = detail::integral_cast<std::size_t>(count);
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
