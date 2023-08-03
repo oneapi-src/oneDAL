@@ -67,18 +67,18 @@ public:
     virtual ~base() = default;
 };
 
-enum class data_type : std::int64_t {
-    int8,
-    int16,
-    int32,
-    int64,
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-    float32,
-    float64,
-    bfloat16
+enum class data_type : std::int32_t {
+    int8 = 0x0001,
+    int16 = 0x0002,
+    int32 = 0x0004,
+    int64 = 0x0008,
+    uint8 = 0x0010,
+    uint16 = 0x0020,
+    uint32 = 0x0040,
+    uint64 = 0x0080,
+    float32 = 0x0100,
+    float64 = 0x0200,
+    bfloat16 = 0x0400
 };
 
 struct range {

@@ -89,7 +89,7 @@ sycl::event copy_convert(sycl::queue& queue,
                          const std::vector<sycl::event>& deps = {});*/
 
 
-void copy_convert(sycl::queue& queue,
+sycl::event copy_convert(sycl::queue& queue,
                   const dal::byte_t* const* inp_pointers,
                   const data_type* inp_types,
                   const std::int64_t* inp_strides,
@@ -99,7 +99,7 @@ void copy_convert(sycl::queue& queue,
                   const shape_t& shape,
                   const std::vector<sycl::event>& deps = {});
 
-void copy_convert(sycl::queue& queue,
+sycl::event copy_convert(sycl::queue& queue,
                   const dal::byte_t* const* inp_pointers,
                   data_type inp_type,
                   const std::int64_t* inp_strides,
@@ -110,7 +110,7 @@ void copy_convert(sycl::queue& queue,
                   const std::vector<sycl::event>& deps = {});
 
 template <typename InpType, typename OutType>
-void copy_convert(sycl::queue& queue,
+sycl::event copy_convert(sycl::queue& queue,
                   const InpType* const* inp_pointers,
                   const std::int64_t* inp_strides,
                   OutType* const* out_pointers,

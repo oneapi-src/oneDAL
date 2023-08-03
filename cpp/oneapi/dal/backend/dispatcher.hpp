@@ -289,12 +289,11 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     return op(cpu_dispatch_default{});
 }
 
-template <typename Op, typename DefaultType = float>
-inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op) {
+template <typename Op, typename ResultType = std::invoke_result_t<Op, float>>
+inline constexpr ResultType dispatch_by_data_type(data_type dtype, Op&& op) {
     // Necessary to make the return type conformant with
     // other dispatch branches
-    using result_t = std::invoke_result_t<Op, DefaultType>;
-    const auto on_unknown = [](data_type) -> result_t {
+    const auto on_unknown = [](data_type) -> ResultType {
         using msg = dal::detail::error_messages;
         throw unimplemented{ msg::unsupported_conversion_types() };
     };
@@ -327,20 +326,19 @@ struct type_holder {
     using add_tail = type_holder<Types..., Tail>;
 
     template<typename Op>
-    static inline auto evaluate(Op&& op) {
+    constexpr static inline auto evaluate(Op&& op) {
         return op(Types{}...);
     }
 };
 
 template <typename TypeHolder, typename Op>
 inline constexpr auto multi_dispatch_by_data_type(Op&& op) {
-    //std::cout << "Evaluation: " << __PRETTY_FUNCTION__ << std::endl;
     return TypeHolder::evaluate(std::forward<Op>(op));
 }
 
 template <typename TypeHolder, typename Op, typename Head, typename... Tail>
 inline constexpr auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&... tail) {
-    auto functor = [&](auto arg) {
+    const auto functor = [&](auto arg) {
         using type_t = std::decay_t<decltype(arg)>;
         using holder_t = typename TypeHolder::template add_tail<type_t>;
         return multi_dispatch_by_data_type<holder_t>(
