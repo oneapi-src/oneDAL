@@ -344,7 +344,7 @@ inline constexpr auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&..
     const auto functor = [&](auto arg) -> result_t {
         using type_t = std::decay_t<decltype(arg)>;
         using holder_t = typename TypeHolder::template add_tail<type_t>;
-        return multi_dispatch_by_data_type<holder_t>(
+        return multi_dispatch_by_data_type<holder_t>( //
             std::forward<Op>(op), std::forward<Tail>(tail)...);
     };
     return dispatch_by_data_type(head, functor);
@@ -362,18 +362,24 @@ struct invoke_result_multiple_impl<0ul, DefaultType, Op, Types...> {
 };
 
 template <typename Op, std::size_t n, typename DefaultType = float>
-using invoke_resulte_multiple_t = typename invoke_result_multiple_impl<n, DefaultType, Op>::type;
+using invoke_result_multiple_t = typename invoke_result_multiple_impl<n, DefaultType, Op>::type;
 
 } // namespace impl
 
 // Signature of this function is slightly different from
 // a simple `dispatch_by_data_type` due to inconsistency
 // with a `std::visit` which it heavily resembles
+template <typename ResultType, typename Op, typename... Types>
+inline constexpr ResultType multi_dispatch_by_data_type(Op&& op, Types&&... types) {
+    using holder_t = impl::type_holder<ResultType>;
+    return impl::multi_dispatch_by_data_type<holder_t, Op>( //
+        std::forward<Op>(op), std::forward<Types>(types)...);
+}
+
 template <typename Op, typename... Types>
 inline constexpr auto multi_dispatch_by_data_type(Op&& op, Types&&... types) {
-    using result_t = impl::invoke_resulte_multiple_t<Op, sizeof...(Types), float>;
-    using holder_t = impl::type_holder<result_t>;
-    return impl::multi_dispatch_by_data_type<holder_t, Op>( //
+    using result_t = impl::invoke_result_multiple_t<Op, sizeof...(Types), float>;
+    return multi_dispatch_by_data_type<result_t, Op>( //
         std::forward<Op>(op), std::forward<Types>(types)...);
 }
 

@@ -171,8 +171,7 @@ void copy_convert(const detail::host_policy& policy,
         const auto inp_type = inp_types[i];
 
         backend::multi_dispatch_by_data_type(
-        [&](auto output, auto input) -> int {
-            //std::cout << __PRETTY_FUNCTION__ << std::endl;
+        [&](auto output, auto input) -> void {
             using input_t = std::decay_t<decltype(input)>;
             using output_t = std::decay_t<decltype(output)>;
 
@@ -182,7 +181,6 @@ void copy_convert(const detail::host_policy& policy,
             copy_convert<CpuType>(policy, inp_ptr, inp_str,
                                   out_ptr, out_str, col_count);
 
-            return 42;
         }, out_type, inp_type);
     });
 }

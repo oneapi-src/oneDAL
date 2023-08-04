@@ -109,14 +109,14 @@ sycl::event copy_convert(sycl::queue& queue,
                   const shape_t& shape,
                   const std::vector<sycl::event>& deps = {});
 
-template <typename InpType, typename OutType>
+/*template <typename InpType, typename OutType>
 sycl::event copy_convert_impl(sycl::queue& queue,
                   const InpType* const* inp_pointers,
                   const std::int64_t* inp_strides,
                   OutType* const* out_pointers,
                   const std::int64_t* out_strides,
                   const shape_t& shape,
-                  const std::vector<sycl::event>& deps = {});
+                  const std::vector<sycl::event>& deps = {});*/
 
 #endif
 
