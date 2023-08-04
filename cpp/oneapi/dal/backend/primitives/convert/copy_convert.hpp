@@ -77,7 +77,7 @@ inline sycl::event copy_convert(sycl::queue& queue,
                         output_data,
                         output_strides,
                         deps);
-}
+}*/
 
 sycl::event copy_convert(sycl::queue& queue,
                          const dal::array<data_type>& types,
@@ -86,7 +86,7 @@ sycl::event copy_convert(sycl::queue& queue,
                          data_type output_type,
                          dal::array<dal::byte_t>& output_data,
                          const shape_t& output_strides,
-                         const std::vector<sycl::event>& deps = {});*/
+                         const std::vector<sycl::event>& deps = {});
 
 
 sycl::event copy_convert(sycl::queue& queue,

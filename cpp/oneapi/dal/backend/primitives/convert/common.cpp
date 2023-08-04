@@ -19,10 +19,8 @@
 #include <algorithm>
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/detail/threading.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+s
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
-#include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
