@@ -76,13 +76,14 @@ sycl::event cg_solve(sycl::queue& queue,
     atol = std::max(atol, min_eps);
     Float threshold = std::max(tol * b_norm, atol);
 
-    const auto init_conj_kernel = [=](const Float residual_val, Float*) -> Float {
+    const auto init_conj_kernel = [=](const Float residual_val, Float) -> Float {
         return -residual_val;
     };
+
     auto compute_conj_event = element_wise(queue,
                                            init_conj_kernel,
                                            residual,
-                                           nullptr,
+                                           Float(0),
                                            conj_vector,
                                            { compute_r0_event }); // p0 = -r0 + 0 * p
     auto conj_host = conj_vector.to_host(queue, {});

@@ -23,12 +23,12 @@ namespace oneapi::dal::backend::primitives {
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-sycl::event compute_probabilities2(sycl::queue& q,
-                                   const ndview<Float, 1>& parameters,
-                                   const ndview<Float, 2>& data,
-                                   ndview<Float, 1>& probabilities,
-                                   const bool fit_intercept,
-                                   const event_vector& deps) {
+sycl::event compute_probabilities(sycl::queue& q,
+                                  const ndview<Float, 1>& parameters,
+                                  const ndview<Float, 2>& data,
+                                  ndview<Float, 1>& probabilities,
+                                  const bool fit_intercept,
+                                  const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
     ONEDAL_ASSERT(data.has_data());
@@ -71,12 +71,12 @@ sycl::event compute_probabilities2(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event compute_logloss2(sycl::queue& q,
-                             const ndview<std::int32_t, 1>& labels,
-                             const ndview<Float, 1>& probabilities,
-                             ndview<Float, 1>& out,
-                             const bool fit_intercept,
-                             const event_vector& deps) {
+sycl::event compute_logloss(sycl::queue& q,
+                            const ndview<std::int32_t, 1>& labels,
+                            const ndview<Float, 1>& probabilities,
+                            ndview<Float, 1>& out,
+                            const bool fit_intercept,
+                            const event_vector& deps) {
     const std::int64_t n = labels.get_dimension(0);
     ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
     ONEDAL_ASSERT(labels.has_data());
@@ -106,14 +106,14 @@ sycl::event compute_logloss2(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event compute_logloss_with_der2(sycl::queue& q,
-                                      const ndview<Float, 2>& data,
-                                      const ndview<std::int32_t, 1>& labels,
-                                      const ndview<Float, 1>& probabilities,
-                                      ndview<Float, 1>& out,
-                                      ndview<Float, 1>& out_derivative,
-                                      const bool fit_intercept,
-                                      const event_vector& deps) {
+sycl::event compute_logloss_with_der(sycl::queue& q,
+                                     const ndview<Float, 2>& data,
+                                     const ndview<std::int32_t, 1>& labels,
+                                     const ndview<Float, 1>& probabilities,
+                                     ndview<Float, 1>& out,
+                                     ndview<Float, 1>& out_derivative,
+                                     const bool fit_intercept,
+                                     const event_vector& deps) {
     // out, out_derivative should be filled with zeros
 
     const std::int64_t n = data.get_dimension(0);
@@ -190,13 +190,13 @@ sycl::event compute_logloss_with_der2(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event compute_derivative2(sycl::queue& q,
-                                const ndview<Float, 2>& data,
-                                const ndview<std::int32_t, 1>& labels,
-                                const ndview<Float, 1>& probabilities,
-                                ndview<Float, 1>& out_derivative,
-                                const bool fit_intercept,
-                                const event_vector& deps) {
+sycl::event compute_derivative(sycl::queue& q,
+                               const ndview<Float, 2>& data,
+                               const ndview<std::int32_t, 1>& labels,
+                               const ndview<Float, 1>& probabilities,
+                               ndview<Float, 1>& out_derivative,
+                               const bool fit_intercept,
+                               const event_vector& deps) {
     // out_derivative should be filled with zeros
 
     const std::int64_t n = data.get_dimension(0);
@@ -452,11 +452,11 @@ sycl::event compute_raw_hessian(sycl::queue& q,
     ONEDAL_ASSERT(out_hessian.get_dimension(0) == n);
     ONEDAL_ASSERT(probabilities.has_data());
     ONEDAL_ASSERT(out_hessian.has_mutable_data());
-    const auto kernel = [=](const Float val, const Float one) -> Float {
+    const auto kernel = [=](const Float val, Float) -> Float {
+        constexpr Float one(1);
         return val * (one - val);
     };
-    constexpr Float one(1);
-    return element_wise(q, kernel, probabilities, one, out_hessian, deps);
+    return element_wise(q, kernel, probabilities, Float(0), out_hessian, deps);
 }
 
 std::int64_t get_block_size(std::int64_t n, std::int64_t p) {
@@ -635,20 +635,20 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
         const auto labels_batch = labels_.get_slice(first, first + cursize);
         auto prob_batch = probabilities_.slice(first, cursize);
         sycl::event prob_e =
-            compute_probabilities2(q_, x, data_batch, prob_batch, fit_intercept_, last_iter_e);
+            compute_probabilities(q_, x, data_batch, prob_batch, fit_intercept_, last_iter_e);
 
         constexpr Float zero(0);
 
         auto fill_buffer_e = fill(q_, buffer_, zero, last_iter_e);
 
-        sycl::event compute_e = compute_logloss_with_der2(q_,
-                                                          data_batch,
-                                                          labels_batch,
-                                                          probabilities_,
-                                                          loss_batch,
-                                                          grad_batch,
-                                                          fit_intercept_,
-                                                          { fill_buffer_e, prob_e });
+        sycl::event compute_e = compute_logloss_with_der(q_,
+                                                         data_batch,
+                                                         labels_batch,
+                                                         probabilities_,
+                                                         loss_batch,
+                                                         grad_batch,
+                                                         fit_intercept_,
+                                                         { fill_buffer_e, prob_e });
 
         compute_e.wait_and_throw();
 
@@ -757,185 +757,70 @@ BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
     return hessp_;
 }
 
-template <typename Float>
-logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
-                                                        const ndview<Float, 2>& data,
-                                                        const Float L2,
-                                                        const bool fit_intercept)
-        : q_(q),
-          data_(data),
-          L2_{ L2 },
-          fit_intercept_{ fit_intercept },
-          n_{ data.get_dimension(0) },
-          p_{ data.get_dimension(1) } {
-    raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ });
-    buffer_ = ndarray<Float, 1>::empty(q_, { n_ });
-}
-
-template <typename Float>
-sycl::event logloss_hessian_product<Float>::set_raw_hessian(const ndview<Float, 1>& raw_hessian,
-                                                            const event_vector& deps) {
-    ONEDAL_ASSERT(raw_hessian.get_dimension(0) == n_);
-    return copy(q_, raw_hessian_, raw_hessian, deps);
-}
-
-template <typename Float>
-ndview<Float, 1>& logloss_hessian_product<Float>::get_raw_hessian() {
-    return raw_hessian_;
-}
-
-template <typename Float>
-sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
-                                                                       ndview<Float, 1>& out,
-                                                                       const event_vector& deps) {
-    auto* const buffer_ptr = buffer_.get_mutable_data();
-    const auto* const hess_ptr = raw_hessian_.get_data();
-    auto* const out_ptr = out.get_mutable_data();
-    ONEDAL_ASSERT(vec.get_dimension(0) == p_ + 1);
-    ONEDAL_ASSERT(out.get_dimension(0) == p_ + 1);
-    auto fill_buffer_event = fill<Float>(q_, buffer_, Float(1), deps);
-    auto out_suf = out.get_slice(1, p_ + 1);
-    auto out_bias = out.get_slice(0, 1);
-    auto vec_suf = vec.get_slice(1, p_ + 1);
-
-    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
-
-    Float v0 = vec.at_device(q_, 0, deps);
-    sycl::event event_xv = gemv(q_, data_, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
-
-    sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ event_xv, fill_out_event });
-        const auto range = make_range_1d(n_);
-        auto sum_reduction = sycl::reduction(out_ptr, sycl::plus<>());
-        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
-            buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
-            sum_v0 += buffer_ptr[idx];
-        });
-    });
-    auto event_xtdxv =
-        gemv(q_, data_.t(), buffer_, out_suf, Float(1), Float(0), { event_dxv, fill_out_event });
-
-    const Float regularization_factor = L2_ * 2;
-
-    const auto kernel_regularization = [=](const Float a, const Float param) {
-        return a + param * regularization_factor;
-    };
-
-    auto add_regularization_event =
-        element_wise(q_, kernel_regularization, out_suf, vec_suf, out_suf, { event_xtdxv });
-    return add_regularization_event;
-}
-
-template <typename Float>
-sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
-    const ndview<Float, 1>& vec,
-    ndview<Float, 1>& out,
-    const event_vector& deps) {
-    ONEDAL_ASSERT(vec.get_dimension(0) == p_);
-    ONEDAL_ASSERT(out.get_dimension(0) == p_);
-
-    sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
-
-    auto event_xv = gemv(q_, data_, vec, buffer_, Float(1), Float(0), deps);
-
-    auto& buf_ndview = static_cast<ndview<Float, 1>&>(buffer_);
-    auto& hess_ndview = static_cast<ndview<Float, 1>&>(raw_hessian_);
-    constexpr sycl::multiplies<Float> kernel_mul{};
-    auto event_dxv =
-        element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
-
-    auto event_xtdxv =
-        gemv(q_, data_.t(), buffer_, out, Float(1), Float(0), { event_dxv, fill_out_event });
-
-    const Float regularization_factor = L2_ * 2;
-
-    const auto kernel_regularization = [=](const Float a, const Float param) {
-        return a + param * regularization_factor;
-    };
-
-    auto add_regularization_event =
-        element_wise(q_, kernel_regularization, out, vec, out, { event_xtdxv });
-
-    return add_regularization_event;
-}
-
-template <typename Float>
-sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& vec,
-                                                       ndview<Float, 1>& out,
-                                                       const event_vector& deps) {
-    if (fit_intercept_) {
-        return compute_with_fit_intercept(vec, out, deps);
-    }
-    else {
-        return compute_without_fit_intercept(vec, out, deps);
-    }
-}
-
-#define INSTANTIATE(F)                                                                \
-    template sycl::event compute_probabilities2<F>(sycl::queue&,                      \
-                                                   const ndview<F, 1>&,               \
-                                                   const ndview<F, 2>&,               \
-                                                   ndview<F, 1>&,                     \
-                                                   const bool,                        \
-                                                   const event_vector&);              \
-    template sycl::event compute_logloss2<F>(sycl::queue&,                            \
-                                             const ndview<std::int32_t, 1>&,          \
-                                             const ndview<F, 1>&,                     \
-                                             ndview<F, 1>&,                           \
-                                             const bool,                              \
-                                             const event_vector&);                    \
-    template sycl::event compute_logloss_with_der2<F>(sycl::queue&,                   \
-                                                      const ndview<F, 2>&,            \
-                                                      const ndview<std::int32_t, 1>&, \
-                                                      const ndview<F, 1>&,            \
-                                                      ndview<F, 1>&,                  \
-                                                      ndview<F, 1>&,                  \
-                                                      const bool,                     \
-                                                      const event_vector&);           \
-    template sycl::event compute_derivative2<F>(sycl::queue&,                         \
-                                                const ndview<F, 2>&,                  \
-                                                const ndview<std::int32_t, 1>&,       \
-                                                const ndview<F, 1>&,                  \
-                                                ndview<F, 1>&,                        \
-                                                const bool,                           \
-                                                const event_vector&);                 \
-    template sycl::event add_regularization_loss<F>(sycl::queue&,                     \
-                                                    const ndview<F, 1>&,              \
-                                                    ndview<F, 1>&,                    \
-                                                    F,                                \
-                                                    F,                                \
-                                                    bool,                             \
-                                                    const event_vector&);             \
-    template sycl::event add_regularization_gradient_loss<F>(sycl::queue&,            \
-                                                             const ndview<F, 1>&,     \
-                                                             ndview<F, 1>&,           \
-                                                             ndview<F, 1>&,           \
-                                                             F,                       \
-                                                             F,                       \
-                                                             bool,                    \
-                                                             const event_vector&);    \
-    template sycl::event add_regularization_gradient<F>(sycl::queue&,                 \
-                                                        const ndview<F, 1>&,          \
-                                                        ndview<F, 1>&,                \
-                                                        F,                            \
-                                                        F,                            \
-                                                        bool,                         \
-                                                        const event_vector&);         \
-    template sycl::event compute_hessian<F>(sycl::queue&,                             \
-                                            const ndview<F, 2>&,                      \
-                                            const ndview<std::int32_t, 1>&,           \
-                                            const ndview<F, 1>&,                      \
-                                            ndview<F, 2>&,                            \
-                                            const F,                                  \
-                                            const F,                                  \
-                                            const bool,                               \
-                                            const event_vector&);                     \
-    template sycl::event compute_raw_hessian<F>(sycl::queue&,                         \
-                                                const ndview<F, 1>&,                  \
-                                                ndview<F, 1>&,                        \
-                                                const event_vector&);                 \
-    template class logloss_hessian_product<F>;                                        \
-    template class LogLossHessianProduct<F>;                                          \
+#define INSTANTIATE(F)                                                               \
+    template sycl::event compute_probabilities<F>(sycl::queue&,                      \
+                                                  const ndview<F, 1>&,               \
+                                                  const ndview<F, 2>&,               \
+                                                  ndview<F, 1>&,                     \
+                                                  const bool,                        \
+                                                  const event_vector&);              \
+    template sycl::event compute_logloss<F>(sycl::queue&,                            \
+                                            const ndview<std::int32_t, 1>&,          \
+                                            const ndview<F, 1>&,                     \
+                                            ndview<F, 1>&,                           \
+                                            const bool,                              \
+                                            const event_vector&);                    \
+    template sycl::event compute_logloss_with_der<F>(sycl::queue&,                   \
+                                                     const ndview<F, 2>&,            \
+                                                     const ndview<std::int32_t, 1>&, \
+                                                     const ndview<F, 1>&,            \
+                                                     ndview<F, 1>&,                  \
+                                                     ndview<F, 1>&,                  \
+                                                     const bool,                     \
+                                                     const event_vector&);           \
+    template sycl::event compute_derivative<F>(sycl::queue&,                         \
+                                               const ndview<F, 2>&,                  \
+                                               const ndview<std::int32_t, 1>&,       \
+                                               const ndview<F, 1>&,                  \
+                                               ndview<F, 1>&,                        \
+                                               const bool,                           \
+                                               const event_vector&);                 \
+    template sycl::event add_regularization_loss<F>(sycl::queue&,                    \
+                                                    const ndview<F, 1>&,             \
+                                                    ndview<F, 1>&,                   \
+                                                    F,                               \
+                                                    F,                               \
+                                                    bool,                            \
+                                                    const event_vector&);            \
+    template sycl::event add_regularization_gradient_loss<F>(sycl::queue&,           \
+                                                             const ndview<F, 1>&,    \
+                                                             ndview<F, 1>&,          \
+                                                             ndview<F, 1>&,          \
+                                                             F,                      \
+                                                             F,                      \
+                                                             bool,                   \
+                                                             const event_vector&);   \
+    template sycl::event add_regularization_gradient<F>(sycl::queue&,                \
+                                                        const ndview<F, 1>&,         \
+                                                        ndview<F, 1>&,               \
+                                                        F,                           \
+                                                        F,                           \
+                                                        bool,                        \
+                                                        const event_vector&);        \
+    template sycl::event compute_hessian<F>(sycl::queue&,                            \
+                                            const ndview<F, 2>&,                     \
+                                            const ndview<std::int32_t, 1>&,          \
+                                            const ndview<F, 1>&,                     \
+                                            ndview<F, 2>&,                           \
+                                            const F,                                 \
+                                            const F,                                 \
+                                            const bool,                              \
+                                            const event_vector&);                    \
+    template sycl::event compute_raw_hessian<F>(sycl::queue&,                        \
+                                                const ndview<F, 1>&,                 \
+                                                ndview<F, 1>&,                       \
+                                                const event_vector&);                \
+    template class LogLossHessianProduct<F>;                                         \
     template class LogLossFunction<F>;
 
 INSTANTIATE(float);

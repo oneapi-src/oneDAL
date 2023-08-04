@@ -131,14 +131,14 @@ sycl::event value_and_gradient_iter(sycl::queue& q_,
     auto out_gradient = out.get_slice(1, p + 2);
     auto out_gradient_suf = fit_intercept ? out_gradient : out_gradient.get_slice(1, p + 1);
 
-    auto loss_event = compute_logloss_with_der2(q_,
-                                                data_nd,
-                                                responses_nd,
-                                                probabilities,
-                                                out_loss,
-                                                out_gradient_suf,
-                                                fit_intercept,
-                                                { fill_event });
+    auto loss_event = compute_logloss_with_der(q_,
+                                               data_nd,
+                                               responses_nd,
+                                               probabilities,
+                                               out_loss,
+                                               out_gradient_suf,
+                                               fit_intercept,
+                                               { fill_event });
 
     const auto* const out_ptr = out.get_data();
     auto* const ans_ptr = ans.get_mutable_data();
@@ -161,7 +161,7 @@ sycl::event value_iter(sycl::queue& q_,
                        sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_loss, Float(0), {});
     auto loss_event =
-        compute_logloss2(q_, responses_nd, probabilities, out_loss, fit_intercept, { fill_event });
+        compute_logloss(q_, responses_nd, probabilities, out_loss, fit_intercept, { fill_event });
     const auto* const out_ptr = out_loss.get_data();
     auto* const ans_loss_ptr = ans_loss.get_mutable_data();
     return q_.submit([&](sycl::handler& cgh) {
@@ -184,13 +184,13 @@ sycl::event gradient_iter(sycl::queue& q_,
                           sycl::event& prev_iter) {
     auto fill_event = fill(q_, out_gradient, Float(0), {});
     auto out_grad_suf = fit_intercept ? out_gradient : out_gradient.get_slice(1, p + 1);
-    auto grad_event = compute_derivative2(q_,
-                                          data_nd,
-                                          responses_nd,
-                                          probabilities,
-                                          out_grad_suf,
-                                          fit_intercept,
-                                          { fill_event });
+    auto grad_event = compute_derivative(q_,
+                                         data_nd,
+                                         responses_nd,
+                                         probabilities,
+                                         out_grad_suf,
+                                         fit_intercept,
+                                         { fill_event });
     grad_event.wait_and_throw();
     const auto* const grad_ptr = out_gradient.get_data();
     auto* const ans_grad_ptr = ans_gradient.get_mutable_data();
@@ -308,7 +308,7 @@ result_t compute_kernel_dense_batch_impl<Float>::operator()(
         const auto responses_nd = responses_nd_big.slice(first, cursize);
 
         sycl::event prob_e =
-            compute_probabilities2(q_, params_nd_suf, data_nd, probabilities, fit_intercept, {});
+            compute_probabilities(q_, params_nd_suf, data_nd, probabilities, fit_intercept, {});
         prob_e.wait_and_throw();
 
         if (desc.get_result_options().test(result_options::value) &&

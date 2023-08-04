@@ -24,39 +24,39 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-sycl::event compute_probabilities2(sycl::queue& q,
-                                   const ndview<Float, 1>& parameters,
-                                   const ndview<Float, 2>& data,
-                                   ndview<Float, 1>& probabilities,
-                                   const bool fit_intercept = true,
-                                   const event_vector& deps = {});
+sycl::event compute_probabilities(sycl::queue& q,
+                                  const ndview<Float, 1>& parameters,
+                                  const ndview<Float, 2>& data,
+                                  ndview<Float, 1>& probabilities,
+                                  const bool fit_intercept = true,
+                                  const event_vector& deps = {});
 
 template <typename Float>
-sycl::event compute_logloss2(sycl::queue& q,
-                             const ndview<std::int32_t, 1>& labels,
-                             const ndview<Float, 1>& probabilities,
-                             ndview<Float, 1>& out,
-                             const bool fit_intercept = true,
-                             const event_vector& deps = {});
+sycl::event compute_logloss(sycl::queue& q,
+                            const ndview<std::int32_t, 1>& labels,
+                            const ndview<Float, 1>& probabilities,
+                            ndview<Float, 1>& out,
+                            const bool fit_intercept = true,
+                            const event_vector& deps = {});
 
 template <typename Float>
-sycl::event compute_logloss_with_der2(sycl::queue& q,
-                                      const ndview<Float, 2>& data,
-                                      const ndview<std::int32_t, 1>& labels,
-                                      const ndview<Float, 1>& probabilities,
-                                      ndview<Float, 1>& out,
-                                      ndview<Float, 1>& out_derivative,
-                                      const bool fit_intercept = true,
-                                      const event_vector& deps = {});
+sycl::event compute_logloss_with_der(sycl::queue& q,
+                                     const ndview<Float, 2>& data,
+                                     const ndview<std::int32_t, 1>& labels,
+                                     const ndview<Float, 1>& probabilities,
+                                     ndview<Float, 1>& out,
+                                     ndview<Float, 1>& out_derivative,
+                                     const bool fit_intercept = true,
+                                     const event_vector& deps = {});
 
 template <typename Float>
-sycl::event compute_derivative2(sycl::queue& q,
-                                const ndview<Float, 2>& data,
-                                const ndview<std::int32_t, 1>& labels,
-                                const ndview<Float, 1>& probabilities,
-                                ndview<Float, 1>& out_derivative,
-                                const bool fit_intercept = true,
-                                const event_vector& deps = {});
+sycl::event compute_derivative(sycl::queue& q,
+                               const ndview<Float, 2>& data,
+                               const ndview<std::int32_t, 1>& labels,
+                               const ndview<Float, 1>& probabilities,
+                               ndview<Float, 1>& out_derivative,
+                               const bool fit_intercept = true,
+                               const event_vector& deps = {});
 
 template <typename Float>
 sycl::event add_regularization_loss(sycl::queue& q,
@@ -164,39 +164,6 @@ private:
     LogLossHessianProduct<Float> hessp_;
     const std::int64_t dimension_;
     Float value_;
-};
-
-template <typename Float>
-class logloss_hessian_product {
-public:
-    logloss_hessian_product(sycl::queue& q,
-                            const ndview<Float, 2>& data,
-                            const Float L2 = Float(0),
-                            const bool fit_intercept = true);
-
-    sycl::event set_raw_hessian(const ndview<Float, 1>& raw_hessian, const event_vector& deps = {});
-
-    ndview<Float, 1>& get_raw_hessian();
-    sycl::event operator()(const ndview<Float, 1>& vec,
-                           ndview<Float, 1>& out,
-                           const event_vector& deps = {});
-
-private:
-    sycl::event compute_with_fit_intercept(const ndview<Float, 1>& vec,
-                                           ndview<Float, 1>& out,
-                                           const event_vector& deps);
-    sycl::event compute_without_fit_intercept(const ndview<Float, 1>& vec,
-                                              ndview<Float, 1>& out,
-                                              const event_vector& deps);
-
-    sycl::queue q_;
-    ndarray<Float, 1> raw_hessian_;
-    const ndview<Float, 2> data_;
-    ndarray<Float, 1> buffer_;
-    const Float L2_;
-    const bool fit_intercept_;
-    const std::int64_t n_;
-    const std::int64_t p_;
 };
 
 } // namespace oneapi::dal::backend::primitives

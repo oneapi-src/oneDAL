@@ -141,12 +141,12 @@ public:
         auto out_predictions =
             ndarray<float_t, 1>::empty(this->get_queue(), { n }, sycl::usm::alloc::device);
 
-        auto p_event = compute_probabilities2(this->get_queue(),
-                                              params_gpu,
-                                              data_gpu,
-                                              out_predictions,
-                                              fit_intercept,
-                                              {});
+        auto p_event = compute_probabilities(this->get_queue(),
+                                             params_gpu,
+                                             data_gpu,
+                                             out_predictions,
+                                             fit_intercept,
+                                             {});
         p_event.wait_and_throw();
 
         auto predictions_host = out_predictions.to_host(this->get_queue(), {});
@@ -163,12 +163,12 @@ public:
 
         auto [out_logloss, out_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { 1 }, sycl::usm::alloc::device);
-        sycl::event logloss_event = compute_logloss2(this->get_queue(),
-                                                     labels_gpu,
-                                                     out_predictions,
-                                                     out_logloss,
-                                                     fit_intercept,
-                                                     { out_e });
+        sycl::event logloss_event = compute_logloss(this->get_queue(),
+                                                    labels_gpu,
+                                                    out_predictions,
+                                                    out_logloss,
+                                                    fit_intercept,
+                                                    { out_e });
         sycl::event logloss_reg_event = add_regularization_loss(this->get_queue(),
                                                                 params_gpu,
                                                                 out_logloss,
@@ -183,14 +183,14 @@ public:
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
         auto [out_derivative, out_der_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { dim }, sycl::usm::alloc::device);
-        auto logloss_event_der = compute_logloss_with_der2(this->get_queue(),
-                                                           data_gpu,
-                                                           labels_gpu,
-                                                           out_predictions,
-                                                           out_logloss,
-                                                           out_derivative,
-                                                           fit_intercept,
-                                                           { fill_event, out_der_e });
+        auto logloss_event_der = compute_logloss_with_der(this->get_queue(),
+                                                          data_gpu,
+                                                          labels_gpu,
+                                                          out_predictions,
+                                                          out_logloss,
+                                                          out_derivative,
+                                                          fit_intercept,
+                                                          { fill_event, out_der_e });
         auto regul_logloss_and_der_event = add_regularization_gradient_loss(this->get_queue(),
                                                                             params_gpu,
                                                                             out_logloss,
@@ -205,13 +205,13 @@ public:
         check_val(val_logloss2, logloss, rtol, atol);
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { dim }, sycl::usm::alloc::device);
-        auto der_event = compute_derivative2(this->get_queue(),
-                                             data_gpu,
-                                             labels_gpu,
-                                             out_predictions,
-                                             out_derivative2,
-                                             fit_intercept,
-                                             { out_der_e2 });
+        auto der_event = compute_derivative(this->get_queue(),
+                                            data_gpu,
+                                            labels_gpu,
+                                            out_predictions,
+                                            out_derivative2,
+                                            fit_intercept,
+                                            { out_der_e2 });
         auto der_reg_event = add_regularization_gradient(this->get_queue(),
                                                          params_gpu,
                                                          out_derivative2,
