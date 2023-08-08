@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SERVICE_BLAS_DECRAL_REF_H__
-#define __SERVICE_BLAS_DECRAL_REF_H__
+#ifndef __SERVICE_BLAS_DECLAR_REF_H__
+#define __SERVICE_BLAS_DECLAR_REF_H__
 
 #include "services/daal_defines.h"
 
