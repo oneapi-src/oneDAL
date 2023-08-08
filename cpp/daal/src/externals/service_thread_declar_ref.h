@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SERVICE_THREAD_DECRAL_REF_H__
-#define __SERVICE_THREAD_DECRAL_REF_H__
+#ifndef __SERVICE_THREAD_DECLAR_REF_H__
+#ifndef __SERVICE_THREAD_DECLAR_REF_H__
 
 namespace daal
 {
