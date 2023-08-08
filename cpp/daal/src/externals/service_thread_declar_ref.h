@@ -22,7 +22,7 @@
 */
 
 #ifndef __SERVICE_THREAD_DECLAR_REF_H__
-#ifndef __SERVICE_THREAD_DECLAR_REF_H__
+    #ifndef __SERVICE_THREAD_DECLAR_REF_H__
 
 namespace daal
 {
@@ -54,4 +54,4 @@ private:
 } // namespace internal
 } // namespace daal
 
-#endif
+    #endif

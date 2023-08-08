@@ -37,10 +37,8 @@
 #define DAAL_KERNEL_AVX512
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
-#define DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, cpuType, ...)                              \
-case cpuType:                                                                                    \
-    _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__)(daalEnv)); \
-    break;
+#define DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, cpuType, ...) \
+case cpuType: _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__)(daalEnv)); break;
 #define DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, cpuType, ...)                        \
 case cpuType:                                                                                   \
 {                                                                                               \
@@ -76,10 +74,8 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
     #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...) \
         extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__);
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...)                              \
-    case ssse3:                                                                                   \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)(daalEnv)); \
-        break;
+    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...) \
+    case ssse3: _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)(daalEnv)); break;
     #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                        \
     case ssse3:                                                                                  \
     {                                                                                            \
@@ -123,10 +119,8 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_AVX_ONLY_CODE(...)                     __VA_ARGS__
     #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)  , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
     #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...)                                 \
-    case avx:                                                                                      \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)(daalEnv)); \
-        break;
+    #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...) \
+    case avx: _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)(daalEnv)); break;
     #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                           \
     case avx:                                                                                     \
     {                                                                                             \
@@ -171,10 +165,8 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...) \
         extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)                         \
-    case avx512_mic:                                                                              \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)(daalEnv)); \
-        break;
+    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...) \
+    case avx512_mic: _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)(daalEnv)); break;
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                   \
     case avx512_mic:                                                                             \
     {                                                                                            \

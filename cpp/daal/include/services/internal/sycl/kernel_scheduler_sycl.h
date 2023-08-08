@@ -104,7 +104,10 @@ private:
 #define DAAL_DECLARE_OPENCL_OPERATOR(type_, name_) \
     struct OpenCl##name_                           \
     {                                              \
-        void operator()(type_ p) { cl##name_(p); } \
+        void operator()(type_ p)                   \
+        {                                          \
+            cl##name_(p);                          \
+        }                                          \
     }
 
 DAAL_DECLARE_OPENCL_OPERATOR(cl_program, RetainProgram);
@@ -234,16 +237,10 @@ public:
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
 #ifndef DAAL_DISABLE_LEVEL_ZERO
-    ZeModulePtr getModuleLevelZeroPtr() const
-    {
-        return _moduleLevelZeroPtr;
-    }
+    ZeModulePtr getModuleLevelZeroPtr() const { return _moduleLevelZeroPtr; }
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-    const String & getName() const
-    {
-        return _programName;
-    }
+    const String & getName() const { return _programName; }
 
 private:
     OpenClProgramRef() = default;
