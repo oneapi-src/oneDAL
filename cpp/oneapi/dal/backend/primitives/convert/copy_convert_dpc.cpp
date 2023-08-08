@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-sycl::event copy_convert(sycl::queue& queue,
+/*sycl::event copy_convert(sycl::queue& queue,
                          const dal::byte_t* const* inp_pointers,
                          const data_type* inp_types,
                          const std::int64_t* inp_strides,
@@ -34,16 +34,31 @@ sycl::event copy_convert(sycl::queue& queue,
 
     const dal::array<std::int64_t> unique_indices = //
         find_sets_of_unique_pairs(inp_types, out_types, row_count);
+    const std::int64_t* const unique_indices_ptr = unique_indices.get_data();
 
     const dal::array<std::int64_t> chunk_offsets = //
         find_unique_chunk_offsets(unique_indices, inp_types, out_types);
+    const std::int64_t* const chunk_offsets_ptr = chunk_offsets.get_data();
+
+    const dal::array<std::int64_t> inp_strides_host = //
+        extract_by_indices(unique_indices_ptr, inp_strides, row_count);
+
+    const dal::array<std::int64_t> out_strides_host = //
+        extract_by_indices(unique_indices_ptr, out_strides, row_count);
+
+    const dal::array<const dal::byte_t*> inp_pointers_host = //
+        extract_by_indices(unique_indices_ptr, inp_pointers, row_count);
+
+    const dal::array<dal::byte_t*> out_pointers_host = //
+        extract_by_indices(unique_indices_ptr, out_pointers, row_count);
 
     const std::int64_t chunk_count = chunk_offsets.get_count();
-
     for (std::int64_t chunk = 0l; chunk < chunk_count; ++chunk) {
-        sycl::event copy_event =
+        const data_type inp_type =
+        const data_type out_type =
+        sycl::event copy_event = copy_convert(queue, )
     }
 
-}
+}*/
 
 } // namespace oneapi::dal::backend::primitives

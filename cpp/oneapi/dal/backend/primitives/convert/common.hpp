@@ -19,6 +19,8 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/common.hpp"
 
+#include "oneapi/dal/backend/common.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 using shape_t = std::pair<std::int64_t, std::int64_t>;
@@ -26,23 +28,32 @@ using shape_t = std::pair<std::int64_t, std::int64_t>;
 bool is_known_data_type(data_type dtype) noexcept;
 
 template <typename Index, typename Type>
+void extract_by_indices_impl(const Index* indices, const Type* values,
+                                    Type* output, std::int64_t count);
+
+dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type indices_type,
+                            const std::byte* values, data_type values_type, std::int64_t count);
+
+template <typename Index, typename Type>
 inline dal::array<Type> extract_by_indices(const Index* indices,
                         const Type* values, std::int64_t count) {
-    auto result = dal::array<Type>::empty(count);
-    Type* const res_ptr = result.get_mutable_data();
+    constexpr auto val_type = detail::make_data_type<Type>();
+    constexpr auto idx_type = detail::make_data_type<Index>();
 
-    PRAGMA_IVDEP
-    for (std::int64_t i = 0l; i < count; ++i) {
-        const auto idx = indices[i];
-        res_ptr[i] = values[idx];
-    }
+    const auto* val_ptr = reinterpret_cast<const dal::byte_t*>(values);
+    const auto* idx_ptr = reinterpret_cast<const dal::byte_t*>(indices);
 
-    return result;
+    auto raw_res = extract_by_indices(idx_ptr, idx_type, val_ptr, val_type, count);
+
+    dal::byte_t* const raw_ptr = raw_res.get_mutable_data();
+    auto* const res_ptr = reinterpret_cast<Type* const>(raw_ptr);
+
+    return dal::array<Type>(raw_res, res_ptr, count);
 }
 
 template <typename Index, typename Type>
 inline dal::array<Type> extract_by_indices(const dal::array<Index>& indices,
-                                           const dal::array<Values>& values) {
+                                           const dal::array<Type>& values) {
     const std::int64_t count = indices.get_count();
     return extract_by_indices(indices.get_data(), values.get_data(), count);
 }

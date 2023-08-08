@@ -17,6 +17,7 @@
 #include "oneapi/dal/array.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
