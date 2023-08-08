@@ -1,6 +1,5 @@
-/* file: cor_dense_online.cpp */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,67 +14,37 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-!  Content:
-!    C++ example of dense correlation matrix computation in the batch
-!    processing mode
-!
-!******************************************************************************/
+#include <sycl/sycl.hpp>
 
-/**
- * <a name="DAAL-EXAMPLE-CPP-CORRELATION_DENSE_ONLINE"></a>
- * \example cor_dense_online.cpp
- */
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
 
-#include "daal_sycl.h"
-#include "service.h"
-#include "service_sycl.h"
+#include "oneapi/dal/algo/covariance.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
-using daal::services::internal::SyclExecutionContext;
-using daal::data_management::internal::SyclHomogenNumericTable;
+#include "example_util/utils.hpp"
+//TODO: add splitting func for online algo
+namespace dal = oneapi::dal;
 
-using namespace daal;
-using namespace daal::algorithms;
+void run(sycl::queue &q) {
+    const auto input_file_name = get_data_path("covcormoments_dense.csv");
 
-/* Input data set parameters */
-const std::string datasetFileName = "../data/batch/covcormoments_dense.csv";
-const size_t nObservations = 50;
+    const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
+    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
+    auto init_result = dal::covariance::compute_result();
+    const auto result = dal::partial_compute(q, cov_desc, input);
+    std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
+}
 
-int main(int argc, char* argv[]) {
-    checkArguments(argc, argv, 1, &datasetFileName);
-
-    for (const auto& deviceSelector : getListOfDevices()) {
-        const auto& nameDevice = deviceSelector.first;
-        const auto& device = deviceSelector.second;
-        sycl::queue queue(device);
-        std::cout << "Running on " << nameDevice << "\n\n";
-
-        SyclExecutionContext ctx(queue);
-        services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-
-        auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
-
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-                                                     DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
-
-        covariance::Online<> algorithm;
-        algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
-
-        while (dataSource.loadDataBlock(nObservations, data.get()) == nObservations) {
-            /* Set input objects for the algorithm */
-            algorithm.input.set(covariance::data, data);
-
-            /* Compute partial estimates */
-            algorithm.compute();
-        }
-
-        algorithm.finalizeCompute();
-
-        covariance::ResultPtr res = algorithm.getResult();
-
-        printNumericTable(res->get(covariance::covariance), "Covariance matrix:");
-        printNumericTable(res->get(covariance::mean), "Mean vector:");
+int main(int argc, char const *argv[]) {
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
     }
     return 0;
 }

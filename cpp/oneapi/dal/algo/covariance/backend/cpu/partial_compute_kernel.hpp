@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 #pragma once
 
 #include "oneapi/dal/algo/covariance/compute_types.hpp"
-#include "oneapi/dal/algo/covariance/detail/compute_ops.hpp"
-#include "oneapi/dal/compute.hpp"
-#include "oneapi/dal/partial_compute.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::detail {
-namespace v1 {
+namespace oneapi::dal::covariance::backend {
 
-template <typename Descriptor>
-struct compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
-        : dal::covariance::detail::compute_ops<Descriptor> {};
+template <typename Float, typename Method, typename Task>
+struct partial_compute_kernel_cpu {
+    compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                    const detail::descriptor_base<Task>& params,
+                                    const compute_input<Task>& input,
+                                    const compute_result<Task>& prev_result) const;
+};
 
-} // namespace v1
-} // namespace oneapi::dal::detail
+} // namespace oneapi::dal::covariance::backend
