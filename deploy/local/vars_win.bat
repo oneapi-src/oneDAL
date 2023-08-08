@@ -60,20 +60,21 @@ if exist "%DAAL%\include\dal" (
   set "CPATH=%DAAL%\include\dal;%CPATH%"
   set "LIB=%DAAL%\lib;%LIB%"
   set "CLASSPATH=%DAAL%\share\java\onedal.jar;%CLASSPATH%"
-
+  set "PATH=%DAAL%\bin;%PATH%"
 ) else (
   set "INCLUDE=%DAAL%\include;%INCLUDE%"
   set "CPATH=%DAAL%\include;%CPATH%"
   set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
   set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
+  if exist "%DAAL_UP_OLD%\redist" (
+      set "PATH=%DAAL_UP_OLD%\redist\%DAAL_IA%_win\daal;%PATH%"
+  ) else (
+      set "PATH=%DAAL%\redist\%DAAL_IA%;%PATH%"
+  )
 )
 set "CMAKE_PREFIX_PATH=%DAAL%;%CMAKE_PREFIX_PATH%"
 set "PKG_CONFIG_PATH=%DAAL%\lib\pkgconfig;%PKG_CONFIG_PATH%"
-if exist "%DAAL_UP_OLD%\redist" (
-    set "PATH=%DAAL_UP_OLD%\redist\%DAAL_IA%_win\daal;%PATH%"
-) else (
-    set "PATH=%DAAL%\redist\%DAAL_IA%;%PATH%"
-)
+
 endlocal& ^
 set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
 set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
