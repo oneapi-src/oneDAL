@@ -33,7 +33,7 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int);
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd);
 bool daal_check_is_intel_cpu();
 
-#define DAAL_BASE_CPU sse2
+#define DAAL_BASE_CPU daal::sse2
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
