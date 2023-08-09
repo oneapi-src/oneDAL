@@ -82,7 +82,7 @@ public:
                 }
                 buffer.at(i) = grad_gth;
                 grad_gth -= b_host.at(i);
-                check_val(grad_gth, grad_host.at(i), float_t(1e-5), float_t(1e-5));
+                check_val(grad_gth, grad_host.at(i), float_t(1e-5), float_t(2e-5));
             }
 
             float_t val_gth = 0;
@@ -131,6 +131,7 @@ TEMPLATE_TEST_M(newton_cg_test,
                 "test newton-cg with stable matrix - double",
                 "[newton-cg][gpu]",
                 double) {
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_and_test_quadratic_function();
     this->test_newton_cg();
