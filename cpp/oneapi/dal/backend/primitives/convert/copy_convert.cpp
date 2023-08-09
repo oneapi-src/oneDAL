@@ -23,82 +23,9 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
-#include "oneapi/dal/detail/debug.hpp"
+#include "oneapi/dal/backend/primitives/convert/common_convert.hpp"
+
 namespace oneapi::dal::backend::primitives {
-
-template <bool mut = true>
-auto compute_pointers(const dal::array<dal::byte_t>& data,
-                      const dal::array<std::int64_t>& offsets) {
-    const std::int64_t count = offsets.get_count();
-    const std::int64_t* const raw_offsets = offsets.get_data();
-    using ptr_t = std::conditional_t<mut, dal::byte_t*, const dal::byte_t*>;
-
-    ptr_t source = nullptr;
-    if constexpr (mut) {
-        source = data.get_mutable_data();
-    }
-    else {
-        source = data.get_data();
-    }
-
-    auto pointers = dal::array<ptr_t>::empty(count);
-    ptr_t* raw_pointers = pointers.get_mutable_data();
-
-    PRAGMA_IVDEP
-    for (std::int64_t row = 0l; row < count; ++row) {
-        raw_pointers[row] = source + raw_offsets[row];
-    }
-
-    return pointers;
-}
-
-auto compute_output_offsets(data_type output_type,
-                            const shape_t& input_shape,
-                            const shape_t& output_strides) {
-    const auto [row_count, col_count] = input_shape;
-    const auto [row_stride, col_stride] = output_strides;
-    const auto type_size = detail::get_data_type_size(output_type);
-    const std::int64_t row_stride_in_bytes = type_size * row_stride;
-
-    auto offsets = dal::array<std::int64_t>::empty(row_count);
-    detail::check_mul_overflow(row_count, row_stride_in_bytes);
-    std::int64_t* const raw_offsets = offsets.get_mutable_data();
-
-    PRAGMA_IVDEP
-    for (std::int64_t row = 0l; row < row_count; ++row) {
-        raw_offsets[row] = row * row_stride_in_bytes;
-    }
-
-    return offsets;
-}
-
-auto compute_input_offsets(const shape_t& input_shape,
-                           const data_type* input_types) {
-    ONEDAL_ASSERT(input_types != nullptr);
-    const auto [row_count, col_count] = input_shape;
-    ONEDAL_ASSERT((0l < row_count) && (0l < col_count));
-    auto offsets = dal::array<std::int64_t>::empty(row_count);
-    std::int64_t* const offsets_ptr = offsets.get_mutable_data();
-
-    std::int64_t offset = 0l;
-    for (std::int64_t row = 0l; row < row_count; ++row) {
-        offsets_ptr[row] = offset;
-
-        const data_type dtype = input_types[row];
-        ONEDAL_ASSERT(is_known_data_type(dtype));
-
-        auto raw_size = detail::get_data_type_size(dtype);
-        auto row_size = detail::check_mul_overflow(raw_size, col_count);
-        offset = detail::check_sum_overflow(offset, row_size);
-    }
-
-    return offsets;
-}
-
-auto compute_input_offsets(const shape_t& input_shape,
-                           const dal::array<data_type>& input_types) {
-    return compute_input_offsets(input_shape, input_types.get_data());
-}
 
 void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& input_types,
@@ -116,9 +43,6 @@ void copy_convert(const detail::host_policy& policy,
     auto input_pointers = compute_pointers<false>(input_data, input_offsets);
     auto output_pointers = compute_pointers<true>(output_data, output_offsets);
 
-    //using oneapi::dal::detail::operator<<;
-    //std::cout << "Output offsets in bytes: " << output_offsets << std::endl;
-
     auto output_types = dal::array<data_type>::full(row_count, output_type);
     auto output_strides_arr = dal::array<std::int64_t>::full(row_count, col_stride);
     auto input_strides = dal::array<std::int64_t>::full(row_count, std::int64_t{ 1l });
@@ -135,8 +59,6 @@ void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& out_types,
                   const dal::array<std::int64_t>& out_strides,
                   const shape_t& shape) {
-    //using oneapi::dal::detail::operator<<;
-    //std::cout << "Out strides in elements: " << out_strides << std::endl;
 
     return copy_convert(policy,
                         inp_pointers.get_data(),

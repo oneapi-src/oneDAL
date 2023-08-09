@@ -27,30 +27,6 @@ using shape_t = std::pair<std::int64_t, std::int64_t>;
 
 bool is_known_data_type(data_type dtype) noexcept;
 
-/*template <typename Index, typename Type>
-void extract_by_indices_impl(const Index* indices, const Type* values,
-                                    Type* output, std::int64_t count);
-
-dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type indices_type,
-                            const dal::byte_t* values, data_type values_type, std::int64_t count);
-
-template <typename Index, typename Type>
-inline dal::array<Type> extract_by_indices(const Index* indices,
-                        const Type* values, std::int64_t count) {
-    constexpr auto val_type = detail::make_data_type<Type>();
-    constexpr auto idx_type = detail::make_data_type<Index>();
-
-    const auto* val_ptr = reinterpret_cast<const dal::byte_t*>(values);
-    const auto* idx_ptr = reinterpret_cast<const dal::byte_t*>(indices);
-
-    auto raw_res = extract_by_indices(idx_ptr, idx_type, val_ptr, val_type, count);
-
-    dal::byte_t* const raw_ptr = raw_res.get_mutable_data();
-    auto* const res_ptr = reinterpret_cast<Type* const>(raw_ptr);
-
-    return dal::array<Type>(raw_res, res_ptr, count);
-}*/
-
 template <typename Index, typename Type>
 inline dal::array<Type> extract_by_indices(const Index* indices,
                         const Type* values, std::int64_t count) {

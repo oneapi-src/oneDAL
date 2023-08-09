@@ -25,8 +25,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
-#include "oneapi/dal/detail/debug.hpp"
-
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
@@ -70,6 +68,10 @@ public:
         }
     }
 
+    inline auto get_host_policy() const {
+        return detail::host_policy::get_default();
+    }
+
     void generate_input(std::int64_t seed = 777) {
         std::mt19937_64 generator(seed);
         std::uniform_int_distribution<int> dist(0, 127);
@@ -96,12 +98,8 @@ public:
                     const int value = dist(generator);
                     inp_ptr[col] = static_cast<type_t>(value);
                     gtr_ptr[col] = static_cast<result_t>(inp_ptr[col]);
-
-                    //std::cout << gtr_ptr[col] << ' ';
                 }
             });
-
-            //std::cout << std::endl;
 
             inp_offset += (type_size * col_count);
             gtr_offset += col_count;
@@ -142,7 +140,7 @@ public:
     }
 
     void test_copy_convert_rm() {
-        auto policy = detail::host_policy::get_default();
+        auto policy = this->get_host_policy();
 
         const auto res_size = col_count * row_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(res_size);
@@ -187,7 +185,7 @@ public:
         dal::array<data_type> types = get_types_array();
 
         copy_convert(policy, types, inp, { row_count, col_count },
-                     result_type, result, { 1l, row_count });
+            result_type, result, { 1l, row_count });
 
         const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
