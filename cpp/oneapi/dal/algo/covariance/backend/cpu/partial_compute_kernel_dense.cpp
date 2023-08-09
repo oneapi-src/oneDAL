@@ -37,56 +37,57 @@ using daal_covariance_kernel_t = daal_covariance::internal::
 
 //TODO:rewrite kernel and add finalize
 template <typename Float, typename Task>
-static compute_result<Task> call_daal_kernel_partial_compute(const context_cpu& ctx,
-                                                             const descriptor_t& desc,
-                                                             const table& data) {
+static partial_compute_input<Task> call_daal_kernel_partial_compute(
+    const context_cpu& ctx,
+    const descriptor_t& desc,
+    const partial_compute_input<Task>& input) {
     std::cout << "I call this" << std::endl;
-    const std::int64_t component_count = data.get_column_count();
+    // const std::int64_t component_count = input.get_data().get_column_count();
 
-    daal_covariance::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
+    // daal_covariance::Parameter daal_parameter;
+    // daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
-    dal::detail::check_mul_overflow(component_count, component_count);
+    // dal::detail::check_mul_overflow(component_count, component_count);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    // const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    auto arr_crossproduct = array<Float>::empty(component_count);
-    const auto daal_crossproduct =
-        interop::convert_to_daal_homogen_table(arr_crossproduct, 1, component_count);
-    auto arr_sums = array<Float>::empty(component_count);
-    const auto daal_sums = interop::convert_to_daal_homogen_table(arr_sums, 1, component_count);
+    // auto arr_crossproduct = array<Float>::empty(component_count);
+    // const auto daal_crossproduct =
+    //     interop::convert_to_daal_homogen_table(arr_crossproduct, 1, component_count);
+    // auto arr_sums = array<Float>::empty(component_count);
+    // const auto daal_sums = interop::convert_to_daal_homogen_table(arr_sums, 1, component_count);
 
-    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+    auto result = partial_compute_input(input);
 
-    if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto arr_nobs_matrix = array<Float>::empty(component_count * component_count);
-        const auto daal_nobs_matrix = interop::convert_to_daal_homogen_table(arr_nobs_matrix,
-                                                                             component_count,
-                                                                             component_count);
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
-                                                                       daal_data.get(),
-                                                                       daal_nobs_matrix.get(),
-                                                                       daal_crossproduct.get(),
-                                                                       daal_sums.get(),
-                                                                       &daal_parameter));
-        result.set_cov_matrix(
-            homogen_table::wrap(arr_nobs_matrix, component_count, component_count));
-    }
+    // if (desc.get_result_options().test(result_options::cov_matrix)) {
+    //     auto arr_nobs_matrix = array<Float>::empty(component_count * component_count);
+    //     const auto daal_nobs_matrix = interop::convert_to_daal_homogen_table(arr_nobs_matrix,
+    //                                                                          component_count,
+    //                                                                          component_count);
+    //     interop::status_to_exception(
+    //         interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
+    //                                                                    daal_data.get(),
+    //                                                                    daal_nobs_matrix.get(),
+    //                                                                    daal_crossproduct.get(),
+    //                                                                    daal_sums.get(),
+    //                                                                    &daal_parameter));
+    //     result.set_cov_matrix(
+    //         homogen_table::wrap(arr_nobs_matrix, component_count, component_count));
+    // }
 
     return result;
 }
 
 template <typename Float, typename Task>
-static compute_result<Task> partial_compute(const context_cpu& ctx,
-                                            const descriptor_t& desc,
-                                            const partial_compute_input<Task>& input) {
-    return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input.get_data());
+static partial_compute_input<Task> partial_compute(const context_cpu& ctx,
+                                                   const descriptor_t& desc,
+                                                   const partial_compute_input<Task>& input) {
+    return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input);
 }
 
 template <typename Float>
 struct partial_compute_kernel_cpu<Float, method::by_default, task::compute> {
-    compute_result<task::compute> operator()(
+    partial_compute_input<task::compute> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
         const partial_compute_input<task::compute>& input) const {
