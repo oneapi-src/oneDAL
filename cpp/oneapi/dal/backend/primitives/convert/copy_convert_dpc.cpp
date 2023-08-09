@@ -95,7 +95,7 @@ sycl::event copy_convert(sycl::queue& queue,
                          const std::vector<sycl::event>& deps) {
     sycl::event::wait_and_throw(deps);
     const detail::data_parallel_policy policy{ queue };
-
+    auto hpolicy = detail::host_policy::get_default();
     const auto [row_count, col_count] = shape;
 
     const dal::array<std::int64_t> unique_indices = //
@@ -122,12 +122,14 @@ sycl::event copy_convert(sycl::queue& queue,
     auto inp_pointers_device = detail::copy(policy, inp_pointers_host);
 
     std::cout << "Input pointers: " << inp_pointers_host << std::endl;
+    std::cout << "Input pointers back: " << detail::copy(hpolicy, inp_pointers_device) << std::endl;
 
     const dal::array<dal::byte_t*> out_pointers_host = //
         extract_by_indices(unique_indices_ptr, out_pointers, row_count);
     auto out_pointers_device = detail::copy(policy, out_pointers_host);
 
     std::cout << "Output pointers: " << out_pointers_host << std::endl;
+    std::cout << "Output pointers back: " << detail::copy(hpolicy, out_pointers_device) << std::endl;
 
     std::int64_t first = 0l;
     sycl::event last_event{};

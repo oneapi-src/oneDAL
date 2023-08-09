@@ -69,7 +69,9 @@ inline void fill(const default_host_policy& policy, T* dest, std::int64_t count,
 template <typename T>
 class host_allocator {
 public:
-    host_allocator(const default_host_policy& policy = {}) {}
+    host_allocator() {}
+    host_allocator(const host_policy& policy) {}
+    host_allocator(const default_host_policy& policy) {}
 
     T* allocate(std::int64_t n) const {
         return malloc<T>(default_host_policy{}, n);

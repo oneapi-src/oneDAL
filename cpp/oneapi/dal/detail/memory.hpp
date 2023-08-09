@@ -29,6 +29,11 @@ template <typename Policy, typename T>
 struct policy_allocator {};
 
 template <typename T>
+struct policy_allocator<host_policy, T> {
+    using type = host_allocator<T>;
+};
+
+template <typename T>
 struct policy_allocator<default_host_policy, T> {
     using type = host_allocator<T>;
 };
