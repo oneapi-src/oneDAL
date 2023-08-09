@@ -21,6 +21,7 @@
 
 namespace oneapi::dal::covariance::detail {
 namespace v1 {
+
 //TODO: add checks and refactor this file
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct partial_compute_ops_dispatcher {
@@ -39,7 +40,9 @@ struct partial_compute_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+    auto operator()(const Context& ctx,
+                    const Descriptor& desc,
+                    const partial_compute_input<task_t>& input) const {
         const auto result =
             partial_compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         return result;

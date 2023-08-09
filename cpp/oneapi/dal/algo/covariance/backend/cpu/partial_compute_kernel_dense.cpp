@@ -87,7 +87,7 @@ static compute_result<Task> partial_compute(const context_cpu& ctx,
 template <typename Float>
 struct partial_compute_kernel_cpu<Float, method::by_default, task::compute> {
     compute_result<task::compute> operator()(
-        const dal::backend::context_cpu& ctx,
+        const context_cpu& ctx,
         const descriptor_t& desc,
         const partial_compute_input<task::compute>& input) const {
         return partial_compute<Float, task::compute>(ctx, desc, input);
