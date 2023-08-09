@@ -33,6 +33,8 @@ namespace svm
 {
 namespace interface1
 {
+namespace dm = daal::data_management;
+namespace dmi = daal::data_management::internal;
 template <typename modelFPType>
 services::SharedPtr<Model> Model::create(size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status * stat)
 {
@@ -42,40 +44,38 @@ services::SharedPtr<Model> Model::create(size_t nColumns, data_management::Numer
 template <typename modelFPType>
 Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status & st) : _bias(0.0)
 {
-    using namespace data_management;
-
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
     if (!deviceInfo.isCpu)
     {
-        if (layout == NumericTableIface::csrArray)
+        if (layout == dm::NumericTableIface::csrArray)
         {
-            _SV = internal::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
+            _SV = dmi::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
                                                                      services::internal::Buffer<size_t>(), nColumns, size_t(0),
-                                                                     CSRNumericTable::oneBased, &st);
+                                                                     dm::CSRNumericTable::oneBased, &st);
         }
         else
         {
-            _SV = internal::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
+            _SV = dmi::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, dm::NumericTable::doNotAllocate, &st);
         }
-        _SVCoeff = internal::SyclHomogenNumericTable<modelFPType>::create(1, 0, NumericTable::doNotAllocate, &st);
+        _SVCoeff = dmi::SyclHomogenNumericTable<modelFPType>::create(1, 0, dm::NumericTable::doNotAllocate, &st);
         if (!st) return;
-        _SVIndices = internal::SyclHomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);
+        _SVIndices = dmi::SyclHomogenNumericTable<int>::create(1, 0, dm::NumericTable::doNotAllocate, &st);
     }
     else
     {
-        if (layout == NumericTableIface::csrArray)
+        if (layout == dm::NumericTableIface::csrArray)
         {
-            _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st);
+            _SV = dm::CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, dm::CSRNumericTable::oneBased, &st);
         }
         else
         {
-            _SV = HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
+            _SV = dm::HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
         }
-        _SVCoeff = HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
+        _SVCoeff = dm::HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
         if (!st) return;
-        _SVIndices = HomogenNumericTable<int>::create(NULL, 1, 0, &st);
+        _SVIndices = dm::HomogenNumericTable<int>::create(NULL, 1, 0, &st);
     }
 
     return;
@@ -84,7 +84,7 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 template DAAL_EXPORT services::SharedPtr<Model> Model::create<DAAL_FPTYPE>(size_t nColumns, data_management::NumericTableIface::StorageLayout layout,
                                                                            services::Status * stat);
 
-template DAAL_EXPORT Model::Model(DAAL_FPTYPE, size_t, data_management::NumericTableIface::StorageLayout, services::Status &);
+template DAAL_EXPORT Model::Model(DAAL_FPTYPE, size_t, dm::NumericTableIface::StorageLayout, services::Status &);
 
 } // namespace interface1
 } // namespace svm
