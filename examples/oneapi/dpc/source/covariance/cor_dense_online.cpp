@@ -22,8 +22,11 @@
 
 #include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/io/csv.hpp"
-
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "example_util/utils.hpp"
+
 //TODO: add splitting func for online algo
 namespace dal = oneapi::dal;
 
@@ -33,9 +36,11 @@ void run(sycl::queue &q) {
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
-    const auto init_result = dal::covariance::v1::partial_compute_input(input);
-    const auto result = dal::partial_compute(q, cov_desc, init_result);
-    //std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
+    auto result = dal::covariance::compute_result();
+    for (int i = 0; i < 2; i++) {
+        const auto init_result = dal::covariance::v1::partial_compute_input(input);
+        result = dal::partial_compute(q, cov_desc, init_result);
+    }
 }
 
 int main(int argc, char const *argv[]) {
