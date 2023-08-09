@@ -27,6 +27,7 @@
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/partial_compute.hpp"
+#include "oneapi/dal/finalize_compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 #include "oneapi/dal/test/engine/catch.hpp"

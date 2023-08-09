@@ -18,9 +18,11 @@
 
 #include "oneapi/dal/algo/covariance/compute_types.hpp"
 #include "oneapi/dal/algo/covariance/detail/compute_ops.hpp"
-#include "oneapi/dal/algo/covariance/detail/partial_compute_ops.hpp"
 #include "oneapi/dal/compute.hpp"
+#include "oneapi/dal/algo/covariance/detail/partial_compute_ops.hpp"
 #include "oneapi/dal/partial_compute.hpp"
+#include "oneapi/dal/algo/covariance/detail/finalize_compute_ops.hpp"
+#include "oneapi/dal/finalize_compute.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -32,6 +34,10 @@ struct compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
 template <typename Descriptor>
 struct partial_compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
         : dal::covariance::detail::partial_compute_ops<Descriptor> {};
+
+template <typename Descriptor>
+struct finalize_compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
+        : dal::covariance::detail::finalize_compute_ops<Descriptor> {};
 
 } // namespace v1
 } // namespace oneapi::dal::detail
