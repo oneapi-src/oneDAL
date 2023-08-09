@@ -33,10 +33,19 @@ set_common_compiler_options()
 
 include_directories(source/utils)
 
+option(REF_BACKEND "Exclude not supported files for non-MKL backend" OFF)
+
+if(REF_BACKEND)
+set(EXCLUDE_LIST
+    "source/utils/*"
+    "source/compression/*"
+)
+else()
 # Initialize the EXCLUDE_LIST variable
 set(EXCLUDE_LIST
     "source/utils/*"
 )
+endif()
 
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
