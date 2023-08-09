@@ -82,6 +82,7 @@ public:
                 }
                 buffer.at(i) = grad_gth;
                 grad_gth -= b_host.at(i);
+                // TODO: Investigate whether 2e-5 is acceptable substitute (fails with 1e-5)
                 check_val(grad_gth, grad_host.at(i), float_t(1e-5), float_t(2e-5));
             }
 
