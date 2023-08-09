@@ -122,6 +122,7 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
 
 template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
+template class ONEDAL_EXPORT partial_compute_input<task::compute>;
 
 } // namespace v1
 } // namespace oneapi::dal::covariance

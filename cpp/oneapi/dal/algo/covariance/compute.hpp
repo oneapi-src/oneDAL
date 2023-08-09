@@ -29,5 +29,9 @@ template <typename Descriptor>
 struct compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
         : dal::covariance::detail::compute_ops<Descriptor> {};
 
+template <typename Descriptor>
+struct partial_compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
+        : dal::covariance::detail::partial_compute_ops<Descriptor> {};
+
 } // namespace v1
 } // namespace oneapi::dal::detail

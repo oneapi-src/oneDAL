@@ -33,9 +33,9 @@ void run(sycl::queue &q) {
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
-    auto init_result = dal::covariance::partial_compute_input(input);
-    const auto result = dal::partial_compute(q, cov_desc, init_result);
-    std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
+    auto init_result = dal::covariance::v1::partial_compute_input(input);
+    //const auto result = dal::partial_compute(q, cov_desc, init_result);
+    //std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

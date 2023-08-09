@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/compute_ops.hpp"
+#include "oneapi/dal/detail/partial_compute_ops.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/spmd/communicator.hpp"
 //TODO: move partial compute into preview(detail::data_parallel_policy is not in preview)
@@ -25,14 +25,14 @@ namespace v1 {
 
 template <typename... Args>
 auto partial_compute(Args&&... args) {
-    return dal::detail::compute_dispatch(std::forward<Args>(args)...);
+    return dal::detail::partial_compute_dispatch(std::forward<Args>(args)...);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto partial_compute(sycl::queue& queue, Args&&... args) {
-    return dal::detail::compute_dispatch(detail::data_parallel_policy{ queue },
-                                         std::forward<Args>(args)...);
+    return dal::detail::partial_compute_dispatch(detail::data_parallel_policy{ queue },
+                                                 std::forward<Args>(args)...);
 }
 #endif
 
@@ -44,7 +44,7 @@ namespace preview {
 
 template <typename... Args>
 auto partial_compute(spmd::communicator<spmd::device_memory_access::none>& comm, Args&&... args) {
-    return dal::detail::compute_dispatch(
+    return dal::detail::partial_compute_dispatch(
         dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
         std::forward<Args>(args)...);
 }
@@ -52,7 +52,7 @@ auto partial_compute(spmd::communicator<spmd::device_memory_access::none>& comm,
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename... Args>
 auto partial_compute(spmd::communicator<spmd::device_memory_access::usm>& comm, Args&&... args) {
-    return dal::detail::compute_dispatch(
+    return dal::detail::partial_compute_dispatch(
         dal::detail::spmd_policy<dal::detail::data_parallel_policy>{
             dal::detail::data_parallel_policy{ comm.get_queue() },
             comm },
