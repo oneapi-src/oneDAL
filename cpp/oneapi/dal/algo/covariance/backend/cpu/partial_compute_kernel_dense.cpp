@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include <iostream>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::covariance::backend {
@@ -37,11 +37,10 @@ using daal_covariance_kernel_t = daal_covariance::internal::
 
 //TODO:rewrite kernel and add finalize
 template <typename Float, typename Task>
-static compute_result<Task> call_daal_kernel_partial_compute(
-    const context_cpu& ctx,
-    const descriptor_t& desc,
-    const table& data,
-    const compute_result<task::compute>& prev_result) {
+static compute_result<Task> call_daal_kernel_partial_compute(const context_cpu& ctx,
+                                                             const descriptor_t& desc,
+                                                             const table& data) {
+    std::cout << "I call this" << std::endl;
     const std::int64_t component_count = data.get_column_count();
 
     daal_covariance::Parameter daal_parameter;
@@ -81,9 +80,8 @@ static compute_result<Task> call_daal_kernel_partial_compute(
 template <typename Float, typename Task>
 static compute_result<Task> partial_compute(const context_cpu& ctx,
                                             const descriptor_t& desc,
-                                            const compute_input<Task>& input,
-                                            const compute_result<Task>& prev_result) {
-    return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input.get_data(), prev_result);
+                                            const partial_compute_input<Task>& input) {
+    return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
@@ -91,9 +89,8 @@ struct partial_compute_kernel_cpu<Float, method::by_default, task::compute> {
     compute_result<task::compute> operator()(
         const dal::backend::context_cpu& ctx,
         const descriptor_t& desc,
-        const compute_input<task::compute>& input,
-        const compute_result<task::compute>& prev_result) const {
-        return partial_compute<Float, task::compute>(ctx, desc, input, prev_result);
+        const partial_compute_input<task::compute>& input) const {
+        return partial_compute<Float, task::compute>(ctx, desc, input);
     }
 };
 

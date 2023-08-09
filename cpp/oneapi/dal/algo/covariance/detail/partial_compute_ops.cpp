@@ -14,27 +14,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/covariance/detail/compute_ops.hpp"
-#include "oneapi/dal/algo/covariance/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/covariance/detail/partial_compute_ops.hpp"
+#include "oneapi/dal/algo/covariance/backend/cpu/partial_compute_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::covariance::detail {
 namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
-struct compute_ops_dispatcher<Policy, Float, Method, Task> {
+struct partial_compute_ops_dispatcher<Policy, Float, Method, Task> {
     compute_result<Task> operator()(const Policy& policy,
                                     const descriptor_base<Task>& desc,
-                                    const compute_input<Task>& input) const {
+                                    const partial_compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
-            KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>)>;
+            KERNEL_SINGLE_NODE_CPU(backend::partial_compute_kernel_cpu<Float, Method, Task>)>;
         return kernel_dispatcher_t()(policy, desc, input);
     }
 };
 
-#define INSTANTIATE(F, M, T)                                                                 \
-    template struct ONEDAL_EXPORT compute_ops_dispatcher<dal::detail::host_policy, F, M, T>; \
-    template struct ONEDAL_EXPORT compute_ops_dispatcher<dal::detail::spmd_host_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                               \
+    template struct ONEDAL_EXPORT                                          \
+        partial_compute_ops_dispatcher<dal::detail::host_policy, F, M, T>; \
+    template struct ONEDAL_EXPORT                                          \
+        partial_compute_ops_dispatcher<dal::detail::spmd_host_policy, F, M, T>;
 
 INSTANTIATE(float, method::dense, task::compute)
 INSTANTIATE(double, method::dense, task::compute)

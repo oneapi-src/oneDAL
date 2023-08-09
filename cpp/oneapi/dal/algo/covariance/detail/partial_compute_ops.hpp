@@ -26,32 +26,28 @@ template <typename Context, typename Float, typename Method, typename Task, type
 struct partial_compute_ops_dispatcher {
     compute_result<Task> partial_compute(const Context&,
                                          const descriptor_base<Task>&,
-                                         const compute_input<Task>&,
-                                         const compute_result<Task>&) const;
+                                         const partial_compute_input<Task>&) const;
 };
 
 template <typename Descriptor>
-struct partial_compute_ops_dispatcher {
+struct partial_compute_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
-    using input_t = compute_input<task_t>;
+    using input_t = partial_compute_input<task_t>;
     using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
     template <typename Context>
-    auto operator()(const Context& ctx,
-                    const Descriptor& desc,
-                    const input_t& input,
-                    result_t& result) const {
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         const auto result =
-            compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input, result);
+            partial_compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         return result;
     }
 };
 
 } // namespace v1
 
-using v1::compute_ops;
+using v1::partial_compute_ops;
 
 } // namespace oneapi::dal::covariance::detail

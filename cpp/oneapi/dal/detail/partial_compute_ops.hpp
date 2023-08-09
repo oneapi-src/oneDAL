@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,18 +16,25 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/covariance/compute_types.hpp"
-#include "oneapi/dal/algo/covariance/detail/compute_ops.hpp"
-#include "oneapi/dal/algo/covariance/detail/partial_compute_ops.hpp"
-#include "oneapi/dal/compute.hpp"
-#include "oneapi/dal/partial_compute.hpp"
+#include "oneapi/dal/detail/ops_dispatcher.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
+template <typename Descriptor, typename Tag = typename Descriptor::tag_t>
+struct partial_compute_ops;
+
 template <typename Descriptor>
-struct compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
-        : dal::covariance::detail::compute_ops<Descriptor> {};
+using tagged_partial_compute_ops = partial_compute_ops<Descriptor, typename Descriptor::tag_t>;
+
+template <typename Head, typename... Tail>
+auto partial_compute_dispatch(Head&& head, Tail&&... tail) {
+    using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_partial_compute_ops>;
+    return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
+}
 
 } // namespace v1
+
+using v1::partial_compute_dispatch;
+
 } // namespace oneapi::dal::detail

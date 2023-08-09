@@ -25,8 +25,7 @@ template <typename Float, typename Method, typename Task>
 struct partial_compute_kernel_cpu {
     compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                     const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input,
-                                    const compute_result<Task>& prev_result) const;
+                                    const partial_compute_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::covariance::backend

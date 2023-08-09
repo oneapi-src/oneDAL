@@ -27,10 +27,14 @@ class compute_input_impl;
 
 template <typename Task>
 class compute_result_impl;
+
+template <typename Task>
+class partial_compute_input_impl;
 } // namespace v1
 
 using v1::compute_input_impl;
 using v1::compute_result_impl;
+using v1::partial_compute_input_impl;
 
 } // namespace detail
 
@@ -124,9 +128,32 @@ private:
     dal::detail::pimpl<detail::compute_result_impl<Task>> impl_;
 };
 
+template <typename Task = task::by_default>
+class partial_compute_input : public compute_input<Task>, public compute_result<Task> {
+public:
+    using task_t = Task;
+
+    partial_compute_input(const table& data) : compute_input<Task>(data) {}
+
+    // Inherit get methods from compute_input and compute_result
+    using compute_input<Task>::get_data;
+    using compute_result<Task>::get_cov_matrix;
+    using compute_result<Task>::get_cor_matrix;
+    using compute_result<Task>::get_means;
+    using compute_result<Task>::get_result_options;
+
+    // Inherit set methods from compute_input and compute_result
+    using compute_input<Task>::set_data_impl;
+    using compute_result<Task>::set_cov_matrix_impl;
+    using compute_result<Task>::set_cor_matrix_impl;
+    using compute_result<Task>::set_means_impl;
+    using compute_result<Task>::set_result_options_impl;
+};
+
 } // namespace v1
 
 using v1::compute_input;
 using v1::compute_result;
+using v1::partial_compute_input;
 
 } // namespace oneapi::dal::covariance
