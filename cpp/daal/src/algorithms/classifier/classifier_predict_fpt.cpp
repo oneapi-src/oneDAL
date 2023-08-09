@@ -32,7 +32,7 @@ namespace classifier
 {
 namespace prediction
 {
-namespace dm = daal::data_management;
+namespace dm  = daal::data_management;
 namespace dmi = daal::data_management::internal;
 
 namespace interface2

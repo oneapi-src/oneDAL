@@ -35,8 +35,8 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace dm = daal::data_management;
-namespace dmi = daal::data_management::internal;
+namespace dm      = daal::data_management;
+namespace dmi     = daal::data_management::internal;
 namespace si_sycl = daal::services::internal::sycl;
 
 /**

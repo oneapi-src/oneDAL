@@ -33,7 +33,7 @@ namespace svm
 {
 namespace interface1
 {
-namespace dm = daal::data_management;
+namespace dm  = daal::data_management;
 namespace dmi = daal::data_management::internal;
 template <typename modelFPType>
 services::SharedPtr<Model> Model::create(size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status * stat)
@@ -52,8 +52,8 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
         if (layout == dm::NumericTableIface::csrArray)
         {
             _SV = dmi::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
-                                                                     services::internal::Buffer<size_t>(), nColumns, size_t(0),
-                                                                     dm::CSRNumericTable::oneBased, &st);
+                                                                services::internal::Buffer<size_t>(), nColumns, size_t(0),
+                                                                dm::CSRNumericTable::oneBased, &st);
         }
         else
         {

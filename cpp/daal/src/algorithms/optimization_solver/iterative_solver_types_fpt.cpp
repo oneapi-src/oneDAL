@@ -35,7 +35,7 @@ namespace iterative_solver
 namespace interface2
 {
 
-namespace dm = daal::data_management;
+namespace dm  = daal::data_management;
 namespace dmi = daal::data_management::internal;
 /**
  * Allocates memory to store the results of the iterative solver algorithm
