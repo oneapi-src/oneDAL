@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/array_utils.hpp"
-
+#include "oneapi/dal/detail/debug.hpp"
 #include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/backend/primitives/convert/common.hpp"
@@ -24,13 +24,16 @@
 
 namespace oneapi::dal::backend::primitives {
 
+using detail::operator<<;
+
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
                   const dal::array<data_type>& input_types,
                   const dal::array<dal::byte_t>& input_data,
                   const shape_t& input_shape,
                   data_type output_type,
                   dal::array<dal::byte_t>& output_data,
-                  const shape_t& output_strides) {
+                  const shape_t& output_strides,
+                  const std::vector<sycl::event>& deps) {
     const auto [row_count, col_count] = input_shape;
     const auto [row_stride, col_stride] = output_strides;
 
@@ -45,7 +48,7 @@ sycl::event copy_convert(const detail::data_parallel_policy& policy,
     auto input_strides = dal::array<std::int64_t>::full(row_count, std::int64_t{ 1l });
 
     return copy_convert(policy, input_pointers, input_types, input_strides,
-            output_pointers, output_types, output_strides_arr, input_shape);
+        output_pointers, output_types, output_strides_arr, input_shape, deps);
 }
 
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
@@ -99,8 +102,12 @@ sycl::event copy_convert(sycl::queue& queue,
         find_sets_of_unique_pairs(inp_types, out_types, row_count);
     const std::int64_t* const unique_indices_ptr = unique_indices.get_data();
 
+    std::cout << "Unique indices: " << unique_indices << std::endl;
+
     const dal::array<std::int64_t> chunk_offsets = //
         find_unique_chunk_offsets(unique_indices, inp_types, out_types);
+
+    std::cout << "Chunk offsets: " << chunk_offsets << std::endl;
 
     const dal::array<std::int64_t> inp_strides_host = //
         extract_by_indices(unique_indices_ptr, inp_strides, row_count);
@@ -114,9 +121,13 @@ sycl::event copy_convert(sycl::queue& queue,
         extract_by_indices(unique_indices_ptr, inp_pointers, row_count);
     auto inp_pointers_device = detail::copy(policy, inp_pointers_host);
 
+    std::cout << "Input pointers: " << inp_pointers_host << std::endl;
+
     const dal::array<dal::byte_t*> out_pointers_host = //
         extract_by_indices(unique_indices_ptr, out_pointers, row_count);
     auto out_pointers_device = detail::copy(policy, out_pointers_host);
+
+    std::cout << "Output pointers: " << out_pointers_host << std::endl;
 
     std::int64_t first = 0l;
     sycl::event last_event{};
@@ -127,9 +138,13 @@ sycl::event copy_convert(sycl::queue& queue,
         const auto chunk_len = last - first;
         ONEDAL_ASSERT(0l < chunk_len);
 
+        std::cout << "F,L: " << first << ',' << last << std::endl;
+
         const auto first_idx = unique_indices_ptr[first];
         const data_type inp_type = inp_types[first_idx];
         const data_type out_type = out_types[first_idx];
+
+        std::cout << "I,O: " << std::int64_t(inp_type) << ',' << std::int64_t(out_type) << std::endl;
 
         auto inp_ptrs_slice = inp_pointers_device.get_slice(first, last);
         auto out_ptrs_slice = out_pointers_device.get_slice(first, last);

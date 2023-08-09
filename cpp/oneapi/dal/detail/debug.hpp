@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <iostream>
 
 //#include "oneapi/dal/table/common.hpp"
@@ -25,8 +26,21 @@ namespace oneapi::dal::detail {
 
 #ifdef _GLIBCXX_OSTREAM
 
-template <typename Float>
-inline auto& print_array_shape(std::ostream& s, const array<Float>& a) {
+template <typename Type>
+struct print_type {
+    using type = Type;
+};
+
+template <typename Type>
+struct print_type<Type*> {
+    using type = const void*;
+};
+
+template <typename Type>
+using print_type_t = typename print_type<Type>::type;
+
+template <typename Type>
+inline auto& print_array_shape(std::ostream& s, const array<Type>& a) {
     const auto c = a.get_count();
 
     if (c == 0)
@@ -45,8 +59,8 @@ inline auto& print_array_shape(std::ostream& s, const array<Float>& a) {
     return s << "Table with shape height,width=" << h << ',' << w << "\n";
 }*/
 
-template <typename Float>
-inline auto& print_array_content(std::ostream& s, const array<Float>& arr) {
+template <typename Type, typename PrintType = print_type_t<Type>>
+inline auto& print_array_content(std::ostream& s, const array<Type>& arr) {
     const auto c = arr.get_count();
 
 #ifdef _GLIBCXX_IOMANIP
@@ -55,7 +69,7 @@ inline auto& print_array_content(std::ostream& s, const array<Float>& arr) {
 #endif
 
     for (std::int64_t i = 0; i < c; ++i) {
-        s << "\t " << arr[i];
+        s << "\t " << static_cast<PrintType>(arr[i]);
     }
 
 #ifdef _GLIBCXX_IOMANIP
@@ -81,10 +95,10 @@ inline auto& print_table_content(std::ostream& s, const table& t) {
     return s;
 }*/
 
-template <typename Float>
-inline std::ostream& operator<<(std::ostream& s, const array<Float>& arr) {
+template <typename Type, typename PrintType = print_type_t<Type>>
+inline std::ostream& operator<<(std::ostream& s, const array<Type>& arr) {
     print_array_shape(s, arr);
-    print_array_content<Float>(s, arr);
+    print_array_content<Type, PrintType>(s, arr);
     return s << std::endl;
 }
 

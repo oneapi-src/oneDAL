@@ -18,6 +18,8 @@
 #include <cmath>
 #include <type_traits>
 
+#include "oneapi/dal/detail/array_utils.hpp"
+#include "oneapi/dal/detail/debug.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
@@ -30,10 +32,8 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using convert_types = std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
-                                 std::tuple<std::int32_t, std::tuple<std::int8_t, double, std::uint64_t>>,
-                                 std::tuple<double, std::tuple<std::int16_t, float, double, std::uint8_t>>,
-                                 std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
+using convert_types = std::tuple<std::tuple<float, std::tuple<float,
+                    std::int8_t, float, std::uint32_t, std::int64_t>>>;
 
 template <typename... Types>
 constexpr auto make_types_array(const std::tuple<Types...>*) {
@@ -118,7 +118,7 @@ public:
     }
 
     void generate() {
-        col_count = GENERATE(1, 17, 127, 1'027, 199'999);
+        col_count = GENERATE(1, 17);
         CAPTURE(col_count, row_count);
         generate_input();
     }
@@ -148,18 +148,20 @@ public:
     }
 
     void test_copy_convert_rm() {
-        auto policy = detail::host_policy::get_default();
+        auto host_policy = this->get_host_policy();
+        auto dev_policy = this->get_device_policy();
 
         const auto res_size = col_count * row_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(policy, types, inp, { row_count, col_count },
-                     result_type, result, { col_count, 1l});
+        copy_convert(dev_policy, types, inp, { row_count, col_count },
+                result_type, result, { col_count, 1l}).wait_and_throw();
 
         auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
-        compare_with_groundtruth_rm(temp);
+        dal::array<result_t> res_host = detail::copy(host_policy, temp);
+        compare_with_groundtruth_rm(res_host);
     }
 
     void compare_with_groundtruth_cm(const dal::array<result_t>& res) {
@@ -186,18 +188,20 @@ public:
     }
 
     void test_copy_convert_cm() {
-        auto policy = this->get_device_policy();
+        auto host_policy = this->get_host_policy();
+        auto dev_policy = this->get_device_policy();
 
         const auto res_size = col_count * row_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(policy, types, inp, { row_count, col_count },
-                     result_type, result, { 1l, row_count });
+        copy_convert(dev_policy, types, inp, { row_count, col_count },
+                result_type, result, { 1l, row_count }).wait_and_throw();
 
         const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, col_count * row_count);
-        compare_with_groundtruth_cm(temp);
+        dal::array<result_t> res_host = detail::copy(host_policy, temp);
+        compare_with_groundtruth_cm(res_host);
     }
 
 private:

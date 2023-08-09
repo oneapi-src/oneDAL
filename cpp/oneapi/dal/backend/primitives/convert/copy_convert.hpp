@@ -60,41 +60,33 @@ void copy_convert(const detail::host_policy& policy,
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/*template <typename Type>
-inline sycl::event copy_convert(sycl::queue& queue,
-                                const dal::array<data_type>& types,
-                                const dal::array<dal::byte_t>& input_data,
-                                const shape_t& input_shape,
-                                dal::array<Type>& output_data,
-                                const shape_t& output_strides,
-                                const std::vector<sycl::event>& deps = {}) {
-    constexpr auto output_type = detail::make_data_type<Type>();
-    return copy_convert(queue,
-                        input_types,
-                        input_data,
-                        input_shape,
-                        output_type,
-                        output_data,
-                        output_strides,
-                        deps);
-}*/
+sycl::event copy_convert(const detail::data_parallel_policy& policy,
+                  const dal::array<data_type>& input_types,
+                  const dal::array<dal::byte_t>& input_data,
+                  const shape_t& input_shape,
+                  data_type output_type,
+                  dal::array<dal::byte_t>& output_data,
+                  const shape_t& output_strides,
+                  const std::vector<sycl::event>& deps = {});
 
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
-                         const dal::array<data_type>& types,
-                         const dal::array<dal::byte_t>& input_data,
-                         const shape_t& input_shape,
-                         data_type output_type,
-                         dal::array<dal::byte_t>& output_data,
-                         const shape_t& output_strides,
-                         const std::vector<sycl::event>& deps = {});
+                  const dal::array<const dal::byte_t*>& inp_pointers,
+                  const dal::array<data_type>& inp_types,
+                  const dal::array<std::int64_t>& inp_strides,
+                  const dal::array<dal::byte_t*>& out_pointers,
+                  const dal::array<data_type>& out_types,
+                  const dal::array<std::int64_t>& out_strides,
+                  const shape_t& shape,
+                  const std::vector<sycl::event>& deps = {});
 
-sycl::event copy_convert(sycl::queue& queue,
-                         const dal::array<data_type>& types,
-                         const dal::array<dal::byte_t>& input_data,
-                         const shape_t& input_shape,
-                         data_type output_type,
-                         dal::array<dal::byte_t>& output_data,
-                         const shape_t& output_strides,
+sycl::event copy_convert(const detail::data_parallel_policy& policy,
+                         const dal::byte_t* const* inp_pointers,
+                         const data_type* inp_types,
+                         const std::int64_t* inp_strides,
+                         dal::byte_t* const* out_pointers,
+                         const data_type* out_types,
+                         const std::int64_t* out_strides,
+                         const shape_t& shape,
                          const std::vector<sycl::event>& deps = {});
 
 
@@ -117,15 +109,6 @@ sycl::event copy_convert(sycl::queue& queue,
                   const std::int64_t* out_strides,
                   const shape_t& shape,
                   const std::vector<sycl::event>& deps = {});
-
-/*template <typename InpType, typename OutType>
-sycl::event copy_convert_impl(sycl::queue& queue,
-                  const InpType* const* inp_pointers,
-                  const std::int64_t* inp_strides,
-                  OutType* const* out_pointers,
-                  const std::int64_t* out_strides,
-                  const shape_t& shape,
-                  const std::vector<sycl::event>& deps = {});*/
 
 #endif
 
