@@ -78,6 +78,14 @@ inline dal::array<T> discard_mutable_data(const dal::array<T>& ary) {
     return dal::array<T>{ ary, ary.get_data(), ary.get_count() };
 }
 
+} // namespace v1
+using v1::array_via_policy;
+using v1::dispath_by_policy;
+using v1::reinterpret_array_cast;
+using v1::discard_mutable_data;
+
+namespace v2 {
+
 template <typename T>
 inline void copy_impl(detail::array_impl<T>& dst, const detail::array_impl<T>& src) {
     const auto size_in_bytes = src.get_size_in_bytes();
@@ -91,15 +99,6 @@ inline void copy_impl(detail::array_impl<T>& dst, const detail::array_impl<T>& s
     };
 
     std::visit(copy_visitor, dst.get_policy(), src.get_policy());
-}
-
-template <typename T>
-inline void copy(dal::array<T>& dst, const dal::array<T>& src) {
-    constexpr detail::pimpl_accessor accessor;
-    auto& dst_pimpl = accessor.get_pimpl(dst);
-    const auto& src_pimpl = accessor.get_pimpl(src);
-
-    copy_impl(*dst_pimpl, *src_pimpl);
 }
 
 template <typename Policy, typename T, typename Alloc>
@@ -118,13 +117,26 @@ inline detail::array_impl<T> copy_impl(const Policy& policy, const detail::array
     return copy_impl(policy, src, alloc);
 }
 
-} // namespace v1
+template <typename T>
+inline void copy(dal::array<T>& dst, const dal::array<T>& src) {
+    constexpr detail::pimpl_accessor accessor;
+    auto& dst_pimpl = accessor.get_pimpl(dst);
+    const auto& src_pimpl = accessor.get_pimpl(src);
 
-using v1::copy;
-using v1::copy_impl;
-using v1::array_via_policy;
-using v1::dispath_by_policy;
-using v1::reinterpret_array_cast;
-using v1::discard_mutable_data;
+    copy_impl(*dst_pimpl, *src_pimpl);
+}
+
+template <typename Policy, typename T>
+inline auto copy(const Policy& policy, const dal::array<T>& src) {
+    constexpr detail::pimpl_accessor accessor;
+    const auto& pimpl = accessor.get_pimpl(src);
+    array_impl<T> impl = copy_impl(policy, *pimpl);
+    return array<T>{ new array_impl<T>{ std::move(impl) } };
+}
+
+} // namespace v2
+
+using v2::copy;
+using v2::copy_impl;
 
 } // namespace oneapi::dal::detail

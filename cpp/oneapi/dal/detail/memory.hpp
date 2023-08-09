@@ -109,6 +109,7 @@ using v1::empty_delete;
 using v1::default_delete;
 using v1::policy_allocator_t;
 using v1::make_default_delete;
+using v1::make_policy_allocator;
 
 } // namespace oneapi::dal::detail
 

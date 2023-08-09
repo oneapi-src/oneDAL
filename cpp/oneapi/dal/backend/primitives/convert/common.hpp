@@ -27,12 +27,12 @@ using shape_t = std::pair<std::int64_t, std::int64_t>;
 
 bool is_known_data_type(data_type dtype) noexcept;
 
-template <typename Index, typename Type>
+/*template <typename Index, typename Type>
 void extract_by_indices_impl(const Index* indices, const Type* values,
                                     Type* output, std::int64_t count);
 
 dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type indices_type,
-                            const std::byte* values, data_type values_type, std::int64_t count);
+                            const dal::byte_t* values, data_type values_type, std::int64_t count);
 
 template <typename Index, typename Type>
 inline dal::array<Type> extract_by_indices(const Index* indices,
@@ -49,6 +49,21 @@ inline dal::array<Type> extract_by_indices(const Index* indices,
     auto* const res_ptr = reinterpret_cast<Type* const>(raw_ptr);
 
     return dal::array<Type>(raw_res, res_ptr, count);
+}*/
+
+template <typename Index, typename Type>
+inline dal::array<Type> extract_by_indices(const Index* indices,
+                        const Type* values, std::int64_t count) {
+    auto result = dal::array<Type>::empty(count);
+    auto* const output = result.get_mutable_data();
+
+    PRAGMA_IVDEP
+    for (std::int64_t i = 0l; i < count; ++i) {
+        const Index idx = indices[i];
+        output[i] = values[idx];
+    }
+
+    return result;
 }
 
 template <typename Index, typename Type>

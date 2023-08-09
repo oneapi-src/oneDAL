@@ -666,16 +666,17 @@ public:
         return array<T>{ new impl_t{ std::move(slice_impl) } };
     }
 
+    /// @brief Creates array from impl
+    array(impl_t* impl) : impl_(impl) {
+        update_data(impl_.get());
+    }
+
 private:
     static void swap(array<T>& a, array<T>& b) {
         std::swap(a.impl_, b.impl_);
         std::swap(a.data_ptr_, b.data_ptr_);
         std::swap(a.mutable_data_ptr_, b.mutable_data_ptr_);
         std::swap(a.count_, b.count_);
-    }
-
-    array(impl_t* impl) : impl_(impl) {
-        update_data(impl_.get());
     }
 
     void update_data(impl_t* impl) {

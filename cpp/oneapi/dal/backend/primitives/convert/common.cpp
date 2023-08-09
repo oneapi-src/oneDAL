@@ -157,7 +157,7 @@ dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
     return result;
 }
 
-template <typename Index, typename Type>
+/*template <typename Index, typename Type>
 void extract_by_indices_impl(const Index* indices, const Type* values,
                                     Type* output, std::int64_t count) {
     PRAGMA_IVDEP
@@ -168,7 +168,7 @@ void extract_by_indices_impl(const Index* indices, const Type* values,
 }
 
 dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type indices_type,
-                            const std::byte* values, data_type values_type, std::int64_t count) {
+                            const dal::byte_t* values, data_type values_type, std::int64_t count) {
     const std::int64_t type_size = detail::get_data_type_size(values_type);
     const auto result_size = detail::check_mul_overflow(type_size, count);
 
@@ -194,6 +194,6 @@ dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type
     }, indices_type, values_type);
 
     return result;
-}
+}*/
 
 } // namespace oneapi::dal::backend::primitives
