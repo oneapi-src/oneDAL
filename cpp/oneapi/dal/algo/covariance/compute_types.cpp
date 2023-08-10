@@ -36,8 +36,17 @@ public:
     result_option_id options;
 };
 
+template <typename Task>
+class detail::v1::partial_compute_input_impl : public base {
+public:
+    table nobs_matrix;
+    table crossproduct_matrix;
+    table sums;
+};
+
 using detail::v1::compute_input_impl;
 using detail::v1::compute_result_impl;
+using detail::v1::partial_compute_input_impl;
 
 namespace v1 {
 
@@ -118,6 +127,35 @@ const result_option_id& compute_result<Task>::get_result_options() const {
 template <typename Task>
 void compute_result<Task>::set_result_options_impl(const result_option_id& value) {
     impl_->options = value;
+}
+
+template <typename Task>
+const table& partial_compute_input<Task>::get_nobs_table() const {
+    return impl_->nobs_matrix;
+}
+
+template <typename Task>
+void partial_compute_input<Task>::set_nobs_table_impl(const table& value) {
+    impl_->nobs_matrix = value;
+}
+
+template <typename Task>
+const table& partial_compute_input<Task>::get_crossproduct_matrix() const {
+    return impl_->crossproduct_matrix;
+}
+
+template <typename Task>
+void partial_compute_input<Task>::set_crossproduct_matrix_impl(const table& value) {
+    impl_->crossproduct_matrix = value;
+}
+template <typename Task>
+const table& partial_compute_input<Task>::get_sums() const {
+    return impl_->sums;
+}
+
+template <typename Task>
+void partial_compute_input<Task>::set_sums_impl(const table& value) {
+    impl_->sums = value;
 }
 
 template class ONEDAL_EXPORT compute_input<task::compute>;

@@ -129,25 +129,45 @@ private:
 };
 
 template <typename Task = task::by_default>
-class partial_compute_input : public compute_input<Task>, public compute_result<Task> {
+class partial_compute_input : public compute_input<Task> {
 public:
     using task_t = Task;
 
     partial_compute_input(const table& data) : compute_input<Task>(data) {}
+    /// The nobs table.
+    /// @remark default = table{}
+    const table& get_nobs_table() const;
 
-    // Inherit get methods from compute_input and compute_result
-    using compute_input<Task>::get_data;
-    using compute_result<Task>::get_cov_matrix;
-    using compute_result<Task>::get_cor_matrix;
-    using compute_result<Task>::get_means;
-    using compute_result<Task>::get_result_options;
+    auto& set_nobs_table(const table& value) {
+        set_nobs_table_impl(value);
+        return *this;
+    }
 
-    // Inherit set methods from compute_input and compute_result
-    using compute_input<Task>::set_data_impl;
-    using compute_result<Task>::set_cov_matrix_impl;
-    using compute_result<Task>::set_cor_matrix_impl;
-    using compute_result<Task>::set_means_impl;
-    using compute_result<Task>::set_result_options_impl;
+    /// The crossproduct matrix.
+    /// @remark default = table{}
+    const table& get_crossproduct_matrix() const;
+
+    auto& set_crossproduct_matrix(const table& value) {
+        set_crossproduct_matrix_impl(value);
+        return *this;
+    }
+
+    /// Sums.
+    /// @remark default = table{}
+    const table& get_sums() const;
+
+    auto& set_sums(const table& value) {
+        set_sums_impl(value);
+        return *this;
+    }
+
+protected:
+    void set_nobs_table_impl(const table&);
+    void set_crossproduct_matrix_impl(const table&);
+    void set_sums_impl(const table&);
+
+private:
+    dal::detail::pimpl<detail::partial_compute_input_impl<Task>> impl_;
 };
 
 } // namespace v1
