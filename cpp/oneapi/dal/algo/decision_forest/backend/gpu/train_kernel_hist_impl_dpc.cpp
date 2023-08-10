@@ -66,6 +66,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::validate_input(const descr
     if (data.get_column_count() > de::limits<Index>::max()) {
         throw domain_error(msg::invalid_range_of_columns());
     }
+    if (labels.get_row_count() != data.get_row_count()) {
+        throw domain_error(msg::invalid_range_of_rows());
+    }
     if (desc.get_tree_count() > de::limits<Index>::max()) {
         throw domain_error(msg::invalid_number_of_trees());
     }

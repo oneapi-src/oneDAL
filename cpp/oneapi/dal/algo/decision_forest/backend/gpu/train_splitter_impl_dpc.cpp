@@ -369,7 +369,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     const Index selected_ftr_count = ctx.selected_ftr_count_;
     const Index bin_count = ctx.max_bin_count_among_ftrs_;
-    ONEDAL_ASSERT(bin_count > 0);
+    ONEDAL_ASSERT(bin_count > 1);
     const Index node_in_block_count = node_count;
 
     auto device = queue.get_device();
@@ -384,7 +384,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const std::int64_t local_hist_size = batch_size * hist_prop_count;
     const std::int64_t local_splits_size = batch_size;
     const Index local_size = bk::device_max_wg_size(queue);
-
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
@@ -470,8 +469,18 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             hist_resp += 1;
                         }
                         else {
-                            buf_hist_ptr[cur_hist_pos + 0] += 1;
-                            buf_hist_ptr[cur_hist_pos + 1] += response;
+                            sycl::atomic_ref<Float,
+                                            sycl::memory_order_relaxed,
+                                            sycl::memory_scope_work_group,
+                                            sycl::access::address_space::local_space>
+                                hist_count(buf_hist[cur_hist_pos + 0]);
+                            sycl::atomic_ref<Float,
+                                            sycl::memory_order_relaxed,
+                                            sycl::memory_scope_work_group,
+                                            sycl::access::address_space::local_space>
+                                hist_sum(buf_hist[cur_hist_pos + 1]);
+                            hist_count += 1;
+                            hist_sum += response;
                         }
                     }
                 }
@@ -500,7 +509,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             const Float resp_sum = cur_hist[1];
                             const Float mean = resp_sum / count;
                             const Float mse = (response - mean) * (response - mean);
-                            buf_hist_ptr[cur_hist_pos + 2] += mse;
+                            sycl::atomic_ref<Float,
+                                            sycl::memory_order_relaxed,
+                                            sycl::memory_scope_work_group,
+                                            sycl::access::address_space::local_space>
+                                hist_mse(buf_hist[cur_hist_pos + 2]);
+                            hist_mse += mse;
                         }
                     }
                     item.barrier(sycl::access::fence_space::local_space);
@@ -582,7 +596,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     else {
                         sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
                     }
-                    if (ts_scal.left_count > min_obs_leaf) {
+                    if (ts_scal.left_count > min_obs_leaf && ts_scal.right_count > min_obs_leaf) {
                         scalars_buf_ptr[work_bin] = ts.scalars;
                     }
                 }
