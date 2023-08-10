@@ -54,7 +54,7 @@ sycl::event copy_convert_impl(sycl::queue& queue,
         h.depends_on(deps);
 
         const auto range = propose_range<InpType, OutType>(queue, shape);
-        const sycl::range<2> range_2d{
+        const sycl::range<2> range_2d{ //
             detail::integral_cast<std::size_t>(range.first),
             detail::integral_cast<std::size_t>(range.second) };
 

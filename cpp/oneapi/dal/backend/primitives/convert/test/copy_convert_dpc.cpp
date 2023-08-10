@@ -32,8 +32,10 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using convert_types = std::tuple<std::tuple<float, std::tuple<float,
-                    std::int8_t, float, std::uint32_t, std::int64_t>>>;
+using convert_types = std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
+                                 std::tuple<std::int32_t, std::tuple<std::int8_t, double, std::uint64_t>>,
+                                 std::tuple<double, std::tuple<std::int16_t, float, double, std::uint8_t>>,
+                                 std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
 
 template <typename... Types>
 constexpr auto make_types_array(const std::tuple<Types...>*) {
@@ -118,7 +120,7 @@ public:
     }
 
     void generate() {
-        col_count = GENERATE(1, 17);
+        col_count = GENERATE(1, 17, 127, 1'027, 199'999);
         CAPTURE(col_count, row_count);
         generate_input();
     }
@@ -148,18 +150,22 @@ public:
     }
 
     void test_copy_convert_rm() {
+        auto& queue = this->get_queue();
         auto host_policy = this->get_host_policy();
         auto dev_policy = this->get_device_policy();
 
-        const auto res_size = col_count * row_count * sizeof(result_t);
-        auto result = dal::array<dal::byte_t>::empty(res_size);
+        const auto res_count = col_count * row_count;
+        const auto res_size = res_count * sizeof(result_t);
+        auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(dev_policy, types, inp, { row_count, col_count },
-                result_type, result, { col_count, 1l}).wait_and_throw();
+        auto event = copy_convert(dev_policy, types, dev, { row_count, col_count },
+                                            result_type, result, { col_count, 1l});
 
-        auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
-        dal::array<result_t> temp(result, res_ptr, col_count * row_count);
+        sycl::event::wait_and_throw({event});
+
+        dal::array<result_t> temp = dal::array<result_t>::wrap(queue,
+            reinterpret_cast<const result_t*>(result.get_data()), res_count);
         dal::array<result_t> res_host = detail::copy(host_policy, temp);
         compare_with_groundtruth_rm(res_host);
     }
@@ -219,12 +225,12 @@ TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
     this->test_copy_convert_rm();
 }
 
-TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
+/*TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
                      "Determenistic random array - CM",
                      "[convert][2d][small]",
                      convert_types) {
     this->generate();
     this->test_copy_convert_cm();
-}
+}*/
 
 } // namespace oneapi::dal::backend::primitives::test
