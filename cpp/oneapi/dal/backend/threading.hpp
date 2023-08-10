@@ -19,16 +19,11 @@
 #include "tbb/tbb.h"
 #include "src/threading/service_thread_pinner.h"
 #include "src/services/service_topo.h"
+#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {
-struct threading_policy {
-    bool thread_pinning;
-    int max_threads_per_core;
 
-    threading_policy(bool thread_pinning_ = false, int max_threads_per_core_ = 0)
-            : thread_pinning(thread_pinning_),
-              max_threads_per_core(max_threads_per_core_) {}
-};
+using detail::threading_policy;
 
 template<typename F>
 class non_void_task : public daal::services::internal::thread_pinner_task_t {
