@@ -27,12 +27,17 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/convert/copy_convert.hpp"
 
+#ifdef _MSC_VER
+    #define PRETTY_FUNCTION __FUNCSIG__
+#endif // _MSC_VER
+
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using convert_types = std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
+using convert_types = std::tuple<std::tuple<float, std::tuple<float, float, float, float, float>>,
+                                 std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
                                  std::tuple<std::int32_t, std::tuple<std::int8_t, double, std::uint64_t>>,
                                  std::tuple<double, std::tuple<std::int16_t, float, double, std::uint8_t>>,
                                  std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
@@ -80,7 +85,7 @@ public:
     }
 
     void generate_input(std::int64_t seed = 777) {
-        std::mt19937_64 generator(seed);
+        std::minstd_rand generator(seed);
         std::uniform_int_distribution<int> dist(0, 127);
 
         const auto inp_size = col_size * col_count;
@@ -115,12 +120,12 @@ public:
         REQUIRE(inp_offset == inp_size);
         REQUIRE(gtr_offset == gtr_size);
 
-        auto dev_policy = this->get_device_policy();
-        this->dev = detail::copy(dev_policy, this->inp);
+        auto dev_policy = get_device_policy();
+        dev = detail::copy(dev_policy, inp);
     }
 
     void generate() {
-        col_count = GENERATE(1, 17, 127, 1'027, 199'999);
+        col_count = GENERATE(100'000'001);
         CAPTURE(col_count, row_count);
         generate_input();
     }
@@ -132,82 +137,32 @@ public:
         return result;
     }
 
-    void compare_with_groundtruth_rm(const dal::array<result_t>& res) {
-        REQUIRE(res.get_data() != gtr.get_data());
-        const auto count = col_count * row_count;
-        REQUIRE(count == gtr.get_count());
-        REQUIRE(count == res.get_count());
-
-        const result_t* const res_ptr = res.get_data();
-        const result_t* const gtr_ptr = gtr.get_data();
-
-        for (std::int64_t i = 0l; i < count; ++i) {
-            const result_t res_val = res_ptr[i];
-            const result_t gtr_val = gtr_ptr[i];
-            CAPTURE(i, res_val, gtr_val);
-            REQUIRE(res_val == gtr_val);
-        }
-    }
-
     void test_copy_convert_rm() {
         auto& queue = this->get_queue();
-        auto host_policy = this->get_host_policy();
-        auto dev_policy = this->get_device_policy();
+        auto policy = get_device_policy();
 
-        const auto res_count = col_count * row_count;
-        const auto res_size = res_count * sizeof(result_t);
+        const auto res_size = col_count * row_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = get_types_array();
 
-        auto event = copy_convert(dev_policy, types, dev, { row_count, col_count },
-                                            result_type, result, { col_count, 1l});
-
-        sycl::event::wait_and_throw({event});
-
-        dal::array<result_t> temp = dal::array<result_t>::wrap(queue,
-            reinterpret_cast<const result_t*>(result.get_data()), res_count);
-        dal::array<result_t> res_host = detail::copy(host_policy, temp);
-        compare_with_groundtruth_rm(res_host);
-    }
-
-    void compare_with_groundtruth_cm(const dal::array<result_t>& res) {
-        REQUIRE(res.get_data() != gtr.get_data());
-        const auto count = col_count * row_count;
-        REQUIRE(count == gtr.get_count());
-        REQUIRE(count == res.get_count());
-
-        const result_t* const res_ptr = res.get_data();
-        const result_t* const gtr_ptr = gtr.get_data();
-
-        for (std::int64_t i = 0l; i < count; ++i) {
-            const std::int64_t row = i / col_count;
-            const std::int64_t col = i - row * col_count;
-
-            const std::int64_t j = row + row_count * col;
-
-            const result_t gtr_val = gtr_ptr[i];
-            const result_t res_val = res_ptr[j];
-
-            CAPTURE(i, j, row, col, res_val, gtr_val);
-            REQUIRE(res_val == gtr_val);
-        }
+        BENCHMARK(__PRETTY_FUNCTION__) {
+            copy_convert(policy, types, dev, { row_count, col_count },
+                result_type, result, { col_count, 1l}).wait_and_throw();
+        };
     }
 
     void test_copy_convert_cm() {
-        auto host_policy = this->get_host_policy();
-        auto dev_policy = this->get_device_policy();
+        auto& queue = this->get_queue();
+        auto policy = get_device_policy();
 
         const auto res_size = col_count * row_count * sizeof(result_t);
-        auto result = dal::array<dal::byte_t>::empty(res_size);
+        auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = get_types_array();
 
-        copy_convert(dev_policy, types, inp, { row_count, col_count },
+        BENCHMARK(__PRETTY_FUNCTION__) {
+            copy_convert(policy, types, dev, { row_count, col_count },
                 result_type, result, { 1l, row_count }).wait_and_throw();
-
-        const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
-        dal::array<result_t> temp(result, res_ptr, col_count * row_count);
-        dal::array<result_t> res_host = detail::copy(host_policy, temp);
-        compare_with_groundtruth_cm(res_host);
+        };
     }
 
 private:
@@ -218,19 +173,12 @@ private:
 };
 
 TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
-                     "Determenistic random array - RM",
+                     "Determenistic random array",
                      "[convert][2d][small]",
                      convert_types) {
     this->generate();
     this->test_copy_convert_rm();
-}
-
-/*TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
-                     "Determenistic random array - CM",
-                     "[convert][2d][small]",
-                     convert_types) {
-    this->generate();
     this->test_copy_convert_cm();
-}*/
+}
 
 } // namespace oneapi::dal::backend::primitives::test

@@ -115,7 +115,7 @@ public:
     }
 
     void generate() {
-        col_count = GENERATE(1'000'000'001);
+        col_count = GENERATE(100'000'001);
         CAPTURE(col_count, row_count);
         generate_input();
     }

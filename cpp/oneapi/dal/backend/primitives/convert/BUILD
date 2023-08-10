@@ -14,14 +14,36 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "perf_tests",
+    name = "cpp_perf_tests",
     framework = "catch2",
+    compile_as = [ "c++" ],
     private = True,
     srcs = glob([
-        "test/*perf*.cpp",
+        "test/*perf*_cpp.cpp",
     ]),
     dal_deps = [
         ":convert",
+    ],
+)
+
+dal_test_suite(
+    name = "dpc_perf_tests",
+    framework = "catch2",
+    compile_as = [ "dpc++" ],
+    private = True,
+    srcs = glob([
+        "test/*perf*_dpc.cpp",
+    ]),
+    dal_deps = [
+        ":convert",
+    ],
+)
+
+dal_test_suite(
+    name = "perf_tests",
+    dal_deps = [
+        ":cpp_perf_tests",
+        ":dpc_perf_tests",
     ],
 )
 
