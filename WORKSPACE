@@ -105,7 +105,7 @@ mkl_repo(
 load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")
 onedal_repo(
     name = "onedal_release",
-    root_env_var = "DAALROOT",
+    root_env_var = "DALROOT",
 )
 
 http_archive(
