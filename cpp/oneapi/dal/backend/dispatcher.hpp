@@ -73,27 +73,43 @@ private:
 class context_cpu : public communicator_provider<spmd::device_memory_access::none> {
 public:
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
-            : cpu_extensions_(policy.get_enabled_cpu_extensions()) {
+            : cpu_extensions_(policy.get_enabled_cpu_extensions()),
+              threading_policy_(policy.get_threading_policy()) {
         global_init();
     }
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
             : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
-              cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()) {
+              cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()),
+              threading_policy_(policy.get_local().get_threading_policy()) {
         global_init();
     }
 
     explicit context_cpu(const spmd::communicator<spmd::device_memory_access::none>& comm)
             : communicator_provider<spmd::device_memory_access::none>(comm),
-              cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
+              cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()),
+              threading_policy_(detail::host_policy::get_default().get_threading_policy()) {}
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
     }
 
+    bool get_thread_pinning() const {
+        return threading_policy_.thread_pinning;
+    }
+
+    int get_max_threads_per_core() const {
+        return threading_policy_.max_threads_per_core;
+    }
+
+    threading_policy get_threading_policy() const {
+        return threading_policy_;
+    }
+
 private:
     void global_init();
     detail::cpu_extension cpu_extensions_;
+    detail::threading_policy threading_policy_;
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -278,9 +294,9 @@ inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension
 template <typename Op>
 inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     using detail::cpu_extension;
+    using detail::threading_policy;
 
-    threading_policy policy(true, 1);
-
+    threading_policy policy = ctx.get_threading_policy();
     task_executor task_executor_(policy);
 
     const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
