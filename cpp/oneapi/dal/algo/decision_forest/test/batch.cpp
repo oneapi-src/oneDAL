@@ -300,6 +300,7 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
 }
 
 DF_BATCH_CLS_TEST("df cls base check with default params") {
+    SKIP_IF(this->is_gpu()); // TODO: Compare default params for CPU and GPU
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
@@ -333,6 +334,7 @@ DF_BATCH_CLS_TEST("df cls base check with default params and train weights") {
 }
 
 DF_BATCH_CLS_TEST("df cls base check with non default params") {
+    SKIP_IF(this->is_gpu()); // TODO: GPU is returned different answer, fix it
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 

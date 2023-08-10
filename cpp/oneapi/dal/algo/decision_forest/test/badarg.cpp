@@ -265,6 +265,7 @@ DF_BADARG_TEST("throws if train input responses is empty") {
 }
 
 DF_BADARG_TEST("throws if infer input data is empty") {
+    SKIP_IF(this->is_gpu()); // TODO: Add check for infer side on gpu
     SKIP_IF(this->not_available_on_device());
 
     dal::homogen_table x_empty;

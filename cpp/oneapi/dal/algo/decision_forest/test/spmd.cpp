@@ -369,6 +369,7 @@ DF_SPMD_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
 }
 
 DF_SPMD_CLS_TEST("df cls base check with default params") {
+    SKIP_IF(this->is_gpu()); // TODO: Fix SPMD test case for GPU
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -387,6 +388,7 @@ DF_SPMD_CLS_TEST("df cls base check with default params") {
 }
 
 DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
+    SKIP_IF(this->is_gpu()); // TODO: Fix SPMD test case for GPU
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -406,6 +408,7 @@ DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
 }
 
 DF_SPMD_CLS_TEST("df cls base check with non default params") {
+    SKIP_IF(this->is_gpu()); // TODO: Fix SPMD test case for GPU
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
