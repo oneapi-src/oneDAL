@@ -42,7 +42,6 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
     const descriptor_t& desc,
     const partial_compute_input<Task>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
-
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
     dal::detail::check_mul_overflow(component_count, component_count);
@@ -55,7 +54,6 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
     auto arr_sums = array<Float>::empty(component_count);
     const auto daal_sums = interop::convert_to_daal_homogen_table(arr_sums, 1, component_count);
     auto result = partial_compute_input(input);
-
     auto arr_nobs_matrix = array<Float>::empty(1 * 1);
     const auto daal_nobs_matrix = interop::convert_to_daal_homogen_table(arr_nobs_matrix, 1, 1);
 
@@ -66,6 +64,7 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
                                                                    daal_crossproduct.get(),
                                                                    daal_sums.get(),
                                                                    &daal_parameter));
+    result.set_sums(homogen_table::wrap(arr_sums, 1, component_count));
 
     return result;
 }

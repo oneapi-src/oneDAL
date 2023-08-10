@@ -64,9 +64,6 @@ void compute_input<Task>::set_data_impl(const table& value) {
 }
 
 template <typename Task>
-compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
-
-template <typename Task>
 const table& compute_result<Task>::get_cov_matrix() const {
     using msg = dal::detail::error_messages;
     if (!get_result_options().test(result_options::cov_matrix)) {
@@ -118,6 +115,11 @@ void compute_result<Task>::set_means_impl(const table& value) {
     }
     impl_->means = value;
 }
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const table& data)
+        : compute_input<Task>(data),
+          impl_(new partial_compute_input_impl<Task>()) {}
 
 template <typename Task>
 const result_option_id& compute_result<Task>::get_result_options() const {

@@ -41,8 +41,8 @@ void run(sycl::queue &q) {
         const auto init_result = dal::covariance::v1::partial_compute_input(input);
         partial_result = dal::partial_compute(q, cov_desc, init_result);
     }
-
-    auto result = dal::finalize_compute(q, cov_desc, partial_result);
+    std::cout << "Sums:\n" << partial_result.get_sums() << std::endl;
+    //auto result = dal::finalize_compute(q, cov_desc, partial_result);
 }
 
 int main(int argc, char const *argv[]) {

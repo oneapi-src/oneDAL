@@ -133,7 +133,7 @@ class partial_compute_input : public compute_input<Task> {
 public:
     using task_t = Task;
 
-    partial_compute_input(const table& data) : compute_input<Task>(data) {}
+    partial_compute_input(const table& data);
     /// The nobs table.
     /// @remark default = table{}
     const table& get_nobs_table() const;
