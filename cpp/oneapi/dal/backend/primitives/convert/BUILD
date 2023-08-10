@@ -13,6 +13,28 @@ dal_module(
     ],
 )
 
+#dal_test_suite(
+#    name = "test_fixture",
+#    framework = "catch2",
+#    private = True,
+#    hdrs = glob([
+#        "test/*.hpp",
+#    ]),
+#    dal_deps = [
+#        ":convert",
+#    ],
+#)
+
+dal_module(
+    name = "test_fixture",
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
+    dal_deps = [
+        ":convert",
+    ],
+)
+
 dal_test_suite(
     name = "cpp_perf_tests",
     framework = "catch2",
@@ -23,6 +45,7 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":convert",
+        ":test_fixture",
     ],
 )
 
@@ -36,6 +59,7 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":convert",
+        ":test_fixture",
     ],
 )
 
@@ -59,6 +83,7 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":convert",
+        ":test_fixture",
     ],
 )
 
@@ -74,6 +99,7 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":convert",
+        ":test_fixture",
     ],
 )
 
