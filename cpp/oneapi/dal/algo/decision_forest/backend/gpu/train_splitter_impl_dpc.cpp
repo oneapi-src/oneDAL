@@ -485,8 +485,19 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             hist_resp += 1;
                         }
                         else {
-                            buf_hist_ptr[cur_hist_pos + 0] += 1;
-                            buf_hist_ptr[cur_hist_pos + 1] += response;
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_count(buf_hist[cur_hist_pos + 0]);
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_sum(buf_hist[cur_hist_pos + 1]);
+                            hist_count += 1;
+                            hist_sum += response;
+
                         }
                     }
                 }
@@ -515,7 +526,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             const Float resp_sum = cur_hist[1];
                             const Float mean = resp_sum / count;
                             const Float mse = (response - mean) * (response - mean);
-                            buf_hist_ptr[cur_hist_pos + 2] += mse;
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_mse(buf_hist[cur_hist_pos + 2]);
+                            hist_mse += mse;
                         }
                     }
                     item.barrier(sycl::access::fence_space::local_space);
