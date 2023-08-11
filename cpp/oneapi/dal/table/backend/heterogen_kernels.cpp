@@ -23,6 +23,7 @@
 #include "oneapi/dal/backend/primitives/common_convert.hpp"*/
 
 #include "oneapi/dal/detail/memory.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/backend/common_kernels.hpp"
@@ -110,12 +111,14 @@ heterogen_data heterogen_row_slice(const range& rows_range,
                                    const heterogen_data& data) {
     const auto col_count = get_column_count(meta, data);
     const auto row_count = get_row_count(col_count, meta, data);
-    const auto [first, last] = rows_range.normalize_range(row_count);
+
+    const auto rows = rows_range.normalize_range(row_count);
+    const auto first = rows.start_idx, last = rows.end_idx;
 
     auto result = heterogen_data::empty(col_count);
     auto* const res_ptr = result.get_mutable_data();
 
-    for(std::int64_t col = 0l; col < col_count; ++col) {
+    detail::threader_for_int64(col_count, [&](std::int64_t col) {
         const auto dtype = meta.get_data_type(col);
         const auto elem_size = detail::get_data_type_size(dtype);
 
@@ -126,7 +129,7 @@ heterogen_data heterogen_row_slice(const range& rows_range,
         auto slice = column.get_slice(first_byte, last_byte);
 
         res_ptr[col] = std::move(slice);
-    }
+    });
 
     return result;
 }
