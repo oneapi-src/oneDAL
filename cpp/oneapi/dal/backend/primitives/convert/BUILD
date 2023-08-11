@@ -13,18 +13,6 @@ dal_module(
     ],
 )
 
-#dal_test_suite(
-#    name = "test_fixture",
-#    framework = "catch2",
-#    private = True,
-#    hdrs = glob([
-#        "test/*.hpp",
-#    ]),
-#    dal_deps = [
-#        ":convert",
-#    ],
-#)
-
 dal_module(
     name = "test_fixture",
     hdrs = glob([

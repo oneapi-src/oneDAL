@@ -24,25 +24,31 @@
 
 namespace oneapi::dal::backend {
 
+using heterogen_data = array<detail::chunked_array_base>;
+
 template <typename Policy, typename Type>
 void heterogen_pull_rows(const Policy& policy,
                          const table_metadata& meta,
-                         const array<detail::chunked_array_base>& data,
+                         const heterogen_data& data,
                          array<Type>& block_data,
                          const range& rows_range,
                          alloc_kind requested_alloc_kind);
 
+heterogen_data heterogen_row_slice(const range& rows_range,
+                                   const table_metadata& meta,
+                                   const heterogen_data& data);
+
 std::int64_t heterogen_column_count(const table_metadata& meta,
-                                    const array<detail::chunked_array_base>& data);
+                                    const heterogen_data& data);
 
 std::int64_t heterogen_row_count(std::int64_t column_count,
                                  const table_metadata& meta,
-                                 const array<detail::chunked_array_base>& data);
+                                 const heterogen_data& data);
 
 std::int64_t heterogen_row_count(const table_metadata& meta,
-                                 const array<detail::chunked_array_base>& data);
+                                 const heterogen_data& data);
 
 std::pair<std::int64_t, std::int64_t> heterogen_shape(const table_metadata& meta,
-                                      const array<detail::chunked_array_base>& data);
+                                                      const heterogen_data& data);
 
 } // namespace oneapi::dal::backend

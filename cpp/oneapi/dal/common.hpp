@@ -91,6 +91,11 @@ public:
         return (final_row - start_idx - 1) + 1;
     }
 
+    range normalize_range(std::int64_t element_count) const noexcept {
+        const auto last = (end_idx < 0l) ? element_count : end_idx;
+        return range(start_idx, last);
+    }
+
     std::int64_t start_idx;
     std::int64_t end_idx;
 };

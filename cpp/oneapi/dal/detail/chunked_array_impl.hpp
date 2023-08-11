@@ -65,7 +65,6 @@ public:
 
     chunked_array_base() : chunked_array_base{ make_array_impl(0l) } {}
 
-protected:
     template <typename... Arrays>
     void append(const Arrays&... arrays) const {
         ([&, this](){ this->append_impl(arrays); }(), ...);

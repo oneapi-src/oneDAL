@@ -41,8 +41,8 @@ class ONEDAL_EXPORT chunked_array : public detail::chunked_array_base {
 public:
     using data_t = T;
 
-    /// @brief
-    /// @param array
+    /// @brief       Move constrtuctor
+    /// @param array Source array
     chunked_array(chunked_array&& array)
         : chunked_array_base{ std::forward<base_t>(array) } {}
 
@@ -256,7 +256,32 @@ public:
         return *this;
     }
 
-private:
+    bool is_contiguous() const {
+        return base_t::is_contiguous();
+    }
+
+    bool have_same_policies() const {
+        return base_t::have_same_policies();
+    }
+
+    bool validate() const noexcept {
+        return base_t::validate();
+    }
+
+    std::int64_t get_size_in_bytes() const {
+        return base_t::get_size_in_bytes();
+    }
+
+    std::int64_t get_chunk_count() const noexcept {
+        return base_t::get_chunk_count();
+    }
+
+    template <typename... Args>
+    static inline chunked_array<T> make(Args&&... args) {
+        return chunked_array<T>( std::forward<Args>(args)... );
+    }
+
+protected:
     chunked_array(const chunked_array_base& other)
         : chunked_array_base{ other } {}
 

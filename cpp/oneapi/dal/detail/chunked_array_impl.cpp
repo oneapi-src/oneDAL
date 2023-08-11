@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/chunked_array_impl.hpp"
+#include "oneapi/dal/detail/chunked_array_utils.hpp"
 
 namespace oneapi::dal::detail::v2 {
 
@@ -121,45 +122,17 @@ private:
 template <typename Policy, typename Alloc>
 auto chunked_array_base::flatten_impl(
         const Policy& dst_policy, const Alloc& alloc) const -> array_impl_t {
-    const auto chunk_count = this->get_chunk_count();
     const auto full_size = this->get_size_in_bytes();
 
     if (full_size == std::int64_t{ 0l }) {
         return array_impl_t{};
     }
-
-    auto result = array_impl_t::empty_unique(dst_policy, full_size, alloc);
-    ONEDAL_ASSERT(result->get_size_in_bytes() == full_size);
-    auto* const dst = result->get_mutable_data();
-
-    std::int64_t offset = 0l;
-
-    for (std::int64_t c = 0l; c < chunk_count; ++c) {
-        const auto& chunk = this->get_chunk_impl(c);
-
-        const auto chunk_size = chunk.get_size_in_bytes();
-        const auto src_policy_var = chunk.get_policy();
-
-        const auto* const src_ptr = chunk.get_data();
-        auto* const dst_ptr = dst + offset;
-
-        const auto* const src_ptr_raw = reinterpret_cast<const void*>(src_ptr);
-        auto* const dst_ptr_raw = reinterpret_cast<void*>(dst_ptr);
-
-        ONEDAL_ASSERT(src_ptr_raw != nullptr);
-
-        const auto copy_chunk = [&](const auto& src_policy) {
-            memcpy(dst_policy, src_policy, dst_ptr_raw, src_ptr_raw, chunk_size);
-        };
-
-        std::visit(copy_chunk, src_policy_var);
-
-        offset += chunk_size;
+    else {
+        auto result = array_impl_t::empty_unique( //
+                        dst_policy, full_size, alloc);
+        copy(*result, *this);
+        return *result;
     }
-
-    ONEDAL_ASSERT(offset == full_size);
-
-    return *result;
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
