@@ -142,7 +142,7 @@ struct heterogen_dispatcher<detail::default_host_policy> {
                      array<Type>& block_data,
                      const range& rows_range,
                      alloc_kind requested_alloc_kind) {
-        const auto col_count = get_column_count(meta, data);
+        /*const auto col_count = get_column_count(meta, data);
         const auto row_count = get_row_count(col_count, meta, data);
         const auto [first, last] = rows_range.normalize_range(row_count);
 
@@ -170,9 +170,9 @@ struct heterogen_dispatcher<detail::default_host_policy> {
             auto slice = heterogen_row_slice( //
                     dal::range{f, l}, meta, data);
 
+            copy_slice(policy, temp, slice);
 
-
-        }
+        }*/
     }
 };
 

@@ -27,15 +27,11 @@
 namespace oneapi::dal::detail {
 namespace v2 {
 
-template <typename T>
-void copy(array_impl<T>& dst_impl, const chunked_array_base& src) {
-    auto* const dst_raw = dst_impl.get_mutable_data();
-    auto* const dst_byte = reinterpret_cast<dal::byte_t*>(dst_raw);
-
+template <typename T, typename Policy>
+void copy(T* const ptr, const Policy& policy, const chunked_array_base& src) {
     const auto chunk_count = src.get_chunk_count();
     const auto full_size = src.get_size_in_bytes();
-    const auto dst_policy_var = dst_impl.get_policy();
-    ONEDAL_ASSERT(dst_impl.get_size_in_bytes() == full_size);
+    auto* dst_byte = reinterpret_cast<dal::byte_t*>(ptr);
 
     if (full_size == std::int64_t{ 0l }) return;
 
@@ -54,16 +50,32 @@ void copy(array_impl<T>& dst_impl, const chunked_array_base& src) {
 
         ONEDAL_ASSERT(src_ptr_raw != nullptr);
 
-        const auto copy_chunk = [&](const auto& dst_policy, const auto& src_policy) {
-            memcpy(dst_policy, src_policy, dst_ptr_raw, src_ptr_raw, chunk_size);
+        const auto copy_chunk = [&](const auto& src_policy) {
+            memcpy(policy, src_policy, dst_ptr_raw, src_ptr_raw, chunk_size);
         };
 
-        std::visit(copy_chunk, dst_policy_var, src_policy_var);
+        std::visit(copy_chunk, src_policy_var);
 
         offset += chunk_size;
     }
 
     ONEDAL_ASSERT(offset == full_size);
+}
+
+template <typename T>
+void copy(array_impl<T>& dst_impl, const chunked_array_base& src) {
+    const auto full_size = src.get_size_in_bytes();
+    auto* const dst_raw = dst_impl.get_mutable_data();
+    const auto dst_policy_var = dst_impl.get_policy();
+    ONEDAL_ASSERT(dst_impl.get_size_in_bytes() == full_size);
+
+    if (full_size == std::int64_t{ 0l }) return;
+
+    const auto copy_array = [&](const auto& dst_policy) {
+        copy(dst_raw, dst_policy, src);
+    };
+
+    std::visit(copy_array, dst_policy_var);
 }
 
 template <typename T>
