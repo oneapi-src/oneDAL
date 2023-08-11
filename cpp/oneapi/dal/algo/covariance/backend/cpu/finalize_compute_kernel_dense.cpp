@@ -40,40 +40,83 @@ template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel_finalize_compute(
     const context_cpu& ctx,
     const descriptor_t& desc,
-    const partial_compute_input<Task>& data) {
-    // std::cout << "I call this" << std::endl;
-    // const std::int64_t component_count = data.get_column_count();
+    const partial_compute_input<Task>& input) {
+    bool is_mean_computed = false;
+    const std::int64_t component_count = input.get_data().get_column_count();
+    auto data = input.get_data();
 
-    // daal_covariance::Parameter daal_parameter;
-    // daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
+    daal_covariance::Parameter daal_parameter;
 
-    // dal::detail::check_mul_overflow(component_count, component_count);
+    dal::detail::check_mul_overflow(component_count, component_count);
 
-    // const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    // auto arr_crossproduct = array<Float>::empty(component_count);
-    // const auto daal_crossproduct =
-    //     interop::convert_to_daal_homogen_table(arr_crossproduct, 1, component_count);
-    // auto arr_sums = array<Float>::empty(component_count);
-    // const auto daal_sums = interop::convert_to_daal_homogen_table(arr_sums, 1, component_count);
+    auto arr_means = array<Float>::empty(component_count);
+    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+    auto daal_crossproduct = interop::convert_to_daal_table<Float>(input.get_crossproduct_matrix());
+    auto daal_sums = interop::convert_to_daal_table<Float>(input.get_sums());
+    auto daal_nobs_matrix = interop::convert_to_daal_table<int>(input.get_nobs_table());
+    if (desc.get_result_options().test(result_options::cov_matrix)) {
+        daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
+        auto arr_cov_matrix = array<Float>::empty(component_count * component_count);
+        const auto daal_cov_matrix = interop::convert_to_daal_homogen_table(arr_cov_matrix,
+                                                                            component_count,
+                                                                            component_count);
+        interop::status_to_exception(
+            interop::call_daal_kernel_finalize_compute<Float, daal_covariance_kernel_t>(
+                ctx,
+                daal_nobs_matrix.get(),
+                daal_crossproduct.get(),
+                daal_sums.get(),
+                daal_cov_matrix.get(),
+                daal_means.get(),
+                &daal_parameter));
 
-    // if (desc.get_result_options().test(result_options::cov_matrix)) {
-    //     auto arr_nobs_matrix = array<Float>::empty(component_count * component_count);
-    //     const auto daal_nobs_matrix = interop::convert_to_daal_homogen_table(arr_nobs_matrix,
-    //                                                                          component_count,
-    //                                                                          component_count);
-    //     interop::status_to_exception(
-    //         interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
-    //                                                                    daal_data.get(),
-    //                                                                    daal_nobs_matrix.get(),
-    //                                                                    daal_crossproduct.get(),
-    //                                                                    daal_sums.get(),
-    //                                                                    &daal_parameter));
-    //     result.set_cov_matrix(
-    //         homogen_table::wrap(arr_nobs_matrix, component_count, component_count));
-    // }
+        is_mean_computed = true;
+        result.set_cov_matrix(
+            homogen_table::wrap(arr_cov_matrix, component_count, component_count));
+    }
+    if (desc.get_result_options().test(result_options::cor_matrix)) {
+        auto arr_cor_matrix = array<Float>::empty(component_count * component_count);
+        const auto daal_cor_matrix = interop::convert_to_daal_homogen_table(arr_cor_matrix,
+                                                                            component_count,
+                                                                            component_count);
+
+        daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
+
+        interop::status_to_exception(
+            interop::call_daal_kernel_finalize_compute<Float, daal_covariance_kernel_t>(
+                ctx,
+                daal_nobs_matrix.get(),
+                daal_crossproduct.get(),
+                daal_sums.get(),
+                daal_cor_matrix.get(),
+                daal_means.get(),
+                &daal_parameter));
+        is_mean_computed = true;
+        result.set_cor_matrix(
+            homogen_table::wrap(arr_cor_matrix, component_count, component_count));
+    }
+    if (desc.get_result_options().test(result_options::means)) {
+        if (!is_mean_computed) {
+            auto arr_cov_matrix = array<Float>::empty(component_count * component_count);
+            const auto daal_cov_matrix = interop::convert_to_daal_homogen_table(arr_cov_matrix,
+                                                                                component_count,
+                                                                                component_count);
+            interop::status_to_exception(
+                interop::call_daal_kernel_finalize_compute<Float, daal_covariance_kernel_t>(
+                    ctx,
+                    daal_nobs_matrix.get(),
+                    daal_crossproduct.get(),
+                    daal_sums.get(),
+                    daal_cov_matrix.get(),
+                    daal_means.get(),
+                    &daal_parameter));
+        }
+        result.set_means(homogen_table::wrap(arr_means, 1, component_count));
+    }
 
     return result;
 }

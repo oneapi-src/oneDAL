@@ -37,7 +37,7 @@ void run(sycl::queue &q) {
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
     auto partial_result = dal::covariance::partial_compute_input(input);
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 1; i++) {
         const auto init_result = dal::covariance::v1::partial_compute_input(input);
         partial_result = dal::partial_compute(q, cov_desc, init_result);
     }
