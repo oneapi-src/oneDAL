@@ -162,7 +162,8 @@ struct heterogen_dispatcher<detail::default_host_policy> {
         ONEDAL_ASSERT(full_count == block_data.get_count());
 #endif // ONEDAL_ENABLE_ASSERT
 
-        auto temp = dal::array<dal::byte_t>::empty(block_size);
+        auto buff = dal::array<dal::byte_t>::empty(block_size);
+        auto buff_ptrs =
 
         for (std::int64_t f = first; f < last; f += block) {
             const auto l = std::min(f + block, last);
@@ -173,7 +174,7 @@ struct heterogen_dispatcher<detail::default_host_policy> {
             auto slice = heterogen_row_slice( //
                     dal::range{f, l}, meta, data);
 
-            copy_slice(policy, temp, slice);
+            copy_slice(policy, buff, slice);
 
         }*/
     }
@@ -212,7 +213,7 @@ void heterogen_pull_rows(const Policy& policy,
 #define INSTANTIATE(Policy, Type)                                               \
     template void heterogen_pull_rows(const Policy&,                            \
                                       const table_metadata&,                    \
-                                      const heterogen_data&, \
+                                      const heterogen_data&,                    \
                                       array<Type>&,                             \
                                       const range&,                             \
                                       alloc_kind);

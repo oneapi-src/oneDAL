@@ -9,10 +9,17 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 dal_module(
-    name = "common",
+    name = "core",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
+    ],
+)
+
+dal_module(
+    name = "common",
+    dal_deps = [
+        ":core",
         "@onedal//cpp/oneapi/dal:table",
     ],
 )
