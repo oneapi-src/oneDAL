@@ -29,7 +29,7 @@
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 template <typename CpuType, typename OutputType, typename InputType>
 struct copy_converter_impl {
@@ -196,4 +196,4 @@ template void copy_convert<__CPU_TAG__>(
                   const std::int64_t* out_strs,
                   const shape_t& shape);
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

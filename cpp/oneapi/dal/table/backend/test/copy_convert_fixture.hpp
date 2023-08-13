@@ -22,6 +22,8 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 
+#include "oneapi/dal/detail/array_utils.hpp"
+
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::backend::primitives::test {

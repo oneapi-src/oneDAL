@@ -27,13 +27,11 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
-#include "oneapi/dal/table/backend/convert/test/copy_convert_fixture.hpp"
-
-#ifdef _MSC_VER
-    #define PRETTY_FUNCTION __FUNCSIG__
-#endif // _MSC_VER
+#include "oneapi/dal/table/backend/test/copy_convert_fixture.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
+
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Param>
 class copy_convert_dpc_test : public copy_convert_fixture<Param> {
@@ -47,50 +45,65 @@ public:
     constexpr static inline std::int64_t row_count = std::tuple_size_v<sources_t>;
     constexpr static inline auto result_type = detail::make_data_type<result_t>();
 
-    void generate() {
-        this->col_count = GENERATE(100'000'001);
-        CAPTURE(this->col_count, row_count);
-        this->generate_input();
-    }
-
     void test_copy_convert_rm() {
         auto& queue = this->get_queue();
-        auto policy = this->get_device_policy();
+        auto host_policy = this->get_host_policy();
+        auto dev_policy = this->get_device_policy();
 
         const auto res_count = this->col_count * row_count;
         const auto res_size = res_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->dev, { row_count, this->col_count },
-                result_type, result, { this->col_count, 1l}).wait_and_throw();
-        };
+        auto event = copy_convert(dev_policy, types, this->dev,
+            { row_count, this->col_count }, result_type, result, { this->col_count, 1l});
+
+        sycl::event::wait_and_throw({event});
+
+        const dal::array<result_t> temp = dal::array<result_t>::wrap(queue,
+            reinterpret_cast<const result_t*>(result.get_data()), res_count);
+        dal::array<result_t> res_host = detail::copy(host_policy, temp);
+        this->compare_with_groundtruth_rm(res_host);
     }
 
     void test_copy_convert_cm() {
         auto& queue = this->get_queue();
-        auto policy = this->get_device_policy();
+        auto host_policy = this->get_host_policy();
+        auto dev_policy = this->get_device_policy();
 
         const auto res_count = this->col_count * row_count;
         const auto res_size = res_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->dev, { row_count, this->col_count },
-                result_type, result, { 1l, row_count }).wait_and_throw();
-        };
+        auto event = copy_convert(dev_policy, types, this->dev,
+            { row_count, this->col_count }, result_type, result, { 1l, row_count });
+
+        sycl::event::wait_and_throw({event});
+
+        const dal::array<result_t> temp = dal::array<result_t>::wrap(queue,
+            reinterpret_cast<const result_t*>(result.get_data()), res_count);
+        dal::array<result_t> res_host = detail::copy(host_policy, temp);
+        this->compare_with_groundtruth_cm(res_host);
     }
 };
 
 TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
-                     "Determenistic random array",
+                     "Determenistic random array - RM",
                      "[convert][2d][small]",
                      convert_types) {
     this->generate();
     this->test_copy_convert_rm();
+}
+
+TEMPLATE_LIST_TEST_M(copy_convert_dpc_test,
+                     "Determenistic random array - CM",
+                     "[convert][2d][small]",
+                     convert_types) {
+    this->generate();
     this->test_copy_convert_cm();
 }
+
+#endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives::test

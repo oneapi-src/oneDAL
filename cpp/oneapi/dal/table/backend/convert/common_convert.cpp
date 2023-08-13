@@ -23,7 +23,7 @@
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 template <bool mut, typename Pointer>
 dal::array<Pointer> compute_pointers(const dal::array<dal::byte_t>& data,
@@ -107,4 +107,4 @@ template dal::array<dal::byte_t*> compute_pointers<true>(const dal::array<dal::b
 template dal::array<const dal::byte_t*> compute_pointers<false>(
     const dal::array<dal::byte_t>&, const dal::array<std::int64_t>&);
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

@@ -22,7 +22,7 @@
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
 #include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 using detail::operator<<;
 
@@ -185,4 +185,4 @@ sycl::event copy_convert(sycl::queue& queue,
     return last_event;
 }
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

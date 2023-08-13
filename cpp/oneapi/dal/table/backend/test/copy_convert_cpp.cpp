@@ -25,11 +25,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
-#include "oneapi/dal/table/backend/convert/test/copy_convert_fixture.hpp"
-
-#ifdef _MSC_VER
-    #define PRETTY_FUNCTION __FUNCSIG__
-#endif // _MSC_VER
+#include "oneapi/dal/table/backend/test/copy_convert_fixture.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -45,12 +41,6 @@ public:
     constexpr static inline std::int64_t row_count = std::tuple_size_v<sources_t>;
     constexpr static inline auto result_type = detail::make_data_type<result_t>();
 
-    void generate() {
-        this->col_count = GENERATE(100'000'001);
-        CAPTURE(this->col_count, row_count);
-        this->generate_input();
-    }
-
     void test_copy_convert_rm() {
         auto policy = this->get_host_policy();
 
@@ -59,33 +49,44 @@ public:
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->inp, { row_count, this->col_count },
-                                        result_type, result, { this->col_count, 1l});
-        };
+        copy_convert(policy, types, this->inp, { row_count, this->col_count },
+                             result_type, result, { this->col_count, 1l});
+
+        auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
+        dal::array<result_t> temp(result, res_ptr, res_count);
+        this->compare_with_groundtruth_rm(temp);
     }
 
     void test_copy_convert_cm() {
-        auto policy = this->get_host_policy();
+        auto policy = detail::host_policy::get_default();
 
         const auto res_count = this->col_count * row_count;
         const auto res_size = res_count * sizeof(result_t);
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->inp, { row_count, this->col_count },
-                                            result_type, result, { 1l, row_count });
-        };
+        copy_convert(policy, types, this->inp, { row_count, this->col_count },
+                                result_type, result, { 1l, row_count });
+
+        const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
+        dal::array<result_t> temp(result, res_ptr, res_count);
+        this->compare_with_groundtruth_cm(temp);
     }
 };
 
 TEMPLATE_LIST_TEST_M(copy_convert_cpu_test,
-                     "Determenistic random array",
+                     "Determenistic random array - RM",
                      "[convert][2d][small]",
                      convert_types) {
     this->generate();
     this->test_copy_convert_rm();
+}
+
+TEMPLATE_LIST_TEST_M(copy_convert_cpu_test,
+                     "Determenistic random array - CM",
+                     "[convert][2d][small]",
+                     convert_types) {
+    this->generate();
     this->test_copy_convert_cm();
 }
 

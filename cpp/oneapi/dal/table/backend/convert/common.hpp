@@ -21,7 +21,7 @@
 
 #include "oneapi/dal/backend/common.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 using shape_t = std::pair<std::int64_t, std::int64_t>;
 
@@ -68,4 +68,4 @@ dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t
 
 dal::array<std::int64_t> find_sets_of_unique_pairs(const dal::array<data_type>& inp, const dal::array<data_type>& out);
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

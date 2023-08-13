@@ -25,7 +25,7 @@
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 template <typename Iter1, typename Iter2>
 struct pair_compare {
@@ -196,4 +196,4 @@ dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type
     return result;
 }*/
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

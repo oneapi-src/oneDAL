@@ -22,7 +22,7 @@
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 template <typename Left, typename Right>
 using longer_preferred_vector_desc_t = std::conditional_t<sizeof(Right) < sizeof(Left),
@@ -129,4 +129,4 @@ sycl::event copy_convert(sycl::queue& queue,
     return dispatch_by_data_type(inp_type, functor);
 }
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

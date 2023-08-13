@@ -20,7 +20,7 @@
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& input_types,
@@ -112,4 +112,4 @@ sycl::event copy_convert(sycl::queue& queue,
 
 #endif
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend

@@ -17,6 +17,9 @@ dal_module(
 
 dal_test_suite(
     name = "private_tests",
+    hdrs = [
+        "backend/test/copy_convert_fixture.hpp",
+    ],
     srcs = [
         # TODO: Move conversion tests to backend folder
         "test/convert.cpp",
@@ -24,6 +27,8 @@ dal_test_suite(
         "test/table_adapter.cpp",
         "detail/test/homogen_utils.cpp",
         "detail/test/metadata_utils.cpp",
+        "backend/test/copy_convert_cpp.cpp",
+        "backend/test/copy_convert_dpc.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",

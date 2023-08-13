@@ -26,7 +26,7 @@
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
 #include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::backend {
 
 void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& input_types,
@@ -88,4 +88,4 @@ void copy_convert(const detail::host_policy& policy,
     });
 }
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend
