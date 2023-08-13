@@ -12,7 +12,6 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal/util",
         "@onedal//cpp/oneapi/dal:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:convert",
     ],
 )
 
