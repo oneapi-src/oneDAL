@@ -36,9 +36,10 @@ void run(sycl::queue &q) {
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
-    //TODO: make a default constructor
-    auto partial_result = dal::covariance::partial_compute_input(input);
-    for (int i = 0; i < 4; i++) {
+
+    auto partial_result = dal::covariance::partial_compute_input();
+    //auto input_table = split_table_by_rows<float>(q, input, 1);
+    for (int i = 0; i < 1; i++) {
         partial_result.set_data(input);
         partial_result = dal::partial_compute(q, cov_desc, partial_result);
     }

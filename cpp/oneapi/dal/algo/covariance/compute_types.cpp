@@ -23,7 +23,8 @@ namespace oneapi::dal::covariance {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& data) : data(data) {}
+    compute_input_impl() : data(table()){};
+    compute_input_impl(const table& data) : data(data){};
     table data;
 };
 
@@ -49,6 +50,9 @@ using detail::v1::compute_result_impl;
 using detail::v1::partial_compute_input_impl;
 
 namespace v1 {
+
+template <typename Task>
+compute_input<Task>::compute_input() : impl_(new compute_input_impl<Task>{}) {}
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
@@ -122,6 +126,11 @@ void compute_result<Task>::set_means_impl(const table& value) {
 template <typename Task>
 partial_compute_input<Task>::partial_compute_input(const table& data)
         : compute_input<Task>(data),
+          impl_(new partial_compute_input_impl<Task>()) {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input()
+        : compute_input<Task>(),
           impl_(new partial_compute_input_impl<Task>()) {}
 
 template <typename Task>

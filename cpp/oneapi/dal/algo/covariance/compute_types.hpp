@@ -48,7 +48,7 @@ class compute_input : public base {
 
 public:
     using task_t = Task;
-
+    compute_input();
     /// Creates a new instance of the class with the given :literal:`data`
     /// property value
     compute_input(const table& data);
@@ -132,7 +132,7 @@ template <typename Task = task::by_default>
 class partial_compute_input : public compute_input<Task> {
 public:
     using task_t = Task;
-
+    partial_compute_input();
     partial_compute_input(const table& data);
     /// The nobs table.
     /// @remark default = table{}
