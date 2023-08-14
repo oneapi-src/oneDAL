@@ -34,7 +34,7 @@ void run(sycl::queue &q) {
 
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
+        dal::covariance::result_options::cov_matrix | dal::covariance::result_options::means);
 
     auto partial_result = dal::covariance::partial_compute_input();
     auto input_table = split_table_by_rows<double>(input, 10);
@@ -44,7 +44,7 @@ void run(sycl::queue &q) {
     }
     auto result = dal::finalize_compute(q, cov_desc, partial_result);
 
-    std::cout << "Correlation Matrix:\n" << result.get_cor_matrix() << std::endl;
+    std::cout << "Covariance Matrix:\n" << result.get_cov_matrix() << std::endl;
     std::cout << "Means:\n" << result.get_means() << std::endl;
 }
 

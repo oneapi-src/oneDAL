@@ -42,11 +42,15 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
     const descriptor_t& desc,
     const partial_compute_input<Task>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
+
     daal_covariance::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
+    daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
+
     dal::detail::check_mul_overflow(component_count, component_count);
+
     auto data = input.get_data();
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
+
     auto result = partial_compute_input(input);
 
     const bool has_nobs_data = input.get_nobs_table().has_data();
