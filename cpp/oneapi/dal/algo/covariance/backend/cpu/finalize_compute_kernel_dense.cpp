@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include <iostream>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::covariance::backend {
@@ -37,15 +36,16 @@ using daal_covariance_kernel_t = daal_covariance::internal::
 
 //TODO:rewrite kernel and add finalize
 template <typename Float, typename Task>
-static compute_result<Task> call_daal_kernel_finalize_compute(
-    const context_cpu& ctx,
-    const descriptor_t& desc,
-    const partial_compute_input<Task>& input) {
+static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
+                                                      const descriptor_t& desc,
+                                                      const partial_compute_input<Task>& input) {
     bool is_mean_computed = false;
     const std::int64_t component_count = input.get_data().get_column_count();
+
     auto data = input.get_data();
 
     daal_covariance::Parameter daal_parameter;
+    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
     dal::detail::check_mul_overflow(component_count, component_count);
 
@@ -54,10 +54,12 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto arr_means = array<Float>::empty(component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
 
-    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
     auto daal_crossproduct = interop::convert_to_daal_table<Float>(input.get_crossproduct_matrix());
     auto daal_sums = interop::convert_to_daal_table<Float>(input.get_sums());
     auto daal_nobs_matrix = interop::convert_to_daal_table<int>(input.get_nobs_table());
+
+    auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
         auto arr_cov_matrix = array<Float>::empty(component_count * component_count);
@@ -125,7 +127,7 @@ template <typename Float, typename Task>
 static compute_result<Task> finalize_compute(const context_cpu& ctx,
                                              const descriptor_t& desc,
                                              const partial_compute_input<Task>& input) {
-    return call_daal_kernel_finalize_compute<Float, Task>(ctx, desc, input);
+    return call_daal_kernel_finalize<Float, Task>(ctx, desc, input);
 }
 
 template <typename Float>

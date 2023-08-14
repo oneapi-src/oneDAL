@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include <iostream>
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::covariance::backend {
@@ -51,15 +51,11 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
 
     const bool has_nobs_data = input.get_nobs_table().has_data();
 
-    auto arr_crossproduct = array<Float>::empty(component_count * component_count);
-    auto arr_sums = array<Float>::empty(component_count);
-    auto arr_nobs_matrix = array<int>::empty(1 * 1);
-
     if (has_nobs_data) {
         auto daal_crossproduct =
-            interop::convert_to_daal_table<Float>(input.get_crossproduct_matrix());
-        auto daal_sums = interop::convert_to_daal_table<Float>(input.get_sums());
-        auto daal_nobs_matrix = interop::convert_to_daal_table<int>(input.get_nobs_table());
+            interop::copy_to_daal_homogen_table<Float>(input.get_crossproduct_matrix());
+        auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input.get_sums());
+        auto daal_nobs_matrix = interop::copy_to_daal_homogen_table<int>(input.get_nobs_table());
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
                                                                        daal_data.get(),
@@ -77,6 +73,9 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
         result.set_crossproduct_matrix(partial_result_crossproduct_arr);
     }
     else {
+        auto arr_crossproduct = array<Float>::empty(component_count * component_count);
+        auto arr_sums = array<Float>::empty(component_count);
+        auto arr_nobs_matrix = array<int>::empty(1 * 1);
         auto daal_crossproduct = interop::convert_to_daal_homogen_table<Float>(arr_crossproduct,
                                                                                component_count,
                                                                                component_count);
