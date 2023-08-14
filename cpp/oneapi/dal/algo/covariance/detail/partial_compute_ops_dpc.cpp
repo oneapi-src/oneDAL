@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/covariance/detail/partial_compute_ops.hpp"
 #include "oneapi/dal/algo/covariance/backend/cpu/partial_compute_kernel.hpp"
+#include "oneapi/dal/algo/covariance/backend/gpu/partial_compute_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::covariance::detail {
@@ -27,7 +28,8 @@ struct partial_compute_ops_dispatcher<Policy, Float, Method, Task> {
                                            const descriptor_base<Task>& desc,
                                            const partial_compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
-            KERNEL_SINGLE_NODE_CPU(backend::partial_compute_kernel_cpu<Float, Method, Task>)>;
+            KERNEL_SINGLE_NODE_CPU(backend::partial_compute_kernel_cpu<Float, Method, Task>),
+            KERNEL_SINGLE_NODE_GPU(backend::partial_compute_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t()(policy, desc, input);
     }
 };
