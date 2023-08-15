@@ -61,9 +61,11 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
     // NumericTablePtr pTbl = NumericTable::cast(pOpt->get(pastUpdateVector));
     if (algParam->optionalResultRequired)
     {
+
         const Input * algInput   = static_cast<const Input *>(input);
         size_t argumentSize      = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
         dm::NumericTablePtr pTbl = dm::NumericTablePtr(new dm::HomogenNumericTable<int>(1, 1, dm::NumericTable::doAllocate, 0));
+
         DAAL_CHECK_MALLOC(pTbl)
         pOpt->set(iterative_solver::lastIteration, pTbl);
         DAAL_ASSERT(momentum <= services::internal::MaxVal<int>::get())
