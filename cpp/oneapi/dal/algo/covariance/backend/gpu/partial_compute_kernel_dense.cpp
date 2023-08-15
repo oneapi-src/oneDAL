@@ -16,11 +16,6 @@
 
 #include "oneapi/dal/algo/covariance/backend/gpu/partial_compute_kernel.hpp"
 
-#include "oneapi/dal/backend/primitives/lapack.hpp"
-#include "oneapi/dal/backend/primitives/reduction.hpp"
-#include "oneapi/dal/backend/primitives/stat.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -74,7 +69,7 @@ auto compute_crossproduct(sycl::queue& q,
 
     return std::make_tuple(xtx, gemm_event);
 }
-//TODO:optimize nobs computing in general
+//TODO:optimize and rewrite this function. its temporary implementation
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& crossproducts,
@@ -82,6 +77,7 @@ auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& current_crossproducts,
                             const pr::ndview<Float, 1>& current_sums,
                             const pr::ndview<Float, 1>& current_nobs,
+                            std::int64_t row_count,
                             const dal::backend::event_vector& deps = {}) {
     auto column_count = crossproducts.get_dimension(1);
     auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
@@ -111,7 +107,7 @@ auto update_partial_results(sycl::queue& q,
                     current_crossproducts_ptr[i * column_count + j];
                 result_sums_ptr[i] = current_sums_ptr[i] + sums_ptr[i];
             }
-            result_nobs_ptr[0] = column_count + current_nobs_ptr[0];
+            result_nobs_ptr[0] = row_count + current_nobs_ptr[0];
         });
     });
 
@@ -122,11 +118,11 @@ template <typename Float, typename Task>
 static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
                                                    const descriptor_t& desc,
                                                    const partial_compute_input<Task>& input) {
-    //bool is_corr_computed = false;
-
     auto& q = ctx.get_queue();
+
     const auto data = input.get_data();
     auto result = partial_compute_input(input);
+
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = data.get_column_count();
@@ -140,6 +136,7 @@ static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
         pr::table2ndarray_1d<Float>(q, input.get_nobs_table(), sycl::usm::alloc::device);
     const auto crossproducts_nd =
         pr::table2ndarray<Float>(q, input.get_crossproduct_matrix(), sycl::usm::alloc::device);
+
     auto [sums, sums_event] = compute_sums(q, data_nd);
 
     auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd);
@@ -151,6 +148,7 @@ static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
                                crossproducts_nd,
                                sums_nd,
                                nobs_nd,
+                               row_count,
                                { crossproduct_event });
 
     result.set_sums(
@@ -159,6 +157,7 @@ static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
         (homogen_table::wrap(result_crossproducts.flatten(q, { update_event }),
                              column_count,
                              column_count)));
+    result.set_nobs_table((homogen_table::wrap(result_nobs.flatten(q, { update_event }), 1, 1)));
 
     return result;
 }

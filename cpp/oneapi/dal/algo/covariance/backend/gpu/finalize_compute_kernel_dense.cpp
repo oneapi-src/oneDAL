@@ -104,8 +104,6 @@ template <typename Float, typename Task>
 static compute_result<Task> finalize_compute(const context_gpu& ctx,
                                              const descriptor_t& desc,
                                              const partial_compute_input<Task>& input) {
-    //bool is_corr_computed = false;
-    //auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
     auto& q = ctx.get_queue();
     const auto data = input.get_data();
 
@@ -119,8 +117,9 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     sycl::event event;
-    //TODO:fix temporary workaround for examples
-    auto rows_count_global = 200;
+    //TODO:investigate other options to get row count
+    const auto nobs_host = pr::table2ndarray<Float>(q, input.get_nobs_table());
+    auto rows_count_global = nobs_host.get_mutable_data()[0];
 
     const auto sums = pr::table2ndarray_1d<Float>(q, input.get_sums(), sycl::usm::alloc::device);
     const auto xtx =
