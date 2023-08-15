@@ -99,7 +99,7 @@ struct HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(std::uint32_t id, std::int64_t & value) = 0;
+    virtual services::Status find(std::uint32_t id, std::int64_t & value) const = 0;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -109,7 +109,7 @@ struct HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(std::uint32_t id, double & value) = 0;
+    virtual services::Status find(std::uint32_t id, double & value) const = 0;
 
     virtual ~HyperparameterIface() {}
 };
@@ -130,7 +130,12 @@ struct Hyperparameter : protected HyperparameterIface
 {
     DAAL_NEW_DELETE();
 
-    Hyperparameter();
+    /**
+     * Constructs the requested number of performance-related hyperparameters for the algorithm
+     * \param[in] intParamCount     Number of integer hyperparameters
+     * \param[in] doubleParamCount  Number of double precision hyperparameters
+     */
+    Hyperparameter(size_t intParamCount = 0, size_t doubleParamCount = 0);
     virtual ~Hyperparameter() {}
 
 protected:
@@ -160,7 +165,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(std::uint32_t id, std::int64_t & value) final;
+    services::Status find(std::uint32_t id, std::int64_t & value) const final;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -170,7 +175,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(std::uint32_t id, double & value) final;
+    services::Status find(std::uint32_t id, double & value) const final;
 
     /** Pointer to the implementation */
     services::SharedPtr<HyperparameterBaseImpl> _pimpl;
