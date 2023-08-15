@@ -111,6 +111,7 @@ protected:
     PartialResult * _pres;
     Result * _res;
     Parameter * _par;
+    Hyperparameter * _hpar;
 
 private:
     Algorithm(const Algorithm &);
@@ -160,6 +161,7 @@ protected:
 
     daal::algorithms::AlgorithmContainerImpl<batch> * _ac;
 
+    Hyperparameter * _hpar;
     Parameter * _par;
     Input * _in;
     Result * _res;
