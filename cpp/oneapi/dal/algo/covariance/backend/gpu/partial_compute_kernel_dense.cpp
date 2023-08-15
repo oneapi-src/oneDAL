@@ -14,106 +14,145 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "daal/src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
-
 #include "oneapi/dal/algo/covariance/backend/gpu/partial_compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+
+#include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/backend/transfer.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/backend/memory.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
+using alloc = sycl::usm::alloc;
+namespace pr = oneapi::dal::backend::primitives;
+
+using dal::backend::context_cpu;
 using dal::backend::context_gpu;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_covariance = daal::algorithms::covariance;
-namespace interop = dal::backend::interop;
-
 template <typename Float>
-using daal_covariance_kernel_t = daal_covariance::oneapi::internal::
-    CovarianceDenseOnlineKernelOneAPI<Float, daal_covariance::Method::defaultDense>;
+auto compute_sums(sycl::queue& q,
+                  const pr::ndview<Float, 2>& data,
+                  const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
 
-template <typename Float, typename Task>
-static partial_compute_input<Task> call_daal_kernel_partial_compute(
-    const context_gpu& ctx,
-    const descriptor_t& desc,
-    const partial_compute_input<Task>& input) {
-    //bool is_mean_computed = false;
+    const std::int64_t column_count = data.get_dimension(1);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
 
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
-
-    const std::int64_t component_count = input.get_data().get_column_count();
-
-    daal_covariance::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
-
-    dal::detail::check_mul_overflow(component_count, component_count);
-    const auto data = input.get_data();
-    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
-
-    auto result = partial_compute_input(input);
-
-    const bool has_nobs_data = input.get_nobs_table().has_data();
-
-    if (has_nobs_data) {
-        // auto daal_crossproduct =
-        //     interop::copy_to_daal_homogen_table(input.get_crossproduct_matrix());
-        // auto daal_sums = interop::copy_to_daal_homogen_table(input.get_sums());
-        // auto daal_nobs_matrix = interop::copy_to_daal_homogen_table(input.get_nobs_table());
-        // interop::status_to_exception(
-        //     daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-        //                                               daal_nobs_matrix.get(),
-        //                                               daal_crossproduct.get(),
-        //                                               daal_sums.get(),
-        //                                               &daal_parameter));
-        // auto partial_result_sums_arr = interop::convert_from_daal_homogen_table<Float>(daal_sums);
-        // auto partial_result_nobs_arr =
-        //     interop::convert_from_daal_homogen_table<int>(daal_nobs_matrix);
-        // auto partial_result_crossproduct_arr =
-        //     interop::convert_from_daal_homogen_table<Float>(daal_crossproduct);
-        // result.set_sums(partial_result_sums_arr);
-        // result.set_nobs_table(partial_result_nobs_arr);
-        // result.set_crossproduct_matrix(partial_result_crossproduct_arr);
-    }
-    else {
-        auto arr_crossproduct =
-            array<Float>::empty(queue, component_count * component_count, sycl::usm::alloc::device);
-        auto arr_sums = array<Float>::empty(queue, component_count, sycl::usm::alloc::device);
-        auto arr_nobs_matrix = array<int>::empty(queue, 1 * 1, sycl::usm::alloc::device);
-        const auto daal_crossproduct = interop::convert_to_daal_homogen_table(arr_crossproduct,
-                                                                              component_count,
-                                                                              component_count);
-        const auto daal_sums = interop::convert_to_daal_homogen_table(arr_sums, 1, component_count);
-        const auto daal_nobs_matrix = interop::convert_to_daal_homogen_table(arr_nobs_matrix, 1, 1);
-        interop::status_to_exception(
-            daal_covariance_kernel_t<Float>().compute(daal_data.get(),
-                                                      daal_nobs_matrix.get(),
-                                                      daal_crossproduct.get(),
-                                                      daal_sums.get(),
-                                                      &daal_parameter));
-
-        result.set_sums(homogen_table::wrap(arr_sums, component_count, 1));
-        result.set_nobs_table(homogen_table::wrap(arr_nobs_matrix, 1, 1));
-        result.set_crossproduct_matrix(
-            homogen_table::wrap(arr_crossproduct, component_count, component_count));
-    }
-
-    return result;
+    return std::make_tuple(sums, reduce_event);
 }
 
+template <typename Float>
+auto compute_crossproduct(sycl::queue& q,
+                          const pr::ndview<Float, 2>& data,
+                          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_ASSERT(data.has_data());
+
+    const std::int64_t column_count = data.get_dimension(1);
+    auto xtx = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    sycl::event gemm_event;
+    {
+        ONEDAL_PROFILER_TASK(gemm, q);
+        gemm_event = gemm(q, data.t(), data, xtx, Float(1.0), Float(0.0));
+        gemm_event.wait_and_throw();
+    }
+
+    return std::make_tuple(xtx, gemm_event);
+}
+
+template <typename Float>
+auto update_crossproduct_and_sums(sycl::queue& q,
+                                  const pr::ndview<Float, 2>& crossproducts,
+                                  const pr::ndview<Float, 1>& sums,
+                                  const pr::ndview<Float, 2>& current_crossproducts,
+                                  const pr::ndview<Float, 1>& current_sums,
+                                  const dal::backend::event_vector& deps = {}) {
+    auto column_count = crossproducts.get_dimension(1);
+    auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
+    auto result_crossproducts =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    auto result_sums_ptr = result_sums.get_mutable_data();
+    auto sums_ptr = sums.get_mutable_data();
+    auto current_sums_ptr = current_sums.get_mutable_data();
+    auto result_crossproducts_ptr = result_crossproducts.get_mutable_data();
+    auto crossproducts_ptr = crossproducts.get_mutable_data();
+    auto current_crossproducts_ptr = current_crossproducts.get_mutable_data();
+    auto update_event = q.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range<2>(column_count, column_count);
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::item<2> id) {
+            const std::int64_t i = id.get_id(0);
+            const std::int64_t j = id.get_id(1);
+
+            if (i < column_count && j < column_count) {
+                result_crossproducts_ptr[i * column_count + j] =
+                    crossproducts_ptr[i * column_count + j] +
+                    current_crossproducts_ptr[i * column_count + j]; // Add the corresponding values
+                result_sums_ptr[i] = current_sums_ptr[i] + sums_ptr[i];
+            }
+        });
+    });
+
+    return std::make_tuple(result_sums, result_crossproducts, update_event);
+}
+//TODO::add nobs computation
 template <typename Float, typename Task>
 static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
                                                    const descriptor_t& desc,
                                                    const partial_compute_input<Task>& input) {
-    return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input);
+    //bool is_corr_computed = false;
+    //auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+    auto& q = ctx.get_queue();
+    const auto data = input.get_data();
+    auto result = partial_compute_input(input);
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t component_count = data.get_column_count();
+    dal::detail::check_mul_overflow(row_count, column_count);
+    dal::detail::check_mul_overflow(column_count, column_count);
+    dal::detail::check_mul_overflow(component_count, column_count);
+
+    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
+    const auto sums_nd = pr::table2ndarray_1d<Float>(q, input.get_sums(), sycl::usm::alloc::device);
+    const auto crossproducts_nd =
+        pr::table2ndarray<Float>(q, input.get_crossproduct_matrix(), sycl::usm::alloc::device);
+    auto [sums, sums_event] = compute_sums(q, data_nd);
+
+    auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd);
+
+    auto [result_sums, result_crossproducts, update_event] =
+        update_crossproduct_and_sums(q,
+                                     crossproduct,
+                                     sums,
+                                     crossproducts_nd,
+                                     sums_nd,
+                                     { crossproduct_event });
+
+    result.set_sums(
+        (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));
+    result.set_crossproduct_matrix(
+        (homogen_table::wrap(result_crossproducts.flatten(q, { update_event }),
+                             column_count,
+                             column_count)));
+
+    return result;
 }
 
 template <typename Float>
@@ -127,6 +166,6 @@ struct partial_compute_kernel_gpu<Float, method::by_default, task::compute> {
 };
 
 template struct partial_compute_kernel_gpu<float, method::dense, task::compute>;
-// template struct partial_compute_kernel_gpu<double, method::dense, task::compute>;
+template struct partial_compute_kernel_gpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::covariance::backend
