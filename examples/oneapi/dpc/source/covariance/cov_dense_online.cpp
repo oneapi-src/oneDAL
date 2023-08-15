@@ -44,8 +44,7 @@ void run(sycl::queue &q) {
     }
     auto result = dal::finalize_compute(q, cov_desc, partial_result);
 
-    std::cout << "Covariance Matrix:\n" << result.get_cov_matrix() << std::endl;
-    std::cout << "Means:\n" << result.get_means() << std::endl;
+    std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

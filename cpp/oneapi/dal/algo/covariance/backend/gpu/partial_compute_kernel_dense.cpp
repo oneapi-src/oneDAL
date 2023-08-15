@@ -74,18 +74,22 @@ auto compute_crossproduct(sycl::queue& q,
 
     return std::make_tuple(xtx, gemm_event);
 }
-
+//TODO:optimize nobs computing in general
 template <typename Float>
-auto update_crossproduct_and_sums(sycl::queue& q,
-                                  const pr::ndview<Float, 2>& crossproducts,
-                                  const pr::ndview<Float, 1>& sums,
-                                  const pr::ndview<Float, 2>& current_crossproducts,
-                                  const pr::ndview<Float, 1>& current_sums,
-                                  const dal::backend::event_vector& deps = {}) {
+auto update_partial_results(sycl::queue& q,
+                            const pr::ndview<Float, 2>& crossproducts,
+                            const pr::ndview<Float, 1>& sums,
+                            const pr::ndview<Float, 2>& current_crossproducts,
+                            const pr::ndview<Float, 1>& current_sums,
+                            const pr::ndview<Float, 1>& current_nobs,
+                            const dal::backend::event_vector& deps = {}) {
     auto column_count = crossproducts.get_dimension(1);
     auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
     auto result_crossproducts =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1, alloc::device);
+    auto result_nobs_ptr = result_nobs.get_mutable_data();
+    auto current_nobs_ptr = current_nobs.get_mutable_data();
 
     auto result_sums_ptr = result_sums.get_mutable_data();
     auto sums_ptr = sums.get_mutable_data();
@@ -104,21 +108,22 @@ auto update_crossproduct_and_sums(sycl::queue& q,
             if (i < column_count && j < column_count) {
                 result_crossproducts_ptr[i * column_count + j] =
                     crossproducts_ptr[i * column_count + j] +
-                    current_crossproducts_ptr[i * column_count + j]; // Add the corresponding values
+                    current_crossproducts_ptr[i * column_count + j];
                 result_sums_ptr[i] = current_sums_ptr[i] + sums_ptr[i];
             }
+            result_nobs_ptr[0] = column_count + current_nobs_ptr[0];
         });
     });
 
-    return std::make_tuple(result_sums, result_crossproducts, update_event);
+    return std::make_tuple(result_sums, result_crossproducts, result_nobs, update_event);
 }
-//TODO::add nobs computation
+
 template <typename Float, typename Task>
 static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
                                                    const descriptor_t& desc,
                                                    const partial_compute_input<Task>& input) {
     //bool is_corr_computed = false;
-    //auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
+
     auto& q = ctx.get_queue();
     const auto data = input.get_data();
     auto result = partial_compute_input(input);
@@ -131,19 +136,22 @@ static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
     const auto sums_nd = pr::table2ndarray_1d<Float>(q, input.get_sums(), sycl::usm::alloc::device);
+    const auto nobs_nd =
+        pr::table2ndarray_1d<Float>(q, input.get_nobs_table(), sycl::usm::alloc::device);
     const auto crossproducts_nd =
         pr::table2ndarray<Float>(q, input.get_crossproduct_matrix(), sycl::usm::alloc::device);
     auto [sums, sums_event] = compute_sums(q, data_nd);
 
     auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd);
 
-    auto [result_sums, result_crossproducts, update_event] =
-        update_crossproduct_and_sums(q,
-                                     crossproduct,
-                                     sums,
-                                     crossproducts_nd,
-                                     sums_nd,
-                                     { crossproduct_event });
+    auto [result_sums, result_crossproducts, result_nobs, update_event] =
+        update_partial_results(q,
+                               crossproduct,
+                               sums,
+                               crossproducts_nd,
+                               sums_nd,
+                               nobs_nd,
+                               { crossproduct_event });
 
     result.set_sums(
         (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));

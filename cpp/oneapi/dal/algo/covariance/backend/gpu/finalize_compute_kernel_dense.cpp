@@ -119,7 +119,8 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     sycl::event event;
-    auto rows_count_global = component_count;
+    //TODO:fix temporary workaround for examples
+    auto rows_count_global = 200;
 
     const auto sums = pr::table2ndarray_1d<Float>(q, input.get_sums(), sycl::usm::alloc::device);
     const auto xtx =

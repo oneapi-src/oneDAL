@@ -44,8 +44,8 @@ void run(sycl::queue &q) {
     }
     auto result = dal::finalize_compute(q, cov_desc, partial_result);
 
-    std::cout << "Correlation Matrix:\n" << result.get_cor_matrix() << std::endl;
     std::cout << "Means:\n" << result.get_means() << std::endl;
+    std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
