@@ -37,7 +37,7 @@ bool daal_check_is_intel_cpu();
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__INTEL_COMPILER)
     #define PRAGMA_IVDEP            _Pragma("ivdep")
     #define PRAGMA_NOVECTOR         _Pragma("novector")
     #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector aligned")
