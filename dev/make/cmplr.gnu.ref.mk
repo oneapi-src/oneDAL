@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.gnu = generic
 -DEBC.gnu = -g
 
 COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -DDAAL_REF -Werror -Wreturn-type
+                    -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
 
 link.dynamic.all.gnu = ${CXX} -m64
 
