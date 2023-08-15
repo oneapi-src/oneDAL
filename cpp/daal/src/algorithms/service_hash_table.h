@@ -24,7 +24,7 @@
 #ifndef __SERVICE_HASH_TABLE_H__
 #define __SERVICE_HASH_TABLE_H__
 
-#include "src/services/service_utils.h"
+#include "src/services/service_arrays.h"
 
 namespace daal
 {
@@ -83,7 +83,7 @@ public:
         }
     }
 
-    bool find(const KeyType & key, ValueType & value)
+    bool find(const KeyType & key, ValueType & value) const
     {
         const size_t id = _hashFunc(key) % _size;
         if (_table[id].isFree)
@@ -230,4 +230,4 @@ private:
 } // namespace algorithms
 } // namespace daal
 
-#endif //__SERVICE_HASH_MAP_H__
+#endif //__SERVICE_HASH_TABLE_H__
