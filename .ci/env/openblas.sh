@@ -20,6 +20,6 @@ sudo apt-get install build-essential gcc gfortran
 git clone https://github.com/xianyi/OpenBLAS.git
 pushd OpenBLAS
   make clean
-  make -j4
+  make -j4 NO_FORTRAN=1
   make install PREFIX=../__deps/open_blas
 popd
