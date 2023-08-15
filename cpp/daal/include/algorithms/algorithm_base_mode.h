@@ -53,7 +53,7 @@ class Algorithm : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0) {}
+    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0), _hpar(0) {}
 
     virtual ~Algorithm()
     {
@@ -129,7 +129,7 @@ class Algorithm<batch> : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _par(0), _in(0), _res(0) {}
+    Algorithm() : _ac(0), _par(0), _in(0), _res(0), _hpar(0) {}
 
     virtual ~Algorithm()
     {
@@ -146,6 +146,8 @@ public:
 
     Parameter * getBaseParameter() { return _par; }
 
+    Hyperparameter * getBaseHyperparameter() { return _hpar; }
+
 protected:
     services::Status allocateResultMemory()
     {
@@ -154,6 +156,8 @@ protected:
     }
 
     virtual void setParameter() {}
+
+    virtual void setHyperparameter() {}
 
     virtual services::Status allocateResult() = 0;
 
