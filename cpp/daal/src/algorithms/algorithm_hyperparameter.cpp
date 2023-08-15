@@ -38,8 +38,7 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
 {
     DAAL_NEW_DELETE();
 
-    HyperparameterImpl(size_t intParamCount, size_t doubleParamCount = 0) :
-        _iHT(intParamCount), _dHT(doubleParamCount) {}
+    HyperparameterImpl(size_t intParamCount, size_t doubleParamCount = 0) : _iHT(intParamCount), _dHT(doubleParamCount) {}
 
     services::Status set(std::uint32_t id, std::int64_t value)
     {
@@ -53,13 +52,13 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
         return services::Status();
     }
 
-    services::Status find(std::uint32_t id, std::int64_t& value)
+    services::Status find(std::uint32_t id, std::int64_t & value)
     {
         DAAL_CHECK_EX(_iHT.find(id, value), services::ErrorHyperparameterNotFound, services::Key, id);
         return services::Status();
     }
 
-    services::Status find(std::uint32_t id, double& value)
+    services::Status find(std::uint32_t id, double & value)
     {
         DAAL_CHECK_EX(_dHT.find(id, value), services::ErrorHyperparameterNotFound, services::Key, id);
         return services::Status();
@@ -73,12 +72,11 @@ protected:
     HashTable<sse2, std::uint32_t, double> _dHT;
 };
 
-} // namespace intrernal
+} // namespace internal
 
 namespace interface1
 {
-Hyperparameter::Hyperparameter() : _pimpl(new internal::HyperparameterImpl(0, 0))
-{}
+Hyperparameter::Hyperparameter() : _pimpl(new internal::HyperparameterImpl(0, 0)) {}
 
 services::Status Hyperparameter::set(std::uint32_t id, std::int64_t value)
 {
@@ -90,12 +88,12 @@ services::Status Hyperparameter::set(std::uint32_t id, double value)
     return _pimpl->set(id, value);
 }
 
-services::Status Hyperparameter::find(std::uint32_t id, std::int64_t& value)
+services::Status Hyperparameter::find(std::uint32_t id, std::int64_t & value)
 {
     return _pimpl->find(id, value);
 }
 
-services::Status Hyperparameter::find(std::uint32_t id, double& value)
+services::Status Hyperparameter::find(std::uint32_t id, double & value)
 {
     return _pimpl->find(id, value);
 }

@@ -99,7 +99,7 @@ struct HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(std::uint32_t id, std::int64_t& value) = 0;
+    virtual services::Status find(std::uint32_t id, std::int64_t & value) = 0;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -109,7 +109,7 @@ struct HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(std::uint32_t id, double& value) = 0;
+    virtual services::Status find(std::uint32_t id, double & value) = 0;
 
     virtual ~HyperparameterIface() {}
 };
@@ -134,10 +134,7 @@ struct Hyperparameter : protected HyperparameterIface
     virtual ~Hyperparameter() {}
 
 protected:
-    void initImpl(HyperparameterBaseImpl* impl)
-    {
-        _pimpl.reset(impl);
-    }
+    void initImpl(HyperparameterBaseImpl * impl) { _pimpl.reset(impl); }
 
     /**
      * Sets integer hyperparameter into this structure
@@ -163,7 +160,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(std::uint32_t id, std::int64_t& value) final;
+    services::Status find(std::uint32_t id, std::int64_t & value) final;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -173,7 +170,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(std::uint32_t id, double& value) final;
+    services::Status find(std::uint32_t id, double & value) final;
 
     /** Pointer to the implementation */
     services::SharedPtr<HyperparameterBaseImpl> _pimpl;
