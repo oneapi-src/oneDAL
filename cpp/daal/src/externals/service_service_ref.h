@@ -106,7 +106,7 @@ struct RefService
 
     static int serv_strncpy_s(char * dest, size_t dmax, const char * src, size_t slen)
     {
-        if (dmax < slen + 1) return static_cast<int>(ENOMEM);
+        if (dmax < slen) return static_cast<int>(ENOMEM);
         strncpy(dest, src, slen);
         return 0;
         // TODO: safe funtion
