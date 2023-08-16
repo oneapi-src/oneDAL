@@ -75,6 +75,8 @@ public:
      */
     virtual services::Status checkFinalizeComputeParams() = 0;
 
+    void setHyperparameter(const Hyperparameter * hpar) { _hpar = hpar; }
+
 protected:
     PartialResult * allocatePartialResultMemory()
     {
@@ -111,7 +113,7 @@ protected:
     PartialResult * _pres;
     Result * _res;
     Parameter * _par;
-    Hyperparameter * _hpar;
+    const Hyperparameter * _hpar;
 
 private:
     Algorithm(const Algorithm &);
@@ -146,7 +148,9 @@ public:
 
     Parameter * getBaseParameter() { return _par; }
 
-    Hyperparameter * getBaseHyperparameter() { return _hpar; }
+    const Hyperparameter * getBaseHyperparameter() { return _hpar; }
+
+    void setHyperparameter(const Hyperparameter * hpar) { _hpar = hpar; }
 
 protected:
     services::Status allocateResultMemory()
@@ -163,7 +167,7 @@ protected:
 
     daal::algorithms::AlgorithmContainerImpl<batch> * _ac;
 
-    Hyperparameter * _hpar;
+    const Hyperparameter * _hpar;
     Parameter * _par;
     Input * _in;
     Result * _res;

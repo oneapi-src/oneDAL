@@ -269,7 +269,7 @@ public:
     BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter)
     {
         initialize();
-        _hpar = new HyperparameterType(other.hyperparameter());
+        _hpar = other.hyperparameter();
     }
 
     /**
@@ -298,22 +298,16 @@ public:
      */
     services::SharedPtr<BatchImpl> clone() const { return services::SharedPtr<BatchImpl>(cloneImpl()); }
 
-    virtual ~BatchImpl() { delete _hpar; }
+    virtual ~BatchImpl() {}
 
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< %Parameter structure */
 
     /**
-     * Get mutable reference to the hyperparameters of the algorithm
-     * \return Reference to the hyperparameters
+     * Get the pointer to the immutable hyperparameters of the algorithm
+     * \return Pointer to the hyperparameters
      */
-    HyperparameterType & hyperparameter() { return *static_cast<HyperparameterType *>(_hpar); }
-
-    /**
-     * Get immutable reference to the hyperparameters of the algorithm
-     * \return Reference to the hyperparameters
-     */
-    const HyperparameterType & hyperparameter() const { return *static_cast<const HyperparameterType *>(_hpar); }
+    const HyperparameterType * hyperparameter() const { return static_cast<const HyperparameterType *>(_hpar); }
 
 protected:
     ResultPtr _result;

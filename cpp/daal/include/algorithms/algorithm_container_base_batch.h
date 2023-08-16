@@ -107,7 +107,7 @@ public:
      * \param[in] par   Pointer to the parameters of the algorithm
      * \param[in] hpar  Pointer to the hyperparameters of the algorithm
      */
-    void setArguments(Input * in, Result * res, Parameter * par, Hyperparameter * hpar)
+    void setArguments(Input * in, Result * res, Parameter * par, const Hyperparameter * hpar)
     {
         _in   = in;
         _par  = par;
@@ -126,7 +126,7 @@ public:
     virtual services::Status resetCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
-    Hyperparameter * _hpar;
+    const Hyperparameter * _hpar;
     Parameter * _par;
     Input * _in;
     Result * _res;
