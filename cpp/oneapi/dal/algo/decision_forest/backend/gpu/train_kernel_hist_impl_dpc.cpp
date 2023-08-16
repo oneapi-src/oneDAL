@@ -457,7 +457,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
 
     pr::rng<Index> rn_gen;
     auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
-
     if (ctx.selected_ftr_count_ != ctx.column_count_) {
         for (Index node = 0; node < node_count; ++node) {
             rn_gen.uniform_without_replacement(
@@ -1875,6 +1874,8 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                 ctx.selected_row_total_count_; // global selected rows - it is already filtered for current block
             node_ptr[impl_const_t::ind_lch_lrc] =
                 0; // for distr_mode it will be updated during tree_order_gen
+            node_ptr[impl_const_t::ind_fid] = impl_const_t::bad_val_;
+            node_ptr[impl_const_t::ind_bin] = impl_const_t::bad_val_;
         }
 
         last_event = gen_initial_tree_order(ctx,
