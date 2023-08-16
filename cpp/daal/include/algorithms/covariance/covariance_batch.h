@@ -257,11 +257,7 @@ public:
     typedef algorithms::covariance::Result ResultType;
 
     /** Default constructor */
-    BatchImpl()
-    {
-        initialize();
-        _hpar = new HyperparameterType();
-    }
+    BatchImpl() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -325,8 +321,9 @@ protected:
     void initialize()
     {
         _result.reset(new ResultType());
-        _in  = &input;
-        _par = &parameter;
+        _in   = &input;
+        _par  = &parameter;
+        _hpar = nullptr;
     }
     virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
