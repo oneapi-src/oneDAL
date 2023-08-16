@@ -200,8 +200,7 @@ CORE.ALGORITHMS.INC :=                                                        \
     tsne
 
 
-CORE.SERVICES       := compression            \
-                       data_management
+CORE.SERVICES       := data_management
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
 ONEAPI.ALGOS.basic_statistics := CORE.moments
@@ -413,9 +412,4 @@ JJ.ALGORITHMS       := adaboost                                                 
                        weak_learner/training
 
 JJ.DATA_MANAGEMENT  := data                                                      \
-                       data_source                                               \
-                       compression                                               \
-                       compression/bzip2                                         \
-                       compression/lzo                                           \
-                       compression/rle                                           \
-                       compression/zlib
+                       data_source
