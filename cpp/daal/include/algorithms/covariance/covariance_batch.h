@@ -308,8 +308,9 @@ protected:
     void initialize()
     {
         _result.reset(new ResultType());
-        _in  = &input;
-        _par = &parameter;
+        _in   = &input;
+        _par  = &parameter;
+        _hpar = nullptr;
     }
     virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
