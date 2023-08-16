@@ -64,6 +64,20 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
 
+    daal_cov::Hyperparameter daal_hyperparameter;
+    /// the logic of block size calculation is copied from DAAL,
+    /// to be changed to passing the values from the performance model
+    std::int64_t blockSize = 140;
+    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
+        const std::int64_t row_count = data.get_row_count();
+        if (5000 < row_count && row_count <= 50000) {
+            blockSize = 1024;
+        }
+    }
+    interop::status_to_exception(
+        daal_hyperparameter.set(daal_cov::denseUpdateStepBlockSize, blockSize));
+    covariance_alg.setHyperparameter(&daal_hyperparameter);
+
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
