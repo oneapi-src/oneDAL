@@ -105,20 +105,6 @@ public:
      * \param[in] in    Pointer to the input arguments of the algorithm
      * \param[in] res   Pointer to the final results of the algorithm
      * \param[in] par   Pointer to the parameters of the algorithm
-     */
-    void setArguments(Input * in, Result * res, Parameter * par)
-    {
-        _in   = in;
-        _par  = par;
-        _res  = res;
-        _hpar = 0;
-    }
-
-    /**
-     * Sets arguments of the algorithm
-     * \param[in] in    Pointer to the input arguments of the algorithm
-     * \param[in] res   Pointer to the final results of the algorithm
-     * \param[in] par   Pointer to the parameters of the algorithm
      * \param[in] hpar  Pointer to the hyperparameters of the algorithm
      */
     void setArguments(Input * in, Result * res, Parameter * par, Hyperparameter * hpar)
