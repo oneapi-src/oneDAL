@@ -157,8 +157,6 @@ protected:
 
     virtual void setParameter() {}
 
-    virtual void setHyperparameter() {}
-
     virtual services::Status allocateResult() = 0;
 
     virtual Algorithm<batch> * cloneImpl() const = 0;

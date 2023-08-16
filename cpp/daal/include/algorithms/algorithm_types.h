@@ -160,7 +160,7 @@ protected:
     /**
      * Finds integer hyperparameter in this structure
      * \param[in]  id    Unique to the particular algorithm identifier of the hyperparameter
-     * \param[out] value The value of the hyperparameter
+     * \param[out] value The value of the found hyperparameter
      * \return Execution status.
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
@@ -170,7 +170,7 @@ protected:
     /**
      * Finds double precision hyperparameter in this structure
      * \param[in]  id    Unique to the particular algorithm identifier of the hyperparameter
-     * \param[out] value The value of the hyperparameter
+     * \param[out] value The value of the found hyperparameter
      * \return Execution status.
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.

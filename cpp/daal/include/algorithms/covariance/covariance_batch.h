@@ -251,12 +251,17 @@ public:
 class DAAL_EXPORT BatchImpl : public daal::algorithms::Analysis<batch>
 {
 public:
+    typedef algorithms::covariance::Hyperparameter HyperparameterType;
     typedef algorithms::covariance::Input InputType;
     typedef algorithms::covariance::Parameter ParameterType;
     typedef algorithms::covariance::Result ResultType;
 
     /** Default constructor */
-    BatchImpl() { initialize(); }
+    BatchImpl()
+    {
+        initialize();
+        _hpar = new HyperparameterType();
+    }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -265,7 +270,11 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter) { initialize(); }
+    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter)
+    {
+        initialize();
+        _hpar = new HyperparameterType(other.hyperparameter());
+    }
 
     /**
      * Returns the structure that contains correlation or variance-covariance matrix
@@ -293,10 +302,22 @@ public:
      */
     services::SharedPtr<BatchImpl> clone() const { return services::SharedPtr<BatchImpl>(cloneImpl()); }
 
-    virtual ~BatchImpl() {}
+    virtual ~BatchImpl() { delete _hpar; }
 
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< %Parameter structure */
+
+    /**
+     * Get mutable reference to the hyperparameters of the algorithm
+     * \return Reference to the hyperparameters
+     */
+    HyperparameterType & hyperparameter() { return *static_cast<HyperparameterType *>(_hpar); }
+
+    /**
+     * Get immutable reference to the hyperparameters of the algorithm
+     * \return Reference to the hyperparameters
+     */
+    const HyperparameterType & hyperparameter() const { return *static_cast<const HyperparameterType *>(_hpar); }
 
 protected:
     ResultPtr _result;
@@ -334,6 +355,7 @@ class DAAL_EXPORT Batch : public BatchImpl
 public:
     typedef BatchImpl super;
 
+    typedef typename super::HyperparameterType HyperparameterType;
     typedef typename super::InputType InputType;
     typedef typename super::ParameterType ParameterType;
     typedef typename super::ResultType ResultType;
