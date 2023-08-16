@@ -58,7 +58,7 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
         auto daal_crossproduct =
             interop::copy_to_daal_homogen_table<Float>(input.get_crossproduct_matrix());
         auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input.get_sums());
-        auto daal_nobs_matrix = interop::copy_to_daal_homogen_table<int>(input.get_nobs_table());
+        auto daal_nobs_matrix = interop::copy_to_daal_homogen_table<Float>(input.get_nobs_table());
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
                                                                        daal_data.get(),
@@ -66,25 +66,22 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
                                                                        &daal_parameter));
-        auto partial_result_sums_arr = interop::convert_from_daal_homogen_table<Float>(daal_sums);
-        auto partial_result_nobs_arr =
-            interop::convert_from_daal_homogen_table<int>(daal_nobs_matrix);
-        auto partial_result_crossproduct_arr =
-            interop::convert_from_daal_homogen_table<Float>(daal_crossproduct);
-        result.set_sums(partial_result_sums_arr);
-        result.set_nobs_table(partial_result_nobs_arr);
-        result.set_crossproduct_matrix(partial_result_crossproduct_arr);
+        result.set_sums(interop::convert_from_daal_homogen_table<Float>(daal_sums));
+        result.set_nobs_table(interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
+        result.set_crossproduct_matrix(
+            interop::convert_from_daal_homogen_table<Float>(daal_crossproduct));
     }
     else {
         auto arr_crossproduct = array<Float>::empty(component_count * component_count);
         auto arr_sums = array<Float>::empty(component_count);
-        auto arr_nobs_matrix = array<int>::empty(1 * 1);
+        auto arr_nobs_matrix = array<Float>::empty(1);
         auto daal_crossproduct = interop::convert_to_daal_homogen_table<Float>(arr_crossproduct,
                                                                                component_count,
                                                                                component_count);
         auto daal_sums =
             interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, component_count);
-        auto daal_nobs_matrix = interop::convert_to_daal_homogen_table<int>(arr_nobs_matrix, 1, 1);
+        auto daal_nobs_matrix =
+            interop::convert_to_daal_homogen_table<Float>(arr_nobs_matrix, 1, 1);
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
                                                                        daal_data.get(),
