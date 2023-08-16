@@ -18,24 +18,27 @@
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/memory.hpp"
+
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
-using alloc = sycl::usm::alloc;
+namespace bk = dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 
-using dal::backend::context_cpu;
-using dal::backend::context_gpu;
-using input_t = compute_input<task::compute>;
-using result_t = compute_result<task::compute>;
-using descriptor_t = detail::descriptor_base<task::compute>;
+using alloc = sycl::usm::alloc;
+
+using bk::context_gpu;
+using task_t = task::compute;
+using input_t = partial_compute_input<task_t>;
+using result_t = partial_compute_input<task_t>;
+using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
 auto compute_sums(sycl::queue& q,
@@ -164,10 +167,9 @@ static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
 
 template <typename Float>
 struct partial_compute_kernel_gpu<Float, method::by_default, task::compute> {
-    partial_compute_input<task::compute> operator()(
-        const context_gpu& ctx,
-        const descriptor_t& desc,
-        const partial_compute_input<task::compute>& input) const {
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return partial_compute<Float, task::compute>(ctx, desc, input);
     }
 };

@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::covariance::backend {
@@ -30,13 +31,8 @@ using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
 using task_t = task::compute;
-using input_t = compute_input<task_t>;
+using input_t = partial_compute_input<task_t>;
 using result_t = compute_result<task_t>;
-using descriptor_t = detail::descriptor_base<task_t>;
-using dal::backend::context_cpu;
-using dal::backend::context_gpu;
-using input_t = compute_input<task::compute>;
-using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
 template <typename Float>
@@ -144,10 +140,9 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
 
 template <typename Float>
 struct finalize_compute_kernel_gpu<Float, method::dense, task::compute> {
-    compute_result<task::compute> operator()(
-        const context_gpu& ctx,
-        const descriptor_t& desc,
-        const partial_compute_input<task::compute>& input) const {
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
         return finalize_compute<Float, task::compute>(ctx, desc, input);
     }
 };

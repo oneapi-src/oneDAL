@@ -35,7 +35,6 @@ template <typename Float, daal::CpuType Cpu>
 using daal_covariance_kernel_t = daal_covariance::internal::
     CovarianceDenseOnlineKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
-//TODO:optimize memory usage and if statements
 template <typename Float, typename Task>
 static partial_compute_input<Task> call_daal_kernel_partial_compute(
     const context_cpu& ctx,
@@ -93,14 +92,11 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
                                                                        &daal_parameter));
-        auto partial_result_sums_arr = interop::convert_from_daal_homogen_table<Float>(daal_sums);
-        auto partial_result_nobs_arr =
-            interop::convert_from_daal_homogen_table<int>(daal_nobs_matrix);
-        auto partial_result_crossproduct_arr =
-            interop::convert_from_daal_homogen_table<Float>(daal_crossproduct);
-        result.set_sums(partial_result_sums_arr);
-        result.set_nobs_table(partial_result_nobs_arr);
-        result.set_crossproduct_matrix(partial_result_crossproduct_arr);
+
+        result.set_sums(interop::convert_from_daal_homogen_table<Float>(daal_sums));
+        result.set_nobs_table(interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
+        result.set_crossproduct_matrix(
+            interop::convert_from_daal_homogen_table<Float>(daal_crossproduct));
     }
 
     return result;

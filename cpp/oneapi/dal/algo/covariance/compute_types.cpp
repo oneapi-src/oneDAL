@@ -58,9 +58,6 @@ template <typename Task>
 compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
-compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
-
-template <typename Task>
 const table& compute_input<Task>::get_data() const {
     return impl_->data;
 }
@@ -69,6 +66,9 @@ template <typename Task>
 void compute_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
 }
+
+template <typename Task>
+compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
 
 template <typename Task>
 const table& compute_result<Task>::get_cov_matrix() const {

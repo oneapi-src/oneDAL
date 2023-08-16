@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::covariance::backend {
@@ -34,12 +35,10 @@ template <typename Float, daal::CpuType Cpu>
 using daal_covariance_kernel_t = daal_covariance::internal::
     CovarianceDenseOnlineKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
-//TODO:rewrite kernel and add finalize
 template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
                                                       const descriptor_t& desc,
                                                       const partial_compute_input<Task>& input) {
-    //bool is_mean_computed = false;
     const std::int64_t component_count = input.get_data().get_column_count();
 
     auto data = input.get_data();
@@ -76,7 +75,6 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
                 daal_means.get(),
                 &daal_parameter));
 
-        //is_mean_computed = true;
         result.set_cov_matrix(
             homogen_table::wrap(arr_cov_matrix, component_count, component_count));
     }
@@ -97,7 +95,6 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
                 daal_cor_matrix.get(),
                 daal_means.get(),
                 &daal_parameter));
-        //is_mean_computed = true;
         result.set_cor_matrix(
             homogen_table::wrap(arr_cor_matrix, component_count, component_count));
     }
