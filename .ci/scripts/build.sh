@@ -93,7 +93,9 @@ if [ "${backend_config}" == "mkl" ]; then
     $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
-    $(pwd)/.ci/env/openblas.sh
+    if [ ! -d "__deps/open_blas" ]; then
+        $(pwd)/.ci/env/openblas.sh
+    fi
 else
     echo "Not supported backend env"
 fi
