@@ -81,7 +81,7 @@ void copy(array_impl<T>& dst_impl, const chunked_array_base& src) {
 template <typename T>
 void copy(dal::array<T>& dst, const chunked_array_base& src) {
     constexpr detail::pimpl_accessor accessor;
-    auto dst_impl = accessor.get_pimpl(dst);
+    auto& dst_impl = accessor.get_pimpl(dst);
     return copy(*dst_impl, src);
 }
 

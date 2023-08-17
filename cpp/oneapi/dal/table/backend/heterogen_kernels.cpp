@@ -25,9 +25,16 @@
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
+#include "oneapi/dal/detail/array_utils.hpp"
+#include "oneapi/dal/detail/chunked_array_utils.hpp"
+
 #include "oneapi/dal/table/common.hpp"
+
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/heterogen_kernels.hpp"
+
+#include "oneapi/dal/table/backend/convert/copy_convert.hpp"
+#include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -134,9 +141,51 @@ heterogen_data heterogen_row_slice(const range& rows_range,
     return result;
 }
 
+using sliced_buffer = array<array<dal::byte_t>>;
+
+sliced_buffer slice_buffer(const shape_t& buff_shape,
+                                       const array<dal::byte_t>& buff,
+                                       const array<data_type>& data_types) {
+    auto buff_offs = compute_input_offsets(buff_shape, data_types);
+    auto result = sliced_buffer::empty(buff_shape.second);
+
+    const std::int64_t* const buff_offs_ptr = buff_offs.get_data();
+    array<dal::byte_t>* const result_ptr = result.get_mutable_data();
+
+    std::int64_t first = 0l;
+    for (std::int64_t c = 0l; c < buff_shape.second; ++c) {
+        const std::int64_t last = buff_offs_ptr[c];
+
+        result_ptr[c] = buff.get_slice(first, last);
+
+        first = last;
+    }
+
+    return result;
+}
+
+template <typename Policy>
+void copy_buffer(const Policy& policy,
+                 std::int64_t rows_count,
+                 const heterogen_data& sliced_data,
+                 sliced_buffer& sliced_buffer,
+                 const array<data_type>& data_types) {
+    const auto cols_count = sliced_buffer.get_count();
+    ONEDAL_ASSERT(cols_count == sliced_data.get_count());
+
+    const data_type* const dtypes = data_types.get_data();
+    array<dal::byte_t>* columns = sliced_buffer.get_mutable_data();
+    detail::threader_for_int64(cols_count, [&](std::int64_t col) {
+        const auto element_size = detail::get_data_type_size(dtypes[col]);
+        auto size = detail::check_mul_overflow(element_size, rows_count);
+        auto col_slice = columns[col].get_slice(0l, size);
+        detail::copy(col_slice, sliced_data[col]);
+    });
+}
+
 template <>
-struct heterogen_dispatcher<detail::default_host_policy> {
-    using policy_t = detail::default_host_policy;
+struct heterogen_dispatcher<detail::host_policy> {
+    using policy_t = detail::host_policy;
 
     template <typename Type>
     static void pull(const policy_t& policy,
@@ -145,7 +194,7 @@ struct heterogen_dispatcher<detail::default_host_policy> {
                      array<Type>& block_data,
                      const range& rows_range,
                      alloc_kind requested_alloc_kind) {
-        /*const auto col_count = get_column_count(meta, data);
+        const auto col_count = get_column_count(meta, data);
         const auto row_count = get_row_count(col_count, meta, data);
         const auto [first, last] = rows_range.normalize_range(row_count);
 
@@ -162,8 +211,22 @@ struct heterogen_dispatcher<detail::default_host_policy> {
         ONEDAL_ASSERT(full_count == block_data.get_count());
 #endif // ONEDAL_ENABLE_ASSERT
 
-        auto buff = dal::array<dal::byte_t>::empty(block_size);
-        auto buff_ptrs =
+        const auto& data_types = meta.get_data_types();
+        auto buff = array<dal::byte_t>::empty(block_size);
+        auto buff_shape = std::make_pair(block, col_count);
+        auto buff_cols = slice_buffer(buff_shape, buff, data_types);
+        auto buff_offs = compute_input_offsets(buff_shape, data_types);
+        auto buff_ptrs = compute_pointers</*mut=*/false>(buff, buff_offs);
+
+        constexpr Type fill_value = std::numeric_limits<Type>::max();
+        auto result_count = detail::check_mul_overflow(copy_count, col_count);
+        auto result = dal::array<Type>::full(result_count, fill_value);
+
+        constexpr auto type = detail::make_data_type<Type>();
+        auto outp_types = array<data_type>::full(col_count, type);
+        const auto outp_strides = std::make_pair(col_count, row_count);
+        auto outp_strs = array<std::int64_t>::full(col_count, col_count);
+        auto outp_offs = compute_output_offsets(type, buff_shape, outp_strides);
 
         for (std::int64_t f = first; f < last; f += block) {
             const auto l = std::min(f + block, last);
@@ -171,12 +234,41 @@ struct heterogen_dispatcher<detail::default_host_policy> {
             ONEDAL_ASSERT(len <= block);
             ONEDAL_ASSERT(0l < len);
 
-            auto slice = heterogen_row_slice( //
-                    dal::range{f, l}, meta, data);
+            auto slice = heterogen_row_slice({f, l}, meta, data);
+            copy_buffer(policy, len, slice, buff_cols, data_types);
 
-            copy_slice(policy, buff, slice);
+            auto out_first = detail::check_mul_overflow(f, col_count);
+            auto out_block = detail::check_mul_overflow(len, col_count);
+            auto out_last = detail::check_sum_overflow(out_first, out_block);
 
-        }*/
+            auto curr_shape = std::make_pair(col_count, len);
+            auto out_slice = result.get_slice(out_first, out_last);
+            auto raw_slice = array<dal::byte_t>(out_slice,
+                    reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
+                    detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
+            auto outp_ptrs = compute_pointers</*mut=*/true>(raw_slice, outp_offs);
+            copy_convert(policy, buff_ptrs, data_types, outp_strs,
+                    outp_ptrs, outp_types, outp_strs, curr_shape);
+        }
+
+        block_data.reset(result, result.get_mutable_data(), result.get_count());
+    }
+};
+
+template <>
+struct heterogen_dispatcher<detail::default_host_policy> {
+    using policy_t = detail::default_host_policy;
+
+    template <typename Type>
+    static void pull(const policy_t& default_policy,
+                     const table_metadata& meta,
+                     const heterogen_data& data,
+                     array<Type>& block_data,
+                     const range& rows_range,
+                     alloc_kind alloc_kind) {
+        const auto policy = detail::host_policy::get_default();
+        heterogen_dispatcher<detail::host_policy>::pull<Type>(
+            policy, meta, data, block_data, rows_range, alloc_kind);
     }
 };
 

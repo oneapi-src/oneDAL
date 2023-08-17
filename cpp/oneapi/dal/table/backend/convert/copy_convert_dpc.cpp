@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/array_utils.hpp"
-#include "oneapi/dal/detail/debug.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
@@ -23,8 +23,6 @@
 #include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
 namespace oneapi::dal::backend {
-
-using detail::operator<<;
 
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
                   const dal::array<data_type>& input_types,

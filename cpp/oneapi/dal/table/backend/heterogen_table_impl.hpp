@@ -39,12 +39,9 @@ public:
 
     std::int64_t get_row_count() const override {
         ONEDAL_ASSERT(validate());
-        const auto dt = get_metadata().get_data_type(0l);
-        const auto elem = detail::get_data_type_size(dt);
-        const auto size = get_column(0l).get_size_in_bytes();
-
-        ONEDAL_ASSERT(size % elem == 0l);
-        return size / elem;
+        if (get_column_count() == 0l) return 0l;
+        auto dt = get_metadata().get_data_type(0l);
+        return detail::get_element_count(dt, data_[0l]);
     }
 
     std::int64_t get_column_count() const override {
@@ -93,6 +90,24 @@ public:
     }
 
     bool validate() const {
+        const auto col_count = get_column_count();
+
+        if (col_count == std::int64_t{ 0l }) {
+            return true;
+        }
+
+        const auto dt = get_metadata().get_data_type(0l);
+        const auto row_count = detail::get_element_count(dt, data_[0l]);
+
+        for (std::int64_t c = 1l; c < col_count; ++c) {
+            const auto dt_col = get_metadata().get_data_type(c);
+            const auto count = detail::get_element_count(dt_col, data_[c]);
+
+            if (count != row_count) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -107,8 +122,7 @@ public:
 
     template <typename T>
     void pull_rows_template(const detail::default_host_policy& policy,
-                            array<T>& block,
-                            const range& rows) const {
+                            array<T>& block, const range& rows) const {
         heterogen_pull_rows(policy, meta_, data_, block, rows, alloc_kind::host);
     }
 
