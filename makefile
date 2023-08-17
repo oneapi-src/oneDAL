@@ -135,7 +135,8 @@ USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
 USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),\
                     $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),\
-                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),$(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow)))))))
+                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),\
+                    $(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow)))))
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
