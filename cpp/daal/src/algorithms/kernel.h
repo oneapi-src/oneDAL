@@ -79,38 +79,31 @@
 #define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #define __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, GetCpuid, ...)                                          \
-    DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
-    DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
-    DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
-    DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                      \
-    DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
-    DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                               \
+    DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \                                                                                 \
+    DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \                                                                                \
+    DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \                                                                           \
     DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                   \
     namespace interface1                                                                                                                            \
     {                                                                                                                                               \
     template <>                                                                                                                                     \
-    ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_SSE42_CONTAINER(   \
-                        ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
-                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__) \
+    ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(                                                               \
+                        ContainerTemplate, __VA_ARGS__)                                                                                             \
+                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                                  \
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(nullptr)                                                                                                    \
     {                                                                                                                                               \
         GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID, cpuid))                                                        \
         {                                                                                                                                           \
-            DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
             DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
-            DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                          \
-            DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                         \
-            DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                   \
+            DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                         \                                                                \
             DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                       \
         default: _cntr = (new ContainerTemplate<__VA_ARGS__, sse2>(daalEnv)); break;                                                                \
         }                                                                                                                                           \
     }                                                                                                                                               \
                                                                                                                                                     \
-    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__)                 \
-                                       DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(                       \
-                                           ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)               \
-                                           DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                                         \
+    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2>                                                                             \
+                                       DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                  \
+                                           DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                               \
                                                DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;                                       \
     }
 
@@ -118,28 +111,23 @@
     namespace interface1                                                                                                                            \
     {                                                                                                                                               \
     template <>                                                                                                                                     \
-    ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_SSE42_CONTAINER(   \
-                        ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
-                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__) \
+    ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                                \
+                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                                  \
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(nullptr)                                                                                                    \
     {                                                                                                                                               \
         switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID, daalEnv->cpuid))                                                        \
         {                                                                                                                                           \
-            DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
             DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
-            DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                          \
             DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                         \
-            DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                   \
             DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                       \
         default: _cntr = (new ContainerTemplate<__VA_ARGS__, sse2>(daalEnv)); break;                                                                \
         }                                                                                                                                           \
     }                                                                                                                                               \
                                                                                                                                                     \
-    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__)                 \
-                                       DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(                       \
-                                           ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)               \
-                                           DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                                         \
+    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2>                                                                             \
+                                       DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                  \
+                                           DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                               \
                                                DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;                                       \
     }
 
@@ -166,28 +154,21 @@
 
 #define __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, GetCpuid, ...)                                     \
     DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
-    DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
     DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
-    DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                      \
     DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
-    DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                               \
     DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                   \
     namespace interface1                                                                                                                            \
     {                                                                                                                                               \
     template <>                                                                                                                                     \
-    ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_SSE42_CONTAINER(   \
-                        ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
-                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__) \
+    ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                                \
+                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                                  \
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(NULL)                                                                                                       \
     {                                                                                                                                               \
         GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID, cpuid))                                                        \
         {                                                                                                                                           \
-            DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                   \
             DAAL_KERNEL_SSE42_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                   \
-            DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                     \
             DAAL_KERNEL_AVX2_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                    \
-            DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                              \
             DAAL_KERNEL_AVX512_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                  \
         default:                                                                                                                                    \
         {                                                                                                                                           \
@@ -199,10 +180,9 @@
         }                                                                                                                                           \
     }                                                                                                                                               \
                                                                                                                                                     \
-    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__)                 \
-                                       DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX_CONTAINER(                       \
-                                           ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)               \
-                                           DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                                         \
+    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2>                                                                             \
+                                       DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                  \
+                                            DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                              \
                                                DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;                                       \
     }
 

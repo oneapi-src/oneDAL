@@ -129,14 +129,13 @@ skx_OPT  := $(skx_OPT.$(COMPILER))
 
 _OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,))
 
-USECPUS.files := $(subst sse2,nrh,$(subst ssse3,,$(subst sse42,neh,$(subst avx,,$(subst avx2,hsw,$(subst avx512,skx,$(subst avx512_mic,,$(USECPUS))))))))
+USECPUS.files := $(subst sse2,nrh,$(subst sse42,neh,$(subst avx2,hsw,$(subst avx512,skx,$(USECPUS)))))
 USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
-USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),$(subst ssse3,^\#define DAAL_KERNEL_SSSE3$(sed.eow),\
-                    $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),$(subst avx,^\#define DAAL_KERNEL_AVX$(sed.eow),\
-                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),$(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow),\
-                    $(subst avx512_mic,^\#define DAAL_KERNEL_AVX512_MIC$(sed.eow),$(USECPUS.out))))))))
+USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),\
+                    $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),\
+                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),$(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow)))))))
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
