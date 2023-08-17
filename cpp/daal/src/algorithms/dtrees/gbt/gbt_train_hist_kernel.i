@@ -381,66 +381,6 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, float, SSE42_ALL>
     }
 };
 
-template <typename RowIndexType, typename BinIndexType>
-struct ComputeGHSumByRows<RowIndexType, BinIndexType, double, AVX_ALL>
-{
-    static void run(double * aGHSumFP, const BinIndexType * indexedFeature, const RowIndexType * aIdx, double * pgh, size_t nFeatures, size_t iStart,
-                    size_t iEnd, size_t nRows, size_t * UniquesArr)
-    {
-        const size_t cacheLineSize       = 64; // bytes
-        const size_t prefetchOffset      = 10; // heuristic, prefetch on 10 rows ahead
-        const size_t elementsInCacheLine = cacheLineSize / sizeof(IndexType);
-
-        const size_t noPrefetchSize              = services::internal::min<AVX_ALL, size_t>(prefetchOffset + elementsInCacheLine, nRows);
-        const size_t iEndWithPrefetch            = services::internal::min<AVX_ALL, size_t>(nRows - noPrefetchSize, iEnd);
-        const size_t nCacheLinesToPrefetchOneRow = nFeatures / elementsInCacheLine + !!(nFeatures % elementsInCacheLine);
-
-        __m256d adds;
-        double * addsPtr = (double *)(&adds);
-        addsPtr[2]       = 1;
-        addsPtr[3]       = 0;
-
-        RowIndexType i = iStart;
-        PRAGMA_IVDEP
-        for (; i < iEndWithPrefetch; ++i)
-        {
-            DAAL_PREFETCH_READ_T0(pgh + 2 * aIdx[i + prefetchOffset]);
-            const BinIndexType * ptr = indexedFeature + aIdx[i + prefetchOffset] * nFeatures;
-            for (IndexType j = 0; j < nCacheLinesToPrefetchOneRow; j++) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
-
-            const BinIndexType * featIdx = indexedFeature + aIdx[i] * nFeatures;
-            addsPtr[0]                   = pgh[2 * aIdx[i]];
-            addsPtr[1]                   = pgh[2 * aIdx[i] + 1];
-
-            PRAGMA_IVDEP
-            for (IndexType j = 0; j < nFeatures; j++)
-            {
-                const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
-                __m256d hist1    = _mm256_load_pd(aGHSumFP + idx);
-                __m256d newHist1 = _mm256_add_pd(adds, hist1);
-                _mm256_store_pd(aGHSumFP + idx, newHist1);
-            }
-        }
-
-        PRAGMA_IVDEP
-        for (; i < iEnd; ++i)
-        {
-            const BinIndexType * featIdx = indexedFeature + aIdx[i] * nFeatures;
-            addsPtr[0]                   = pgh[2 * aIdx[i]];
-            addsPtr[1]                   = pgh[2 * aIdx[i] + 1];
-
-            PRAGMA_IVDEP
-            for (IndexType j = 0; j < nFeatures; j++)
-            {
-                const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
-                __m256d hist1    = _mm256_load_pd(aGHSumFP + idx);
-                __m256d newHist1 = _mm256_add_pd(adds, hist1);
-                _mm256_store_pd(aGHSumFP + idx, newHist1);
-            }
-        }
-    }
-};
-
 template <typename algorithmFPType, typename RowIndexType, typename BinIndexType>
 struct MergeGHSums<algorithmFPType, RowIndexType, BinIndexType, AVX512_ALL>
 {

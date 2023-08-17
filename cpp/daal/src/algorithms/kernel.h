@@ -79,9 +79,9 @@
 #define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #define __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, GetCpuid, ...)                                          \
-    DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \                                                                                 \
-    DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \                                                                                \
-    DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \                                                                           \
+    DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
+    DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                    \
+    DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                     \
     DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                   \
     namespace interface1                                                                                                                            \
     {                                                                                                                                               \
@@ -95,7 +95,7 @@
         GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID, cpuid))                                                        \
         {                                                                                                                                           \
             DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
-            DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                         \                                                                \
+            DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                         \
             DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                       \
         default: _cntr = (new ContainerTemplate<__VA_ARGS__, sse2>(daalEnv)); break;                                                                \
         }                                                                                                                                           \
