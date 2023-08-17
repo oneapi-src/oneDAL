@@ -230,6 +230,19 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
     return memcpy(queue, dest_host, src_usm, size, deps);
 }
 
+/// Copies `count` number of elements from the USM-allocated array pointed to by `src`
+/// to the USM-allocated array pointed to by `dest`
+///
+/// @tparam T   The type of elements in the input and output arrays
+///
+/// @param[in,out] queue        The SYCL* queue object
+/// @param[out]    dest         Pointer to the USM-allocated output array
+/// @param[in]     src          Pointer to the USM-allocated input array
+/// @param[in]     count        Number of elements to copy
+/// @param[in]     deps         Events indicating availability of the `src` for reading
+///                             and `dest` for writing
+///
+/// @return Event indicating availability of the `dest` for reading
 template <typename T>
 inline sycl::event copy(sycl::queue& queue,
                         T* dest,
@@ -242,6 +255,19 @@ inline sycl::event copy(sycl::queue& queue,
     return memcpy(queue, dest, src, sizeof(T) * n, deps);
 }
 
+/// Copies `count` number of elements from the host-allocated, either with standard C++ allocation
+/// or with SYCL* USM-host allocation, array pointed to by `src` to the USM-allocated array
+/// pointed to by `dest`
+///
+/// @tparam T   The type of elements in the input and output arrays
+///
+/// @param[in,out] queue        The SYCL* queue object
+/// @param[out]    dest         Pointer to the USM-allocated output array
+/// @param[in]     src          Pointer to the host-allocated input array
+/// @param[in]     count        Number of elements to copy
+/// @param[in]     deps         Events indicating availability of the `dest` for writing
+///
+/// @return Event indicating availability of the `dest` for reading
 template <typename T>
 inline sycl::event copy_host2usm(sycl::queue& queue,
                                  T* dest_usm,
@@ -254,6 +280,19 @@ inline sycl::event copy_host2usm(sycl::queue& queue,
     return memcpy_host2usm(queue, dest_usm, src_host, sizeof(T) * n, deps);
 }
 
+/// Copies `count` number of elements from the USM-allocated array pointed to by `src`
+/// to the host-allocated, either with standard C++ allocation or with SYCL* USM-host allocation,
+/// array pointed to by `dest`
+///
+/// @tparam T   The type of elements in the input and output arrays
+///
+/// @param[in,out] queue        The SYCL* queue object
+/// @param[out]    dest         Pointer to the host-allocated output array
+/// @param[in]     src          Pointer to the USM-allocated input array
+/// @param[in]     count        Number of elements to copy
+/// @param[in]     deps         Events indicating availability of the `src` for reading
+///
+/// @return Event indicating availability of the `dest` for reading
 template <typename T>
 inline sycl::event copy_usm2host(sycl::queue& queue,
                                  T* dest_host,
@@ -302,6 +341,46 @@ inline bool is_device_friendly_usm(const array<T>& ary) {
 template <typename T>
 inline bool is_known_usm(const array<T>& ary) {
     return get_usm_type(ary) != sycl::usm::alloc::unknown;
+}
+
+/// Copies `count` number of elements from the array, either USM- or C++-allocated,
+//  pointed to by `src` to the array, either USM- or C++-allocated, pointed to by `dest`
+///
+/// @tparam T   The type of elements in the input and output arrays
+///
+/// @param[in,out] queue        The SYCL* queue object
+/// @param[out]    dest         Pointer to the output array
+/// @param[in]     src          Pointer to the input array
+/// @param[in]     count        Number of elements to copy
+/// @param[in]     deps         Events indicating availability of the `src` for reading
+///                             and `dest` for writing
+///
+/// @return Event indicating availability of the `dest` for reading
+template <typename T>
+inline sycl::event copy_all2all(sycl::queue& queue,
+                                T* dest,
+                                const T* src,
+                                std::int64_t count,
+                                const event_vector& deps = {}) {
+    ONEDAL_ASSERT(count > 0);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    const bool src_device_friendly = is_device_friendly_usm(queue, src);
+    const bool dst_device_friendly = is_device_friendly_usm(queue, dest);
+    sycl::event event;
+    if (src_device_friendly && dst_device_friendly) {
+        event = memcpy(queue, dest, src, sizeof(T) * n, deps);
+    }
+    else if (src_device_friendly) {
+        event = memcpy_usm2host(queue, dest, src, sizeof(T) * n, deps);
+    }
+    else if (dst_device_friendly) {
+        event = memcpy_host2usm(queue, dest, src, sizeof(T) * n, deps);
+    }
+    else {
+        copy(dest, src, sizeof(T) * n);
+    }
+    return event;
 }
 
 #endif

@@ -319,36 +319,6 @@ static void push_column_major_impl(const Policy& policy,
     }
 }
 
-/// The function tries to select correct policy for pull/push implementation
-/// depending on the queues stored in the table or requested data block
-template <typename Policy, typename Data, typename Body>
-ONEDAL_FORCEINLINE void override_policy(const Policy& policy,
-                                        const array<byte_t>& origin_data,
-                                        const array<Data>& block_data,
-                                        Body&& body) {
-#ifdef ONEDAL_DATA_PARALLEL
-    const auto origin_queue_opt = origin_data.get_queue();
-    const auto block_queue_opt = block_data.get_queue();
-
-    if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-        is_same_context_ignore_nullopt(policy.get_queue(), block_queue_opt, origin_queue_opt);
-        body(policy);
-    }
-    else if (block_queue_opt.has_value()) {
-        is_same_context_ignore_nullopt(*block_queue_opt, origin_queue_opt);
-        body(detail::data_parallel_policy{ *block_queue_opt });
-    }
-    else if (origin_queue_opt.has_value()) {
-        body(detail::data_parallel_policy{ *origin_queue_opt });
-    }
-    else {
-        body(detail::default_host_policy{});
-    }
-#else
-    body(policy);
-#endif
-}
-
 template <typename... Args>
 ONEDAL_FORCEINLINE void pull_rows_impl(data_layout layout, Args&&... args) {
     switch (layout) {

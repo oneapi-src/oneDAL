@@ -255,6 +255,10 @@ public:
     MSG(regularization_coef_is_less_than_zero);
     MSG(regularization_coef_is_nan_or_inf);
 
+    /* Optimizers */
+
+    MSG(matrix_is_not_positively_definite);
+
     /* PCA */
     MSG(component_count_lt_zero);
     MSG(input_data_cc_lt_desc_component_count);
