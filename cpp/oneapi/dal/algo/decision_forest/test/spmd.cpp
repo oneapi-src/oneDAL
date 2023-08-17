@@ -387,7 +387,7 @@ DF_SPMD_CLS_TEST("df cls base check with default params") {
 }
 
 DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
-    SKIP_IF(this->is_gpu()); // TODO: Fix weighted case for SPMD
+    SKIP_IF(this->is_gpu()); // TODO: Fix weighted case is not supported for GPU
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
