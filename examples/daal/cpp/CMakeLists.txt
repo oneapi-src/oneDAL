@@ -40,6 +40,18 @@ set(EXCLUDE_LIST
     "source/compression/*"
 )
 
+if(REF_BACKEND)
+    set(EXCLUDE_LIST
+        ${EXCLUDE_LIST}
+        "source/boosting/brownboost_dense_batch.cpp"
+        "source/em/em_gmm_dense_batch.cpp"
+        "source/linear_regression/lin_reg_qr_dense_distr.cpp"
+        "source/pca/pca_cor*"
+        "source/qr/qr_dense*"
+        "source/svd/svd_dense_batch.cpp"
+)
+endif()
+
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
 

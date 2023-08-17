@@ -120,7 +120,7 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
     displayName: 'daal/cpp examples'
   - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake
