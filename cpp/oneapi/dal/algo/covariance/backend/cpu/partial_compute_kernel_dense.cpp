@@ -72,9 +72,9 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
             interop::convert_from_daal_homogen_table<Float>(daal_crossproduct));
     }
     else {
-        auto arr_crossproduct = array<Float>::empty(component_count * component_count);
-        auto arr_sums = array<Float>::empty(component_count);
-        auto arr_nobs_matrix = array<Float>::empty(1);
+        auto arr_crossproduct = array<Float>::zeros(component_count * component_count);
+        auto arr_sums = array<Float>::zeros(component_count);
+        auto arr_nobs_matrix = array<Float>::zeros(1 * 1);
         auto daal_crossproduct = interop::convert_to_daal_homogen_table<Float>(arr_crossproduct,
                                                                                component_count,
                                                                                component_count);
