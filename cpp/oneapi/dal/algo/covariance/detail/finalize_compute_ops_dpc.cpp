@@ -26,7 +26,7 @@ template <typename Policy, typename Float, typename Method, typename Task>
 struct finalize_compute_ops_dispatcher<Policy, Float, Method, Task> {
     compute_result<Task> operator()(const Policy& policy,
                                     const descriptor_base<Task>& desc,
-                                    const partial_compute_input<Task>& input) const {
+                                    const partial_compute_result<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::finalize_compute_kernel_cpu<Float, Method, Task>),
             KERNEL_SINGLE_NODE_GPU(backend::finalize_compute_kernel_gpu<Float, Method, Task>)>;

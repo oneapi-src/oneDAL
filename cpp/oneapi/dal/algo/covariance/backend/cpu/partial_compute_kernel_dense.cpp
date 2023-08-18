@@ -36,12 +36,12 @@ using daal_covariance_kernel_t = daal_covariance::internal::
     CovarianceDenseOnlineKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
 template <typename Float, typename Task>
-static partial_compute_input<Task> call_daal_kernel_partial_compute(
+static partial_compute_result<Task> call_daal_kernel_partial_compute(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_compute_input<Task>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
-
+    const auto input_ = input.get_prev();
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
 
@@ -50,15 +50,15 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
     auto data = input.get_data();
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    auto result = partial_compute_input(input);
+    auto result = partial_compute_result();
 
-    const bool has_nobs_data = input.get_nobs().has_data();
+    const bool has_nobs_data = input_.get_nobs().has_data();
 
     if (has_nobs_data) {
         auto daal_crossproduct =
-            interop::copy_to_daal_homogen_table<Float>(input.get_crossproduct());
-        auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input.get_sums());
-        auto daal_nobs_matrix = interop::copy_to_daal_homogen_table<Float>(input.get_nobs());
+            interop::copy_to_daal_homogen_table<Float>(input_.get_crossproduct());
+        auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input_.get_sums());
+        auto daal_nobs_matrix = interop::copy_to_daal_homogen_table<Float>(input_.get_nobs());
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_covariance_kernel_t>(ctx,
                                                                        daal_data.get(),
@@ -98,15 +98,15 @@ static partial_compute_input<Task> call_daal_kernel_partial_compute(
 }
 
 template <typename Float, typename Task>
-static partial_compute_input<Task> partial_compute(const context_cpu& ctx,
-                                                   const descriptor_t& desc,
-                                                   const partial_compute_input<Task>& input) {
+static partial_compute_result<Task> partial_compute(const context_cpu& ctx,
+                                                    const descriptor_t& desc,
+                                                    const partial_compute_input<Task>& input) {
     return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input);
 }
 
 template <typename Float>
 struct partial_compute_kernel_cpu<Float, method::by_default, task::compute> {
-    partial_compute_input<task::compute> operator()(
+    partial_compute_result<task::compute> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
         const partial_compute_input<task::compute>& input) const {

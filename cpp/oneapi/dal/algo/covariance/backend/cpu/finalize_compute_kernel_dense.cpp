@@ -38,17 +38,15 @@ using daal_covariance_kernel_t = daal_covariance::internal::
 template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
                                                       const descriptor_t& desc,
-                                                      const partial_compute_input<Task>& input) {
-    const std::int64_t component_count = input.get_data().get_column_count();
+                                                      const partial_compute_result<Task>& input) {
+    const std::int64_t component_count = input.get_crossproduct().get_column_count();
 
-    auto data = input.get_data();
+    bool is_mean_computed = false;
 
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
     dal::detail::check_mul_overflow(component_count, component_count);
-
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     auto arr_means = array<Float>::empty(component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
@@ -95,24 +93,26 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
                 daal_cor_matrix.get(),
                 daal_means.get(),
                 &daal_parameter));
+        is_mean_computed = true;
         result.set_cor_matrix(
             homogen_table::wrap(arr_cor_matrix, component_count, component_count));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        auto arr_cov_matrix = array<Float>::empty(component_count * component_count);
-        const auto daal_cov_matrix = interop::convert_to_daal_homogen_table(arr_cov_matrix,
-                                                                            component_count,
-                                                                            component_count);
-        interop::status_to_exception(
-            interop::call_daal_kernel_finalize_compute<Float, daal_covariance_kernel_t>(
-                ctx,
-                daal_nobs_matrix.get(),
-                daal_crossproduct.get(),
-                daal_sums.get(),
-                daal_cov_matrix.get(),
-                daal_means.get(),
-                &daal_parameter));
-
+        if (!is_mean_computed) {
+            auto arr_cov_matrix = array<Float>::empty(component_count * component_count);
+            const auto daal_cov_matrix = interop::convert_to_daal_homogen_table(arr_cov_matrix,
+                                                                                component_count,
+                                                                                component_count);
+            interop::status_to_exception(
+                interop::call_daal_kernel_finalize_compute<Float, daal_covariance_kernel_t>(
+                    ctx,
+                    daal_nobs_matrix.get(),
+                    daal_crossproduct.get(),
+                    daal_sums.get(),
+                    daal_cov_matrix.get(),
+                    daal_means.get(),
+                    &daal_parameter));
+        }
         result.set_means(homogen_table::wrap(arr_means, 1, component_count));
     }
 
@@ -122,7 +122,7 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
 template <typename Float, typename Task>
 static compute_result<Task> finalize_compute(const context_cpu& ctx,
                                              const descriptor_t& desc,
-                                             const partial_compute_input<Task>& input) {
+                                             const partial_compute_result<Task>& input) {
     return call_daal_kernel_finalize<Float, Task>(ctx, desc, input);
 }
 
@@ -131,7 +131,7 @@ struct finalize_compute_kernel_cpu<Float, method::by_default, task::compute> {
     compute_result<task::compute> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
-        const partial_compute_input<task::compute>& input) const {
+        const partial_compute_result<task::compute>& input) const {
         return finalize_compute<Float, task::compute>(ctx, desc, input);
     }
 };

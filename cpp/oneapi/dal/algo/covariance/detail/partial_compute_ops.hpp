@@ -25,9 +25,9 @@ namespace v1 {
 //TODO: add checks and refactor this file
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct partial_compute_ops_dispatcher {
-    partial_compute_input<Task> operator()(const Context&,
-                                           const descriptor_base<Task>&,
-                                           const partial_compute_input<Task>&) const;
+    partial_compute_result<Task> operator()(const Context&,
+                                            const descriptor_base<Task>&,
+                                            const partial_compute_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -36,7 +36,7 @@ struct partial_compute_ops {
     using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
     using input_t = partial_compute_input<task_t>;
-    using result_t = partial_compute_input<task_t>;
+    using result_t = partial_compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
     template <typename Context>

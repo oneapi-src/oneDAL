@@ -26,9 +26,9 @@ namespace oneapi::dal::covariance::backend {
 
 template <typename Float, typename Method, typename Task>
 struct partial_compute_kernel_gpu {
-    partial_compute_input<Task> operator()(const dal::backend::context_gpu& ctx,
-                                           const detail::descriptor_base<Task>& params,
-                                           const partial_compute_input<Task>& input) const;
+    partial_compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                            const detail::descriptor_base<Task>& params,
+                                            const partial_compute_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::covariance::backend

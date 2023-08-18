@@ -37,7 +37,7 @@ using alloc = sycl::usm::alloc;
 using bk::context_gpu;
 using task_t = task::compute;
 using input_t = partial_compute_input<task_t>;
-using result_t = partial_compute_input<task_t>;
+using result_t = partial_compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
@@ -118,14 +118,14 @@ auto update_partial_results(sycl::queue& q,
 }
 
 template <typename Float, typename Task>
-static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
-                                                   const descriptor_t& desc,
-                                                   const partial_compute_input<Task>& input) {
+static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
+                                                    const descriptor_t& desc,
+                                                    const partial_compute_input<Task>& input) {
     auto& q = ctx.get_queue();
 
     const auto data = input.get_data();
-    auto result = partial_compute_input(input);
-
+    auto result = partial_compute_result();
+    const auto input_ = input.get_prev();
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = data.get_column_count();
@@ -134,10 +134,12 @@ static partial_compute_input<Task> partial_compute(const context_gpu& ctx,
     dal::detail::check_mul_overflow(component_count, column_count);
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
-    const auto sums_nd = pr::table2ndarray_1d<Float>(q, input.get_sums(), sycl::usm::alloc::device);
-    const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input.get_nobs(), sycl::usm::alloc::device);
+    const auto sums_nd =
+        pr::table2ndarray_1d<Float>(q, input_.get_sums(), sycl::usm::alloc::device);
+    const auto nobs_nd =
+        pr::table2ndarray_1d<Float>(q, input_.get_nobs(), sycl::usm::alloc::device);
     const auto crossproducts_nd =
-        pr::table2ndarray<Float>(q, input.get_crossproduct(), sycl::usm::alloc::device);
+        pr::table2ndarray<Float>(q, input_.get_crossproduct(), sycl::usm::alloc::device);
 
     auto [sums, sums_event] = compute_sums(q, data_nd);
 

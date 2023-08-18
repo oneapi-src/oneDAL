@@ -143,11 +143,10 @@ public:
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
                 covariance::result_options::means);
         INFO("run compute optional: cov cor means");
-        auto partial_result = dal::covariance::partial_compute_input();
+        auto partial_result = dal::covariance::partial_compute_result();
         auto input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         auto compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);
@@ -157,11 +156,10 @@ public:
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix);
         INFO("run compute optional: cov");
-        partial_result = dal::covariance::partial_compute_input();
+        partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);
@@ -171,11 +169,10 @@ public:
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cor_matrix);
         INFO("run compute optional: cor");
-        partial_result = dal::covariance::partial_compute_input();
+        partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);
@@ -185,11 +182,10 @@ public:
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::means);
         INFO("run compute optional: means");
-        partial_result = dal::covariance::partial_compute_input();
+        partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);
@@ -199,11 +195,10 @@ public:
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix);
         INFO("run compute optional: cov cor");
-        partial_result = dal::covariance::partial_compute_input();
+        partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);
@@ -213,11 +208,10 @@ public:
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::means);
         INFO("run compute optional: cov means");
-        partial_result = dal::covariance::partial_compute_input();
+        partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);
@@ -227,11 +221,10 @@ public:
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cor_matrix | covariance::result_options::means);
         INFO("run compute optional: cor means");
-        partial_result = dal::covariance::partial_compute_input();
+        partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
         for (int i = 0; i < 10; i++) {
-            partial_result.set_data(input_table[i]);
-            partial_result = this->partial_compute(cov_desc, partial_result);
+            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(data, compute_result);

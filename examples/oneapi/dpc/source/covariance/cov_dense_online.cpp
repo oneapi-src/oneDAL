@@ -36,11 +36,10 @@ void run(sycl::queue &q) {
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cov_matrix | dal::covariance::result_options::means);
 
-    auto partial_result = dal::covariance::partial_compute_input();
+    auto partial_result = dal::covariance::partial_compute_result();
     auto input_table = split_table_by_rows<double>(input, 10);
     for (int i = 0; i < 10; i++) {
-        partial_result.set_data(input_table[i]);
-        partial_result = dal::partial_compute(q, cov_desc, partial_result);
+        partial_result = dal::partial_compute(q, cov_desc, partial_result, input_table[i]);
     }
     auto result = dal::finalize_compute(q, cov_desc, partial_result);
 

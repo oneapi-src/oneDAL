@@ -31,7 +31,7 @@ using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
 using task_t = task::compute;
-using input_t = partial_compute_input<task_t>;
+using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
@@ -99,14 +99,12 @@ auto compute_correlation(sycl::queue& q,
 template <typename Float, typename Task>
 static compute_result<Task> finalize_compute(const context_gpu& ctx,
                                              const descriptor_t& desc,
-                                             const partial_compute_input<Task>& input) {
+                                             const partial_compute_result<Task>& input) {
     auto& q = ctx.get_queue();
-    const auto data = input.get_data();
+    //const auto data = input.get_data();
+    const std::int64_t column_count = input.get_crossproduct().get_column_count();
+    const std::int64_t component_count = input.get_crossproduct().get_column_count();
 
-    const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = data.get_column_count();
-    dal::detail::check_mul_overflow(row_count, column_count);
     dal::detail::check_mul_overflow(column_count, column_count);
     dal::detail::check_mul_overflow(component_count, column_count);
 
