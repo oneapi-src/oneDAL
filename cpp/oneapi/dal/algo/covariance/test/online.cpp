@@ -23,7 +23,8 @@ namespace la = te::linalg;
 namespace cov = oneapi::dal::covariance;
 
 template <typename TestType>
-class covariance_online_test : public covariance_test<TestType, covariance_online_test<TestType>> {};
+class covariance_online_test : public covariance_test<TestType, covariance_online_test<TestType>> {
+};
 
 TEMPLATE_LIST_TEST_M(covariance_online_test,
                      "covariance  fill_normal common flow",
