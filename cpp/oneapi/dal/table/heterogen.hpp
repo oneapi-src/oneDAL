@@ -49,11 +49,21 @@ public:
         auto meta = detail::make_default_metadata_from_arrays<Arrays...>();
         heterogen_table result = heterogen_table::empty(meta);
 
+#ifdef ONEDAL_ENABLE_ASSERT
         const std::size_t ccount = sizeof...(Arrays);
         const auto count = integral_cast<std::int64_t>(ccount);
+
+        ONEDAL_ASSERT(count == meta.get_feature_count());
+        ONEDAL_ASSERT(count == result.get_column_count());
+#endif // ONEDAL_ENABLE_ASSERT
+
+        std::int64_t column = 0l;
         ([&]() -> void {
-            result.set_column( std::forward<Arrays>(arrays) );
+            //const data_type dt = meta.get_data_type(column);
+            result.set_column(column++, std::forward<Arrays>(arrays));
+            //result.set_column_impl(column++, dt, std::forward<Arrays>(arrays));
         }(), ...);
+        ONEDAL_ASSERT(column == count);
 
         return result;
     }
@@ -67,14 +77,16 @@ public:
 
     template <typename T>
     heterogen_table& set_column(std::int64_t column, array<T> arr) {
-        auto as_chunked = chunked_array<T>{ std::move(arr) };
-        this->set_column(column, std::move(as_chunked) );
+        const auto as_chunked = chunked_array<T>{ std::move(arr) };
+        const auto dt = this->get_metadata().get_data_type(column);
+        this->set_column(column, dt, std::move(as_chunked) );
         return *this;
     }
 
     template <typename T>
     heterogen_table& set_column(std::int64_t column, chunked_array<T> arr) {
-        this->set_column_impl(column, std::move(arr));
+        const auto dt = this->get_metadata().get_data_type(column);
+        this->set_column_impl(column, dt, std::move(arr));
         return *this;
     }
 

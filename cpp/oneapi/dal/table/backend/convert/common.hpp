@@ -25,6 +25,11 @@ namespace oneapi::dal::backend {
 
 using shape_t = std::pair<std::int64_t, std::int64_t>;
 
+template <typename T1, typename T2>
+inline std::pair<T2, T1> transpose(const std::pair<T1, T2>& p) {
+    return std::make_pair<T2, T1>(p.second, p.first);
+}
+
 bool is_known_data_type(data_type dtype) noexcept;
 
 template <typename Index, typename Type>

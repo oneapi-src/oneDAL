@@ -32,7 +32,8 @@ inline dal::array<data_type> find_array_dtypes() {
     std::int64_t feature = 0l;
 
     ([&]() {
-        dt_ptr[feature++] = make_data_type<Types>();
+        using type_t = std::decay_t<Types>;
+        dt_ptr[feature++] = make_data_type<type_t>();
     }(), ...);
 
     ONEDAL_ASSERT(feature == count);
@@ -78,7 +79,25 @@ inline table_metadata make_default_metadata_from_arrays_impl(
 }
 
 template <typename Array>
-using array_type_t = typename Array::data_t;
+struct array_type_map {};
+
+template <typename Type>
+struct array_type_map<array<Type>> {
+    using type = Type;
+};
+
+template <typename Type>
+struct array_type_map<array_impl<Type>> {
+    using type = Type;
+};
+
+template <typename Type>
+struct array_type_map<chunked_array<Type>> {
+    using type = Type;
+};
+
+template <typename Array, typename Raw = std::decay_t<Array>>
+using array_type_t = std::decay_t<typename array_type_map<Raw>::type>;
 
 template <typename... Arrays>
 inline table_metadata make_default_metadata_from_arrays() {

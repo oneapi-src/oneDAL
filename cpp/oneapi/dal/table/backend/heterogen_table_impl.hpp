@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-
+#include <iostream>
 #include "oneapi/dal/table/common.hpp"
 
 #include "oneapi/dal/table/backend/common_kernels.hpp"
@@ -35,6 +35,11 @@ public:
 
     heterogen_table_impl(std::int64_t column_count) {
         data_ = dal::array<detail::chunked_array_base>::empty(column_count);
+    }
+
+    heterogen_table_impl(const table_metadata& meta)
+            : heterogen_table_impl{ meta.get_feature_count() } {
+        meta_ = table_metadata{ meta };
     }
 
     std::int64_t get_row_count() const override {
@@ -92,16 +97,19 @@ public:
     bool validate() const {
         const auto col_count = get_column_count();
 
-        if (col_count == std::int64_t{ 0l }) {
+        if (col_count <= std::int64_t{ 1l }) {
             return true;
         }
 
         const auto dt = get_metadata().get_data_type(0l);
         const auto row_count = detail::get_element_count(dt, data_[0l]);
+        std::cout << 0 << ' '  << ' ' << row_count << std::endl;
 
         for (std::int64_t c = 1l; c < col_count; ++c) {
             const auto dt_col = get_metadata().get_data_type(c);
             const auto count = detail::get_element_count(dt_col, data_[c]);
+
+            std::cout << c << ' ' << ' ' << count << std::endl;
 
             if (count != row_count) {
                 return false;

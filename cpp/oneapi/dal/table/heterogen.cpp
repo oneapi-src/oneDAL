@@ -37,9 +37,14 @@ heterogen_table::heterogen_table() : heterogen_table(new backend::heterogen_tabl
 
 heterogen_table::heterogen_table(const table& other) : heterogen_table(get_heterogen_iface(other)) {}
 
+heterogen_table heterogen_table::empty(const table_metadata& meta) {
+    auto* const impl = new backend::heterogen_table_impl(meta);
+    return heterogen_table{ impl };
+}
+
 void heterogen_table::set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base arr) {
-    ONEDAL_ASSERT(dt == this->get_metadata().get_data_type(column));
     auto& impl = detail::cast_impl<detail::heterogen_table_iface>(*this);
+    ONEDAL_ASSERT(dt == this->get_metadata().get_data_type(column));
     impl.set_column(column, dt, std::move(arr));
 }
 

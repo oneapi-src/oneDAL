@@ -30,27 +30,64 @@ TEST("can construct empty table") {
     REQUIRE(t.get_kind() == heterogen_table::kind());
 }
 
-TEST("can construct rowmajor table 3x2") {
-    using oneapi::dal::detail::empty_delete;
+TEST("Can create table from chunked arrays") {
+    constexpr float src1[] = { 4.f, 5.f };
+    constexpr float src2[] = { 1.f, 2.f, 3.f };
 
-    constexpr float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
+    auto arr1 = array<float>::wrap(src1, 2l);
+    auto arr2 = array<float>::wrap(src2, 3l);
 
-    homogen_table t{ data, 3, 2, empty_delete<const float>() };
+    chunked_array<float> chunked1(2);
+    chunked1.set_chunk(0l, arr1);
+    chunked1.set_chunk(1l, arr2);
+    ONEDAL_ASSERT(chunked1.get_count() == 5l);
 
-    REQUIRE(t.has_data());
-    REQUIRE(t.get_row_count() == 3);
-    REQUIRE(t.get_column_count() == 2);
+    chunked_array<float> chunked2(2);
+    chunked2.set_chunk(0l, arr2);
+    chunked2.set_chunk(1l, arr1);
+    ONEDAL_ASSERT(chunked2.get_count() == 5l);
 
-    REQUIRE(t.get_data_layout() == data_layout::row_major);
+{
+    auto table = heterogen_table::wrap( //
+        chunked1, chunked2, chunked1, chunked2);
+//
+    REQUIRE(table.has_data() == true);
+    REQUIRE(table.get_row_count() == 5l);
+    REQUIRE(table.get_column_count() == 4l);
+    REQUIRE(table.get_kind() == heterogen_table::kind());
+}
+}
 
-    auto meta = t.get_metadata();
-    for (std::int64_t i = 0; i < t.get_column_count(); i++) {
-        REQUIRE(meta.get_data_type(i) == data_type::float32);
-        REQUIRE(meta.get_feature_type(i) == feature_type::ratio);
-    }
+TEST("Can create table from different chunked arrays") {
+    constexpr float src1[] = { 4.f, 5.f };
+    constexpr float src2[] = { 1.f, 2.f, 3.f };
 
-    REQUIRE(t.get_data<float>() == data);
-    // TODO: now have no ctor to specify feature_type of the data
+    auto arr1 = array<float>::wrap(src1, 2l);
+    auto arr2 = array<float>::wrap(src2, 3l);
+
+    chunked_array<float> chunked1(2);
+    chunked1.set_chunk(0l, arr1);
+    chunked1.set_chunk(1l, arr2);
+    ONEDAL_ASSERT(chunked1.get_count() == 5l);
+
+    constexpr std::int8_t src3[] = { 4, 5 };
+    constexpr std::int8_t src4[] = { 1, 2, 3 };
+
+    auto arr3 = array<std::int8_t>::wrap(src3, 2l);
+    auto arr4 = array<std::int8_t>::wrap(src4, 3l);
+
+    chunked_array<std::int8_t> chunked2(2);
+    chunked2.set_chunk(0l, arr4);
+    chunked2.set_chunk(1l, arr3);
+    ONEDAL_ASSERT(chunked2.get_count() == 5l);
+
+    auto table = heterogen_table::wrap( //
+            chunked1, chunked1, chunked2);
+//
+    REQUIRE(table.has_data() == true);
+    REQUIRE(table.get_row_count() == 5l);
+    REQUIRE(table.get_column_count() == 3l);
+    REQUIRE(table.get_kind() == heterogen_table::kind());
 }
 
 } // namespace oneapi::dal::test
