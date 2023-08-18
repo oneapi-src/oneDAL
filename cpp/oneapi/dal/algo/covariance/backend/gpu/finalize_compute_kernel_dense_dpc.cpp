@@ -101,7 +101,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
                                              const descriptor_t& desc,
                                              const partial_compute_result<Task>& input) {
     auto& q = ctx.get_queue();
-    //const auto data = input.get_data();
+
     const std::int64_t column_count = input.get_crossproduct().get_column_count();
     const std::int64_t component_count = input.get_crossproduct().get_column_count();
 
@@ -111,7 +111,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     sycl::event event;
-    //TODO:investigate other options to get row count
+
     const auto nobs_host = pr::table2ndarray<Float>(q, input.get_nobs());
     auto rows_count_global = nobs_host.get_mutable_data()[0];
 

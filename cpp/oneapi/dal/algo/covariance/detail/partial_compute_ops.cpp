@@ -32,11 +32,8 @@ struct partial_compute_ops_dispatcher<Policy, Float, Method, Task> {
     }
 };
 
-#define INSTANTIATE(F, M, T)                                               \
-    template struct ONEDAL_EXPORT                                          \
-        partial_compute_ops_dispatcher<dal::detail::host_policy, F, M, T>; \
-    template struct ONEDAL_EXPORT                                          \
-        partial_compute_ops_dispatcher<dal::detail::spmd_host_policy, F, M, T>;
+#define INSTANTIATE(F, M, T) \
+    template struct ONEDAL_EXPORT partial_compute_ops_dispatcher<dal::detail::host_policy, F, M, T>;
 
 INSTANTIATE(float, method::dense, task::compute)
 INSTANTIATE(double, method::dense, task::compute)

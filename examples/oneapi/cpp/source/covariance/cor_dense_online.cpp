@@ -27,13 +27,12 @@ int main(int argc, char const *argv[]) {
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
         dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
-    auto partial_result = dal::covariance::partial_compute_input();
+    auto partial_result = dal::covariance::partial_compute_result();
     auto input_table = split_table_by_rows<double>(input, 10);
     for (int i = 0; i < 10; i++) {
-        partial_result.set_data(input_table[i]);
-        partial_result = dal::partial_compute(cov_desc, partial_result);
+        partial_result = dal::partial_compute(cov_desc, partial_result, input_table[i]);
     }
-    const auto result = dal::finalize_compute(cov_desc, partial_result);
+    auto result = dal::finalize_compute(cov_desc, partial_result);
 
     std::cout << "Means:\n" << result.get_means() << std::endl;
     std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
