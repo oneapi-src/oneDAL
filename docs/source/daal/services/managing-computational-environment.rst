@@ -30,13 +30,6 @@ it for multiple purposes:
 
 -  Detect the processor type. To do this, call the ``getCpuId()`` method.
 
--  Enable dispatching for new Intel® Architecture Processors.
-   To do this, call the ``enableInstructionsSet()`` method. For example,
-   to select the version for Intel® Xeon Phi™ processors based on
-   Intel® Advanced Vector Extensions 512 (Intel® AVX-512) with
-   support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups,
-   pass the avx512_mic_e1 parameter to the method.
-
 -  Restrict dispatching to the required code path.
    To do this, call the ``setCpuId()`` method.
 
