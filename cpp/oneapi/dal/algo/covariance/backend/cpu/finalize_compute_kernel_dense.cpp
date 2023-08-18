@@ -53,9 +53,9 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
     auto arr_means = array<Float>::empty(component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
 
-    auto daal_crossproduct = interop::convert_to_daal_table<Float>(input.get_crossproduct_matrix());
+    auto daal_crossproduct = interop::convert_to_daal_table<Float>(input.get_crossproduct());
     auto daal_sums = interop::convert_to_daal_table<Float>(input.get_sums());
-    const auto daal_nobs_matrix = interop::convert_to_daal_table<Float>(input.get_nobs_table());
+    const auto daal_nobs_matrix = interop::convert_to_daal_table<Float>(input.get_nobs());
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 

@@ -40,8 +40,8 @@ public:
 template <typename Task>
 class detail::v1::partial_compute_input_impl : public base {
 public:
-    table nobs_matrix;
-    table crossproduct_matrix;
+    table nobs;
+    table crossproduct;
     table sums;
 };
 
@@ -144,23 +144,23 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
 }
 
 template <typename Task>
-const table& partial_compute_input<Task>::get_nobs_table() const {
-    return impl_->nobs_matrix;
+const table& partial_compute_input<Task>::get_nobs() const {
+    return impl_->nobs;
 }
 
 template <typename Task>
-void partial_compute_input<Task>::set_nobs_table_impl(const table& value) {
-    impl_->nobs_matrix = value;
+void partial_compute_input<Task>::set_nobs_impl(const table& value) {
+    impl_->nobs = value;
 }
 
 template <typename Task>
-const table& partial_compute_input<Task>::get_crossproduct_matrix() const {
-    return impl_->crossproduct_matrix;
+const table& partial_compute_input<Task>::get_crossproduct() const {
+    return impl_->crossproduct;
 }
 
 template <typename Task>
-void partial_compute_input<Task>::set_crossproduct_matrix_impl(const table& value) {
-    impl_->crossproduct_matrix = value;
+void partial_compute_input<Task>::set_crossproduct_impl(const table& value) {
+    impl_->crossproduct = value;
 }
 template <typename Task>
 const table& partial_compute_input<Task>::get_sums() const {

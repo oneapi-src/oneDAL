@@ -132,23 +132,26 @@ template <typename Task = task::by_default>
 class partial_compute_input : public compute_input<Task> {
 public:
     using task_t = Task;
-    partial_compute_input();
-    partial_compute_input(const table& data);
-    /// The nobs table.
-    /// @remark default = table{}
-    const table& get_nobs_table() const;
 
-    auto& set_nobs_table(const table& value) {
-        set_nobs_table_impl(value);
+    partial_compute_input();
+
+    partial_compute_input(const table& data);
+
+    /// The nobs value.
+    /// @remark default = table{}
+    const table& get_nobs() const;
+
+    auto& set_nobs(const table& value) {
+        set_nobs_impl(value);
         return *this;
     }
 
     /// The crossproduct matrix.
     /// @remark default = table{}
-    const table& get_crossproduct_matrix() const;
+    const table& get_crossproduct() const;
 
-    auto& set_crossproduct_matrix(const table& value) {
-        set_crossproduct_matrix_impl(value);
+    auto& set_crossproduct(const table& value) {
+        set_crossproduct_impl(value);
         return *this;
     }
 
@@ -162,8 +165,8 @@ public:
     }
 
 protected:
-    void set_nobs_table_impl(const table&);
-    void set_crossproduct_matrix_impl(const table&);
+    void set_nobs_impl(const table&);
+    void set_crossproduct_impl(const table&);
     void set_sums_impl(const table&);
 
 private:
