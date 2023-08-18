@@ -42,10 +42,10 @@ namespace daal
  */
 enum CpuType
 {
-    sse2       = 0, /*!< Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2) */
-    sse42      = 2, /*!< Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) */
-    avx2       = 4, /*!< Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) */
-    avx512     = 6, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
+    sse2        = 0, /*!< Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2) */
+    sse42       = 2, /*!< Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) */
+    avx2        = 4, /*!< Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) */
+    avx512      = 6, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
     lastCpuType = avx512
 };
 
@@ -91,7 +91,7 @@ public:
     enum CpuTypeEnable
     {
         cpu_default = 0, /*!< Default processor type */
-        avx512 = 2 /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
+        avx512      = 2  /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
     };
 
     /**

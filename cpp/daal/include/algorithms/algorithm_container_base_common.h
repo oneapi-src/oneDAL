@@ -53,9 +53,8 @@ namespace interface1
  * \tparam avx2Container        Implementation for Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
  */
-template <ComputeMode mode, typename sse2Container DAAL_KERNEL_SSE42_ONLY(typename sse42Container)
-                                DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
-                                    DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
+template <ComputeMode mode, typename sse2Container DAAL_KERNEL_SSE42_ONLY(typename sse42Container) DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
+                                DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
 class DAAL_EXPORT AlgorithmDispatchContainer : public AlgorithmContainerImpl<mode>
 {
 public:
@@ -100,11 +99,10 @@ private:
     AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
-#define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                    \
-    algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2>                                                               \
-                                                     DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                                    \
-                                                         DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                 \
-                                                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                  \
+    algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) \
+                                                     DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
+                                                         DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 
 /** @} */
 } // namespace interface1
