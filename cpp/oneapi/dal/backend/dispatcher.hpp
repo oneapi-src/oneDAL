@@ -39,18 +39,14 @@ namespace oneapi::dal::backend {
 detail::cpu_extension detect_top_cpu_extension();
 
 struct cpu_dispatch_sse2 {};
-struct cpu_dispatch_ssse3 {};
 struct cpu_dispatch_sse42 {};
-struct cpu_dispatch_avx {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
 
 using cpu_dispatch_default = cpu_dispatch_sse2;
 
 #define __CPU_TAG_SSE2__    oneapi::dal::backend::cpu_dispatch_sse2
-#define __CPU_TAG_SSSE3__   oneapi::dal::backend::cpu_dispatch_ssse3
 #define __CPU_TAG_SSE42__   oneapi::dal::backend::cpu_dispatch_sse42
-#define __CPU_TAG_AVX__     oneapi::dal::backend::cpu_dispatch_avx
 #define __CPU_TAG_AVX2__    oneapi::dal::backend::cpu_dispatch_avx2
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
@@ -288,12 +284,8 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     })
     ONEDAL_IF_CPU_DISPATCH_AVX2(
         if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
-    ONEDAL_IF_CPU_DISPATCH_AVX(
-        if (test_cpu_extension(cpu_ex, cpu_extension::avx)) { return op(cpu_dispatch_avx{}); })
     ONEDAL_IF_CPU_DISPATCH_SSE42(
         if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
-    ONEDAL_IF_CPU_DISPATCH_SSSE3(
-        if (test_cpu_extension(cpu_ex, cpu_extension::ssse3)) { return op(cpu_dispatch_ssse3{}); })
     return op(cpu_dispatch_default{});
 }
 
