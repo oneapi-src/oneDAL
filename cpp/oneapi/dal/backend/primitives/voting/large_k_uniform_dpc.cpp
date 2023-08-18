@@ -16,6 +16,8 @@
 
 #include <algorithm>
 
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
@@ -72,6 +74,8 @@ template <typename ClassType>
 sycl::event large_k_uniform_voting<ClassType>::operator()(const ndview<ClassType, 2>& responses,
                                                           ndview<ClassType, 1>& results,
                                                           const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(voting.uniform, this->get_queue());
+
     const auto n = responses.get_dimension(0);
     ONEDAL_ASSERT(n <= swp_.get_dimension(0));
     ONEDAL_ASSERT(n <= out_.get_dimension(0));

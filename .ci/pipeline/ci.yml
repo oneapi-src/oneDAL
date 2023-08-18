@@ -6,7 +6,6 @@
 trigger:
   branches:
     include:
-    - develop
     - master
     - rls/*
   paths:
@@ -16,7 +15,6 @@ trigger:
 pr:
   branches:
     include:
-    - develop
     - master
     - rls/*
   paths:
@@ -49,16 +47,16 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.7.1 openjdk=17.0.3
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --target daal --conda-env ci-env
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --target oneapi_c
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c
     displayName: 'make oneapi_c'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -94,36 +92,29 @@ jobs:
 - job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
   variables:
-    release.dir: '__release_lnx_clang'
+    release.dir: '__release_lnx_icx'
     platform.type : 'lnx32e'
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
-      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.7.1 openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0 openjdk=17.0.3
     displayName: 'apt-get and conda install'
   - script: |
-      wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-      sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-      rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-      echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-      sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
-      sudo apt-get update
-      sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.0.0
-      sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
-      sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
+      bash .ci/scripts/install_dpcpp.sh
     displayName: 'dpcpp installation'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target daal --conda-env ci-env
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
+      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/build.sh --compiler clang --target onedal_dpc
+      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal_dpc
     displayName: 'make onedal_dpc'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -132,15 +123,19 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/java --conda-env ci-env
     displayName: 'daal/java examples'
   - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
     displayName: 'daal/cpp examples'
   - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build_system cmake
     displayName: 'oneapi/cpp examples'
   - script: |
+      source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
     displayName: 'daal/cpp/mpi samples'
   - task: PublishPipelineArtifact@1
@@ -156,24 +151,18 @@ jobs:
     vmImage: 'ubuntu-22.04'
   variables:
     platform.type : 'lnx32e'
-    BAZEL_VERSION: bazel-4.0.0
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
+    BAZEL_VERSION: $(Pipeline.Workspace)/bazelisk-linux-amd64
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
-      # Add bazel repository
-      sudo apt install -y curl gnupg
-      curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
-      sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
-      echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
-        sudo tee /etc/apt/sources.list.d/bazel.list
-
-      sudo apt-get update
-      sudo apt-get install gcc-multilib \
-                           g++-multilib \
-                           binutils \
-                           openjdk-11-jdk \
-                           $(BAZEL_VERSION)
+      # Download Bazelisk
+      export SHA256="168851e70cf5f95c0e215e7f3aaca5132ffc3c8dd8f585a4157b0be2b53cfe32 bazelisk-linux-amd64"
+      wget https://github.com/bazelbuild/bazelisk/releases/download/v1.16.0/bazelisk-linux-amd64
+      echo ${SHA256} | sha256sum --check
+      # "Install" bazelisk
+      chmod +x bazelisk-linux-amd64
+      mv bazelisk-linux-amd64 ${BAZEL_VERSION}
 
     displayName: 'install-deps'
   - script: |
@@ -302,7 +291,7 @@ jobs:
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
-      pip install -r daal4py/requirements-dev.txt
+      pip install -r daal4py/dependencies-dev
       pip install -r daal4py/requirements-test.txt
     displayName: Create python environment
   - script: |
@@ -324,6 +313,7 @@ jobs:
   - script: |
       . /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
       cd daal4py
       python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
     displayName: sklearnex build
@@ -340,7 +330,7 @@ jobs:
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ret_code=0
-      python -m daal4py daal4py/examples/daal4py/run_examples.py
+      python -m daal4py daal4py/tests/run_examples.py
       ret_code=$(($ret_code + $?))
       python -m daal4py daal4py/examples/daal4py/sycl/sklearn_sycl.py
       ret_code=$(($ret_code + $?))
@@ -381,10 +371,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 sse42 avx2 avx512" --conda-env ci-env
+      .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 avx2" --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target oneapi_c --optimizations "sse2 sse42 avx2 avx512"
+      .ci/scripts/build.sh --compiler clang --target oneapi_c --optimizations "sse2 avx2"
     displayName: 'make oneapi_c'
   - task: PublishPipelineArtifact@1
     inputs:

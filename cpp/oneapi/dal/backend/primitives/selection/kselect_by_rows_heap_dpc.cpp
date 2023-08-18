@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/heap.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_heap.hpp"
@@ -40,7 +41,7 @@ std::int64_t get_max_local_alloc(const sycl::queue& q) {
 
 std::int64_t get_preferred_sub_group(const sycl::queue& queue) {
     const auto max_sg = device_max_sg_size(queue);
-    constexpr std::int64_t preferred_sg = 16;
+    constexpr std::int64_t preferred_sg = 32;
     return std::min(max_sg, preferred_sg);
 }
 
@@ -408,6 +409,8 @@ sycl::event select(sycl::queue& queue,
                    ndview<Float, 2>& selection,
                    ndview<std::int32_t, 2>& indices,
                    const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(selection.kselect_by_rows_heap, queue);
+
     using dp_t = data_provider_t<Float, false>;
     const auto dp = dp_t::make(data);
     const auto ht = data.get_dimension(0);

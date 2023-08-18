@@ -19,8 +19,8 @@
 #include <daal/include/data_management/data/csr_numeric_table.h>
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/table/detail/csr.hpp"
-#include "oneapi/dal/table/detail/csr_accessor.hpp"
+#include "oneapi/dal/table/csr.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/daal_object_owner.hpp"
 #include "oneapi/dal/table/backend/interop/block_info.hpp"
@@ -42,7 +42,7 @@ class host_csr_table_adapter : public daal::data_management::CSRNumericTable {
     using block_desc_t = daal::data_management::CSRBlockDescriptor<T>;
 
 public:
-    static ptr_t create(const detail::csr_table& table);
+    static ptr_t create(const csr_table& table);
 
 private:
     status_t getSparseBlock(std::size_t vector_idx,
@@ -72,10 +72,12 @@ private:
                                      rw_mode_t rwflag,
                                      block_desc_t<BlockData>& block);
 
-    host_csr_table_adapter(const detail::csr_table& table, status_t& stat);
+    host_csr_table_adapter(const csr_table& table, status_t& stat);
 
 private:
-    detail::csr_table original_table_;
+    csr_table original_table_;
+    array<size_t> one_based_column_indices_;
+    array<size_t> one_based_row_offsets_;
 };
 
 } // namespace oneapi::dal::backend::interop

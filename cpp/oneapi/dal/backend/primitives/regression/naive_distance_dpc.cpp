@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -75,6 +76,7 @@ sycl::event naive_distance_regression<DistType, ResponseType>::operator()(
     const ndview<DistType, 2>& distances,
     ndview<ResponseType, 1>& results,
     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(regression.distance, this->get_queue());
     return distance_regression_kernel(this->get_queue(), responses, distances, results, deps);
 }
 

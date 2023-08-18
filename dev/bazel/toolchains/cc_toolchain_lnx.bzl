@@ -295,6 +295,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 (
                     ["-no-cilk", "-static-intel"] if reqs.compiler_id == "icc" else []
                 ) +
+                (
+                    ["-static-intel"] if reqs.compiler_id in ["icx", "icpx"] else []
+                ) +
                 bin_search_flag_cc + link_opts,
             ),
             "%{link_flags_dpcc}": get_starlark_list(
@@ -362,7 +365,7 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             "%{no_canonical_system_headers_flags_cc}": get_starlark_list(
                 # Probably bug: Intel Compiler links OpenMP runtime if
                 # -fno-canonical-system-headers is provided
-                (get_no_canonical_prefixes_opt(repo_ctx, tools.cc) if reqs.compiler_id != "icc" else []),
+                (get_no_canonical_prefixes_opt(repo_ctx, tools.cc) if reqs.compiler_id not in ["icx", "icpx"] else []),
             ),
             "%{no_canonical_system_headers_flags_dpcc}": get_starlark_list(
                 get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc),
@@ -393,8 +396,8 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-DDEBUG_ASSERT",
                 ],
             ),
-            "%{supports_start_end_lib}": "False" if reqs.compiler_id == "icc" else "True",
-            "%{supports_random_seed}": "False" if reqs.compiler_id == "icc" else "True",
+            "%{supports_start_end_lib}": "False" if reqs.compiler_id in ["icx", "icpx"] else "True",
+            "%{supports_random_seed}": "False" if reqs.compiler_id in ["icx", "icpx"] else "True",
             "%{cpu_flags_cc}": get_starlark_list_dict(
                 get_cpu_specific_options(reqs),
             ),

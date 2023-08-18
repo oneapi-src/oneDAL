@@ -51,22 +51,19 @@ public:
 private:
     std::int64_t get_row_block_count(std::int64_t row_count);
     std::int64_t get_column_block_count(std::int64_t column_count);
-    std::tuple<local_result_t, sycl::event> compute_single_pass(const pr::ndarray<Float, 2> data);
-    std::tuple<local_result_t, sycl::event> compute_by_blocks(const pr::ndarray<Float, 2> data,
-                                                              std::int64_t row_block_count);
+    template <bool use_weights>
+    std::tuple<local_result_t, sycl::event> compute_single_pass(
+        const pr::ndview<Float, 2>& data,
+        const pr::ndview<Float, 2>& weights = {});
+    template <bool use_weights>
+    std::tuple<local_result_t, sycl::event> compute_by_blocks(
+        const pr::ndview<Float, 2>& data,
+        std::int64_t row_block_count,
+        const pr::ndview<Float, 2>& weights = {});
     std::tuple<local_result_t, sycl::event> merge_blocks(local_buffer_list_t&& ndbuf,
                                                          std::int64_t column_count,
                                                          std::int64_t block_count,
                                                          const bk::event_vector& deps = {});
-    std::tuple<local_result_t, sycl::event> merge_distr_blocks(
-        const pr::ndarray<std::int64_t, 1>& com_row_count,
-        const pr::ndarray<Float, 1>& com_sum,
-        const pr::ndarray<Float, 1>& com_sum2cent,
-        local_result_t&& ndres,
-        std::int64_t block_count,
-        std::int64_t column_count,
-        std::int64_t block_stride,
-        const bk::event_vector& deps = {});
 
     std::tuple<local_result_t, sycl::event> finalize(local_result_t&& ndres,
                                                      std::int64_t row_count,

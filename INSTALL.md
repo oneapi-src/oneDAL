@@ -27,12 +27,12 @@ Required Software:
 
         pacman -S msys/make msys/dos2unix
 
-For details, see [System Requirements for oneDAL](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html).
+For details, see [System Requirements for oneDAL](https://www.intel.com/content/www/us/en/developer/articles/system-requirements/system-requirements-for-oneapi-data-analytics-library.html).
 
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-        git clone -b develop https://github.com/oneapi-src/oneDAL.git
+        git clone https://github.com/oneapi-src/oneDAL.git
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
 
@@ -60,7 +60,8 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
             call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
-4. Set the environment variables for one of the supported Java\* compilers. For example:
+4. Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
+Set the environment variables for one of the supported Java\* compilers. For example:
 
     - **Windows\***:
 

@@ -39,7 +39,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/engines/engine_batch_impl.h"
 
-#if defined(__INTEL_COMPILER_BUILD_DATE)
+#if defined(DAAL_INTEL_CPP_COMPILER)
     #include <immintrin.h>
 #endif
 
@@ -610,7 +610,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                                                                                         size_t subSampleCount16,
                                                                                                         algorithmFpType value)
 {
-#if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(__INTEL_COMPILER_BUILD_DATE)
+#if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(DAAL_INTEL_CPP_COMPILER)
 
     __m256 vValue = _mm256_set1_ps(value);
     size_t k      = 0;
@@ -653,7 +653,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     return i;
 
-#else // #if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(__INTEL_COMPILER_BUILD_DATE)
+#else // #if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(DAAL_INTEL_CPP_COMPILER)
 
     size_t k = 0;
     for (; k < subSampleCount; ++k)
@@ -676,7 +676,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     }
     return i;
 
-#endif // #if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(__INTEL_COMPILER_BUILD_DATE)
+#endif // #if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(DAAL_INTEL_CPP_COMPILER)
 }
 
 template <CpuType cpu, typename ForwardIterator1, typename ForwardIterator2>

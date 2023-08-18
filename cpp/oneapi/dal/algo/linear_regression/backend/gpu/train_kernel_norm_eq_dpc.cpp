@@ -17,11 +17,6 @@
 #include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
@@ -37,12 +32,10 @@
 
 namespace oneapi::dal::linear_regression::backend {
 
-using daal::services::Status;
 using dal::backend::context_gpu;
 
 namespace be = dal::backend;
 namespace pr = be::primitives;
-namespace interop = dal::backend::interop;
 
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
@@ -61,7 +54,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     using model_impl_t = detail::model_impl<Task>;
 
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
+
     ONEDAL_PROFILER_TASK(linreg_train_kernel, queue);
 
     constexpr auto uplo = pr::mkl::uplo::upper;
@@ -93,20 +86,26 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
     sycl::event last_xty_event = fill_xty_event, last_xtx_event = fill_xtx_event;
 
+    array<Float> old_x_arr{}, old_y_arr{};
     for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
         const auto last = blocking.get_block_end_index(b);
         const auto first = blocking.get_block_start_index(b);
 
+        ONEDAL_ASSERT(first < last);
         const std::int64_t length = last - first;
 
         auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
-        auto x = pr::ndarray<Float, 2>::wrap(x_arr, { length, feature_count });
+        auto x = pr::ndview<Float, 2>::wrap(x_arr.get_data(), { length, feature_count });
 
         auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
-        auto y = pr::ndarray<Float, 2>::wrap(y_arr, { length, response_count });
+        auto y = pr::ndview<Float, 2>::wrap(y_arr.get_data(), { length, response_count });
 
         last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
         last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
+
+        // We keep the latest slice of data up to date because of pimpl -
+        // it virtually extend lifetime of pulled arrays
+        old_x_arr = std::move(x_arr), old_y_arr = std::move(y_arr);
     }
 
     const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
@@ -127,7 +126,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     }
 
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
-    auto nxty = pr::ndarray<Float, 2>::wrap_mutable(betas_arr, betas_shape);
+    auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);
     auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
     sycl::event::wait_and_throw({ solve_event });
 
@@ -141,7 +140,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     if (options.test(result_options::intercept)) {
         auto arr = array<Float>::zeros(queue, response_count, alloc);
-        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { 1l, response_count });
+        auto dst = pr::ndview<Float, 2>::wrap_mutable(arr, { 1l, response_count });
         const auto src = nxty.get_col_slice(0l, 1l).t();
 
         pr::copy(queue, dst, src).wait_and_throw();
@@ -155,7 +154,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
         auto arr = array<Float>::zeros(queue, size, alloc);
         const auto src = nxty.get_col_slice(1l, feature_count + 1);
-        auto dst = pr::ndarray<Float, 2>::wrap_mutable(arr, { response_count, feature_count });
+        auto dst = pr::ndview<Float, 2>::wrap_mutable(arr, { response_count, feature_count });
 
         pr::copy(queue, dst, src).wait_and_throw();
 

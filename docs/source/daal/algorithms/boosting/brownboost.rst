@@ -50,7 +50,7 @@ The model is trained using the Freund method [Freund01]_ as follows:
 #. Do for :math:`i=1, 2, \ldots` until :math:`s_{i+1} \leq 0`
 
    #. With each feature vector and its label of positive weight, associate :math:`W_i(x, y) = e^{\frac {-(r_i(x, y) + s_i)^2}{c}}`.
-   #. Call the weak learner with the distribution defined by normalizing Lmath:`W_i(x, y)` to receive a hypothesis :math:`h_i(x)`.
+   #. Call the weak learner with the distribution defined by normalizing :math:`W_i(x, y)` to receive a hypothesis :math:`h_i(x)`.
    #. Solve the differential equation
 
       .. math::
@@ -190,8 +190,8 @@ Examples
 
   .. tab:: Java*
 
-    .. note:: There is no support for Java on GPU.
-
+    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
+      
     Batch Processing:
 
     - :java_example:`BrownBoostDenseBatch.java <boosting/brownboost/BrownBoostDenseBatch.java>`

@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -48,6 +48,17 @@ void convert_matrix(const detail::default_host_policy& policy,
                     const std::int64_t dst_col_stride,
                     const std::int64_t dst_row_count,
                     const std::int64_t dst_col_count);
+
+/// Shifts values in the array `arr` of type `arr_type` by the value pointed
+/// to by the `shift` pointer.
+/// Pseudocode:
+///     for i in range 0, ..., element_count - 1:
+///         arr[i] = arr[i] + shift[0]
+void shift_array_values(const detail::default_host_policy& policy,
+                        void* arr,
+                        data_type arr_type,
+                        const std::int64_t element_count,
+                        const void* shift);
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -118,6 +129,20 @@ sycl::event convert_vector_host2device(sycl::queue& q,
                                        std::int64_t dst_stride,
                                        std::int64_t element_count,
                                        const std::vector<sycl::event>& deps = {});
+
+/// Shifts values in the array `arr` of type `arr_type` by the value pointed
+/// to by the `shift` pointer.
+/// Pseudocode:
+///     for i in range 0, ..., element_count - 1:
+///         arr[i] = arr[i] + shift[0]
+/// Array `arr` can be allocated either on device or accessible only on host
+sycl::event shift_array_values(const detail::data_parallel_policy& policy,
+                               void* arr,
+                               data_type arr_type,
+                               const std::int64_t element_count,
+                               const void* shift,
+                               const event_vector& deps = {});
+
 #endif
 
 } // namespace oneapi::dal::backend

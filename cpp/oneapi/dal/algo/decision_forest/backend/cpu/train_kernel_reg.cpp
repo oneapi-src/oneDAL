@@ -78,7 +78,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_parameter.minObservationsInLeafNode =
         dal::detail::integral_cast<std::size_t>(desc.get_min_observations_in_leaf_node());
     // TODO take engines from desc
-    daal_parameter.engine = daal::algorithms::engines::mt2203::Batch<>::create();
+    daal_parameter.engine = daal::algorithms::engines::mt2203::Batch<>::create(desc.get_seed());
     daal_parameter.impurityThreshold = desc.get_impurity_threshold();
     daal_parameter.memorySavingMode = desc.get_memory_saving_mode();
     daal_parameter.bootstrap = desc.get_bootstrap();
@@ -96,6 +96,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto vimp = desc.get_variable_importance_mode();
 
     daal_parameter.varImportance = convert_to_daal_variable_importance_mode(vimp);
+
+    auto splitter = desc.get_splitter_mode();
+
+    daal_parameter.splitter = convert_to_daal_splitter_mode(splitter);
 
     result_t res;
 
@@ -120,6 +124,28 @@ static result_t call_daal_kernel(const context_cpu& ctx,
             interop::convert_to_daal_homogen_table(arr_oob_per_obs_err, row_count, 1);
         daal_result.set(daal_df_reg_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
+
+    if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error_r2)) {
+        auto arr_oob_r2_err = array<Float>::empty(1 * 1);
+        res.set_oob_err_r2(
+            dal::detail::homogen_table_builder{}.reset(arr_oob_r2_err, 1, 1).build());
+
+        const auto res_oob_r2_err = interop::convert_to_daal_homogen_table(arr_oob_r2_err, 1, 1);
+        daal_result.set(daal_df_reg_train::outOfBagErrorR2, res_oob_r2_err);
+    }
+
+    if (check_mask_flag(desc.get_error_metric_mode(),
+                        error_metric_mode::out_of_bag_error_prediction)) {
+        auto arr_oob_prediction_err = array<Float>::empty(row_count * 1);
+        res.set_oob_err_prediction(dal::detail::homogen_table_builder{}
+                                       .reset(arr_oob_prediction_err, row_count, 1)
+                                       .build());
+
+        const auto res_oob_prediction_err =
+            interop::convert_to_daal_homogen_table(arr_oob_prediction_err, row_count, 1);
+        daal_result.set(daal_df_reg_train::outOfBagErrorPrediction, res_oob_prediction_err);
+    }
+
     if (variable_importance_mode::none != vimp) {
         auto arr_var_imp = array<Float>::empty(1 * column_count);
         res.set_var_importance(
@@ -155,6 +181,19 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(daal_df_reg_train::outOfBagErrorPerObservation));
         res.set_oob_err_per_observation(table_oob_per_obs_err);
+    }
+
+    if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error_r2)) {
+        auto table_oob_err_r2 = interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_df_reg_train::outOfBagErrorR2));
+        res.set_oob_err_r2(table_oob_err_r2);
+    }
+
+    if (check_mask_flag(desc.get_error_metric_mode(),
+                        error_metric_mode::out_of_bag_error_prediction)) {
+        auto table_oob_err_prediction = interop::convert_from_daal_homogen_table<Float>(
+            daal_result.get(daal_df_reg_train::outOfBagErrorPrediction));
+        res.set_oob_err_prediction(table_oob_err_prediction);
     }
 
     if (variable_importance_mode::none != vimp) {

@@ -66,7 +66,9 @@ public:
 
     auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(this->get_queue(), { size });
+        return ndarray<float_t, 1, rm_order>::full(this->get_queue(),
+                                                   { size },
+                                                   binary_t{}.init_value);
     }
 
     void generate_input() {
@@ -208,8 +210,8 @@ public:
         check_output_cw(out_array);
     }
 
-    void test_raw_cw_reduce_naive_local() {
-        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_atomic() {
+        using reduction_t = reduction_rm_cw_atomic<float_t, binary_t, unary_t>;
         const auto input_array =
             row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
         auto [out_array, out_event] = output(width_);
@@ -225,7 +227,7 @@ public:
     }
 
     void test_raw_cw_reduce_wrapper() {
-        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
+        using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         const auto input_array =
             row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
         auto [out_array, out_event] = output(width_);
@@ -269,7 +271,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
     this->generate();
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
-    this->test_raw_cw_reduce_naive_local();
+    this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
 

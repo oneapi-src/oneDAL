@@ -23,7 +23,12 @@ set(SUB_DIR "intel64")
 
 # Parse version info if possible
 if (NOT "$ENV{DALROOT}" STREQUAL "")
-    file(READ $ENV{DALROOT}/include/services/library_version_info.h DAL_VERSION_INFO)
+    # version_info.h is set according to the relevant package structure 
+    set(version_info.h $ENV{DALROOT}/include/services/library_version_info.h)
+    if (NOT EXISTS "${version_info.h}")
+        set(version_info.h $ENV{DALROOT}/include/dal/services/library_version_info.h)
+    endif()
+    file(READ ${version_info.h} DAL_VERSION_INFO)
     string(REGEX REPLACE ".*#define __INTEL_DAAL__ ([0-9]+).*" "\\1" oneDAL_VERSION_MAJOR "${DAL_VERSION_INFO}")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR__ ([0-9]+).*" "\\1" oneDAL_VERSION_MINOR "${DAL_VERSION_INFO}")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_UPDATE__ ([0-9]+).*" "\\1" oneDAL_VERSION_PATCH "${DAL_VERSION_INFO}")

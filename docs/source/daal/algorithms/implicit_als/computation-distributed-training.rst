@@ -28,7 +28,7 @@ At the training stage, implicit ALS recommender in the distributed processing mo
 
 .. tabularcolumns::  |\Y{0.15}|\Y{0.15}|\Y{0.7}|
 
-.. list-table:: Training Parameters for Implicit Alternating Least Squares Computaion (Distributed Processing)
+.. list-table:: Training Parameters for Implicit Alternating Least Squares Computation (Distributed Processing)
    :widths: 10 10 60
    :header-rows: 1
    :align: left
@@ -88,14 +88,14 @@ The main loop of the implicit ALS training stage is executed on the master node.
     :align: center
     :alt:
 
-    Implicit Alternating Least Squares Computaion: Part 1
+    Implicit Alternating Least Squares Computation: Part 1
 
 .. figure:: images/implicit-als-distributed-computation-training-general-scheme-2.png
     :width: 600
     :align: center
     :alt:
 
-    Implicit Alternating Least Squares Computaion: Part 2
+    Implicit Alternating Least Squares Computation: Part 2
 
 .. _implicit_als_distributed_training_step_1:
 
@@ -122,7 +122,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
+.. list-table:: Input for Implicit Alternating Least Squares Computation (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
 
@@ -137,7 +137,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 1)
+.. list-table:: Output for Implicit Alternating Least Squares Computation (Distributed Processing, Step 1)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -168,7 +168,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 2)
+.. list-table:: Input for Implicit Alternating Least Squares Computation (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
 
@@ -187,7 +187,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 2)
+.. list-table:: Output for Implicit Alternating Least Squares Computation (Distributed Processing, Step 2)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -231,7 +231,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 3)
+.. list-table:: Input for Implicit Alternating Least Squares Computation (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
    :class: longtable
@@ -250,7 +250,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 3)
+.. list-table:: Output for Implicit Alternating Least Squares Computation (Distributed Processing, Step 3)
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -286,7 +286,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Input for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 4)
+.. list-table:: Input for Implicit Alternating Least Squares Computation (Distributed Processing, Step 4)
    :widths: 10 60
    :header-rows: 1
    :class: longtable
@@ -308,7 +308,7 @@ For more details, see :ref:`algorithms`.
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Output for Implicit Alternating Least Squares Computaion (Distributed Processing, Step 4)
+.. list-table:: Output for Implicit Alternating Least Squares Computation (Distributed Processing, Step 4)
    :widths: 10 60
    :header-rows: 1
    :align: left

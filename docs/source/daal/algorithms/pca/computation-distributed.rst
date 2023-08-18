@@ -88,7 +88,7 @@ Step 1 - on Local Nodes
             * - Input ID
               - Input
             * - ``data``
-              - Pointer to the :math:`n_i \times p` numeric table that represents the Lmath:`i`-th data block on the local node.
+              - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node.
                 The input can be an object of any class derived from ``NumericTable``.
 
         In this step, PCA calculates the results described below.
@@ -140,7 +140,7 @@ Step 1 - on Local Nodes
             * - Input ID
               - Input
             * - ``data``
-              - Pointer to the :math:`n_i \times p` numeric table that represents the Lmath:`i`-th data block on the local node.
+              - Pointer to the :math:`n_i \times p` numeric table that represents the :math:`i`-th data block on the local node.
                 The input can be an object of any class derived from ``NumericTable``.
 
         In this step, PCA calculates the results described below.

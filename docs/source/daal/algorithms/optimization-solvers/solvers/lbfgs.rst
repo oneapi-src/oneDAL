@@ -60,9 +60,9 @@ For the LBFGS algorithm, the set of intrinsic parameters :math:`S_t` includes th
 
 Below is the definition and update flow of the intrinsic
 parameters :math:`(s_j , y_j)`. The index is set and
-remains zero for the first 2L-1 iterations of the main loop.
+remains zero for the first :math:`2L-1`` iterations of the main loop.
 Starting with iteration :math:`2L`, the algorithm executes the following
-steps for each of L iterations of the main loop:
+steps for each of :math:`L`` iterations of the main loop:
 
 #.
 
@@ -139,7 +139,7 @@ the limited-memory BFGS algorithm accepts the following optional input:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Input for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computaion
+.. list-table:: Algorithm Input for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computation
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -170,7 +170,7 @@ the limited-memory BFGS algorithm has the following parameters:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.2}|\Y{0.6}|
 
-.. list-table:: Algorithm Parameters for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computaion
+.. list-table:: Algorithm Parameters for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computation
    :widths: 10 20 30
    :header-rows: 1
    :align: left
@@ -266,7 +266,7 @@ BFGS algorithm calculates the following optional results:
 
 .. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
 
-.. list-table:: Algorithm Output for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computaion
+.. list-table:: Algorithm Output for Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Computation
    :widths: 10 60
    :header-rows: 1
    :align: left
@@ -303,7 +303,8 @@ Examples
 
   .. tab:: Java*
 
-     .. note:: There is no support for Java on GPU.
+  
+    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
 
      Batch Processing:
 

@@ -166,6 +166,9 @@ private:
 };
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
+class ndarray;
+
+template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndview : public ndarray_base<axis_count, order> {
     static_assert(!std::is_const_v<T>, "T must be non-const");
 
@@ -195,6 +198,29 @@ public:
 
     static ndview wrap(const T* data, const shape_t& shape, const shape_t& strides) {
         return ndview{ data, shape, strides };
+    }
+
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_mutable_data(), shape);
+    }
+
+    static ndview wrap_mutable(const array<T>& data, const shape_t& shape, const shape_t& strides) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        ONEDAL_ASSERT(data.get_count() >= shape.get_count());
+        return wrap(data.get_mutable_data(), shape, strides);
+    }
+
+    template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
+    static ndview wrap(const array<T>& data) {
+        return wrap(data.get_data(), { data.get_count() });
+    }
+
+    template <std::int64_t d = axis_count, typename = std::enable_if_t<d == 1>>
+    static ndview wrap_mutable(const array<T>& data) {
+        ONEDAL_ASSERT(data.has_mutable_data());
+        return wrap(data.get_mutable_data(), { data.get_count() });
     }
 
     const T* get_data() const {
@@ -230,8 +256,10 @@ public:
             const auto* row = get_data() + id0 * this->get_stride(0);
             return *(row + id1);
         }
-        const auto* const col = get_data() + id1 * this->get_stride(1);
-        return *(col + id0);
+        else {
+            const auto* const col = get_data() + id1 * this->get_stride(1);
+            return *(col + id0);
+        }
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
@@ -250,9 +278,29 @@ public:
             auto* const row = get_mutable_data() + id0 * this->get_stride(0);
             return *(row + id1);
         }
-        auto* const col = get_mutable_data() + id1 * this->get_stride(1);
-        return *(col + id0);
+        else {
+            auto* const col = get_mutable_data() + id1 * this->get_stride(1);
+            return *(col + id0);
+        }
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    T at_device(sycl::queue& queue, std::int64_t id, const event_vector& deps = {}) const {
+        return this->get_slice(id, id + 1).to_host(queue, deps).at(0);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    T at_device(sycl::queue& queue,
+                std::int64_t id0,
+                std::int64_t id1,
+                const event_vector& deps = {}) const {
+        return this->get_row_slice(id0, id0 + 1)
+            .get_col_slice(id1, id1 + 1)
+            .to_host(queue, deps)
+            .at(0, 0);
+    }
+#endif // ONEDAL_DATA_PARALLEL
 
     auto t() const {
         using tranposed_ndview_t = ndview<T, axis_count, transposed_ndorder_v<order>>;
@@ -296,6 +344,11 @@ public:
     ndview get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
         return this->t().get_row_slice(from_col, to_col).t();
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray<T, axis_count, order> to_host(sycl::queue& q, const event_vector& deps = {}) const;
+    ndarray<T, axis_count, order> to_device(sycl::queue& q, const event_vector& deps = {}) const;
+#endif
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event prefetch(sycl::queue& queue) const {
@@ -436,6 +489,17 @@ inline sycl::event copy(sycl::queue& q,
     return res_event;
 }
 
+template <typename T1, ndorder ord1, typename T2, ndorder ord2>
+inline sycl::event copy(sycl::queue& q,
+                        ndview<T1, 1, ord1>& dst,
+                        const ndview<T2, 1, ord2>& src,
+                        const event_vector& deps = {}) {
+    auto dst_2d = dst.template reshape<2>({ 1l, dst.get_count() });
+    auto src_2d = src.template reshape<2>({ 1l, src.get_count() });
+
+    return copy(q, dst_2d, src_2d, deps);
+}
+
 template <typename T>
 inline sycl::event fill(sycl::queue& q,
                         ndview<T, 1>& dst,
@@ -475,7 +539,7 @@ inline sycl::event fill(sycl::queue& q,
 }
 #endif
 
-template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
+template <typename T, std::int64_t axis_count, ndorder order>
 class ndarray : public ndview<T, axis_count, order> {
     template <typename, std::int64_t, ndorder>
     friend class ndarray;
@@ -609,9 +673,10 @@ public:
         sycl::queue& q,
         const shape_t& shape,
         const T& value,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared,
+        const event_vector& deps = {}) {
         auto ary = empty(q, shape, alloc_kind);
-        auto event = ary.fill(q, value);
+        auto event = ary.fill(q, value, deps);
         return { ary, event };
     }
 #endif
@@ -750,30 +815,6 @@ public:
     }
 #endif
 
-#ifdef ONEDAL_DATA_PARALLEL
-    ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
-        T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
-        dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
-            .wait_and_throw();
-        return wrap(host_ptr,
-                    this->get_shape(),
-                    dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
-    }
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-    ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
-        ndarray dev = empty(q, this->get_shape(), sycl::usm::alloc::device);
-        dal::backend::copy_host2usm(q,
-                                    dev.get_mutable_data(),
-                                    this->get_data(),
-                                    this->get_count(),
-                                    deps)
-            .wait_and_throw();
-        return dev;
-    }
-#endif
-
     ndarray slice(std::int64_t offset, std::int64_t count, std::int64_t axis = 0) const {
         ONEDAL_ASSERT(order == ndorder::c, "Only C-order is supported");
         ONEDAL_ASSERT(axis == 0, "Non-zero axis is not supported");
@@ -850,6 +891,37 @@ private:
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
+template <typename T, std::int64_t axis_count, ndorder order>
+ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_host(
+    sycl::queue& q,
+    const event_vector& deps) const {
+    T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
+    dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
+        .wait_and_throw();
+    return ndarray<T, axis_count, order>::wrap(
+        host_ptr,
+        this->get_shape(),
+        dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
+}
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T, std::int64_t axis_count, ndorder order>
+ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_device(
+    sycl::queue& q,
+    const event_vector& deps) const {
+    auto dev = ndarray<T, axis_count, order>::empty(q, this->get_shape(), sycl::usm::alloc::device);
+    dal::backend::copy_host2usm(q,
+                                dev.get_mutable_data(),
+                                this->get_data(),
+                                this->get_count(),
+                                deps)
+        .wait_and_throw();
+    return dev;
+}
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
 
 template <ndorder yorder,
           typename Type,
@@ -875,3 +947,29 @@ inline auto copy(sycl::queue& q,
 #endif
 
 } // namespace oneapi::dal::backend::primitives
+
+namespace oneapi::dal::backend {
+
+template <typename Type>
+inline Type* begin(const primitives::ndview<Type, 1>& arr) {
+    ONEDAL_ASSERT(arr.has_mutable_data());
+    return arr.get_mutable_data();
+}
+
+template <typename Type>
+inline Type* end(const primitives::ndview<Type, 1>& arr) {
+    return begin(arr) + arr.get_count();
+}
+
+template <typename Type>
+inline const Type* cbegin(const primitives::ndview<Type, 1>& arr) {
+    ONEDAL_ASSERT(arr.has_data());
+    return arr.get_data();
+}
+
+template <typename Type>
+inline const Type* cend(const primitives::ndview<Type, 1>& arr) {
+    return cbegin(arr) + arr.get_count();
+}
+
+} // namespace oneapi::dal::backend

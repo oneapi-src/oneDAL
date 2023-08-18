@@ -4,10 +4,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
   name = "bazel_skylib",
   urls = [
-    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.3.0/bazel-skylib-1.3.0.tar.gz",
-    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.3.0/bazel-skylib-1.3.0.tar.gz",
+    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.2/bazel-skylib-1.4.2.tar.gz",
+    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.2/bazel-skylib-1.4.2.tar.gz",
   ],
-  sha256 = "74d544d96f4a5bb630d465ca8bbcfe231e3594e5aae57e1edbf17a6eb3ca2506",
+  sha256 = "66ffd9315665bfaafc96b52278f57c7e2dd09f5ede279ea6d39b2be471e7e3aa",
 )
 
 load("@onedal//dev/bazel/config:config.bzl", "declare_onedal_config")
@@ -106,13 +106,6 @@ load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")
 onedal_repo(
     name = "onedal_release",
     root_env_var = "DAALROOT",
-)
-
-http_archive(
-    name = "gtest",
-    url = "https://github.com/google/googletest/archive/release-1.10.0.tar.gz",
-    sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-    strip_prefix = "googletest-release-1.10.0",
 )
 
 http_archive(

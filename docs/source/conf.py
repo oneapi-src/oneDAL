@@ -81,11 +81,12 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
                     'daal/includes/*', 'onedal/algorithms/.*/includes/*', 'index-toc.rst']
 
 extlinks = {
-    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
-    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
-    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', ''),
-    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', ''),
-    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
+    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', None),
+    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', None),
+    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', None),
+    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', None),
+    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sklearnex/%s', None),
+    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', None)
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -108,6 +109,12 @@ html_theme_options = {
     'use_edit_page_button': True,
     'repository_branch': 'master',
     'extra_footer': '<p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>'
+}
+
+html_theme_options = {
+    "logo": {
+        "text": "oneDAL Documentation",
+    }
 }
 
 # oneDAL project directory is needed for `dalapi` extension
@@ -180,10 +187,20 @@ nitpick_ignore = [
     ('cpp:identifier', ),
     # kmeans_init
     ('cpp:identifier', 'kmeans_init'),
+    ('cpp:identifier', 'local_trials'),
     ('cpp:identifier', 'kmeans_init::descriptor'),
     ('cpp:identifier', 'kmeans_init::compute_input'),
     ('cpp:identifier', 'kmeans_init::compute_result'),
     ('cpp:identifier', 'compute'),
+    # objective_function
+    ('cpp:identifier', 'objective_function'),
+    ('cpp:identifier', 'objective_t'),
+    ('cpp:identifier', 'objective_function::descriptor'),
+    ('cpp:identifier', 'objective_function::compute_result'),
+    ('cpp:identifier', 'objective_function::compute_input'),
+    # logloss_objective
+    ('cpp:identifier', 'logloss_objective'),
+    ('cpp:identifier', 'logloss_objective::descriptor'),
     # pca
     ('cpp:identifier', 'pca'),
     ('cpp:identifier', 'pca::descriptor'),
@@ -298,6 +315,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'mutable_data'),
     ('cpp:identifier', 'data'),
     ('cpp:identifier', 'count'),
+    ('cpp:identifier', 'sparse_indexing'),
+    ('cpp:identifier', 'sparse_indexing::zero_based'),
+    ('cpp:identifier', 'sparse_indexing::one_based'),
     # array
     ('cpp:identifier', 'array'),
     ('cpp:identifier', 'T'),
@@ -317,10 +337,11 @@ nitpick_ignore = [
     # oneapi - kmeans
     ('cpp:identifier', 'oneapi::dal::kmeans'),
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
+    # oneapi - decision_forest
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
-
+    # oneapi - svm
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),

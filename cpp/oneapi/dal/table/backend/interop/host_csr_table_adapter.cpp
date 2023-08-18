@@ -41,7 +41,7 @@ static void convert_feature_information_to_daal(
 }
 
 template <typename Data>
-auto host_csr_table_adapter<Data>::create(const detail::csr_table& table) -> ptr_t {
+auto host_csr_table_adapter<Data>::create(const csr_table& table) -> ptr_t {
     status_t internal_stat;
     auto result = ptr_t{ new host_csr_table_adapter(table, internal_stat) };
     status_to_exception(internal_stat);
@@ -98,7 +98,7 @@ std::size_t host_csr_table_adapter<Data>::getDataSize() {
 template <typename Data>
 void host_csr_table_adapter<Data>::freeDataMemoryImpl() {
     base::freeDataMemoryImpl();
-    original_table_ = detail::csr_table{};
+    original_table_ = csr_table{};
 }
 
 template <typename Data>
@@ -116,16 +116,12 @@ auto host_csr_table_adapter<Data>::read_sparse_values_impl(std::size_t vector_id
 }
 
 template <typename Data>
-host_csr_table_adapter<Data>::host_csr_table_adapter(const detail::csr_table& table, status_t& stat)
+host_csr_table_adapter<Data>::host_csr_table_adapter(const csr_table& table, status_t& stat)
         // The following const_cast is safe only when this class is used for read-only
         // operations. Use on write leads to undefined behaviour.
         : base(ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-               ptr_index_t{ const_cast<std::size_t*>(
-                                reinterpret_cast<const std::size_t*>(table.get_column_indices())),
-                            daal_object_owner(table) },
-               ptr_index_t{ const_cast<std::size_t*>(
-                                reinterpret_cast<const std::size_t*>(table.get_row_indices())),
-                            daal_object_owner(table) },
+               ptr_index_t(),
+               ptr_index_t(),
                table.get_column_count(),
                table.get_row_count(),
                daal::data_management::CSRNumericTableIface::CSRIndexing::oneBased,
@@ -133,10 +129,46 @@ host_csr_table_adapter<Data>::host_csr_table_adapter(const detail::csr_table& ta
     if (!stat.ok()) {
         return;
     }
-    else if (!table.has_data()) {
+    if (!table.has_data()) {
         stat.add(daal::services::ErrorIncorrectParameter);
         return;
     }
+
+    const std::int64_t column_count = table.get_column_count();
+    const std::int64_t row_count = table.get_row_count();
+    size_t* column_indices =
+        const_cast<std::size_t*>(reinterpret_cast<const std::size_t*>(table.get_column_indices()));
+    size_t* row_offsets =
+        const_cast<std::size_t*>(reinterpret_cast<const std::size_t*>(table.get_row_offsets()));
+
+    // Convert zero-based indices to one-based if needed.
+    // Because DAAL tables support only one-based indexing
+    if (table.get_indexing() == sparse_indexing::zero_based) {
+        one_based_column_indices_.reset(column_count);
+        one_based_row_offsets_.reset(row_count + 1);
+        size_t* one_based_column_indices_ptr = one_based_column_indices_.get_mutable_data();
+        size_t* one_based_row_offsets_ptr = one_based_row_offsets_.get_mutable_data();
+        for (std::int64_t i = 0; i < column_count; i++) {
+            one_based_column_indices_ptr[i] = column_indices[i] + 1;
+        }
+        column_indices = one_based_column_indices_ptr;
+        for (std::int64_t i = 0; i <= row_count; i++) {
+            one_based_row_offsets_ptr[i] = row_offsets[i] + 1;
+        }
+        row_offsets = one_based_row_offsets_ptr;
+    }
+
+    this->_status |= setArrays<Data>(
+        ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
+        ptr_index_t{ column_indices, daal_object_owner(table) },
+        ptr_index_t{ row_offsets, daal_object_owner(table) });
+    if (!this->_status.ok())
+        return;
+
+    _defaultFeature.setType<Data>();
+    this->_status |= this->_ddict->setAllFeatures(_defaultFeature);
+    if (!this->_status.ok())
+        return;
 
     original_table_ = table;
 

@@ -90,9 +90,22 @@ public:
 
     template <typename T>
     void pull_csr_block_template(const detail::default_host_policy& policy,
-                                 detail::csr_block<T>& block,
-                                 const detail::csr_indexing& indexing,
+                                 dal::array<T>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_indices,
+                                 const sparse_indexing& indexing,
                                  const range& row_range) const {}
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_csr_block_template(const detail::data_parallel_policy& policy,
+                                 dal::array<T>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_indices,
+                                 const sparse_indexing& indexing,
+                                 const range& row_range,
+                                 sycl::usm::alloc alloc) const {}
+#endif
 
     void serialize(detail::output_archive& ar) const override {
         // Nothing to serialize

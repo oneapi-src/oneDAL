@@ -74,13 +74,15 @@ public:
     }
 
     template <typename Data>
-    void pull_csr_block_template(const detail::default_host_policy&,
-                                 detail::csr_block<Data>& block,
-                                 const detail::csr_indexing& indexing,
+    void pull_csr_block_template(const detail::default_host_policy& policy,
+                                 dal::array<Data>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_offsets,
+                                 const sparse_indexing& indexing,
                                  const range& row_range) const {
-        block.data.reset();
-        block.row_indices.reset();
-        block.column_indices.reset();
+        data.reset();
+        column_indices.reset();
+        row_offsets.reset();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -99,6 +101,19 @@ public:
                               const range& row_range,
                               const sycl::usm::alloc&) const {
         block.reset();
+    }
+
+    template <typename Data>
+    void pull_csr_block_template(const detail::data_parallel_policy&,
+                                 dal::array<Data>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_offsets,
+                                 const sparse_indexing& indexing,
+                                 const range& row_range,
+                                 sycl::usm::alloc alloc) const {
+        data.reset();
+        column_indices.reset();
+        row_offsets.reset();
     }
 #endif
 

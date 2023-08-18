@@ -14,12 +14,12 @@
 
   <name>Intel(R) oneAPI Data Analytics Library</name>
   <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
-  <url>https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html</url>
+  <url>https://www.intel.com/content/www/us/en/developer/tools/oneapi/onedal.html</url>
 
   <licenses>
     <license>
       <name>Intel Simplified Software License</name>
-      <url>https://software.intel.com/en-us/license/intel-simplified-software-license</url>
+      <url>https://www.intel.com/content/www/us/en/developer/articles/license/end-user-license-agreement.html</url>
     </license>
   </licenses>
 

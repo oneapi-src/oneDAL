@@ -642,6 +642,7 @@ public:
     /// Does not perform boundary checks.
     const T& operator[](std::int64_t index) const noexcept {
         ONEDAL_ASSERT(index < count_);
+        ONEDAL_ASSERT(0 <= index);
         return data_ptr_[index];
     }
 

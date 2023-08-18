@@ -57,18 +57,27 @@ sycl::event update_xtx(sycl::queue& queue,
 
     constexpr Float one = 1;
     constexpr pr::sum<Float> plus;
-    constexpr pr::identity<Float> ident;
+    constexpr pr::identity<Float> identity;
 
     using uplo = pr::mkl::uplo;
     ONEDAL_ASSERT(x.has_data());
-    const auto f_count = x.get_dimension(1);
-
     ONEDAL_ASSERT(xtx.has_mutable_data());
+
+    const auto f_count = x.get_dimension(1);
     const auto ext_f_count = xtx.get_dimension(1);
     ONEDAL_ASSERT(ext_f_count == (f_count + std::int64_t(beta)));
 
-    auto core = xtx.get_col_slice(0, f_count).get_row_slice(0, f_count);
-    auto syrk_event = pr::syrk<uplo::upper>(queue, x, core, one, one, deps);
+    be::event_vector new_deps{};
+    {
+        ONEDAL_PROFILER_TASK(update_xtx_syrk_kernel, queue);
+        auto core = xtx.get_col_slice(0, f_count).get_row_slice(0, f_count);
+        ONEDAL_ASSERT(core.get_dimension(0) == f_count);
+        ONEDAL_ASSERT(core.get_dimension(1) == f_count);
+
+        auto syrk_event = pr::syrk<uplo::upper>(queue, x, core, one, one, deps);
+
+        new_deps.push_back(syrk_event);
+    }
 
     if constexpr (beta) {
         auto means_2d = xtx.get_col_slice(0, f_count).get_row_slice(f_count, ext_f_count);
@@ -83,13 +92,14 @@ sycl::event update_xtx(sycl::queue& queue,
 
         const auto s_count = x.get_dimension(0);
 
-        auto means_event = pr::reduce_by_columns(queue, x, means, plus, ident, deps);
         auto count_event = pr::element_wise(queue, plus, count, Float(s_count), count, deps);
+        auto means_event = pr::reduce_by_columns(queue, x, means, plus, identity, deps, false);
 
-        sycl::event::wait_and_throw({ means_event, count_event });
+        new_deps.push_back(means_event);
+        new_deps.push_back(count_event);
     }
 
-    return symmetrize<beta>(queue, xtx, { syrk_event });
+    return symmetrize<beta>(queue, xtx, new_deps);
 }
 
 template <bool beta, typename Float, pr::ndorder xlayout, pr::ndorder ylayout>
@@ -117,11 +127,17 @@ sycl::event update_xty(sycl::queue& queue,
     ONEDAL_ASSERT(xty.get_dimension(1) == ext_f_count);
     ONEDAL_ASSERT(xty.get_dimension(0) == r_count);
 
-    auto core = xty.get_col_slice(0, f_count).t();
-    ONEDAL_ASSERT(core.get_dimension(0) == f_count);
-    ONEDAL_ASSERT(core.get_dimension(1) == r_count);
+    be::event_vector new_deps{};
+    {
+        ONEDAL_PROFILER_TASK(update_xty_gemm_kernel, queue);
+        auto core = xty.get_col_slice(0, f_count).t();
+        ONEDAL_ASSERT(core.get_dimension(0) == f_count);
+        ONEDAL_ASSERT(core.get_dimension(1) == r_count);
 
-    auto gemm_event = pr::gemm(queue, x.t(), y, core, one, one, deps);
+        auto gemm_event = pr::gemm(queue, x.t(), y, core, one, one, deps);
+
+        new_deps.push_back(gemm_event);
+    }
 
     if constexpr (beta) {
         auto means_2d = xty.get_col_slice(f_count, ext_f_count);
@@ -130,12 +146,12 @@ sycl::event update_xty(sycl::queue& queue,
         ONEDAL_ASSERT(means_2d.get_stride(0) == 1);
         ONEDAL_ASSERT(means_2d.get_count() == r_count);
 
-        auto means_event = pr::reduce_by_columns(queue, y, means, plus, ident, deps);
+        auto means_event = pr::reduce_by_columns(queue, y, means, plus, ident, deps, false);
 
-        sycl::event::wait_and_throw({ means_event });
+        new_deps.push_back(means_event);
     }
 
-    return gemm_event;
+    return be::wait_or_pass(new_deps);
 }
 
 #define INSTANTIATE(B, F, XL, YL)                                         \

@@ -59,7 +59,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
 
     std::int64_t nnz = 0;
     std::int32_t j = column_begin;
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
     __m512i j_vertices_tmp1 =
         _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
     GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
@@ -72,7 +72,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
         const auto i_neigbhors = cols + rows_vertex[i];
         const auto diagonal = detail::min(i, column_end);
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         __m512i n_i_start_v = _mm512_set1_epi32(i_neigbhors[0]);
         __m512i n_i_end_v = _mm512_set1_epi32(i_neigbhors[i_neighbor_size - 1]);
         __m512i i_vertex = _mm512_set1_epi32(i);
@@ -234,7 +234,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
                     }
                 }
             }
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         }
 #endif
 
@@ -249,7 +249,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
         }
         j = tmp_idx;
 
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         if (j < tmp_idx + ((column_end - tmp_idx) / 16) * 16) {
             //load_data(0)
             __m512i start_indices_j_v = _mm512_load_epi32(rows_vertex + j);
@@ -407,7 +407,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
                     }
                 }
             }
-#if defined(__INTEL_COMPILER)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         }
 #endif
     }
