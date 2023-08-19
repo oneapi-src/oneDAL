@@ -63,6 +63,7 @@ public:
 
 class heterogen_table_iface : public table_iface {
 public:
+    //virtual heterogen_table get_row_slice(const range&) const = 0;
     virtual detail::chunked_array_base& get_column(std::int64_t) = 0;
     virtual const detail::chunked_array_base& get_column(std::int64_t) const = 0;
     virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;

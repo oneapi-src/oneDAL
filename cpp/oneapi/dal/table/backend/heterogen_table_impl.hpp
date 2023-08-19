@@ -120,6 +120,11 @@ public:
         return true;
     }
 
+    /*heterogen_table get_row_slice(const range& range) const override {
+        auto data = get_row_slice()
+        return hete
+    }*/
+
     detail::access_iface_host& get_access_iface_host() const override {
         throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
