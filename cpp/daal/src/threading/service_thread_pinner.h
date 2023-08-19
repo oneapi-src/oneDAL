@@ -137,6 +137,8 @@ inline thread_pinner_t * getThreadPinnerFromTaskArena(bool create_pinner, void (
     return (thread_pinner_t *)_getThreadPinnerFromTaskArena(create_pinner, read_topo, deleter, task_arena);
 }
 
+class thread_pinner_impl_t;
+
 } // namespace internal
 } // namespace services
 } // namespace daal
