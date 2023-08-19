@@ -40,6 +40,52 @@ TEST("can set chunks into chunked_array") {
     REQUIRE(chunked.get_count() == 5l);
 }
 
+TEST("can create copy chunked_array") {
+    constexpr float src1[] = { 4.f, 5.f };
+    constexpr float src2[] = { 1.f, 2.f, 3.f };
+
+    auto arr1 = array<float>::wrap(src1, 2l);
+    auto arr2 = array<float>::wrap(src2, 3l);
+
+    chunked_array<float> source(2);
+
+    source.set_chunk(0, arr1);
+    source.set_chunk(1, arr2);
+
+    chunked_array<float> destination = source;
+
+    REQUIRE(source.get_count() == 5l);
+    REQUIRE(destination.get_count() == 5l);
+
+    chunked_array<float> further{ destination };
+
+    REQUIRE(destination.get_count() == 5l);
+    REQUIRE(further.get_count() == 5l);
+}
+
+TEST("can create move of chunked_array") {
+    constexpr float src1[] = { 4.f, 5.f };
+    constexpr float src2[] = { 1.f, 2.f, 3.f };
+
+    auto arr1 = array<float>::wrap(src1, 2l);
+    auto arr2 = array<float>::wrap(src2, 3l);
+
+    chunked_array<float> source(2);
+
+    source.set_chunk(0, arr1);
+    source.set_chunk(1, arr2);
+
+    chunked_array<float> destination = std::move(source);
+
+    REQUIRE(source.get_count() == 0l);
+    REQUIRE(destination.get_count() == 5l);
+
+    chunked_array<float> further{ std::move(destination) };
+
+    REQUIRE(destination.get_count() == 0l);
+    REQUIRE(further.get_count() == 5l);
+}
+
 TEST("can set another chunk") {
     constexpr float src1[] = { 4.f, 5.f };
     constexpr float src2[] = { 1.f, 2.f, 3.f };

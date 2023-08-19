@@ -80,7 +80,8 @@ public:
 
     explicit chunked_array_impl(std::int64_t chunk_count) {
         auto raw = detail::integral_cast<std::size_t>(chunk_count);
-        this->chunks = std::vector<array_impl_t>(raw);
+        const auto empty_chunk = detail::array_impl<byte_t>{};
+        chunks = std::vector<array_impl_t>(raw, empty_chunk);
         [[maybe_unused]] auto res = update_offsets();
         ONEDAL_ASSERT(res == std::int64_t{ 0l });
     }
@@ -89,8 +90,9 @@ public:
         const auto new_size = chunks.size();
         offsets.resize(new_size);
 
-        if (new_size == std::size_t{ 0ul })
+        if (new_size == std::size_t{ 0ul }) {
             return std::int64_t{ 0l };
+        }
 
         std::int64_t acc = 0l, iter = 0l;
 

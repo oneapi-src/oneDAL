@@ -57,13 +57,27 @@ public:
     chunked_array_base(const impl_ptr_t& impl)
         : impl_{ impl } {}
 
-    chunked_array_base(chunked_array_base&& other) = default;
-    chunked_array_base(const chunked_array_base& other) = default;
+    chunked_array_base(chunked_array_base&& other) {
+        reset(std::forward<chunked_array_base>(other));
+    }
 
-    chunked_array_base& operator=(chunked_array_base&& other) = default;
-    chunked_array_base& operator=(const chunked_array_base& other) = default;
+    chunked_array_base(const chunked_array_base& other) {
+        reset(other);
+    }
 
-    chunked_array_base() : chunked_array_base{ make_array_impl(0l) } {}
+    chunked_array_base& operator=(chunked_array_base&& other) {
+        reset(std::forward<chunked_array_base>(other));
+        return *this;
+    }
+
+    chunked_array_base& operator=(const chunked_array_base& other) {
+        reset(other);
+        return *this;
+    }
+
+    chunked_array_base() {
+        reset();
+    }
 
     template <typename... Arrays>
     void append(const Arrays&... arrays) const {
@@ -156,6 +170,20 @@ public:
     void append_impl(chunked_array_base arr) const;
 
 private:
+    void reset() {
+        this->impl_ = make_array_impl(0l);
+    }
+
+    void reset(chunked_array_base&& other) {
+        this->impl_ = other.impl_;
+        auto empty = chunked_array_base{};
+        std::swap(other.impl_, empty.impl_);
+    }
+
+    void reset(const chunked_array_base& other) {
+        this->impl_ = other.impl_;
+    }
+
     template <typename Type>
     static array_impl_t as_byte_array(const array<Type>& arr) {
         constexpr detail::pimpl_accessor acc{};

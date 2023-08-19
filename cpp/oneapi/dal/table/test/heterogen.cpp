@@ -47,7 +47,6 @@ TEST("Can create table from chunked arrays") {
     chunked2.set_chunk(1l, arr1);
     ONEDAL_ASSERT(chunked2.get_count() == 5l);
 
-{
     auto table = heterogen_table::wrap( //
         chunked1, chunked2, chunked1, chunked2);
 //
@@ -55,7 +54,6 @@ TEST("Can create table from chunked arrays") {
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 4l);
     REQUIRE(table.get_kind() == heterogen_table::kind());
-}
 }
 
 TEST("Can create table from different chunked arrays") {
@@ -70,19 +68,22 @@ TEST("Can create table from different chunked arrays") {
     chunked1.set_chunk(1l, arr2);
     ONEDAL_ASSERT(chunked1.get_count() == 5l);
 
-    constexpr std::int8_t src3[] = { 4, 5 };
-    constexpr std::int8_t src4[] = { 1, 2, 3 };
+    constexpr std::int8_t src3[] = { 9 };
+    constexpr std::int8_t src4[] = { 4, 5 };
+    constexpr std::int8_t src5[] = { 1, 2 };
 
-    auto arr3 = array<std::int8_t>::wrap(src3, 2l);
-    auto arr4 = array<std::int8_t>::wrap(src4, 3l);
+    auto arr3 = array<std::int8_t>::wrap(src3, 1l);
+    auto arr4 = array<std::int8_t>::wrap(src4, 2l);
+    auto arr5 = array<std::int8_t>::wrap(src5, 2l);
 
-    chunked_array<std::int8_t> chunked2(2);
-    chunked2.set_chunk(0l, arr4);
-    chunked2.set_chunk(1l, arr3);
+    chunked_array<std::int8_t> chunked2(3);
+    chunked2.set_chunk(0l, arr3);
+    chunked2.set_chunk(1l, arr4);
+    chunked2.set_chunk(2l, arr5);
     ONEDAL_ASSERT(chunked2.get_count() == 5l);
 
     auto table = heterogen_table::wrap( //
-            chunked1, chunked1, chunked2);
+            chunked1, chunked2, chunked1);
 //
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
