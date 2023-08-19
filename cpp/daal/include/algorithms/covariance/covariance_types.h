@@ -114,20 +114,6 @@ enum MasterInputId
 };
 
 /**
- * Available identifiers of integer hyperparameters of the correlation or variance-covariance matrix algorithm
- */
-enum HyperparameterId
-{
-    denseUpdateStepBlockSize = 0,
-    hyperparameterIdCount    = denseUpdateStepBlockSize + 1
-};
-
-enum DoubleHyperparameterId
-{
-    doubleHyperparameterIdCount = 0
-};
-
-/**
  * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface1
@@ -298,43 +284,6 @@ struct DAAL_EXPORT OnlineParameter : public Parameter
 };
 
 /**
- * \brief Hyperparameters of the correlation or variance-covariance matrix algorithm
- */
-struct DAAL_EXPORT Hyperparameter : public daal::algorithms::Hyperparameter
-{
-    /** Default constructor */
-    Hyperparameter();
-
-    /**
-     * Sets integer hyperparameter of the correlation or variance-covariance matrix algorithm
-     * \param[in] id        Identifier of the hyperparameter
-     * \param[in] value     The value of the hyperparameter
-     */
-    services::Status set(HyperparameterId id, std::int64_t value);
-
-    /**
-     * Sets double precision hyperparameter of the correlation or variance-covariance matrix algorithm
-     * \param[in] id        Identifier of the hyperparameter
-     * \param[in] value     Value of the hyperparameter
-     */
-    services::Status set(DoubleHyperparameterId id, double value);
-
-    /**
-     * Finds integer hyperparameter of the correlation or variance-covariance matrix algorithm by its identifier
-     * \param[in]  id       Identifier of the hyperparameter
-     * \param[out] value    Value of the found hyperparameter
-     */
-    services::Status find(HyperparameterId id, std::int64_t & value) const;
-
-    /**
-     * Finds double precision hyperparameter of the correlation or variance-covariance matrix algorithm by its identifier
-     * \param[in]  id       Identifier of the hyperparameter
-     * \param[out] value    Value of the found hyperparameter
-     */
-    services::Status find(DoubleHyperparameterId id, double & value) const;
-};
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method of
  *        the correlation or variance-covariance matrix algorithm in the batch processing mode
@@ -486,7 +435,6 @@ using interface1::OnlineParameter;
 using interface1::Result;
 using interface1::ResultPtr;
 using interface1::DistributedInput;
-using interface1::Hyperparameter;
 
 } // namespace covariance
 } // namespace algorithms

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "algorithms/covariance/covariance_types.h"
+#include "src/algorithms/covariance/covariance_hyperparameter_impl.h"
 
 namespace daal
 {
@@ -29,7 +29,7 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
+namespace internal
 {
 
 Hyperparameter::Hyperparameter() : algorithms::Hyperparameter(hyperparameterIdCount, doubleHyperparameterIdCount) {}
@@ -54,7 +54,7 @@ services::Status Hyperparameter::find(DoubleHyperparameterId id, double & value)
     return this->algorithms::Hyperparameter::find(std::uint32_t(id), value);
 }
 
-} // namespace interface1
+} // namespace internal
 } // namespace covariance
 } // namespace algorithms
 } // namespace daal

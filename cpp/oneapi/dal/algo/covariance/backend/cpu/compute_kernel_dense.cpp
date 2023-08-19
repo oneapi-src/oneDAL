@@ -46,7 +46,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
-    daal_covariance::Hyperparameter daal_hyperparameter;
+    daal_covariance::internal::Hyperparameter daal_hyperparameter;
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
@@ -57,7 +57,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         }
     }
     interop::status_to_exception(
-        daal_hyperparameter.set(daal_covariance::denseUpdateStepBlockSize, blockSize));
+        daal_hyperparameter.set(daal_covariance::internal::denseUpdateStepBlockSize, blockSize));
 
     dal::detail::check_mul_overflow(component_count, component_count);
 

@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
+#include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
@@ -64,7 +65,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
 
-    daal_cov::Hyperparameter daal_hyperparameter;
+    daal_cov::internal::Hyperparameter daal_hyperparameter;
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
@@ -75,7 +76,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         }
     }
     interop::status_to_exception(
-        daal_hyperparameter.set(daal_cov::denseUpdateStepBlockSize, blockSize));
+        daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
 
     constexpr bool is_correlation = false;

@@ -136,11 +136,10 @@ struct Hyperparameter : protected HyperparameterIface
      * \param[in] doubleParamCount  Number of double precision hyperparameters
      */
     Hyperparameter(size_t intParamCount = 0, size_t doubleParamCount = 0);
+
     virtual ~Hyperparameter() {}
 
 protected:
-    void initImpl(HyperparameterBaseImpl * impl) { _pimpl.reset(impl); }
-
     /**
      * Sets integer hyperparameter into this structure
      * \param[in] id    Unique to the particular algorithm identifier of the hyperparameter

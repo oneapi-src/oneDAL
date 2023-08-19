@@ -75,6 +75,8 @@ public:
      */
     virtual services::Status checkFinalizeComputeParams() = 0;
 
+    const Hyperparameter * getBaseHyperparameter() { return _hpar; }
+
     void setHyperparameter(const Hyperparameter * hpar) { _hpar = hpar; }
 
 protected:

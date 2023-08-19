@@ -251,13 +251,12 @@ public:
 class DAAL_EXPORT BatchImpl : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::covariance::Hyperparameter HyperparameterType;
     typedef algorithms::covariance::Input InputType;
     typedef algorithms::covariance::Parameter ParameterType;
     typedef algorithms::covariance::Result ResultType;
 
     /** Default constructor */
-    BatchImpl() { initialize(); }
+    BatchImpl() : daal::algorithms::Analysis<batch>() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -269,7 +268,7 @@ public:
     BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter)
     {
         initialize();
-        _hpar = other.hyperparameter();
+        _hpar = other.daal::algorithms::Analysis<batch>::_hpar;
     }
 
     /**
@@ -303,21 +302,14 @@ public:
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< %Parameter structure */
 
-    /**
-     * Get the pointer to the immutable hyperparameters of the algorithm
-     * \return Pointer to the hyperparameters
-     */
-    const HyperparameterType * hyperparameter() const { return static_cast<const HyperparameterType *>(_hpar); }
-
 protected:
     ResultPtr _result;
 
     void initialize()
     {
         _result.reset(new ResultType());
-        _in   = &input;
-        _par  = &parameter;
-        _hpar = nullptr;
+        _in  = &input;
+        _par = &parameter;
     }
     virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
@@ -346,7 +338,6 @@ class DAAL_EXPORT Batch : public BatchImpl
 public:
     typedef BatchImpl super;
 
-    typedef typename super::HyperparameterType HyperparameterType;
     typedef typename super::InputType InputType;
     typedef typename super::ParameterType ParameterType;
     typedef typename super::ResultType ResultType;

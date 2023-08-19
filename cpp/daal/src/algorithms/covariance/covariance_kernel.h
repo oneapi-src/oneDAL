@@ -28,6 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/covariance/covariance_types.h"
+#include "src/algorithms/covariance/covariance_hyperparameter_impl.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
