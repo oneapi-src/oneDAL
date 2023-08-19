@@ -116,16 +116,6 @@ public:
         return immutable_accessor{ *this };
     }
 
-    ~chunked_array_impl() {
-        auto empty_chunk = detail::array_impl<byte_t>{};
-        auto mutable_accessor = this->mutable_access();
-        auto& chunks = mutable_accessor.get_chunks();
-
-        for (auto& chunk : chunks) {
-            chunk = std::move(empty_chunk);
-        }
-    }
-
 private:
     std::vector<std::int64_t> offsets;
     std::vector<array_impl_t> chunks;
