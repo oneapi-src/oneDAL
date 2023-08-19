@@ -17,21 +17,26 @@
 #pragma once
 
 #include "tbb/tbb.h"
-#include "src/threading/service_thread_pinner.h"
-#include "src/services/service_topo.h"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {
 
 using detail::threading_policy;
 
+class thread_pinner_impl;
+
+struct task {
+    virtual void operator()()  = 0;
+};
+
 template<typename F>
-class non_void_task : public daal::services::internal::thread_pinner_task_t {
+class non_void_task : public task {
 public:
     typedef std::invoke_result_t<F> result_t;
 
     explicit non_void_task(F&& functor, result_t* result_ptr)
-        : functor_{ std::forward<F>(functor) }, result_ptr_{ result_ptr } {}
+        : functor_{ std::forward<F>(functor) }, 
+          result_ptr_{ result_ptr } {}
 
     void operator()() final {
         auto result = functor_();
@@ -44,7 +49,7 @@ private:
 };
 
 template<typename F>
-class void_task : public daal::services::internal::thread_pinner_task_t {
+class void_task : public task {
 public:
     explicit void_task(F&& functor) 
         : functor_{ std::forward<F>(functor) } {}
@@ -57,10 +62,38 @@ private:
     F&& functor_;
 };
 
+class thread_pinner {
+friend detail::pimpl_accessor;
+public:
+    thread_pinner();
+    thread_pinner(tbb::task_arena& task_arena);
+    thread_pinner(const thread_pinner&) = default;
+    thread_pinner(thread_pinner&&) = default;
+    template<typename F>
+    auto execute(F&& task) -> decltype(task()) {
+        using result_t = decltype(task());
+        if constexpr ( std::is_same_v<void, result_t>) {
+            void_task wrapper(std::forward<F>(task));
+            execute(std::move(wrapper));
+            return;
+        }
+        else {
+            result_t result;
+            non_void_task wrapper(std::forward<F>(task), &result);
+            execute(std::move(wrapper));
+            return result;
+        }
+    }
+private:
+    void execute(const task& task) const;
+    detail::pimpl<thread_pinner_impl> impl_;
+};
+
+
 class task_executor {
     threading_policy policy_;
     tbb::task_arena *task_arena_;
-    daal::services::internal::thread_pinner_t *thread_pinner_;
+    thread_pinner *thread_pinner_;
     tbb::task_arena* create_task_arena(const threading_policy& policy);
 public:
     template<typename F> 
@@ -75,10 +108,9 @@ template<typename F>
 auto task_executor::execute(F&& f) -> decltype(f()){
     if (this->policy_.thread_pinning) {
         using result_t = decltype(f());
-        constexpr auto is_void = std::is_same_v<result_t, void>;
-        if constexpr (is_void) {
+        if constexpr (std::is_same_v<result_t, void>) {
           void_task wrapper(std::forward<F>(f));
-          thread_pinner_->execute(wrapper);
+          thread_pinner_->execute(std::move(wrapper));
           return;
         }
         else {
