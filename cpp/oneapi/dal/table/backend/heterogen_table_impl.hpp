@@ -34,7 +34,8 @@ public:
     heterogen_table_impl() {}
 
     heterogen_table_impl(std::int64_t column_count) {
-        data_ = dal::array<detail::chunked_array_base>::empty(column_count);
+        auto empty = detail::chunked_array_base{};
+        data_ = array<detail::chunked_array_base>::full(column_count, empty);
     }
 
     heterogen_table_impl(const table_metadata& meta)

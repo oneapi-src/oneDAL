@@ -61,8 +61,8 @@ inline void fill(const default_host_policy& policy, T* dest, std::int64_t count,
     ONEDAL_ASSERT(dest != nullptr);
     ONEDAL_ASSERT(count > 0);
 
-    for (std::int64_t i = 0; i < count; i++) {
-        dest[i] = value;
+    for (std::int64_t i = 0l; i < count; ++i) {
+        ::new (dest + i) T{ value };
     }
 }
 
