@@ -71,23 +71,23 @@ public:
     thread_pinner(const thread_pinner&) = default;
     thread_pinner(thread_pinner&&) = default;
     template<typename F>
-    auto execute(F&& task) -> decltype(task()) {
-        using result_t = decltype(task());
+    auto execute(F&& task_) -> decltype(task_()) {
+        using result_t = decltype(task_());
         if constexpr ( std::is_same_v<void, result_t>) {
-            void_task wrapper(std::forward<F>(task));
+            void_task wrapper(std::forward<F>(task_));
             execute(std::move(wrapper));
             return;
         }
         else {
             result_t result;
-            non_void_task wrapper(std::forward<F>(task), &result);
+            non_void_task wrapper(std::forward<F>(task_), &result);
             execute(std::move(wrapper));
             return result;
         }
     }
 
 private:
-    void execute(const task& task) const;
+    void execute(const task& task_) const;
     detail::pimpl<thread_pinner_impl> impl_;
 };
 
