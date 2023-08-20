@@ -105,10 +105,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sse2--target daal --backend_config ref --conda-env ci-env
+      .ci/scripts/build.sh --compiler gnu --optimizations sse2 --target daal --backend_config ref --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sse2--target oneapi_c --backend_config ref
+      .ci/scripts/build.sh --compiler gnu --optimizations sse2 --target oneapi_c --backend_config ref
     displayName: 'make oneapi_c'
   - task: PublishPipelineArtifact@1
     inputs:
