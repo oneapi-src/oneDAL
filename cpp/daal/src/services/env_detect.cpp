@@ -33,8 +33,6 @@
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
-#include <iostream>
-
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;
 
