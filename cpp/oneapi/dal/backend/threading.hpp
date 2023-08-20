@@ -64,6 +64,7 @@ private:
 
 class thread_pinner {
 friend detail::pimpl_accessor;
+
 public:
     thread_pinner();
     thread_pinner(tbb::task_arena& task_arena);
@@ -84,6 +85,7 @@ public:
             return result;
         }
     }
+
 private:
     void execute(const task& task) const;
     detail::pimpl<thread_pinner_impl> impl_;
