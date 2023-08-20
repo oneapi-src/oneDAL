@@ -540,7 +540,7 @@ ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
 ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend.incdir) $(TBBDIR.include)
-ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
+ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp) $(ONEAPI.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=__CPU_TAG_SSE2__
