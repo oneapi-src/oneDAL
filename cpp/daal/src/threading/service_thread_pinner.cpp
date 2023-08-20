@@ -261,7 +261,6 @@ thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &
 
 void thread_pinner_impl_t::on_scheduler_entry(bool) /*override*/
 {
-    
     if (do_pinning == false || status < 0) return;
 
     // read current thread index
