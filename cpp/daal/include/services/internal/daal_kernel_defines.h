@@ -68,35 +68,6 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_SSE2_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
-#if defined(DAAL_KERNEL_SSSE3)
-    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID            daal::ssse3
-    #define DAAL_KERNEL_SSSE3_ONLY(something)                   , something
-    #define DAAL_KERNEL_SSSE3_ONLY_CODE(...)                    __VA_ARGS__
-    #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
-    #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...) \
-        extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__);
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...)                              \
-    case ssse3:                                                                                   \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)(daalEnv)); \
-        break;
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                        \
-    case ssse3:                                                                                  \
-    {                                                                                            \
-        using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__); \
-        static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;  \
-        _cntr = (new contTemplType(daalEnv));                                                    \
-        break;                                                                                   \
-    }
-#else
-    #define DAAL_KERNEL_SSSE3_ONLY(something)
-    #define DAAL_KERNEL_SSSE3_ONLY_CODE(...)
-    #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...)
-    #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...)
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...)
-    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-#endif
-
 #if defined(DAAL_KERNEL_SSE42)
     #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
     #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID            daal::sse42
@@ -116,34 +87,6 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_SSE42_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
-#if defined(DAAL_KERNEL_AVX)
-    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::avx
-    #define DAAL_KERNEL_AVX_ONLY(something)                    , something
-    #define DAAL_KERNEL_AVX_ONLY_CODE(...)                     __VA_ARGS__
-    #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)  , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...)                                 \
-    case avx:                                                                                      \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)(daalEnv)); \
-        break;
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                           \
-    case avx:                                                                                     \
-    {                                                                                             \
-        using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__); \
-        static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;   \
-        _cntr = (new contTemplType(daalEnv));                                                     \
-        break;                                                                                    \
-    }
-#else
-    #define DAAL_KERNEL_AVX_ONLY(something)
-    #define DAAL_KERNEL_AVX_ONLY_CODE(...)
-    #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-#endif
-
 #if defined(DAAL_KERNEL_AVX2)
     #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
     #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::avx2
@@ -161,35 +104,6 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-#endif
-
-#if defined(DAAL_KERNEL_AVX512_MIC)
-    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                 daal::avx512_mic
-    #define DAAL_KERNEL_AVX512_MIC_ONLY(something)                   , something
-    #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)                    __VA_ARGS__
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...) \
-        extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__);
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)                         \
-    case avx512_mic:                                                                              \
-        _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)(daalEnv)); \
-        break;
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)                   \
-    case avx512_mic:                                                                             \
-    {                                                                                            \
-        using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__); \
-        static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;  \
-        _cntr = (new contTemplType(daalEnv));                                                    \
-        break;                                                                                   \
-    }
-#else
-    #define DAAL_KERNEL_AVX512_MIC_ONLY(something)
-    #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_AVX512)

@@ -54,14 +54,10 @@
 #define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
 
 #ifdef __APPLE__
-#define FUNC_AVX(...)   EXPAND(FUNC_CPU(avx, avx2, __VA_ARGS__))
 #define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, avx2, __VA_ARGS__))
-#define FUNC_SSSE3(...) EXPAND(FUNC_CPU(ssse3, avx2, __VA_ARGS__))
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, avx2, __VA_ARGS__))
 #else
-#define FUNC_AVX(...)   EXPAND(FUNC_CPU(avx, avx, __VA_ARGS__))
 #define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, sse42, __VA_ARGS__))
-#define FUNC_SSSE3(...) EXPAND(FUNC_CPU(ssse3, ssse3, __VA_ARGS__))
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
 #endif
 
@@ -69,9 +65,7 @@
     DISPATCH_FUNC_DECL(prefix, name, argdecl)   \
     FUNC_AVX512(prefix, name, argdecl, argcall) \
     FUNC_AVX2(prefix, name, argdecl, argcall)   \
-    FUNC_AVX(prefix, name, argdecl, argcall)    \
     FUNC_SSE42(prefix, name, argdecl, argcall)  \
-    FUNC_SSSE3(prefix, name, argdecl, argcall)  \
     FUNC_SSE2(prefix, name, argdecl, argcall)
 
 #ifdef ONEDAL_REF
@@ -101,22 +95,10 @@
 #define INSTANTIATE_AVX2(...)
 #endif
 
-#ifdef ONEDAL_CPU_DISPATCH_AVX
-#define INSTANTIATE_AVX(...) EXPAND(INSTANTIATE_CPU(avx, __VA_ARGS__))
-#else
-#define INSTANTIATE_AVX(...)
-#endif
-
 #ifdef ONEDAL_CPU_DISPATCH_SSE42
 #define INSTANTIATE_SSE42(...) EXPAND(INSTANTIATE_CPU(sse42, __VA_ARGS__))
 #else
 #define INSTANTIATE_SSE42(...)
-#endif
-
-#ifdef ONEDAL_CPU_DISPATCH_SSSE3
-#define INSTANTIATE_SSSE3(...) EXPAND(INSTANTIATE_CPU(ssse3, __VA_ARGS__))
-#else
-#define INSTANTIATE_SSSE3(...)
 #endif
 
 #define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
@@ -124,9 +106,7 @@
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
     INSTANTIATE_AVX512(name, Float, argdecl)    \
     INSTANTIATE_AVX2(name, Float, argdecl)      \
-    INSTANTIATE_AVX(name, Float, argdecl)       \
     INSTANTIATE_SSE42(name, Float, argdecl)     \
-    INSTANTIATE_SSSE3(name, Float, argdecl)     \
     INSTANTIATE_SSE2(name, Float, argdecl)
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \

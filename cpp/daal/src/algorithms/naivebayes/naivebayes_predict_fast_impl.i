@@ -36,7 +36,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
-#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
+#if (__CPUID__(DAAL_CPU) >= __avx512__)
 
     #if (__FPTYPE__(DAAL_FPTYPE) == __double__)
 
