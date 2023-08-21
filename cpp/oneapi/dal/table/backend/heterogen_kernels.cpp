@@ -287,6 +287,12 @@ struct heterogen_dispatcher<detail::default_host_policy> {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+template <typename Queue, typename Meta, typename Data>
+std::int64_t propose_row_block_size(const Queue& queue,
+                    const Meta& meta, const Data& data) {
+    return propose_row_block_size(meta, data);
+}
+
 template <>
 struct heterogen_dispatcher<detail::data_parallel_policy> {
     using policy_t = detail::data_parallel_policy;
@@ -298,7 +304,72 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                      array<Type>& block_data,
                      const range& rows_range,
                      alloc_kind requested_alloc_kind) {
+        sycl::queue& queue = policy.get_queue();
+        auto host_policy = detail::host_policy::get_default();
+        const auto alloc = alloc_kind_to_sycl(requested_alloc_kind);
 
+        const auto col_count = get_column_count(meta, data);
+        const auto row_count = get_row_count(col_count, meta, data);
+        const auto [first, last] = rows_range.normalize_range(row_count);
+
+        ONEDAL_ASSERT(first < last);
+        const auto copy_count = last - first;
+
+        const auto row_size = get_row_size(meta, data);
+        const auto block = propose_row_block_size(queue, meta, data);
+        const auto block_size = detail::check_mul_overflow(block, row_size);
+
+        const auto& data_types = meta.get_data_types();
+        auto buff_shape = std::make_pair(block, col_count);
+        auto buff = array<dal::byte_t>::empty(queue, block_size, alloc);
+
+        auto buff_cols = slice_buffer(buff_shape, buff, data_types);
+
+        const shape_t transposed_shape = transpose(buff_shape);
+        auto buff_offs = compute_input_offsets(transposed_shape, data_types);
+        auto buff_ptrs = compute_pointers</*mut=*/false>(buff, buff_offs);
+
+        constexpr Type fill_value = std::numeric_limits<Type>::max();
+        auto result_count = detail::check_mul_overflow(copy_count, col_count);
+        auto result = dal::array<Type>::full(queue, result_count, fill_value, alloc);
+
+        constexpr auto type = detail::make_data_type<Type>();
+        auto outp_types = array<data_type>::full(col_count, type);
+        auto outp_strs = array<std::int64_t>::full(col_count, col_count);
+        auto buff_strs = array<std::int64_t>::full(col_count, std::int64_t(1l));
+        const shape_t transposed_strides = std::make_pair(1l, col_count);
+        auto outp_offs = compute_output_offsets(type, //
+                                    transposed_shape, transposed_strides);
+
+        const auto block_count = (copy_count / block) + bool(copy_count % block);
+
+        for (std::int64_t b = 0l; b < block_count; ++b) {
+            auto start = detail::check_mul_overflow(b, block);
+            const auto f = detail::check_sum_overflow(start, first);
+            auto end = detail::check_sum_overflow(f, block);
+            const auto l = std::min(end, last);
+            const std::int64_t len = l - f;
+            ONEDAL_ASSERT(len <= block);
+            ONEDAL_ASSERT(0l < len);
+
+            auto slice = heterogen_row_slice({f, l}, meta, data);
+            copy_buffer(policy, len, slice, buff_cols, data_types);
+
+            auto out_first = detail::check_mul_overflow(b, col_count);
+            auto out_block = detail::check_mul_overflow(len, col_count);
+            auto out_last = detail::check_sum_overflow(out_first, out_block);
+
+            auto curr_shape = std::make_pair(len, col_count);
+            auto out_slice = result.get_slice(out_first, out_last);
+            auto raw_slice = array<dal::byte_t>(out_slice, //
+                reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
+                detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
+            auto outp_ptrs = compute_pointers</*mut=*/true>(raw_slice, outp_offs);
+            copy_convert(policy, buff_ptrs, data_types, buff_strs, outp_ptrs,
+                                    outp_types, outp_strs, transpose(curr_shape));
+        }
+
+        block_data.reset(result, result.get_mutable_data(), result.get_count());
     }
 };
 

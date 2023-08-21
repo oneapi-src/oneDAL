@@ -45,10 +45,6 @@ struct copy_converter_impl {
         ONEDAL_ASSERT(inp != nullptr);
         ONEDAL_ASSERT(0l <= count);
 
-        //std::cout << __PRETTY_FUNCTION__ << '\n';
-        //std::cout << (out) << ' ' << (inp) << '\n';
-        //std::cout << out_stride << ' ' << inp_stride << ' ' << count << std::endl;
-
         if (out_stride == 1l && inp_stride == 1l) {
              return contiguous(out, inp, count);
         }
@@ -130,7 +126,7 @@ void copy_convert(const detail::host_policy& policy,
     const auto count_s = detail::integral_cast<std::size_t>(count);
     auto block_size = propose_block_size<CpuType, OutType, InpType>(policy);
     const auto block_size_s = detail::integral_cast<std::size_t>(block_size);
-    //std::cout << __PRETTY_FUNCTION__ << std::endl;
+
     detail::threader_for_blocked_size(count_s, block_size_s,
     [=](std::size_t f, std::size_t l) -> void {
         const auto first = detail::integral_cast<std::int64_t>(f);
@@ -140,7 +136,6 @@ void copy_convert(const detail::host_policy& policy,
         const InpType* const off_inp_ptr = inp_ptr + inp_str * first;
         OutType* const off_out_ptr = out_ptr + out_str * first;
 
-        //std::cout << f << ' ' << l << ' ' << off_inp_ptr << ' ' << off_out_ptr << std::endl;
 
         copy_converter_impl<CpuType, OutType, InpType>::run(
             off_out_ptr, out_str, off_inp_ptr, inp_str, count);
