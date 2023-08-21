@@ -100,27 +100,6 @@ Examples
       - :cpp_example:`mn_naive_bayes_dense_distr.cpp <naive_bayes/mn_naive_bayes_dense_distr.cpp>`
       - :cpp_example:`mn_naive_bayes_csr_distr.cpp <naive_bayes/mn_naive_bayes_csr_distr.cpp>`
 
-   .. tab:: Java*
-
- 
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-      Batch Processing:
-
-      -  :java_example:`MnNaiveBayesDenseBatch.java <naive_bayes/MnNaiveBayesDenseBatch.java>`
-      -  :java_example:`MnNaiveBayesCSRBatch.java <naive_bayes/MnNaiveBayesCSRBatch.java>`
-
-      Online Processing:
-
-      - :java_example:`MnNaiveBayesDenseOnline.java <naive_bayes/MnNaiveBayesDenseOnline.java>`
-      - :java_example:`MnNaiveBayesCSROnline.java <naive_bayes/MnNaiveBayesCSROnline.java>`
-
-      Distributed Processing:
-
-      - :java_example:`MnNaiveBayesDenseDistr.java <naive_bayes/MnNaiveBayesDenseDistr.java>`
-      - :java_example:`MnNaiveBayesCSRDistr.java <naive_bayes/MnNaiveBayesCSRDistr.java>`
-
    .. tab:: Python*
 
       Batch Processing:

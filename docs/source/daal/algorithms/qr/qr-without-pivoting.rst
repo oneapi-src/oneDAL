@@ -61,23 +61,6 @@ Examples
 
     - :cpp_example:`qr_dense_distr.cpp <qr/qr_dense_distr.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`QRDenseBatch.java <qr/QRDenseBatch.java>`
-
-    Online Processing:
-
-    - :java_example:`QRDenseOnline.java <qr/QRDenseOnline.java>`
-
-    Distributed Processing:
-
-    - :java_example:`QRDenseDistr.java <qr/QRDenseDistr.java>`
 
   .. tab:: Python*
 
