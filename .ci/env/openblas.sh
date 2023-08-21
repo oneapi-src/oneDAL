@@ -18,7 +18,7 @@
 sudo apt-get update
 sudo apt-get install build-essential gcc gfortran
 git clone https://github.com/xianyi/OpenBLAS.git
-CoreCount=$(lscpu -p | egrep -v '^#' | wc -l)
+CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 pushd OpenBLAS
   make clean
   make -j${CoreCount} NO_FORTRAN=1
