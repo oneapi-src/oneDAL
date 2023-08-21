@@ -45,6 +45,7 @@ template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_sums, q);
     ONEDAL_ASSERT(data.has_data());
 
     const std::int64_t column_count = data.get_dimension(1);
@@ -59,6 +60,7 @@ template <typename Float>
 auto compute_crossproduct(sycl::queue& q,
                           const pr::ndview<Float, 2>& data,
                           const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_crossproduct, q);
     ONEDAL_ASSERT(data.has_data());
 
     const std::int64_t column_count = data.get_dimension(1);
@@ -83,7 +85,7 @@ auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 1>& current_nobs,
                             const std::int64_t row_count,
                             const dal::backend::event_vector& deps = {}) {
-    constexpr pr::sum<Float> plus;
+    ONEDAL_PROFILER_TASK(update_partial_results, q);
 
     auto column_count = crossproducts.get_dimension(1);
     auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
@@ -91,22 +93,38 @@ auto update_partial_results(sycl::queue& q,
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
     auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
 
-    auto sum_event = pr::element_wise(q, plus, sums, current_sums, result_sums, deps);
-    auto matrix_event =
-        pr::element_wise(q, plus, crossproducts, current_crossproducts, result_crossproducts, deps);
-
+    auto result_sums_ptr = result_sums.get_mutable_data();
+    auto result_crossproducts_ptr = result_crossproducts.get_mutable_data();
     auto result_nobs_ptr = result_nobs.get_mutable_data();
-    auto current_nobs_ptr = current_nobs.get_mutable_data();
+    auto current_crossproducts_data = current_crossproducts.get_data();
+    auto current_sums_data = current_sums.get_data();
+    auto current_nobs_data = current_nobs.get_data();
+    auto crossproducts_data = crossproducts.get_data();
+    auto sums_data = sums.get_data();
+
     auto update_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<1>(1);
+        const auto range = sycl::range<2>(column_count, column_count);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<1> id) {
-            result_nobs_ptr[0] = row_count + current_nobs_ptr[0];
+        cgh.parallel_for(range, [=](sycl::item<2> id) {
+            auto row = id[0];
+            auto col = id[1];
+
+            result_crossproducts_ptr[row * column_count + col] =
+                crossproducts_data[row * column_count + col] +
+                current_crossproducts_data[row * column_count + col];
+
+            if (static_cast<std::int64_t>(col) < column_count) {
+                result_sums_ptr[col] = sums_data[col] + current_sums_data[col];
+            }
+
+            if (row == 0 && col == 0) {
+                result_nobs_ptr[0] = row_count + current_nobs_data[0];
+            }
         });
     });
 
-    return std::make_tuple(result_sums, result_crossproducts, result_nobs, matrix_event);
+    return std::make_tuple(result_sums, result_crossproducts, result_nobs, update_event);
 }
 
 template <typename Float, typename Task>
