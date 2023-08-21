@@ -192,23 +192,25 @@ TEST("Can get row slice on host - 2") {
     std::iota(column3.begin(), column3.end(), 3l);
     auto arr3 = array<std::int64_t>::wrap(column3.data(), count);
 
+    std::vector<std::int16_t> column4(count);
+    std::iota(column4.begin(), column4.end(), 4l);
+    auto arr4 = array<std::int16_t>::wrap(column4.data(), count);
+
     auto table = heterogen_table::wrap(
         chunked_array<std::uint64_t>(arr0),
         chunked_array<float>(arr1),
         chunked_array<double>(arr2),
-        chunked_array<std::int64_t>(arr3));
+        chunked_array<std::int64_t>(arr3),
+        chunked_array<std::int16_t>(arr4));
 
     row_accessor<const float> accessor{ table };
     auto res = accessor.pull(range{3l, count - 3l});
-    const std::int64_t slice_size = 4l * (count - 6l);
+    const std::int64_t slice_size = 5l * (count - 6l);
     REQUIRE(slice_size == res.get_count());
-    using namespace dal::detail;
-    auto slc = res.get_slice(0, 12);
-    std::cout << slc << std::endl;
 
     for (std::int64_t i = 0l; i < slice_size; ++i) {
-        const auto row = 3l + i / 4l;
-        const auto col = i % 4l;
+        const auto row = 3l + i / 5l;
+        const auto col = i % 5l;
         const auto gtr = row + col;
         REQUIRE(res[i] == gtr);
     }
