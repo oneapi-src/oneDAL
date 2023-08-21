@@ -37,7 +37,7 @@ jobs:
       displayName: 'clang-format check'
       failOnStderr: true
 
-- job: 'LinuxMakeGNU'
+- job: 'LinuxMakeGNU_MKL'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
