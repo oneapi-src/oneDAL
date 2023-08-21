@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,20 +42,6 @@ TEMPLATE_LIST_TEST_M(covariance_online_test,
     const auto input_data_table_id = this->get_homogen_table_id();
     this->online_general_checks(input, input_data_table_id);
 }
-
-// TEMPLATE_LIST_TEST_M(covariance_online_test,
-//                      "covariance compute one element matrix",
-//                      "[covariance][integration][online]",
-//                      covariance_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     const te::dataframe input =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
-
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto input_data_table_id = this->get_homogen_table_id();
-//     this->online_general_checks(input, input_data_table_id);
-// }
 
 TEMPLATE_LIST_TEST_M(covariance_online_test,
                      "covariance fill_uniform common flow",
