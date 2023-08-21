@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <iostream>
 
+#include "oneapi/dal/array.hpp"
+
 //#include "oneapi/dal/table/common.hpp"
 //#include "oneapi/dal/table/row_accessor.hpp"
 
@@ -108,6 +110,11 @@ inline std::ostream& operator<<(std::ostream& s, const table& t) {
     print_table_content<Float>(s, t);
     return s << std::endl;
 }*/
+
+template <typename T1, typename T2>
+std::ostream& operator<<(std::ostream& s, const std::pair<T1, T2>& p) {
+    return s << '{' << p.first << ',' << p.second << '}';
+}
 
 #endif
 

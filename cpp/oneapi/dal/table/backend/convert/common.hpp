@@ -27,7 +27,7 @@ using shape_t = std::pair<std::int64_t, std::int64_t>;
 
 template <typename T1, typename T2>
 inline std::pair<T2, T1> transpose(const std::pair<T1, T2>& p) {
-    return std::make_pair<T2, T1>(p.second, p.first);
+    return std::pair<T2, T1>{ p.second, p.first };
 }
 
 bool is_known_data_type(data_type dtype) noexcept;
@@ -54,11 +54,21 @@ inline dal::array<Type> extract_by_indices(const dal::array<Index>& indices,
     return extract_by_indices(indices.get_data(), values.get_data(), count);
 }
 
-dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
-                            const dal::array<data_type>& input_types);
+dal::array<std::int64_t> compute_lower_bounds(const shape_t& input_shape,
+                                const dal::array<data_type>& input_types);
 
-dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
-                                        const data_type* input_types);
+dal::array<std::int64_t> compute_lower_bounds(const shape_t& input_shape,
+                                            const data_type* input_types);
+
+inline dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+                                const dal::array<data_type>& input_types) {
+    return compute_lower_bounds(input_shape, input_types);
+}
+
+inline dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+                                            const data_type* input_types) {
+    return compute_lower_bounds(input_shape, input_types);
+}
 
 std::int64_t count_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
                                         const data_type* inp, const data_type* out);

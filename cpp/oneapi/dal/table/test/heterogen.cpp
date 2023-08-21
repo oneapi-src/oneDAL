@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
+#include "oneapi/dal/detail/debug.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 #include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -135,41 +135,82 @@ TEST("Can create table manually") {
     REQUIRE(table.get_kind() == heterogen_table::kind());
 }
 
-TEST("Can get row slice on host") {
-    constexpr float src1[] = { 0.f, 2.f };
-    constexpr float src2[] = { 4.f, 6.f, 8.f };
+TEST("Can get row slice on host - 1") {
+    constexpr float src1[] = { 0.f, 2.f, 4.f};
+    constexpr float src2[] = { 6.f, 8.f, 10.f };
 
-    auto arr1 = array<float>::wrap(src1, 2l);
+    auto arr1 = array<float>::wrap(src1, 3l);
     auto arr2 = array<float>::wrap(src2, 3l);
 
     chunked_array<float> chunked1(2);
     chunked1.set_chunk(0l, arr1);
     chunked1.set_chunk(1l, arr2);
-    ONEDAL_ASSERT(chunked1.get_count() == 5l);
+    ONEDAL_ASSERT(chunked1.get_count() == 6l);
 
-    constexpr std::int32_t src3[] = { 1 };
-    constexpr std::int32_t src4[] = { 3, 5 };
-    constexpr std::int32_t src5[] = { 7, 9 };
+    constexpr std::int16_t src3[] = { 1 };
+    constexpr std::int16_t src4[] = { 3, 5 };
+    constexpr std::int16_t src5[] = { 7, 9, 11 };
 
-    auto arr3 = array<std::int32_t>::wrap(src3, 1l);
-    auto arr4 = array<std::int32_t>::wrap(src4, 2l);
-    auto arr5 = array<std::int32_t>::wrap(src5, 2l);
+    auto arr3 = array<std::int16_t>::wrap(src3, 1l);
+    auto arr4 = array<std::int16_t>::wrap(src4, 2l);
+    auto arr5 = array<std::int16_t>::wrap(src5, 3l);
 
-    chunked_array<std::int32_t> chunked2(3);
+    chunked_array<std::int16_t> chunked2(3);
     chunked2.set_chunk(0l, arr3);
     chunked2.set_chunk(1l, arr4);
     chunked2.set_chunk(2l, arr5);
-    ONEDAL_ASSERT(chunked2.get_count() == 5l);
+    ONEDAL_ASSERT(chunked2.get_count() == 6l);
 
     auto table = heterogen_table::wrap( //
-                        chunked1, chunked2);
+            chunked1, chunked2);
 
     row_accessor<const float> accessor{ table };
-    const auto res = accessor.pull({1, 4});
-    REQUIRE(res.get_count() == 6l);
+    auto res = accessor.pull(range{1l, 5l});
+    REQUIRE(res.get_count() == 8l);
 
-    for (std::int64_t i = 0l; i < 6l; ++i) {
+    for (std::int64_t i = 0l; i < 8l; ++i) {
         REQUIRE(res[i] == float(i + 2l));
+    }
+}
+
+TEST("Can get row slice on host - 2") {
+    constexpr std::int64_t count = 4'097l;
+
+    std::vector<std::uint64_t> column0(count);
+    std::iota(column0.begin(), column0.end(), 0ul);
+    auto arr0 = array<std::uint64_t>::wrap(column0.data(), count);
+
+    std::vector<float> column1(count);
+    std::iota(column1.begin(), column1.end(), 1.f);
+    auto arr1 = array<float>::wrap(column1.data(), count);
+
+    std::vector<double> column2(count);
+    std::iota(column2.begin(), column2.end(), 2.0);
+    auto arr2 = array<double>::wrap(column2.data(), count);
+
+    std::vector<std::int64_t> column3(count);
+    std::iota(column3.begin(), column3.end(), 3l);
+    auto arr3 = array<std::int64_t>::wrap(column3.data(), count);
+
+    auto table = heterogen_table::wrap(
+        chunked_array<std::uint64_t>(arr0),
+        chunked_array<float>(arr1),
+        chunked_array<double>(arr2),
+        chunked_array<std::int64_t>(arr3));
+
+    row_accessor<const float> accessor{ table };
+    auto res = accessor.pull(range{3l, count - 3l});
+    const std::int64_t slice_size = 4l * (count - 6l);
+    REQUIRE(slice_size == res.get_count());
+    using namespace dal::detail;
+    auto slc = res.get_slice(0, 12);
+    std::cout << slc << std::endl;
+
+    for (std::int64_t i = 0l; i < slice_size; ++i) {
+        const auto row = 3l + i / 4l;
+        const auto col = i % 4l;
+        const auto gtr = row + col;
+        REQUIRE(res[i] == gtr);
     }
 }
 

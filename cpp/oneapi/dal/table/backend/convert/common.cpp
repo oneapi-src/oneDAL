@@ -130,12 +130,12 @@ bool is_known_data_type(data_type dtype) noexcept {
     return backend::dispatch_by_data_type(dtype, op, unknown);
 }
 
-dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+dal::array<std::int64_t> compute_lower_bounds(const shape_t& input_shape,
                             const dal::array<data_type>& input_types) {
-    return compute_offsets(input_shape, input_types.get_data());
+    return compute_lower_bounds(input_shape, input_types.get_data());
 }
 
-dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
+dal::array<std::int64_t> compute_lower_bounds(const shape_t& input_shape,
                                          const data_type* input_types) {
     ONEDAL_ASSERT(input_types != nullptr);
     const auto [row_count, col_count] = input_shape;
@@ -150,50 +150,12 @@ dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
 
         auto raw_size = detail::get_data_type_size(dtype);
         auto row_size = detail::check_mul_overflow(raw_size, col_count);
+
         offset = detail::check_sum_overflow(offset, row_size);
         result_ptr[row] = offset;
     }
 
     return result;
 }
-
-/*template <typename Index, typename Type>
-void extract_by_indices_impl(const Index* indices, const Type* values,
-                                    Type* output, std::int64_t count) {
-    PRAGMA_IVDEP
-    for (std::int64_t i = 0l; i < count; ++i) {
-        const Index idx = indices[i];
-        output[i] = values[idx];
-    }
-}
-
-dal::array<dal::byte_t> extract_by_indices(const dal::byte_t* indices, data_type indices_type,
-                            const dal::byte_t* values, data_type values_type, std::int64_t count) {
-    const std::int64_t type_size = detail::get_data_type_size(values_type);
-    const auto result_size = detail::check_mul_overflow(type_size, count);
-
-    auto result = dal::array<dal::byte_t>::empty(result_size);
-    dal::byte_t* const res_ptr = result.get_mutable_data();
-
-    backend::multi_dispatch_by_data_type([&](auto idx, auto val) {
-        using idx_t = std::decay_t<decltype(idx)>;
-        using val_t = std::decay_t<decltype(val)>;
-
-        constexpr bool is_integral_index = std::is_integral_v<idx_t>;
-
-        if constexpr (is_integral_index) {
-            const auto* idx_ptr = reinterpret_cast<const idx_t*>(indices);
-            const auto* val_ptr = reinterpret_cast<const val_t*>(values);
-            auto* const out_ptr = reinterpret_cast<val_t* const>(res_ptr);
-
-            extract_by_indices_impl(idx_ptr, val_ptr, out_ptr, count);
-        }
-        else {
-            ONEDAL_ASSERT(is_integral_index, "Index type is not integral");
-        }
-    }, indices_type, values_type);
-
-    return result;
-}*/
 
 } // namespace oneapi::dal::backend
