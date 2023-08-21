@@ -26,6 +26,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
@@ -72,7 +73,7 @@ auto compute_crossproduct(sycl::queue& q,
 
     return std::make_tuple(xtx, gemm_event);
 }
-//TODO:optimize and rewrite this function. its temporary implementation
+
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& crossproducts,
@@ -80,41 +81,32 @@ auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& current_crossproducts,
                             const pr::ndview<Float, 1>& current_sums,
                             const pr::ndview<Float, 1>& current_nobs,
-                            std::int64_t row_count,
+                            const std::int64_t row_count,
                             const dal::backend::event_vector& deps = {}) {
+    constexpr pr::sum<Float> plus;
+
     auto column_count = crossproducts.get_dimension(1);
     auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
     auto result_crossproducts =
         pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1, alloc::device);
+    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
+
+    auto sum_event = pr::element_wise(q, plus, sums, current_sums, result_sums, deps);
+    auto matrix_event =
+        pr::element_wise(q, plus, crossproducts, current_crossproducts, result_crossproducts, deps);
+
     auto result_nobs_ptr = result_nobs.get_mutable_data();
     auto current_nobs_ptr = current_nobs.get_mutable_data();
-
-    auto result_sums_ptr = result_sums.get_mutable_data();
-    auto sums_ptr = sums.get_mutable_data();
-    auto current_sums_ptr = current_sums.get_mutable_data();
-    auto result_crossproducts_ptr = result_crossproducts.get_mutable_data();
-    auto crossproducts_ptr = crossproducts.get_mutable_data();
-    auto current_crossproducts_ptr = current_crossproducts.get_mutable_data();
     auto update_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<2>(column_count, column_count);
+        const auto range = sycl::range<1>(1);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            const std::int64_t i = id.get_id(0);
-            const std::int64_t j = id.get_id(1);
-
-            if (i < column_count && j < column_count) {
-                result_crossproducts_ptr[i * column_count + j] =
-                    crossproducts_ptr[i * column_count + j] +
-                    current_crossproducts_ptr[i * column_count + j];
-                result_sums_ptr[i] = current_sums_ptr[i] + sums_ptr[i];
-            }
+        cgh.parallel_for(range, [=](sycl::item<1> id) {
             result_nobs_ptr[0] = row_count + current_nobs_ptr[0];
         });
     });
 
-    return std::make_tuple(result_sums, result_crossproducts, result_nobs, update_event);
+    return std::make_tuple(result_sums, result_crossproducts, result_nobs, matrix_event);
 }
 
 template <typename Float, typename Task>
@@ -134,10 +126,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
     dal::detail::check_mul_overflow(component_count, column_count);
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
+
     const auto sums_nd =
         pr::table2ndarray_1d<Float>(q, input_.get_sums(), sycl::usm::alloc::device);
-    const auto nobs_nd =
-        pr::table2ndarray_1d<Float>(q, input_.get_nobs(), sycl::usm::alloc::device);
+    const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_nobs());
+
     const auto crossproducts_nd =
         pr::table2ndarray<Float>(q, input_.get_crossproduct(), sycl::usm::alloc::device);
 
