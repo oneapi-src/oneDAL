@@ -103,40 +103,24 @@ sycl::event copy_convert(sycl::queue& queue,
         find_sets_of_unique_pairs(inp_types, out_types, row_count);
     const std::int64_t* const unique_indices_ptr = unique_indices.get_data();
 
-    //std::cout << "Unique indices: " << unique_indices << std::endl;
-
     const dal::array<std::int64_t> chunk_offsets = //
         find_unique_chunk_offsets(unique_indices, inp_types, out_types);
-
-    //std::cout << "Chunk offsets: " << chunk_offsets << std::endl;
 
     const dal::array<std::int64_t> inp_strides_host = //
         extract_by_indices(unique_indices_ptr, inp_strides, row_count);
     auto inp_strides_device = detail::copy(policy, inp_strides_host);
 
-    //std::cout << "Input strides: " << inp_strides_host << std::endl;
-    //std::cout << "Input strides back: " << detail::copy(hpolicy, inp_strides_device) << std::endl;
-
     const dal::array<std::int64_t> out_strides_host = //
         extract_by_indices(unique_indices_ptr, out_strides, row_count);
     auto out_strides_device = detail::copy(policy, out_strides_host);
-
-    //std::cout << "Output strides: " << out_strides_host << std::endl;
-    //std::cout << "Output strides back: " << detail::copy(hpolicy, out_strides_device) << std::endl;
 
     const dal::array<const dal::byte_t*> inp_pointers_host = //
         extract_by_indices(unique_indices_ptr, inp_pointers, row_count);
     auto inp_pointers_device = detail::copy(policy, inp_pointers_host);
 
-    //std::cout << "Input pointers: " << inp_pointers_host << std::endl;
-    //std::cout << "Input pointers back: " << detail::copy(hpolicy, inp_pointers_device) << std::endl;
-
     const dal::array<dal::byte_t*> out_pointers_host = //
         extract_by_indices(unique_indices_ptr, out_pointers, row_count);
     auto out_pointers_device = detail::copy(policy, out_pointers_host);
-
-    //std::cout << "Output pointers: " << out_pointers_host << std::endl;
-    //std::cout << "Output pointers back: " << detail::copy(hpolicy, out_pointers_device) << std::endl;
 
     std::int64_t first = 0l;
     sycl::event last_event{};
@@ -147,21 +131,9 @@ sycl::event copy_convert(sycl::queue& queue,
         const auto chunk_len = last - first;
         ONEDAL_ASSERT(0l < chunk_len);
 
-        //std::cout << "F,L: " << first << ',' << last << std::endl;
-
         const auto first_idx = unique_indices_ptr[first];
         const data_type inp_type = inp_types[first_idx];
         const data_type out_type = out_types[first_idx];
-
-/*#ifdef ONEDAL_ENABLE_ASSERT
-        const auto last_idx = unique_indices_ptr[last - 1l];
-        for (std::int64_t i = first_idx; i < last_idx; ++i) {
-            ONEDAL_ASSERT(inp_types[i] == inp_type);
-            ONEDAL_ASSERT(out_types[i] == out_type);
-        }
-#endif // ONEDAL_ENABLE_ASSERT*/
-
-        //std::cout << "I,O: " << std::int64_t(inp_type) << ',' << std::int64_t(out_type) << std::endl;
 
         auto inp_ptrs_slice = inp_pointers_device.get_slice(first, last);
         auto out_ptrs_slice = out_pointers_device.get_slice(first, last);
