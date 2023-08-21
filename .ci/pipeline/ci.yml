@@ -303,7 +303,7 @@ jobs:
     displayName: 'bazel-cache-limit'
 
 - job: LinuxDaal4py
-  dependsOn: LinuxMakeGNU
+  dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
