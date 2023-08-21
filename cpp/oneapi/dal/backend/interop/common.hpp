@@ -33,11 +33,7 @@ struct daal_cpu_value {
 template <>
 struct to_daal_cpu_type<cpu_dispatch_default> : daal_cpu_value<daal::sse2> {};
 template <>
-struct to_daal_cpu_type<cpu_dispatch_ssse3> : daal_cpu_value<daal::ssse3> {};
-template <>
 struct to_daal_cpu_type<cpu_dispatch_sse42> : daal_cpu_value<daal::sse42> {};
-template <>
-struct to_daal_cpu_type<cpu_dispatch_avx> : daal_cpu_value<daal::avx> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_avx2> : daal_cpu_value<daal::avx2> {};
 template <>

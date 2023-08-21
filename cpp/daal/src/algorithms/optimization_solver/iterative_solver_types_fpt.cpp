@@ -34,6 +34,9 @@ namespace iterative_solver
 {
 namespace interface2
 {
+
+namespace dm  = daal::data_management;
+namespace dmi = daal::data_management::internal;
 /**
  * Allocates memory to store the results of the iterative solver algorithm
  * \param[in] input  Pointer to the input structure
@@ -43,7 +46,6 @@ namespace interface2
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    using namespace daal::data_management;
     const Input * algInput = static_cast<const Input *>(input);
     size_t nRows           = algInput->get(inputArgument)->getNumberOfRows();
 
@@ -54,20 +56,20 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     if (!get(minimum))
     {
-        NumericTablePtr nt;
+        dm::NumericTablePtr nt;
         if (deviceInfo.isCpu)
         {
-            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
+            nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTable::doAllocate, &status);
         }
         else
         {
-            nt = internal::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
+            nt = dmi::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTable::doAllocate, &status);
         }
         set(minimum, nt);
     }
     if (!get(nIterations))
     {
-        NumericTablePtr nt = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, int(0));
+        dm::NumericTablePtr nt = dm::HomogenNumericTable<int>::create(1, 1, dm::NumericTable::doAllocate, int(0));
         set(nIterations, nt);
     }
     return status;

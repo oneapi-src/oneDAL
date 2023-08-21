@@ -60,7 +60,7 @@ sycl::event newton_cg(sycl::queue& queue,
 
         Float grad_norm = 0;
         l1_norm(queue, gradient, tmp_gpu, &grad_norm, update_event_vec).wait_and_throw();
-        Float tol_k = std::min(sqrt(grad_norm), 0.5);
+        Float tol_k = std::min<Float>(sqrt(grad_norm), 0.5);
 
         auto prepare_grad_event =
             element_wise(queue, kernel_minus, gradient, nullptr, gradient, update_event_vec);
