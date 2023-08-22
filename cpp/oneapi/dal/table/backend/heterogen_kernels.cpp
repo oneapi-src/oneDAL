@@ -277,9 +277,11 @@ struct heterogen_dispatcher<detail::host_policy> {
                      const table_metadata& meta,
                      const heterogen_data& data,
                      array<Type>& block_data,
+                     std::int64_t column,
                      const range& rows_range,
                      alloc_kind requested_alloc_kind) {
-
+        using msg = dal::detail::error_messages;
+        throw dal::unimplemented(msg::pull_column_interface_is_not_implemented());
     }
 };
 
@@ -308,6 +310,7 @@ struct heterogen_dispatcher<detail::default_host_policy> {
                      const table_metadata& meta,
                      const heterogen_data& data,
                      array<Type>& block_data,
+                     std::int64_t column,
                      const range& rows_range,
                      alloc_kind alloc_kind) {
         const auto policy = detail::host_policy::get_default();
@@ -315,6 +318,7 @@ struct heterogen_dispatcher<detail::default_host_policy> {
                                                               meta,
                                                               data,
                                                               block_data,
+                                                              column,
                                                               rows_range,
                                                               alloc_kind);
     }
@@ -422,31 +426,11 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                      const table_metadata& meta,
                      const heterogen_data& data,
                      array<Type>& block_data,
+                     std::int64_t column,
                      const range& rows_range,
                      alloc_kind requested_alloc_kind) {
-        sycl::queue& queue = policy.get_queue();
-        const auto alloc = alloc_kind_to_sycl(requested_alloc_kind);
-
-        const auto col_count = get_column_count(meta, data);
-        const auto row_count = get_row_count(col_count, meta, data);
-        const auto [first, last] = rows_range.normalize_range(row_count);
-        const std::int64_t result_count = last - first;
-        ONEDAL_ASSERT(first <= last);
-
-        constexpr Type fill_value = std::numeric_limits<Type>::max();
-        auto result = array<Type>::full(queue, result_count, fill_value, alloc);
-
-        const auto raw = detail::chunked_array_base{ data[column] };
-        detail::dispatch_by_data_type(column_type, [&](auto type) {
-            using column_type_t = std::decay_t<decltype(type)>;
-            auto wrapped = chunked_array<column_type_t>(raw);
-            auto slice = wrapped.get_slice(first, last);
-
-            array<column_type_t> dense = slice.flatten(policy);
-
-        });
-
-        block_data.reset(result, result.get_mutable_data(), result.get_count());
+        using msg = dal::detail::error_messages;
+        throw dal::unimplemented(msg::pull_column_interface_is_not_implemented());
     }
 };
 

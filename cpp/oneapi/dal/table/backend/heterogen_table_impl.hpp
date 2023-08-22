@@ -139,7 +139,7 @@ public:
                               array<T>& block,
                               std::int64_t column_index,
                               const range& rows) const {
-        heterogen_pull_column(policy, meta_, data_, block, rows, alloc_kind::host);
+        heterogen_pull_column(policy, meta_, data_, block, column_index, rows, alloc_kind::host);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
