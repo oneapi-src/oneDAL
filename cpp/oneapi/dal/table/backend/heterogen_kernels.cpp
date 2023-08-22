@@ -195,7 +195,7 @@ struct heterogen_dispatcher<detail::host_policy> {
     using policy_t = detail::host_policy;
 
     template <typename Type>
-    static void pull(const policy_t& policy,
+    static void pull_rows(const policy_t& policy,
                      const table_metadata& meta,
                      const heterogen_data& data,
                      array<Type>& block_data,
@@ -271,6 +271,16 @@ struct heterogen_dispatcher<detail::host_policy> {
 
         block_data.reset(result, result.get_mutable_data(), result.get_count());
     }
+
+    template <typename Type>
+    static void pull_column(const policy_t& policy,
+                     const table_metadata& meta,
+                     const heterogen_data& data,
+                     array<Type>& block_data,
+                     const range& rows_range,
+                     alloc_kind requested_alloc_kind) {
+
+    }
 };
 
 template <>
@@ -278,14 +288,30 @@ struct heterogen_dispatcher<detail::default_host_policy> {
     using policy_t = detail::default_host_policy;
 
     template <typename Type>
-    static void pull(const policy_t& default_policy,
+    static void pull_rows(const policy_t& default_policy,
                      const table_metadata& meta,
                      const heterogen_data& data,
                      array<Type>& block_data,
                      const range& rows_range,
                      alloc_kind alloc_kind) {
         const auto policy = detail::host_policy::get_default();
-        heterogen_dispatcher<detail::host_policy>::pull<Type>(policy,
+        heterogen_dispatcher<detail::host_policy>::pull_rows<Type>(policy,
+                                                              meta,
+                                                              data,
+                                                              block_data,
+                                                              rows_range,
+                                                              alloc_kind);
+    }
+
+    template <typename Type>
+    static void pull_column(const policy_t& default_policy,
+                     const table_metadata& meta,
+                     const heterogen_data& data,
+                     array<Type>& block_data,
+                     const range& rows_range,
+                     alloc_kind alloc_kind) {
+        const auto policy = detail::host_policy::get_default();
+        heterogen_dispatcher<detail::host_policy>::pull_column<Type>(policy,
                                                               meta,
                                                               data,
                                                               block_data,
@@ -306,7 +332,7 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
     using policy_t = detail::data_parallel_policy;
 
     template <typename Type>
-    static void pull(const policy_t& policy,
+    static void pull_rows(const policy_t& policy,
                      const table_metadata& meta,
                      const heterogen_data& data,
                      array<Type>& block_data,
@@ -352,6 +378,7 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
 
         const auto block_count = (copy_count / block) + bool(copy_count % block);
 
+        sycl::event last_event;
         for (std::int64_t b = 0l; b < block_count; ++b) {
             auto start = detail::check_mul_overflow(b, block);
             const auto f = detail::check_sum_overflow(start, first);
@@ -375,15 +402,49 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                                    reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
                                    detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
             auto outp_ptrs = compute_pointers</*mut=*/true>(raw_slice, outp_offs);
-            copy_convert(policy,
+            last_event = copy_convert(policy,
                          buff_ptrs,
                          data_types,
                          buff_strs,
                          outp_ptrs,
                          outp_types,
                          outp_strs,
-                         transpose(curr_shape));
+                         transpose(curr_shape), {last_event});
         }
+
+        last_event.wait_and_throw();
+
+        block_data.reset(result, result.get_mutable_data(), result.get_count());
+    }
+
+    template <typename Type>
+    static void pull_column(const policy_t& policy,
+                     const table_metadata& meta,
+                     const heterogen_data& data,
+                     array<Type>& block_data,
+                     const range& rows_range,
+                     alloc_kind requested_alloc_kind) {
+        sycl::queue& queue = policy.get_queue();
+        const auto alloc = alloc_kind_to_sycl(requested_alloc_kind);
+
+        const auto col_count = get_column_count(meta, data);
+        const auto row_count = get_row_count(col_count, meta, data);
+        const auto [first, last] = rows_range.normalize_range(row_count);
+        const std::int64_t result_count = last - first;
+        ONEDAL_ASSERT(first <= last);
+
+        constexpr Type fill_value = std::numeric_limits<Type>::max();
+        auto result = array<Type>::full(queue, result_count, fill_value, alloc);
+
+        const auto raw = detail::chunked_array_base{ data[column] };
+        detail::dispatch_by_data_type(column_type, [&](auto type) {
+            using column_type_t = std::decay_t<decltype(type)>;
+            auto wrapped = chunked_array<column_type_t>(raw);
+            auto slice = wrapped.get_slice(first, last);
+
+            array<column_type_t> dense = slice.flatten(policy);
+
+        });
 
         block_data.reset(result, result.get_mutable_data(), result.get_count());
     }
@@ -398,10 +459,27 @@ void heterogen_pull_rows(const Policy& policy,
                          array<Type>& block_data,
                          const range& rows_range,
                          alloc_kind requested_alloc_kind) {
-    heterogen_dispatcher<Policy>::template pull<Type>(policy,
+    heterogen_dispatcher<Policy>::template pull_rows<Type>(policy,
                                                       meta,
                                                       data,
                                                       block_data,
+                                                      rows_range,
+                                                      requested_alloc_kind);
+}
+
+template <typename Policy, typename Type>
+void heterogen_pull_column(const Policy& policy,
+                           const table_metadata& meta,
+                           const heterogen_data& data,
+                           array<Type>& block_data,
+                           std::int64_t column,
+                           const range& rows_range,
+                           alloc_kind requested_alloc_kind) {
+    heterogen_dispatcher<Policy>::template pull_column<Type>(policy,
+                                                      meta,
+                                                      data,
+                                                      block_data,
+                                                      column,
                                                       rows_range,
                                                       requested_alloc_kind);
 }
@@ -412,7 +490,14 @@ void heterogen_pull_rows(const Policy& policy,
                                       const heterogen_data&, \
                                       array<Type>&,          \
                                       const range&,          \
-                                      alloc_kind);
+                                      alloc_kind);           \
+    template void heterogen_pull_column(const Policy&,         \
+                                      const table_metadata&, \
+                                      const heterogen_data&, \
+                                      array<Type>&,          \
+                                      std::int64_t,          \
+                                      const range&,          \
+                                      alloc_kind);           \
 
 #ifdef ONEDAL_DATA_PARALLEL
 #define INSTANTIATE_ALL_POLICIES(Type)             \

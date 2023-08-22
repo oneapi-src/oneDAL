@@ -34,6 +34,15 @@ void heterogen_pull_rows(const Policy& policy,
                          const range& rows_range,
                          alloc_kind requested_alloc_kind);
 
+template <typename Policy, typename Type>
+void heterogen_pull_column(const Policy& policy,
+                           const table_metadata& meta,
+                           const heterogen_data& data,
+                           array<Type>& block_data,
+                           std::int64_t column,
+                           const range& rows_range,
+                           alloc_kind requested_alloc_kind);
+
 heterogen_data heterogen_row_slice(const range& rows_range,
                                    const table_metadata& meta,
                                    const heterogen_data& data);

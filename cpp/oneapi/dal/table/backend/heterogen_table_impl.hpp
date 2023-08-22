@@ -138,7 +138,9 @@ public:
     void pull_column_template(const detail::default_host_policy& policy,
                               array<T>& block,
                               std::int64_t column_index,
-                              const range& rows) const {}
+                              const range& rows) const {
+        heterogen_pull_column(policy, meta_, data_, block, rows, alloc_kind::host);
+    }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
@@ -155,7 +157,10 @@ public:
                               array<T>& block,
                               std::int64_t column_index,
                               const range& rows,
-                              sycl::usm::alloc alloc) const {}
+                              sycl::usm::alloc alloc) const {
+        const alloc_kind req_alloc = alloc_kind_from_sycl(alloc);
+        heterogen_pull_column(policy, meta_, data_, block, column_index, rows, req_alloc);
+    }
 #endif
 
 private:
