@@ -13,11 +13,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#include "oneapi/dal/detail/debug.hpp"
+
+#include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 #include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/backend/common.hpp"
 
 namespace oneapi::dal::test {
 
@@ -219,5 +221,93 @@ TEST("Can get row slice on host - 2") {
         REQUIRE(res[i] == gtr);
     }
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+TEST("Can get row slice from host to shared") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+    constexpr auto alloc = sycl::usm::alloc::shared;
+
+    constexpr float src1[] = { 0.f, 2.f, 4.f };
+    constexpr float src2[] = { 6.f, 8.f, 10.f };
+
+    auto arr1 = array<float>::wrap(src1, 3l);
+    auto arr2 = array<float>::wrap(src2, 3l);
+
+    chunked_array<float> chunked1(2);
+    chunked1.set_chunk(0l, arr1);
+    chunked1.set_chunk(1l, arr2);
+    ONEDAL_ASSERT(chunked1.get_count() == 6l);
+
+    constexpr std::int16_t src3[] = { 1 };
+    constexpr std::int16_t src4[] = { 3, 5 };
+    constexpr std::int16_t src5[] = { 7, 9, 11 };
+
+    auto arr3 = array<std::int16_t>::wrap(src3, 1l);
+    auto arr4 = array<std::int16_t>::wrap(src4, 2l);
+    auto arr5 = array<std::int16_t>::wrap(src5, 3l);
+
+    chunked_array<std::int16_t> chunked2(3);
+    chunked2.set_chunk(0l, arr3);
+    chunked2.set_chunk(1l, arr4);
+    chunked2.set_chunk(2l, arr5);
+    ONEDAL_ASSERT(chunked2.get_count() == 6l);
+
+    auto table = heterogen_table::wrap( //
+        chunked1,
+        chunked2);
+
+    row_accessor<const float> accessor{ table };
+    auto res = accessor.pull(q, { 1l, 5l }, alloc);
+    REQUIRE(res.get_count() == 8l);
+
+    for (std::int64_t i = 0l; i < 8l; ++i) {
+        REQUIRE(res[i] == float(i + 2l));
+    }
+}
+
+TEST("Can get row slice from heterogen to shared") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    using dal::backend::end;
+    using dal::backend::begin;
+
+    constexpr auto device = sycl::usm::alloc::device;
+    constexpr auto shared = sycl::usm::alloc::shared;
+
+    auto arr1 = array<float>::empty(q, 10, shared);
+    std::iota(begin(arr1), end(arr1), float(0));
+    auto arr2 = array<float>::empty(q, 10, shared);
+    std::iota(begin(arr2), end(arr2), float(10));
+    chunked_array<float> chunked1(arr1, arr2);
+
+    auto arr3 = array<std::int8_t>::empty(q, 20, shared);
+    std::iota(begin(arr3), end(arr3), std::int8_t(0));
+    chunked_array<std::int8_t> chunked2(arr3);
+
+    auto arr4 = array<std::int64_t>::empty(q, 20, shared);
+    std::iota(begin(arr4), end(arr4), std::int64_t(0l));
+    auto arr5 = array<std::int64_t>::empty(q, 20, device);
+    /*Let's copy to device*/ detail::copy(arr5, arr4);
+    chunked_array<std::int64_t> chunked3(arr5);
+
+    auto table = heterogen_table::wrap( //
+        chunked1,
+        chunked2,
+        chunked3);
+
+    row_accessor<const float> accessor{ table };
+    auto res = accessor.pull(q, { 1l, 19l }, shared);
+    REQUIRE(res.get_count() == 3l * 18l);
+
+    for (std::int64_t i = 0l; i < res.get_count(); ++i) {
+        const auto val = i / 3l + 1l;
+        REQUIRE(res[i] == float(val));
+    }
+}
+
+#endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::test

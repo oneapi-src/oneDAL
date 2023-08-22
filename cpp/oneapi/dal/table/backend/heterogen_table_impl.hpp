@@ -118,11 +118,6 @@ public:
         return true;
     }
 
-    /*heterogen_table get_row_slice(const range& range) const override {
-        auto data = get_row_slice()
-        return hete
-    }*/
-
     detail::access_iface_host& get_access_iface_host() const override {
         throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
@@ -150,7 +145,10 @@ public:
     void pull_rows_template(const detail::data_parallel_policy& policy,
                             array<T>& block,
                             const range& rows,
-                            sycl::usm::alloc alloc) const {}
+                            sycl::usm::alloc alloc) const {
+        const alloc_kind req_alloc = alloc_kind_from_sycl(alloc);
+        heterogen_pull_rows(policy, meta_, data_, block, rows, req_alloc);
+    }
 
     template <typename T>
     void pull_column_template(const detail::data_parallel_policy& policy,
