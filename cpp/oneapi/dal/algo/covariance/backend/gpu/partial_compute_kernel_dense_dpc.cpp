@@ -154,7 +154,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     auto [sums, sums_event] = compute_sums(q, data_nd);
 
-    auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd);
+    auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd, { sums_event });
 
     auto [result_sums, result_crossproducts, result_nobs, update_event] =
         update_partial_results(q,
