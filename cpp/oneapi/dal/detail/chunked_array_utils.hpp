@@ -33,7 +33,8 @@ void copy(T* const ptr, const Policy& policy, const chunked_array_base& src) {
     const auto full_size = src.get_size_in_bytes();
     auto* dst_byte = reinterpret_cast<dal::byte_t*>(ptr);
 
-    if (full_size == std::int64_t{ 0l }) return;
+    if (full_size == std::int64_t{ 0l })
+        return;
 
     std::int64_t offset = 0l;
     for (std::int64_t c = 0l; c < chunk_count; ++c) {
@@ -69,7 +70,8 @@ void copy(array_impl<T>& dst_impl, const chunked_array_base& src) {
     const auto dst_policy_var = dst_impl.get_policy();
     ONEDAL_ASSERT(dst_impl.get_size_in_bytes() == full_size);
 
-    if (full_size == std::int64_t{ 0l }) return;
+    if (full_size == std::int64_t{ 0l })
+        return;
 
     const auto copy_array = [&](const auto& dst_policy) {
         copy(dst_raw, dst_policy, src);

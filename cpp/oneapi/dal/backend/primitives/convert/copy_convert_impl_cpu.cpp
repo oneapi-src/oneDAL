@@ -36,8 +36,10 @@ struct copy_converter_impl {
     using out_t = OutputType;
     using inp_t = InputType;
 
-    static void run(out_t* out, std::int64_t out_stride,
-                    const inp_t* inp, std::int64_t inp_stride,
+    static void run(out_t* out,
+                    std::int64_t out_stride,
+                    const inp_t* inp,
+                    std::int64_t inp_stride,
                     std::int64_t count) {
         ONEDAL_ASSERT(0l < out_stride);
         ONEDAL_ASSERT(0l < out_stride);
@@ -46,7 +48,7 @@ struct copy_converter_impl {
         ONEDAL_ASSERT(0l <= count);
 
         if (out_stride == 1l && inp_stride == 1l) {
-             return contiguous(out, inp, count);
+            return contiguous(out, inp, count);
         }
         else if (out_stride == 1l && inp_stride != 1l) {
             return inp_strided(out, inp, inp_stride, count);
@@ -74,8 +76,10 @@ struct copy_converter_impl {
         }
     }
 
-    static void out_strided(out_t* out, std::int64_t out_stride,
-                            const inp_t* inp, std::int64_t count) {
+    static void out_strided(out_t* out,
+                            std::int64_t out_stride,
+                            const inp_t* inp,
+                            std::int64_t count) {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (std::int64_t i = 0l; i < count; ++i) {
@@ -85,8 +89,10 @@ struct copy_converter_impl {
     }
 
     // TODO: Optimize with gather instructions
-    static void inp_strided(out_t* out, const inp_t* inp,
-                    std::int64_t inp_stride, std::int64_t count) {
+    static void inp_strided(out_t* out,
+                            const inp_t* inp,
+                            std::int64_t inp_stride,
+                            std::int64_t count) {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (std::int64_t i = 0l; i < count; ++i) {
@@ -95,13 +101,16 @@ struct copy_converter_impl {
         }
     }
 
-    static void strided(out_t* out, std::int64_t out_stride,
-            const inp_t* inp, std::int64_t inp_stride, std::int64_t count) {
+    static void strided(out_t* out,
+                        std::int64_t out_stride,
+                        const inp_t* inp,
+                        std::int64_t inp_stride,
+                        std::int64_t count) {
         // Let's trust compiler to decide if the loop should be
         // vectorized or not. It can be suboptimal if strides are
         // too large
         PRAGMA_IVDEP
-        for (std::int64_t i = 0l; i < count; ++i){
+        for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t out_offset = i * out_stride;
             const std::int64_t inp_offset = i * inp_stride;
             out[out_offset] = static_cast<out_t>(inp[inp_offset]);
@@ -127,18 +136,23 @@ void copy_convert(const detail::host_policy& policy,
     auto block_size = propose_block_size<CpuType, OutType, InpType>(policy);
     const auto block_size_s = detail::integral_cast<std::size_t>(block_size);
 
-    detail::threader_for_blocked_size(count_s, block_size_s,
-    [=](std::size_t f, std::size_t l) -> void {
-        const auto first = detail::integral_cast<std::int64_t>(f);
-        const auto last = detail::integral_cast<std::int64_t>(l);
-        const std::int64_t count = last - first;
+    detail::threader_for_blocked_size(
+        count_s,
+        block_size_s,
+        [=](std::size_t f, std::size_t l) -> void {
+            const auto first = detail::integral_cast<std::int64_t>(f);
+            const auto last = detail::integral_cast<std::int64_t>(l);
+            const std::int64_t count = last - first;
 
-        const InpType* const off_inp_ptr = inp_ptr + inp_str * first;
-        OutType* const off_out_ptr = out_ptr + out_str * first;
+            const InpType* const off_inp_ptr = inp_ptr + inp_str * first;
+            OutType* const off_out_ptr = out_ptr + out_str * first;
 
-        copy_converter_impl<CpuType, OutType, InpType>::run(
-            off_out_ptr, out_str, off_inp_ptr, inp_str, count);
-    });
+            copy_converter_impl<CpuType, OutType, InpType>::run(off_out_ptr,
+                                                                out_str,
+                                                                off_inp_ptr,
+                                                                inp_str,
+                                                                count);
+        });
 }
 
 template <typename CpuType>
@@ -153,8 +167,7 @@ void copy_convert(const detail::host_policy& policy,
     const std::int64_t row_count = shape.first;
     const std::int64_t col_count = shape.second;
 
-    detail::threader_for_int64(row_count,
-    [&](std::int64_t i) -> void {
+    detail::threader_for_int64(row_count, [&](std::int64_t i) -> void {
         auto* out_raw_ptr = out_ptrs[i];
         const auto* inp_raw_ptr = inp_ptrs[i];
 
@@ -165,29 +178,27 @@ void copy_convert(const detail::host_policy& policy,
         const auto inp_type = inp_types[i];
 
         backend::multi_dispatch_by_data_type(
-        [&](auto output, auto input) -> void {
-            using input_t = std::decay_t<decltype(input)>;
-            using output_t = std::decay_t<decltype(output)>;
+            [&](auto output, auto input) -> void {
+                using input_t = std::decay_t<decltype(input)>;
+                using output_t = std::decay_t<decltype(output)>;
 
-            auto* out_ptr = reinterpret_cast<output_t*>(out_raw_ptr);
-            const auto* inp_ptr = reinterpret_cast<const input_t*>(inp_raw_ptr);
+                auto* out_ptr = reinterpret_cast<output_t*>(out_raw_ptr);
+                const auto* inp_ptr = reinterpret_cast<const input_t*>(inp_raw_ptr);
 
-            copy_convert<CpuType>(policy, inp_ptr, inp_str,
-                                  out_ptr, out_str, col_count);
-
-        }, out_type, inp_type);
+                copy_convert<CpuType>(policy, inp_ptr, inp_str, out_ptr, out_str, col_count);
+            },
+            out_type,
+            inp_type);
     });
 }
 
-
-template void copy_convert<__CPU_TAG__>(
-                  const detail::host_policy& policy,
-                  const dal::byte_t* const* inp_ptrs,
-                  const data_type* inp_types,
-                  const std::int64_t* inp_strs,
-                  dal::byte_t* const* out_ptrs,
-                  const data_type* out_types,
-                  const std::int64_t* out_strs,
-                  const shape_t& shape);
+template void copy_convert<__CPU_TAG__>(const detail::host_policy& policy,
+                                        const dal::byte_t* const* inp_ptrs,
+                                        const data_type* inp_types,
+                                        const std::int64_t* inp_strs,
+                                        dal::byte_t* const* out_ptrs,
+                                        const data_type* out_types,
+                                        const std::int64_t* out_strs,
+                                        const shape_t& shape);
 
 } // namespace oneapi::dal::backend::primitives

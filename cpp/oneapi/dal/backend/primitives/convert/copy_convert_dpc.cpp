@@ -27,13 +27,13 @@ namespace oneapi::dal::backend::primitives {
 using detail::operator<<;
 
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
-                  const dal::array<data_type>& input_types,
-                  const dal::array<dal::byte_t>& input_data,
-                  const shape_t& input_shape,
-                  data_type output_type,
-                  dal::array<dal::byte_t>& output_data,
-                  const shape_t& output_strides,
-                  const std::vector<sycl::event>& deps) {
+                         const dal::array<data_type>& input_types,
+                         const dal::array<dal::byte_t>& input_data,
+                         const shape_t& input_shape,
+                         data_type output_type,
+                         dal::array<dal::byte_t>& output_data,
+                         const shape_t& output_strides,
+                         const std::vector<sycl::event>& deps) {
     const auto [row_count, col_count] = input_shape;
     const auto [row_stride, col_stride] = output_strides;
 
@@ -47,20 +47,26 @@ sycl::event copy_convert(const detail::data_parallel_policy& policy,
     auto output_strides_arr = dal::array<std::int64_t>::full(row_count, col_stride);
     auto input_strides = dal::array<std::int64_t>::full(row_count, std::int64_t{ 1l });
 
-    return copy_convert(policy, input_pointers, input_types, input_strides,
-        output_pointers, output_types, output_strides_arr, input_shape, deps);
+    return copy_convert(policy,
+                        input_pointers,
+                        input_types,
+                        input_strides,
+                        output_pointers,
+                        output_types,
+                        output_strides_arr,
+                        input_shape,
+                        deps);
 }
 
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
-                  const dal::array<const dal::byte_t*>& inp_pointers,
-                  const dal::array<data_type>& inp_types,
-                  const dal::array<std::int64_t>& inp_strides,
-                  const dal::array<dal::byte_t*>& out_pointers,
-                  const dal::array<data_type>& out_types,
-                  const dal::array<std::int64_t>& out_strides,
-                  const shape_t& shape,
-                  const std::vector<sycl::event>& deps) {
-
+                         const dal::array<const dal::byte_t*>& inp_pointers,
+                         const dal::array<data_type>& inp_types,
+                         const dal::array<std::int64_t>& inp_strides,
+                         const dal::array<dal::byte_t*>& out_pointers,
+                         const dal::array<data_type>& out_types,
+                         const dal::array<std::int64_t>& out_strides,
+                         const shape_t& shape,
+                         const std::vector<sycl::event>& deps) {
     return copy_convert(policy,
                         inp_pointers.get_data(),
                         inp_types.get_data(),
@@ -68,7 +74,8 @@ sycl::event copy_convert(const detail::data_parallel_policy& policy,
                         out_pointers.get_data(),
                         out_types.get_data(),
                         out_strides.get_data(),
-                        shape, deps);
+                        shape,
+                        deps);
 }
 
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
@@ -80,9 +87,15 @@ sycl::event copy_convert(const detail::data_parallel_policy& policy,
                          const std::int64_t* out_strides,
                          const shape_t& shape,
                          const std::vector<sycl::event>& deps) {
-
-    return copy_convert(policy.get_queue(), inp_pointers, inp_types,
-        inp_strides, out_pointers, out_types, out_strides, shape, deps);
+    return copy_convert(policy.get_queue(),
+                        inp_pointers,
+                        inp_types,
+                        inp_strides,
+                        out_pointers,
+                        out_types,
+                        out_strides,
+                        shape,
+                        deps);
 }
 
 sycl::event copy_convert(sycl::queue& queue,
@@ -147,9 +160,15 @@ sycl::event copy_convert(sycl::queue& queue,
 
         const auto chunk_shape = std::make_pair(chunk_len, col_count);
 
-        last_event = copy_convert(queue, inp_ptrs, inp_type, inp_strs,
-            out_ptrs, out_type, out_strs, chunk_shape, { last_event });
-
+        last_event = copy_convert(queue,
+                                  inp_ptrs,
+                                  inp_type,
+                                  inp_strs,
+                                  out_ptrs,
+                                  out_type,
+                                  out_strs,
+                                  chunk_shape,
+                                  { last_event });
 
         first = last;
     }

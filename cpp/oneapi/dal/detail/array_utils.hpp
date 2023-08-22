@@ -102,7 +102,9 @@ inline void copy_impl(detail::array_impl<T>& dst, const detail::array_impl<T>& s
 }
 
 template <typename Policy, typename T, typename Alloc>
-inline detail::array_impl<T> copy_impl(const Policy& policy, const detail::array_impl<T>& src, const Alloc& alloc) {
+inline detail::array_impl<T> copy_impl(const Policy& policy,
+                                       const detail::array_impl<T>& src,
+                                       const Alloc& alloc) {
     using res_t = detail::array_impl<T>;
     auto res = res_t::empty_unique(policy, src.get_count(), alloc);
 

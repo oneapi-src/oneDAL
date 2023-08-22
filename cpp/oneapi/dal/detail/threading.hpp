@@ -29,7 +29,7 @@ namespace oneapi::dal::preview {
 typedef void (*functype)(std::int32_t i, const void *a);
 typedef void (*functype_int64)(std::int64_t i, const void *a);
 typedef void (*functype_int32ptr)(const std::int32_t *i, const void *a);
-typedef void (*functype_blocked_size)(std::size_t, std::size_t, const void*);
+typedef void (*functype_blocked_size)(std::size_t, std::size_t, const void *);
 typedef void *(*tls_functype)(const void *a);
 typedef void (*tls_reduce_functype)(void *p, const void *a);
 
@@ -74,10 +74,11 @@ ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
                                                  const void *a,
                                                  oneapi::dal::preview::functype_int32ptr func);
 
-ONEDAL_EXPORT void _onedal_threader_for_blocked_size(std::size_t count,
-                                                     std::size_t block,
-                                                     const void *a,
-                                                     oneapi::dal::preview::functype_blocked_size func);
+ONEDAL_EXPORT void _onedal_threader_for_blocked_size(
+    std::size_t count,
+    std::size_t block,
+    const void *a,
+    oneapi::dal::preview::functype_blocked_size func);
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
     std::int32_t n,

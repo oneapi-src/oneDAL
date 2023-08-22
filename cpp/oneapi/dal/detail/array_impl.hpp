@@ -88,7 +88,9 @@ public:
     }
 
     template <typename Policy, typename Allocator>
-    static unique<array_impl<T>> empty_unique(const Policy& policy, std::int64_t count, const Allocator& alloc) {
+    static unique<array_impl<T>> empty_unique(const Policy& policy,
+                                              std::int64_t count,
+                                              const Allocator& alloc) {
         return unique<array_impl<T>>{ array_impl<T>::empty(policy, count, alloc) };
     }
 

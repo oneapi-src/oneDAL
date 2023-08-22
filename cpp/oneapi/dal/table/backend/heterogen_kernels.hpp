@@ -38,15 +38,13 @@ heterogen_data heterogen_row_slice(const range& rows_range,
                                    const table_metadata& meta,
                                    const heterogen_data& data);
 
-std::int64_t heterogen_column_count(const table_metadata& meta,
-                                    const heterogen_data& data);
+std::int64_t heterogen_column_count(const table_metadata& meta, const heterogen_data& data);
 
 std::int64_t heterogen_row_count(std::int64_t column_count,
                                  const table_metadata& meta,
                                  const heterogen_data& data);
 
-std::int64_t heterogen_row_count(const table_metadata& meta,
-                                 const heterogen_data& data);
+std::int64_t heterogen_row_count(const table_metadata& meta, const heterogen_data& data);
 
 std::pair<std::int64_t, std::int64_t> heterogen_shape(const table_metadata& meta,
                                                       const heterogen_data& data);

@@ -28,12 +28,17 @@
 namespace oneapi::dal::backend {
 
 template <bool mut, typename Pointer = std::conditional_t<mut, dal::byte_t*, const dal::byte_t*>>
-dal::array<Pointer> compute_pointers(const dal::array<dal::byte_t>& data, const dal::array<std::int64_t>& offsets);
+dal::array<Pointer> compute_pointers(const dal::array<dal::byte_t>& data,
+                                     const dal::array<std::int64_t>& offsets);
 
-dal::array<std::int64_t> compute_output_offsets(data_type output_type, const shape_t& input_shape, const shape_t& output_strides);
+dal::array<std::int64_t> compute_output_offsets(data_type output_type,
+                                                const shape_t& input_shape,
+                                                const shape_t& output_strides);
 
-dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape, const data_type* input_types);
+dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
+                                               const data_type* input_types);
 
-dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape, const dal::array<data_type>& input_types);
+dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
+                                               const dal::array<data_type>& input_types);
 
 } // namespace oneapi::dal::backend

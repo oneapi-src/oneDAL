@@ -34,4 +34,4 @@ std::int64_t get_heterogen_table_kind() {
     return 100l;
 }
 
-} /// oneapi::dal::detail::v1
+} // namespace oneapi::dal::detail::v1

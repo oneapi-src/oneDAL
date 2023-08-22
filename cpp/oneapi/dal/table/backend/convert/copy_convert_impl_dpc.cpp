@@ -26,7 +26,8 @@ namespace oneapi::dal::backend {
 
 template <typename Left, typename Right>
 using longer_preferred_vector_desc_t = std::conditional_t<sizeof(Right) < sizeof(Left),
-                        preferred_vector_desc_t<Left>, preferred_vector_desc_t<Right>>;
+                                                          preferred_vector_desc_t<Left>,
+                                                          preferred_vector_desc_t<Right>>;
 
 template <typename InpType, typename OutType>
 auto propose_range(const sycl::queue& queue, const shape_t& shape) {
@@ -48,20 +49,19 @@ sycl::event copy_convert_impl(sycl::queue& queue,
                               const std::int64_t* out_strides,
                               const shape_t& shape,
                               const std::vector<sycl::event>& deps) {
-
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
 
         const auto range = propose_range<InpType, OutType>(queue, shape);
         const sycl::range<2> range_2d{ //
-            detail::integral_cast<std::size_t>(range.first),
-            detail::integral_cast<std::size_t>(range.second) };
+                                       detail::integral_cast<std::size_t>(range.first),
+                                       detail::integral_cast<std::size_t>(range.second)
+        };
 
         const std::int64_t col_count = shape.second;
         const std::int64_t wi_per_row = range.second;
 
-        h.parallel_for(range_2d,
-        [=](sycl::id<2> idx) -> void {
+        h.parallel_for(range_2d, [=](sycl::id<2> idx) -> void {
             const std::int64_t row = idx[0];
             const std::int64_t loc = idx[1];
 
@@ -80,7 +80,6 @@ sycl::event copy_convert_impl(sycl::queue& queue,
             }
         });
     });
-
 }
 
 template <typename InputType>
@@ -97,10 +96,15 @@ sycl::event copy_convert(sycl::queue& queue,
     const auto functor = [&](auto out) -> sycl::event {
         using out_t = std::decay_t<decltype(out)>;
 
-        auto* const conv_out_ptrs = reinterpret_cast<out_t* const *>(out_pointers);
+        auto* const conv_out_ptrs = reinterpret_cast<out_t* const*>(out_pointers);
 
-        return copy_convert_impl<InputType, out_t>(queue, inp_pointers,
-                    inp_strides, conv_out_ptrs, out_strides, shape, deps);
+        return copy_convert_impl<InputType, out_t>(queue,
+                                                   inp_pointers,
+                                                   inp_strides,
+                                                   conv_out_ptrs,
+                                                   out_strides,
+                                                   shape,
+                                                   deps);
     };
 
     return dispatch_by_data_type(out_type, functor);
@@ -120,10 +124,16 @@ sycl::event copy_convert(sycl::queue& queue,
     const auto functor = [&](auto inp) -> sycl::event {
         using inp_t = std::decay_t<decltype(inp)>;
 
-        auto* const conv_inp_ptrs = reinterpret_cast<const inp_t* const *>(inp_pointers);
+        auto* const conv_inp_ptrs = reinterpret_cast<const inp_t* const*>(inp_pointers);
 
-        return copy_convert<inp_t>(queue, conv_inp_ptrs, inp_strides,
-                    out_pointers, out_type, out_strides, shape, deps);
+        return copy_convert<inp_t>(queue,
+                                   conv_inp_ptrs,
+                                   inp_strides,
+                                   out_pointers,
+                                   out_type,
+                                   out_strides,
+                                   shape,
+                                   deps);
     };
 
     return dispatch_by_data_type(inp_type, functor);

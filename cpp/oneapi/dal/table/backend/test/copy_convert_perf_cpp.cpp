@@ -28,7 +28,7 @@
 #include "oneapi/dal/table/backend/test/copy_convert_fixture.hpp"
 
 #ifdef _MSC_VER
-    #define PRETTY_FUNCTION __FUNCSIG__
+#define PRETTY_FUNCTION __FUNCSIG__
 #endif // _MSC_VER
 
 namespace oneapi::dal::backend::primitives::test {
@@ -60,8 +60,13 @@ public:
         dal::array<data_type> types = this->get_types_array();
 
         BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->inp, { row_count, this->col_count },
-                                        result_type, result, { this->col_count, 1l});
+            copy_convert(policy,
+                         types,
+                         this->inp,
+                         { row_count, this->col_count },
+                         result_type,
+                         result,
+                         { this->col_count, 1l });
         };
     }
 
@@ -74,8 +79,13 @@ public:
         dal::array<data_type> types = this->get_types_array();
 
         BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->inp, { row_count, this->col_count },
-                                            result_type, result, { 1l, row_count });
+            copy_convert(policy,
+                         types,
+                         this->inp,
+                         { row_count, this->col_count },
+                         result_type,
+                         result,
+                         { 1l, row_count });
         };
     }
 };

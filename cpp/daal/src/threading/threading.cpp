@@ -271,13 +271,7 @@ DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<double>, pair_fp64_uint64)
 DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const void * a, daal::functype_blocked_size func)
 {
 #if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(0ul, n, block),
-        [=](tbb::blocked_range<size_t> r) -> void
-        {
-            return func(r.begin(), r.end(), a);
-        }
-    );
+    tbb::parallel_for(tbb::blocked_range<size_t>(0ul, n, block), [=](tbb::blocked_range<size_t> r) -> void { return func(r.begin(), r.end(), a); });
 #elif defined(__DO_SEQ_LAYER__)
     func(0ul, n, a);
 #endif

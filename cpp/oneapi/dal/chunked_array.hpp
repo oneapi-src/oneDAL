@@ -43,34 +43,30 @@ public:
 
     /// @brief       Move constrtuctor
     /// @param array Source array
-    chunked_array(chunked_array&& array)
-        : chunked_array_base{ std::forward<base_t>(array) } {}
+    chunked_array(chunked_array&& array) : chunked_array_base{ std::forward<base_t>(array) } {}
 
     /// @brief       Zero copy construct `chunked_array`
     /// @param array Source array
-    chunked_array(const chunked_array& array)
-        : chunked_array_base{ array } {}
+    chunked_array(const chunked_array& array) : chunked_array_base{ array } {}
 
     /// @brief             Coonstructs an empty `chunked_array`
     ///                    with unpopulated chunks
     /// @param chunk_count Number of empty chunks in the
     ///                    constructed `chunked_array`
-    chunked_array(std::int64_t chunk_count)
-        : chunked_array_base{ chunk_count } {}
+    chunked_array(std::int64_t chunk_count) : chunked_array_base{ chunk_count } {}
 
     /// @brief       Consumes one contiguous array and converts
     ///              it to a chunked_array
     /// @param array Particular array source
     chunked_array(dal::array<T>&& array)
-        : chunked_array_base{ std::forward<dal::array<T>>(array) } {}
+            : chunked_array_base{ std::forward<dal::array<T>>(array) } {}
 
     /// @brief            Construct `chunked_array` from list of arrays
     ///                   of the same type or rather `chunked_array`s
     /// @tparam ...Arrays Types of arrays
     /// @param ...arrays  Constant references to arrays
     template <typename... Arrays>
-    chunked_array(Arrays&&... arrays)
-        : chunked_array_base{ std::forward<Arrays>(arrays)... } {}
+    chunked_array(Arrays&&... arrays) : chunked_array_base{ std::forward<Arrays>(arrays)... } {}
 
     /// @brief         Constructs dense array from current `chunked_array`
     /// @tparam Policy Should be either `default_host or `data_parallel` policy
@@ -87,7 +83,7 @@ public:
 
         const auto raw = base_t::flatten_impl(policy, alloc);
         const auto impl = detail::array_impl<T>::reinterpret(raw);
-        return array<T>{new detail::array_impl<T>{ std::move(impl) }};
+        return array<T>{ new detail::array_impl<T>{ std::move(impl) } };
     }
 
     /// @brief         Constructs dense array from current `chunked_array`
@@ -146,7 +142,7 @@ public:
 
         const auto raw = base_t::get_data_impl(policy, alloc);
         const auto impl = detail::array_impl<const T*>::reinterpret(raw);
-        return array<const T*>{new detail::array_impl<const T*>{ std::move(impl) }};
+        return array<const T*>{ new detail::array_impl<const T*>{ std::move(impl) } };
     }
 
     template <typename Policy>
@@ -168,7 +164,7 @@ public:
     /// @param deps   List of data dependencies
     /// @return       Array of pointers to the immutable data
     array<const T*> get_data(const detail::data_parallel_policy& policy,
-                        const std::vector<sycl::event>& deps) const {
+                             const std::vector<sycl::event>& deps) const {
         sycl::event::wait_and_throw(deps);
         return this->get_data(policy);
     }
@@ -179,8 +175,8 @@ public:
     /// @param deps  List of data dependencies
     /// @return      Array  of pointers located on the device
     array<const T*> get_data(sycl::queue& queue,
-                      sycl::usm::alloc alloc = sycl::usm::alloc::shared,
-                      const std::vector<sycl::event>& deps = {}) const {
+                             sycl::usm::alloc alloc = sycl::usm::alloc::shared,
+                             const std::vector<sycl::event>& deps = {}) const {
         sycl::event::wait_and_throw(deps);
 
         using alloc_t = detail::data_parallel_allocator<const byte_t*>;
@@ -236,7 +232,8 @@ public:
         const auto last_in_bytes = last * size;
 
         const auto res = base_t::get_slice_impl( //
-                            first_in_bytes, last_in_bytes);
+            first_in_bytes,
+            last_in_bytes);
         return chunked_array<T>{ std::move(res) };
     }
 
@@ -246,10 +243,12 @@ public:
     template <typename... Arrays>
     chunked_array& append(const Arrays&... arrays) {
         // Check for having the same type
-        ([]() {
-            using arr_t = typename Arrays::data_t;
-            static_assert(std::is_same_v<data_t, arr_t>);
-        }(), ...);
+        (
+            []() {
+                using arr_t = typename Arrays::data_t;
+                static_assert(std::is_same_v<data_t, arr_t>);
+            }(),
+            ...);
 
         base_t::append(arrays...);
 
@@ -278,15 +277,14 @@ public:
 
     template <typename... Args>
     static inline chunked_array<T> make(Args&&... args) {
-        return chunked_array<T>( std::forward<Args>(args)... );
+        return chunked_array<T>(std::forward<Args>(args)...);
     }
 
 protected:
-    chunked_array(const chunked_array_base& other)
-        : chunked_array_base{ other } {}
+    chunked_array(const chunked_array_base& other) : chunked_array_base{ other } {}
 
     chunked_array(chunked_array_base&& other)
-        : chunked_array_base{ std::forward<chunked_array>(other) } {}
+            : chunked_array_base{ std::forward<chunked_array>(other) } {}
 
     /// @brief Private methode to store content into
     ///        memory single span

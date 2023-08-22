@@ -35,23 +35,28 @@ std::int64_t heterogen_table::kind() {
 
 heterogen_table::heterogen_table() : heterogen_table(new backend::heterogen_table_impl{}) {}
 
-heterogen_table::heterogen_table(const table& other) : heterogen_table(get_heterogen_iface(other)) {}
+heterogen_table::heterogen_table(const table& other)
+        : heterogen_table(get_heterogen_iface(other)) {}
 
 heterogen_table heterogen_table::empty(const table_metadata& meta) {
     auto* const impl = new backend::heterogen_table_impl(meta);
     return heterogen_table{ impl };
 }
 
-void heterogen_table::set_column_impl(std::int64_t column, data_type dt, detail::chunked_array_base arr) {
+void heterogen_table::set_column_impl(std::int64_t column,
+                                      data_type dt,
+                                      detail::chunked_array_base arr) {
     auto& impl = detail::cast_impl<detail::heterogen_table_iface>(*this);
     ONEDAL_ASSERT(dt == this->get_metadata().get_data_type(column));
     impl.set_column(column, dt, std::move(arr));
 }
 
-std::pair<data_type, detail::chunked_array_base> heterogen_table::get_column_impl(std::int64_t column) const {
+std::pair<data_type, detail::chunked_array_base> heterogen_table::get_column_impl(
+    std::int64_t column) const {
     data_type dtype = this->get_metadata().get_data_type(column);
     auto array = detail::cast_impl<const detail::heterogen_table_iface>(*this).get_column(column);
-    return std::make_pair<data_type, detail::chunked_array_base>(std::move(dtype), std::move(array));
+    return std::make_pair<data_type, detail::chunked_array_base>(std::move(dtype),
+                                                                 std::move(array));
 }
 
 } // namespace v1

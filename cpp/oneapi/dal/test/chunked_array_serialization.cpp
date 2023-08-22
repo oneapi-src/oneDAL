@@ -56,9 +56,11 @@ public:
             const auto deserialized_flatten = deserialized.flatten();
 
             const auto original_host = la::matrix<T>::wrap(original_flatten) //
-                                                    .to_host().get_array();
-            const auto deserialized_host = la::matrix<T>::wrap(deserialized_flatten)//
-                                                    .to_host().get_array();
+                                           .to_host()
+                                           .get_array();
+            const auto deserialized_host = la::matrix<T>::wrap(deserialized_flatten) //
+                                               .to_host()
+                                               .get_array();
 
             for (std::int64_t i = 0; i < original.get_count(); ++i) {
                 REQUIRE(deserialized_host[i] == original_host[i]);

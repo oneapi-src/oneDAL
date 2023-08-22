@@ -31,10 +31,12 @@ inline dal::array<data_type> find_array_dtypes() {
 
     std::int64_t feature = 0l;
 
-    ([&]() {
-        using type_t = std::decay_t<Types>;
-        dt_ptr[feature++] = make_data_type<type_t>();
-    }(), ...);
+    (
+        [&]() {
+            using type_t = std::decay_t<Types>;
+            dt_ptr[feature++] = make_data_type<type_t>();
+        }(),
+        ...);
 
     ONEDAL_ASSERT(feature == count);
 
@@ -50,15 +52,17 @@ inline dal::array<feature_type> find_array_ftypes() {
     auto* const ft_ptr = ftypes.get_mutable_data();
 
     const auto make_feature_type = [](const auto& type) {
-        return std::is_integral_v<std::decay_t<decltype(type)>>
-                    ? feature_type::ordinal : feature_type::ratio;
+        return std::is_integral_v<std::decay_t<decltype(type)>> ? feature_type::ordinal
+                                                                : feature_type::ratio;
     };
 
     std::int64_t feature = 0l;
 
-    ([&]() {
-        ft_ptr[feature++] = make_feature_type(Types{});
-    }(), ...);
+    (
+        [&]() {
+            ft_ptr[feature++] = make_feature_type(Types{});
+        }(),
+        ...);
 
     ONEDAL_ASSERT(feature == count);
 
@@ -73,8 +77,7 @@ inline table_metadata make_default_metadata() {
 }
 
 template <typename... Types>
-inline table_metadata make_default_metadata_from_arrays_impl(
-                            const std::tuple<Types...>* const) {
+inline table_metadata make_default_metadata_from_arrays_impl(const std::tuple<Types...>* const) {
     return make_default_metadata<Types...>();
 }
 
@@ -102,8 +105,7 @@ using array_type_t = std::decay_t<typename array_type_map<Raw>::type>;
 template <typename... Arrays>
 inline table_metadata make_default_metadata_from_arrays() {
     using type_seq_t = std::tuple<array_type_t<Arrays>...>;
-    return make_default_metadata_from_arrays_impl(
-        reinterpret_cast<const type_seq_t*>(0ul));
+    return make_default_metadata_from_arrays_impl(reinterpret_cast<const type_seq_t*>(0ul));
 }
 
 } // namespace v1

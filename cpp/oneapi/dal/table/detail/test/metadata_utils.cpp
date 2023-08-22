@@ -24,7 +24,7 @@ namespace oneapi::dal::detail {
 void check_dtype_correctness(const data_type* dtypes, const table_metadata& meta) {
     const auto column_count = meta.get_feature_count();
 
-    for(std::int64_t c = 0l; c < column_count; ++c) {
+    for (std::int64_t c = 0l; c < column_count; ++c) {
         REQUIRE(dtypes[c] == meta.get_data_type(c));
     }
 }
@@ -32,15 +32,23 @@ void check_dtype_correctness(const data_type* dtypes, const table_metadata& meta
 void check_ftype_correctness(const feature_type* ftypes, const table_metadata& meta) {
     const auto column_count = meta.get_feature_count();
 
-    for(std::int64_t c = 0l; c < column_count; ++c) {
+    for (std::int64_t c = 0l; c < column_count; ++c) {
         REQUIRE(ftypes[c] == meta.get_feature_type(c));
     }
 }
 
 constexpr data_type expected_dtypes[] = { //
-    data_type::int32, data_type::int64, data_type::float32, data_type::float64 };
+    data_type::int32,
+    data_type::int64,
+    data_type::float32,
+    data_type::float64
+};
 constexpr feature_type expected_ftypes[] = { //
-    feature_type::ordinal, feature_type::ordinal, feature_type::ratio, feature_type::ratio };
+    feature_type::ordinal,
+    feature_type::ordinal,
+    feature_type::ratio,
+    feature_type::ratio
+};
 
 TEST("can get correcty metadata from raw types") {
     const auto meta = make_default_metadata<std::int32_t, std::int64_t, float, double>();
@@ -50,9 +58,10 @@ TEST("can get correcty metadata from raw types") {
 }
 
 TEST("can get correcty metadata from array types") {
-    const auto meta = make_default_metadata_from_arrays<
-        dal::array<std::int32_t>, dal::array<std::int64_t>,
-        dal::array<float>, dal::array<double>>();
+    const auto meta = make_default_metadata_from_arrays<dal::array<std::int32_t>,
+                                                        dal::array<std::int64_t>,
+                                                        dal::array<float>,
+                                                        dal::array<double>>();
 
     check_dtype_correctness(expected_dtypes, meta);
     check_ftype_correctness(expected_ftypes, meta);

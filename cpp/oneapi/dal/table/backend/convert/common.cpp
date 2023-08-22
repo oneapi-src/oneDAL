@@ -37,7 +37,7 @@ struct pair_compare {
     pair_compare(Iter1 it1, Iter2 it2) : iter1{ it1 }, iter2{ it2 } {}
 
     template <typename Index>
-    bool operator() (Index l_idx, Index r_idx) const {
+    bool operator()(Index l_idx, Index r_idx) const {
         const val1_t l1 = *std::next(iter1, l_idx);
         const val2_t l2 = *std::next(iter2, l_idx);
         const val1_t r1 = *std::next(iter1, r_idx);
@@ -56,7 +56,8 @@ inline auto make_pair_compare(Iter1 iter1, Iter2 iter2) {
 }
 
 std::int64_t count_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
-                                        const data_type* inp, const data_type* out) {
+                                        const data_type* inp,
+                                        const data_type* out) {
     const auto compare = make_pair_compare(inp, out);
 
     std::int64_t result = 1l;
@@ -73,7 +74,8 @@ std::int64_t count_unique_chunk_offsets(const dal::array<std::int64_t>& indices,
 }
 
 dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
-                                                   const data_type* inp, const data_type* out) {
+                                                   const data_type* inp,
+                                                   const data_type* out) {
     const auto result_count = count_unique_chunk_offsets(indices, inp, out);
     auto result = dal::array<std::int64_t>::empty(result_count);
     const auto compare = make_pair_compare(inp, out);
@@ -99,7 +101,9 @@ dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t
     return result;
 }
 
-dal::array<std::int64_t> find_sets_of_unique_pairs(const data_type* inp, const data_type* out, std::int64_t count) {
+dal::array<std::int64_t> find_sets_of_unique_pairs(const data_type* inp,
+                                                   const data_type* out,
+                                                   std::int64_t count) {
     const auto compare = make_pair_compare(inp, out);
     auto indices = dal::array<std::int64_t>::empty(count);
     std::iota(backend::begin(indices), backend::end(indices), 0l);
@@ -108,7 +112,8 @@ dal::array<std::int64_t> find_sets_of_unique_pairs(const data_type* inp, const d
 }
 
 dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
-                                                    const dal::array<data_type>& inp, const dal::array<data_type>& out) {
+                                                   const dal::array<data_type>& inp,
+                                                   const dal::array<data_type>& out) {
     const auto* const inp_ptr = inp.get_data();
     const auto* const out_ptr = out.get_data();
     ONEDAL_ASSERT(indices.get_count() == inp.get_count());
@@ -116,7 +121,8 @@ dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t
     return find_unique_chunk_offsets(indices, inp_ptr, out_ptr);
 }
 
-dal::array<std::int64_t> find_sets_of_unique_pairs(const dal::array<data_type>& inp, const dal::array<data_type>& out) {
+dal::array<std::int64_t> find_sets_of_unique_pairs(const dal::array<data_type>& inp,
+                                                   const dal::array<data_type>& out) {
     const auto count = inp.get_count();
     ONEDAL_ASSERT(count == out.get_count());
     const auto* const inp_ptr = inp.get_data();
@@ -125,18 +131,22 @@ dal::array<std::int64_t> find_sets_of_unique_pairs(const dal::array<data_type>& 
 }
 
 bool is_known_data_type(data_type dtype) noexcept {
-    const auto op = [](auto type) { return true; };
-    const auto unknown = [](data_type dt) { return false; };
+    const auto op = [](auto type) {
+        return true;
+    };
+    const auto unknown = [](data_type dt) {
+        return false;
+    };
     return backend::dispatch_by_data_type(dtype, op, unknown);
 }
 
 dal::array<std::int64_t> compute_lower_bounds(const shape_t& input_shape,
-                            const dal::array<data_type>& input_types) {
+                                              const dal::array<data_type>& input_types) {
     return compute_lower_bounds(input_shape, input_types.get_data());
 }
 
 dal::array<std::int64_t> compute_lower_bounds(const shape_t& input_shape,
-                                         const data_type* input_types) {
+                                              const data_type* input_types) {
     ONEDAL_ASSERT(input_types != nullptr);
     const auto [row_count, col_count] = input_shape;
     ONEDAL_ASSERT((0l < row_count) && (0l < col_count));

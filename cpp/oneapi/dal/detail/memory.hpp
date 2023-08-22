@@ -45,7 +45,7 @@ struct policy_allocator<data_parallel_policy, T> {
 };
 #endif // ONEDAL_DATA_PARALLEL
 
-template<typename Policy, typename T = byte_t>
+template <typename Policy, typename T = byte_t>
 using policy_allocator_t = typename policy_allocator<Policy, T>::type;
 
 template <typename Policy, typename T = byte_t>

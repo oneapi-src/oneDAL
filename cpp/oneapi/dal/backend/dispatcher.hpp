@@ -327,7 +327,7 @@ struct type_holder {
     template <typename Tail>
     using add_tail = type_holder<Result, Types..., Tail>;
 
-    template<typename Op>
+    template <typename Op>
     constexpr static inline Result evaluate(Op&& op) {
         return op(Types{}...);
     }
@@ -345,7 +345,8 @@ inline constexpr auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&..
         using type_t = std::decay_t<decltype(arg)>;
         using holder_t = typename TypeHolder::template add_tail<type_t>;
         return multi_dispatch_by_data_type<holder_t>( //
-            std::forward<Op>(op), std::forward<Tail>(tail)...);
+            std::forward<Op>(op),
+            std::forward<Tail>(tail)...);
     };
     return dispatch_by_data_type(head, functor);
 }
@@ -373,14 +374,16 @@ template <typename ResultType, typename Op, typename... Types>
 inline constexpr ResultType multi_dispatch_by_data_type(Op&& op, Types&&... types) {
     using holder_t = impl::type_holder<ResultType>;
     return impl::multi_dispatch_by_data_type<holder_t, Op>( //
-        std::forward<Op>(op), std::forward<Types>(types)...);
+        std::forward<Op>(op),
+        std::forward<Types>(types)...);
 }
 
 template <typename Op, typename... Types>
 inline constexpr auto multi_dispatch_by_data_type(Op&& op, Types&&... types) {
     using result_t = impl::invoke_result_multiple_t<Op, sizeof...(Types), float>;
     return multi_dispatch_by_data_type<result_t, Op>( //
-        std::forward<Op>(op), std::forward<Types>(types)...);
+        std::forward<Op>(op),
+        std::forward<Types>(types)...);
 }
 
 } // namespace oneapi::dal::backend

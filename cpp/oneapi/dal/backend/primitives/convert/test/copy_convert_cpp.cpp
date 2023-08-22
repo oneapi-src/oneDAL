@@ -49,8 +49,13 @@ public:
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        copy_convert(policy, types, this->inp, { row_count, this->col_count },
-                             result_type, result, { this->col_count, 1l});
+        copy_convert(policy,
+                     types,
+                     this->inp,
+                     { row_count, this->col_count },
+                     result_type,
+                     result,
+                     { this->col_count, 1l });
 
         auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, res_count);
@@ -65,8 +70,13 @@ public:
         auto result = dal::array<dal::byte_t>::empty(res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        copy_convert(policy, types, this->inp, { row_count, this->col_count },
-                                result_type, result, { 1l, row_count });
+        copy_convert(policy,
+                     types,
+                     this->inp,
+                     { row_count, this->col_count },
+                     result_type,
+                     result,
+                     { 1l, row_count });
 
         const auto* res_ptr = reinterpret_cast<const result_t*>(result.get_data());
         dal::array<result_t> temp(result, res_ptr, res_count);

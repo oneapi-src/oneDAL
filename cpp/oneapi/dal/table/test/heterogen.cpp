@@ -48,8 +48,11 @@ TEST("Can create table from chunked arrays") {
     ONEDAL_ASSERT(chunked2.get_count() == 5l);
 
     auto table = heterogen_table::wrap( //
-        chunked1, chunked2, chunked1, chunked2);
-//
+        chunked1,
+        chunked2,
+        chunked1,
+        chunked2);
+    //
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 4l);
@@ -83,8 +86,10 @@ TEST("Can create table from different chunked arrays") {
     ONEDAL_ASSERT(chunked2.get_count() == 5l);
 
     auto table = heterogen_table::wrap( //
-            chunked1, chunked2, chunked1);
-//
+        chunked1,
+        chunked2,
+        chunked1);
+    //
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 3l);
@@ -120,9 +125,8 @@ TEST("Can create table manually") {
     constexpr data_type dtypes[] = { data_type::float32, data_type::int8 };
     constexpr feature_type ftypes[] = { feature_type::nominal, feature_type::ratio };
 
-    const table_metadata meta{
-        array<data_type>::wrap(dtypes, 2l),
-        array<feature_type>::wrap(ftypes, 2l) };
+    const table_metadata meta{ array<data_type>::wrap(dtypes, 2l),
+                               array<feature_type>::wrap(ftypes, 2l) };
 
     auto table = heterogen_table::empty(meta);
 
@@ -136,7 +140,7 @@ TEST("Can create table manually") {
 }
 
 TEST("Can get row slice on host - 1") {
-    constexpr float src1[] = { 0.f, 2.f, 4.f};
+    constexpr float src1[] = { 0.f, 2.f, 4.f };
     constexpr float src2[] = { 6.f, 8.f, 10.f };
 
     auto arr1 = array<float>::wrap(src1, 3l);
@@ -162,10 +166,11 @@ TEST("Can get row slice on host - 1") {
     ONEDAL_ASSERT(chunked2.get_count() == 6l);
 
     auto table = heterogen_table::wrap( //
-            chunked1, chunked2);
+        chunked1,
+        chunked2);
 
     row_accessor<const float> accessor{ table };
-    auto res = accessor.pull(range{1l, 5l});
+    auto res = accessor.pull(range{ 1l, 5l });
     REQUIRE(res.get_count() == 8l);
 
     for (std::int64_t i = 0l; i < 8l; ++i) {
@@ -196,15 +201,14 @@ TEST("Can get row slice on host - 2") {
     std::iota(column4.begin(), column4.end(), 4l);
     auto arr4 = array<std::int16_t>::wrap(column4.data(), count);
 
-    auto table = heterogen_table::wrap(
-        chunked_array<std::uint64_t>(arr0),
-        chunked_array<float>(arr1),
-        chunked_array<double>(arr2),
-        chunked_array<std::int64_t>(arr3),
-        chunked_array<std::int16_t>(arr4));
+    auto table = heterogen_table::wrap(chunked_array<std::uint64_t>(arr0),
+                                       chunked_array<float>(arr1),
+                                       chunked_array<double>(arr2),
+                                       chunked_array<std::int64_t>(arr3),
+                                       chunked_array<std::int16_t>(arr4));
 
     row_accessor<const float> accessor{ table };
-    auto res = accessor.pull(range{3l, count - 3l});
+    auto res = accessor.pull(range{ 3l, count - 3l });
     const std::int64_t slice_size = 5l * (count - 6l);
     REQUIRE(slice_size == res.get_count());
 

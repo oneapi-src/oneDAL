@@ -29,15 +29,16 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-using convert_types = std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
-                                 std::tuple<std::int32_t, std::tuple<std::int8_t, float, std::uint64_t>>,
-                                 std::tuple<float, std::tuple<std::int16_t, float, float, std::uint8_t>>,
-                                 std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
+using convert_types =
+    std::tuple<std::tuple<float, std::tuple<float, std::uint32_t, std::int64_t>>,
+               std::tuple<std::int32_t, std::tuple<std::int8_t, float, std::uint64_t>>,
+               std::tuple<float, std::tuple<std::int16_t, float, float, std::uint8_t>>,
+               std::tuple<std::int8_t, std::tuple<std::int8_t, float, std::int8_t, float>>>;
 
 template <typename... Types>
 constexpr auto make_types_array(const std::tuple<Types...>*) {
     constexpr std::size_t count = sizeof...(Types);
-    return std::array<data_type, count>{  detail::make_data_type<Types>()... };
+    return std::array<data_type, count>{ detail::make_data_type<Types>()... };
 }
 
 template <typename... Types>
@@ -96,11 +97,10 @@ public:
             auto* inp_raw = inp.get_mutable_data() + inp_offset;
             auto* gtr_ptr = gtr.get_mutable_data() + gtr_offset;
 
-            backend::dispatch_by_data_type(dtype,
-            [&](auto type) -> void {
+            backend::dispatch_by_data_type(dtype, [&](auto type) -> void {
                 using type_t = std::remove_cv_t<decltype(type)>;
                 auto* inp_ptr = reinterpret_cast<type_t*>(inp_raw);
-                for(std::int64_t col = 0l; col < col_count; ++col) {
+                for (std::int64_t col = 0l; col < col_count; ++col) {
                     const int value = dist(generator);
                     inp_ptr[col] = static_cast<type_t>(value);
                     gtr_ptr[col] = static_cast<result_t>(inp_ptr[col]);

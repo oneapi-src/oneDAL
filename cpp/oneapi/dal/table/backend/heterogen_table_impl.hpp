@@ -45,7 +45,8 @@ public:
 
     std::int64_t get_row_count() const override {
         ONEDAL_ASSERT(validate());
-        if (get_column_count() == 0l) return 0l;
+        if (get_column_count() == 0l)
+            return 0l;
         auto dt = get_metadata().get_data_type(0l);
         return detail::get_element_count(dt, data_[0l]);
     }
@@ -104,13 +105,10 @@ public:
 
         const auto dt = get_metadata().get_data_type(0l);
         const auto row_count = detail::get_element_count(dt, data_[0l]);
-        std::cout << 0 << ' '  << ' ' << row_count << std::endl;
 
         for (std::int64_t c = 1l; c < col_count; ++c) {
             const auto dt_col = get_metadata().get_data_type(c);
             const auto count = detail::get_element_count(dt_col, data_[c]);
-
-            std::cout << c << ' ' << ' ' << count << std::endl;
 
             if (count != row_count) {
                 return false;
@@ -136,7 +134,8 @@ public:
 
     template <typename T>
     void pull_rows_template(const detail::default_host_policy& policy,
-                            array<T>& block, const range& rows) const {
+                            array<T>& block,
+                            const range& rows) const {
         heterogen_pull_rows(policy, meta_, data_, block, rows, alloc_kind::host);
     }
 
@@ -144,27 +143,21 @@ public:
     void pull_column_template(const detail::default_host_policy& policy,
                               array<T>& block,
                               std::int64_t column_index,
-                              const range& rows) const {
-
-    }
+                              const range& rows) const {}
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void pull_rows_template(const detail::data_parallel_policy& policy,
                             array<T>& block,
                             const range& rows,
-                            sycl::usm::alloc alloc) const {
-
-    }
+                            sycl::usm::alloc alloc) const {}
 
     template <typename T>
     void pull_column_template(const detail::data_parallel_policy& policy,
                               array<T>& block,
                               std::int64_t column_index,
                               const range& rows,
-                              sycl::usm::alloc alloc) const {
-
-    }
+                              sycl::usm::alloc alloc) const {}
 #endif
 
 private:

@@ -42,8 +42,7 @@ public:
     // after each individual access
     class mutable_accessor {
     public:
-        mutable_accessor(chunked_array_impl& ref)
-            : parent{ ref } {}
+        mutable_accessor(chunked_array_impl& ref) : parent{ ref } {}
 
         auto& get_chunks() {
             return parent.chunks;
@@ -56,14 +55,14 @@ public:
         ~mutable_accessor() {
             parent.update_offsets();
         }
+
     private:
         chunked_array_impl& parent;
     };
 
     class immutable_accessor {
     public:
-        immutable_accessor(const chunked_array_impl& ref)
-            : parent{ ref } {}
+        immutable_accessor(const chunked_array_impl& ref) : parent{ ref } {}
 
         const auto& get_chunks() const {
             return parent.chunks;
@@ -72,11 +71,14 @@ public:
         const auto& get_offsets() const {
             return parent.offsets;
         }
+
     private:
         const chunked_array_impl& parent;
     };
 
-    explicit chunked_array_impl() { update_offsets(); }
+    explicit chunked_array_impl() {
+        update_offsets();
+    }
 
     explicit chunked_array_impl(std::int64_t chunk_count) {
         auto raw = detail::integral_cast<std::size_t>(chunk_count);
@@ -122,8 +124,8 @@ private:
 };
 
 template <typename Policy, typename Alloc>
-auto chunked_array_base::flatten_impl(
-        const Policy& dst_policy, const Alloc& alloc) const -> array_impl_t {
+auto chunked_array_base::flatten_impl(const Policy& dst_policy, const Alloc& alloc) const
+    -> array_impl_t {
     const auto full_size = this->get_size_in_bytes();
 
     if (full_size == std::int64_t{ 0l }) {
@@ -131,7 +133,9 @@ auto chunked_array_base::flatten_impl(
     }
     else {
         auto result = array_impl_t::empty_unique( //
-                        dst_policy, full_size, alloc);
+            dst_policy,
+            full_size,
+            alloc);
         copy(*result, *this);
         return *result;
     }
@@ -139,8 +143,8 @@ auto chunked_array_base::flatten_impl(
 
 #ifdef ONEDAL_DATA_PARALLEL
 auto chunked_array_base::flatten_impl(const data_parallel_policy& policy,
-                                 const data_parallel_allocator<byte_t>& alloc,
-                                 const std::vector<sycl::event>& deps) const -> array_impl_t {
+                                      const data_parallel_allocator<byte_t>& alloc,
+                                      const std::vector<sycl::event>& deps) const -> array_impl_t {
     sycl::event::wait_and_throw(deps);
     return flatten_impl(policy, alloc);
 }
@@ -310,7 +314,7 @@ void chunked_array_base::set_chunk_impl(std::int64_t i, array_impl_t array) {
 
 void chunked_array_base::append_impl(array_impl_t arr) const {
     auto accessor = impl_->mutable_access();
-    accessor.get_chunks().emplace_back( std::move(arr) );
+    accessor.get_chunks().emplace_back(std::move(arr));
 }
 
 void chunked_array_base::append_impl(chunked_array_base arr) const {
@@ -329,10 +333,9 @@ auto chunked_array_base::make_array_impl(std::int64_t chunk_count) -> impl_ptr_t
     return std::make_shared<impl_t>(chunk_count);
 }
 
-
 template <typename Policy, typename Alloc>
-array_impl<const byte_t*> chunked_array_base::get_data_impl(
-        const Policy& dst_policy, const Alloc& alloc) const {
+array_impl<const byte_t*> chunked_array_base::get_data_impl(const Policy& dst_policy,
+                                                            const Alloc& alloc) const {
     using def_policy_t = detail::default_host_policy;
     using def_alloc_t = policy_allocator_t<def_policy_t, const byte_t*>;
 
@@ -342,7 +345,9 @@ array_impl<const byte_t*> chunked_array_base::get_data_impl(
     const auto chunk_count = this->get_chunk_count();
     if constexpr (std::is_same_v<Policy, def_policy_t>) {
         auto result = array_impl<const byte_t*>::empty_unique( //
-                            tmp_policy, chunk_count, tmp_alloc);
+            tmp_policy,
+            chunk_count,
+            tmp_alloc);
         auto* const res_ptr = result->get_mutable_data();
 
         for (std::int64_t c = 0l; c < chunk_count; ++c) {
@@ -359,8 +364,8 @@ array_impl<const byte_t*> chunked_array_base::get_data_impl(
 }
 
 template <typename Policy, typename Alloc>
-array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
-        const Policy& dst_policy, const Alloc& alloc) const {
+array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(const Policy& dst_policy,
+                                                              const Alloc& alloc) const {
     using def_policy_t = detail::default_host_policy;
     using def_alloc_t = policy_allocator_t<def_policy_t, byte_t*>;
 
@@ -370,7 +375,9 @@ array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
     const auto chunk_count = this->get_chunk_count();
     if constexpr (std::is_same_v<Policy, def_policy_t>) {
         auto result = array_impl<byte_t*>::empty_unique( //
-                            tmp_policy, chunk_count, tmp_alloc);
+            tmp_policy,
+            chunk_count,
+            tmp_alloc);
         auto* const res_ptr = result->get_mutable_data();
 
         for (std::int64_t c = 0l; c < chunk_count; ++c) {
@@ -386,8 +393,7 @@ array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
     }
 }
 
-chunked_array_base chunked_array_base::get_slice_impl(
-                std::int64_t first, std::int64_t last) const {
+chunked_array_base chunked_array_base::get_slice_impl(std::int64_t first, std::int64_t last) const {
     if (first == last) {
         return chunked_array_base{};
     }
@@ -421,7 +427,7 @@ chunked_array_base chunked_array_base::get_slice_impl(
         if ((first <= first_in_chunk) && (last_in_chunk <= last)) {
             array_impl_t temp = chunk;
             offset += chunk.get_size_in_bytes();
-            result.set_chunk_impl(rel_idx, std::move(temp) );
+            result.set_chunk_impl(rel_idx, std::move(temp));
         }
         else {
             const auto prefix_offset = first - first_in_chunk;
@@ -459,10 +465,11 @@ void chunked_array_base::deserialize_impl(data_type dtype, detail::input_archive
         auto accessor = impl_->mutable_access();
 
         accessor.get_chunks().emplace_back(policy, //
-            data, size_in_bytes, std::move(deleter));
+                                           data,
+                                           size_in_bytes,
+                                           std::move(deleter));
     }
 }
-
 
 void chunked_array_base::serialize_impl(detail::output_archive& archive) const {
     const detail::default_host_policy policy{};
@@ -479,19 +486,24 @@ void chunked_array_base::serialize_impl(detail::output_archive& archive) const {
 }
 
 template array_impl<byte_t> chunked_array_base::flatten_impl(const default_host_policy&,
-                                                        const host_allocator<byte_t>&) const;
-template array_impl<const byte_t*> chunked_array_base::get_data_impl(const default_host_policy&,
-                                                         const host_allocator<const byte_t*>&) const;
-template array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(const default_host_policy&,
-                                                         const host_allocator<byte_t*>&) const;
+                                                             const host_allocator<byte_t>&) const;
+template array_impl<const byte_t*> chunked_array_base::get_data_impl(
+    const default_host_policy&,
+    const host_allocator<const byte_t*>&) const;
+template array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
+    const default_host_policy&,
+    const host_allocator<byte_t*>&) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-template array_impl<byte_t> chunked_array_base::flatten_impl(const data_parallel_policy&,
-                                                        const data_parallel_allocator<byte_t>&) const;
-template array_impl<const byte_t*> chunked_array_base::get_data_impl(const data_parallel_policy&,
-                                                         const data_parallel_allocator<const byte_t*>&) const;
-template array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(const data_parallel_policy&,
-                                                         const data_parallel_allocator<byte_t*>&) const;
+template array_impl<byte_t> chunked_array_base::flatten_impl(
+    const data_parallel_policy&,
+    const data_parallel_allocator<byte_t>&) const;
+template array_impl<const byte_t*> chunked_array_base::get_data_impl(
+    const data_parallel_policy&,
+    const data_parallel_allocator<const byte_t*>&) const;
+template array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
+    const data_parallel_policy&,
+    const data_parallel_allocator<byte_t*>&) const;
 #endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::detail::v2

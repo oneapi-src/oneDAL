@@ -53,13 +53,20 @@ public:
         auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        auto event = copy_convert(dev_policy, types, this->dev,
-            { row_count, this->col_count }, result_type, result, { this->col_count, 1l});
+        auto event = copy_convert(dev_policy,
+                                  types,
+                                  this->dev,
+                                  { row_count, this->col_count },
+                                  result_type,
+                                  result,
+                                  { this->col_count, 1l });
 
-        sycl::event::wait_and_throw({event});
+        sycl::event::wait_and_throw({ event });
 
-        const dal::array<result_t> temp = dal::array<result_t>::wrap(queue,
-            reinterpret_cast<const result_t*>(result.get_data()), res_count);
+        const dal::array<result_t> temp =
+            dal::array<result_t>::wrap(queue,
+                                       reinterpret_cast<const result_t*>(result.get_data()),
+                                       res_count);
         dal::array<result_t> res_host = detail::copy(host_policy, temp);
         this->compare_with_groundtruth_rm(res_host);
     }
@@ -74,13 +81,20 @@ public:
         auto result = dal::array<dal::byte_t>::empty(queue, res_size);
         dal::array<data_type> types = this->get_types_array();
 
-        auto event = copy_convert(dev_policy, types, this->dev,
-            { row_count, this->col_count }, result_type, result, { 1l, row_count });
+        auto event = copy_convert(dev_policy,
+                                  types,
+                                  this->dev,
+                                  { row_count, this->col_count },
+                                  result_type,
+                                  result,
+                                  { 1l, row_count });
 
-        sycl::event::wait_and_throw({event});
+        sycl::event::wait_and_throw({ event });
 
-        const dal::array<result_t> temp = dal::array<result_t>::wrap(queue,
-            reinterpret_cast<const result_t*>(result.get_data()), res_count);
+        const dal::array<result_t> temp =
+            dal::array<result_t>::wrap(queue,
+                                       reinterpret_cast<const result_t*>(result.get_data()),
+                                       res_count);
         dal::array<result_t> res_host = detail::copy(host_policy, temp);
         this->compare_with_groundtruth_cm(res_host);
     }

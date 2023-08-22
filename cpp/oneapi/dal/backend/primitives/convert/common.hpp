@@ -29,7 +29,8 @@ bool is_known_data_type(data_type dtype) noexcept;
 
 template <typename Index, typename Type>
 inline dal::array<Type> extract_by_indices(const Index* indices,
-                        const Type* values, std::int64_t count) {
+                                           const Type* values,
+                                           std::int64_t count) {
     auto result = dal::array<Type>::empty(count);
     auto* const output = result.get_mutable_data();
 
@@ -50,22 +51,27 @@ inline dal::array<Type> extract_by_indices(const dal::array<Index>& indices,
 }
 
 dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
-                            const dal::array<data_type>& input_types);
+                                         const dal::array<data_type>& input_types);
 
-dal::array<std::int64_t> compute_offsets(const shape_t& input_shape,
-                                        const data_type* input_types);
+dal::array<std::int64_t> compute_offsets(const shape_t& input_shape, const data_type* input_types);
 
 std::int64_t count_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
-                                        const data_type* inp, const data_type* out);
+                                        const data_type* inp,
+                                        const data_type* out);
 
 dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
-                                                   const data_type* inp, const data_type* out);
+                                                   const data_type* inp,
+                                                   const data_type* out);
 
-dal::array<std::int64_t> find_sets_of_unique_pairs(const data_type* inp, const data_type* out, std::int64_t count);
+dal::array<std::int64_t> find_sets_of_unique_pairs(const data_type* inp,
+                                                   const data_type* out,
+                                                   std::int64_t count);
 
 dal::array<std::int64_t> find_unique_chunk_offsets(const dal::array<std::int64_t>& indices, //
-                                                   const dal::array<data_type>& inp, const dal::array<data_type>& out);
+                                                   const dal::array<data_type>& inp,
+                                                   const dal::array<data_type>& out);
 
-dal::array<std::int64_t> find_sets_of_unique_pairs(const dal::array<data_type>& inp, const dal::array<data_type>& out);
+dal::array<std::int64_t> find_sets_of_unique_pairs(const dal::array<data_type>& inp,
+                                                   const dal::array<data_type>& out);
 
 } // namespace oneapi::dal::backend::primitives

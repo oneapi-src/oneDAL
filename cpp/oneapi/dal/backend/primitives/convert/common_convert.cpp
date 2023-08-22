@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <bool mut, typename Pointer>
 dal::array<Pointer> compute_pointers(const dal::array<dal::byte_t>& data,
-                      const dal::array<std::int64_t>& offsets) {
+                                     const dal::array<std::int64_t>& offsets) {
     const std::int64_t count = offsets.get_count();
     const std::int64_t* const raw_offsets = offsets.get_data();
     using ptr_t = std::conditional_t<mut, dal::byte_t*, const dal::byte_t*>;
@@ -52,10 +52,9 @@ dal::array<Pointer> compute_pointers(const dal::array<dal::byte_t>& data,
     return pointers;
 }
 
-dal::array<std::int64_t> compute_output_offsets(
-                            data_type output_type,
-                            const shape_t& input_shape,
-                            const shape_t& output_strides) {
+dal::array<std::int64_t> compute_output_offsets(data_type output_type,
+                                                const shape_t& input_shape,
+                                                const shape_t& output_strides) {
     const auto [row_count, col_count] = input_shape;
     const auto [row_stride, col_stride] = output_strides;
     const auto type_size = detail::get_data_type_size(output_type);
@@ -73,8 +72,8 @@ dal::array<std::int64_t> compute_output_offsets(
     return offsets;
 }
 
-dal::array<std::int64_t> compute_input_offsets(
-        const shape_t& input_shape, const data_type* input_types) {
+dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
+                                               const data_type* input_types) {
     ONEDAL_ASSERT(input_types != nullptr);
     const auto [row_count, col_count] = input_shape;
     ONEDAL_ASSERT((0l < row_count) && (0l < col_count));
@@ -96,15 +95,15 @@ dal::array<std::int64_t> compute_input_offsets(
     return offsets;
 }
 
-dal::array<std::int64_t> compute_input_offsets(
-        const shape_t& input_shape, const dal::array<data_type>& input_types) {
+dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
+                                               const dal::array<data_type>& input_types) {
     return compute_input_offsets(input_shape, input_types.get_data());
 }
 
 template dal::array<dal::byte_t*> compute_pointers<true>(const dal::array<dal::byte_t>&,
-                                                       const dal::array<std::int64_t>&);
+                                                         const dal::array<std::int64_t>&);
 
-template dal::array<const dal::byte_t*> compute_pointers<false>(
-    const dal::array<dal::byte_t>&, const dal::array<std::int64_t>&);
+template dal::array<const dal::byte_t*> compute_pointers<false>(const dal::array<dal::byte_t>&,
+                                                                const dal::array<std::int64_t>&);
 
 } // namespace oneapi::dal::backend::primitives

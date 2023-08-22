@@ -67,8 +67,7 @@ inline std::int64_t get_row_count(std::int64_t column_count, const Meta& meta, c
     return result;
 }
 
-std::int64_t heterogen_column_count(const table_metadata& meta,
-                                    const heterogen_data& data) {
+std::int64_t heterogen_column_count(const table_metadata& meta, const heterogen_data& data) {
     return get_column_count(meta, data);
 }
 
@@ -79,14 +78,13 @@ std::int64_t heterogen_row_count(std::int64_t column_count,
 }
 
 std::pair<std::int64_t, std::int64_t> heterogen_shape(const table_metadata& meta,
-                                      const heterogen_data& data) {
+                                                      const heterogen_data& data) {
     const auto column_count = heterogen_column_count(meta, data);
     const auto row_count = heterogen_row_count(column_count, meta, data);
     return std::pair<std::int64_t, std::int64_t>{ row_count, column_count };
 }
 
-std::int64_t heterogen_row_count(const table_metadata& meta,
-                                 const heterogen_data& data) {
+std::int64_t heterogen_row_count(const table_metadata& meta, const heterogen_data& data) {
     return heterogen_shape(meta, data).first;
 }
 
@@ -149,7 +147,6 @@ using sliced_buffer = array<array<dal::byte_t>>;
 sliced_buffer slice_buffer(const shape_t& buff_shape,
                            const array<dal::byte_t>& buff,
                            const array<data_type>& data_types) {
-
     const auto [row_count, col_count] = buff_shape;
 
     const auto* const data_types_ptr = data_types.get_data();
@@ -234,7 +231,8 @@ struct heterogen_dispatcher<detail::host_policy> {
         auto buff_strs = array<std::int64_t>::full(col_count, std::int64_t(1l));
         const shape_t transposed_strides = std::make_pair(1l, col_count);
         auto outp_offs = compute_output_offsets(type, //
-                                    transposed_shape, transposed_strides);
+                                                transposed_shape,
+                                                transposed_strides);
 
         const auto block_count = (copy_count / block) + bool(copy_count % block);
 
@@ -247,7 +245,7 @@ struct heterogen_dispatcher<detail::host_policy> {
             ONEDAL_ASSERT(len <= block);
             ONEDAL_ASSERT(0l < len);
 
-            auto slice = heterogen_row_slice({f, l}, meta, data);
+            auto slice = heterogen_row_slice({ f, l }, meta, data);
             copy_buffer(policy, len, slice, buff_cols, data_types);
 
             auto out_first = detail::check_mul_overflow(b, col_count);
@@ -256,12 +254,19 @@ struct heterogen_dispatcher<detail::host_policy> {
 
             auto curr_shape = std::make_pair(len, col_count);
             auto out_slice = result.get_slice(out_first, out_last);
-            auto raw_slice = array<dal::byte_t>(out_slice, //
-                reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
-                detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
+            auto raw_slice =
+                array<dal::byte_t>(out_slice, //
+                                   reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
+                                   detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
             auto outp_ptrs = compute_pointers</*mut=*/true>(raw_slice, outp_offs);
-            copy_convert(policy, buff_ptrs, data_types, buff_strs, outp_ptrs,
-                                    outp_types, outp_strs, transpose(curr_shape));
+            copy_convert(policy,
+                         buff_ptrs,
+                         data_types,
+                         buff_strs,
+                         outp_ptrs,
+                         outp_types,
+                         outp_strs,
+                         transpose(curr_shape));
         }
 
         block_data.reset(result, result.get_mutable_data(), result.get_count());
@@ -280,16 +285,19 @@ struct heterogen_dispatcher<detail::default_host_policy> {
                      const range& rows_range,
                      alloc_kind alloc_kind) {
         const auto policy = detail::host_policy::get_default();
-        heterogen_dispatcher<detail::host_policy>::pull<Type>(
-            policy, meta, data, block_data, rows_range, alloc_kind);
+        heterogen_dispatcher<detail::host_policy>::pull<Type>(policy,
+                                                              meta,
+                                                              data,
+                                                              block_data,
+                                                              rows_range,
+                                                              alloc_kind);
     }
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Queue, typename Meta, typename Data>
-std::int64_t propose_row_block_size(const Queue& queue,
-                    const Meta& meta, const Data& data) {
+std::int64_t propose_row_block_size(const Queue& queue, const Meta& meta, const Data& data) {
     return propose_row_block_size(meta, data);
 }
 
@@ -339,7 +347,8 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
         auto buff_strs = array<std::int64_t>::full(col_count, std::int64_t(1l));
         const shape_t transposed_strides = std::make_pair(1l, col_count);
         auto outp_offs = compute_output_offsets(type, //
-                                    transposed_shape, transposed_strides);
+                                                transposed_shape,
+                                                transposed_strides);
 
         const auto block_count = (copy_count / block) + bool(copy_count % block);
 
@@ -352,7 +361,7 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
             ONEDAL_ASSERT(len <= block);
             ONEDAL_ASSERT(0l < len);
 
-            auto slice = heterogen_row_slice({f, l}, meta, data);
+            auto slice = heterogen_row_slice({ f, l }, meta, data);
             copy_buffer(policy, len, slice, buff_cols, data_types);
 
             auto out_first = detail::check_mul_overflow(b, col_count);
@@ -361,12 +370,19 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
 
             auto curr_shape = std::make_pair(len, col_count);
             auto out_slice = result.get_slice(out_first, out_last);
-            auto raw_slice = array<dal::byte_t>(out_slice, //
-                reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
-                detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
+            auto raw_slice =
+                array<dal::byte_t>(out_slice, //
+                                   reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
+                                   detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
             auto outp_ptrs = compute_pointers</*mut=*/true>(raw_slice, outp_offs);
-            copy_convert(policy, buff_ptrs, data_types, buff_strs, outp_ptrs,
-                                    outp_types, outp_strs, transpose(curr_shape));
+            copy_convert(policy,
+                         buff_ptrs,
+                         data_types,
+                         buff_strs,
+                         outp_ptrs,
+                         outp_types,
+                         outp_strs,
+                         transpose(curr_shape));
         }
 
         block_data.reset(result, result.get_mutable_data(), result.get_count());
@@ -382,16 +398,20 @@ void heterogen_pull_rows(const Policy& policy,
                          array<Type>& block_data,
                          const range& rows_range,
                          alloc_kind requested_alloc_kind) {
-    heterogen_dispatcher<Policy>::template pull<Type>(policy, meta, data,
-        	                block_data, rows_range, requested_alloc_kind);
+    heterogen_dispatcher<Policy>::template pull<Type>(policy,
+                                                      meta,
+                                                      data,
+                                                      block_data,
+                                                      rows_range,
+                                                      requested_alloc_kind);
 }
 
-#define INSTANTIATE(Policy, Type)                                               \
-    template void heterogen_pull_rows(const Policy&,                            \
-                                      const table_metadata&,                    \
-                                      const heterogen_data&,                    \
-                                      array<Type>&,                             \
-                                      const range&,                             \
+#define INSTANTIATE(Policy, Type)                            \
+    template void heterogen_pull_rows(const Policy&,         \
+                                      const table_metadata&, \
+                                      const heterogen_data&, \
+                                      array<Type>&,          \
+                                      const range&,          \
                                       alloc_kind);
 
 #ifdef ONEDAL_DATA_PARALLEL

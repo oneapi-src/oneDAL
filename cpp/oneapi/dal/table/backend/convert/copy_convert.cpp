@@ -48,8 +48,14 @@ void copy_convert(const detail::host_policy& policy,
     auto output_strides_arr = dal::array<std::int64_t>::full(row_count, col_stride);
     auto input_strides = dal::array<std::int64_t>::full(row_count, std::int64_t{ 1l });
 
-    return copy_convert(policy, input_pointers, input_types, input_strides,
-            output_pointers, output_types, output_strides_arr, input_shape);
+    return copy_convert(policy,
+                        input_pointers,
+                        input_types,
+                        input_strides,
+                        output_pointers,
+                        output_types,
+                        output_strides_arr,
+                        input_shape);
 }
 
 void copy_convert(const detail::host_policy& policy,
@@ -60,7 +66,6 @@ void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& out_types,
                   const dal::array<std::int64_t>& out_strides,
                   const shape_t& shape) {
-
     return copy_convert(policy,
                         inp_pointers.get_data(),
                         inp_types.get_data(),
@@ -83,8 +88,14 @@ void copy_convert(const detail::host_policy& policy,
 
     return dispatch_by_cpu(context, [&](auto type) -> void {
         using cpu_type = std::remove_cv_t<decltype(type)>;
-        return copy_convert<cpu_type>(policy, inp_pointers, inp_types,
-            inp_strides, out_pointers, out_types, out_strides, shape);
+        return copy_convert<cpu_type>(policy,
+                                      inp_pointers,
+                                      inp_types,
+                                      inp_strides,
+                                      out_pointers,
+                                      out_types,
+                                      out_strides,
+                                      shape);
     });
 }
 

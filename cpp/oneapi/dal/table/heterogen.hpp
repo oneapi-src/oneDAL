@@ -58,11 +58,13 @@ public:
 #endif // ONEDAL_ENABLE_ASSERT
 
         std::int64_t column = 0l;
-        ([&]() -> void {
-            //const data_type dt = meta.get_data_type(column);
-            result.set_column(column++, std::forward<Arrays>(arrays));
-            //result.set_column_impl(column++, dt, std::forward<Arrays>(arrays));
-        }(), ...);
+        (
+            [&]() -> void {
+                //const data_type dt = meta.get_data_type(column);
+                result.set_column(column++, std::forward<Arrays>(arrays));
+                //result.set_column_impl(column++, dt, std::forward<Arrays>(arrays));
+            }(),
+            ...);
         ONEDAL_ASSERT(column == count);
 
         return result;
@@ -79,7 +81,7 @@ public:
     heterogen_table& set_column(std::int64_t column, array<T> arr) {
         const auto as_chunked = chunked_array<T>{ std::move(arr) };
         const auto dt = this->get_metadata().get_data_type(column);
-        this->set_column(column, dt, std::move(as_chunked) );
+        this->set_column(column, dt, std::move(as_chunked));
         return *this;
     }
 
@@ -99,7 +101,8 @@ private:
     std::pair<data_type, detail::chunked_array_base> get_column_impl(std::int64_t column) const;
 
     explicit heterogen_table(detail::heterogen_table_iface* impl) : table(impl) {}
-    explicit heterogen_table(const detail::shared<detail::heterogen_table_iface>& impl) : table(impl) {}
+    explicit heterogen_table(const detail::shared<detail::heterogen_table_iface>& impl)
+            : table(impl) {}
 };
 
 } // namespace v1

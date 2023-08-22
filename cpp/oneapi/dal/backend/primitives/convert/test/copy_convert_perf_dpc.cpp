@@ -30,7 +30,7 @@
 #include "oneapi/dal/backend/primitives/convert/test/copy_convert_fixture.hpp"
 
 #ifdef _MSC_VER
-    #define PRETTY_FUNCTION __FUNCSIG__
+#define PRETTY_FUNCTION __FUNCSIG__
 #endif // _MSC_VER
 
 namespace oneapi::dal::backend::primitives::test {
@@ -63,8 +63,14 @@ public:
         dal::array<data_type> types = this->get_types_array();
 
         BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->dev, { row_count, this->col_count },
-                result_type, result, { this->col_count, 1l}).wait_and_throw();
+            copy_convert(policy,
+                         types,
+                         this->dev,
+                         { row_count, this->col_count },
+                         result_type,
+                         result,
+                         { this->col_count, 1l })
+                .wait_and_throw();
         };
     }
 
@@ -78,8 +84,14 @@ public:
         dal::array<data_type> types = this->get_types_array();
 
         BENCHMARK(__PRETTY_FUNCTION__) {
-            copy_convert(policy, types, this->dev, { row_count, this->col_count },
-                result_type, result, { 1l, row_count }).wait_and_throw();
+            copy_convert(policy,
+                         types,
+                         this->dev,
+                         { row_count, this->col_count },
+                         result_type,
+                         result,
+                         { 1l, row_count })
+                .wait_and_throw();
         };
     }
 };

@@ -51,11 +51,9 @@ public:
     std::int64_t get_size_in_bytes() const;
     std::int64_t get_chunk_count() const noexcept;
 
-    chunked_array_base(impl_ptr_t&& impl)
-        : impl_{ std::forward<impl_ptr_t>(impl) } {}
+    chunked_array_base(impl_ptr_t&& impl) : impl_{ std::forward<impl_ptr_t>(impl) } {}
 
-    chunked_array_base(const impl_ptr_t& impl)
-        : impl_{ impl } {}
+    chunked_array_base(const impl_ptr_t& impl) : impl_{ impl } {}
 
     chunked_array_base(chunked_array_base&& other) {
         reset(std::forward<chunked_array_base>(other));
@@ -81,7 +79,11 @@ public:
 
     template <typename... Arrays>
     void append(const Arrays&... arrays) const {
-        ([&, this](){ this->append_impl(arrays); }(), ...);
+        (
+            [&, this]() {
+                this->append_impl(arrays);
+            }(),
+            ...);
     }
 
     chunked_array_base(std::int64_t chunk_count) {
@@ -95,15 +97,18 @@ public:
     }
 
     template <typename... Types>
-    chunked_array_base(const array<Types>&... arrays)
-            : chunked_array_base(sizeof...(Types)) {
+    chunked_array_base(const array<Types>&... arrays) : chunked_array_base(sizeof...(Types)) {
         // Ensures that it can be converted directly
         const auto chunk_count = this->get_chunk_count();
 
         std::int64_t chunk = 0l;
 
         // Template trick to init implementation using fold expression
-        ([&, this](){ this->set_chunk_impl(chunk++, arrays); }(), ...);
+        (
+            [&, this]() {
+                this->set_chunk_impl(chunk++, arrays);
+            }(),
+            ...);
 
         // Checks that we used all input arrays
         ONEDAL_ASSERT(chunk == this->get_chunk_count());
@@ -129,8 +134,8 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL // Minor
     array_impl_t flatten_impl(const data_parallel_policy& policy,
-                         const data_parallel_allocator<byte_t>& alloc,
-                         const std::vector<sycl::event>& deps) const;
+                              const data_parallel_allocator<byte_t>& alloc,
+                              const std::vector<sycl::event>& deps) const;
 #endif // ONEDAL_DATA_PARALLEL
 
     void set_chunk_impl(std::int64_t i, array_impl_t array);
@@ -141,7 +146,7 @@ public:
     void set_chunk_impl(std::int64_t chunk, const array<Type>& array) {
         auto byte_array = as_byte_array(array);
 
-        this->set_chunk_impl(chunk, std::move(byte_array) );
+        this->set_chunk_impl(chunk, std::move(byte_array));
     }
 
     template <typename Type>
@@ -149,7 +154,7 @@ public:
         [[maybe_unused]] const auto init_count = this->get_chunk_count();
 
         const auto byte_array = as_byte_array(arr);
-        this->append_impl( std::move(byte_array) );
+        this->append_impl(std::move(byte_array));
 
         ONEDAL_ASSERT(this->get_chunk_count() == init_count + 1l);
     }
