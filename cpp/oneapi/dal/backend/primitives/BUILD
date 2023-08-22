@@ -32,7 +32,6 @@ dal_collect_modules(
     modules = [
         "blas",
         "distance",
-        "convert",
         "heap",
         "intersection",
         "lapack",
