@@ -20,17 +20,12 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
-namespace v1 {
 
 template <typename Context, typename Float, typename Task, typename Method, typename... Options>
 struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
-                                  const oneapi::dal::decision_forest::v2::train_input<Task>&) const;
-
-    train_result<Task> operator()(const Context&,
-                                  const descriptor_base<Task>&,
-                                  const oneapi::dal::decision_forest::v1::train_input<Task>&) const;
+                                  const oneapi::dal::decision_forest::train_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -88,9 +83,5 @@ struct train_ops {
         return result;
     }
 };
-
-} // namespace v1
-
-using v1::train_ops;
 
 } // namespace oneapi::dal::decision_forest::detail

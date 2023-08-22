@@ -76,7 +76,6 @@
 #endif
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename T, typename... Args>
 using is_one_of = std::disjunction<std::is_same<T, Args>...>;
@@ -264,15 +263,6 @@ inline constexpr bool is_floating_point() {
 }
 
 template <typename Data>
-struct integer_overflow_ops {
-    void check_mul_overflow(const Data& first, const Data& second);
-    void check_sum_overflow(const Data& first, const Data& second);
-
-    bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
-    bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
-};
-
-template <typename Data>
 struct limits {
     static constexpr Data min() {
         return std::numeric_limits<Data>::min();
@@ -308,10 +298,6 @@ inline Out integral_cast(const In& value) {
     return static_cast<Out>(value);
 }
 
-} // namespace v1
-
-namespace v2 {
-
 template <typename Data>
 struct integer_overflow_ops {
     Data check_mul_overflow(const Data& first, const Data& second);
@@ -344,33 +330,6 @@ inline bool is_safe_mul(const Data& first, const Data& second, Data& mul_result)
     static_assert(std::is_integral_v<Data>, "The check requires integral operands");
     return integer_overflow_ops<Data>{}.is_safe_mul(first, second, mul_result);
 }
-
-} // namespace v2
-
-using v1::is_one_of;
-using v1::is_one_of_v;
-using v1::is_tagged;
-using v1::is_tagged_v;
-using v1::is_tag_one_of;
-using v1::is_tag_one_of_v;
-
-using v1::shared;
-using v1::unique;
-using v1::pimpl;
-using v1::pimpl_accessor;
-using v1::limits;
-
-using v1::get_impl;
-using v1::cast_impl;
-using v1::make_private;
-using v1::make_data_type;
-using v1::get_data_type_size;
-using v1::is_floating_point;
-using v2::check_sum_overflow;
-using v2::check_mul_overflow;
-using v2::is_safe_sum;
-using v2::is_safe_mul;
-using v1::integral_cast;
 
 } // namespace oneapi::dal::detail
 

@@ -20,29 +20,17 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
-namespace v1 {
 
 template <typename Policy, typename Float, typename Task, typename Method>
 struct train_ops_dispatcher<Policy, Float, Task, Method> {
     train_result<Task> operator()(
         const Policy& policy,
         const descriptor_base<Task>& desc,
-        const oneapi::dal::decision_forest::v2::train_input<Task>& input) const {
+        const oneapi::dal::decision_forest::train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>),
             KERNEL_UNIVERSAL_SPMD_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(policy, desc, input);
-    }
-    train_result<Task> operator()(
-        const Policy& policy,
-        const descriptor_base<Task>& desc,
-        const oneapi::dal::decision_forest::v1::train_input<Task>& input) const {
-        return this->operator()(
-            policy,
-            desc,
-            oneapi::dal::decision_forest::v2::train_input<Task>(input.get_data(),
-                                                                input.get_responses(),
-                                                                table{}));
     }
 };
 
@@ -62,5 +50,4 @@ INSTANTIATE(float, task::regression, method::hist)
 INSTANTIATE(double, task::regression, method::dense)
 INSTANTIATE(double, task::regression, method::hist)
 
-} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail
