@@ -49,13 +49,11 @@ public:
         auto meta = detail::make_default_metadata_from_arrays<Arrays...>();
         heterogen_table result = heterogen_table::empty(meta);
 
-#ifdef ONEDAL_ENABLE_ASSERT
-        const std::size_t ccount = sizeof...(Arrays);
-        const auto count = integral_cast<std::int64_t>(ccount);
+        [[maybe_unused]] const std::size_t ccount = sizeof...(Arrays);
+        [[maybe_unused]] const auto count = integral_cast<std::int64_t>(ccount);
 
         ONEDAL_ASSERT(count == meta.get_feature_count());
         ONEDAL_ASSERT(count == result.get_column_count());
-#endif // ONEDAL_ENABLE_ASSERT
 
         std::int64_t column = 0l;
         (

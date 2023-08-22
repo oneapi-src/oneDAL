@@ -289,18 +289,6 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     return op(cpu_dispatch_default{});
 }
 
-template <typename Op, typename ResultType = std::invoke_result_t<Op, float>>
-inline constexpr ResultType dispatch_by_data_type(data_type dtype, Op&& op) {
-    // Necessary to make the return type conformant with
-    // other dispatch branches
-    const auto on_unknown = [](data_type) -> ResultType {
-        using msg = dal::detail::error_messages;
-        throw unimplemented{ msg::unsupported_conversion_types() };
-    };
-
-    return dispatch_by_data_type(dtype, std::forward<Op>(op), on_unknown);
-}
-
 template <typename Op, typename OnUnknown>
 inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnUnknown&& on_unknown) {
     switch (dtype) {
@@ -316,6 +304,18 @@ inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnUnknown&
         case data_type::float64: return op(double{});
         default: return on_unknown(dtype);
     }
+}
+
+template <typename Op, typename ResultType = std::invoke_result_t<Op, float>>
+inline constexpr ResultType dispatch_by_data_type(data_type dtype, Op&& op) {
+    // Necessary to make the return type conformant with
+    // other dispatch branches
+    const auto on_unknown = [](data_type) -> ResultType {
+        using msg = dal::detail::error_messages;
+        throw unimplemented{ msg::unsupported_conversion_types() };
+    };
+
+    return dispatch_by_data_type(dtype, std::forward<Op>(op), on_unknown);
 }
 
 namespace impl {
