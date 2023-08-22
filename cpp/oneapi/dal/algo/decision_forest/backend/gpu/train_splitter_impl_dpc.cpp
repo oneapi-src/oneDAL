@@ -381,7 +381,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
     // Compute memory requirements depending on task and device specs
     const std::int64_t bin_local_mem_size =
-        2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t);
+        2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t) + sizeof(Float);
     const std::int64_t common_local_data_size = 2 * hist_prop_count * sizeof(hist_type_t);
     std::int64_t batch_size = (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
     const Index all_bin_count = selected_ftr_count * bin_count;
@@ -389,6 +389,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const std::int64_t local_hist_size = batch_size * hist_prop_count;
     const std::int64_t local_splits_size = batch_size;
     const Index local_size = bk::device_max_wg_size(queue);
+
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
@@ -408,9 +409,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
             const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
             const Index row_count = node_ptr[impl_const_t::ind_lrc];
-            if (row_count < 2 * min_obs_leaf) {
-                return;
-            }
             split_smp_t sp_hlp;
             // Check node impurity
             if (!sp_hlp.is_valid_impurity(node_imp_list_ptr, node_id, imp_threshold, row_count)) {
@@ -479,18 +477,26 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             hist_resp += 1;
                         }
                         else {
-                            sycl::atomic_ref<Float,
-                                             sycl::memory_order_relaxed,
-                                             sycl::memory_scope_work_group,
-                                             sycl::access::address_space::local_space>
-                                hist_count(buf_hist[cur_hist_pos + 0]);
-                            sycl::atomic_ref<Float,
-                                             sycl::memory_order_relaxed,
-                                             sycl::memory_scope_work_group,
-                                             sycl::access::address_space::local_space>
-                                hist_sum(buf_hist[cur_hist_pos + 1]);
-                            hist_count += 1;
-                            hist_sum += response;
+                            // Undefined behavior of atomics with big number of working items
+                            // This is temporary solution until driver will work properly with atomics
+                            if (batch_size > 64) {
+                                buf_hist_ptr[cur_hist_pos + 0] += 1;
+                                buf_hist_ptr[cur_hist_pos + 1] += response;
+                            }
+                            else {
+                                sycl::atomic_ref<Float,
+                                                 sycl::memory_order_relaxed,
+                                                 sycl::memory_scope_work_group,
+                                                 sycl::access::address_space::local_space>
+                                    hist_count(buf_hist[cur_hist_pos + 0]);
+                                sycl::atomic_ref<Float,
+                                                 sycl::memory_order_relaxed,
+                                                 sycl::memory_scope_work_group,
+                                                 sycl::access::address_space::local_space>
+                                    hist_sum(buf_hist[cur_hist_pos + 1]);
+                                hist_count += 1;
+                                hist_sum += response;
+                            }
                         }
                     }
                 }
@@ -499,9 +505,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 if constexpr (std::is_same_v<Task, task::regression>) {
                     for (Index idx = local_id; idx < working_items; idx += local_size) {
                         const Index ftr_idx = idx / row_count;
+                        const Index row_idx = idx % row_count;
                         const Index ts_ftr_id =
                             selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx + ftr_ofs];
-                        const Index row_idx = idx % row_count;
                         const Index id = tree_order_ptr[row_ofs + row_idx];
                         const Index bin =
                             data_ptr[id * column_count + ts_ftr_id] - Index(ftr_idx == 0) * bin_ofs;
@@ -513,12 +519,19 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             const Float resp_sum = cur_hist[1];
                             const Float mean = resp_sum / count;
                             const Float mse = (response - mean) * (response - mean);
-                            sycl::atomic_ref<Float,
-                                             sycl::memory_order_relaxed,
-                                             sycl::memory_scope_work_group,
-                                             sycl::access::address_space::local_space>
-                                hist_mse(buf_hist[cur_hist_pos + 2]);
-                            hist_mse += mse;
+                            // Undefined behavior of atomics with big number of working items
+                            // This is temporary solution until driver will work properly with atomics
+                            if (batch_size) {
+                                buf_hist_ptr[cur_hist_pos + 2] += mse;
+                            }
+                            else {
+                                sycl::atomic_ref<Float,
+                                                 sycl::memory_order_relaxed,
+                                                 sycl::memory_scope_work_group,
+                                                 sycl::access::address_space::local_space>
+                                    hist_mse(buf_hist[cur_hist_pos + 2]);
+                                hist_mse += mse;
+                            }
                         }
                     }
                     item.barrier(sycl::access::fence_space::local_space);
@@ -597,36 +610,20 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     else {
                         sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
                     }
-                    // if (ts_scal.left_count > min_obs_leaf && ts_scal.right_count > min_obs_leaf) {
                     scalars_buf_ptr[work_bin] = ts.scalars;
-                    // }
                 }
                 item.barrier(sycl::access::fence_space::local_space);
                 // Init best and current split info
                 split_info_t bs;
-                bs.init(local_hist_ptr + local_id * hist_prop_count, hist_prop_count);
-                bs.clear_scalar();
-                // Select best bin among one working-item
-                for (Index work_item = local_id; work_item < real_bin_count;
-                     work_item += local_size) {
-                    ts.init(local_hist_ptr + work_item * hist_prop_count, hist_prop_count);
-                    ts.scalars = scalars_buf_ptr[work_item];
-                    sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
-                }
-                scalars_buf_ptr[local_id] = bs.scalars;
-                // Tree reduction and selecting best among work-group
-                for (Index i = local_size / 2; i > 0; i /= 2) {
-                    item.barrier(sycl::access::fence_space::local_space);
-                    if (local_id < i && (local_id + i) < real_bin_count) {
-                        ts.init(local_hist_ptr + (local_id + i) * hist_prop_count, hist_prop_count);
-                        ts.scalars = scalars_buf_ptr[local_id + i];
-                        sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
-                        scalars_buf_ptr[local_id] = bs.scalars;
-                    }
-                }
-                item.barrier(sycl::access::fence_space::local_space);
-                // Update bs among all features
                 if (local_id == 0) {
+                    // Select best among all possible splits in the batch
+                    bs.init(local_hist_ptr + local_id * hist_prop_count, hist_prop_count);
+                    bs.scalars = scalars_buf_ptr[local_id];
+                    for (Index work_item = 1; work_item < real_bin_count; ++work_item) {
+                        ts.init(local_hist_ptr + work_item * hist_prop_count, hist_prop_count);
+                        ts.scalars = scalars_buf_ptr[work_item];
+                        sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
+                    }
                     sp_hlp.choose_best_split(global_bs, bs, hist_prop_count, min_obs_leaf);
                 }
             }

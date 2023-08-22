@@ -1875,7 +1875,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             node_ptr[impl_const_t::ind_lch_lrc] =
                 0; // for distr_mode it will be updated during tree_order_gen
             node_ptr[impl_const_t::ind_fid] = impl_const_t::bad_val_;
-            node_ptr[impl_const_t::ind_bin] = impl_const_t::bad_val_;
         }
 
         last_event = gen_initial_tree_order(ctx,
