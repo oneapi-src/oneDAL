@@ -21,9 +21,7 @@
 // `_onedal_dispatcher_cpu.hpp` as this file is generated at build time.
 // It's recommended to define __ONEDAL_IDE_MODE__ in your IDE settings to
 // enable this branch for preprocessor.
-#define ONEDAL_CPU_DISPATCH_SSSE3
 #define ONEDAL_CPU_DISPATCH_SSE42
-#define ONEDAL_CPU_DISPATCH_AVX
 #define ONEDAL_CPU_DISPATCH_AVX2
 #define ONEDAL_CPU_DISPATCH_AVX512
 #else
@@ -31,22 +29,10 @@
 #include "oneapi/dal/_dal_cpu_dispatcher_gen.hpp"
 #endif
 
-#ifdef ONEDAL_CPU_DISPATCH_SSSE3
-#define ONEDAL_IF_CPU_DISPATCH_SSSE3(x) x
-#else
-#define ONEDAL_IF_CPU_DISPATCH_SSSE3(x)
-#endif
-
 #ifdef ONEDAL_CPU_DISPATCH_SSE42
 #define ONEDAL_IF_CPU_DISPATCH_SSE42(x) x
 #else
 #define ONEDAL_IF_CPU_DISPATCH_SSE42(x)
-#endif
-
-#ifdef ONEDAL_CPU_DISPATCH_AVX
-#define ONEDAL_IF_CPU_DISPATCH_AVX(x) x
-#else
-#define ONEDAL_IF_CPU_DISPATCH_AVX(x)
 #endif
 
 #ifdef ONEDAL_CPU_DISPATCH_AVX2

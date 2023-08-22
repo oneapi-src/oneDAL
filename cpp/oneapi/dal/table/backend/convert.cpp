@@ -114,6 +114,31 @@ void convert_matrix(const detail::default_host_policy& policy,
     });
 }
 
+template <typename DataType>
+void shift_array_values(DataType* arr, const std::int64_t element_count, const DataType shift) {
+    if (shift == DataType(0))
+        return;
+
+    for (std::int64_t i = 0; i < element_count; ++i)
+        arr[i] += shift;
+}
+
+void shift_array_values(const detail::default_host_policy& policy,
+                        void* arr,
+                        data_type arr_type,
+                        const std::int64_t element_count,
+                        const void* shift) {
+    ONEDAL_ASSERT(arr);
+    ONEDAL_ASSERT(shift);
+    ONEDAL_ASSERT(element_count > 0);
+    dispatch_by_data_type(arr_type, [&](auto arr_type_id) {
+        using data_t = decltype(arr_type_id);
+        shift_array_values<data_t>(static_cast<data_t*>(arr),
+                                   element_count,
+                                   static_cast<const data_t*>(shift)[0]);
+    });
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Src, typename Dst>
@@ -439,6 +464,56 @@ void convert_matrix(const detail::data_parallel_policy& policy,
             }
         });
     });
+}
+
+template <typename T>
+sycl::event shift_array_values_device(sycl::queue& q,
+                                      T* arr,
+                                      const std::int64_t element_count,
+                                      const T shift,
+                                      const event_vector& deps = {}) {
+    if (shift == T(0))
+        return sycl::event();
+
+    const size_t element_count_size_t = dal::detail::integral_cast<size_t>(element_count);
+    const sycl::range<1> range{ element_count_size_t };
+
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<1> id) {
+            arr[id] += shift;
+        });
+    });
+}
+
+sycl::event shift_array_values(const detail::data_parallel_policy& policy,
+                               void* arr,
+                               data_type arr_type,
+                               const std::int64_t element_count,
+                               const void* shift,
+                               const event_vector& deps) {
+    ONEDAL_ASSERT(arr);
+    ONEDAL_ASSERT(shift);
+    ONEDAL_ASSERT(element_count > 0);
+
+    return dispatch_by_data_type(arr_type, [&](auto arr_type_id) {
+        using data_t = decltype(arr_type_id);
+        data_t* data = static_cast<data_t*>(arr);
+        const data_t shift_val = static_cast<const data_t*>(shift)[0];
+
+        if (shift_val == data_t(0))
+            return sycl::event();
+
+        sycl::queue& q = policy.get_queue();
+        if (is_device_friendly_usm(q, arr)) {
+            return shift_array_values_device(q, data, element_count, shift_val, deps);
+        }
+        else {
+            shift_array_values(data, element_count, shift_val);
+            return sycl::event();
+        }
+    });
+    return sycl::event();
 }
 
 #endif
