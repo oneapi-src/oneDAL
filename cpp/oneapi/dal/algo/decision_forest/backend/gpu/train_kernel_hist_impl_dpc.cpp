@@ -1227,7 +1227,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                     node_imp_decrease_list,
                                                     update_imp_dec_required,
                                                     node_count,
-                                                    { last_event });
+                                                    deps);
     }
     return last_event;
 }
