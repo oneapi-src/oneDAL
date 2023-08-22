@@ -521,7 +521,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             const Float mse = (response - mean) * (response - mean);
                             // Undefined behavior of atomics with big number of working items
                             // This is temporary solution until driver will work properly with atomics
-                            if (batch_size) {
+                            if (batch_size > 64) {
                                 buf_hist_ptr[cur_hist_pos + 2] += mse;
                             }
                             else {
