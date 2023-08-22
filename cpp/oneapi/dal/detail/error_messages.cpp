@@ -113,7 +113,8 @@ MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acc
 MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for CSR table")
 MSG(object_does_not_provide_read_access_to_csr,
     "Given object does not provide read access to the block of CSR format")
-MSG(pull_column_interface_is_not_implemented, "Pull column interface is planned but not implemented yet")
+MSG(pull_column_interface_is_not_implemented,
+    "Pull column interface is planned but not implemented yet")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
