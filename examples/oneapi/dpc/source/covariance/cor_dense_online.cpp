@@ -22,9 +22,6 @@
 
 #include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/io/csv.hpp"
-#include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
