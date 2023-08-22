@@ -21,20 +21,12 @@
 namespace oneapi::dal::pca {
 
 namespace detail {
-namespace v1 {
 template <typename Task>
 class infer_input_impl;
 
 template <typename Task>
 class infer_result_impl;
-} // namespace v1
-
-using v1::infer_input_impl;
-using v1::infer_result_impl;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
 ///              be :expr:`task::dim_reduction`.
@@ -103,10 +95,5 @@ protected:
 private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::infer_input;
-using v1::infer_result;
 
 } // namespace oneapi::dal::pca

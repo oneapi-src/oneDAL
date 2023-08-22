@@ -20,7 +20,6 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 /// Provides access to the range of values within a single column as one
 /// contiguous homogeneous block of memory.
@@ -191,9 +190,5 @@ private:
     detail::shared<detail::pull_column_iface> pull_iface_;
     detail::shared<detail::push_column_iface> push_iface_;
 };
-
-} // namespace v1
-
-using v1::column_accessor;
 
 } // namespace oneapi::dal

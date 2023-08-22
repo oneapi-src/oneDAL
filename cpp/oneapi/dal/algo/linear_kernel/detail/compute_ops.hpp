@@ -21,7 +21,6 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::linear_kernel::detail {
-namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
@@ -88,9 +87,5 @@ struct compute_ops {
     }
 #endif
 };
-
-} // namespace v1
-
-using v1::compute_ops;
 
 } // namespace oneapi::dal::linear_kernel::detail

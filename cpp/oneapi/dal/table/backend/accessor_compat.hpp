@@ -110,25 +110,23 @@ public:
 private:
     template <typename T>
     void template_pull(const detail::default_host_policy& policy,
-                       dal::v1::array<T>& block,
+                       dal::array<T>& block,
                        const detail::row_block& rb,
                        const detail::host_allocator<T>&) const {
         if (pull_rows_iface_) {
-            auto block_v2 = block.v2();
-            pull_rows_iface_->pull_rows(policy, block_v2, rb.rows);
-            block.reset(block_v2);
+            pull_rows_iface_->pull_rows(policy, block, rb.rows);
+            block.reset();
         }
     }
 
     template <typename T>
     void template_pull(const detail::default_host_policy& policy,
-                       dal::v1::array<T>& block,
+                       dal::array<T>& block,
                        const detail::column_values_block& rb,
                        const detail::host_allocator<T>&) const {
         if (pull_rows_iface_) {
-            auto block_v2 = block.v2();
-            pull_column_iface_->pull_column(policy, block_v2, rb.column_index, rb.rows);
-            block.reset(block_v2);
+            pull_column_iface_->pull_column(policy, block, rb.column_index, rb.rows);
+            block.reset();
         }
     }
 
@@ -227,29 +225,28 @@ public:
 private:
     template <typename T>
     void template_pull(const detail::data_parallel_policy& policy,
-                       dal::v1::array<T>& block,
+                       dal::array<T>& block,
                        const detail::row_block& rb,
                        const detail::data_parallel_allocator<T>& alloc) const {
         if (pull_rows_iface_) {
-            auto block_v2 = block.v2();
-            pull_rows_iface_->pull_rows(policy, block_v2, rb.rows, alloc.get_kind());
-            block.reset(block_v2);
+            pull_rows_iface_->pull_rows(policy, block, rb.rows, alloc.get_kind());
+            block.reset();
         }
     }
 
     template <typename T>
     void template_pull(const detail::data_parallel_policy& policy,
-                       dal::v1::array<T>& block,
+                       dal::array<T>& block,
                        const detail::column_values_block& rb,
                        const detail::data_parallel_allocator<T>& alloc) const {
         if (pull_rows_iface_) {
-            auto block_v2 = block.v2();
+            // TODO: are reset functions okay?
             pull_column_iface_->pull_column(policy,
-                                            block_v2,
+                                            block,
                                             rb.column_index,
                                             rb.rows,
                                             alloc.get_kind());
-            block.reset(block_v2);
+            block.reset();
         }
     }
 

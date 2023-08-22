@@ -18,8 +18,6 @@
 
 namespace oneapi::dal::detail {
 
-namespace v1 {
-
 template <class T>
 class singleton {
 public:
@@ -37,9 +35,5 @@ private:
         return instance;
     }
 };
-
-} // namespace v1
-
-using v1::singleton;
 
 } // namespace oneapi::dal::detail

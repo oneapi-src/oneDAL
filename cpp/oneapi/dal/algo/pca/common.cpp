@@ -47,8 +47,6 @@ result_option_id get_default_result_options<task::dim_reduction>() {
     return get_eigenvectors_id() | get_eigenvalues_id() | get_variances_id() | get_means_id();
 }
 
-namespace v1 {
-
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -113,12 +111,9 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 
 template class ONEDAL_EXPORT descriptor_base<task::dim_reduction>;
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::model_impl;
+using detail::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
@@ -146,5 +141,4 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 template class ONEDAL_EXPORT model<task::dim_reduction>;
 ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::dim_reduction>)
 
-} // namespace v1
 } // namespace oneapi::dal::pca

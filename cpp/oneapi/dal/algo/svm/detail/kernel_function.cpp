@@ -19,7 +19,6 @@
 #include "daal/src/algorithms/kernel_function/kernel_function_dense_base.h"
 
 namespace oneapi::dal::svm::detail {
-namespace v1 {
 
 using daal_kf_t = daal::algorithms::kernel_function::KernelIfacePtr;
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
@@ -300,5 +299,4 @@ INSTANTIATE_RBF(double, rbf_kernel::method::dense)
 INSTANTIATE_SIGMOID(float, sigmoid_kernel::method::dense)
 INSTANTIATE_SIGMOID(double, sigmoid_kernel::method::dense)
 
-} // namespace v1
 } // namespace oneapi::dal::svm::detail

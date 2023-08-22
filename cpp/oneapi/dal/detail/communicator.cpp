@@ -20,7 +20,7 @@
 
 namespace spmd = oneapi::dal::preview::spmd;
 
-namespace oneapi::dal::detail::v1 {
+namespace oneapi::dal::detail {
 
 #ifdef ONEDAL_DATA_PARALLEL
 static void wait_request(spmd::request_iface* request) {
@@ -213,4 +213,4 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
 }
 #endif
 
-} // namespace oneapi::dal::detail::v1
+} // namespace oneapi::dal::detail

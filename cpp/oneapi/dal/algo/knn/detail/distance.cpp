@@ -18,7 +18,6 @@
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 
 namespace oneapi::dal::knn::detail {
-namespace v1 {
 
 template <typename F, typename M>
 using minkowski_distance_t = minkowski_distance::descriptor<F, M>;
@@ -118,5 +117,4 @@ INSTANTIATE_CHEBYSHEV(double, chebyshev_distance::method::dense)
 INSTANTIATE_COSINE(float, cosine_distance::method::dense)
 INSTANTIATE_COSINE(double, cosine_distance::method::dense)
 
-} // namespace v1
 } // namespace oneapi::dal::knn::detail

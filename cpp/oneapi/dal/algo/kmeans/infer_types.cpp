@@ -21,7 +21,7 @@
 namespace oneapi::dal::kmeans {
 
 template <typename Task>
-class detail::v1::infer_input_impl : public base {
+class detail::infer_input_impl : public base {
 public:
     infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
@@ -31,16 +31,14 @@ public:
 };
 
 template <typename Task>
-class detail::v1::infer_result_impl : public base {
+class detail::infer_result_impl : public base {
 public:
     table responses;
     double objective_function_value = 0.0;
 };
 
-using detail::v1::infer_input_impl;
-using detail::v1::infer_result_impl;
-
-namespace v1 {
+using detail::infer_input_impl;
+using detail::infer_result_impl;
 
 template <typename Task>
 infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
@@ -95,5 +93,4 @@ void infer_result<Task>::set_objective_function_value_impl(double value) {
 template class ONEDAL_EXPORT infer_input<task::clustering>;
 template class ONEDAL_EXPORT infer_result<task::clustering>;
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans

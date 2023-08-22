@@ -29,7 +29,7 @@ namespace oneapi::dal::knn {
                              (task::search, SearchId))
 
 template <typename Task>
-class detail::v1::model_impl : public base {
+class detail::model_impl : public base {
 public:
     model_impl() = default;
 

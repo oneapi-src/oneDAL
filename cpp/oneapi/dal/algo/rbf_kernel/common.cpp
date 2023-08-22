@@ -18,7 +18,6 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::rbf_kernel::detail {
-namespace v1 {
 
 template <typename Task>
 class descriptor_impl : public base {
@@ -44,5 +43,4 @@ void descriptor_base<Task>::set_sigma_impl(double value) {
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
-} // namespace v1
 } // namespace oneapi::dal::rbf_kernel::detail

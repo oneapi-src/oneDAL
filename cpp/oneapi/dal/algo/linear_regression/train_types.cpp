@@ -21,7 +21,7 @@
 namespace oneapi::dal::linear_regression {
 
 template <typename Task>
-class detail::v1::train_input_impl : public base {
+class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& responses = table{})
             : data(data),
@@ -32,7 +32,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::train_result_impl : public base {
+class detail::train_result_impl : public base {
 public:
     table intercept;
     table coefficients;
@@ -42,10 +42,8 @@ public:
     model<Task> trained_model;
 };
 
-using detail::v1::train_input_impl;
-using detail::v1::train_result_impl;
-
-namespace v1 {
+using detail::train_input_impl;
+using detail::train_result_impl;
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses)
@@ -146,5 +144,4 @@ void train_result<Task>::set_result_options_impl(const result_option_id& value) 
 template class ONEDAL_EXPORT train_input<task::regression>;
 template class ONEDAL_EXPORT train_result<task::regression>;
 
-} // namespace v1
 } // namespace oneapi::dal::linear_regression

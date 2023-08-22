@@ -21,7 +21,7 @@
 namespace oneapi::dal::kmeans {
 
 template <typename Task>
-class detail::v1::train_input_impl : public base {
+class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data) : data(data) {}
     train_input_impl(const table& data, const table& initial_centroids)
@@ -33,7 +33,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::train_result_impl : public base {
+class detail::train_result_impl : public base {
 public:
     model<Task> trained_model;
     table responses;
@@ -41,10 +41,9 @@ public:
     double objective_function_value = 0.0;
 };
 
-using detail::v1::train_input_impl;
-using detail::v1::train_result_impl;
+using detail::train_input_impl;
+using detail::train_result_impl;
 
-namespace v1 {
 
 template <typename Task>
 train_input<Task>::train_input(const table& data) : impl_(new train_input_impl<Task>{ data }) {}
@@ -125,5 +124,4 @@ void train_result<Task>::set_objective_function_value_impl(double value) {
 template class ONEDAL_EXPORT train_input<task::clustering>;
 template class ONEDAL_EXPORT train_result<task::clustering>;
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans

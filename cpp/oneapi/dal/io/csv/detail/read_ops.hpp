@@ -22,7 +22,6 @@
 #include "oneapi/dal/io/csv/detail/select_kernel.hpp"
 
 namespace oneapi::dal::csv::detail {
-namespace v1 {
 
 template <typename Object, typename Policy, typename... Options>
 struct read_ops_dispatcher;
@@ -100,9 +99,5 @@ struct read_ops<table, data_source> {
         return result;
     }
 };
-
-} // namespace v1
-
-using v1::read_ops;
 
 } // namespace oneapi::dal::csv::detail

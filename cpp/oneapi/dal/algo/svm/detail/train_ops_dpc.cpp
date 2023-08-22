@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::svm::detail {
-namespace v1 {
 
 using dal::detail::data_parallel_policy;
 
@@ -53,5 +52,4 @@ INSTANTIATE(double, method::thunder, task::nu_classification)
 INSTANTIATE(float, method::thunder, task::nu_regression)
 INSTANTIATE(double, method::thunder, task::nu_regression)
 
-} // namespace v1
 } // namespace oneapi::dal::svm::detail

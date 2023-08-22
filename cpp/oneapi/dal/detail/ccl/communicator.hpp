@@ -31,7 +31,6 @@
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 using preview::spmd::communication_error;
 
@@ -456,10 +455,6 @@ public:
                                                               rank_count,
                                                               default_root)) {}
 };
-
-} // namespace v1
-
-using v1::ccl_communicator;
 
 } // namespace oneapi::dal::detail
 #endif

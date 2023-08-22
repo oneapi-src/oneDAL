@@ -23,29 +23,19 @@
 namespace oneapi::dal::dbscan {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`clustering problem <clustering>`.
 struct clustering {};
 
 /// Alias tag-type for the clustering task.
 using by_default = clustering;
-} // namespace v1
-
-using v1::clustering;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 struct brute_force {};
 
 using by_default = brute_force;
-} // namespace v1
-
-using v1::brute_force;
-using v1::by_default;
 
 } // namespace method
 
@@ -78,7 +68,6 @@ const inline result_option_id core_flags = detail::get_core_flags_id();
 } // namespace result_options
 
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 
 template <typename Task>
@@ -119,19 +108,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
@@ -202,9 +179,5 @@ public:
         return *this;
     }
 };
-
-} // namespace v1
-
-using v1::descriptor;
 
 } // namespace oneapi::dal::dbscan

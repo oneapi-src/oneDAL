@@ -19,7 +19,6 @@
 #include "oneapi/dal/detail/array_impl.hpp"
 
 namespace oneapi::dal {
-namespace v2 {
 
 /// @tparam T The type of the memory block elements within the array.
 ///              :literal:`T` can represent any type.
@@ -708,9 +707,5 @@ private:
     T* mutable_data_ptr_;
     std::int64_t count_;
 };
-
-} // namespace v2
-
-using v2::array;
 
 } // namespace oneapi::dal

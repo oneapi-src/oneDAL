@@ -19,7 +19,6 @@
 #include "oneapi/dal/detail/paged_vector.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 constexpr std::uint32_t binary_archive_magic = 0x4441414F;
 
@@ -124,10 +123,5 @@ private:
     std::int64_t position_ = 0;
     bool is_valid_ = true;
 };
-
-} // namespace v1
-
-using v1::binary_output_archive;
-using v1::binary_input_archive;
 
 } // namespace oneapi::dal::detail

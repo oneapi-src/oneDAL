@@ -23,7 +23,6 @@
 #include "oneapi/dal/table/csr.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 /// @tparam T The type of data values in blocks returned by the accessor.
 ///           Should be const-qualified for read-only access.
@@ -224,9 +223,5 @@ private:
 
     std::shared_ptr<detail::pull_csr_block_iface> pull_iface_;
 };
-
-} // namespace v1
-
-using v1::csr_accessor;
 
 } // namespace oneapi::dal

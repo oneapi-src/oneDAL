@@ -22,22 +22,16 @@
 namespace oneapi::dal::kmeans {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`clustering problem <clustering>`.
 struct clustering {};
 
 /// Alias tag-type for the clustering task.
 using by_default = clustering;
-} // namespace v1
-
-using v1::clustering;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes :ref:`Lloyd's <kmeans_t_math_lloyd>` computational
 /// method.
 struct lloyd_dense {};
@@ -45,15 +39,10 @@ struct lloyd_dense {};
 /// Alias tag-type for :ref:`Lloyd's <kmeans_t_math_lloyd>` computational
 /// method.
 using by_default = lloyd_dense;
-} // namespace v1
-
-using v1::lloyd_dense;
-using v1::by_default;
 
 } // namespace method
 
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 
 template <typename Task>
@@ -96,20 +85,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
@@ -212,10 +188,5 @@ private:
     void deserialize(dal::detail::input_archive& ar);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::descriptor;
-using v1::model;
 
 } // namespace oneapi::dal::kmeans

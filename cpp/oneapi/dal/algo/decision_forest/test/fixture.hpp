@@ -31,8 +31,8 @@ namespace te = dal::test::engine;
 
 template <typename T>
 struct checker_info {
-    typedef T (*checker_func)(const dal::v1::table& infer_responses,
-                              const dal::v1::table& ground_truth);
+    typedef T (*checker_func)(const dal::table& infer_responses,
+                              const dal::table& ground_truth);
 
     std::string name;
     checker_func check;
@@ -443,8 +443,8 @@ public:
         return static_cast<double>(incorrect_response_count) / responses.get_count();
     }
 
-    static double calculate_mse(const dal::v1::table& infer_responses,
-                                const dal::v1::table& ground_truth) {
+    static double calculate_mse(const dal::table& infer_responses,
+                                const dal::table& ground_truth) {
         double mean = 0.0;
         const auto responses = dal::row_accessor<const Float>(infer_responses).pull();
         const auto truth_responses = dal::row_accessor<const Float>(ground_truth).pull();
@@ -455,8 +455,8 @@ public:
         return mean / responses.get_count();
     }
 
-    static double calculate_mae(const dal::v1::table& infer_responses,
-                                const dal::v1::table& ground_truth) {
+    static double calculate_mae(const dal::table& infer_responses,
+                                const dal::table& ground_truth) {
         double mae = 0.0;
         const auto responses = dal::row_accessor<const Float>(infer_responses).pull();
         const auto truth_responses = dal::row_accessor<const Float>(ground_truth).pull();

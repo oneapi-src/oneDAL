@@ -17,7 +17,6 @@
 #include "oneapi/dal/algo/cosine_distance/common.hpp"
 
 namespace oneapi::dal::cosine_distance::detail {
-namespace v1 {
 
 template <typename Task>
 class descriptor_impl : public base {};
@@ -27,5 +26,4 @@ descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
-} // namespace v1
 } // namespace oneapi::dal::cosine_distance::detail

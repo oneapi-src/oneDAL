@@ -20,7 +20,7 @@
 namespace oneapi::dal::kmeans_init {
 
 template <typename Task>
-class detail::v1::compute_input_impl : public base {
+class detail::compute_input_impl : public base {
 public:
     compute_input_impl(const table& data) : data(data) {}
 
@@ -28,15 +28,14 @@ public:
 };
 
 template <typename Task>
-class detail::v1::compute_result_impl : public base {
+class detail::compute_result_impl : public base {
 public:
     table centroids;
 };
 
-using detail::v1::compute_input_impl;
-using detail::v1::compute_result_impl;
+using detail::compute_input_impl;
+using detail::compute_result_impl;
 
-namespace v1 {
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
@@ -67,5 +66,4 @@ void compute_result<Task>::set_centroids_impl(const table& value) {
 template class ONEDAL_EXPORT compute_input<task::init>;
 template class ONEDAL_EXPORT compute_result<task::init>;
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans_init

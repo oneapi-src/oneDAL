@@ -18,7 +18,7 @@
 
 #include <daal/include/services/daal_memory.h>
 
-namespace oneapi::dal::detail::v1 {
+namespace oneapi::dal::detail {
 
 template <typename AllocOp>
 void* alloc_impl(AllocOp&& op, std::size_t size, std::size_t alignment) {
@@ -58,4 +58,4 @@ void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_
     }
 }
 
-} // namespace oneapi::dal::detail::v1
+} // namespace oneapi::dal::detail

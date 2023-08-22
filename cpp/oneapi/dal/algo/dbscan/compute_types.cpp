@@ -21,7 +21,7 @@
 namespace oneapi::dal::dbscan {
 
 template <typename Task>
-class detail::v1::compute_input_impl : public base {
+class detail::compute_input_impl : public base {
 public:
     compute_input_impl(const table& data) : data(data) {}
     compute_input_impl(const table& data, const table& weights) : data(data), weights(weights) {}
@@ -31,7 +31,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::compute_result_impl : public base {
+class detail::compute_result_impl : public base {
 public:
     table responses;
     table core_flags;
@@ -42,10 +42,8 @@ public:
     result_option_id result_options;
 };
 
-using detail::v1::compute_input_impl;
-using detail::v1::compute_result_impl;
-
-namespace v1 {
+using detail::compute_input_impl;
+using detail::compute_result_impl;
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& data, const table& weights)
@@ -153,5 +151,4 @@ void compute_result<Task>::set_cluster_count_impl(std::int64_t value) {
 template class ONEDAL_EXPORT compute_input<task::clustering>;
 template class ONEDAL_EXPORT compute_result<task::clustering>;
 
-} // namespace v1
 } // namespace oneapi::dal::dbscan

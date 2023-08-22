@@ -21,7 +21,7 @@
 namespace oneapi::dal::svm {
 
 template <typename Task>
-class detail::v1::train_input_impl : public base {
+class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& responses, const table& weights)
             : data(data),
@@ -33,16 +33,14 @@ public:
 };
 
 template <typename Task>
-class detail::v1::train_result_impl : public base {
+class detail::train_result_impl : public base {
 public:
     model<Task> trained_model;
     table support_indices;
 };
 
-using detail::v1::train_input_impl;
-using detail::v1::train_result_impl;
-
-namespace v1 {
+using detail::train_input_impl;
+using detail::train_result_impl;
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses, const table& weights)
@@ -155,5 +153,4 @@ template class ONEDAL_EXPORT train_result<task::regression>;
 template class ONEDAL_EXPORT train_input<task::nu_regression>;
 template class ONEDAL_EXPORT train_result<task::nu_regression>;
 
-} // namespace v1
 } // namespace oneapi::dal::svm

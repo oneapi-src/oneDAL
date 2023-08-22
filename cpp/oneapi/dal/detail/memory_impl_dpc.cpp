@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 
-namespace oneapi::dal::detail::v1 {
+namespace oneapi::dal::detail {
 
 void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::usm::alloc& alloc) {
     return backend::malloc(policy.get_queue(), size, alloc);
@@ -67,4 +67,4 @@ bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* p
     return backend::is_known_usm(policy.get_queue(), pointer);
 }
 
-} // namespace oneapi::dal::detail::v1
+} // namespace oneapi::dal::detail

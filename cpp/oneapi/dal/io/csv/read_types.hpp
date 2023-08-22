@@ -25,16 +25,10 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
-namespace v1 {
 template <typename Object>
 class read_args_impl;
-} // namespace v1
-
-using v1::read_args_impl;
 
 } // namespace detail
-
-namespace v1 {
 
 template <typename Object = table>
 class read_args;
@@ -47,10 +41,6 @@ public:
 private:
     dal::detail::pimpl<detail::read_args_impl<table>> impl_;
 };
-
-} // namespace v1
-
-using v1::read_args;
 
 } // namespace oneapi::dal::csv
 

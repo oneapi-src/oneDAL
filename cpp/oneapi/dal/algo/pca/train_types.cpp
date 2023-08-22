@@ -20,14 +20,14 @@
 namespace oneapi::dal::pca {
 
 template <typename Task>
-class detail::v1::train_input_impl : public base {
+class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data) : data(data) {}
     table data;
 };
 
 template <typename Task>
-class detail::v1::train_result_impl : public base {
+class detail::train_result_impl : public base {
 public:
     model<Task> trained_model;
     table eigenvalues;
@@ -36,10 +36,8 @@ public:
     result_option_id result_options;
 };
 
-using detail::v1::train_input_impl;
-using detail::v1::train_result_impl;
-
-namespace v1 {
+using detail::train_input_impl;
+using detail::train_result_impl;
 
 template <typename Task>
 train_input<Task>::train_input(const table& data) : impl_(new train_input_impl<Task>(data)) {}
@@ -138,5 +136,4 @@ void train_result<Task>::set_result_options_impl(const result_option_id& value) 
 template class ONEDAL_EXPORT train_input<task::dim_reduction>;
 template class ONEDAL_EXPORT train_result<task::dim_reduction>;
 
-} // namespace v1
 } // namespace oneapi::dal::pca

@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::basic_statistics::detail {
-namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<Policy, Float, Method, Task> {
@@ -43,5 +42,4 @@ struct compute_ops_dispatcher<Policy, Float, Method, Task> {
 INSTANTIATE(float, method::dense, task::compute)
 INSTANTIATE(double, method::dense, task::compute)
 
-} // namespace v1
 } // namespace oneapi::dal::basic_statistics::detail

@@ -25,7 +25,6 @@
 namespace oneapi::dal::decision_forest {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
@@ -36,16 +35,10 @@ struct regression {};
 
 /// Alias tag-type for classification task.
 using by_default = classification;
-} // namespace v1
-
-using v1::classification;
-using v1::regression;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes :ref:`dense <df_t_math_dense>` computational
 /// method.
 struct dense {};
@@ -57,15 +50,8 @@ struct hist {};
 /// Alias tag-type for :ref:`dense <df_t_math_dense>` computational
 /// method.
 using by_default = dense;
-} // namespace v1
-
-using v1::dense;
-using v1::hist;
-using v1::by_default;
 
 } // namespace method
-
-namespace v1 {
 
 /// Available identifiers to specify the variable importance mode
 enum class variable_importance_mode {
@@ -168,16 +154,7 @@ inline error_metric_mode& operator|=(error_metric_mode& value_left, error_metric
     return value_left;
 }
 
-} // namespace v1
-
-using v1::variable_importance_mode;
-using v1::error_metric_mode;
-using v1::infer_mode;
-using v1::voting_mode;
-using v1::splitter_mode;
-
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 
 template <typename Task>
@@ -302,25 +279,8 @@ template <typename Task>
 using decision_tree_visitor_ptr =
     decision_tree::detail::node_visitor_ptr<decision_tree_task_map_t<Task>>;
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-using v1::descriptor_base;
-
-using v1::enable_if_classification_t;
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
-using v1::decision_tree_task_map;
-using v1::decision_tree_task_map_t;
-using v1::decision_tree_visitor_ptr;
-
 } // namespace detail
 
-namespace v1 {
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
@@ -693,16 +653,5 @@ inline constexpr bool is_leaf_node_info_v = is_leaf_node_info<Task>::value;
 
 template <typename Task>
 inline constexpr bool is_split_node_info_v = is_split_node_info<Task>::value;
-} // namespace v1
-
-using v1::descriptor;
-using v1::model;
-using v1::node_info;
-using v1::leaf_node_info;
-using v1::split_node_info;
-using v1::is_leaf_node_info;
-using v1::is_leaf_node_info_v;
-using v1::is_split_node_info;
-using v1::is_split_node_info_v;
 
 } // namespace oneapi::dal::decision_forest

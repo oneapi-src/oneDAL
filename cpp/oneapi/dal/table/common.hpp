@@ -22,15 +22,9 @@
 namespace oneapi::dal {
 
 namespace detail {
-namespace v1 {
 class table_metadata_impl;
-} // namespace v1
-
-using v1::table_metadata_impl;
 
 } // namespace detail
-
-namespace v1 {
 
 enum class feature_type { nominal, ordinal, interval, ratio };
 enum class data_layout { unknown, row_major, column_major };
@@ -66,10 +60,6 @@ public:
 private:
     void serialize(detail::output_archive& ar) const;
     void deserialize(detail::input_archive& ar);
-
-    /// Maintained for backward compatibility
-    table_metadata(const dal::v1::array<data_type>& dtypes,
-                   const dal::v1::array<feature_type>& ftypes);
 
     detail::pimpl<detail::table_metadata_impl> impl_;
 };
@@ -135,13 +125,5 @@ private:
 
     detail::pimpl<detail::table_iface> impl_;
 };
-
-} // namespace v1
-
-using v1::feature_type;
-using v1::data_layout;
-using v1::sparse_indexing;
-using v1::table_metadata;
-using v1::table;
 
 } // namespace oneapi::dal

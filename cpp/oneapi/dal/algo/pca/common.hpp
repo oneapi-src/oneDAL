@@ -24,22 +24,16 @@
 namespace oneapi::dal::pca {
 
 namespace task {
-namespace v1 {
 
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`dimensionality reduction problem <dimensionality reduction>`.
 struct dim_reduction {};
 /// Alias tag-type for dimensionality reduction task.
 using by_default = dim_reduction;
-} // namespace v1
-
-using v1::dim_reduction;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes :ref:`Covariance <pca_t_math_cov>` computational
 /// method.
 struct cov {};
@@ -52,12 +46,6 @@ struct svd {};
 /// Alias tag-type for :ref:`Covariance <pca_t_math_cov>` computational
 /// method.
 using by_default = cov;
-} // namespace v1
-
-using v1::cov;
-using v1::precomputed;
-using v1::svd;
-using v1::by_default;
 
 } // namespace method
 
@@ -95,7 +83,6 @@ const inline result_option_id means = detail::get_means_id();
 } // namespace result_options
 
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 
 template <typename Task>
@@ -140,20 +127,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
@@ -252,10 +226,5 @@ private:
 
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::descriptor;
-using v1::model;
 
 } // namespace oneapi::dal::pca

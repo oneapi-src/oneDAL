@@ -21,7 +21,6 @@
 #include "oneapi/dal/spmd/communicator.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 template <typename... Args>
 auto train(Args&&... args) {
@@ -35,10 +34,6 @@ auto train(sycl::queue& queue, Args&&... args) {
                                        std::forward<Args>(args)...);
 }
 #endif
-
-} // namespace v1
-
-using v1::train;
 
 namespace preview {
 

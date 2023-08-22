@@ -25,7 +25,6 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
-namespace v1 {
 
 struct data_source_tag {};
 class data_source_impl;
@@ -60,15 +59,7 @@ protected:
     dal::detail::pimpl<data_source_impl> impl_;
 };
 
-} // namespace v1
-
-using v1::data_source_tag;
-using v1::data_source_impl;
-using v1::data_source_base;
-
 } // namespace detail
-
-namespace v1 {
 
 class data_source : public detail::data_source_base {
 public:
@@ -96,10 +87,6 @@ public:
         return *this;
     }
 };
-
-} // namespace v1
-
-using v1::data_source;
 
 } // namespace oneapi::dal::csv
 

@@ -19,7 +19,6 @@
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 #define PULL_COLUMN_SIGNATURE_HOST(T)                   \
     void pull_column(const default_host_policy& policy, \
@@ -145,12 +144,5 @@ public:
 #undef DEFINE_TEMPLATE_PULL_COLUMN_DPC
 #undef DEFINE_TEMPLATE_PUSH_COLUMN_HOST
 #undef DEFINE_TEMPLATE_PUSH_COLUMN_DPC
-
-} // namespace v1
-
-using v1::pull_column_iface;
-using v1::pull_column_template;
-using v1::push_column_iface;
-using v1::push_column_template;
 
 } // namespace oneapi::dal::detail

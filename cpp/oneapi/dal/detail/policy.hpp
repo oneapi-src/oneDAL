@@ -24,7 +24,6 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 class host_policy_impl;
 class data_parallel_policy_impl;
@@ -133,22 +132,6 @@ struct is_local_policy<data_parallel_policy> : std::bool_constant<true> {};
 #ifdef ONEDAL_DATA_PARALLEL
 template <>
 struct is_data_parallel_policy<data_parallel_policy> : std::bool_constant<true> {};
-#endif
-
-} // namespace v1
-
-using v1::is_execution_policy_v;
-using v1::is_local_policy_v;
-using v1::is_distributed_policy_v;
-using v1::is_host_policy_v;
-using v1::is_data_parallel_policy_v;
-
-using v1::cpu_extension;
-using v1::default_host_policy;
-using v1::host_policy;
-
-#ifdef ONEDAL_DATA_PARALLEL
-using v1::data_parallel_policy;
 #endif
 
 } // namespace oneapi::dal::detail

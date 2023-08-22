@@ -19,7 +19,6 @@
 #include <daal/src/algorithms/service_kernel_math.h>
 
 namespace oneapi::dal::knn::detail {
-namespace v1 {
 
 using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
 
@@ -29,9 +28,5 @@ public:
     virtual daal_distance_t get_daal_distance_type() = 0;
     virtual double get_degree() = 0;
 };
-
-} // namespace v1
-
-using v1::distance_impl;
 
 } // namespace oneapi::dal::knn::detail

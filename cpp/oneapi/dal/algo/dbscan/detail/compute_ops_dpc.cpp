@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::dbscan::detail {
-namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<Policy, Float, Method, Task> {
@@ -43,5 +42,4 @@ struct compute_ops_dispatcher<Policy, Float, Method, Task> {
 INSTANTIATE(float, method::brute_force, task::clustering)
 INSTANTIATE(double, method::brute_force, task::clustering)
 
-} // namespace v1
 } // namespace oneapi::dal::dbscan::detail

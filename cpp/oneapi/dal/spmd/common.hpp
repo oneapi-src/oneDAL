@@ -23,18 +23,11 @@
 namespace oneapi::dal::preview::spmd {
 
 namespace device_memory_access {
-namespace v1 {
 
 struct usm {};
 struct none {};
-} // namespace v1
-
-using v1::usm;
-using v1::none;
 
 } // namespace device_memory_access
-
-namespace v1 {
 
 enum class reduce_op { max, min, sum };
 
@@ -45,11 +38,5 @@ using enable_if_device_memory_accessible_t =
 template <typename T>
 using enable_if_device_memory_not_accessible_t =
     std::enable_if_t<dal::detail::is_one_of_v<T, device_memory_access::none>>;
-
-} // namespace v1
-
-using v1::reduce_op;
-using v1::enable_if_device_memory_accessible_t;
-using v1::enable_if_device_memory_not_accessible_t;
 
 } // namespace oneapi::dal::preview::spmd

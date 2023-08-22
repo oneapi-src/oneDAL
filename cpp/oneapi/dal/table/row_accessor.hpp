@@ -20,7 +20,6 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 /// Provides access to the range of rows as one contiguous homogeneous block of memory.
 ///
@@ -166,9 +165,5 @@ private:
     detail::shared<detail::pull_rows_iface> pull_iface_;
     detail::shared<detail::push_rows_iface> push_iface_;
 };
-
-} // namespace v1
-
-using v1::row_accessor;
 
 } // namespace oneapi::dal

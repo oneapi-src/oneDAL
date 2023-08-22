@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::decision_tree::detail {
-namespace v1 {
 
 template <typename Task>
 class node_visitor_iface {
@@ -63,12 +62,5 @@ dal::detail::shared<node_visitor_iface<Task>> make_node_visitor(Visitor&& visito
     return std::make_shared<node_visitor_impl<Task, std::decay_t<Visitor>>>(
         std::forward<Visitor>(visitor));
 }
-
-} // namespace v1
-
-using v1::node_visitor_iface;
-using v1::node_visitor_ptr;
-using v1::node_visitor_impl;
-using v1::make_node_visitor;
 
 } // namespace oneapi::dal::decision_tree::detail

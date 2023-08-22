@@ -19,7 +19,6 @@
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename T>
 class array_via_policy {
@@ -74,12 +73,5 @@ inline dal::array<T> discard_mutable_data(const dal::array<T>& ary) {
     }
     return dal::array<T>{ ary, ary.get_data(), ary.get_count() };
 }
-
-} // namespace v1
-
-using v1::array_via_policy;
-using v1::dispath_by_policy;
-using v1::reinterpret_array_cast;
-using v1::discard_mutable_data;
 
 } // namespace oneapi::dal::detail

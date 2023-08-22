@@ -30,7 +30,7 @@ namespace oneapi::dal::svm {
                              (task::nu_regression, NuRegressionId))
 
 template <typename Task>
-class detail::v1::model_impl : public SVM_SERIALIZABLE(Task,
+class detail::model_impl : public SVM_SERIALIZABLE(Task,
                                                        svm_classification_model_impl_id,
                                                        svm_regression_model_impl_id,
                                                        svm_nu_classification_model_impl_id,

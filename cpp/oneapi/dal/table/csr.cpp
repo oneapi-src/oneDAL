@@ -18,7 +18,6 @@
 #include "oneapi/dal/table/backend/csr_table_impl.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 std::int64_t csr_table::kind() {
     return 10;
@@ -108,5 +107,4 @@ void csr_table::init_impl(const detail::data_parallel_policy& policy,
 }
 #endif
 
-} // namespace v1
 } // namespace oneapi::dal

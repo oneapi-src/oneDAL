@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
-namespace v1 {
 
 using dal::detail::host_policy;
 
@@ -47,5 +46,4 @@ INSTANTIATE(double, method::plus_plus_dense, task::init)
 INSTANTIATE(float, method::parallel_plus_dense, task::init)
 INSTANTIATE(double, method::parallel_plus_dense, task::init)
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans_init::detail

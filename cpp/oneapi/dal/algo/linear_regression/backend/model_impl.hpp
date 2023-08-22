@@ -25,7 +25,7 @@ namespace oneapi::dal::linear_regression {
 using norm_eq_proto = ONEDAL_SERIALIZABLE(linear_regression_model_impl_id);
 
 template <typename Task>
-class detail::v1::model_impl : public norm_eq_proto {
+class detail::model_impl : public norm_eq_proto {
 public:
     model_impl() = default;
 

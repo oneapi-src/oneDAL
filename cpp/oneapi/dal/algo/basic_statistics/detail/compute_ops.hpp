@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::basic_statistics::detail {
-namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
@@ -71,9 +70,5 @@ struct compute_ops {
         return result;
     }
 };
-
-} // namespace v1
-
-using v1::compute_ops;
 
 } // namespace oneapi::dal::basic_statistics::detail

@@ -22,22 +22,15 @@
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
+
 class table_metadata;
 enum class data_layout;
 enum class feature_type;
 enum class sparse_indexing;
-} // namespace v1
-
-using v1::table_metadata;
-using v1::data_layout;
-using v1::feature_type;
-using v1::sparse_indexing;
 
 } // namespace oneapi::dal
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 // Inheritance from `access_provider_iface` is needed to support binary backward
 // compatibility with the oneDAL 2021.1. This should be removed in 2022.1.
@@ -196,17 +189,5 @@ public:
         return this;
     }
 };
-
-} // namespace v1
-
-using v1::table_iface;
-using v1::generic_table_template;
-using v1::homogen_table_iface;
-using v1::homogen_table_template;
-using v1::csr_table_iface;
-using v1::csr_table_template;
-using v1::table_builder_iface;
-using v1::homogen_table_builder_iface;
-using v1::homogen_table_builder_template;
 
 } // namespace oneapi::dal::detail

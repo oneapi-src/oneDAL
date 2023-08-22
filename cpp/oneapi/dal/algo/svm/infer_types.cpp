@@ -20,7 +20,7 @@
 namespace oneapi::dal::svm {
 
 template <typename Task>
-class detail::v1::infer_input_impl : public base {
+class detail::infer_input_impl : public base {
 public:
     infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
@@ -30,16 +30,14 @@ public:
 };
 
 template <typename Task>
-class detail::v1::infer_result_impl : public base {
+class detail::infer_result_impl : public base {
 public:
     table responses;
     table decision_function;
 };
 
-using detail::v1::infer_input_impl;
-using detail::v1::infer_result_impl;
-
-namespace v1 {
+using detail::infer_input_impl;
+using detail::infer_result_impl;
 
 template <typename Task>
 infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
@@ -97,5 +95,4 @@ template class ONEDAL_EXPORT infer_result<task::regression>;
 template class ONEDAL_EXPORT infer_input<task::nu_regression>;
 template class ONEDAL_EXPORT infer_result<task::nu_regression>;
 
-} // namespace v1
 } // namespace oneapi::dal::svm

@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::svm::detail {
-namespace v1 {
 
 using dal::detail::host_policy;
 
@@ -49,5 +48,4 @@ INSTANTIATE(float, method::thunder, task::nu_regression)
 INSTANTIATE(double, method::thunder, task::regression)
 INSTANTIATE(double, method::thunder, task::nu_regression)
 
-} // namespace v1
 } // namespace oneapi::dal::svm::detail

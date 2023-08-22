@@ -22,7 +22,6 @@
 #include "oneapi/dal/algo/sigmoid_kernel.hpp"
 
 namespace oneapi::dal::svm::detail {
-namespace v1 {
 
 class kernel_function_impl;
 
@@ -151,15 +150,5 @@ template <typename Descriptor>
 const kernel_function_ptr& get_kernel_ptr(Descriptor&& desc) {
     return kernel_function_accessor{}.get_kernel_impl(std::forward<Descriptor>(desc));
 }
-
-} // namespace v1
-
-using v1::kernel_function_impl;
-using v1::kernel_function_iface;
-using v1::kernel_function_ptr;
-using v1::kernel_function;
-using v1::kernel_function_accessor;
-using v1::get_kernel_function_impl;
-using v1::get_kernel_ptr;
 
 } // namespace oneapi::dal::svm::detail

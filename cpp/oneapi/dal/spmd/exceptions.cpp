@@ -17,7 +17,6 @@
 #include "oneapi/dal/spmd/common.hpp"
 
 namespace oneapi::dal::preview::spmd {
-namespace v1 {
 
 error_holder::error_holder(const std::exception_ptr& actual)
         : std::runtime_error(oneapi::dal::detail::error_messages::spmd_error_holder_message()),
@@ -45,5 +44,4 @@ const char* communication_error::what() const noexcept {
     return std::runtime_error::what();
 }
 
-} // namespace v1
 } // namespace oneapi::dal::preview::spmd

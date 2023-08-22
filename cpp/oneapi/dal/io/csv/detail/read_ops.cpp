@@ -19,7 +19,6 @@
 #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
 
 namespace oneapi::dal::csv::detail {
-namespace v1 {
 
 using dal::detail::host_policy;
 table read_ops_dispatcher<table, host_policy>::operator()(const host_policy& policy,
@@ -30,5 +29,4 @@ table read_ops_dispatcher<table, host_policy>::operator()(const host_policy& pol
     return kernel_dispatcher_t()(policy, ds, args);
 }
 
-} // namespace v1
 } // namespace oneapi::dal::csv::detail

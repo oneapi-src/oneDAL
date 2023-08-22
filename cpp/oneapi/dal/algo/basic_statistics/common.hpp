@@ -23,32 +23,20 @@
 namespace oneapi::dal::basic_statistics {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities that are used to compute statistics.
 struct compute {};
 
 /// Alias tag-type for the compute task.
 using by_default = compute;
 
-} // namespace v1
-
-using v1::compute;
-using v1::by_default;
-
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes dense computational method.
 struct dense {};
 
 /// Alias tag-type for dense computational method.
 using by_default = dense;
-
-} // namespace v1
-
-using v1::dense;
-using v1::by_default;
 
 } // namespace method
 
@@ -104,7 +92,6 @@ const inline result_option_id variation = detail::get_variation_id();
 } // namespace result_options
 
 namespace detail {
-namespace v1 {
 
 struct descriptor_tag {};
 
@@ -141,19 +128,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
@@ -187,9 +162,5 @@ public:
         return *this;
     }
 };
-
-} // namespace v1
-
-using v1::descriptor;
 
 } // namespace oneapi::dal::basic_statistics

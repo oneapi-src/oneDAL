@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::knn::detail {
-namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct train_ops_dispatcher {
@@ -69,9 +68,5 @@ struct train_ops {
         return result;
     }
 };
-
-} // namespace v1
-
-using v1::train_ops;
 
 } // namespace oneapi::dal::knn::detail

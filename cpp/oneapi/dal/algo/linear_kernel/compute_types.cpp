@@ -20,7 +20,7 @@
 namespace oneapi::dal::linear_kernel {
 
 template <typename Task>
-class detail::v1::compute_input_impl : public base {
+class detail::compute_input_impl : public base {
 public:
     compute_input_impl(const table& x, const table& y) : x(x), y(y) {}
     table x;
@@ -28,15 +28,13 @@ public:
 };
 
 template <typename Task>
-class detail::v1::compute_result_impl : public base {
+class detail::compute_result_impl : public base {
 public:
     table values;
 };
 
-using detail::v1::compute_input_impl;
-using detail::v1::compute_result_impl;
-
-namespace v1 {
+using detail::compute_input_impl;
+using detail::compute_result_impl;
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& x, const table& y)
@@ -78,5 +76,4 @@ void compute_result<Task>::set_values_impl(const table& value) {
 template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
 
-} // namespace v1
 } // namespace oneapi::dal::linear_kernel

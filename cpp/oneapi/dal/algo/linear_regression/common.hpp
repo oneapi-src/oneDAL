@@ -25,30 +25,20 @@
 namespace oneapi::dal::linear_regression {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`regression problem <regression>`.
 struct regression {};
 
 /// Alias tag-type for regression task.
 using by_default = regression;
-} // namespace v1
-
-using v1::regression;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes :ref:`normal eqution <norm_eq>` computational method.
 struct norm_eq {};
 
 using by_default = norm_eq;
-} // namespace v1
-
-using v1::norm_eq;
-using v1::by_default;
 
 } // namespace method
 
@@ -81,7 +71,6 @@ const inline result_option_id coefficients = detail::get_coefficients_id();
 } // namespace result_options
 
 namespace detail {
-namespace v1 {
 
 struct descriptor_tag {};
 
@@ -122,20 +111,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float       The floating-point type that the algorithm uses for
 ///                     intermediate computations. Can be :expr:`float` or
@@ -208,10 +184,5 @@ private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::descriptor;
-using v1::model;
 
 } // namespace oneapi::dal::linear_regression

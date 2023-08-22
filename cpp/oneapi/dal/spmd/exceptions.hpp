@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::preview::spmd {
-namespace v1 {
 
 class ONEDAL_EXPORT error_holder : public runtime_error, public std::runtime_error {
 public:
@@ -45,11 +44,5 @@ public:
     using std::runtime_error::runtime_error;
     const char* what() const noexcept override;
 };
-
-} // namespace v1
-
-using v1::error_holder;
-using v1::coworker_error;
-using v1::communication_error;
 
 } // namespace oneapi::dal::preview::spmd

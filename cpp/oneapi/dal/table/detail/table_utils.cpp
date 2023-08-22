@@ -17,7 +17,6 @@
 #include "oneapi/dal/table/detail/table_utils.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 ONEDAL_EXPORT homogen_table_iface* get_homogen_table_iface_impl(table_iface* table) {
     return dynamic_cast<homogen_table_iface*>(table);
@@ -58,5 +57,4 @@ ONEDAL_EXPORT push_column_iface* get_push_column_iface_impl(table_builder_iface*
     return table_builder->get_push_column_iface();
 }
 
-} // namespace v1
 } // namespace oneapi::dal::detail

@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans::detail {
-namespace v1 {
 
 using dal::detail::data_parallel_policy;
 
@@ -45,5 +44,4 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
 INSTANTIATE(float, method::by_default, task::clustering)
 INSTANTIATE(double, method::by_default, task::clustering)
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans::detail

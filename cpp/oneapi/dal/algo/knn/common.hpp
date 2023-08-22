@@ -25,7 +25,6 @@
 
 namespace oneapi::dal::knn {
 
-namespace v1 {
 /// Weight function used in prediction
 enum class voting_mode {
     /// Uniform weights for neighbors for prediction voting.
@@ -33,12 +32,8 @@ enum class voting_mode {
     /// Weight neighbors by the inverse of their distance.
     distance
 };
-} // namespace v1
-
-using v1::voting_mode;
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
@@ -53,17 +48,10 @@ struct search {};
 
 /// Alias tag-type for classification task.
 using by_default = classification;
-} // namespace v1
-
-using v1::classification;
-using v1::regression;
-using v1::search;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes :ref:`k-d tree <knn_t_math_kd_tree>` computational method.
 struct kd_tree {};
 
@@ -74,11 +62,6 @@ struct brute_force {};
 /// Alias tag-type for :ref:`brute-force <knn_t_math_brute_force>` computational
 /// method.
 using by_default = brute_force;
-} // namespace v1
-
-using v1::kd_tree;
-using v1::brute_force;
-using v1::by_default;
 
 } // namespace method
 
@@ -116,7 +99,6 @@ const inline result_option_id responses = detail::get_responses_id();
 } // namespace result_options
 
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 template <typename Task>
 class descriptor_impl;
@@ -201,28 +183,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-using v1::is_valid_distance_v;
-using v1::is_not_search_v;
-using v1::enable_if_search_t;
-using v1::enable_if_regression_t;
-using v1::enable_if_classification_t;
-using v1::enable_if_not_search_t;
-using v1::enable_if_not_classification_t;
-using v1::enable_if_brute_force_t;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float       The floating-point type that the algorithm uses for
 ///                     intermediate computations. Can be :expr:`float` or
@@ -369,10 +330,5 @@ private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::descriptor;
-using v1::model;
 
 } // namespace oneapi::dal::knn

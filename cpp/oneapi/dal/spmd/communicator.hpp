@@ -26,8 +26,6 @@
 
 namespace oneapi::dal::preview::spmd {
 
-namespace v1 {
-
 class request_iface {
 public:
     virtual ~request_iface() = default;
@@ -518,16 +516,6 @@ private:
     mutable std::int32_t error_flag_ = 0;
     mutable std::exception_ptr active_exception_;
 };
-
-} // namespace v1
-
-using v1::request_iface;
-using v1::request;
-using v1::communicator_iface_base;
-#ifdef ONEDAL_DATA_PARALLEL
-using v1::communicator_iface;
-#endif
-using v1::communicator;
 
 template <typename Backend>
 communicator<device_memory_access::none> make_communicator() {

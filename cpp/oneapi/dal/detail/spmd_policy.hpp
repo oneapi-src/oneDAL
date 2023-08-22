@@ -22,7 +22,6 @@
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename MemoryAccessKind>
 class spmd_policy_impl;
@@ -90,15 +89,6 @@ using spmd_host_policy = spmd_policy<host_policy>;
 
 #ifdef ONEDAL_DATA_PARALLEL
 using spmd_data_parallel_policy = spmd_policy<data_parallel_policy>;
-#endif
-
-} // namespace v1
-
-using v1::spmd_policy;
-using v1::spmd_host_policy;
-
-#ifdef ONEDAL_DATA_PARALLEL
-using v1::spmd_data_parallel_policy;
 #endif
 
 } // namespace oneapi::dal::detail

@@ -20,7 +20,6 @@
 #include "oneapi/dal/io/csv/detail/read_ops.hpp"
 
 namespace oneapi::dal::csv::detail {
-namespace v1 {
 
 using dal::detail::data_parallel_policy;
 table read_ops_dispatcher<table, data_parallel_policy>::operator()(
@@ -33,5 +32,4 @@ table read_ops_dispatcher<table, data_parallel_policy>::operator()(
     return kernel_dispatcher_t{}(ctx, ds, args);
 }
 
-} // namespace v1
 } // namespace oneapi::dal::csv::detail

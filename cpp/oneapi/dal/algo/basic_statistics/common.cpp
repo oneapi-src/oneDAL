@@ -66,8 +66,6 @@ result_option_id get_default_result_options() {
            get_variance_id() | get_standard_deviation_id() | get_variation_id();
 }
 
-namespace v1 {
-
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -94,5 +92,4 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
-} // namespace v1
 } // namespace oneapi::dal::basic_statistics::detail

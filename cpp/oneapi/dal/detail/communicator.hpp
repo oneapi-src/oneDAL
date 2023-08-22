@@ -25,7 +25,6 @@
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 #ifdef ONEDAL_DATA_PARALLEL
 /// Implementation of the low-level SPMD communicator interface
@@ -79,12 +78,6 @@ public:
 private:
     sycl::queue queue_;
 };
-#endif
-
-} // namespace v1
-
-#ifdef ONEDAL_DATA_PARALLEL
-using v1::spmd_communicator_via_host_impl;
 #endif
 
 template <typename MemoryAccessKind>

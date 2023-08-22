@@ -19,16 +19,12 @@
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
-enum class sparse_indexing;
-} // namespace v1
 
-using v1::sparse_indexing;
+enum class sparse_indexing;
 
 } // namespace oneapi::dal
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 #define PULL_CSR_BLOCK_SIGNATURE_HOST(T)                          \
     void pull_csr_block(const default_host_policy& policy,        \
@@ -106,10 +102,5 @@ public:
 #undef PULL_CSR_BLOCK_SIGNATURE_DPC
 #undef DECLARE_PULL_CSR_BLOCK_DPC
 #undef DEFINE_TEMPLATE_PULL_CSR_BLOCK_DPC
-
-} // namespace v1
-
-using v1::pull_csr_block_iface;
-using v1::pull_csr_block_template;
 
 } // namespace oneapi::dal::detail

@@ -19,7 +19,6 @@
 // #include <daal/src/algorithms/service_kernel_math.h>
 
 namespace oneapi::dal::objective_function::detail {
-namespace v1 {
 
 class objective_impl : public base {
 public:
@@ -28,9 +27,5 @@ public:
     virtual double get_l2_regularization_coefficient() = 0;
     virtual bool get_intercept_flag() = 0;
 };
-
-} // namespace v1
-
-using v1::objective_impl;
 
 } // namespace oneapi::dal::objective_function::detail

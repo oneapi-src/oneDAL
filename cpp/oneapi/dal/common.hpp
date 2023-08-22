@@ -58,7 +58,6 @@
     (__VA_ARGS__)
 
 namespace oneapi::dal {
-namespace v1 {
 
 using byte_t = std::uint8_t;
 
@@ -94,13 +93,6 @@ public:
     std::int64_t start_idx;
     std::int64_t end_idx;
 };
-
-} // namespace v1
-
-using v1::byte_t;
-using v1::base;
-using v1::data_type;
-using v1::range;
 
 } // namespace oneapi::dal
 

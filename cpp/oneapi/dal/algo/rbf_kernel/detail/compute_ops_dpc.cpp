@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::rbf_kernel::detail {
-namespace v1 {
 
 using dal::detail::data_parallel_policy;
 
@@ -55,5 +54,4 @@ struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 INSTANTIATE(float, method::dense, task::compute)
 INSTANTIATE(double, method::dense, task::compute)
 
-} // namespace v1
 } // namespace oneapi::dal::rbf_kernel::detail

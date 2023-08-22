@@ -19,8 +19,6 @@
 
 namespace oneapi::dal::logloss_objective::detail {
 
-namespace v1 {
-
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -77,7 +75,5 @@ void descriptor_base<Task>::set_intercept_flag_impl(bool fit_intercept) {
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
-
-} // namespace v1
 
 } // namespace oneapi::dal::logloss_objective::detail

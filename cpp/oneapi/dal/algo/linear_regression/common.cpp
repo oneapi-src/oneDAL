@@ -35,7 +35,6 @@ result_option_id get_default_result_options() {
     return result_option_id{};
 }
 
-namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -83,12 +82,9 @@ void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
 
 template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::model_impl;
+using detail::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_{ std::make_shared<detail::model_impl<Task>>() } {}
@@ -126,5 +122,4 @@ template class ONEDAL_EXPORT model<task::regression>;
 
 ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::regression>)
 
-} // namespace v1
 } // namespace oneapi::dal::linear_regression

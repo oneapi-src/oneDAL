@@ -18,7 +18,6 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::kmeans_init::detail {
-namespace v1 {
 
 template <typename Task>
 class descriptor_impl : public base {
@@ -69,5 +68,4 @@ void descriptor_base<Task>::set_local_trials_count_impl(std::int64_t value) {
 
 template class ONEDAL_EXPORT descriptor_base<task::init>;
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans_init::detail

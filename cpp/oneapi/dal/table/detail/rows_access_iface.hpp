@@ -19,7 +19,6 @@
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 #define PULL_ROWS_SIGNATURE_HOST(T) \
     void pull_rows(const default_host_policy& policy, dal::array<T>& block, const range& row_range)
@@ -135,12 +134,5 @@ public:
 #undef DEFINE_TEMPLATE_PULL_ROWS_DPC
 #undef DEFINE_TEMPLATE_PUSH_ROWS_HOST
 #undef DEFINE_TEMPLATE_PUSH_ROWS_DPC
-
-} // namespace v1
-
-using v1::pull_rows_iface;
-using v1::pull_rows_template;
-using v1::push_rows_iface;
-using v1::push_rows_template;
 
 } // namespace oneapi::dal::detail

@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::pca::detail {
-namespace v1 {
 
 using dal::detail::host_policy;
 
@@ -44,5 +43,4 @@ INSTANTIATE(double, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::svd, task::dim_reduction)
 INSTANTIATE(double, method::precomputed, task::dim_reduction)
 
-} // namespace v1
 } // namespace oneapi::dal::pca::detail

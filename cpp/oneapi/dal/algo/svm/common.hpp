@@ -23,7 +23,6 @@
 namespace oneapi::dal::svm {
 
 namespace task {
-namespace v1 {
 
 /// Tag-type that parameterizes entities that are used for solving
 /// :capterm:`classification problem <classification>`.
@@ -43,18 +42,10 @@ struct nu_regression {};
 
 /// Alias tag-type for classification task.
 using by_default = classification;
-} // namespace v1
-
-using v1::classification;
-using v1::regression;
-using v1::nu_classification;
-using v1::nu_regression;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 
 /// Tag-type that denotes :ref:`Thunder <svm_t_math_thunder>` computational
 /// method.
@@ -67,16 +58,10 @@ struct smo {};
 /// Alias tag-type for :ref:`Thunder <svm_t_math_thunder>` computational
 /// method.
 using by_default = thunder;
-} // namespace v1
-
-using v1::thunder;
-using v1::smo;
-using v1::by_default;
 
 } // namespace method
 
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 
 template <typename Task>
@@ -188,28 +173,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::model_impl;
-using v1::descriptor_base;
-
-using v1::enable_if_classification_t;
-using v1::enable_if_regression_t;
-using v1::enable_if_c_available_t;
-using v1::enable_if_epsilon_available_t;
-using v1::enable_if_nu_task_t;
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-using v1::is_valid_method_task_combination;
-using v1::is_valid_method_nu_task_combination;
-using v1::is_valid_kernel_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
@@ -515,10 +479,5 @@ private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>> &impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::descriptor;
-using v1::model;
 
 } // namespace oneapi::dal::svm

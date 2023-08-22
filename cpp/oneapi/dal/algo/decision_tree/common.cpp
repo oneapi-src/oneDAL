@@ -18,7 +18,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::decision_tree {
-namespace v1 {
 
 namespace de = dal::detail;
 
@@ -215,5 +214,4 @@ template class ONEDAL_EXPORT node_info<task::regression>;
 template class ONEDAL_EXPORT split_node_info<task::classification>;
 template class ONEDAL_EXPORT split_node_info<task::regression>;
 
-} // namespace v1
 } // namespace oneapi::dal::decision_tree

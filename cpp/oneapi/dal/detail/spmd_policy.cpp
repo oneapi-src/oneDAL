@@ -17,7 +17,6 @@
 #include "oneapi/dal/detail/spmd_policy.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename MemoryAccessKind>
 class spmd_policy_impl {
@@ -40,5 +39,4 @@ const spmd::communicator<MemoryAccessKind>& spmd_policy_base<MemoryAccessKind>::
 template class spmd_policy_base<spmd::device_memory_access::usm>;
 template class spmd_policy_base<spmd::device_memory_access::none>;
 
-} // namespace v1
 } // namespace oneapi::dal::detail

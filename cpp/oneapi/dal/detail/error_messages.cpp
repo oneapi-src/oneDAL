@@ -22,7 +22,6 @@
     }
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
@@ -346,5 +345,4 @@ MSG(unknown_mpi_error, "SPMD: unknown MPI error")
 MSG(sendrecv_replace_is_not_implemented_for_threaded_communicator,
     "SPMD: sendrecv_replace communicator method is implemented only for MPI and CCL backend")
 
-} // namespace v1
 } // namespace oneapi::dal::detail

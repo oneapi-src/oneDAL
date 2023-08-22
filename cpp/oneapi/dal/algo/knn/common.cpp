@@ -54,7 +54,6 @@ result_option_id get_default_result_options<task::classification>() {
     return get_responses_id();
 }
 
-namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -144,12 +143,9 @@ template class ONEDAL_EXPORT descriptor_base<task::classification>;
 template class ONEDAL_EXPORT descriptor_base<task::regression>;
 template class ONEDAL_EXPORT descriptor_base<task::search>;
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::model_impl;
+using detail::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(nullptr) {}
@@ -179,5 +175,4 @@ ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::search>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::search>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop)
 
-} // namespace v1
 } // namespace oneapi::dal::knn

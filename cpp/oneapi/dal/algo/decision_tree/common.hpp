@@ -23,7 +23,6 @@
 namespace oneapi::dal::decision_tree {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
@@ -34,16 +33,10 @@ struct regression {};
 
 /// Alias tag-type for classification task.
 using by_default = classification;
-} // namespace v1
-
-using v1::classification;
-using v1::regression;
-using v1::by_default;
 
 } // namespace task
 
 namespace detail {
-namespace v1 {
 
 template <typename Task>
 constexpr bool is_valid_task_v =
@@ -57,16 +50,7 @@ class split_node_info_impl;
 
 template <typename Task>
 class leaf_node_info_impl;
-
-} // namespace v1
-
-using v1::node_info_impl;
-using v1::split_node_info_impl;
-using v1::leaf_node_info_impl;
-using v1::is_valid_task_v;
 } // namespace detail
-
-namespace v1 {
 
 /// Class containing base node info in decision tree
 template <typename Task = task::by_default>
@@ -193,15 +177,5 @@ inline constexpr bool is_leaf_node_info_v = is_leaf_node_info<T>::value;
 
 template <typename T>
 inline constexpr bool is_split_node_info_v = is_split_node_info<T>::value;
-
-} // namespace v1
-
-using v1::node_info;
-using v1::split_node_info;
-using v1::leaf_node_info;
-using v1::is_leaf_node_info;
-using v1::is_leaf_node_info_v;
-using v1::is_split_node_info;
-using v1::is_split_node_info_v;
 
 } // namespace oneapi::dal::decision_tree

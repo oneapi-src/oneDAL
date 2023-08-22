@@ -21,7 +21,7 @@
 namespace oneapi::dal::pca {
 
 template <typename Task>
-class detail::v1::infer_input_impl : public base {
+class detail::infer_input_impl : public base {
 public:
     infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
@@ -31,15 +31,13 @@ public:
 };
 
 template <typename Task>
-class detail::v1::infer_result_impl : public base {
+class detail::infer_result_impl : public base {
 public:
     table transformed_data;
 };
 
-using detail::v1::infer_input_impl;
-using detail::v1::infer_result_impl;
-
-namespace v1 {
+using detail::infer_input_impl;
+using detail::infer_result_impl;
 
 template <typename Task>
 infer_input<Task>::infer_input(const model<Task>& trained_model, const table& data)
@@ -81,5 +79,4 @@ void infer_result<Task>::set_transformed_data_impl(const table& value) {
 template class ONEDAL_EXPORT infer_input<task::dim_reduction>;
 template class ONEDAL_EXPORT infer_result<task::dim_reduction>;
 
-} // namespace v1
 } // namespace oneapi::dal::pca

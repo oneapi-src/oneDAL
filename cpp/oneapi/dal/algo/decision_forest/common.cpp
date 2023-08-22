@@ -20,7 +20,6 @@
 
 namespace oneapi::dal::decision_forest {
 namespace detail {
-namespace v1 {
 
 inline void check_domain_cond(bool value, const char* description) {
     if (!(value))
@@ -302,12 +301,9 @@ void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
 template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::model_impl;
+using detail::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
@@ -355,5 +351,4 @@ ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_reg)
 
-} // namespace v1
 } // namespace oneapi::dal::decision_forest

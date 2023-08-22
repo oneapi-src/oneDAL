@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
-namespace v1 {
 
 template <typename Policy, typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<Policy, Float, Task, Method> {
@@ -42,5 +41,4 @@ INSTANTIATE(double, task::classification, method::by_default)
 INSTANTIATE(float, task::regression, method::by_default)
 INSTANTIATE(double, task::regression, method::by_default)
 
-} // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

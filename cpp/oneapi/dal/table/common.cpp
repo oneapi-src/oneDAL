@@ -20,7 +20,6 @@
 
 namespace oneapi::dal {
 namespace detail {
-namespace v1 {
 
 class table_metadata_impl {
 public:
@@ -30,12 +29,9 @@ public:
     virtual const data_type& get_data_type(std::int64_t index) const = 0;
 };
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::table_metadata_impl;
+using detail::table_metadata_impl;
 
 class empty_metadata_impl : public table_metadata_impl,
                             public ONEDAL_SERIALIZABLE(empty_table_metadata_id) {
@@ -122,12 +118,6 @@ table_metadata::table_metadata(const dal::array<data_type>& dtypes,
                                const dal::array<feature_type>& ftypes)
         : impl_(new simple_metadata_impl(dtypes, ftypes)) {}
 
-// This method is needed for compatibility with the oneDAL 2021.1.
-// This should be removed in 2022.1.
-table_metadata::table_metadata(const dal::v1::array<data_type>& dtypes,
-                               const dal::v1::array<feature_type>& ftypes)
-        : impl_(new simple_metadata_impl(dtypes.v2(), ftypes.v2())) {}
-
 int64_t table_metadata::get_feature_count() const {
     return impl_->get_feature_count();
 }
@@ -201,7 +191,6 @@ void table::validate_input_dimensions(std::int64_t row_count, std::int64_t colum
     }
 }
 
-} // namespace v1
 } // namespace oneapi::dal
 
 // We need to make sure that all table types are registered for serialization,

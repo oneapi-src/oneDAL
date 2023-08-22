@@ -27,7 +27,6 @@
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 using preview::spmd::communication_error;
 
@@ -315,9 +314,5 @@ public:
             : spmd::communicator<MemoryAccessKind>(
                   new mpi_communicator_impl<MemoryAccessKind>(default_root)) {}
 };
-
-} // namespace v1
-
-using v1::mpi_communicator;
 
 } // namespace oneapi::dal::detail

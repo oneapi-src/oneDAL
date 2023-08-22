@@ -19,7 +19,6 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 #define MSG(id) static const char* id() noexcept
 
@@ -318,9 +317,5 @@ public:
 };
 
 #undef MSG
-
-} // namespace v1
-
-using v1::error_messages;
 
 } // namespace oneapi::dal::detail

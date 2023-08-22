@@ -18,7 +18,6 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::csv::detail {
-namespace v1 {
 
 class data_source_impl : public base {
 public:
@@ -55,5 +54,4 @@ void data_source_base::set_file_name_impl(const char* value) {
     impl_->file_name = std::string(value);
 }
 
-} // namespace v1
 } // namespace oneapi::dal::csv::detail

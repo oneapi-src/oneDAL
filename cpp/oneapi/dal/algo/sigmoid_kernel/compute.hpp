@@ -21,11 +21,9 @@
 #include "oneapi/dal/compute.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename Descriptor>
 struct compute_ops<Descriptor, dal::sigmoid_kernel::detail::descriptor_tag>
         : dal::sigmoid_kernel::detail::compute_ops<Descriptor> {};
 
-} // namespace v1
 } // namespace oneapi::dal::detail

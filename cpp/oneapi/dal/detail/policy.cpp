@@ -18,7 +18,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 class host_policy_impl : public base {
 public:
@@ -41,5 +40,4 @@ void data_parallel_policy::init_impl(const sycl::queue& queue) {
 }
 #endif
 
-} // namespace v1
 } // namespace oneapi::dal::detail

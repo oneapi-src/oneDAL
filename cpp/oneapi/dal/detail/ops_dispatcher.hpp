@@ -20,7 +20,6 @@
 #include "oneapi/dal/spmd/common.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 struct ops_error_handling_dispatcher {
     template <typename Policy, typename Ops>
@@ -153,11 +152,5 @@ struct ops_policy_dispatcher_object<Object, T, Ops, /* IsPolicy = */ false> {
                               std::forward<Tail>(tail)...);
     }
 };
-
-} // namespace v1
-
-using v1::ops_input_dispatcher;
-using v1::ops_policy_dispatcher;
-using v1::ops_policy_dispatcher_object;
 
 } // namespace oneapi::dal::detail

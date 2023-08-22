@@ -17,7 +17,6 @@
 #pragma once
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 #define ONEDAL_HAS_METHOD_TRAIT(return_value, method_name, params, checker_name)            \
     template <typename _Type>                                                               \
@@ -45,5 +44,4 @@ namespace v1 {
 #define ONEDAL_SIMPLE_HAS_METHOD_TRAIT(return_value, method_name, params) \
     ONEDAL_HAS_METHOD_TRAIT(return_value, method_name, params, method_name)
 
-} // namespace v1
 } // namespace oneapi::dal::detail

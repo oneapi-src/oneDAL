@@ -27,7 +27,6 @@ inline void check_domain_cond(bool value, const char* description) {
 }
 
 namespace detail {
-namespace v1 {
 
 template <typename Task>
 class node_info_impl : public base {
@@ -70,14 +69,6 @@ using enable_if_classification_t =
 
 template <typename T>
 using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
-
-} // namespace v1
-
-using v1::node_info_impl;
-using v1::split_node_info_impl;
-using v1::leaf_node_info_impl;
-using v1::enable_if_classification_t;
-using v1::enable_if_regression_t;
 
 } // namespace detail
 

@@ -22,7 +22,6 @@
 namespace oneapi::dal::svm {
 
 namespace detail {
-namespace v1 {
 
 template <typename Task>
 class descriptor_impl : public base {
@@ -177,12 +176,9 @@ template class ONEDAL_EXPORT descriptor_base<task::nu_classification>;
 template class ONEDAL_EXPORT descriptor_base<task::regression>;
 template class ONEDAL_EXPORT descriptor_base<task::nu_regression>;
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::model_impl;
+using detail::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
@@ -276,5 +272,4 @@ ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::nu_classification>)
 ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::nu_regression>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
 
-} // namespace v1
 } // namespace oneapi::dal::svm

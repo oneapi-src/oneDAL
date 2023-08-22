@@ -21,7 +21,6 @@
 #include "oneapi/dal/algo/cosine_distance/common.hpp"
 
 namespace oneapi::dal::knn::detail {
-namespace v1 {
 
 class distance_impl;
 
@@ -99,13 +98,5 @@ distance_impl* get_distance_impl(Descriptor&& desc) {
     const auto& distance = distance_accessor{}.get_distance_impl(std::forward<Descriptor>(desc));
     return distance ? distance->get_impl() : nullptr;
 }
-
-} // namespace v1
-
-using v1::distance_iface;
-using v1::distance_ptr;
-using v1::distance;
-using v1::distance_accessor;
-using v1::get_distance_impl;
 
 } // namespace oneapi::dal::knn::detail

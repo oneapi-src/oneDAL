@@ -19,7 +19,6 @@
 #include "oneapi/dal/table/detail/table_iface.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 ONEDAL_EXPORT homogen_table_iface* get_homogen_table_iface_impl(table_iface* table);
 ONEDAL_EXPORT pull_rows_iface* get_pull_rows_iface_impl(table_iface* table);
@@ -68,14 +67,5 @@ inline std::shared_ptr<pull_csr_block_iface> get_pull_csr_block_iface(Object&& o
     return std::shared_ptr<pull_csr_block_iface>{ pimpl,
                                                   get_pull_csr_block_iface_impl(pimpl.get()) };
 }
-
-} // namespace v1
-
-using v1::get_homogen_table_iface;
-using v1::get_pull_column_iface;
-using v1::get_push_column_iface;
-using v1::get_pull_rows_iface;
-using v1::get_push_rows_iface;
-using v1::get_pull_csr_block_iface;
 
 } // namespace oneapi::dal::detail

@@ -19,7 +19,6 @@
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 /// Retrieves original data from homogen table including information about
 /// mutability. If the table was created from custom implementation, returns
@@ -32,9 +31,5 @@ namespace v1 {
 inline dal::array<byte_t> get_original_data(const homogen_table& t) {
     return detail::cast_impl<detail::homogen_table_iface>(t).get_data();
 }
-
-} // namespace v1
-
-using v1::get_original_data;
 
 } // namespace oneapi::dal::detail

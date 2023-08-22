@@ -21,20 +21,13 @@
 namespace oneapi::dal::svm {
 
 namespace detail {
-namespace v1 {
 template <typename Task>
 class train_input_impl;
 
 template <typename Task>
 class train_result_impl;
-} // namespace v1
-
-using v1::train_input_impl;
-using v1::train_result_impl;
 
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve.
 /// Can be
@@ -193,10 +186,5 @@ protected:
 private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
-
-} // namespace v1
-
-using v1::train_input;
-using v1::train_result;
 
 } // namespace oneapi::dal::svm

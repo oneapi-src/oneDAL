@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::knn::detail {
-namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct infer_ops_dispatcher<Policy, Float, Method, Task> {
@@ -53,5 +52,4 @@ INSTANTIATE(double, method::kd_tree, task::regression)
 INSTANTIATE(float, method::brute_force, task::regression)
 INSTANTIATE(double, method::brute_force, task::regression)
 
-} // namespace v1
 } // namespace oneapi::dal::knn::detail

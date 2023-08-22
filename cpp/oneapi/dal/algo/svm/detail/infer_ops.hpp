@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::svm::detail {
-namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct infer_ops_dispatcher {
@@ -88,9 +87,5 @@ struct infer_ops {
         return result;
     }
 };
-
-} // namespace v1
-
-using v1::infer_ops;
 
 } // namespace oneapi::dal::svm::detail

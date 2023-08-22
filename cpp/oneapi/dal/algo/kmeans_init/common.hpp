@@ -22,21 +22,15 @@
 namespace oneapi::dal::kmeans_init {
 
 namespace task {
-namespace v1 {
 /// Tag-type that parameterizes entities used for obtaining the initial K-Means centroids.
 struct init {};
 
 /// Alias tag-type for the initialization task.
 using by_default = init;
-} // namespace v1
-
-using v1::init;
-using v1::by_default;
 
 } // namespace task
 
 namespace method {
-namespace v1 {
 /// Tag-type that denotes :ref:`dense <kmeans_init_c_math_dense>`
 /// computational method.
 struct dense {};
@@ -50,18 +44,10 @@ struct plus_plus_dense {};
 /// computational method.
 struct parallel_plus_dense {};
 using by_default = dense;
-} // namespace v1
-
-using v1::dense;
-using v1::random_dense;
-using v1::plus_plus_dense;
-using v1::parallel_plus_dense;
-using v1::by_default;
 
 } // namespace method
 
 namespace detail {
-namespace v1 {
 
 struct descriptor_tag {};
 template <typename Task>
@@ -114,19 +100,7 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::descriptor_base;
-
-using v1::is_valid_float_v;
-using v1::is_valid_method_v;
-using v1::is_valid_task_v;
-
 } // namespace detail
-
-namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
@@ -167,12 +141,12 @@ public:
         return *this;
     }
 
-    template <typename M = Method, typename = detail::v1::enable_if_not_default_dense<M>>
+    template <typename M = Method, typename = detail::enable_if_not_default_dense<M>>
     auto& get_seed() const {
         return base_t::get_seed();
     }
 
-    template <typename M = Method, typename = detail::v1::enable_if_not_default_dense<M>>
+    template <typename M = Method, typename = detail::enable_if_not_default_dense<M>>
     auto& set_seed(std::int64_t value) {
         base_t::set_seed_impl(value);
         return *this;
@@ -184,20 +158,16 @@ public:
     /// of trials is 2 + int(log(cluster_count))
     /// @invariant :expr:`local_trials > 0` or :expr`local_trials = -1`
     /// @remark default = -1
-    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    template <typename M = Method, typename = detail::enable_if_plus_plus_dense<M>>
     auto& get_local_trials_count() const {
         return base_t::get_local_trials_count();
     }
 
-    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    template <typename M = Method, typename = detail::enable_if_plus_plus_dense<M>>
     auto& set_local_trials_count(std::int64_t value = -1) {
         base_t::set_local_trials_count_impl(value);
         return *this;
     }
 };
-
-} // namespace v1
-
-using v1::descriptor;
 
 } // namespace oneapi::dal::kmeans_init

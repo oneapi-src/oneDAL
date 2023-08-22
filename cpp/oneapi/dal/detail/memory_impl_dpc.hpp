@@ -21,7 +21,6 @@
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 ONEDAL_EXPORT void* malloc(const data_parallel_policy&, std::size_t size, const sycl::usm::alloc&);
 ONEDAL_EXPORT void free(const data_parallel_policy&, void* pointer);
@@ -92,18 +91,6 @@ private:
     data_parallel_policy policy_;
     sycl::usm::alloc kind_;
 };
-
-} // namespace v1
-
-using v1::malloc;
-using v1::free;
-using v1::memset;
-using v1::memcpy;
-using v1::memcpy_usm2host;
-using v1::memcpy_host2usm;
-using v1::is_known_usm_pointer_type;
-using v1::fill;
-using v1::data_parallel_allocator;
 
 } // namespace oneapi::dal::detail
 

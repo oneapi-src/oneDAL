@@ -19,7 +19,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::linear_regression::detail {
-namespace v1 {
 
 using dal::detail::host_policy;
 
@@ -40,5 +39,4 @@ struct infer_ops_dispatcher<host_policy, Float, Method, Task> {
 INSTANTIATE(float, method::norm_eq, task::regression)
 INSTANTIATE(double, method::norm_eq, task::regression)
 
-} // namespace v1
 } // namespace oneapi::dal::linear_regression::detail

@@ -18,10 +18,8 @@
 #include "oneapi/dal/table/backend/homogen_table_builder_impl.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 homogen_table_builder::homogen_table_builder()
         : table_builder(new backend::homogen_table_builder_impl{}) {}
 
-} // namespace v1
 } // namespace oneapi::dal::detail

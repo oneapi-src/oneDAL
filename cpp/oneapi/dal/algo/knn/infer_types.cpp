@@ -21,7 +21,7 @@
 namespace oneapi::dal::knn {
 
 template <typename Task>
-class detail::v1::infer_input_impl : public base {
+class detail::infer_input_impl : public base {
 public:
     infer_input_impl(const table& data, const model<Task>& m) : data(data), trained_model(m) {}
 
@@ -30,7 +30,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::infer_result_impl : public base {
+class detail::infer_result_impl : public base {
 public:
     table responses;
     table indices;
@@ -38,10 +38,8 @@ public:
     result_option_id options;
 };
 
-using detail::v1::infer_input_impl;
-using detail::v1::infer_result_impl;
-
-namespace v1 {
+using detail::infer_input_impl;
+using detail::infer_result_impl;
 
 template <typename Task>
 infer_input<Task>::infer_input(const table& data, const model<Task>& m)
@@ -141,5 +139,4 @@ template class ONEDAL_EXPORT infer_result<task::regression>;
 template class ONEDAL_EXPORT infer_input<task::search>;
 template class ONEDAL_EXPORT infer_result<task::search>;
 
-} // namespace v1
 } // namespace oneapi::dal::knn

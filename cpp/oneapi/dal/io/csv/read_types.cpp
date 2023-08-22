@@ -22,14 +22,11 @@
 namespace oneapi::dal::csv {
 
 template <>
-class detail::v1::read_args_impl<table> : public base {
+class detail::read_args_impl<table> : public base {
 public:
     read_args_impl() {}
 };
 
-namespace v1 {
-
 read_args<table>::read_args() : impl_(new detail::read_args_impl<table>()) {}
 
-} // namespace v1
 } // namespace oneapi::dal::csv

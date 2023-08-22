@@ -18,7 +18,6 @@
 #include "oneapi/dal/algo/objective_function/backend/objective_impl.hpp"
 
 namespace oneapi::dal::objective_function::detail {
-namespace v1 {
 
 template <typename F, typename M>
 using logloss_objective_t = logloss_objective::descriptor<F, M>;
@@ -62,5 +61,4 @@ objective_impl* objective<logloss_objective_t<F, M>>::get_impl() const {
 INSTANTIATE_LOGLOSS(float, logloss_objective::method::dense_batch)
 INSTANTIATE_LOGLOSS(double, logloss_objective::method::dense_batch)
 
-} // namespace v1
 } // namespace oneapi::dal::objective_function::detail

@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/array_utils.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 class ONEDAL_EXPORT csr_table : public table {
     friend detail::pimpl_accessor;
@@ -414,10 +413,5 @@ private:
                    const std::vector<sycl::event>& dependencies);
 #endif
 };
-
-} // namespace v1
-
-using v1::sparse_indexing;
-using v1::csr_table;
 
 } // namespace oneapi::dal

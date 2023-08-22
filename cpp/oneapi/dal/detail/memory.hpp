@@ -23,7 +23,6 @@
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename T>
 class empty_delete {
@@ -57,12 +56,6 @@ inline auto make_default_delete(const detail::data_parallel_policy& policy) {
 }
 
 #endif
-
-} // namespace v1
-
-using v1::empty_delete;
-using v1::default_delete;
-using v1::make_default_delete;
 
 } // namespace oneapi::dal::detail
 

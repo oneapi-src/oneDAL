@@ -21,7 +21,6 @@
 #include "oneapi/dal/table/detail/homogen_utils.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 class ONEDAL_EXPORT table_builder {
     friend pimpl_accessor;
@@ -125,10 +124,5 @@ private:
         return cast_impl<homogen_table_builder_iface>(*this);
     }
 };
-
-} // namespace v1
-
-using v1::table_builder;
-using v1::homogen_table_builder;
 
 } // namespace oneapi::dal::detail

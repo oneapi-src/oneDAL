@@ -19,7 +19,6 @@
 #include "oneapi/dal/detail/ops_dispatcher.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename Descriptor, typename Tag>
 struct train_ops;
@@ -32,9 +31,5 @@ auto train_dispatch(Head&& head, Tail&&... tail) {
     using dispatcher_t = ops_policy_dispatcher<std::decay_t<Head>, tagged_train_ops>;
     return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
-
-} // namespace v1
-
-using v1::train_dispatch;
 
 } // namespace oneapi::dal::detail

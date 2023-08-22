@@ -19,7 +19,6 @@
 #include "oneapi/dal/algo/logloss_objective/common.hpp"
 
 namespace oneapi::dal::objective_function::detail {
-namespace v1 {
 
 class objective_impl;
 
@@ -74,13 +73,5 @@ objective_impl* get_objective_impl(Descriptor&& desc) {
     const auto& objective = objective_accessor{}.get_objective_impl(std::forward<Descriptor>(desc));
     return objective ? objective->get_impl() : nullptr;
 }
-
-} // namespace v1
-
-using v1::objective_iface;
-using v1::objective_ptr;
-using v1::objective;
-using v1::objective_accessor;
-using v1::get_objective_impl;
 
 } // namespace oneapi::dal::objective_function::detail

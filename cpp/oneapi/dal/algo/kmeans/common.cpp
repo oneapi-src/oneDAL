@@ -20,7 +20,6 @@
 
 namespace oneapi::dal::kmeans {
 namespace detail {
-namespace v1 {
 
 template <typename Task>
 class descriptor_impl : public base {
@@ -91,12 +90,9 @@ void descriptor_base<Task>::set_accuracy_threshold_impl(double value) {
 
 template class ONEDAL_EXPORT descriptor_base<task::clustering>;
 
-} // namespace v1
 } // namespace detail
 
-namespace v1 {
-
-using detail::v1::model_impl;
+using detail::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
@@ -130,5 +126,4 @@ template class ONEDAL_EXPORT model<task::clustering>;
 
 ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::clustering>)
 
-} // namespace v1
 } // namespace oneapi::dal::kmeans

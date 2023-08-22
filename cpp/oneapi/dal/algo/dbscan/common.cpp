@@ -39,8 +39,6 @@ result_option_id get_core_flags_id() {
 template <typename Task>
 const result_option_id default_result_options = result_options::responses;
 
-namespace v1 {
-
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -108,7 +106,6 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 
 template class ONEDAL_EXPORT descriptor_base<task::clustering>;
 
-} // namespace v1
 } // namespace detail
 
 } // namespace oneapi::dal::dbscan

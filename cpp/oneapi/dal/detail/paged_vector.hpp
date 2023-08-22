@@ -19,7 +19,6 @@
 #include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename T>
 class paged_vector_page {
@@ -197,10 +196,5 @@ private:
     std::int64_t min_page_size_;
     page_t* last_;
 };
-
-} // namespace v1
-
-using v1::paged_vector_page;
-using v1::paged_vector;
 
 } // namespace oneapi::dal::detail

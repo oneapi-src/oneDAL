@@ -41,8 +41,6 @@ result_option_id get_default_result_options<task::compute>() {
     return get_cov_matrix_id();
 }
 
-namespace v1 {
-
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -68,5 +66,4 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
-} // namespace v1
 } // namespace oneapi::dal::covariance::detail

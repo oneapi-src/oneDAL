@@ -20,7 +20,7 @@
 namespace oneapi::dal::knn {
 
 template <typename Task>
-class detail::v1::train_input_impl : public base {
+class detail::train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& responses = table{})
             : data(data),
@@ -31,15 +31,14 @@ public:
 };
 
 template <typename Task>
-class detail::v1::train_result_impl : public base {
+class detail::train_result_impl : public base {
 public:
     model<Task> trained_model;
 };
 
-using detail::v1::train_input_impl;
-using detail::v1::train_result_impl;
+using detail::train_input_impl;
+using detail::train_result_impl;
 
-namespace v1 {
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses)
@@ -88,5 +87,4 @@ template class ONEDAL_EXPORT train_result<task::regression>;
 template class ONEDAL_EXPORT train_input<task::search>;
 template class ONEDAL_EXPORT train_result<task::search>;
 
-} // namespace v1
 } // namespace oneapi::dal::knn
