@@ -21,10 +21,10 @@ tbb_repo = repos.prebuilt_libs_repo_rule(
         "include",
     ],
     libs = [
-        "lib/intel64/gcc4.8/libtbb.so",
-        "lib/intel64/gcc4.8/libtbb.so.12",
-        "lib/intel64/gcc4.8/libtbbmalloc.so",
-        "lib/intel64/gcc4.8/libtbbmalloc.so.2",
+        "lib/libtbb.so",
+        "lib/libtbb.so.12",
+        "lib/libtbbmalloc.so",
+        "lib/libtbbmalloc.so.2",
     ],
     build_template = "@onedal//dev/bazel/deps:tbb.tpl.BUILD",
 )

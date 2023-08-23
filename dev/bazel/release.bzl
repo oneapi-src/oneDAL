@@ -73,7 +73,7 @@ def _copy_include(ctx, prefix):
     return dst_files
 
 def _copy_lib(ctx, prefix):
-    lib_prefix = paths.join(prefix, "lib", "intel64")
+    lib_prefix = paths.join(prefix, "lib")
     libs = _collect_default_files(ctx.attr.lib)
     dst_files = []
     for lib in libs:

@@ -9,7 +9,7 @@ cc_library(
 cc_library(
     name = "tbb_binary",
     srcs = [
-        "lib/intel64/gcc4.8/libtbb.so.12",
+        "lib/libtbb.so.12",
     ],
     linkopts = [
         "-lpthread",
@@ -19,7 +19,7 @@ cc_library(
 cc_library(
     name = "tbbmalloc_binary",
     srcs = [
-        "lib/intel64/gcc4.8/libtbbmalloc.so.2",
+        "lib/libtbbmalloc.so.2",
     ],
 )
 

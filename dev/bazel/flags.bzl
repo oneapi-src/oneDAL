@@ -51,9 +51,11 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
             flags = flags + [
                 "-qopenmp-simd",
                 "-no-intel-lib=libirc",
+                "-no-canonical-prefixes",
             ]
         if compiler_id == "icpx":
             flags = flags + ["-fsycl"]
+            flags = flags + ["-no-canonical-prefixes"]
         if compiler_id == "icpx" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]
