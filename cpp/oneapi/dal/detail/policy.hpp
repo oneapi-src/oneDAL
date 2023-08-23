@@ -113,7 +113,7 @@ private:
     pimpl<host_policy_impl> impl_;
 };
 
-class ONEDAL_EXPORT default_host_policy: public host_policy {
+class ONEDAL_EXPORT default_host_policy : public host_policy {
 public:
     default_host_policy() : host_policy{ host_policy::get_default() } {}
 };
