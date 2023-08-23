@@ -394,6 +394,8 @@ array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(const Policy& dst_
 }
 
 chunked_array_base chunked_array_base::get_slice_impl(std::int64_t first, std::int64_t last) const {
+    constexpr std::int64_t zero = 0l;
+
     if (first == last) {
         return chunked_array_base{};
     }
@@ -412,12 +414,12 @@ chunked_array_base chunked_array_base::get_slice_impl(std::int64_t first, std::i
     const auto last_idx = std::distance(fiter, last_array);
     ONEDAL_ASSERT(first_idx <= last_idx);
 
-    [[maybe_unused]] std::int64_t offset = 0l;
+    std::int64_t offset = zero;
     chunked_array_base result(last_idx - first_idx);
     for (std::int64_t i = first_idx; i < last_idx; ++i) {
         const auto& chunk = this->get_chunk_impl(i);
 
-        const auto first_in_chunk = (i != 0l) ? offsets.at(i - 1l) : 0l;
+        const auto first_in_chunk = (i != zero) ? offsets.at(i - 1l) : zero;
         const auto last_in_chunk = offsets.at(i);
         const auto chunk_size = last_in_chunk - first_in_chunk;
         ONEDAL_ASSERT(chunk_size == chunk.get_size_in_bytes());
@@ -433,7 +435,7 @@ chunked_array_base chunked_array_base::get_slice_impl(std::int64_t first, std::i
             const auto prefix_offset = first - first_in_chunk;
             const auto suffix_offset = chunk_size - (last_in_chunk - last);
 
-            const auto prefix = std::max(prefix_offset, 0l);
+            const auto prefix = std::max(prefix_offset, zero);
             const auto suffix = std::min(suffix_offset, chunk_size);
 
             auto slice = chunk.get_slice(prefix, suffix);
