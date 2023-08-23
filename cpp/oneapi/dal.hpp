@@ -24,6 +24,8 @@
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/read.hpp"
 #include "oneapi/dal/train.hpp"
+#include "oneapi/dal/partial_compute.hpp"
+#include "oneapi/dal/finalize_compute.hpp"
 
 /* Tables */
 #include "oneapi/dal/table/common.hpp"
