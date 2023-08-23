@@ -117,7 +117,7 @@ auto task_executor::execute(F&& f) -> decltype(f()) {
         else {
             result_t result;
             non_void_task wrapper(std::forward<F>(f), &result);
-            thread_pinner_->execute(wrapper);
+            thread_pinner_->execute(std::move(wrapper));
             return result;
         }
     }
