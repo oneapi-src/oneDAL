@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/chunked_array_impl.hpp"
 
 namespace oneapi::dal {
@@ -243,12 +244,11 @@ public:
     template <typename... Arrays>
     chunked_array& append(const Arrays&... arrays) {
         // Check for having the same type
-        (
-            []() {
-                using arr_t = typename Arrays::data_t;
-                static_assert(std::is_same_v<data_t, arr_t>);
-            }(),
-            ...);
+        detail::apply<(typename Arrays::data_t)...>(
+        [](auto type) -> void {
+            using data_t = std::decay_t<decltype(type)>;
+            static_assert(std::is_same_v<data_t, arr_t>);
+        });
 
         base_t::append(arrays...);
 

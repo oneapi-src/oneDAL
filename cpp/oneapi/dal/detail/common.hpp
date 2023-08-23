@@ -263,6 +263,11 @@ inline constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
 }
 
+template <typename... Types, typename Op>
+constexpr inline void apply(Op&& op) {
+    ((void) op(Types{}), ...);
+}
+
 template <typename Data>
 struct integer_overflow_ops {
     void check_mul_overflow(const Data& first, const Data& second);
