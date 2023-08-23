@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -244,11 +244,13 @@ public:
     template <typename... Arrays>
     chunked_array& append(const Arrays&... arrays) {
         // Check for having the same type
-        detail::apply<(typename Arrays::data_t)...>(
-        [](auto type) -> void {
-            using data_t = std::decay_t<decltype(type)>;
-            static_assert(std::is_same_v<data_t, arr_t>);
-        });
+        detail::apply(
+            [](const auto& array) -> void {
+                using arr_t = std::decay_t<decltype(array)>;
+                using data_t = typename arr_t::data_t;
+                static_assert(std::is_same_v<data_t, arr_t>);
+            },
+            arrays...);
 
         base_t::append(arrays...);
 

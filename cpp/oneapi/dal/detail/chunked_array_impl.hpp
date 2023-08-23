@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/array_impl.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
@@ -79,11 +80,11 @@ public:
 
     template <typename... Arrays>
     void append(const Arrays&... arrays) const {
-        (
-            [&, this]() {
-                this->append_impl(arrays);
-            }(),
-            ...);
+        detail::apply(
+            [&, this](const auto& array) {
+                this->append_impl(array);
+            },
+            arrays...);
     }
 
     chunked_array_base(std::int64_t chunk_count) {
@@ -104,11 +105,11 @@ public:
         std::int64_t chunk = 0l;
 
         // Template trick to init implementation using fold expression
-        (
-            [&, this]() {
-                this->set_chunk_impl(chunk++, arrays);
-            }(),
-            ...);
+        detail::apply(
+            [&, this](const auto& array) -> void {
+                this->set_chunk_impl(chunk++, array);
+            },
+            arrays...);
 
         // Checks that we used all input arrays
         ONEDAL_ASSERT(chunk == this->get_chunk_count());

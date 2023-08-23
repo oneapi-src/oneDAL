@@ -18,6 +18,8 @@
 
 #include "oneapi/dal/table/common.hpp"
 
+#include "oneapi/dal/detail/common.hpp"
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
@@ -31,12 +33,12 @@ inline dal::array<data_type> find_array_dtypes() {
 
     std::int64_t feature = 0l;
 
-    (
-        [&]() {
-            using type_t = std::decay_t<Types>;
+    detail::apply(
+        [&](const auto& type) -> void {
+            using type_t = std::decay_t<decltype(type)>;
             dt_ptr[feature++] = make_data_type<type_t>();
-        }(),
-        ...);
+        },
+        Types{}...);
 
     ONEDAL_ASSERT(feature == count);
 
@@ -58,11 +60,12 @@ inline dal::array<feature_type> find_array_ftypes() {
 
     std::int64_t feature = 0l;
 
-    (
-        [&]() {
-            ft_ptr[feature++] = make_feature_type(Types{});
-        }(),
-        ...);
+    detail::apply(
+        [&](const auto& type) -> void {
+            using type_t = std::decay_t<decltype(type)>;
+            ft_ptr[feature++] = make_feature_type(type_t{});
+        },
+        Types{}...);
 
     ONEDAL_ASSERT(feature == count);
 

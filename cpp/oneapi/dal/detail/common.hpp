@@ -265,7 +265,12 @@ inline constexpr bool is_floating_point() {
 
 template <typename... Types, typename Op>
 constexpr inline void apply(Op&& op) {
-    ((void) op(Types{}), ...);
+    ((void)op(Types{}), ...);
+}
+
+template <typename Op, typename... Args>
+constexpr inline void apply(Op&& op, Args&&... args) {
+    ((void)op(std::forward<Args>(args)), ...);
 }
 
 template <typename Data>
@@ -363,6 +368,8 @@ inline bool is_safe_mul(const Data& first, const Data& second, Data& mul_result)
 }
 
 } // namespace v2
+
+using v1::apply;
 
 using v1::is_one_of;
 using v1::is_one_of_v;
