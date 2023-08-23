@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,19 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/covariance/compute.hpp"
-#include "oneapi/dal/algo/covariance/partial_compute.hpp"
-#include "oneapi/dal/algo/covariance/finalize_compute.hpp"
+#include "oneapi/dal/algo/covariance/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/util/common.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+
+namespace oneapi::dal::covariance::backend {
+
+template <typename Float, typename Method, typename Task>
+struct partial_compute_kernel_gpu {
+    partial_compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                            const detail::descriptor_base<Task>& params,
+                                            const partial_compute_input<Task>& input) const;
+};
+
+} // namespace oneapi::dal::covariance::backend
