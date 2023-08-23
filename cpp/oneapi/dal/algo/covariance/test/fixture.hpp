@@ -50,7 +50,7 @@ public:
 
     template <typename Float>
     std::vector<dal::table> split_table_by_rows(const dal::table& t, std::int64_t split_count) {
-        ONEDAL_ASSERT(split_count > 0);
+        ONEDAL_ASSERT(0l < split_count);
         ONEDAL_ASSERT(split_count <= t.get_row_count());
 
         const std::int64_t row_count = t.get_row_count();
@@ -145,7 +145,7 @@ public:
         INFO("run compute optional: cov cor means");
         auto partial_result = dal::covariance::partial_compute_result();
         auto input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         auto compute_result = this->finalize_compute(cov_desc, partial_result);
@@ -158,7 +158,7 @@ public:
         INFO("run compute optional: cov");
         partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
@@ -171,7 +171,7 @@ public:
         INFO("run compute optional: cor");
         partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
@@ -184,7 +184,7 @@ public:
         INFO("run compute optional: means");
         partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
@@ -197,7 +197,7 @@ public:
         INFO("run compute optional: cov cor");
         partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
@@ -210,7 +210,7 @@ public:
         INFO("run compute optional: cov means");
         partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
@@ -223,7 +223,7 @@ public:
         INFO("run compute optional: cor means");
         partial_result = dal::covariance::partial_compute_result();
         input_table = split_table_by_rows<double>(data, 10);
-        for (int i = 0; i < 10; i++) {
+        for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
