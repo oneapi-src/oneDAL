@@ -28,7 +28,7 @@ dal_test_suite(
         "detail/test/homogen_utils.cpp",
         "detail/test/metadata_utils.cpp",
         "backend/test/copy_convert_cpp.cpp",
-        "backend/test/copy_convert_dpc.cpp",
+        "backend/test/copy_convert_gpu.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",

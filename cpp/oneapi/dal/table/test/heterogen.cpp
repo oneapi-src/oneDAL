@@ -19,9 +19,19 @@
 #include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/backend/common.hpp"
 
 namespace oneapi::dal::test {
+
+template <typename Type>
+inline Type* begin(const dal::array<Type>& arr) {
+    ONEDAL_ASSERT(arr.has_mutable_data());
+    return arr.get_mutable_data();
+}
+
+template <typename Type>
+inline Type* end(const dal::array<Type>& arr) {
+    return begin(arr) + arr.get_count();
+}
 
 TEST("can construct empty table") {
     heterogen_table t;
@@ -270,9 +280,6 @@ TEST("Can get row slice from host to shared") {
 TEST("Can get row slice from heterogen to shared") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
-
-    using dal::backend::end;
-    using dal::backend::begin;
 
     constexpr auto device = sycl::usm::alloc::device;
     constexpr auto shared = sycl::usm::alloc::shared;
