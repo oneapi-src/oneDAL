@@ -104,6 +104,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     Result * result                                              = static_cast<Result *>(_res);
     decision_forest::classification::Model * m                   = result->get(classifier::training::model).get();
     decision_forest::classification::internal::ModelImpl * pImpl = dynamic_cast<decision_forest::classification::internal::ModelImpl *>(m);
+    if (pImpl == NULL)
+    {
+        return services::Status(services::ErrorNullParameterNotSupported);
+    }
     DAAL_ASSERT(pImpl);
     pImpl->clear();
     return services::Status();
