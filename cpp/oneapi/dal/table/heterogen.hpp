@@ -24,6 +24,8 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/detail/metadata_utils.hpp"
 
+#include "oneapi/dal/detail/common.hpp"
+
 namespace oneapi::dal {
 namespace v1 {
 
@@ -56,13 +58,13 @@ public:
         ONEDAL_ASSERT(count == result.get_column_count());
 
         std::int64_t column = 0l;
-        (
-            [&]() -> void {
-                //const data_type dt = meta.get_data_type(column);
-                result.set_column(column++, std::forward<Arrays>(arrays));
-                //result.set_column_impl(column++, dt, std::forward<Arrays>(arrays));
-            }(),
-            ...);
+
+        detail::apply(
+            [&](const auto& array) -> void {
+                result.set_column(column++, array);
+            },
+            std::forward<Arrays>(arrays)...);
+
         ONEDAL_ASSERT(column == count);
 
         return result;

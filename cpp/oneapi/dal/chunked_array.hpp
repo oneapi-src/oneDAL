@@ -247,8 +247,8 @@ public:
         detail::apply(
             [](const auto& array) -> void {
                 using arr_t = std::decay_t<decltype(array)>;
-                using data_t = typename arr_t::data_t;
-                static_assert(std::is_same_v<data_t, arr_t>);
+                using arr_data_t = typename arr_t::data_t;
+                static_assert(std::is_same_v<data_t, arr_data_t>);
             },
             arrays...);
 
