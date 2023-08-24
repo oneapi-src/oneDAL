@@ -1276,7 +1276,7 @@ public:
                 if (resPrediction) resPrediction[i] = algorithmFPType(0);
             }
         }
-        if (res) *res = _res / algorithmFPType(nPredicted);
+        if (res && nPredicted > 0) *res = _res / algorithmFPType(nPredicted);
         if (resR2) *resR2 = 1 - _res / sumMeanDiff;
         return Status();
     }
