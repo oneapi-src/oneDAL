@@ -122,6 +122,7 @@ protected:
     Model() : classifier::Model() {}
 };
 /** @} */
+typedef services::SharedPtr<Model> ModelPtr;
 
 } // namespace classification
 } // namespace gbt

@@ -27,18 +27,6 @@ class empty_table_impl : public detail::generic_table_template<empty_table_impl>
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
 
-    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_host& get_access_iface_host() const override {
-        return compat_acc_.get_host_accessor();
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_dpc& get_access_iface_dpc() const override {
-        return compat_acc_.get_dpc_accessor();
-    }
-#endif
-
     std::int64_t get_column_count() const override {
         return 0;
     }
@@ -114,9 +102,6 @@ public:
     void deserialize(detail::input_archive& ar) override {
         // Nothing to deserialize
     }
-
-private:
-    mutable compat_accessor compat_acc_;
 };
 
 } // namespace oneapi::dal::backend

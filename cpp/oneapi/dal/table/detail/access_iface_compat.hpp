@@ -81,11 +81,6 @@ using access_iface_dpc = access_iface<data_parallel_policy, data_parallel_alloca
 class access_provider_iface {
 public:
     virtual ~access_provider_iface() {}
-
-    virtual access_iface_host& get_access_iface_host() const = 0;
-#ifdef ONEDAL_DATA_PARALLEL
-    virtual access_iface_dpc& get_access_iface_dpc() const = 0;
-#endif
 };
 
 } // namespace oneapi::dal::detail

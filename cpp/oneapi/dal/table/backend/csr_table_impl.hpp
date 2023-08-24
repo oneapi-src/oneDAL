@@ -121,20 +121,6 @@ public:
     }
 #endif
 
-    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_host& get_access_iface_host() const override {
-        using msg = detail::error_messages;
-        throw dal::internal_error{ msg::object_does_not_provide_access_to_rows_or_columns() };
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
-    detail::access_iface_dpc& get_access_iface_dpc() const override {
-        using msg = detail::error_messages;
-        throw dal::internal_error{ msg::object_does_not_provide_access_to_rows_or_columns() };
-    }
-#endif
-
     std::int64_t get_column_count() const override {
         return col_count_;
     }

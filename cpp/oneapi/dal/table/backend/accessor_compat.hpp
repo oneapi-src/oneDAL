@@ -255,39 +255,4 @@ private:
 };
 #endif
 
-/// This class is needed for compatibility with the oneDAL 2021.1.
-/// This should be removed in 2022.1.
-class compat_accessor : public base {
-public:
-    compat_accessor() = default;
-
-#ifdef ONEDAL_DATA_PARALLEL
-    explicit compat_accessor(detail::pull_rows_iface* pull_rows,
-                             detail::pull_column_iface* pull_column)
-            : host_acc_(pull_rows, pull_column),
-              dpc_acc_(pull_rows, pull_column) {}
-#else
-    explicit compat_accessor(detail::pull_rows_iface* pull_rows,
-                             detail::pull_column_iface* pull_column)
-            : host_acc_(pull_rows, pull_column) {}
-#endif
-
-    compat_host_accessor& get_host_accessor() {
-        return host_acc_;
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    compat_dpc_accessor& get_dpc_accessor() {
-        return dpc_acc_;
-    }
-#endif
-
-private:
-    compat_host_accessor host_acc_;
-
-#ifdef ONEDAL_DATA_PARALLEL
-    compat_dpc_accessor dpc_acc_;
-#endif
-};
-
 } // namespace oneapi::dal::backend
