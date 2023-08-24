@@ -63,9 +63,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__INPUT"></a>
  * \brief %Input objects for engines
  */

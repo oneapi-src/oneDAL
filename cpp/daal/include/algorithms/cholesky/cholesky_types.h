@@ -73,7 +73,6 @@ enum ResultId
     lastResultId = choleskyFactor
 };
 
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CHOLESKY__INPUT"></a>
  * \brief %Input parameters for the Cholesky algorithm

@@ -37,9 +37,6 @@ namespace algorithms
 namespace pca
 {
 /**
-    * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
-    */
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHCONTAINER"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm */
 template <typename algorithmFPType, Method method, CpuType cpu>
