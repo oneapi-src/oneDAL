@@ -122,7 +122,8 @@ template <typename CpuType, typename OutType, typename InpType>
 inline auto propose_block_size(const detail::host_policy& policy) {
     constexpr std::int64_t out_size = sizeof(OutType);
     constexpr std::int64_t l1_estimation = 16'384l;
-    return std::max(128l, l1_estimation / out_size);
+    constexpr auto initial = l1_estimation / out_size;
+    return std::max<std::int64_t>(128l, initial);
 }
 
 template <typename CpuType, typename InpType, typename OutType>
