@@ -201,9 +201,9 @@ TEST("Can get row slice on host - 2") {
     std::iota(column1.begin(), column1.end(), 1.f);
     auto arr1 = array<float>::wrap(column1.data(), count);
 
-    std::vector<double> column2(count);
-    std::iota(column2.begin(), column2.end(), 2.0);
-    auto arr2 = array<double>::wrap(column2.data(), count);
+    std::vector<std::int32_t> column2(count);
+    std::iota(column2.begin(), column2.end(), 2);
+    auto arr2 = array<std::int32_t>::wrap(column2.data(), count);
 
     std::vector<std::int64_t> column3(count);
     std::iota(column3.begin(), column3.end(), 3l);
@@ -215,7 +215,7 @@ TEST("Can get row slice on host - 2") {
 
     auto table = heterogen_table::wrap(chunked_array<std::uint64_t>(arr0),
                                        chunked_array<float>(arr1),
-                                       chunked_array<double>(arr2),
+                                       chunked_array<std::int32_t>(arr2),
                                        chunked_array<std::int64_t>(arr3),
                                        chunked_array<std::int16_t>(arr4));
 
