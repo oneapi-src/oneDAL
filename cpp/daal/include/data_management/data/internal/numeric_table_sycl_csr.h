@@ -37,8 +37,6 @@ namespace data_management
 {
 namespace internal
 {
-namespace interface1
-{
 /**
  * @ingroup sycl
  * @{
@@ -305,7 +303,7 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
-    using daal::data_management::interface1::NumericTableIface::allocateDataMemory;
+    using daal::data_management::NumericTableIface::allocateDataMemory;
 
     services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
@@ -659,9 +657,6 @@ protected:
 };
 typedef services::SharedPtr<SyclCSRNumericTable> SyclCSRNumericTablePtr;
 /** @} */
-} // namespace interface1
-using interface1::SyclCSRNumericTable;
-using interface1::SyclCSRNumericTablePtr;
 
 } // namespace internal
 } // namespace data_management

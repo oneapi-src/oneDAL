@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace sorting
 {
-namespace interface1
-{
 /**
  * @defgroup sorting_batch Batch
  * @ingroup sorting
@@ -159,9 +157,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace sorting
 } // namespace algorithms

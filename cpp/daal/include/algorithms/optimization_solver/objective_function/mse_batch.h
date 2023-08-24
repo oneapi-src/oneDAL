@@ -40,8 +40,6 @@ namespace optimization_solver
 {
 namespace mse
 {
-namespace interface2
-{
 /**
  * @defgroup mse_batch Batch
  * @ingroup mse
@@ -90,7 +88,7 @@ public:
  *      - \ref objective_function::ResultId %Result identifiers for the Mean squared error objective function
  *
  * \par References
- *      - \ref objective_function::interface1::Result "Result" class
+ *      - \ref objective_function::Result "Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public sum_of_functions::Batch
@@ -172,9 +170,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace mse
 } // namespace optimization_solver

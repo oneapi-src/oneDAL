@@ -38,8 +38,6 @@ namespace prediction
 {
 namespace ratings
 {
-namespace interface1
-{
 /**
  * @defgroup implicit_als_prediction_distributed Distributed
  * @ingroup implicit_als_prediction
@@ -96,7 +94,7 @@ public:
  *      - \ref Method       Computation methods
  *
  * \par References
- *      - \ref implicit_als::interface1::Parameter "implicit_als::Parameter" class
+ *      - \ref implicit_als::Parameter "implicit_als::Parameter" class
  *      - \ref Distributed class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
@@ -127,7 +125,7 @@ public:
     typedef algorithms::implicit_als::prediction::ratings::PartialResult PartialResultType;
 
     DistributedInput<step1Local> input; /*!< %Input data structure */
-    ParameterType parameter;            /*!< \ref implicit_als::interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter;            /*!< \ref implicit_als::Parameter "Parameters" of the algorithm */
 
     /**
      * Default constructor
@@ -230,9 +228,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace ratings
 } // namespace prediction

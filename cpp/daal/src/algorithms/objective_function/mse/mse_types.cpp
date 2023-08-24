@@ -35,8 +35,6 @@ namespace optimization_solver
 {
 namespace mse
 {
-namespace interface2
-{
 /**
  * Constructs the parameter of Mean squared error objective function
  * \param[in] numberOfTerms    The number of terms in the function
@@ -167,8 +165,6 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
 
     return s;
 }
-
-} // namespace interface2
 
 } // namespace mse
 } // namespace optimization_solver

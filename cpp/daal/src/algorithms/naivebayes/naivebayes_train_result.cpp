@@ -34,14 +34,9 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_NAIVE_BAYES_MODEL_ID);
-}
 
 namespace training
-{
-namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NAIVE_BAYES_RESULT_ID);
 Result::Result() {}
@@ -123,7 +118,6 @@ services::Status Result::checkImpl(size_t nFeatures, const daal::algorithms::Par
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace multinomial_naive_bayes
 } // namespace algorithms

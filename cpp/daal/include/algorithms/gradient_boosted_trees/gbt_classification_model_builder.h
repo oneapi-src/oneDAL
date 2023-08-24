@@ -42,11 +42,6 @@ namespace gbt
 namespace classification
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup gbt_classification
  * @{
  */
@@ -55,7 +50,7 @@ namespace interface1
  * \brief %Model Builder class for gradient boosted trees classification model.
  *
  * \par References
- *      - \ref classification::interface1::Model "classification::Model" class
+ *      - \ref classification::Model "classification::Model" class
  */
 class DAAL_EXPORT ModelBuilder
 {
@@ -167,8 +162,6 @@ protected:
     size_t _nIterations;
 };
 /** @} */
-} // namespace interface1
-using interface1::ModelBuilder;
 
 } // namespace classification
 } // namespace gbt

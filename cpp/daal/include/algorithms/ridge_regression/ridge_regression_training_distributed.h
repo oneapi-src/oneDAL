@@ -40,8 +40,6 @@ namespace ridge_regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup ridge_regression_distributed Distributed
  * @ingroup ridge_regression_training
@@ -100,10 +98,10 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref interface1::Parameter "Parameter" class
- *      - \ref ridge_regression::interface1::Model "ridge_regression::Model" class
- *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref Parameter "Parameter" class
+ *      - \ref ridge_regression::Model "ridge_regression::Model" class
+ *      - \ref ridge_regression::ModelNormEq "ridge_regression::ModelNormEq" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
 class DAAL_EXPORT Distributed : public Training<distributed>
@@ -121,10 +119,10 @@ class DAAL_EXPORT Distributed : public Training<distributed>
  *      -  \ref Method  Computation methods
  *
  * \par References
- *      - \ref interface1::Parameter "Parameter" class
- *      - \ref ridge_regression::interface1::Model "ridge_regression::Model" class
- *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref Parameter "Parameter" class
+ *      - \ref ridge_regression::Model "ridge_regression::Model" class
+ *      - \ref ridge_regression::ModelNormEq "ridge_regression::ModelNormEq" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
@@ -181,9 +179,9 @@ private:
  *      -  \ref Method  Computation methods
  *
  * \par References
- *      - \ref ridge_regression::interface1::Model "ridge_regression::Model" class
- *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref ridge_regression::Model "ridge_regression::Model" class
+ *      - \ref ridge_regression::ModelNormEq "ridge_regression::ModelNormEq" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
@@ -263,7 +261,7 @@ public:
     }
 
     DistributedInput<step2Master> input; /*!< %Input data structure */
-    ParameterType parameter;             /*!< %Training \ref interface1::Parameter "parameters" */
+    ParameterType parameter;             /*!< %Training \ref Parameter "parameters" */
 
 protected:
     PartialResultPtr _partialResult;
@@ -303,10 +301,6 @@ private:
     Distributed & operator=(const Distributed &);
 }; // class  : public Training
 /** @} */
-} // namespace interface1
-
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace training
 } // namespace ridge_regression

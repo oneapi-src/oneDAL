@@ -39,8 +39,6 @@ namespace training
 {
 namespace init
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResultBase, SERIALIZATION_IMPLICIT_ALS_TRAINING_INIT_PARTIAL_RESULT_BASE_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_IMPLICIT_ALS_TRAINING_INIT_PARTIAL_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep2, SERIALIZATION_IMPLICIT_ALS_TRAINING_INIT_DISTRIBUTED_PARTIAL_RESULT_STEP2_ID);
@@ -211,7 +209,6 @@ Status DistributedPartialResultStep2::check(const daal::algorithms::Input * inpu
     return checkNumericTable(get(transposedData).get(), transposedDataStr(), 0, expectedLayout, nCols, nRows, false);
 }
 
-} // namespace interface1
 } // namespace init
 } // namespace training
 } // namespace implicit_als

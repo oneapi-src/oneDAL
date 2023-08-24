@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /**
  * Allocates memory to store final results of the SVD algorithm
  * \param[in] input     Pointer to the input object
@@ -81,7 +79,6 @@ DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
     return st;
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

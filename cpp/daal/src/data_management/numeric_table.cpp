@@ -217,8 +217,6 @@ IMPLEMENT_SERIALIZABLE_TAG(RowMergedNumericTable, SERIALIZATION_ROWMERGE_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(DataCollection, SERIALIZATION_DATACOLLECTION_ID)
 IMPLEMENT_SERIALIZABLE_TAG(MemoryBlock, SERIALIZATION_MEMORY_BLOCK_ID)
 
-namespace interface1
-{
 IMPLEMENT_SERIALIZABLE_TAG1T_SPECIALIZATION(SerializableKeyValueCollection, SerializationIface, SERIALIZATION_KEYVALUEDATACOLLECTION_ID)
 
 #define DAAL_INSTANTIATE_SER_TAG(T)                                                                                                                 \
@@ -295,7 +293,6 @@ void MergedNumericTable::freeDataMemoryImpl()
     }
 }
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal
 
@@ -304,8 +301,6 @@ namespace daal
 namespace data_management
 {
 namespace internal
-{
-namespace interface1
 {
 IMPLEMENT_SERIALIZABLE_TAG(SyclSOANumericTable, SERIALIZATION_SYCL_SOA_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(SyclCSRNumericTable, SERIALIZATION_SYCL_CSR_NT_ID)
@@ -325,7 +320,6 @@ DAAL_INSTANTIATE_SER_TAG_SYCL(unsigned short)
 DAAL_INSTANTIATE_SER_TAG_SYCL(unsigned long)
 DAAL_INSTANTIATE_SER_TAG_SYCL(long)
 
-} // namespace interface1
 } // namespace internal
 } // namespace data_management
 } // namespace daal

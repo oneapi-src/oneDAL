@@ -36,8 +36,6 @@ namespace decision_tree
 {
 namespace classification
 {
-namespace interface1
-{
 struct DecisionTreeNode
 {
     size_t dimension;
@@ -321,13 +319,6 @@ private:
         return traverseNodesBF(level + 1, aNext, aCur, aNode, visitSplit, visitLeaf);
     }
 };
-
-} // namespace interface1
-
-using interface1::DecisionTreeTable;
-using interface1::DecisionTreeNode;
-using interface1::DecisionTreeTablePtr;
-using interface1::DecisionTreeTableConstPtr;
 
 } // namespace classification
 } // namespace decision_tree

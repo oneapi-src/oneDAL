@@ -38,8 +38,6 @@ namespace svm
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup svm_training_batch Batch
  * @ingroup svm_training
@@ -86,8 +84,8 @@ public:
  *      - \ref Method   SVM training methods
  *
  * \par References
- *      - \ref interface1::Input "Input" class
- *      - \ref interface1::Model "Model" class
+ *      - \ref Input "Input" class
+ *      - \ref Model "Model" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = boser>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -99,7 +97,7 @@ public:
     typedef algorithms::svm::Parameter ParameterType;
     typedef algorithms::svm::training::Result ResultType;
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /** Default constructor */
@@ -188,9 +186,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace training
 } // namespace svm

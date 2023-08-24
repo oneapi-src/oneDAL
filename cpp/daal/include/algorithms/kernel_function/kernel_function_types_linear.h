@@ -57,11 +57,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__KERNEL_FUNCTION__LINEAR__PARAMETER"></a>
  * \brief Parameters for the linear kernel function k(X,Y) + b
  *
@@ -96,9 +91,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
-} // namespace interface1
-using interface1::Input;
-using interface1::Parameter;
 
 } // namespace linear
 } // namespace kernel_function

@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 /**
  * @defgroup dbscan_distributed Distributed
  * @ingroup dbscan_compute
@@ -2022,9 +2020,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace dbscan
 } // namespace algorithms

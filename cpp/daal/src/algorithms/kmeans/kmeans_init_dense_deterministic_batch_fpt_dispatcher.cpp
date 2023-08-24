@@ -33,8 +33,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 using BatchType = Batch<DAAL_FPTYPE, kmeans::init::deterministicDense>;
 
 template <>
@@ -50,7 +48,6 @@ BatchType::Batch(const BatchType & other)
     initialize();
 }
 
-} // namespace interface2
 } // namespace init
 } // namespace kmeans
 

@@ -42,8 +42,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup multinomial_naive_bayes_training_batch Batch
  * @ingroup multinomial_naive_bayes_training
@@ -98,7 +96,7 @@ public:
     typedef algorithms::multinomial_naive_bayes::Parameter ParameterType;
     typedef algorithms::multinomial_naive_bayes::training::Result ResultType;
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the training algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the training algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /**
@@ -180,9 +178,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace training
 } // namespace multinomial_naive_bayes

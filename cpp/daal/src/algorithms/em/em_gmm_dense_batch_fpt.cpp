@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace em_gmm
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(const size_t nComponents)
     : parameter(nComponents, services::SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >(
@@ -50,7 +48,6 @@ void Batch<algorithmFPType, method>::initialize()
 
 template class Batch<DAAL_FPTYPE, defaultDense>;
 
-} // namespace interface1
 } // namespace em_gmm
 } // namespace algorithms
 } // namespace daal

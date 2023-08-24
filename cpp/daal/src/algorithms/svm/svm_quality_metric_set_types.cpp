@@ -34,8 +34,6 @@ namespace svm
 {
 namespace quality_metric_set
 {
-namespace interface1
-{
 /**
  * Returns the result of the quality metrics algorithm
  * \param[in] id   Identifier of the result
@@ -59,7 +57,6 @@ classifier::quality_metric::binary_confusion_matrix::InputPtr InputDataCollectio
         algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
 
-} //namespace interface1
 } //namespace quality_metric_set
 } //namespace svm
 } //namespace algorithms

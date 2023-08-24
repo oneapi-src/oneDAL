@@ -45,11 +45,6 @@ namespace daal
 namespace algorithms
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup base_algorithms
  * @{
  */
@@ -238,7 +233,7 @@ public:
     virtual ~PartialResult() {};
 
     /**
-     * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
+     * \copydoc daal::data_management::SerializationIface::getSerializationTag()
      */
     virtual int getSerializationTag() const { return 0; }
 
@@ -309,7 +304,7 @@ public:
     virtual ~Result() {};
 
     /**
-     * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
+     * \copydoc daal::data_management::SerializationIface::getSerializationTag()
      */
     virtual int getSerializationTag() const { return 0; }
 
@@ -408,17 +403,6 @@ typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<OptionalArgument> OptionalArgumentPtr;
 
 /** @} */
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Argument;
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::OptionalArgument;
-using interface1::OptionalArgumentPtr;
 
 } // namespace algorithms
 } // namespace daal

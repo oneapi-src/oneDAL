@@ -512,11 +512,6 @@ enum DistributedPartialResultStep13Id
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__DBSCAN__PARAMETER"></a>
  * \brief Parameters for the DBSCAN algorithm
  * \par Enumerations
@@ -640,7 +635,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -745,7 +740,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -849,7 +844,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -974,7 +969,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1099,7 +1094,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1224,7 +1219,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1363,7 +1358,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1467,7 +1462,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1599,7 +1594,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1705,7 +1700,7 @@ public:
                            int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1762,7 +1757,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -1873,7 +1868,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -2005,7 +2000,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -2123,7 +2118,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -2229,7 +2224,7 @@ public:
                            int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -2286,7 +2281,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -2296,45 +2291,6 @@ protected:
     }
 };
 typedef services::SharedPtr<DistributedPartialResultStep13> DistributedPartialResultStep13Ptr;
-
-} // namespace interface1
-
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-
-using interface1::DistributedInput;
-using interface1::DistributedPartialResultStep1;
-using interface1::DistributedPartialResultStep1Ptr;
-using interface1::DistributedPartialResultStep2;
-using interface1::DistributedPartialResultStep2Ptr;
-using interface1::DistributedPartialResultStep3;
-using interface1::DistributedPartialResultStep3Ptr;
-using interface1::DistributedPartialResultStep4;
-using interface1::DistributedPartialResultStep4Ptr;
-using interface1::DistributedPartialResultStep5;
-using interface1::DistributedPartialResultStep5Ptr;
-using interface1::DistributedPartialResultStep6;
-using interface1::DistributedPartialResultStep6Ptr;
-using interface1::DistributedPartialResultStep7;
-using interface1::DistributedPartialResultStep7Ptr;
-using interface1::DistributedPartialResultStep8;
-using interface1::DistributedPartialResultStep8Ptr;
-using interface1::DistributedResultStep9;
-using interface1::DistributedResultStep9Ptr;
-using interface1::DistributedPartialResultStep9;
-using interface1::DistributedPartialResultStep9Ptr;
-using interface1::DistributedPartialResultStep10;
-using interface1::DistributedPartialResultStep10Ptr;
-using interface1::DistributedPartialResultStep11;
-using interface1::DistributedPartialResultStep11Ptr;
-using interface1::DistributedPartialResultStep12;
-using interface1::DistributedPartialResultStep12Ptr;
-using interface1::DistributedResultStep13;
-using interface1::DistributedResultStep13Ptr;
-using interface1::DistributedPartialResultStep13;
-using interface1::DistributedPartialResultStep13Ptr;
 
 } // namespace dbscan
 /** @} */

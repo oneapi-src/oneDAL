@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace quantiles
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_QUANTILES_RESULT_ID);
 Parameter::Parameter(const NumericTablePtr quantileOrders) : daal::algorithms::Parameter(), quantileOrders(quantileOrders)
 {
@@ -132,7 +130,6 @@ Status Result::check(const daal::algorithms::Input * in, const daal::algorithms:
     return s;
 }
 
-} // namespace interface1
 } // namespace quantiles
 } // namespace algorithms
 } // namespace daal

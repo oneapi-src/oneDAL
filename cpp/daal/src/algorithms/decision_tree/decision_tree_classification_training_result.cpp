@@ -34,8 +34,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -53,7 +51,6 @@ daal::algorithms::decision_tree::classification::ModelPtr Result::get(classifier
     return decision_tree::classification::Model::cast(Argument::get(id));
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace classification
 } // namespace decision_tree

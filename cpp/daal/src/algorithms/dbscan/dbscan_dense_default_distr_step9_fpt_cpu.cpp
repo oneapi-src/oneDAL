@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 template class DistributedContainer<step9Master, DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface1
 namespace internal
 {
 template class DBSCANDistrStep9Kernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

@@ -73,11 +73,6 @@ enum VoteWeights
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__BF_KNN_CLASSIFICATION__PARAMETER"></a>
  * \brief BF kNN algorithm parameters
  *
@@ -162,8 +157,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {
@@ -211,11 +206,6 @@ private:
     Model & operator=(const Model &);
 };
 typedef services::SharedPtr<Model> ModelPtr;
-} // namespace interface1
-
-using interface1::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace bf_knn_classification
 

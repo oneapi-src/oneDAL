@@ -37,8 +37,6 @@ namespace pca
 {
 namespace transform
 {
-namespace interface1
-{
 /**
  * @defgroup pca_transform_batch Batch
  * @ingroup pca_transform
@@ -135,7 +133,7 @@ public:
     * with a copy of input objects and parameters of this PCA transformation algorithm
     * \return Pointer to the newly allocated algorithm
     */
-    services::SharedPtr<daal::algorithms::pca::transform::interface1::Batch<algorithmFPType, method> > clone() const
+    services::SharedPtr<daal::algorithms::pca::transform::Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -164,9 +162,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace transform
 } // namespace pca

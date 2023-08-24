@@ -38,8 +38,6 @@ namespace prediction
 {
 namespace ratings
 {
-namespace interface1
-{
 /**
  * @defgroup implicit_als_prediction_batch Batch
  * @ingroup implicit_als_prediction
@@ -91,7 +89,7 @@ public:
     typedef algorithms::implicit_als::prediction::ratings::Result ResultType;
 
     InputType input;         /*!< Input objects for the algorithm */
-    ParameterType parameter; /*!< \ref implicit_als::interface1::Parameter "Parameters" of the ratings prediction algorithm */
+    ParameterType parameter; /*!< \ref implicit_als::Parameter "Parameters" of the ratings prediction algorithm */
 
     /**
      * Default constructor
@@ -163,9 +161,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace ratings
 } // namespace prediction

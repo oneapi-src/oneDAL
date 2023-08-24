@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 /**
  *  Constructs parameters of the DBSCAN algorithm
  */
@@ -81,7 +79,6 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

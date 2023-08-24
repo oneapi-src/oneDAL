@@ -34,8 +34,6 @@ namespace multi_class_classifier
 {
 namespace quality_metric_set
 {
-namespace interface1
-{
 Parameter::Parameter(size_t nClasses) : nClasses(nClasses) {}
 
 /**
@@ -61,7 +59,6 @@ classifier::quality_metric::multiclass_confusion_matrix::InputPtr InputDataColle
         algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
 
-} //namespace interface1
 } //namespace quality_metric_set
 } //namespace multi_class_classifier
 } //namespace algorithms

@@ -37,8 +37,6 @@ namespace em_gmm
 {
 namespace init
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_EM_GMM_INIT_RESULT_ID);
 
 Parameter::Parameter(size_t nComponents, size_t nTrials, size_t nIterations, size_t seed, double accuracyThreshold,
@@ -202,7 +200,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace init
 } // namespace em_gmm
 } // namespace algorithms

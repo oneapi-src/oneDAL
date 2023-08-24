@@ -35,8 +35,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -65,7 +63,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a.get(), m.get(), r.get(),
                        par);
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace regression
 } // namespace decision_tree

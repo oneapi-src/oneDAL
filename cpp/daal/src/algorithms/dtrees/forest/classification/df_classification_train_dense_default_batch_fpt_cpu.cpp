@@ -34,10 +34,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface3
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface3
 
 namespace internal
 {

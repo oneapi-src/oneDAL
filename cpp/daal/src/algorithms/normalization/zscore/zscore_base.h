@@ -54,7 +54,7 @@ class ZScoreKernelBase : public Kernel
 {
 public:
     /**
-    *  \brief Function that computes z-score normalization for interface1
+    *  \brief Function that computes z-score normalization
     *
     *  \param inputTable[in]    Input data of the algorithm
     *  \param resultTable[out]  Table that stores algotithm's results

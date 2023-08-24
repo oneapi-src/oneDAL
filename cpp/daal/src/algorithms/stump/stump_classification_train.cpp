@@ -38,8 +38,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_STUMP_CLASSIFICATION_TRAINING_RESULT_ID);
 Result::Result() {}
 
@@ -88,7 +86,6 @@ void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr
     Argument::set(id, value);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace classification
 } // namespace stump

@@ -33,8 +33,6 @@ namespace multinomial_naive_bayes
 {
 namespace prediction
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -62,7 +60,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     __DAAL_CALL_KERNEL(env, internal::NaiveBayesPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a, m, r, par);
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace multinomial_naive_bayes
 } // namespace algorithms

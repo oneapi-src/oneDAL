@@ -31,8 +31,6 @@ namespace optimization_solver
 {
 namespace lbfgs
 {
-namespace interface2
-{
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense>;
 
 template <>
@@ -40,7 +38,6 @@ services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());
 }
-} // namespace interface2
 } // namespace lbfgs
 } // namespace optimization_solver
 

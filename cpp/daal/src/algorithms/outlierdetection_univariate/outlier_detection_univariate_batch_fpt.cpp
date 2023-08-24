@@ -29,12 +29,9 @@ namespace algorithms
 {
 namespace univariate_outlier_detection
 {
-namespace interface1
-{
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                     const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace univariate_outlier_detection
 } // namespace algorithms
 } // namespace daal

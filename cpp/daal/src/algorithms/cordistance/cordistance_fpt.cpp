@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace correlation_distance
 {
-namespace interface1
-{
 /**
  * Allocates memory to store the results of the correlation distance algorithm
  * \param[in] input  Pointer to input structure
@@ -52,7 +50,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface1
 } // namespace correlation_distance
 } // namespace algorithms
 } // namespace daal

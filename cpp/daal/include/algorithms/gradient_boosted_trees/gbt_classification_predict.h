@@ -48,14 +48,9 @@ namespace prediction
  * @{
  */
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the gradient boosted trees algorithm.
- *        This class is associated with daal::algorithms::gbt::prediction::interface1::Batch class
+ *        This class is associated with daal::algorithms::gbt::prediction::Batch class
  *        and supports method to compute gbt prediction
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float
@@ -95,9 +90,9 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of prediction results
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
- *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
+ *      - \ref Model "Model" class
+ *      - \ref classifier::prediction::Input "classifier::prediction::Input" class
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
@@ -179,9 +174,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace prediction
 } // namespace classification

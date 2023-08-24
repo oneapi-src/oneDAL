@@ -37,8 +37,6 @@ namespace optimization_solver
 {
 namespace lbfgs
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LBFGS_RESULT_ID);
 
 Parameter::Parameter(sum_of_functions::BatchPtr function, size_t nIterations, double accuracyThreshold, size_t batchSize,
@@ -253,7 +251,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface2
 } // namespace lbfgs
 } // namespace optimization_solver
 } // namespace algorithms

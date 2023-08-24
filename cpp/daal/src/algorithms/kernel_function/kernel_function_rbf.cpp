@@ -35,8 +35,6 @@ namespace kernel_function
 {
 namespace rbf
 {
-namespace interface1
-{
 Parameter::Parameter(double sigma) : ParameterBase(), sigma(sigma) {}
 
 Input::Input() : kernel_function::Input() {}
@@ -59,7 +57,6 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace rbf
 } // namespace kernel_function
 } // namespace algorithms

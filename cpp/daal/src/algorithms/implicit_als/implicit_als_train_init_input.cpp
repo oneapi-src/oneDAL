@@ -37,8 +37,6 @@ namespace training
 {
 namespace init
 {
-namespace interface1
-{
 Input::Input(size_t nElements) : daal::algorithms::Input(nElements) {}
 
 /**
@@ -87,7 +85,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return checkNumericTable(get(data).get(), dataStr(), 0, expectedLayout);
 }
 
-} // namespace interface1
 } // namespace init
 } // namespace training
 } // namespace implicit_als

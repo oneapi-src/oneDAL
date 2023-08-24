@@ -68,11 +68,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__REGRESSION__TRAINING__INPUT"></a>
  * \brief %Input objects for the regression model-based training
  */
@@ -195,14 +190,6 @@ typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
 typedef services::SharedPtr<const PartialResult> PartialResultConstPtr;
-} // namespace interface1
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::PartialResultConstPtr;
 } // namespace training
 /** @} */
 } // namespace regression

@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace quantiles
 {
-namespace interface1
-{
 /**
  * @defgroup quantiles_batch Batch
  * @ingroup quantiles
@@ -162,9 +160,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace quantiles
 } // namespace algorithms

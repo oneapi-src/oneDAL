@@ -35,8 +35,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup base_regression_training_online Online
  * @ingroup base_regression_training
@@ -48,8 +46,8 @@ namespace interface1
  * \brief Provides methods for the regression model-based training in the online processing mode
  *
  * \par References
- *      - \ref regression::interface1::Model "regression::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref regression::Model "regression::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Online : public Training<online>
 {
@@ -105,8 +103,6 @@ protected:
     ResultPtr _result;
 }; // class  : public Online
 /** @} */
-} // namespace interface1
-using interface1::Online;
 
 } // namespace training
 } // namespace regression

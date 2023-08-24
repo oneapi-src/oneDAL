@@ -55,14 +55,9 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the LogitBoost algorithm.
- *        This class is associated with daal::algorithms::logitboost::prediction::interface1::Batch class
+ *        This class is associated with daal::algorithms::logitboost::prediction::Batch class
  *        and supports method to compute LogitBoost prediction
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost, double or float
@@ -101,9 +96,9 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of LogitBoost prediction results
  *
  * \par References
- *      - \ref interface2::Model "Model" class
+ *      - \ref Model "Model" class
  *      - classifier::prediction::Input class
- *      - \ref classifier::prediction::interface2::Result "classifier::prediction::Result" class
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
@@ -184,9 +179,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::Batch;
-using interface2::BatchContainer;
 
 } // namespace prediction
 } // namespace logitboost

@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
-{
 template class DistributedContainer<step1Local, DAAL_FPTYPE, lloydDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class KMeansDistributedStep1Kernel<lloydDense, DAAL_FPTYPE, DAAL_CPU>;

@@ -33,11 +33,6 @@ namespace modifiers
 namespace csv
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @defgroup data_source_modifiers_csv CSV
  * \brief Defines CSV specific feature modifiers
  * @ingroup data_source_modifiers
@@ -163,14 +158,6 @@ inline std::string Context::getTokenAs<std::string>(size_t index) const
 }
 
 /** @} */
-} // namespace interface1
-
-using interface1::Config;
-using interface1::Context;
-using interface1::FeatureModifierIface;
-using interface1::FeatureModifierIfacePtr;
-using interface1::FeatureModifier;
-using interface1::FeatureModifierPtr;
 
 } // namespace csv
 } // namespace modifiers

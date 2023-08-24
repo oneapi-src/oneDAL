@@ -39,8 +39,6 @@ namespace optimization_solver
 {
 namespace sgd
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_SGD_RESULT_ID);
 
 BaseParameter::BaseParameter(const sum_of_functions::BatchPtr & function, size_t nIterations, double accuracyThreshold, NumericTablePtr batchIndices,
@@ -229,7 +227,6 @@ void Result::set(OptionalDataId id, const NumericTablePtr & ptr)
     pOpt->set(id, ptr);
 }
 
-} // namespace interface2
 } // namespace sgd
 } // namespace optimization_solver
 } // namespace algorithms

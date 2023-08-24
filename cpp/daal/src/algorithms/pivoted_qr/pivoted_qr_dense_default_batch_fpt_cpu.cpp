@@ -31,11 +31,8 @@ namespace algorithms
 {
 namespace pivoted_qr
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
-}
 namespace internal
 {
 template class PivotedQRKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

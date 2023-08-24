@@ -33,10 +33,7 @@ namespace linear_regression
 {
 namespace training
 {
-namespace interface1
-{
 template class DistributedContainer<step2Master, DAAL_FPTYPE, normEqDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class DistributedKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;

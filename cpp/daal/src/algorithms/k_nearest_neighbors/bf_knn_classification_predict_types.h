@@ -69,12 +69,6 @@ enum ResultId
     distances    = classifier::prediction::lastResultId + 2, /*!< Distances to nearest neighbors */
     lastResultId = distances
 };
-
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Provides an interface for input objects for making brute-force kNN model-based prediction
@@ -109,7 +103,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   Input Model object
      */
-    void set(classifier::prediction::ModelInputId id, const bf_knn_classification::interface1::ModelPtr & value);
+    void set(classifier::prediction::ModelInputId id, const bf_knn_classification::ModelPtr & value);
 
     /**
      * Checks the correctness of the input object
@@ -176,13 +170,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
-
-} // namespace interface1
-
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
 
 } // namespace prediction
 /** @} */

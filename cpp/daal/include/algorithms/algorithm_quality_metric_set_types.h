@@ -34,11 +34,6 @@ namespace algorithms
 namespace quality_metric_set
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @addtogroup base_algorithms
  * @{
  */
@@ -140,12 +135,6 @@ public:
 };
 typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
 /** @} */
-} // namespace interface1
-using interface1::InputAlgorithmsCollection;
-using interface1::InputDataCollection;
-using interface1::InputDataCollectionPtr;
-using interface1::ResultCollection;
-using interface1::ResultCollectionPtr;
 
 } // namespace quality_metric_set
 } // namespace algorithms

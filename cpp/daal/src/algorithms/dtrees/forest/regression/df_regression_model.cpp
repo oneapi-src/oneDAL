@@ -40,13 +40,9 @@ namespace decision_forest
 {
 namespace regression
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_DECISION_FOREST_REGRESSION_MODEL_ID);
 
 Model::Model() {}
-
-} // namespace interface1
 
 namespace internal
 {

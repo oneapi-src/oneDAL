@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
-{
 /**
  * @defgroup kmeans_distributed Distributed
  * @ingroup kmeans_compute
@@ -450,10 +448,7 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface2
 
-using interface2::DistributedContainer;
-using interface2::Distributed;
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

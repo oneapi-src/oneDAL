@@ -37,8 +37,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -74,7 +72,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        daal::services::internal::hostApp(*input), a, m, r, prob, par->nClasses, par->nIterations);
 }
 
-} // namespace interface2
 } // namespace prediction
 } // namespace classification
 } // namespace gbt

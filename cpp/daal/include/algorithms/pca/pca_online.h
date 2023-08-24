@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 /**
  * @defgroup pca_online Online
  * @ingroup pca
@@ -365,9 +363,6 @@ private:
     Online & operator=(const Online &);
 };
 /** @} */
-} // namespace interface1
-using interface1::OnlineContainer;
-using interface1::Online;
 
 } // namespace pca
 } // namespace algorithms

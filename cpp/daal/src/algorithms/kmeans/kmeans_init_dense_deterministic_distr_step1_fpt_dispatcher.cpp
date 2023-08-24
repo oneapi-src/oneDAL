@@ -27,14 +27,12 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::interface2::DistributedContainer, distributed, step1Local, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::DistributedContainer, distributed, step1Local, DAAL_FPTYPE,
                                       kmeans::init::deterministicDense)
 
 namespace kmeans
 {
 namespace init
-{
-namespace interface2
 {
 using DistributedType = Distributed<step1Local, DAAL_FPTYPE, kmeans::init::deterministicDense>;
 
@@ -54,7 +52,6 @@ DistributedType::Distributed(const DistributedType & other)
     input.set(data, other.input.get(data));
 }
 
-} // namespace interface2
 } // namespace init
 } // namespace kmeans
 

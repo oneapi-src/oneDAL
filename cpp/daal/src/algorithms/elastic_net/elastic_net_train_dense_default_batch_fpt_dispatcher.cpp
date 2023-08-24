@@ -35,8 +35,6 @@ namespace elastic_net
 {
 namespace training
 {
-namespace interface1
-{
 template <>
 Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::Batch(const optimization_solver::iterative_solver::BatchPtr & solver)
 {
@@ -52,7 +50,6 @@ Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::Batch(const BatchType &
     initialize();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace elastic_net
 } // namespace algorithms

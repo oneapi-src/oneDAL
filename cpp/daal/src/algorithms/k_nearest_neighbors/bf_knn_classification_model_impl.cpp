@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace bf_knn_classification
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_K_NEAREST_NEIGHBOR_BF_MODEL_ID);
 
 Model::Model(size_t nFeatures) : daal::algorithms::classifier::Model(), _impl(new ModelImpl(nFeatures)) {}
@@ -72,7 +70,6 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal

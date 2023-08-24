@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 DistributedInput<step1Local>::DistributedInput() : daal::algorithms::Input(lastStep1LocalNumericTableInputId + 1) {}
 
 /**
@@ -1277,7 +1275,6 @@ services::Status DistributedInput<step13Local>::check(const daal::algorithms::Pa
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

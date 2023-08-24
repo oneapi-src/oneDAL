@@ -31,8 +31,6 @@ namespace daal
 {
 namespace services
 {
-namespace interface1
-{
 /**
  * @ingroup memory
  * @{
@@ -227,11 +225,6 @@ private:
     size_t _length;
 };
 /** @} */
-
-} // namespace interface1
-
-using interface1::String;
-using interface1::StringView;
 
 } // namespace services
 } // namespace daal

@@ -38,8 +38,6 @@ namespace stump
 {
 namespace classification
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -93,7 +91,6 @@ services::Status Parameter::check() const
     return s;
 }
 
-} // namespace interface1
 } // namespace classification
 } // namespace stump
 } // namespace algorithms

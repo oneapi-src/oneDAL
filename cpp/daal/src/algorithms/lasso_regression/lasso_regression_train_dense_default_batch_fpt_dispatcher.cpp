@@ -35,8 +35,6 @@ namespace lasso_regression
 {
 namespace training
 {
-namespace interface1
-{
 template <>
 Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const optimization_solver::iterative_solver::BatchPtr & solver)
 {
@@ -52,7 +50,6 @@ Batch<DAAL_FPTYPE, lasso_regression::training::defaultDense>::Batch(const BatchT
     initialize();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace lasso_regression
 } // namespace algorithms

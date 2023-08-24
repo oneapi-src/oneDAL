@@ -30,8 +30,6 @@ namespace distributions
 {
 namespace uniform
 {
-namespace interface1
-{
 /**
   * Check the correctness of the %Parameter object
   */
@@ -44,7 +42,6 @@ DAAL_EXPORT services::Status Parameter<algorithmFPType>::check() const
 
 template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
 
-} // namespace interface1
 } // namespace uniform
 } // namespace distributions
 } // namespace algorithms

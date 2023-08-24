@@ -35,8 +35,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -64,7 +62,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     services::Status s;
     decision_tree::Pruning treePruning;
     {
-        auto par2 = dynamic_cast<const decision_tree::classification::interface2::Parameter *>(parameter);
+        auto par2 = dynamic_cast<const decision_tree::classification::Parameter *>(parameter);
         if (par2) treePruning = par2->pruning;
 
         if (par2 == NULL) return services::Status(ErrorNullParameterNotSupported);
@@ -88,10 +86,6 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     return s;
 }
-
-} // namespace interface1
-
-using interface1::Input;
 
 } // namespace training
 } // namespace classification

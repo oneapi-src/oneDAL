@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_LOGITBOOST_MODEL_ID);
 /** Default constructor */
 Parameter::Parameter()
@@ -144,7 +142,6 @@ void Model::clearWeakLearnerModels()
     _models->clear();
 }
 
-} // namespace interface2
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, lloydCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class KMeansBatchKernel<lloydCSR, DAAL_FPTYPE, DAAL_CPU>;

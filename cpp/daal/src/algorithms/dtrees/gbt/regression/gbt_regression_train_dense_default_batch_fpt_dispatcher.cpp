@@ -35,8 +35,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 template <>
 Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch()
 {
@@ -52,7 +50,6 @@ Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch(const BatchTy
     initialize();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace gbt

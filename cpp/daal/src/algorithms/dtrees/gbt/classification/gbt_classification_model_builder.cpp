@@ -39,8 +39,6 @@ namespace gbt
 {
 namespace classification
 {
-namespace interface1
-{
 services::Status ModelBuilder::convertModelInternal()
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
@@ -138,7 +136,6 @@ services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parent
                                                                     featureValue, res, defaultLeft);
 }
 
-} // namespace interface1
 } // namespace classification
 } // namespace gbt
 } // namespace algorithms

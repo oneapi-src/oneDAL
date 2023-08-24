@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 /**
  * Allocates memory for storing final results of the QR decomposition algorithm
  * \param[in] input     Pointer to input object
@@ -83,7 +81,6 @@ DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
     return s;
 }
 
-} // namespace interface1
 } // namespace qr
 } // namespace algorithms
 } // namespace daal

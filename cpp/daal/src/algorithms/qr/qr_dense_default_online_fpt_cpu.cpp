@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 template class OnlineContainer<DAAL_FPTYPE, daal::algorithms::qr::defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class QROnlineKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

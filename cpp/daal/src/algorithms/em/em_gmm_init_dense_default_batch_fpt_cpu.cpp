@@ -33,11 +33,8 @@ namespace em_gmm
 {
 namespace init
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
-}
 namespace internal
 {
 template class EMInitKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

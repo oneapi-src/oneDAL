@@ -71,11 +71,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__CROSS_ENTROPY__PARAMETER"></a>
  * \brief %Parameter for Cross-entropy loss objective function
  *
@@ -157,9 +152,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-} // namespace interface2
-using interface2::Parameter;
-using interface2::Input;
 
 } // namespace cross_entropy_loss
 } // namespace optimization_solver

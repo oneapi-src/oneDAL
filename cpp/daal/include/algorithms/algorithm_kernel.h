@@ -38,8 +38,6 @@ namespace algorithms
  * @addtogroup base_algorithms
  * @{
  */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KERNEL"></a>
  * \brief %Base class to represent algorithm implementation
@@ -53,8 +51,6 @@ public:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::Kernel;
 
 } // namespace algorithms
 } // namespace daal

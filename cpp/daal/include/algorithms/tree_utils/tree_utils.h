@@ -36,11 +36,6 @@ namespace algorithms
 namespace tree_utils
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__NODEDESCRIPTOR"></a>
  * \brief %Struct containing base description of node in decision tree
  */
@@ -66,8 +61,8 @@ struct DAAL_EXPORT SplitNodeDescriptor : public NodeDescriptor
  * \brief %Interface of abstract visitor used in tree traversal methods.
  *
  * \par References
- *      - \ref decision_forest::regression::interface1::Model "Model" class
- *      - \ref decision_tree::regression::interface1::Model "Model" class
+ *      - \ref decision_forest::regression::Model "Model" class
+ *      - \ref decision_tree::regression::Model "Model" class
  */
 template <typename LeafNodeDescriptorType>
 class DAAL_EXPORT TreeNodeVisitor
@@ -88,10 +83,6 @@ public:
     virtual bool onLeafNode(const LeafNodeDescriptorType & desc) = 0;
 };
 
-} // namespace interface1
-using interface1::NodeDescriptor;
-using interface1::SplitNodeDescriptor;
-using interface1::TreeNodeVisitor;
 } // namespace tree_utils
 } // namespace algorithms
 } // namespace daal

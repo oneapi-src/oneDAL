@@ -37,8 +37,6 @@ namespace kdtree_knn_classification
 {
 namespace training
 {
-namespace interface3
-{
 /**
  * @defgroup kdtree_knn_classification_batch Batch
  * @ingroup kdtree_knn_classification_training
@@ -80,8 +78,8 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref kdtree_knn_classification::interface1::Model "kdtree_knn_classification::Model" class
- *      - \ref prediction::interface3::Batch "prediction::Batch" class
+ *      - \ref kdtree_knn_classification::Model "kdtree_knn_classification::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -93,7 +91,7 @@ public:
     typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
     typedef algorithms::kdtree_knn_classification::training::Result ResultType;
 
-    ParameterType parameter; /*!< \ref interface3::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /** Default constructor */
@@ -182,10 +180,6 @@ private:
 };
 
 /** @} */
-} // namespace interface3
-
-using interface3::BatchContainer;
-using interface3::Batch;
 
 } // namespace training
 } // namespace kdtree_knn_classification

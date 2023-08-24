@@ -36,8 +36,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup data_sources
  * @{
@@ -437,10 +435,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::CsvDataSource;
-using interface1::CsvDataSourceOptions;
 
 inline CsvDataSourceOptions::Value operator|(const CsvDataSourceOptions::Value & lhs, const CsvDataSourceOptions::Value & rhs)
 {

@@ -30,8 +30,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 template <typename algorithmFPType>
 services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose transa, const Transpose transb, const size_t m, const size_t n,
                                                             const size_t k, const algorithmFPType alpha,
@@ -152,7 +150,6 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
 template class ReferenceAxpy<float>;
 template class ReferenceAxpy<double>;
 
-} // namespace interface1
 } // namespace math
 } // namespace sycl
 } // namespace internal

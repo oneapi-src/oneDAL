@@ -34,10 +34,7 @@ namespace multi_class_classifier
 {
 namespace prediction
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, voteBased, training::oneAgainstOne, DAAL_CPU>;
-}
 namespace internal
 {
 template class DAAL_EXPORT MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, DAAL_FPTYPE, DAAL_CPU>;

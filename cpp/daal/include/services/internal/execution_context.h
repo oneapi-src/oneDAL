@@ -27,8 +27,6 @@ namespace services
 {
 namespace internal
 {
-namespace interface1
-{
 /**
  * @defgroup sycl SYCL*
  * \brief Contains classes designed to work with SYCL* and call
@@ -90,10 +88,6 @@ public:
     CpuExecutionContext() : ExecutionContext(new ImplType()) {}
 };
 /** @} */
-} // namespace interface1
-
-using interface1::ExecutionContext;
-using interface1::CpuExecutionContext;
 
 } // namespace internal
 } // namespace services
@@ -107,8 +101,6 @@ namespace daal
 namespace services
 {
 namespace internal
-{
-namespace interface1
 {
 /** @ingroup sycl
  * @{
@@ -149,9 +141,6 @@ private:
     }
 };
 /** @} */
-} // namespace interface1
-
-using interface1::SyclExecutionContext;
 
 } // namespace internal
 } // namespace services
@@ -164,13 +153,7 @@ namespace services
 {
 namespace internal
 {
-namespace interface1
-{
 DAAL_EXPORT sycl::ExecutionContextIface & getDefaultContext();
-
-} // namespace interface1
-
-using interface1::getDefaultContext;
 
 } // namespace internal
 } // namespace services

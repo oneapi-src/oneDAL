@@ -33,8 +33,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 template <>
 Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(size_t nClasses)
     : BatchBase(new ParameterType(nClasses)), parameter(*static_cast<ParameterType *>(_par))
@@ -50,7 +48,6 @@ Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(const BatchType & othe
     initialize();
 }
 
-} // namespace interface2
 } // namespace init
 } // namespace kmeans
 

@@ -45,8 +45,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 /**
  * @defgroup oneapi_internal oneAPIInternal
  * \brief Contains classes of SYCL* abstraction layer
@@ -293,12 +291,6 @@ public:
 };
 
 /** @} */
-
-} // namespace interface1
-
-using interface1::GemmExecutor;
-using interface1::SyrkExecutor;
-using interface1::AxpyExecutor;
 
 } // namespace math
 } // namespace sycl

@@ -38,11 +38,6 @@ namespace algorithms
 namespace linear_regression
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup linear_regression
  * @{
  */
@@ -140,8 +135,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::ModelBuilder;
 
 } // namespace linear_regression
 } // namespace algorithms

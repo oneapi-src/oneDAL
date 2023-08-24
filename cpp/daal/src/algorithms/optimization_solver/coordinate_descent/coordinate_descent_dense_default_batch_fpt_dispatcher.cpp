@@ -32,8 +32,6 @@ namespace optimization_solver
 {
 namespace coordinate_descent
 {
-namespace interface1
-{
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::coordinate_descent::defaultDense>;
 
 template <>
@@ -55,7 +53,6 @@ services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());
 }
-} // namespace interface1
 } // namespace coordinate_descent
 } // namespace optimization_solver
 } // namespace algorithms

@@ -36,8 +36,6 @@ namespace linear_regression
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LINEAR_REGRESSION_PREDICTION_RESULT_ID);
 
 /** Default constructor */
@@ -105,7 +103,6 @@ void Result::set(ResultId id, const NumericTablePtr & value)
     linear_model::prediction::Result::set(linear_model::prediction::ResultId(id), value);
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace linear_regression
 } // namespace algorithms

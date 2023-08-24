@@ -35,8 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -903,7 +901,7 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
-    using daal::data_management::interface1::NumericTableIface::allocateDataMemory;
+    using daal::data_management::NumericTableIface::allocateDataMemory;
 
     services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
@@ -1266,12 +1264,6 @@ protected:
 typedef services::SharedPtr<CSRNumericTableIface> CSRNumericTableIfacePtr;
 typedef services::SharedPtr<CSRNumericTable> CSRNumericTablePtr;
 /** @} */
-} // namespace interface1
-using interface1::CSRNumericTableIface;
-using interface1::CSRNumericTableIfacePtr;
-using interface1::CSRBlockDescriptor;
-using interface1::CSRNumericTable;
-using interface1::CSRNumericTablePtr;
 
 } // namespace data_management
 } // namespace daal

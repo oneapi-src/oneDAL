@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace cholesky
 {
-namespace interface1
-{
 /**
  * @defgroup cholesky_batch Batch
  * @ingroup cholesky
@@ -161,9 +159,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace cholesky
 } // namespace algorithms

@@ -54,14 +54,9 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__BROWNBOOST__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the BrownBoost algorithm.
- *        This class is associated with daal::algorithms::brownboost::prediction::interface1::Batch class
+ *        This class is associated with daal::algorithms::brownboost::prediction::Batch class
 *
  * \tparam algorithmFPType  Data type to use in intermediate computations for BrownBoost, double or float
  * \tparam method           BrownBoost computation method, \ref Method
@@ -98,9 +93,9 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of BrownBoost prediction results
  *
  * \par References
- *      - \ref interface2::Model "Model" class
+ *      - \ref Model "Model" class
  *      - classifier::prediction::Input class
- *      - \ref classifier::prediction::interface2::Result "classifier::prediction::Result" class */
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
 {
@@ -175,9 +170,6 @@ protected:
 private:
     Batch & operator=(const Batch &);
 };
-} // namespace interface2
-using interface2::Batch;
-using interface2::BatchContainer;
 
 /** @} */
 } // namespace prediction

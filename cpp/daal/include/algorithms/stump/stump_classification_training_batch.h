@@ -38,8 +38,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup stump_classification_training_batch Batch
  * @ingroup stump_classification_training
@@ -85,8 +83,8 @@ public:
  *      - \ref classifier::training::ResultId Identifiers of results of the decision stump training algorithm
  *
  * \par References
- *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
- *      - \ref interface1::Model "Model" class
+ *      - \ref classifier::training::Input "classifier::training::Input" class
+ *      - \ref Model "Model" class
  *      - Result class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
@@ -184,9 +182,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace classification

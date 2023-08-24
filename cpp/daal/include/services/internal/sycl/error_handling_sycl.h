@@ -59,8 +59,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 inline String getOpenClErrorDescription(cl_int clError)
 {
 #define OPENCL_ERROR_CASE(x) \
@@ -220,12 +218,6 @@ DAAL_FORCEINLINE Status catchSyclExceptions(Body && body)
         },
         [&]() { return status; });
 }
-
-} // namespace interface1
-
-using interface1::convertOpenClErrorToErrorPtr;
-using interface1::convertSyclExceptionToStatus;
-using interface1::catchSyclExceptions;
 
 } // namespace sycl
 } // namespace internal

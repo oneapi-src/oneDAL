@@ -37,8 +37,6 @@ namespace logistic_regression
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * Returns an input object for making logistic regression model-based prediction
  * \param[in] id    Identifier of the input object
@@ -101,7 +99,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return checkNumericTable(pModel->getBeta().get(), betaStr(), 0, 0, nBetaPerClass, nClasses == 2 ? 1 : nClasses);
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace logistic_regression
 } // namespace algorithms

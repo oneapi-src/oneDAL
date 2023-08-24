@@ -33,8 +33,6 @@ namespace daal
 {
 namespace services
 {
-namespace interface1
-{
 /**
  * @defgroup memory Managing Memory
  * \brief Contains classes that implement memory allocation and deallocation.
@@ -442,17 +440,6 @@ SharedPtr<T> dynamicPointerCast(const SharedPtr<U> & r)
     }
 }
 /** @} */
-} // namespace interface1
-using interface1::DeleterIface;
-using interface1::ObjectDeleter;
-using interface1::EmptyDeleter;
-using interface1::ServiceDeleter;
-using interface1::RefCounter;
-using interface1::RefCounterImp;
-using interface1::SharedPtr;
-using interface1::staticPointerCast;
-using interface1::dynamicPointerCast;
-using interface1::reinterpretPointerCast;
 
 } // namespace services
 } // namespace daal

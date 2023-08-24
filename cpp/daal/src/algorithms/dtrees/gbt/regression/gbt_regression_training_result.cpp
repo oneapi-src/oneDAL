@@ -38,8 +38,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_GBT_REGRESSION_TRAINING_RESULT_ID);
 Result::Result() : algorithms::regression::training::Result(lastResultNumericTableId + 1) {};
 
@@ -68,7 +66,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return algorithms::regression::training::Result::check(input, par, method);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace gbt

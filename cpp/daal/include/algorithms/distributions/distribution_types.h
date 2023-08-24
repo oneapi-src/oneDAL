@@ -64,11 +64,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DISTRIBUTIONS__PARAMETERBASE"></a>
  * Parameters of the distributions
  */
@@ -170,7 +165,7 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -196,11 +191,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ParameterBase;
 /** @} */
 } // namespace distributions
 } // namespace algorithms

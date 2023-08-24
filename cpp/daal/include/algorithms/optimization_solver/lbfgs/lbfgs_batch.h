@@ -39,8 +39,6 @@ namespace optimization_solver
 {
 namespace lbfgs
 {
-namespace interface2
-{
 /**
  * @defgroup lbfgs_batch Batch
  * @ingroup lbfgs
@@ -186,9 +184,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace lbfgs
 } // namespace optimization_solver

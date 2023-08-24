@@ -30,10 +30,7 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class CovarianceCSRBatchKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

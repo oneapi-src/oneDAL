@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_MOMENTS_PARTIAL_RESULT_ID);
 
 PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {}
@@ -126,7 +124,6 @@ services::Status Parameter::check() const
     return Status();
 }
 
-} // namespace interface1
 } // namespace low_order_moments
 } // namespace algorithms
 } // namespace daal

@@ -32,8 +32,6 @@ namespace algorithms
 {
 namespace quality_metric_set
 {
-namespace interface1
-{
 InputAlgorithmsCollection::InputAlgorithmsCollection(size_t n) : _qualityMetrics(n), _keys(n)
 {
     nullPtr = new services::SharedPtr<quality_metric::Batch>();
@@ -146,7 +144,6 @@ algorithms::ResultPtr ResultCollection::getResult(size_t key) const
     return services::staticPointerCast<algorithms::Result, data_management::SerializationIface>(this->operator[](key));
 }
 
-} // namespace interface1
 } // namespace quality_metric_set
 } // namespace algorithms
 } // namespace daal

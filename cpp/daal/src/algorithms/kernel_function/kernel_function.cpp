@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_KERNEL_FUNCTION_RESULT_ID);
 
 ParameterBase::ParameterBase(size_t rowIndexX, size_t rowIndexY, size_t rowIndexResult, ComputationMode computationMode)
@@ -141,7 +139,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return st;
 }
 
-} // namespace interface1
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

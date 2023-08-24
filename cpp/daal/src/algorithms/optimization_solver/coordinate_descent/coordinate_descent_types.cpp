@@ -33,8 +33,6 @@ namespace optimization_solver
 {
 namespace coordinate_descent
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_COORDINATE_DESCENT_RESULT_ID);
 
 Parameter::Parameter(const sum_of_functions::BatchPtr & function, size_t nIterations, double accuracyThreshold, size_t seed)
@@ -89,7 +87,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace coordinate_descent
 } // namespace optimization_solver
 } // namespace algorithms

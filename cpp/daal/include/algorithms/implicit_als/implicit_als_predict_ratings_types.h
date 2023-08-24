@@ -109,11 +109,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__INPUTIFACE"></a>
  * \brief %Input interface for the rating prediction stage of the implicit ALS algorithm
  */
@@ -283,7 +278,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -339,7 +334,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::PartialResult::check;
+    using daal::algorithms::PartialResult::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -349,15 +344,6 @@ protected:
     }
 };
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
-
-} // namespace interface1
-using interface1::InputIface;
-using interface1::Input;
-using interface1::DistributedInput;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace ratings
 } // namespace prediction

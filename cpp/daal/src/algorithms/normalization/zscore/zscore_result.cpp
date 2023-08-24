@@ -37,8 +37,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface2
-{
 /**
 * Checks the correctness of the Result object
 * \param[in] in     Pointer to the input object
@@ -47,7 +45,7 @@ namespace interface2
 Status ResultImpl::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par) const
 {
     Status status;
-    const interface1::Input * input = static_cast<const interface1::Input *>(in);
+    const Input * input = static_cast<const Input *>(in);
     DAAL_CHECK(input, ErrorNullInput);
 
     NumericTablePtr dataTable = input->get(zscore::data);
@@ -61,7 +59,7 @@ Status ResultImpl::check(const daal::algorithms::Input * in, const daal::algorit
     DAAL_CHECK_STATUS(
         status, checkNumericTable(NumericTable::cast(get(normalizedData)).get(), normalizedDataStr(), unexpectedLayouts, 0, nFeatures, nVectors));
 
-    const interface3::BaseParameter * parameter = static_cast<const BaseParameter *>(par);
+    const BaseParameter * parameter = static_cast<const BaseParameter *>(par);
     if (parameter->resultsToCompute & mean)
     {
         DAAL_CHECK_STATUS(status, checkNumericTable(NumericTable::cast(get(means)).get(), meansStr(), packed_mask, 0, nFeatures, 1))
@@ -73,7 +71,6 @@ Status ResultImpl::check(const daal::algorithms::Input * in, const daal::algorit
     return status;
 }
 
-} // namespace interface2
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

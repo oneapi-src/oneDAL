@@ -39,8 +39,6 @@ namespace optimization_solver
 {
 namespace sgd
 {
-namespace interface2
-{
 /**
  * @defgroup sgd_batch Batch
  * @ingroup sgd
@@ -187,10 +185,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace sgd
 } // namespace optimization_solver

@@ -36,11 +36,6 @@ namespace algorithms
 namespace classifier
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup trees_classification
  * @{
  */
@@ -50,8 +45,8 @@ namespace interface1
  * \brief %Interface of abstract visitor used in tree traversal methods. \DAAL_DEPRECATED
  *
  * \par References
- *      - \ref decision_forest::classification::interface1::Model "Model" class
- *      - \ref decision_tree::classification::interface1::Model "Model" class
+ *      - \ref decision_forest::classification::Model "Model" class
+ *      - \ref decision_tree::classification::Model "Model" class
  */
 class DAAL_EXPORT TreeNodeVisitor
 {
@@ -73,10 +68,6 @@ public:
     */
     virtual bool onSplitNode(size_t level, size_t featureIndex, double featureValue) = 0;
 };
-
-} // namespace interface1
-
-using interface1::TreeNodeVisitor;
 
 /** @} */
 } // namespace classifier

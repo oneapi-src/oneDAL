@@ -37,8 +37,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_REGRESSION_TRAINING_RESULT_ID);
 
 Result::Result() : algorithms::regression::training::Result(lastResultNumericTableId + 1)
@@ -84,8 +82,8 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const decision_forest::regression::training::Input * algInput = static_cast<const decision_forest::regression::training::Input *>(input);
 
     //TODO: check model
-    const daal::algorithms::decision_forest::regression::training::interface2::Parameter * algParameter2 =
-        dynamic_cast<const daal::algorithms::decision_forest::regression::training::interface2::Parameter *>(par);
+    const daal::algorithms::decision_forest::regression::training::Parameter * algParameter2 =
+        dynamic_cast<const daal::algorithms::decision_forest::regression::training::Parameter *>(par);
 
     if (algParameter2 != NULL)
     {
@@ -127,7 +125,6 @@ engines::EnginePtr Result::get(ResultEngineId id) const
     return _impl->getEngine();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

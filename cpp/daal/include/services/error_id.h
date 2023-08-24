@@ -32,8 +32,6 @@ namespace daal
 {
 namespace services
 {
-namespace interface1
-{
 /**
  * @ingroup error_handling
  * @{
@@ -101,9 +99,6 @@ private:
     friend class Error;
 };
 /** @} */
-
-} // namespace interface1
-using interface1::ErrorDetail;
 
 } // namespace services
 } // namespace daal

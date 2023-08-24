@@ -32,8 +32,6 @@ __DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::DistributedContainer, distributed,
 
 namespace dbscan
 {
-namespace interface1
-{
 using DistributedType = Distributed<step3Local, DAAL_FPTYPE, defaultDense>;
 
 template <>
@@ -54,7 +52,6 @@ DistributedType::Distributed(const DistributedType & other) : input(other.input)
     initialize();
 }
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

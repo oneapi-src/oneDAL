@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 template class OnlineContainer<DAAL_FPTYPE, correlationDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class PCACorrelationKernel<online, DAAL_FPTYPE, DAAL_CPU>;

@@ -44,8 +44,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 /** @ingroup oneapi_internal
  * @{
  */
@@ -150,10 +148,6 @@ public:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::PotrfExecutor;
-using interface1::PotrsExecutor;
 
 } // namespace math
 } // namespace sycl

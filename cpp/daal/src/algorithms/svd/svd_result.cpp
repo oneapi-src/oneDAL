@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_SVD_RESULT_ID);
 
 /** Default constructor */
@@ -112,7 +110,6 @@ Status Result::check(const daal::algorithms::PartialResult * pres, const daal::a
     return s;
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

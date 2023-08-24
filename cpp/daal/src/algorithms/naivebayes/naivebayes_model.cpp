@@ -33,14 +33,8 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-namespace interface1
-{
 PartialModel::PartialModel() : _nObservations(0) {}
 
-} // namespace interface1
-
-namespace interface2
-{
 Status Parameter::check() const
 {
     Status s;
@@ -54,7 +48,6 @@ Status Parameter::check() const
     return s;
 }
 
-} // namespace interface2
 } // namespace multinomial_naive_bayes
 } // namespace algorithms
 } // namespace daal

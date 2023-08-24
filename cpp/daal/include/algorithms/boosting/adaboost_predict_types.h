@@ -42,8 +42,6 @@ namespace adaboost
  */
 namespace prediction
 {
-namespace interface2
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the adaboost algorithm
@@ -96,8 +94,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
-} // namespace interface2
-using interface2::Input;
 } // namespace prediction
 /** @} */
 } // namespace adaboost

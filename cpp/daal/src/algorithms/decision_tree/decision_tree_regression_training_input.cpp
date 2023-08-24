@@ -35,8 +35,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -97,10 +95,6 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     return s;
 }
-
-} // namespace interface1
-
-using interface1::Input;
 
 } // namespace training
 } // namespace regression

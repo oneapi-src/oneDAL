@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
 /**
@@ -78,7 +76,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

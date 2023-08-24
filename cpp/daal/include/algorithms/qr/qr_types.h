@@ -149,11 +149,6 @@ enum FinalizeOnLocalInputId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__QR__INPUT"></a>
  * \brief Input objects for the QR decomposition algorithm in the batch and online processing modes and for the first distributed step of the
  * algorithm.
@@ -647,19 +642,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 };
 /** @} */
 /** @} */
-} // namespace interface1
-using interface1::Input;
-using interface1::DistributedStep2Input;
-using interface1::DistributedStep3Input;
-using interface1::OnlinePartialResult;
-using interface1::OnlinePartialResultPtr;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::DistributedPartialResult;
-using interface1::DistributedPartialResultPtr;
-using interface1::DistributedPartialResultStep3;
-using interface1::DistributedPartialResultStep3Ptr;
-using interface1::Parameter;
 
 } // namespace qr
 } // namespace algorithms

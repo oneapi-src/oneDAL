@@ -39,8 +39,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_REGRESSION_PREDICTION_RESULT_ID);
 
 /** Default constructor */
@@ -102,8 +100,8 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     DAAL_CHECK(pModel->getNumberOfTrees(), services::ErrorNullModel);
     auto maxNIterations = pModel->getNumberOfTrees();
 
-    const gbt::regression::prediction::interface1::Parameter * pPrm =
-        static_cast<const gbt::regression::prediction::interface1::Parameter *>(parameter);
+    const gbt::regression::prediction::Parameter * pPrm =
+        static_cast<const gbt::regression::prediction::Parameter *>(parameter);
     size_t nIterations = pPrm->nIterations;
 
     DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
@@ -146,7 +144,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace regression
 } // namespace gbt

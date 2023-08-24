@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep3, SERIALIZATION_QR_DISTRIBUTED_PARTIAL_RESULT_STEP3_ID);
 
 /** Default constructor */
@@ -111,7 +109,6 @@ Status DistributedPartialResultStep3::check(const daal::algorithms::Parameter * 
     return Status();
 }
 
-} // namespace interface1
 } // namespace qr
 } // namespace algorithms
 } // namespace daal

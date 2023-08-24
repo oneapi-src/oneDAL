@@ -33,8 +33,6 @@ namespace optimization_solver
 {
 namespace saga
 {
-namespace interface2
-{
 /**
 * Allocates memory to store the results of the iterative solver algorithm
 * \param[in] input  Pointer to the input structure
@@ -86,7 +84,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface2
 } // namespace saga
 } // namespace optimization_solver
 } // namespace algorithms

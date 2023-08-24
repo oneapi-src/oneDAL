@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 DistributedInput<svdDense>::DistributedInput() : InputIface(lastStep2MasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -145,7 +143,6 @@ size_t DistributedInput<svdDense>::getNFeatures() const
     return getPartialResult(0)->get(pca::sumSVD)->getNumberOfColumns();
 }
 
-} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

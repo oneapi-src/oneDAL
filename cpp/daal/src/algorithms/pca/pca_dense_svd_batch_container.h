@@ -35,12 +35,10 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 template <typename algorithmFPType, CpuType cpu>
 BatchContainer<algorithmFPType, svdDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::PCASVDBatchKernel, algorithmFPType, interface3::BatchParameter<algorithmFPType, pca::svdDense>);
+    __DAAL_INITIALIZE_KERNELS(internal::PCASVDBatchKernel, algorithmFPType, BatchParameter<algorithmFPType, pca::svdDense>);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -54,8 +52,8 @@ Status BatchContainer<algorithmFPType, svdDense, cpu>::compute()
 {
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
-    interface3::BatchParameter<algorithmFPType, pca::svdDense> * parameter =
-        static_cast<interface3::BatchParameter<algorithmFPType, pca::svdDense> *>(_par);
+    BatchParameter<algorithmFPType, pca::svdDense> * parameter =
+        static_cast<BatchParameter<algorithmFPType, pca::svdDense> *>(_par);
 
     internal::InputDataType dtype = getInputDataType(input);
 
@@ -82,11 +80,10 @@ Status BatchContainer<algorithmFPType, svdDense, cpu>::compute()
     daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::PCASVDBatchKernel,
-                       __DAAL_KERNEL_ARGUMENTS(algorithmFPType, interface3::BatchParameter<algorithmFPType, pca::svdDense>), compute, dtype, *data,
+                       __DAAL_KERNEL_ARGUMENTS(algorithmFPType, BatchParameter<algorithmFPType, pca::svdDense>), compute, dtype, *data,
                        parameter, *eigenvalues, *eigenvectors, *means, *variances);
 }
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

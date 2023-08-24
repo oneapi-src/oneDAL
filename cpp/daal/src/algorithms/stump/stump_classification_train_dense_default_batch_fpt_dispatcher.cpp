@@ -37,8 +37,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(size_t nClasses)
 {
@@ -56,7 +54,6 @@ Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::trainin
 template Batch<DAAL_FPTYPE, stump::classification::training::defaultDense>::Batch(size_t);
 template Batch<DAAL_FPTYPE, stump::classification::training::defaultDense>::Batch(const Batch &);
 
-} // namespace interface1
 } // namespace training
 } // namespace classification
 } // namespace stump

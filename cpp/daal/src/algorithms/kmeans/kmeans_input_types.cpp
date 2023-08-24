@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
-{
 Input::Input() : InputIface(lastInputId + 1) {}
 
 /**
@@ -76,7 +74,7 @@ size_t Input::getNumberOfFeatures() const
 services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
-    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(parameter);
+    const Parameter * kmPar = static_cast<const Parameter *>(parameter);
     const int expectedLayout            = (method == lloydCSR ? (int)NumericTableIface::csrArray : 0);
     DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), 0, expectedLayout));
     const size_t inputFeatures = get(data)->getNumberOfColumns();
@@ -89,7 +87,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return checkNumericTable(get(inputCentroids).get(), inputCentroidsStr(), 0, 0, inputFeatures, kmPar->nClusters);
 }
 
-} // namespace interface1
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

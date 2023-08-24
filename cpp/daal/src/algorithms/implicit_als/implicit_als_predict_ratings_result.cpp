@@ -38,8 +38,6 @@ namespace prediction
 {
 namespace ratings
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_IMPLICIT_ALS_PREDICTION_RATINGS_RESULT_ID);
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
@@ -79,7 +77,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return checkNumericTable(get(prediction).get(), predictionStr(), unexpectedLayouts, 0, nItems, nUsers);
 }
 
-} // namespace interface1
 } // namespace ratings
 } // namespace prediction
 } // namespace implicit_als

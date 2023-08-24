@@ -59,11 +59,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__INPUT"></a>
  * \brief %Input objects for KD-tree based kNN model-based training
  */
@@ -101,7 +96,7 @@ public:
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
      */
-    daal::algorithms::kdtree_knn_classification::interface1::ModelPtr get(classifier::training::ResultId id) const;
+    daal::algorithms::kdtree_knn_classification::ModelPtr get(classifier::training::ResultId id) const;
 
     /**
      * Allocates memory to store the result of KD-tree based kNN model-based training
@@ -121,13 +116,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::InputConstPtr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

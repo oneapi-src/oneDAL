@@ -33,11 +33,7 @@ namespace ridge_regression
 {
 namespace training
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
-
-} // namespace interface1
 
 namespace internal
 {

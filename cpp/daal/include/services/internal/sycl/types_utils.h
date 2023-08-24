@@ -29,8 +29,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 template <typename...>
 struct Typelist
 {};
@@ -80,12 +78,6 @@ private:
 };
 
 String getKeyFPType(TypeId typeId);
-
-} // namespace interface1
-
-using interface1::Typelist;
-using interface1::TypeDispatcher;
-using interface1::getKeyFPType;
 
 } // namespace sycl
 } // namespace internal

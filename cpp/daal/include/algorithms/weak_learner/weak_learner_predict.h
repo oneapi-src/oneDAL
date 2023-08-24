@@ -45,11 +45,6 @@ namespace weak_learner
 namespace prediction
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @defgroup weak_learner_prediction_batch Batch
  * @ingroup weak_learner_prediction
  * @{
@@ -64,14 +59,14 @@ namespace interface1
  *      - \ref classifier::prediction::ResultId             Identifiers of prediction results
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref interface1::Input "Input" class
- *      - \ref interface1::Result "Result" class
+ *      - \ref Model "Model" class
+ *      - \ref Input "Input" class
+ *      - \ref Result "Result" class
  */
-class Batch : public classifier::prediction::interface1::Batch
+class Batch : public classifier::prediction::Batch
 {
 public:
-    typedef classifier::prediction::interface1::Batch super;
+    typedef classifier::prediction::Batch super;
 
     typedef super::InputType InputType;
     typedef super::ParameterType ParameterType;
@@ -85,7 +80,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : classifier::prediction::interface1::Batch(other) {}
+    Batch(const Batch & other) : classifier::prediction::Batch(other) {}
 
     virtual ~Batch() {}
 
@@ -103,8 +98,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace prediction
 } // namespace weak_learner

@@ -32,8 +32,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 /** @ingroup oneapi_internal
  * @{
  */
@@ -432,23 +430,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::KernelRange;
-using interface1::KernelNDRange;
-using interface1::KernelArgumentTypes;
-using interface1::KernelArgumentType;
-using interface1::KernelArgument;
-using interface1::KernelArguments;
-using interface1::UniversalBuffer;
-using interface1::KernelSchedulerIface;
-using interface1::KernelIface;
-using interface1::KernelPtr;
-using interface1::ClKernelFactoryIface;
-using interface1::InfoDevice;
-using interface1::ExecutionContextIface;
-using interface1::CpuKernelFactory;
-using interface1::CpuExecutionContextImpl;
 
 } // namespace sycl
 } // namespace internal

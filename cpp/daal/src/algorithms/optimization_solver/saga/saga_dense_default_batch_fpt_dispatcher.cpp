@@ -31,8 +31,6 @@ namespace optimization_solver
 {
 namespace saga
 {
-namespace interface2
-{
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::saga::defaultDense>;
 
 template <>
@@ -54,7 +52,6 @@ services::SharedPtr<BatchType> BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());
 }
-} // namespace interface2
 } // namespace saga
 } // namespace optimization_solver
 } // namespace algorithms

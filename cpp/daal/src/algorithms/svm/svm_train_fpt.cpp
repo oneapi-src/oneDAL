@@ -31,8 +31,6 @@ namespace svm
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * Allocates memory for storing SVM training results
  * \param[in] input     Pointer to input structure
@@ -53,7 +51,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                     const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace training
 } // namespace svm
 } // namespace algorithms

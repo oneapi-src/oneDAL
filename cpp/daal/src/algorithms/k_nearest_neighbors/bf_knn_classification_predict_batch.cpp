@@ -31,13 +31,11 @@ namespace bf_knn_classification
 {
 namespace prediction
 {
-namespace interface1
-{
 Input::Input() : classifier::prediction::Input() {}
 
 bf_knn_classification::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
 {
-    return services::staticPointerCast<bf_knn_classification::interface1::Model, data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<bf_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr)
@@ -45,7 +43,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
     Argument::set(id, ptr);
 }
 
-void Input::set(classifier::prediction::ModelInputId id, const bf_knn_classification::interface1::ModelPtr & value)
+void Input::set(classifier::prediction::ModelInputId id, const bf_knn_classification::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -67,7 +65,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms

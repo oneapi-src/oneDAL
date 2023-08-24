@@ -36,8 +36,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch()
 {
@@ -55,7 +53,6 @@ Batch<algorithmFPType, method>::Batch(const Batch & other) : algorithms::regress
 template Batch<DAAL_FPTYPE, stump::regression::training::defaultDense>::Batch();
 template Batch<DAAL_FPTYPE, stump::regression::training::defaultDense>::Batch(const Batch &);
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace stump

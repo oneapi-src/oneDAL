@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace bacon_outlier_detection
 {
-namespace interface1
-{
 /**
  * Allocates memory to store the results of the multivariate outlier detection algorithm
  * \tparam algorithmFPType  Data type to use for storing results, double or float
@@ -53,7 +51,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     return s;
 }
 
-} // namespace interface1
 } // namespace bacon_outlier_detection
 } // namespace algorithms
 } // namespace daal

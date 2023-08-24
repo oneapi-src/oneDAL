@@ -57,14 +57,9 @@ enum Method
 };
 
 /**
- * \brief Contains version 3.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface3
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the decision_forest algorithm.
- *        This class is associated with daal::algorithms::decision_forest::prediction::interface3::Batch class
+ *        This class is associated with daal::algorithms::decision_forest::prediction::Batch class
  *        and supports method to compute decision_forest prediction
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest, double or float
@@ -105,9 +100,9 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of decision_forest prediction results
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
- *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
+ *      - \ref Model "Model" class
+ *      - \ref classifier::prediction::Input "classifier::prediction::Input" class
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
@@ -189,10 +184,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface3
-
-using interface3::BatchContainer;
-using interface3::Batch;
 
 } // namespace prediction
 } // namespace classification

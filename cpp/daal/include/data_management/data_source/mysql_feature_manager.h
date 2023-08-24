@@ -36,8 +36,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup data_sources
  * @{
@@ -323,10 +321,6 @@ private:
 typedef SQLFeatureManager MySQLFeatureManager;
 
 /** @} */
-} // namespace interface1
-
-using interface1::SQLFeatureManager;
-using interface1::MySQLFeatureManager;
 
 } // namespace data_management
 } // namespace daal

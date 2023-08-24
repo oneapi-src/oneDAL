@@ -67,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Param
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetResultsToCompute(JNIEnv *, jobject, jlong parAddr,
                                                                                                           jlong resultsToCompute)
 {
-    ((normalization::zscore::interface3::BaseParameter *)parAddr)->resultsToCompute = resultsToCompute;
+    ((normalization::zscore::BaseParameter *)parAddr)->resultsToCompute = resultsToCompute;
 }
 
 /*
@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Param
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cGetResultsToCompute(JNIEnv *, jobject, jlong parAddr)
 {
-    return ((normalization::zscore::interface3::BaseParameter *)parAddr)->resultsToCompute;
+    return ((normalization::zscore::BaseParameter *)parAddr)->resultsToCompute;
 }
 
 /*
@@ -87,7 +87,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Para
  */
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetDoScaleFlag(JNIEnv *, jobject, jlong parAddr, jlong doScale)
 {
-    ((normalization::zscore::interface3::BaseParameter *)parAddr)->doScale = doScale;
+    ((normalization::zscore::BaseParameter *)parAddr)->doScale = doScale;
 }
 
 /*
@@ -97,5 +97,5 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Param
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cGetDoScaleFlag(JNIEnv *, jobject, jlong parAddr)
 {
-    return ((normalization::zscore::interface3::BaseParameter *)parAddr)->doScale;
+    return ((normalization::zscore::BaseParameter *)parAddr)->doScale;
 }

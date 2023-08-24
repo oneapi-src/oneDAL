@@ -35,11 +35,6 @@ namespace algorithms
 namespace optimization_solver
 {
 /**
-* \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
-*/
-namespace interface1
-{
-/**
  * @addtogroup optimization_solver
  * @{
  */
@@ -54,8 +49,6 @@ public:
     virtual ~BatchIface() {}
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchIface;
 
 } // namespace optimization_solver
 } // namespace algorithms

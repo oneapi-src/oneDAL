@@ -36,8 +36,6 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -72,8 +70,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, gradientSquareSumResult,
                        gradientSquareSumInput, optionalArgument, optionalResult, parameter, *parameter->engine);
 }
-
-} // namespace interface2
 
 } // namespace adagrad
 

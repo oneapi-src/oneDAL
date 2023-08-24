@@ -37,8 +37,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 /** @ingroup oneapi_internal
  * @{
  */
@@ -155,12 +153,6 @@ private:
 };
 
 /** @} */
-
-} // namespace interface1
-
-using interface1::MKLPotrf;
-using interface1::MKLPotrs;
-
 } // namespace math
 } // namespace sycl
 } // namespace internal

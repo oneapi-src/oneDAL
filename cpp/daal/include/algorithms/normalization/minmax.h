@@ -38,8 +38,6 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 /** @defgroup minmax_batch Batch
  * @ingroup minmax
  * @{
@@ -167,9 +165,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace minmax
 } // namespace normalization

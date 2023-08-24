@@ -125,11 +125,6 @@ enum MasterInputId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LOW_ORDER_MOMENTS__INPUTIFACE"></a>
  * \brief Abstract class that specifies interface of the input objects for the low order %moments algorithm
  */
@@ -407,15 +402,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
-} // namespace interface1
-using interface1::InputIface;
-using interface1::Input;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::Parameter;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::DistributedInput;
 
 } // namespace low_order_moments
 } // namespace algorithms

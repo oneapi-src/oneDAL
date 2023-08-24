@@ -41,11 +41,6 @@ namespace algorithms
 namespace logitboost
 {
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * @ingroup logitboost
  * @{
  */
@@ -90,8 +85,8 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
  * \brief %Model of the classifier trained by the logitboost::training::Batch algorithm.
  *
  * \par References
- *      - \ref training::interface2::Batch "training::Batch" class
- *      - \ref prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {
@@ -188,10 +183,6 @@ protected:
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
-} // namespace interface2
-using interface2::Parameter;
-using interface2::Model;
-using interface2::ModelPtr;
 
 } // namespace logitboost
 } // namespace algorithms

@@ -36,8 +36,6 @@ namespace optimization_solver
 {
 namespace coordinate_descent
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -74,7 +72,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        proxResultPtr);
 }
 
-} // namespace interface1
 } // namespace coordinate_descent
 } // namespace optimization_solver
 } // namespace algorithms

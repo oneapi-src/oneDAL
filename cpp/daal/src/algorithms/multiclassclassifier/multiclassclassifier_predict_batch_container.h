@@ -38,8 +38,6 @@ namespace multi_class_classifier
 {
 namespace prediction
 {
-namespace interface2
-{
 template <typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
 BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -82,7 +80,6 @@ services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute
                        nullptr, r[0], r[1], par);
 }
 
-} // namespace interface2
 } // namespace prediction
 } // namespace multi_class_classifier
 } // namespace algorithms

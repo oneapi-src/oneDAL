@@ -38,8 +38,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
 /** Default constructor */
 Input::Input() : classifier::prediction::Input() {}
 
@@ -113,10 +111,9 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 
 services::Status Parameter::check() const
 {
-    return daal::algorithms::classifier::interface2::Parameter::check();
+    return daal::algorithms::classifier::Parameter::check();
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace classification
 } // namespace decision_forest

@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace cholesky
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CHOLESKY_RESULT_ID);
 
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
@@ -137,7 +135,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return Status();
 }
 
-} // namespace interface1
 } // namespace cholesky
 } // namespace algorithms
 } // namespace daal

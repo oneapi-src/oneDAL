@@ -41,12 +41,9 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 template class BlockDescriptor<int>;
 template class BlockDescriptor<float>;
 template class BlockDescriptor<double>;
-} // namespace interface1
 
 #undef __DAAL_CREATOR_ARGUMENTS
 #define __DAAL_CREATOR_ARGUMENTS(...) __VA_ARGS__
@@ -72,8 +69,6 @@ template class BlockDescriptor<double>;
         __DAAL_ADD_TYPE(__DAAL_CREATOR_ARGUMENTS(CreatorName < ObjectName < __VA_ARGS__), __DAAL_CREATOR_ARGUMENTS(>> ())) \
     }
 
-namespace interface1
-{
 struct FactoryEntry
 {
     typedef services::SharedPtr<const AbstractCreator> ValueType;
@@ -115,9 +110,6 @@ public:
 protected:
     services::Collection<FactoryEntry> _map;
 };
-
-} // namespace interface1
-using interface1::FactoryImpl;
 
 class DefaultCreator : public AbstractCreator
 {

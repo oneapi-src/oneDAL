@@ -42,11 +42,6 @@ namespace gbt
 namespace regression
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup gbt_classification
  * @{
  */
@@ -55,7 +50,7 @@ namespace interface1
  * \brief %Model Builder class for gradient boosted trees regression model.
  *
  * \par References
- *      - \ref regression::interface1::Model "regression::Model" class
+ *      - \ref regression::Model "regression::Model" class
  */
 class DAAL_EXPORT ModelBuilder
 {
@@ -163,8 +158,6 @@ protected:
     services::Status convertModelInternal();
 };
 /** @} */
-} // namespace interface1
-using interface1::ModelBuilder;
 
 } // namespace regression
 } // namespace gbt

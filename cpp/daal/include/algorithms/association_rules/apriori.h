@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace association_rules
 {
-namespace interface1
-{
 /**
  * @defgroup association_rules_batch Batch
  * @ingroup association_rules
@@ -159,9 +157,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace association_rules
 } // namespace algorithms

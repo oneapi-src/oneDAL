@@ -31,8 +31,6 @@ __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(dbscan::BatchContainer, batch, DAAL_F
 
 namespace dbscan
 {
-namespace interface1
-{
 template <>
 Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(DAAL_FPTYPE epsilon, size_t minObservations)
 {
@@ -48,7 +46,6 @@ Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(const BatchType & other) : input
     initialize();
 }
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

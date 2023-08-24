@@ -41,8 +41,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
-{
 using namespace daal::data_management;
 
 /**
@@ -84,7 +82,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        __DAAL_KERNEL_ARGUMENTS(algorithmFPType, decision_tree::classification::Parameter, method), compute, x.get(), y.get(), w.get(),
                        px.get(), py.get(), r.get(), par);
 }
-} // namespace interface2
 } // namespace training
 } // namespace classification
 } // namespace decision_tree

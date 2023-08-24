@@ -77,10 +77,6 @@ enum VariableImportanceModes
     gain       = 0x010ULL
 };
 
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__TRAINING__PARAMETER"></a>
@@ -122,8 +118,6 @@ public:
     int internalOptions;                /*!< Internal options */
 };
 /* [Parameter source code] */
-} // namespace interface1
-using interface1::Parameter;
 /** @} */
 } // namespace training
 } // namespace gbt

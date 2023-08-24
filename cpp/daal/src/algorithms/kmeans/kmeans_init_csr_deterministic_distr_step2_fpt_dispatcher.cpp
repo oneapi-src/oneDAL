@@ -33,8 +33,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 using DistributedType = Distributed<step2Master, DAAL_FPTYPE, kmeans::init::deterministicCSR>;
 
 template <>
@@ -46,7 +44,6 @@ DistributedType::Distributed(size_t nClusters, size_t offset)
     _in = &input;
 }
 
-} // namespace interface2
 } // namespace init
 } // namespace kmeans
 

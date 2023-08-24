@@ -36,8 +36,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup base_regression_training_batch Batch
  * @ingroup base_regression_training
@@ -48,8 +46,8 @@ namespace interface1
  * \brief Provides methods for the regression model-based training in the batch processing mode
  *
  * \par References
- *      - \ref regression::interface1::Model "regression::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref regression::Model "regression::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Batch : public Training<batch>
 {
@@ -101,8 +99,6 @@ protected:
     ResultPtr _result;
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 } // namespace training
 } // namespace regression
 } // namespace algorithms

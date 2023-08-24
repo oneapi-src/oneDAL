@@ -32,8 +32,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup serialization
  * @{
@@ -123,10 +121,6 @@ private:
     FactoryImpl * _impl;
 };
 /** @} */
-} // namespace interface1
-using interface1::AbstractCreator;
-using interface1::Creator;
-using interface1::Factory;
 
 } // namespace data_management
 } // namespace daal

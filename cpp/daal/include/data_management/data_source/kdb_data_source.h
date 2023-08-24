@@ -40,11 +40,6 @@ namespace daal
 namespace data_management
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-KDBDATASOURCE"></a>
  * \brief Connects to data sources with the KDB API.
  *
@@ -378,8 +373,6 @@ private:
 
     void _kdbClose(I handle) { kclose(handle); }
 };
-} // namespace interface1
-using interface1::KDBDataSource;
 
 } // namespace data_management
 } // namespace daal

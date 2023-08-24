@@ -33,8 +33,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 class BufferAllocator
 {
 private:
@@ -293,11 +291,6 @@ public:
         TypeDispatcher::dispatch(dest.type(), op, status);
     }
 };
-} // namespace interface1
-
-using interface1::BufferAllocator;
-using interface1::BufferCopier;
-using interface1::BufferFiller;
 
 } // namespace sycl
 } // namespace internal

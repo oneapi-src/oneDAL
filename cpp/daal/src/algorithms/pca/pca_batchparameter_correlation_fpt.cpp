@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 /** Constructs PCA parameters */
 template <typename algorithmFPType>
 DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense>::BatchParameter(const services::SharedPtr<covariance::BatchImpl> & covariance)
@@ -45,7 +43,6 @@ DAAL_EXPORT services::Status BatchParameter<algorithmFPType, correlationDense>::
 
 template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, correlationDense>::BatchParameter(const services::SharedPtr<covariance::BatchImpl> & covariance);
 template DAAL_EXPORT services::Status BatchParameter<DAAL_FPTYPE, correlationDense>::check() const;
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

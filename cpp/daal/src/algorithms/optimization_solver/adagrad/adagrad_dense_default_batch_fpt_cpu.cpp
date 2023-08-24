@@ -31,10 +31,7 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class AdagradKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

@@ -97,11 +97,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__TRANSFORM__INPUT"></a>
  * \brief Input objects for the PCA transformation algorithm in the batch and online processing modes and for the first distributed step of the
  * algorithm.
@@ -218,9 +213,9 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 };
-typedef services::SharedPtr<daal::algorithms::pca::transform::interface1::Result> ResultPtr;
+typedef services::SharedPtr<daal::algorithms::pca::transform::Result> ResultPtr;
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__PCA__TRANSFORM__PARAMETER"></a>
@@ -241,11 +236,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 };
 /** @} */
 /** @} */
-} // namespace interface1
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::Parameter;
 
 } // namespace transform
 } // namespace pca

@@ -36,8 +36,6 @@ namespace optimization_solver
 {
 namespace sgd
 {
-namespace interface2
-{
 template <typename algorithmFPType>
 services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
@@ -101,7 +99,6 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface2
 } // namespace sgd
 } // namespace optimization_solver
 } // namespace algorithms

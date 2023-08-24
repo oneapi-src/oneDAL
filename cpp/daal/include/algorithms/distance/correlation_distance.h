@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace correlation_distance
 {
-namespace interface1
-{
 /**
  * @defgroup correlation_distance_batch Batch
  * @ingroup correlation_distance
@@ -156,9 +154,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace correlation_distance
 } // namespace algorithms

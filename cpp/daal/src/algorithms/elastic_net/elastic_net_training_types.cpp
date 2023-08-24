@@ -35,8 +35,6 @@ namespace elastic_net
 {
 namespace training
 {
-namespace interface1
-{
 Input::Input() : linear_model::training::Input(lastOptionalInputId + 1) {}
 Input::Input(const Input & other) : linear_model::training::Input(other) {}
 
@@ -173,7 +171,6 @@ services::Status Parameter::check() const
     return status;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace elastic_net
 } // namespace algorithms

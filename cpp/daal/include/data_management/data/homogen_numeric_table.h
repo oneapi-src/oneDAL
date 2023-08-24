@@ -35,8 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -967,8 +965,6 @@ protected:
     }
 };
 /** @} */
-} // namespace interface1
-using interface1::HomogenNumericTable;
 
 } // namespace data_management
 } // namespace daal

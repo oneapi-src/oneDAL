@@ -34,8 +34,6 @@ namespace daal
 {
 namespace services
 {
-namespace interface1
-{
 /**
  * @ingroup memory
  * @{
@@ -244,10 +242,6 @@ private:
 #endif // !_WIN32
 
 /** @} */
-
-} // namespace interface1
-
-using interface1::Atomic;
 
 typedef Atomic<int> AtomicInt;
 typedef Atomic<size_t> AtomicSizeT;

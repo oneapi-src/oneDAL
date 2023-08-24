@@ -38,8 +38,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 /**
  * @defgroup kmeans_init_distributed Distributed
  * @ingroup kmeans_init
@@ -1070,11 +1068,6 @@ private:
 
     Distributed & operator=(const Distributed &);
 };
-} // namespace interface2
-using interface2::DistributedContainer;
-using interface2::DistributedBase;
-using interface2::DistributedStep2LocalPlusPlusBase;
-using interface2::Distributed;
 } // namespace init
 } // namespace kmeans
 } // namespace algorithms

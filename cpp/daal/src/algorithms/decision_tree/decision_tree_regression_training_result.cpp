@@ -34,8 +34,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -53,7 +51,6 @@ ModelPtr Result::get(ResultId id) const
     return staticPointerCast<decision_tree::regression::Model, SerializationIface>(Argument::get(id));
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace decision_tree

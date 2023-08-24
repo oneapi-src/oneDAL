@@ -35,8 +35,6 @@ namespace distributions
 {
 namespace uniform
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
@@ -63,7 +61,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::UniformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *parameter, *parameter->engine,
                        resultTable);
 }
-} // namespace interface1
 } // namespace uniform
 } // namespace distributions
 } // namespace algorithms

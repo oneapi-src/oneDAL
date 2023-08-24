@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace pivoted_qr
 {
-namespace interface1
-{
 /**
  * @defgroup pivoted_qr_batch Batch
  * @ingroup pivoted_qr
@@ -156,9 +154,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace pivoted_qr
 } // namespace algorithms

@@ -32,8 +32,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 template DAAL_EXPORT Status DistributedPartialResultStep1::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                                  const daal::algorithms::Parameter * parameter, const int method);
 template DAAL_EXPORT Status DistributedPartialResultStep2::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
@@ -65,7 +63,6 @@ template DAAL_EXPORT Status DistributedResultStep13::allocate<DAAL_FPTYPE>(const
 template DAAL_EXPORT Status DistributedPartialResultStep13::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                                   const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

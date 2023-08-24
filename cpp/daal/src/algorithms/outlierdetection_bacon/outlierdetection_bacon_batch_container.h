@@ -30,8 +30,6 @@ namespace algorithms
 {
 namespace bacon_outlier_detection
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -57,8 +55,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::OutlierDetectionKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, defaultDense), compute, data, weights, *par);
 }
-
-} // namespace interface1
 
 } // namespace bacon_outlier_detection
 

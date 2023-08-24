@@ -109,11 +109,6 @@ enum BinningStrategy
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__TRAINING__PARAMETER"></a>
  * \brief Parameters for the decision forest algorithm
  *
@@ -162,8 +157,6 @@ public:
                                                  Allowed values are 'quantiles' (default), 'averages' */
 };
 /* [Parameter source code] */
-} // namespace interface2
-using interface2::Parameter;
 /** @} */
 } // namespace training
 } // namespace decision_forest

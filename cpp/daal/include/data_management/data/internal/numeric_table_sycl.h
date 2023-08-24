@@ -26,8 +26,6 @@ namespace data_management
 {
 namespace internal
 {
-namespace interface1
-{
 /**
  * @ingroup sycl
  * @{
@@ -60,12 +58,6 @@ typedef services::SharedPtr<SyclNumericTable> SyclNumericTablePtr;
 typedef services::SharedPtr<const SyclNumericTable> SyclNumericTableConstPtr;
 
 /** @} */
-
-} // namespace interface1
-
-using interface1::SyclNumericTable;
-using interface1::SyclNumericTablePtr;
-using interface1::SyclNumericTableConstPtr;
 
 } // namespace internal
 } // namespace data_management

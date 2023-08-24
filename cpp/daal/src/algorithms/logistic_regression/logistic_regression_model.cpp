@@ -35,10 +35,7 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_LOGISTIC_REGRESSION_MODEL_ID);
-}
 
 namespace internal
 {

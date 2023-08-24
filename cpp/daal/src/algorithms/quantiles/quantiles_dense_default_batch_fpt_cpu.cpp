@@ -31,11 +31,8 @@ namespace algorithms
 {
 namespace quantiles
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
-}
 namespace internal
 {
 template class QuantilesKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

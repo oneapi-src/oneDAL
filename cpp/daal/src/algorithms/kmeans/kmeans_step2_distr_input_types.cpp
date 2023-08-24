@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
-{
 DistributedStep2MasterInput::DistributedStep2MasterInput() : InputIface(lastMasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -91,7 +89,7 @@ size_t DistributedStep2MasterInput::getNumberOfFeatures() const
 */
 services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(par);
+    const Parameter * kmPar2 = dynamic_cast<const Parameter *>(par);
     if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     size_t nClusters = kmPar2->nClusters;
@@ -151,7 +149,6 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
     return s;
 }
 
-} // namespace interface1
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

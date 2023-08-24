@@ -40,30 +40,6 @@ namespace tree_utils
 namespace classification
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in classification decision tree
- */
-struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
-{
-    size_t label; /*!< Label to be predicted when reaching the leaf */
-};
-
-typedef daal::algorithms::tree_utils::TreeNodeVisitor<LeafNodeDescriptor> TreeNodeVisitor;
-typedef daal::algorithms::tree_utils::SplitNodeDescriptor SplitNodeDescriptor;
-
-} // namespace interface1
-
-/**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
  * \brief %Struct containing description of leaf node in classification decision tree
  */
@@ -76,10 +52,6 @@ struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 typedef daal::algorithms::tree_utils::TreeNodeVisitor<LeafNodeDescriptor> TreeNodeVisitor;
 typedef daal::algorithms::tree_utils::SplitNodeDescriptor SplitNodeDescriptor;
 
-} // namespace interface2
-using interface2::TreeNodeVisitor;
-using interface2::SplitNodeDescriptor;
-using interface2::LeafNodeDescriptor;
 } // namespace classification
 } // namespace tree_utils
 } // namespace algorithms

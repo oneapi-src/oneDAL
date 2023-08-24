@@ -32,8 +32,6 @@ namespace linear_model
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 Input::Input(size_t nElements) : regression::training::Input(nElements) {}
@@ -49,7 +47,6 @@ void Input::set(InputId id, const data_management::NumericTablePtr & value)
     regression::training::Input::set(regression::training::InputId(id), value);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace linear_model
 } // namespace algorithms

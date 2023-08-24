@@ -33,11 +33,6 @@ namespace daal
 namespace services
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup memory
  * @{
  */
@@ -123,9 +118,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::BufferView;
 
 } // namespace services
 } // namespace daal

@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /**
  * @defgroup svd_batch Batch
  * @ingroup svd
@@ -154,9 +152,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace svd
 } // namespace algorithms

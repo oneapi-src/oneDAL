@@ -25,8 +25,6 @@ namespace algorithms
 {
 namespace linear_regression
 {
-namespace interface1
-{
 using namespace daal::data_management;
 
 template <typename modelFPType>
@@ -51,7 +49,6 @@ void ModelBuilder<modelFPType>::setInterceptFlag(bool interceptFlag)
 }
 
 template class ModelBuilder<DAAL_FPTYPE>;
-} // namespace interface1
 } // namespace linear_regression
 } // namespace algorithms
 } // namespace daal

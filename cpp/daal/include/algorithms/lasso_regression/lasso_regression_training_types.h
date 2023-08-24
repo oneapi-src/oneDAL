@@ -130,11 +130,6 @@ enum DataUseInComputation
     doUse    = 1  /*!< The input data and labels can be corrupted */
 };
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__LASSO_REGRESSION__TRAINPARAMETER"></a>
  * \brief Parameters for the lasso regression algorithm
  *
@@ -324,7 +319,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -335,15 +330,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
-} // namespace interface1
-
-using interface1::InputIface;
-using interface1::Input;
-using interface1::Parameter;
-
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
 
 } // namespace training
 } // namespace lasso_regression

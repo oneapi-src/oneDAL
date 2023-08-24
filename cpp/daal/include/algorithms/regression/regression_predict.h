@@ -35,8 +35,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup base_regression_prediction_batch Batch
  * @ingroup base_regression_prediction
@@ -47,8 +45,8 @@ namespace interface1
  * \brief Provides methods to run implementations of the regression model-based prediction
  *
  * \par References
- *      - \ref regression::interface1::Model "regression::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref regression::Model "regression::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 class Batch : public daal::algorithms::Prediction
 {
@@ -92,8 +90,6 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 } // namespace prediction
 } // namespace regression
 } // namespace algorithms

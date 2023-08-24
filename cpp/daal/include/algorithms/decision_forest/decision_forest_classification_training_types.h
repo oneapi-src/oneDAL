@@ -89,11 +89,6 @@ enum ResultEngineId
 };
 
 /**
- * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface3
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
  * \brief Decision forest algorithm parameters
  *
@@ -107,10 +102,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-} // namespace interface3
 
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method
@@ -179,7 +171,7 @@ public:
     engines::EnginePtr get(ResultEngineId id) const;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -201,11 +193,6 @@ private:
     Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
-
-} // namespace interface1
-using interface3::Parameter;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

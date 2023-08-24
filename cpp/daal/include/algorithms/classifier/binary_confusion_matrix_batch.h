@@ -37,8 +37,6 @@ namespace quality_metric
 {
 namespace binary_confusion_matrix
 {
-namespace interface1
-{
 /**
  * @defgroup quality_metric_binary_batch Batch
  * @ingroup quality_metric_binary
@@ -172,9 +170,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace binary_confusion_matrix
 } // namespace quality_metric

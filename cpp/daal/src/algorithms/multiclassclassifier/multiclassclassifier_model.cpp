@@ -31,25 +31,13 @@ namespace algorithms
 {
 namespace multi_class_classifier
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_MULTI_CLASS_CLASSIFIER_MODEL_ID);
 
-Model::Model(size_t nFeatures, const ParameterBase * par)
+Model::Model(size_t nFeatures, const multi_class_classifier::ParameterBase * par)
     : _modelsArray(nullptr), _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)), _nFeatures(nFeatures)
 {}
 
-Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase * par)
-    : _modelsArray(nullptr), _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)), _nFeatures(nFeatures)
-{}
-
-Model::Model(size_t nFeatures, const interface1::ParameterBase * par, services::Status & st) : _modelsArray(nullptr), _nFeatures(nFeatures)
-{
-    _models.reset(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2));
-    if (!_models) st.add(services::ErrorMemoryAllocationFailed);
-}
-
-Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase * par, services::Status & st)
+Model::Model(size_t nFeatures, const multi_class_classifier::ParameterBase * par, services::Status & st)
     : _modelsArray(nullptr), _nFeatures(nFeatures)
 {
     _models.reset(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2));
@@ -58,12 +46,7 @@ Model::Model(size_t nFeatures, const multi_class_classifier::interface2::Paramet
 
 Model::Model() : _nFeatures(0), _models(new data_management::DataCollection()), _modelsArray(nullptr) {}
 
-ModelPtr Model::create(size_t nFeatures, const interface1::ParameterBase * par, services::Status * stat)
-{
-    DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
-}
-
-ModelPtr Model::create(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase * par, services::Status * stat)
+ModelPtr Model::create(size_t nFeatures, const multi_class_classifier::ParameterBase * par, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
 }
@@ -101,9 +84,6 @@ classifier::ModelPtr Model::getTwoClassClassifierModel(size_t idx) const
     return classifier::ModelPtr();
 }
 
-} // namespace interface1
-namespace interface2
-{
 services::Status Parameter::check() const
 {
     services::Status s;
@@ -113,7 +93,6 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(maxIterations, services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr());
     return s;
 }
-} // namespace interface2
 } // namespace multi_class_classifier
 } // namespace algorithms
 } // namespace daal

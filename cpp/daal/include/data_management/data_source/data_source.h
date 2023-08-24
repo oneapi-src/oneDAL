@@ -36,8 +36,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup data_sources
  * @{
@@ -730,11 +728,6 @@ protected:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::DataSourceIface;
-using interface1::DataSource;
-using interface1::DataSourceTemplate;
 
 } // namespace data_management
 } // namespace daal

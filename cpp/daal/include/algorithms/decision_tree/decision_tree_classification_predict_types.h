@@ -64,11 +64,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Provides an interface for input objects for making Decision tree model-based prediction
  */
@@ -115,12 +110,6 @@ public:
 
 typedef services::SharedPtr<Input> InputPtr;
 typedef services::SharedPtr<const Input> InputConstPtr;
-
-} // namespace interface1
-
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::InputConstPtr;
 
 } // namespace prediction
 /** @} */

@@ -38,8 +38,6 @@ namespace optimization_solver
 {
 namespace objective_function
 {
-namespace interface1
-{
 /** @defgroup objective_function_batch Batch
  * @ingroup objective_function
  * @{
@@ -118,8 +116,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace objective_function
 } // namespace optimization_solver

@@ -100,11 +100,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__OBJECTIVE_FUNCTION__PARAMETER"></a>
  * \brief %Parameter for the Objective function
  *
@@ -222,7 +217,7 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -232,11 +227,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /** @} */
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace objective_function
 } // namespace optimization_solver

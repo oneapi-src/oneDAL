@@ -36,8 +36,6 @@ namespace services
 {
 namespace internal
 {
-namespace interface1
-{
 /**
  * @ingroup sycl
  * @{
@@ -368,9 +366,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::Buffer;
 
 } // namespace internal
 } // namespace services

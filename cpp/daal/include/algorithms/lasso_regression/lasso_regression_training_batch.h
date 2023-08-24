@@ -39,8 +39,6 @@ namespace lasso_regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup lasso_regression_batch Batch
  * @ingroup lasso_regression_training
@@ -83,8 +81,8 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref lasso_regression::interface1::Model "lasso_regression::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref lasso_regression::Model "lasso_regression::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public linear_model::training::Batch
@@ -180,10 +178,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace lasso_regression

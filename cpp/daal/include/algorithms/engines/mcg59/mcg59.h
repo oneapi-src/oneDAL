@@ -40,12 +40,10 @@ namespace mcg59
  * @ingroup engines_mcg59
  * @{
  */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__MCG59__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the mcg59 engine.
- *        This class is associated with the \ref mcg59::interface1::Batch "mcg59::Batch" class
+ *        This class is associated with the \ref mcg59::Batch "mcg59::Batch" class
  *        and supports the method of mcg59 engine computation in the batch processing mode
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of mcg59 engine, double or float
@@ -82,8 +80,8 @@ public:
  *      - mcg59::Method          Computation methods for the mcg59 engine
  *
  * \par References
- *      - \ref engines::interface1::Input  "engines::Input" class
- *      - \ref engines::interface1::Result "engines::Result" class
+ *      - \ref engines::Input  "engines::Input" class
+ *      - \ref engines::Result "engines::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public engines::BatchBase
@@ -169,11 +167,6 @@ private:
 typedef services::SharedPtr<Batch<> > mcg59Ptr;
 typedef services::SharedPtr<const Batch<> > mcg59ConstPtr;
 
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
-using interface1::mcg59Ptr;
-using interface1::mcg59ConstPtr;
 /** @} */
 } // namespace mcg59
 } // namespace engines

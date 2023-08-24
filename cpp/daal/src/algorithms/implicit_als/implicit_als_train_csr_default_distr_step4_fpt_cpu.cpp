@@ -35,10 +35,7 @@ namespace implicit_als
 {
 namespace training
 {
-namespace interface1
-{
 template class DistributedContainer<step4Local, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class ImplicitALSTrainDistrStep4Kernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

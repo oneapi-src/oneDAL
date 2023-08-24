@@ -40,8 +40,6 @@ namespace linear_regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup linear_regression_batch Batch
  * @ingroup linear_regression_training
@@ -84,10 +82,10 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref linear_regression::interface1::Model "linear_regression::Model" class
- *      - \ref linear_regression::interface1::ModelNormEq "linear_regression::ModelNormEq" class
- *      - \ref linear_regression::interface1::ModelQR "linear_regression::ModelQR" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref linear_regression::Model "linear_regression::Model" class
+ *      - \ref linear_regression::ModelNormEq "linear_regression::ModelNormEq" class
+ *      - \ref linear_regression::ModelQR "linear_regression::ModelQR" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
 class DAAL_EXPORT Batch : public linear_model::training::Batch
@@ -98,7 +96,7 @@ public:
     typedef algorithms::linear_regression::training::Result ResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< %Training \ref interface1::Parameter "parameters" */
+    ParameterType parameter; /*!< %Training \ref Parameter "parameters" */
 
     /** Default constructor */
     Batch() { initialize(); }
@@ -168,9 +166,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace linear_regression

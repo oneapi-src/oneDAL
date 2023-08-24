@@ -56,8 +56,6 @@ enum Method
     fastCSR      = 1  /*!< Multinomial naive Bayes model based prediction for sparse data in CSR format */
 };
 
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the multinomial naive Bayes algorithm
@@ -111,9 +109,6 @@ public:
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
-
-} // namespace interface1
-using interface1::Input;
 
 } // namespace prediction
 /** @} */

@@ -34,14 +34,12 @@ namespace decision_forest
 {
 namespace training
 {
-services::Status checkImpl(const decision_forest::training::interface2::Parameter & prm);
+services::Status checkImpl(const decision_forest::training::Parameter & prm);
 }
 
 namespace classification
 {
 namespace training
-{
-namespace interface1
 {
 class Result::ResultImpl
 {
@@ -63,7 +61,6 @@ private:
     engines::EnginePtr _engine;
 };
 
-} // namespace interface1
 } // namespace training
 } // namespace classification
 } // namespace decision_forest

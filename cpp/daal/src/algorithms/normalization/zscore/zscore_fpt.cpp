@@ -34,8 +34,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface2
-{
 /**
  * Allocates memory to store final results of the z-score normalization algorithms
  * \param[in] input     Input objects for the z-score normalization algorithm
@@ -51,7 +49,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
 }
 
 /**
-* Allocates memory to store final results of the z-score normalization algorithms for interface1 API compartibility
+* Allocates memory to store final results of the z-score normalization algorithms for API compartibility
 * \param[in] input     Input objects for the z-score normalization algorithm
 * \param[in] method    Algorithm computation method
 */
@@ -65,7 +63,6 @@ template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms
 template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                           const int method);
 
-} // namespace interface2
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

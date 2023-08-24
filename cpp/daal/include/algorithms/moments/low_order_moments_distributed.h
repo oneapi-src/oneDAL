@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 /**
  * @defgroup low_order_moments_distributed Distributed
  * @ingroup low_order_moments
@@ -299,10 +297,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedInput;
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace low_order_moments
 } // namespace algorithms

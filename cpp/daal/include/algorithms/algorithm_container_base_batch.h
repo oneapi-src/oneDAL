@@ -36,8 +36,6 @@ namespace algorithms
 /**
  * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
-namespace interface1
-{
 /**
  * @addtogroup base_algorithms
  * @{
@@ -184,7 +182,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
 
 } // namespace algorithms
 } // namespace daal

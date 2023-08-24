@@ -35,8 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -445,9 +443,6 @@ private:
 };
 typedef services::SharedPtr<ArrowImmutableNumericTable> ArrowImmutableNumericTablePtr;
 /** @} */
-} // namespace interface1
-using interface1::ArrowImmutableNumericTable;
-using interface1::ArrowImmutableNumericTablePtr;
 
 } // namespace data_management
 } // namespace daal

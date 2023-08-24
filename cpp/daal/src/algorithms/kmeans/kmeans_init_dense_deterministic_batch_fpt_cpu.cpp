@@ -33,10 +33,7 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, deterministicDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class DAAL_EXPORT KMeansInitKernel<deterministicDense, DAAL_FPTYPE, DAAL_CPU>;

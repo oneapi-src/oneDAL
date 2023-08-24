@@ -30,8 +30,6 @@ namespace data_management
 {
 namespace features
 {
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__FEATUREINDICESIFACE"></a>
  * \brief Abstract class that defines interface for mapping feature id to feature index
@@ -130,22 +128,8 @@ class FeatureIdCollection : public Base, public FeatureIdCollectionIface
 {};
 typedef services::SharedPtr<FeatureIdCollection> FeatureIdCollectionPtr;
 
-} // namespace interface1
-
-using interface1::FeatureIdMappingIface;
-using interface1::FeatureIdMappingIfacePtr;
-using interface1::FeatureIdMapping;
-using interface1::FeatureIdMappingPtr;
-
-using interface1::FeatureIdIface;
-using interface1::FeatureIdIfacePtr;
-using interface1::FeatureId;
-using interface1::FeatureIdPtr;
-
-typedef interface1::FeatureIdCollectionIface FeatureIdCollectionIface;
-typedef services::SharedPtr<interface1::FeatureIdCollectionIface> FeatureIdCollectionIfacePtr;
-using interface1::FeatureIdCollection;
-using interface1::FeatureIdCollectionPtr;
+typedef FeatureIdCollectionIface FeatureIdCollectionIface;
+typedef services::SharedPtr<FeatureIdCollectionIface> FeatureIdCollectionIfacePtr;
 
 } // namespace features
 } // namespace data_management

@@ -21,8 +21,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 RowMergedNumericTable::RowMergedNumericTable() : NumericTable(0, 0), _tables(new DataCollection) {}
 
 RowMergedNumericTable::RowMergedNumericTable(NumericTablePtr table) : NumericTable(0, 0), _tables(new DataCollection)
@@ -59,6 +57,5 @@ RowMergedNumericTable::RowMergedNumericTable(const NumericTablePtr & table, serv
     this->_status |= st;
 }
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal

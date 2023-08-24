@@ -37,8 +37,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -54,7 +52,7 @@ NumericTablePtr Input::get(NumericTableInputId id) const
 
 ModelPtr Input::get(ModelInputId id) const
 {
-    return staticPointerCast<decision_tree::regression::interface1::Model, data_management::SerializationIface>(Argument::get(id));
+    return staticPointerCast<decision_tree::regression::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 void Input::set(NumericTableInputId id, const data_management::NumericTablePtr & ptr)
@@ -92,7 +90,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace regression
 } // namespace decision_tree

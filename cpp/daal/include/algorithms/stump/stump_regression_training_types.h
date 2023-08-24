@@ -75,11 +75,6 @@ enum ResultNumericTableId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__STUMP__REGRESSION__TRAINING__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method of the decision stump training algorithm
  * in the batch processing mode
@@ -141,7 +136,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -151,9 +146,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

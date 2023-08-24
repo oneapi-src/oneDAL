@@ -43,8 +43,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_GBT_CLASSIFICATION_TRAINING_RESULT_ID);
 Result::Result() : algorithms::classifier::training::Result(lastResultNumericTableId + 1) {};
 
@@ -72,15 +70,11 @@ void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr
 {
     Argument::set(id, value);
 }
-} // namespace interface1
 
-namespace interface2
-{
 Status Parameter::check() const
 {
     return gbt::training::checkImpl(*this);
 }
-} // namespace interface2
 } // namespace training
 } // namespace classification
 } // namespace gbt

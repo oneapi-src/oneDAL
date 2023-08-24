@@ -34,8 +34,6 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 /** Constructs min-max normalization parameters */
 DAAL_EXPORT ParameterBase::ParameterBase(double lowerBound, double upperBound, const SharedPtr<low_order_moments::BatchImpl> & moments)
     : lowerBound(lowerBound), upperBound(upperBound), moments(moments)
@@ -51,7 +49,6 @@ DAAL_EXPORT Status ParameterBase::check() const
     return Status();
 }
 
-} // namespace interface1
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

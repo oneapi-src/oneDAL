@@ -32,8 +32,6 @@ namespace algorithms
 {
 namespace linear_regression
 {
-namespace interface1
-{
 /**
  * @ingroup linear_regression
  * @{
@@ -45,10 +43,10 @@ namespace interface1
  * \par References
  *      - Parameter class
  *      - Prediction class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref training::interface1::Online "training::Online" class
- *      - \ref training::interface1::Distributed "training::Distributed" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref training::Online "training::Online" class
+ *      - \ref training::Distributed "training::Distributed" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT ModelQR : public Model
 {
@@ -73,10 +71,6 @@ public:
 typedef services::SharedPtr<ModelQR> ModelQRPtr;
 typedef services::SharedPtr<const ModelQR> ModelQRConstPtr;
 /** @} */
-} // namespace interface1
-using interface1::ModelQR;
-using interface1::ModelQRPtr;
-using interface1::ModelQRConstPtr;
 
 } // namespace linear_regression
 } // namespace algorithms

@@ -35,8 +35,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface2
-{
 using BatchType = Batch<DAAL_FPTYPE, decision_forest::regression::training::defaultDense>;
 
 template <>
@@ -53,7 +51,6 @@ BatchType::Batch(const BatchType & other) : input(other.input)
     _par = new ParameterType(other.parameter());
     initialize();
 }
-} // namespace interface2
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

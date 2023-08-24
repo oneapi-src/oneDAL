@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 template class OnlineContainer<DAAL_FPTYPE, daal::algorithms::svd::defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class SVDOnlineKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

@@ -35,11 +35,8 @@ namespace linear_model
 using namespace daal::services;
 using namespace daal::data_management;
 
-namespace interface1
-{
 Parameter::Parameter() : algorithms::Parameter(), interceptFlag(true) {}
 Parameter::Parameter(const Parameter & other) : algorithms::Parameter(other), interceptFlag(other.interceptFlag) {}
-} // namespace interface1
 
 namespace internal
 {

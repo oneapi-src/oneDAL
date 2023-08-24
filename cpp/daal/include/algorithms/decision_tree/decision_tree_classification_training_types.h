@@ -75,11 +75,6 @@ enum InputId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__TRAINING__INPUT"></a>
  * \brief Base class for the input objects in the training stage of the classification algorithms
  */
@@ -158,15 +153,6 @@ protected:
 
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
-
-} // namespace interface1
-
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::InputConstPtr;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
 
 } // namespace training
 /** @} */

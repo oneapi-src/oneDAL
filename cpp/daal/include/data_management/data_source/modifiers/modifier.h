@@ -31,11 +31,6 @@ namespace data_management
 namespace modifiers
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @defgroup data_source_modifiers Modifiers
  * \brief Defines special components which can be used to modify
  *        data during the loading through the data source components
@@ -144,11 +139,6 @@ public:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::ConfigIface;
-using interface1::ContextIface;
-using interface1::FeatureModifierIface;
 
 } // namespace modifiers
 } // namespace data_management

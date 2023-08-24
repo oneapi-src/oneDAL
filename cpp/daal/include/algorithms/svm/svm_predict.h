@@ -38,11 +38,6 @@ namespace svm
 namespace prediction
 {
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * @defgroup svm_prediction_batch Batch
  * @ingroup svm_prediction
  * @{
@@ -89,8 +84,8 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of prediction results
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref interface1::Result "Result" class
+ *      - \ref Model "Model" class
+ *      - \ref Result "Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::Batch
@@ -103,7 +98,7 @@ public:
     typedef typename super::ResultType ResultType;
 
     InputType input;         /*!< %Input objects of the algorithm */
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameter" of the algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameter" of the algorithm */
 
     /** Default constructor */
     Batch() { initialize(); }
@@ -161,9 +156,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace prediction
 } // namespace svm

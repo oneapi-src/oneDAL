@@ -32,10 +32,7 @@ namespace kdtree_knn_classification
 {
 namespace training
 {
-namespace interface3
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface3
 namespace internal
 {
 template class DAAL_EXPORT KNNClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

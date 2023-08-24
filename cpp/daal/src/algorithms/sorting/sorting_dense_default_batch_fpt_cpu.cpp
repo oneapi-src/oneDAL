@@ -31,11 +31,8 @@ namespace algorithms
 {
 namespace sorting
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
-}
 namespace internal
 {
 template class SortingKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

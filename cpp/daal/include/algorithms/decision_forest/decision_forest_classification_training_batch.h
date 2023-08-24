@@ -37,8 +37,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface3
-{
 /**
  * @defgroup decision_forest_classification_training_batch Batch
  * @ingroup decision_forest_classification_training
@@ -86,8 +84,8 @@ public:
  *      - \ref classifier::training::ResultId Identifiers of Decision forest training results
  *
  * \par References
- *      - \ref decision_forest::classification::interface1::Model "Model" class
- *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
+ *      - \ref decision_forest::classification::Model "Model" class
+ *      - \ref classifier::training::Input "classifier::training::Input" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -190,9 +188,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface3
-using interface3::BatchContainer;
-using interface3::Batch;
 
 } // namespace training
 } // namespace classification

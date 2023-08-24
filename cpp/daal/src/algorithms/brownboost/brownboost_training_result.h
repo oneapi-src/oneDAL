@@ -34,8 +34,6 @@ namespace brownboost
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * Allocates memory to store final results of BrownBoost training
  * \param[in] input        %Input of the BrownBoost training algorithm
@@ -50,7 +48,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
     return s;
 }
-} // namespace interface2
 
 } // namespace training
 } // namespace brownboost

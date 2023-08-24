@@ -44,7 +44,7 @@ enum LocalData
 
 #define isParallelPlusMethod(method) ((method == kmeans::init::parallelPlusDense) || (method == kmeans::init::parallelPlusCSR))
 
-services::Status checkLocalData(const data_management::DataCollection * pInput, const interface1::Parameter * par, const char * dataName,
+services::Status checkLocalData(const data_management::DataCollection * pInput, const Parameter * par, const char * dataName,
                                 const data_management::NumericTable * pData, bool bParallelPlus);
 
 } // namespace internal

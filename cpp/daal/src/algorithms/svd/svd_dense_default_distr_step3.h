@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /**
  * Allocates memory to store partial results of the SVD algorithm
  * \param[in] input     Pointer to the input object
@@ -71,7 +69,6 @@ DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_m
     return result->allocateImpl<algorithmFPType>(m, n);
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

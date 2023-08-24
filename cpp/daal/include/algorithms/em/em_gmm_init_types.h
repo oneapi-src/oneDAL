@@ -92,11 +92,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__EM_GMM__INIT__PARAMETER"></a>
  * \brief %Parameter for the computation of initial values for the EM for GMM algorithm
  *
@@ -239,7 +234,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -248,14 +243,9 @@ protected:
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
 };
-typedef services::SharedPtr<daal::algorithms::em_gmm::init::interface1::Result> ResultPtr;
+typedef services::SharedPtr<daal::algorithms::em_gmm::init::Result> ResultPtr;
 /** @} */
 /** @} */
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace init
 } // namespace em_gmm

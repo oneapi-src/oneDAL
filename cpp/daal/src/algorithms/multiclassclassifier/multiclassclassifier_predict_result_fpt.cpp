@@ -31,8 +31,6 @@ namespace multi_class_classifier
 {
 namespace prediction
 {
-namespace interface1
-{
 using namespace daal::data_management;
 /**
  * Allocates memory for storing prediction results of the multiclass
@@ -65,8 +63,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int pmethod, const int tmethod);
-
-} // namespace interface1
 
 } // namespace prediction
 } // namespace multi_class_classifier

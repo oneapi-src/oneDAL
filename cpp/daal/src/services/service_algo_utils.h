@@ -30,20 +30,17 @@ namespace daal
 {
 namespace algorithms
 {
-namespace interface1
-{
 class AlgorithmIface;
 class Input;
-} // namespace interface1
 } // namespace algorithms
 
 namespace services
 {
 namespace internal
 {
-DAAL_EXPORT services::HostAppIface * hostApp(algorithms::interface1::Input & inp);
-void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, algorithms::interface1::Input & inp);
-services::HostAppIfacePtr getHostApp(daal::algorithms::interface1::Input & inp);
+DAAL_EXPORT services::HostAppIface * hostApp(algorithms::Input & inp);
+void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, algorithms::Input & inp);
+services::HostAppIfacePtr getHostApp(daal::algorithms::Input & inp);
 bool isCancelled(services::Status & s, services::HostAppIface * pHostApp);
 
 //////////////////////////////////////////////////////////////////////////////////////////

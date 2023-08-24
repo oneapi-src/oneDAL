@@ -32,11 +32,6 @@ namespace modifiers
 namespace sql
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @defgroup data_source_modifiers_sql SQL
  * \brief Defines SQL specific feature modifiers
  * @ingroup data_source_modifiers
@@ -154,14 +149,6 @@ std::vector<char> Context::getValue<std::vector<char> >(size_t columnIndex) cons
 }
 
 /** @} */
-} // namespace interface1
-
-using interface1::Config;
-using interface1::Context;
-using interface1::FeatureModifierIface;
-using interface1::FeatureModifierIfacePtr;
-using interface1::FeatureModifier;
-using interface1::FeatureModifierPtr;
 
 } // namespace sql
 } // namespace modifiers

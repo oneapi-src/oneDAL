@@ -87,8 +87,6 @@ enum OptionalDataId
     lastOptionalData = averageArgumentLIterations
 };
 
-namespace interface2
-{
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__LBFGS__PARAMETER"></a>
  * \brief %Parameter class for LBFGS algorithm
@@ -231,17 +229,12 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
 
 /** @} */
-} // namespace interface2
-using interface2::Parameter;
-using interface2::Input;
-using interface2::Result;
-using interface2::ResultPtr;
 
 } // namespace lbfgs
 } // namespace optimization_solver

@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace adaboost
 {
-namespace interface2
-{
 /**
  * Constructs the AdaBoost model
  * \tparam modelFPType  Data type to store AdaBoost model data, double or float
@@ -70,7 +68,6 @@ template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE);
 template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE, services::Status &);
 template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, services::Status *);
 
-} // namespace interface2
 } // namespace adaboost
 } // namespace algorithms
 } // namespace daal

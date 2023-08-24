@@ -73,10 +73,6 @@ enum ResultId
     lastResultId = choleskyFactor
 };
 
-/**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CHOLESKY__INPUT"></a>
@@ -162,7 +158,7 @@ public:
     virtual services::Status check(const algorithms::Input * input, const algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -173,10 +169,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /** @} */
-} // namespace interface1
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace cholesky
 } // namespace algorithms

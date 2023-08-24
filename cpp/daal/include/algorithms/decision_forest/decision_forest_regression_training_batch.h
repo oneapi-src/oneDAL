@@ -43,8 +43,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup decision_forest_regression_training_batch Batch
  * @ingroup decision_forest_regression_training
@@ -87,8 +85,8 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref decision_forest::regression::interface1::Model "Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref decision_forest::regression::Model "Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public algorithms::regression::training::Batch
@@ -179,9 +177,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

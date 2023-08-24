@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS3(PartialResult, svdDense, SERIALIZATION_PCA_PARTIAL_RESULT_SVD_ID);
 
 PartialResult<svdDense>::PartialResult() : PartialResultBase(lastPartialSVDCollectionResultId + 1) {};
@@ -146,7 +144,6 @@ Status PartialResult<svdDense>::checkImpl(size_t nFeatures) const
     return s;
 }
 
-} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

@@ -34,8 +34,6 @@ namespace logitboost
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * Allocates memory to store final results of the LogitBoost training algorithm
  * \param[in] input         %Input of the LogitBoost training algorithm
@@ -52,7 +50,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     set(classifier::training::model, model);
     return s;
 }
-} // namespace interface2
 } // namespace training
 } // namespace logitboost
 } // namespace algorithms

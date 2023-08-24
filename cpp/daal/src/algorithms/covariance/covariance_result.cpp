@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_COVARIANCE_RESULT_ID);
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
@@ -113,8 +111,6 @@ services::Status Result::checkImpl(size_t nFeatures, OutputMatrixType outputMatr
     s |= checkNumericTable(get(mean).get(), meanStr(), unexpectedLayouts, 0, nFeatures, 1);
     return s;
 }
-
-} //namespace interface1
 
 } //namespace covariance
 } // namespace algorithms

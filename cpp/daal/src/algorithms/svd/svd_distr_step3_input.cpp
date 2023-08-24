@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /** Default constructor */
 DistributedStep3Input::DistributedStep3Input() : daal::algorithms::Input(lastFinalizeOnLocalInputId + 1) {}
 
@@ -131,7 +129,6 @@ Status DistributedStep3Input::check(const daal::algorithms::Parameter * paramete
     return Status();
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

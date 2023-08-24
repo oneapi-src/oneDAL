@@ -24,8 +24,6 @@ namespace services
 {
 namespace internal
 {
-namespace interface1
-{
 /** @ingroup services_internal
  * @{
  */
@@ -113,9 +111,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::Any;
 
 } // namespace internal
 } // namespace services

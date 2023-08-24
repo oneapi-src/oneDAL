@@ -36,8 +36,6 @@ namespace logistic_regression
 {
 namespace training
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGISTIC_REGRESSION_TRAINING_RESULT_ID);
 Result::Result() : algorithms::classifier::training::Result(classifier::training::lastResultId + 1) {};
 
@@ -55,10 +53,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 {
     return algorithms::classifier::training::Result::check(input, par, method);
 }
-} // namespace interface2
 
-namespace interface3
-{
 Parameter::Parameter(size_t nClasses, const SolverPtr & solver)
     : classifier::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
 {}
@@ -69,7 +64,6 @@ Status Parameter::check() const
     DAAL_CHECK_EX(penaltyL2 >= 0, services::ErrorIncorrectParameter, services::ParameterName, penaltyL2Str());
     return services::Status();
 }
-} // namespace interface3
 } // namespace training
 } // namespace logistic_regression
 } // namespace algorithms

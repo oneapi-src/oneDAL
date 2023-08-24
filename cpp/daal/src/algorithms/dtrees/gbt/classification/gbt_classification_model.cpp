@@ -39,8 +39,6 @@ using namespace daal::algorithms::gbt::internal;
 
 namespace classification
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_GBT_CLASSIFICATION_MODEL_ID);
 
 ModelPtr Model::create(size_t nFeatures, services::Status * stat)
@@ -49,8 +47,6 @@ ModelPtr Model::create(size_t nFeatures, services::Status * stat)
     if ((!pRes.get()) && stat) stat->add(services::ErrorMemoryAllocationFailed);
     return pRes;
 }
-
-} // namespace interface1
 
 namespace internal
 {

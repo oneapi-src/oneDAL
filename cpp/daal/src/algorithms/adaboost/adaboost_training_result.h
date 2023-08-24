@@ -37,8 +37,6 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * Allocates memory to store final results of AdaBoost training
  * \param[in] input         %Input of the AdaBoost training algorithm
@@ -60,7 +58,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     return s;
 }
 
-} // namespace interface2
 } // namespace training
 } // namespace adaboost
 } // namespace algorithms

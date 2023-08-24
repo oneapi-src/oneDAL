@@ -35,8 +35,6 @@ namespace logitboost
 {
 namespace training
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGITBOOST_TRAINING_RESULT_ID);
 /**
  * Returns the model trained with the LogitBoost algorithm
@@ -47,7 +45,6 @@ daal::algorithms::logitboost::ModelPtr Result::get(classifier::training::ResultI
 {
     return staticPointerCast<daal::algorithms::logitboost::Model, data_management::SerializationIface>(Argument::get(id));
 }
-} // namespace interface2
 } // namespace training
 } // namespace logitboost
 } // namespace algorithms

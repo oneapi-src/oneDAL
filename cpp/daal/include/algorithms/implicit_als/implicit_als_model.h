@@ -43,11 +43,6 @@ namespace algorithms
 namespace implicit_als
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__IMPLICIT_ALS__PARAMETER"></a>
  * \brief Parameters for the compute() method of the implicit ALS algorithm
  *
@@ -83,7 +78,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief Model trained by the implicit ALS algorithm in the batch processing mode
  *
  * \par References
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref training::Batch "training::Batch" class
  *      - Parameter class
  */
 class DAAL_EXPORT Model : public daal::algorithms::Model
@@ -160,7 +155,7 @@ typedef services::SharedPtr<Model> ModelPtr;
  * \brief Partial model trained by the implicit ALS training algorithm in the distributed processing mode
  *
  * \par References
- *      - \ref training::interface1::Distributed "implicit_als::training::Distributed"
+ *      - \ref training::Distributed "implicit_als::training::Distributed"
  *      - Parameter class
  */
 class DAAL_EXPORT PartialModel : public daal::algorithms::Model
@@ -280,12 +275,6 @@ private:
 };
 
 typedef services::SharedPtr<PartialModel> PartialModelPtr;
-} // namespace interface1
-using interface1::Parameter;
-using interface1::ModelPtr;
-using interface1::Model;
-using interface1::PartialModelPtr;
-using interface1::PartialModel;
 
 } // namespace implicit_als
 /** @} */

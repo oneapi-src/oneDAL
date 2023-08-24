@@ -36,8 +36,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 class Result::ResultImpl
 {
 public:
@@ -58,7 +56,6 @@ private:
     engines::EnginePtr _engine;
 };
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

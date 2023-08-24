@@ -78,11 +78,6 @@ enum VoteWeights
 };
 
 /**
- * \brief Contains version 3.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface3
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
  * \brief KD-tree based kNN algorithm parameters
  *
@@ -127,21 +122,15 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     VoteWeights voteWeights;       /*!< Weight function used in prediction */
 };
 /* [Parameter source code] */
-} // namespace interface3
 
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__MODEL"></a>
  * \brief %Base class for models trained with the KD-tree based kNN algorithm
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface3::Batch "training::Batch" class
- *      - \ref prediction::interface3::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {
@@ -194,11 +183,6 @@ private:
     ModelImpl * _impl; /*!< Model implementation */
 };
 typedef services::SharedPtr<Model> ModelPtr;
-} // namespace interface1
-
-using interface3::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace kdtree_knn_classification
 

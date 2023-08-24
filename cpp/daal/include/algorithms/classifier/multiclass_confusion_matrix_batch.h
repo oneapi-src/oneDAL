@@ -37,8 +37,6 @@ namespace quality_metric
 {
 namespace multiclass_confusion_matrix
 {
-namespace interface1
-{
 /**
  * @defgroup quality_metric_multiclass_batch Batch
  * @ingroup quality_metric_multiclass
@@ -175,9 +173,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace multiclass_confusion_matrix
 } // namespace quality_metric

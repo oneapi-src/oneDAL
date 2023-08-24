@@ -44,11 +44,6 @@ namespace multi_class_classifier
 namespace prediction
 {
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * @defgroup multi_class_classifier_prediction_batch Batch
  * @ingroup multi_class_classifier_prediction
  * @{
@@ -99,8 +94,8 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of the results of the multi-class classifier prediction algorithm
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
+ *      - \ref Model "Model" class
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method pmethod = defaultDense,
           training::Method tmethod = training::oneAgainstOne>
@@ -114,7 +109,7 @@ public:
     typedef algorithms::multi_class_classifier::prediction::Result ResultType;
 
     InputType input;         /*!< Input objects of the algorithm */
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the algorithm */
 
     /**
      * Default constructor
@@ -212,9 +207,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace prediction
 } // namespace multi_class_classifier

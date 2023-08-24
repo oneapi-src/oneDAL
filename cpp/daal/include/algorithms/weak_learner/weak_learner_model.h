@@ -39,18 +39,13 @@ namespace algorithms
 namespace weak_learner
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__WEAK_LEARNER__PARAMETER"></a>
  * \brief %Base class for the input objects of the weak learner training and prediction algorithm
  *
  * \snippet weak_learner/weak_learner_model.h Parameter source code
  */
 /* [Parameter source code] */
-class Parameter : public classifier::interface1::Parameter
+class Parameter : public classifier::Parameter
 {
 public:
     Parameter() {}
@@ -62,17 +57,13 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__WEAK_LEARNER__MODEL"></a>
  * \brief %Base class for the weak learner model
  */
-class Model : public classifier::interface1::Model
+class Model : public classifier::Model
 {
 public:
     Model() {}
     virtual ~Model() {}
 };
 typedef services::SharedPtr<Model> ModelPtr;
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace weak_learner
 /** @} */

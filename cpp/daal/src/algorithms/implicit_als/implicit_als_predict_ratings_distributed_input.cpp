@@ -37,8 +37,6 @@ namespace prediction
 {
 namespace ratings
 {
-namespace interface1
-{
 DistributedInput<step1Local>::DistributedInput() : InputIface(2) {}
 
 /**
@@ -120,7 +118,6 @@ services::Status DistributedInput<step1Local>::check(const daal::algorithms::Par
     return checkNumericTable(itemsModel->getIndices().get(), itemsIndicesStr(), unexpectedLayoutsIndices, 0, 1, nRowsItemsModel);
 }
 
-} // namespace interface1
 } // namespace ratings
 } // namespace prediction
 } // namespace implicit_als

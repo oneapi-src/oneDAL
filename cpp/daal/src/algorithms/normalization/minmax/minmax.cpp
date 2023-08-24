@@ -36,8 +36,6 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NORMALIZATION_MINMAX_RESULT_ID);
 
 /** Default constructor */
@@ -131,7 +129,6 @@ Status Result::check(const daal::algorithms::Input * in, const daal::algorithms:
     return checkNumericTable(get(normalizedData).get(), normalizedDataStr(), unexpectedLayouts, 0, nFeatures, nVectors);
 }
 
-} // namespace interface1
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

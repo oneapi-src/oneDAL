@@ -35,8 +35,6 @@ namespace adaboost
 {
 namespace prediction
 {
-namespace interface2
-{
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
@@ -102,7 +100,6 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
     DAAL_CHECK(m->getNumberOfWeakLearners() == m->getAlpha()->getNumberOfRows(), ErrorIncorrectSizeOfModel);
     return s;
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace adaboost
 } // namespace algorithms

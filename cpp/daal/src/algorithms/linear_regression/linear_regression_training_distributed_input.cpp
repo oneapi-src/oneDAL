@@ -34,8 +34,6 @@ namespace linear_regression
 {
 namespace training
 {
-namespace interface1
-{
 DistributedInput<step2Master>::DistributedInput() : daal::algorithms::Input(lastStep2MasterInputId + 1)
 {
     Argument::set(partialModels, DataCollectionPtr(new DataCollection()));
@@ -133,7 +131,6 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace linear_regression
 } // namespace algorithms

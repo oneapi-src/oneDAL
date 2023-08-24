@@ -36,8 +36,6 @@ namespace prediction
 {
 namespace ratings
 {
-namespace interface1
-{
 /**
  * Allocates memory to store partial results of the rating prediction stage of the implicit ALS algorithm
  * \param[in] input     Pointer to the input object
@@ -58,7 +56,6 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
 template DAAL_EXPORT services::Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                            const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace ratings
 } // namespace prediction
 } // namespace implicit_als

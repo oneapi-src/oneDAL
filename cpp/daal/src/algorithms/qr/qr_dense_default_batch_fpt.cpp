@@ -28,15 +28,12 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                     const daal::algorithms::Parameter * parameter, const int method);
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
                                                                     daal::algorithms::Parameter * parameter, const int method);
 template DAAL_EXPORT services::Status Result::allocateImpl<DAAL_FPTYPE>(size_t m, size_t n);
 
-} // namespace interface1
 } // namespace qr
 } // namespace algorithms
 } // namespace daal

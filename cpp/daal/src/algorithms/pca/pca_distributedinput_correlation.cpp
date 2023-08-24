@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 DistributedInput<correlationDense>::DistributedInput() : InputIface(lastStep2MasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -134,7 +132,6 @@ Status DistributedInput<correlationDense>::check(const daal::algorithms::Paramet
     return s;
 }
 
-} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

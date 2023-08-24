@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 /** Default constructor */
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 Input::Input(const Input & other) : daal::algorithms::Input(other) {}
@@ -105,7 +103,6 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
     return Status();
 }
 
-} // namespace interface1
 } // namespace qr
 } // namespace algorithms
 } // namespace daal

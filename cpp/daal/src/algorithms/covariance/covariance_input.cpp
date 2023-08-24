@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 Input::Input() : InputIface(lastInputId + 1) {}
 
 /**
@@ -97,8 +95,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     }
     return s;
 }
-
-} //namespace interface1
 
 } //namespace covariance
 } // namespace algorithms

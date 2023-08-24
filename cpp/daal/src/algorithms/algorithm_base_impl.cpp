@@ -268,7 +268,7 @@ void AlgorithmImpl<batch>::setHostApp(const services::HostAppIfacePtr & pHost)
     if (this->_in) services::internal::setHostApp(pHost, *this->_in);
 }
 
-template class interface1::AlgorithmImpl<online>;
-template class interface1::AlgorithmImpl<distributed>;
+template class AlgorithmImpl<online>;
+template class AlgorithmImpl<distributed>;
 } // namespace algorithms
 } // namespace daal

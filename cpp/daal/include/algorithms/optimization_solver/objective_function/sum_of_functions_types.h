@@ -56,11 +56,6 @@ enum InputId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__SUM_OF_FUNCTIONS__PARAMETER"></a>
  * \brief %Parameter for the Sum of functions
  *
@@ -144,11 +139,6 @@ public:
      */
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
-
-} // namespace interface2
-
-using interface2::Parameter;
-using interface2::Input;
 
 } // namespace sum_of_functions
 } // namespace optimization_solver

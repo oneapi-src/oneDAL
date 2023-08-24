@@ -37,8 +37,6 @@ namespace linear_regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup linear_regression_online Online
  * @ingroup linear_regression_training
@@ -91,10 +89,10 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref linear_regression::interface1::Model "linear_regression::Model" class
- *      - \ref linear_regression::interface1::ModelNormEq "linear_regression::ModelNormEq" class
- *      - \ref linear_regression::interface1::ModelQR "linear_regression::ModelQR" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref linear_regression::Model "linear_regression::Model" class
+ *      - \ref linear_regression::ModelNormEq "linear_regression::ModelNormEq" class
+ *      - \ref linear_regression::ModelQR "linear_regression::ModelQR" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
 class DAAL_EXPORT Online : public linear_model::training::Online
@@ -106,7 +104,7 @@ public:
     typedef algorithms::linear_regression::training::PartialResult PartialResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< %Training \ref interface1::Parameter "parameters" */
+    ParameterType parameter; /*!< %Training \ref Parameter "parameters" */
 
     /** Default constructor */
     Online() { initialize(); }
@@ -189,9 +187,6 @@ private:
     Online & operator=(const Online &);
 }; // class  : public Training
 /** @} */
-} // namespace interface1
-using interface1::OnlineContainer;
-using interface1::Online;
 
 } // namespace training
 } // namespace linear_regression

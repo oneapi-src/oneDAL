@@ -30,8 +30,6 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace interface1
-{
 /**
  * Allocates memory to store results of the kernel function algorithm
  * \param[in] input  Pointer to the structure with the input objects
@@ -67,7 +65,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface1
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

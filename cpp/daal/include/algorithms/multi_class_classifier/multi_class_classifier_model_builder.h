@@ -36,11 +36,6 @@ namespace algorithms
 namespace multi_class_classifier
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup multi_class_classifier
  * @{
  */
@@ -115,10 +110,6 @@ protected:
     size_t _nFeatures;
     size_t _nClasses;
 };
-
-} // namespace interface1
-
-using interface1::ModelBuilder;
 
 } // namespace multi_class_classifier
 /** @} */

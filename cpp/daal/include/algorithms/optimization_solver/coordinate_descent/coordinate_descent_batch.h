@@ -38,8 +38,6 @@ namespace optimization_solver
 {
 namespace coordinate_descent
 {
-namespace interface1
-{
 /**
  * @defgroup coordinate_descent_batch Batch
  * @ingroup coordinate_descent
@@ -185,9 +183,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace coordinate_descent
 } // namespace optimization_solver

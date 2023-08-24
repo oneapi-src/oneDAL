@@ -33,8 +33,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 using DistributedType = Distributed<step1Local, DAAL_FPTYPE, kmeans::init::randomDense>;
 
 template <>
@@ -53,7 +51,6 @@ DistributedType::Distributed(const DistributedType & other)
     input.set(data, other.input.get(data));
 }
 
-} // namespace interface2
 } // namespace init
 } // namespace kmeans
 

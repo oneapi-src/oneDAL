@@ -34,8 +34,6 @@ namespace linear_regression
 {
 namespace training
 {
-namespace interface1
-{
 /** Default constructor */
 Input::Input() : linear_model::training::Input(lastInputId + 1) {}
 Input::Input(const Input & other) : linear_model::training::Input(other) {}
@@ -94,7 +92,6 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace linear_regression
 } // namespace algorithms

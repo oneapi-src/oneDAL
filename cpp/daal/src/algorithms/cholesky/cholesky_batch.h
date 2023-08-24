@@ -32,8 +32,6 @@ namespace algorithms
 {
 namespace cholesky
 {
-namespace interface1
-{
 /**
  * Allocates memory to store the results of Cholesky decomposition
  * \param[in] input  Pointer to the input structure
@@ -50,7 +48,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     return status;
 }
 
-} // namespace interface1
 } // namespace cholesky
 } // namespace algorithms
 } // namespace daal

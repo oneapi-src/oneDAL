@@ -86,11 +86,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__TRAINING__INPUTIFACE"></a>
  * \brief Abstract class that specifies the interface of the classes of the classification algorithm input objects
  */
@@ -239,14 +234,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-
-} // namespace interface1
-using interface1::InputIface;
-using interface1::Input;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

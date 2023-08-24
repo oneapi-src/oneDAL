@@ -29,8 +29,6 @@ namespace modifiers
 {
 namespace sql
 {
-namespace interface1
-{
 /**
  * @ingroup data_source_modifiers_sql
  * @{
@@ -57,10 +55,6 @@ inline FeatureModifierIfacePtr continuous()
 }
 
 /** @} */
-} // namespace interface1
-
-using interface1::custom;
-using interface1::continuous;
 
 } // namespace sql
 } // namespace modifiers

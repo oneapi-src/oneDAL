@@ -30,8 +30,6 @@ namespace data_management
 {
 namespace features
 {
-namespace interface1
-{
 /**
  * Type that represents index of the feature in the data set
  */
@@ -115,15 +113,6 @@ typedef services::SharedPtr<FeatureIndicesIface> FeatureIndicesIfacePtr;
 class FeatureIndices : public Base, public FeatureIndicesIface
 {};
 typedef services::SharedPtr<FeatureIndices> FeatureIndicesPtr;
-
-} // namespace interface1
-
-using interface1::FeatureIndex;
-using interface1::FeatureIndexTraits;
-using interface1::FeatureIndicesIface;
-using interface1::FeatureIndicesIfacePtr;
-using interface1::FeatureIndices;
-using interface1::FeatureIndicesPtr;
 
 } // namespace features
 } // namespace data_management

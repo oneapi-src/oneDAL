@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace correlation_distance
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CORRELATION_DISTANCE_RESULT_ID);
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 
@@ -108,7 +106,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return data_management::checkNumericTable(get(correlationDistance).get(), correlationDistanceStr(), unexpectedLayouts, 0, nVectors, nVectors);
 }
 
-} // namespace interface1
 } // namespace correlation_distance
 } // namespace algorithms
 } // namespace daal

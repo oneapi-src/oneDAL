@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace kdtree_knn_classification
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_K_NEAREST_NEIGHBOR_MODEL_ID);
 
 Model::Model(size_t nFeatures) : daal::algorithms::classifier::Model(), _impl(new ModelImpl(nFeatures)) {}
@@ -87,17 +85,12 @@ KDTreeTable::KDTreeTable(size_t rowCount, services::Status & st) : data_manageme
 
 KDTreeTable::KDTreeTable(services::Status & st) : KDTreeTable(0, st) {}
 
-} // namespace interface1
-
-namespace interface3
-{
 services::Status Parameter::check() const
 {
     DAAL_CHECK_EX(nClasses > 0, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
     DAAL_CHECK_EX(k >= 1, services::ErrorIncorrectParameter, services::ParameterName, kStr());
     return services::Status();
 }
-} // namespace interface3
 } // namespace kdtree_knn_classification
 } // namespace algorithms
 } // namespace daal

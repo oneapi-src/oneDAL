@@ -34,8 +34,6 @@ namespace linear_model
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -69,7 +67,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace linear_model
 } // namespace algorithms

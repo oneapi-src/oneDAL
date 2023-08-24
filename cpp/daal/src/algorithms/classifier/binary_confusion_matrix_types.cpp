@@ -38,8 +38,6 @@ namespace quality_metric
 {
 namespace binary_confusion_matrix
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_BINARY_CONFUSION_MATRIX_RESULT_ID);
 Parameter::Parameter(double beta) : beta(beta) {}
 
@@ -127,7 +125,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return checkNumericTable(binaryMetricsTable.get(), binaryMetricsStr(), unexpectedLayouts, 0, 6, 1);
 }
 
-} // namespace interface1
 } // namespace binary_confusion_matrix
 } // namespace quality_metric
 } // namespace classifier

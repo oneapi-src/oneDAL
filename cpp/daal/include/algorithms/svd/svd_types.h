@@ -153,11 +153,6 @@ enum FinalizeOnLocalInputId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__SVD__PARAMETER"></a>
  * \brief Parameters for the computation method of the SVD algorithm
  */
@@ -654,19 +649,6 @@ protected:
 };
 typedef services::SharedPtr<DistributedPartialResultStep3> DistributedPartialResultStep3Ptr;
 /** @} */
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::DistributedStep2Input;
-using interface1::DistributedStep3Input;
-using interface1::OnlinePartialResult;
-using interface1::OnlinePartialResultPtr;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::DistributedPartialResult;
-using interface1::DistributedPartialResultPtr;
-using interface1::DistributedPartialResultStep3;
-using interface1::DistributedPartialResultStep3Ptr;
 
 } // namespace svd
 } // namespace algorithms

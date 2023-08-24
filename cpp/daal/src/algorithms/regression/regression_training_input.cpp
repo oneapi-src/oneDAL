@@ -33,8 +33,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 Input::Input(size_t nElements) : daal::algorithms::Input(nElements) {}
@@ -63,7 +61,6 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     return checkNumericTable(dependentVariableTable.get(), dependentVariableStr(), 0, 0, 0, nRowsInData);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace algorithms

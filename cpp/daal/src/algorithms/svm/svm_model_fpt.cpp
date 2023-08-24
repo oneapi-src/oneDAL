@@ -31,8 +31,6 @@ namespace algorithms
 {
 namespace svm
 {
-namespace interface1
-{
 namespace dm  = daal::data_management;
 namespace dmi = daal::data_management::internal;
 template <typename modelFPType>
@@ -86,7 +84,6 @@ template DAAL_EXPORT services::SharedPtr<Model> Model::create<DAAL_FPTYPE>(size_
 
 template DAAL_EXPORT Model::Model(DAAL_FPTYPE, size_t, dm::NumericTableIface::StorageLayout, services::Status &);
 
-} // namespace interface1
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

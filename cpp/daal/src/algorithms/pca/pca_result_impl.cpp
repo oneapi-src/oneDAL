@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 /**
 * Checks the results of the PCA algorithm implementation
 * \param[in] nFeatures      Number of features
@@ -97,7 +95,6 @@ void ResultImpl::setTable(size_t key, data_management::NumericTablePtr table)
     (*this)[key] = table;
 }
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

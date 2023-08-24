@@ -38,8 +38,6 @@ namespace gbt
 {
 namespace regression
 {
-namespace interface1
-{
 services::Status ModelBuilder::convertModelInternal()
 {
     gbt::regression::internal::ModelImpl & modelImplRef =
@@ -88,7 +86,6 @@ services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parent
                                                                     featureValue, res, defaultLeft);
 }
 
-} // namespace interface1
 } // namespace regression
 } // namespace gbt
 } // namespace algorithms

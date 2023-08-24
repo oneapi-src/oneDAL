@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace pivoted_qr
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PIVOTED_QR_RESULT_ID);
 
 Parameter::Parameter(const NumericTablePtr permutedColumns) : daal::algorithms::Parameter(), permutedColumns(permutedColumns) {}
@@ -142,7 +140,6 @@ Status Result::check(const daal::algorithms::Input * in, const daal::algorithms:
     return s;
 }
 
-} // namespace interface1
 } // namespace pivoted_qr
 } // namespace algorithms
 } // namespace daal

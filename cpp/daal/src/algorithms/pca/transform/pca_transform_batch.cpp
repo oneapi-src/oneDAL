@@ -36,8 +36,6 @@ namespace pca
 {
 namespace transform
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PCA_TRANSFORM_RESULT_ID);
 
 Input::Input() : daal::algorithms::Input(lastdataForTransformInputId + 1) {}
@@ -163,7 +161,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
 
 Parameter::Parameter(size_t nComponents) : nComponents(nComponents) {}
 
-} // namespace interface1
 } // namespace transform
 } // namespace pca
 } // namespace algorithms

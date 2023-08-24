@@ -105,11 +105,6 @@ enum ResultToComputeId
 };
 
 /**
-* \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
-*/
-namespace interface1
-{
-/**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__INPUT"></a>
 * \brief %Input objects for the z-score normalization algorithm
 */
@@ -150,13 +145,7 @@ public:
 
 /** @} */
 /** @} */
-} // namespace interface1
 
-/**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method of the
@@ -217,7 +206,7 @@ public:
     services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -233,13 +222,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 
 /** @} */
 /** @} */
-} // namespace interface2
 
-/**
- * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface3
-{
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 * \brief Class that specifies the parameters of the algorithm in the batch computing mode
@@ -294,13 +277,6 @@ public:
      */
     virtual services::Status check() const DAAL_C11_OVERRIDE;
 };
-} // namespace interface3
-
-using interface1::Input;
-using interface3::Parameter;
-using interface3::BaseParameter;
-using interface2::Result;
-using interface2::ResultPtr;
 
 } // namespace zscore
 } // namespace normalization

@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep1, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP1_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep2, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP2_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep3, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP3_ID);
@@ -670,7 +668,6 @@ Status DistributedPartialResultStep13::check(const daal::algorithms::Input * inp
     return Status();
 }
 
-} // namespace interface1
 } // namespace dbscan
 } // namespace algorithms
 } // namespace daal

@@ -38,8 +38,6 @@ namespace training
 {
 namespace init
 {
-namespace interface1
-{
 /**
  * @defgroup implicit_als_init_distributed Distributed
  * @ingroup implicit_als_init
@@ -326,9 +324,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace init
 } // namespace training

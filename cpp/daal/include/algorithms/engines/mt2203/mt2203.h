@@ -40,12 +40,10 @@ namespace mt2203
  * @ingroup engines_mt2203
  * @{
  */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__MT2203__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the mt2203 engine.
- *        This class is associated with the \ref mt2203::interface1::Batch "mt2203::Batch" class
+ *        This class is associated with the \ref mt2203::Batch "mt2203::Batch" class
  *        and supports the method of mt2203 engine computation in the batch processing mode
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of mt2203 engine, double or float
@@ -82,8 +80,8 @@ public:
  *      - mt2203::Method          Computation methods for the mt2203 engine
  *
  * \par References
- *      - \ref engines::interface1::Input  "engines::Input" class
- *      - \ref engines::interface1::Result "engines::Result" class
+ *      - \ref engines::Input  "engines::Input" class
+ *      - \ref engines::Result "engines::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public engines::FamilyBatchBase
@@ -170,11 +168,6 @@ private:
 typedef services::SharedPtr<Batch<> > mt2203Ptr;
 typedef services::SharedPtr<const Batch<> > mt2203ConstPtr;
 
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
-using interface1::mt2203Ptr;
-using interface1::mt2203ConstPtr;
 /** @} */
 } // namespace mt2203
 } // namespace engines

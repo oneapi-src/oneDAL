@@ -33,10 +33,7 @@ namespace brownboost
 {
 namespace training
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

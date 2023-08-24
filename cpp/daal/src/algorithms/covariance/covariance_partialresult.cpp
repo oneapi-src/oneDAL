@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_COVARIANCE_PARTIAL_RESULT_ID);
 PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {}
 
@@ -114,8 +112,6 @@ services::Status PartialResult::checkImpl(size_t nFeatures) const
     s |= checkNumericTable(get(sum).get(), sumStr(), unexpectedLayouts, 0, nFeatures, 1);
     return s;
 }
-
-} //namespace interface1
 
 } //namespace covariance
 } // namespace algorithms

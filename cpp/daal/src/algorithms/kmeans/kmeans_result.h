@@ -51,7 +51,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);
+    const Parameter * kmPar2 = dynamic_cast<const Parameter *>(parameter);
     if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));

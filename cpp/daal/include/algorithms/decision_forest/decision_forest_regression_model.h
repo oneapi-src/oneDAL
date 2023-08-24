@@ -47,11 +47,6 @@ namespace decision_forest
 namespace regression
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup decision_forest_regression
  * @{
  */
@@ -62,8 +57,8 @@ namespace interface1
  * \tparam modelFPType  Data type to store decision forest model data, double or float
  *
  * \par References
- *      - \ref regression::training::interface2::Batch "regression::training::Batch" class
- *      - \ref regression::prediction::interface1::Batch "regression::prediction::Batch" class
+ *      - \ref regression::training::Batch "regression::training::Batch" class
+ *      - \ref regression::prediction::Batch "regression::prediction::Batch" class
  */
 class DAAL_EXPORT Model : public algorithms::regression::Model
 {
@@ -125,10 +120,6 @@ typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 
 /** @} */
-} // namespace interface1
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 } // namespace regression
 } // namespace decision_forest

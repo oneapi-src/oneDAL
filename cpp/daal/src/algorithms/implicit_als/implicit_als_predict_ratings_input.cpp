@@ -37,8 +37,6 @@ namespace prediction
 {
 namespace ratings
 {
-namespace interface1
-{
 Input::Input() : InputIface(lastModelInputId + 1) {}
 
 /**
@@ -106,7 +104,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface1
 } // namespace ratings
 } // namespace prediction
 } // namespace implicit_als

@@ -38,11 +38,6 @@ namespace algorithms
  * @{
  */
 /**
-* \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
-*/
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMDISPATCHCONTAINER"></a>
  * \brief Implements a container to dispatch algorithms to cpu-specific implementations.
  *
@@ -105,8 +100,6 @@ private:
                                                          DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 
 /** @} */
-} // namespace interface1
-using interface1::AlgorithmDispatchContainer;
 
 } // namespace algorithms
 } // namespace daal

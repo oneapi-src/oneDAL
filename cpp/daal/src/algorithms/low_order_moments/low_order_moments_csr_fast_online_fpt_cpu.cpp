@@ -32,10 +32,7 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 template class OnlineContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class LowOrderMomentsOnlineKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

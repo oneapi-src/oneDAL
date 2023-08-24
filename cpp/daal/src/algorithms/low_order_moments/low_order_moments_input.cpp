@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 Input::Input() : InputIface(lastInputId + 1) {}
 Input::Input(const Input & other) : InputIface(other) {}
 Input & Input::operator=(const Input & other)
@@ -100,7 +98,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface1
 } // namespace low_order_moments
 } // namespace algorithms
 } // namespace daal

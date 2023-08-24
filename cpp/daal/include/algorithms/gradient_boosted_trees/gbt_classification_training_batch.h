@@ -37,8 +37,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__TRAINING__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of Gradient Boosted Trees model-based training.
@@ -80,8 +78,8 @@ public:
  *      - \ref classifier::training::ResultId Identifiers of Gradient Boosted Trees training results
  *
  * \par References
- *      - \ref gbt::classification::interface1::Model "Model" class
- *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
+ *      - \ref gbt::classification::Model "Model" class
+ *      - \ref classifier::training::Input "classifier::training::Input" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -185,9 +183,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace training
 } // namespace classification
