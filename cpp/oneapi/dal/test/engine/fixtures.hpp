@@ -55,6 +55,18 @@ public:
     auto compute(Args&&... args) {
         return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
     }
+
+    template <typename... Args>
+    auto partial_compute(Args&&... args) {
+        return oneapi::dal::test::engine::partial_compute(get_policy(),
+                                                          std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto finalize_compute(Args&&... args) {
+        return oneapi::dal::test::engine::finalize_compute(get_policy(),
+                                                           std::forward<Args>(args)...);
+    }
 };
 
 template <typename Float>
@@ -92,6 +104,16 @@ public:
     template <typename... Args>
     auto compute(Args&&... args) {
         return derived().compute_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto partial_compute(Args&&... args) {
+        return derived().partial_compute_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto finalize_compute(Args&&... args) {
+        return derived().finalize_compute_override(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -137,6 +159,16 @@ public:
     template <typename... Args>
     auto compute_override(Args&&... args) {
         return base_t::compute(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto partial_compute_override(Args&&... args) {
+        return base_t::partial_compute(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto finalize_compute_override(Args&&... args) {
+        return base_t::finalize_compute(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
