@@ -150,8 +150,7 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::Parameter * algParameter2 =
-            dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
+        const daal::algorithms::classifier::Parameter * algParameter2 = dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
         if (algParameter2 != NULL)
         {
             DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,

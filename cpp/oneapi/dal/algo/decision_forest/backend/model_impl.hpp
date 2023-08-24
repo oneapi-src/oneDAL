@@ -46,8 +46,8 @@ struct daal_model_map<task::regression> {
 
 template <typename Task>
 class detail::model_impl : public DF_SERIALIZABLE(Task,
-                                                      decision_forest_classification_model_impl_id,
-                                                      decision_forest_regression_model_impl_id) {
+                                                  decision_forest_classification_model_impl_id,
+                                                  decision_forest_regression_model_impl_id) {
     static_assert(is_valid_task_v<Task>);
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;

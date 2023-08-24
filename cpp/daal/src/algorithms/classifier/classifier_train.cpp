@@ -104,10 +104,8 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::Parameter * algParameter1 =
-            dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
-        const daal::algorithms::classifier::Parameter * algParameter2 =
-            dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
+        const daal::algorithms::classifier::Parameter * algParameter1 = dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
+        const daal::algorithms::classifier::Parameter * algParameter2 = dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
         // TODO :should support for this be removed completely? and in general?
         if (algParameter1 != NULL)
         {

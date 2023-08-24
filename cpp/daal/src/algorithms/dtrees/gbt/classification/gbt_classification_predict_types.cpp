@@ -94,8 +94,7 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 
     size_t nClasses = 0, nIterations = 0;
 
-    const gbt::classification::prediction::Parameter * pPrm2 =
-        dynamic_cast<const gbt::classification::prediction::Parameter *>(parameter);
+    const gbt::classification::prediction::Parameter * pPrm2 = dynamic_cast<const gbt::classification::prediction::Parameter *>(parameter);
     if (pPrm2)
     {
         nClasses    = pPrm2->nClasses;

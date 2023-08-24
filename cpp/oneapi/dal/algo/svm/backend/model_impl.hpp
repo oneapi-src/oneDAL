@@ -31,10 +31,10 @@ namespace oneapi::dal::svm {
 
 template <typename Task>
 class detail::model_impl : public SVM_SERIALIZABLE(Task,
-                                                       svm_classification_model_impl_id,
-                                                       svm_regression_model_impl_id,
-                                                       svm_nu_classification_model_impl_id,
-                                                       svm_nu_regression_model_impl_id) {
+                                                   svm_classification_model_impl_id,
+                                                   svm_regression_model_impl_id,
+                                                   svm_nu_classification_model_impl_id,
+                                                   svm_nu_regression_model_impl_id) {
 public:
     table support_vectors;
     table coeffs;

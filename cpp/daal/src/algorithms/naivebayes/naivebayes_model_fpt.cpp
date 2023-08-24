@@ -110,8 +110,7 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const Parameter & param
 }
 
 template <typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const Parameter & parameter, modelFPType dummy, services::Status & st)
-    : _nObservations(0)
+DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const Parameter & parameter, modelFPType dummy, services::Status & st) : _nObservations(0)
 {
     using namespace data_management;
 

@@ -186,8 +186,7 @@ public:
      * \return Multinomial naive Bayes partial model
      */
     template <typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const Parameter & parameter,
-                                                                services::Status * stat = NULL);
+    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const Parameter & parameter, services::Status * stat = NULL);
     /** \private */
     virtual ~PartialModel() {}
 

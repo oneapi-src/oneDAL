@@ -49,7 +49,7 @@ namespace init
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const Parameter * kmPar             = static_cast<const Parameter *>(parameter);
+    const Parameter * kmPar                         = static_cast<const Parameter *>(parameter);
     const DistributedStep2MasterInput * masterInput = dynamic_cast<const DistributedStep2MasterInput *>(input);
     size_t nFeatures                                = 0;
     if (masterInput)

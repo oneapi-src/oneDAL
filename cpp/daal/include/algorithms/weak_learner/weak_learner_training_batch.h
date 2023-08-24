@@ -79,10 +79,7 @@ public:
      * Returns structure that contains computed weak learner results
      * \return Structure that contains computed weak learner results
      */
-    weak_learner::training::ResultPtr getResult()
-    {
-        return services::staticPointerCast<ResultType, classifier::training::Result>(_result);
-    }
+    weak_learner::training::ResultPtr getResult() { return services::staticPointerCast<ResultType, classifier::training::Result>(_result); }
 
     /**
      * Returns a pointer to the newly allocated algorithm for training the weak learner model

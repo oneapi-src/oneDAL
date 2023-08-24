@@ -27,8 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
-                                      kmeans::init::deterministicDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, kmeans::init::deterministicDense)
 
 namespace kmeans
 {

@@ -127,15 +127,9 @@ public:
     */
     bool resize(size_t newCapacity);
 
-    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<InputDataArchive, false>(arch);
-    }
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<InputDataArchive, false>(arch); }
 
-    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<const OutputDataArchive, true>(arch);
-    }
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<const OutputDataArchive, true>(arch); }
 
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -280,16 +274,10 @@ public:
     virtual ~SerializableKeyValueCollection() {}
 
     /** \private */
-    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<InputDataArchive, false>(arch);
-    }
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<InputDataArchive, false>(arch); }
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<const OutputDataArchive, true>(arch);
-    }
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<const OutputDataArchive, true>(arch); }
 
     /** \private */
     template <typename Archive, bool onDeserialize>

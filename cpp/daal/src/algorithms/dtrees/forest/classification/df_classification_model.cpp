@@ -63,8 +63,8 @@ bool visitLeaf(size_t iRowInTable, size_t level, const DecisionTreeNode * aNode,
 }
 
 template <>
-bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode,
-                const double * imp, const int * nodeSamplesCount, tree_utils::classification::TreeNodeVisitor & visitor)
+bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode, const double * imp,
+                const int * nodeSamplesCount, tree_utils::classification::TreeNodeVisitor & visitor)
 {
     const DecisionTreeNode & n = aNode[iRowInTable];
     if (imp) descSplit.impurity = imp[iRowInTable];
@@ -76,9 +76,8 @@ bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescripto
 }
 
 template <>
-bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::LeafNodeDescriptor & descLeaf,
-               const DecisionTreeNode * aNode, const double * imp, const int * nodeSamplesCount,
-               daal::algorithms::tree_utils::classification::TreeNodeVisitor & visitor)
+bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::LeafNodeDescriptor & descLeaf, const DecisionTreeNode * aNode,
+               const double * imp, const int * nodeSamplesCount, daal::algorithms::tree_utils::classification::TreeNodeVisitor & visitor)
 {
     const DecisionTreeNode & n = aNode[iRowInTable];
     if (imp) descLeaf.impurity = imp[iRowInTable];

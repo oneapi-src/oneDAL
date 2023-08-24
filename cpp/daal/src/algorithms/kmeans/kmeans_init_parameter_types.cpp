@@ -56,8 +56,9 @@ Parameter::Parameter(size_t nClusters, size_t offset, size_t seed)
       seed(_seed),
       oversamplingFactor(0.5),
       nRounds(5),
-      engine(engines::mt19937::Batch<>::create(_seed)), 
-      nTrials(1) {}
+      engine(engines::mt19937::Batch<>::create(_seed)),
+      nTrials(1)
+{}
 
 /**
  * Constructs parameters of the algorithm that computes initial clusters for the K-Means algorithm
@@ -71,7 +72,9 @@ Parameter::Parameter(const Parameter & other)
       seed(other.seed),
       oversamplingFactor(other.oversamplingFactor),
       nRounds(other.nRounds),
-      engine(other.engine), nTrials(other.nTrials) {}
+      engine(other.engine),
+      nTrials(other.nTrials)
+{}
 
 services::Status Parameter::check() const
 {

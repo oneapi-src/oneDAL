@@ -116,8 +116,8 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
  */
 services::Status PartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter * kmPar = static_cast<const Parameter *>(par);
-    const int unexpectedLayouts         = (int)packed_mask;
+    const Parameter * kmPar     = static_cast<const Parameter *>(par);
+    const int unexpectedLayouts = (int)packed_mask;
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nObservations).get(), nObservationsStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialSums).get(), partialSumsStr(), unexpectedLayouts, 0, 0, kmPar->nClusters));

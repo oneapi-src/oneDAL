@@ -39,7 +39,6 @@ public:
 using detail::train_input_impl;
 using detail::train_result_impl;
 
-
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses)
         : impl_(new train_input_impl<Task>(data, responses)) {}

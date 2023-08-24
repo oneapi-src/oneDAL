@@ -26,7 +26,7 @@ class compute_input_impl;
 
 template <typename Task>
 class compute_result_impl;
-  
+
 template <typename Task>
 class partial_compute_result_impl;
 

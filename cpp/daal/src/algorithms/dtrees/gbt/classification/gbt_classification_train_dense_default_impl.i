@@ -329,8 +329,7 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
     }
 
     WriteOnlyRows<algorithmFPType, cpu> weightsRows, totalCoverRows, coverRows, totalGainRows, gainRows;
-    const gbt::classification::training::Parameter * parPtr =
-        dynamic_cast<const gbt::classification::training::Parameter *>(&par);
+    const gbt::classification::training::Parameter * parPtr = dynamic_cast<const gbt::classification::training::Parameter *>(&par);
 
     if (parPtr != nullptr)
     {

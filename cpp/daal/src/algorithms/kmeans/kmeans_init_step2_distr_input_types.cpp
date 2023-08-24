@@ -143,8 +143,8 @@ static services::Status checkPartialResult(const SerializationIfacePtr & ptr, co
 */
 services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter * kmPar = static_cast<const Parameter *>(par);
-    DataCollectionPtr collection        = get(partialResults);
+    const Parameter * kmPar      = static_cast<const Parameter *>(par);
+    DataCollectionPtr collection = get(partialResults);
 
     DAAL_CHECK(collection, ErrorNullInputDataCollection);
     const size_t nBlocks = collection->size();

@@ -142,7 +142,7 @@ services::Status DistributedStep2LocalPlusPlusInput::check(const daal::algorithm
     services::Status s = Input::check(par, method);
     if (!s) return s;
 
-    const auto nFeatures                                               = get(data)->getNumberOfColumns();
+    const auto nFeatures                                   = get(data)->getNumberOfColumns();
     const DistributedStep2LocalPlusPlusParameter * stepPar = (const DistributedStep2LocalPlusPlusParameter *)(par);
     const size_t nRows = (stepPar->firstIteration || !(isParallelPlusMethod(method)) ? 1 : size_t(stepPar->oversamplingFactor * stepPar->nClusters));
     s                  = checkNumericTable(get(inputOfStep2).get(), inputOfStep2Str(), (int)packed_mask, 0, nFeatures, nRows);

@@ -76,47 +76,47 @@ enum VariableImportanceModes
     totalGain  = 0x008ULL,
     gain       = 0x010ULL
 };
-    /**
+/**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__TRAINING__PARAMETER"></a>
  * \brief Parameters for the gradient boosted trees algorithm
  *
  * \snippet gradient_boosted_trees/gbt_training_parameter.h Parameter source code
  */
-    /* [Parameter source code] */
-    class DAAL_EXPORT Parameter
-    {
-    public:
-        Parameter();
+/* [Parameter source code] */
+class DAAL_EXPORT Parameter
+{
+public:
+    Parameter();
 
-        SplitMethod splitMethod;            /*!< Split finding method. Default is exact */
-        size_t maxIterations;               /*!< Maximal number of iterations of the gradient boosted trees training algorithm.
+    SplitMethod splitMethod;            /*!< Split finding method. Default is exact */
+    size_t maxIterations;               /*!< Maximal number of iterations of the gradient boosted trees training algorithm.
                                                  Default is 50 */
-        size_t maxTreeDepth;                /*!< Maximal tree depth, 0 for unlimited. Default is 6 */
-        double shrinkage;                   /*!< Learning rate of the boosting procedure.
+    size_t maxTreeDepth;                /*!< Maximal tree depth, 0 for unlimited. Default is 6 */
+    double shrinkage;                   /*!< Learning rate of the boosting procedure.
                                                  Scales the contribution of each tree by a factor (0, 1].
                                                  Default is 0.3 */
-        double minSplitLoss;                /*!< Loss regularization parameter. Min loss reduction required to make a further partition
+    double minSplitLoss;                /*!< Loss regularization parameter. Min loss reduction required to make a further partition
                                                  on a leaf node of the tree.
                                                  Range: [0, inf). Default is 0 */
-        double lambda;                      /*!< L2 regularization parameter on weights.
+    double lambda;                      /*!< L2 regularization parameter on weights.
                                                  Range: [0, inf). Default is 1 */
-        double observationsPerTreeFraction; /*!< Fraction of observations used for a training of one tree, sampling without replacement.
+    double observationsPerTreeFraction; /*!< Fraction of observations used for a training of one tree, sampling without replacement.
                                                  Range: (0, 1]. Default is 1 (no sampling, entire dataset is used) */
-        size_t featuresPerNode;             /*!< Number of features tried as possible splits per node.
+    size_t featuresPerNode;             /*!< Number of features tried as possible splits per node.
                                                  Range : [0, p] where p is the total number of features.
                                                  Default is 0 (use all features) */
-        size_t minObservationsInLeafNode;   /*!< Minimal number of observations in a leaf node. Default is 5. */
-        bool memorySavingMode;              /*!< If true then use memory saving (but slower) mode. Default is false */
-        engines::EnginePtr engine;          /*!< Engine for the random numbers generator used by the algorithms */
-        size_t maxBins;                     /*!< Used with 'inexact' split finding method only.
+    size_t minObservationsInLeafNode;   /*!< Minimal number of observations in a leaf node. Default is 5. */
+    bool memorySavingMode;              /*!< If true then use memory saving (but slower) mode. Default is false */
+    engines::EnginePtr engine;          /*!< Engine for the random numbers generator used by the algorithms */
+    size_t maxBins;                     /*!< Used with 'inexact' split finding method only.
                                                  Maximal number of discrete bins to bucket continuous features.
                                                  Default is 256. Increasing the number results in higher computation costs */
-        size_t minBinSize;                  /*!< Used with 'inexact' split finding method only.
+    size_t minBinSize;                  /*!< Used with 'inexact' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
-        int internalOptions;                /*!< Internal options */
-    };
-    /* [Parameter source code] */
-    /** @} */
+    int internalOptions;                /*!< Internal options */
+};
+/* [Parameter source code] */
+/** @} */
 } // namespace training
 } // namespace gbt
 } // namespace algorithms

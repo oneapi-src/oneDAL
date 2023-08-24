@@ -89,9 +89,9 @@ size_t PartialResult::getNumberOfFeatures() const
 */
 services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    size_t inputFeatures                = static_cast<const InputIface *>(input)->getNumberOfFeatures();
+    size_t inputFeatures    = static_cast<const InputIface *>(input)->getNumberOfFeatures();
     const Parameter * kmPar = static_cast<const Parameter *>(par);
-    const size_t nClusters              = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
+    const size_t nClusters  = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
 
     int unexpectedLayouts = (int)packed_mask;
     services::Status s;
@@ -118,8 +118,8 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
 services::Status PartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
     const Parameter * kmPar = static_cast<const Parameter *>(par);
-    int unexpectedLayouts               = (int)packed_mask;
-    const size_t nClusters              = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
+    int unexpectedLayouts   = (int)packed_mask;
+    const size_t nClusters  = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
 
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialClustersNumber).get(), partialClustersNumberStr(), unexpectedLayouts, 0, 1, 1));
@@ -292,7 +292,7 @@ void DistributedStep5MasterPlusPlusPartialResult::set(DistributedStep5MasterPlus
 services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     int method) const
 {
-    const Parameter * stepPar               = static_cast<const Parameter *>(par);
+    const Parameter * stepPar                           = static_cast<const Parameter *>(par);
     const DistributedStep5MasterPlusPlusInput * kmInput = static_cast<const DistributedStep5MasterPlusPlusInput *>(input);
 
     const size_t nMaxCandidates                 = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;
@@ -306,9 +306,9 @@ services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::
 
 services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const Parameter * stepPar = static_cast<const Parameter *>(par);
-    const size_t nMaxCandidates           = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;
-    services::Status s                    = checkNumericTable(get(candidates).get(), candidatesStr(), (int)packed_mask, 0, 0, nMaxCandidates);
+    const Parameter * stepPar   = static_cast<const Parameter *>(par);
+    const size_t nMaxCandidates = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;
+    services::Status s          = checkNumericTable(get(candidates).get(), candidatesStr(), (int)packed_mask, 0, 0, nMaxCandidates);
     s |= checkNumericTable(get(weights).get(), candidateRatingStr(), (int)packed_mask, 0, nMaxCandidates, 1);
     return s;
 }

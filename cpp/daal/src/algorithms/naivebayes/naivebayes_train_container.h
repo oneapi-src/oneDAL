@@ -89,7 +89,7 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     PartialModel * pModel = partialResult->get(classifier::training::partialModel).get();
 
     const multinomial_naive_bayes::Parameter * par = static_cast<multinomial_naive_bayes::Parameter *>(_par);
-    daal::services::Environment::env & env                     = *_env;
+    daal::services::Environment::env & env         = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::NaiveBayesOnlineTrainKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, labels, pModel,
                        par);
@@ -105,7 +105,7 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute(
     Model * rModel        = result->get(classifier::training::model).get();
 
     const multinomial_naive_bayes::Parameter * par = static_cast<multinomial_naive_bayes::Parameter *>(_par);
-    daal::services::Environment::env & env                     = *_env;
+    daal::services::Environment::env & env         = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::NaiveBayesOnlineTrainKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), finalizeCompute, pModel, rModel,
                        par);
@@ -144,7 +144,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     PartialModel * pModel = partialResult->get(classifier::training::partialModel).get();
 
     const multinomial_naive_bayes::Parameter * par = static_cast<multinomial_naive_bayes::Parameter *>(_par);
-    daal::services::Environment::env & env                     = *_env;
+    daal::services::Environment::env & env         = *_env;
 
     services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::NaiveBayesDistributedTrainKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
                                                    merge, na, a, pModel, par);
@@ -165,7 +165,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     Model * rModel        = result->get(classifier::training::model).get();
 
     const multinomial_naive_bayes::Parameter * par = static_cast<multinomial_naive_bayes::Parameter *>(_par);
-    daal::services::Environment::env & env                     = *_env;
+    daal::services::Environment::env & env         = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::NaiveBayesDistributedTrainKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), finalizeCompute, pModel,
                        rModel, par);

@@ -36,7 +36,6 @@ public:
 using detail::compute_input_impl;
 using detail::compute_result_impl;
 
-
 template <typename Task>
 compute_input<Task>::compute_input(const table& x, const table& y)
         : impl_(new compute_input_impl<Task>(x, y)) {}
