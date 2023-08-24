@@ -32,9 +32,9 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 #define __GLUE__(a, b) a##b
 
 #ifdef _DEBUG
-    #define _DLL_SUFFIX(name) __GLUE__(name, "d.1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, "d.2.dll")
 #else
-    #define _DLL_SUFFIX(name) __GLUE__(name, ".1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, ".2.dll")
 #endif
 
 #define DAAL_LOAD_DLL(name) _daal_load_win_dynamic_lib(name)
@@ -58,7 +58,7 @@ static void load_daal_thr_dll(void)
         daal_thr_dll_handle = load_onedal_thread_dll();
         if (daal_thr_dll_handle == NULL)
         {
-            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
             exit(1);
         }
         break;
@@ -71,7 +71,7 @@ static void load_daal_thr_dll(void)
             return;
         }
 
-        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
         exit(1);
     }
     }
@@ -757,15 +757,12 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
 }
 #endif
 
-#define CALL_VOID_FUNC_FROM_DLL(fn_dpref, fn_name, argdecl, argcall)                  \
-    typedef void(*##fn_dpref##fn_name##_t)##argdecl;                                  \
-    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                      \
-    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx512_, fn_name, argdecl, argcall)         \
-    CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, avx512_mic_, fn_name, argdecl, argcall) \
-    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx2_, fn_name, argdecl, argcall)           \
-    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx_, fn_name, argdecl, argcall)            \
-    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, sse42_, fn_name, argdecl, argcall)          \
-    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, ssse3_, fn_name, argdecl, argcall)          \
+#define CALL_VOID_FUNC_FROM_DLL(fn_dpref, fn_name, argdecl, argcall)          \
+    typedef void(*##fn_dpref##fn_name##_t)##argdecl;                          \
+    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;              \
+    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx512_, fn_name, argdecl, argcall) \
+    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx2_, fn_name, argdecl, argcall)   \
+    CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, sse42_, fn_name, argdecl, argcall)  \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, sse2_, fn_name, argdecl, argcall)
 
 #define CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, fn_cpu, fn_name, argdecl, argcall)                                 \
@@ -794,15 +791,12 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     #define CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, fn_cpu, fn_name, argdecl, argcall)
 #endif
 
-#define CALL_RET_FUNC_FROM_DLL(ret_type, fn_dpref, fn_name, argdecl, argcall)                  \
-    typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                                       \
-    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                               \
-    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall)         \
-    CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, avx512_mic_, fn_name, argdecl, argcall) \
-    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx2_, fn_name, argdecl, argcall)           \
-    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx_, fn_name, argdecl, argcall)            \
-    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, sse42_, fn_name, argdecl, argcall)          \
-    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, ssse3_, fn_name, argdecl, argcall)          \
+#define CALL_RET_FUNC_FROM_DLL(ret_type, fn_dpref, fn_name, argdecl, argcall)          \
+    typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                               \
+    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                       \
+    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall) \
+    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx2_, fn_name, argdecl, argcall)   \
+    CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, sse42_, fn_name, argdecl, argcall)  \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, sse2_, fn_name, argdecl, argcall)
 
 #define CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)                        \

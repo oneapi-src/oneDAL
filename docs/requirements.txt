@@ -1,9 +1,9 @@
 alabaster==0.7.13
 Babel==2.12.1
 beautifulsoup4==4.12.2
-certifi==2022.12.7
+certifi==2023.7.22
 chardet==5.1.0
-click==8.1.5
+click==8.1.6
 colorama==0.4.6
 docutils~=0.18.0
 idna==3.4
@@ -18,7 +18,7 @@ pydata-sphinx-theme==0.13.3
 Pygments==2.15.1
 pyparsing==3.1.0
 pytz==2023.3
-PyYAML==6.0
+PyYAML==6.0.1
 requests==2.31.0
 six==1.16.0
 snowballstemmer==2.2.0
@@ -36,5 +36,5 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 typing-extensions==4.7.1
-urllib3==2.0.3
+urllib3==2.0.4
 zipp==3.16.2

@@ -133,9 +133,9 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM="linear_regression svm" -j16
 
 
-- To build oneDAL with AVX2 and AVX CPU optimizations, run:
+- To build oneDAL with AVX2 and AVX512 CPU optimizations, run:
 
-            make -f makefile daal PLAT=win32e REQCPU="avx2 avx" -j16
+            make -f makefile daal PLAT=win32e REQCPU="avx2 avx512" -j16
 
 
 - To build oneDAL with Moments of Low Order algorithm and AVX2 CPU optimizations, run:

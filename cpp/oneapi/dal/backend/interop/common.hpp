@@ -33,11 +33,7 @@ struct daal_cpu_value {
 template <>
 struct to_daal_cpu_type<cpu_dispatch_default> : daal_cpu_value<daal::sse2> {};
 template <>
-struct to_daal_cpu_type<cpu_dispatch_ssse3> : daal_cpu_value<daal::ssse3> {};
-template <>
 struct to_daal_cpu_type<cpu_dispatch_sse42> : daal_cpu_value<daal::sse42> {};
-template <>
-struct to_daal_cpu_type<cpu_dispatch_avx> : daal_cpu_value<daal::avx> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_avx2> : daal_cpu_value<daal::avx2> {};
 template <>
@@ -47,6 +43,14 @@ template <typename Float, template <typename, daal::CpuType> typename CpuKernel,
 inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
         return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().compute(
+            std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_finalize_compute(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().finalizeCompute(
             std::forward<Args>(args)...);
     });
 }

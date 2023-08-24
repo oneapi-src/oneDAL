@@ -20,7 +20,7 @@
 #pragma warning(disable : 809)
 
 #if defined(_DAAL_PAR_DYNAMIC)
-    #pragma comment(lib, "onedal_core_dll.1.lib")
+    #pragma comment(lib, "onedal_core_dll.2.lib")
     #pragma comment(lib, "tbb12.lib")
     #pragma comment(lib, "tbbmalloc.lib")
 #elif defined(_DAAL_PAR_STATIC)
@@ -35,12 +35,6 @@
 #include "services/base.h"
 #include "services/env_detect.h"
 #include "services/library_version_info.h"
-#include "data_management/compression/bzip2compression.h"
-#include "data_management/compression/compression.h"
-#include "data_management/compression/compression_stream.h"
-#include "data_management/compression/lzocompression.h"
-#include "data_management/compression/rlecompression.h"
-#include "data_management/compression/zlibcompression.h"
 #include "data_management/features/compatibility.h"
 #include "data_management/data_source/csv_feature_manager.h"
 #include "data_management/data_source/data_source.h"
