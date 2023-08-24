@@ -47,9 +47,13 @@ MSG(spmd_version_of_algorithm_is_not_implemented,
 MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
     "SPMD version of the algorithm is not implemented for this device. "
     "Consider running on it on the other device.")
+MSG(integral_type_conversion_overflow, "Integral type conversion overflow")
+MSG(integral_type_conversion_underflow, "Integral type conversion underflow")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(invalid_column_indices_block_size, "Invalid column indices block size")
 MSG(method_not_implemented, "Method is not implemented")
+MSG(negative_integral_value_conversion_to_unsigned,
+    "Negative integral value conversion to unsigned")
 MSG(unsupported_feature_type, "Feature type is not supported")
 MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
