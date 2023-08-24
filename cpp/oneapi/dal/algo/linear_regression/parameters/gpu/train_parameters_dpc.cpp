@@ -17,6 +17,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -32,7 +33,9 @@ using dal::backend::context_gpu;
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
+    const auto max_wg = backend::propose_wg_size(q);
+    const auto init_guess = 524'288 * (8 / fsize) / f;
+    return std::max<std::int64_t>(max_wg, init_guess);
 }
 
 template <typename Float, typename Task>
