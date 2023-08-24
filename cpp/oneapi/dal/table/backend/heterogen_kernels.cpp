@@ -36,8 +36,6 @@
 
 namespace oneapi::dal::backend {
 
-using detail::operator<<;
-
 template <typename Meta, typename Data>
 inline std::int64_t get_column_count(const Meta& meta, const Data& data) {
     const auto result = meta.get_feature_count();
@@ -106,11 +104,12 @@ std::int64_t get_row_size(const Meta& meta, const Data& data) {
 
 template <typename Meta, typename Data>
 std::int64_t propose_row_block_size(const Meta& meta, const Data& data) {
-    constexpr std::int64_t estimation = 10'000'000;
+    constexpr std::int64_t estimation = 10'000'000l;
     const auto row_size = get_row_size(meta, data);
     const auto col_count = get_column_count(meta, data);
     const auto row_count = get_row_count(col_count, meta, data);
-    return std::max(1l, std::min(row_count, estimation / row_size));
+    const auto initial = std::min(row_count, estimation / row_size);
+    return std::max<std::int64_t>(1l, initial);
 }
 
 heterogen_data heterogen_row_slice(const range& rows_range,
