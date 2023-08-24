@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/backend/accessor_compat.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
