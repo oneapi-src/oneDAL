@@ -73,7 +73,7 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         sse2 = ["-march=nocona"]
         sse42 = ["-march=corei7"]
         avx2 = ["-march=haswell"]
-        avx512 = ["-march=skylake"]
+        avx512 = ["-march=haswell"]
     elif compiler_id == "icc":
         sse2 = ["-xSSE2"]
         sse42 = ["-xSSE4.2"]

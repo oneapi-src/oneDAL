@@ -102,8 +102,7 @@ protected:
         {
             for (size_t idx = 0; idx < nRows * nColumns; ++idx)
             {
-                // Check for NaN
-                if (x[idx] != x[idx]) return true;
+                if (checkFinitenessByComparison(x[idx])) return true;
             }
         }
         return false;

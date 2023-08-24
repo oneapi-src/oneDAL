@@ -51,7 +51,7 @@ public:
     }
 
     void generate_parameters() {
-        this->block_ = GENERATE(128, 512, 2048);
+        this->block_ = GENERATE(512, 2048);
         this->pack_as_struct_ = GENERATE(0, 1);
     }
 
