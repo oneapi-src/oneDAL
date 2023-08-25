@@ -102,7 +102,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
         DAAL_CHECK_MALLOC(invSigmas.get());
         for (size_t j = 0; j < _nFeatures; ++j)
         {
-            if (variances_total[j]) invSigmas[j] = algorithmFPType(1.0) / Math<algorithmFPType, cpu>::sSqrt(variances_total[j]);
+            if (variances_total[j]) invSigmas[j] = algorithmFPType(1.0) / MathInst<algorithmFPType, cpu>::sSqrt(variances_total[j]);
         }
         /* Final normalization threaded loop */
         daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iRowsBlock) {

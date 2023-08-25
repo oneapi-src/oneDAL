@@ -152,8 +152,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                 DAAL_CHECK_BLOCK_STATUS_THR(xptr);
                                 const algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
 
-                                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim, &minusOne, x, &dim, fB + yDim,
-                                                                   &yDim, &one, residualPtr + startRow * yDim, &yDim);
+                                BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim, &minusOne, x, &dim, fB + yDim,
+                                                                       &yDim, &one, residualPtr + startRow * yDim, &yDim);
 
                                 if (parameter->interceptFlag)
                                 {
@@ -174,8 +174,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
                                 DAAL_INT localBlockSize = finishRow - startRow;
 
-                                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim, &minusOne, X + startRow * dim,
-                                                                   &dim, fB + yDim, &yDim, &one, residualPtr + startRow * yDim, &yDim);
+                                BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &localBlockSize, &yDim, &dim, &minusOne, X + startRow * dim,
+                                                                       &dim, fB + yDim, &yDim, &one, residualPtr + startRow * yDim, &yDim);
 
                                 if (parameter->interceptFlag)
                                 {
@@ -214,7 +214,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                 for (size_t j = 0; j < nTheta; ++j)
                                 {
                                     hessianDiagonalLocal[j] +=
-                                        daal::internal::Blas<algorithmFPType, cpu>::xxdot(&localBlockSize, x + j, &dim, x + j, &dim);
+                                        daal::internal::BlasInst<algorithmFPType, cpu>::xxdot(&localBlockSize, x + j, &dim, x + j, &dim);
                                 }
                             });
                         }
@@ -229,7 +229,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                                 for (size_t j = 0; j < nTheta; ++j)
                                 {
-                                    hessianDiagonalLocal[j] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(
+                                    hessianDiagonalLocal[j] += daal::internal::BlasInst<algorithmFPType, cpu>::xxdot(
                                         &localBlockSize, X + dim * startRow + j, &dim, X + dim * startRow + j, &dim);
                                 }
                             });
@@ -288,7 +288,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             if (previousFeatureId != 0)
                             {
                                 {
-                                    daal::internal::Blas<algorithmFPType, cpu>::xaxpy(&n, &diff, columnPtr, &offset, residualPtr + ic, &yDim);
+                                    daal::internal::BlasInst<algorithmFPType, cpu>::xaxpy(&n, &diff, columnPtr, &offset, residualPtr + ic, &yDim);
                                 }
                             }
                         }
@@ -332,7 +332,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                     for (size_t ic = 0; ic < yDim; ic++)
                     {
-                        dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, columnPtr, &offset, residualPtr + ic, &yDim);
+                        dotPtr[ic] += daal::internal::BlasInst<algorithmFPType, cpu>::xxdot(&n, columnPtr, &offset, residualPtr + ic, &yDim);
                     }
                 }
 
@@ -394,9 +394,9 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             DAAL_CHECK_BLOCK_STATUS_THR(xptr);
                             algorithmFPType * x = const_cast<algorithmFPType *>(xptr.get());
 
-                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
-                                                                               Y + startRow * yDim, &yDim, x, &dim, &one, localXY, &yDim);
-                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, x, &dim, &one, localGram, &dim);
+                            daal::internal::BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
+                                                                                   Y + startRow * yDim, &yDim, x, &dim, &one, localXY, &yDim);
+                            BlasInst<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, x, &dim, &one, localGram, &dim);
                         });
                     }
                     else
@@ -407,11 +407,11 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             const size_t startRow       = iBlock * blockSize;
                             DAAL_INT localBlockSizeDim  = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
 
-                            daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
-                                                                               Y + startRow * yDim, &yDim, X + startRow * dim, &dim, &one, localXY,
-                                                                               &yDim);
-                            Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow * dim, &dim, &one,
-                                                               localGram, &dim);
+                            daal::internal::BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &localBlockSizeDim, &one,
+                                                                                   Y + startRow * yDim, &yDim, X + startRow * dim, &dim, &one,
+                                                                                   localXY, &yDim);
+                            BlasInst<algorithmFPType, cpu>::xxsyrk(&uplo, &notrans, &dim, &localBlockSizeDim, &one, X + startRow * dim, &dim, &one,
+                                                                   localGram, &dim);
                         });
                     }
                     tlsData.reduce([&](algorithmFPType * local) {
@@ -439,8 +439,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     gradientForGram.reset(nTheta * yDim);
                     gradientForGramPtr = gradientForGram.get();
 
-                    daal::internal::Blas<algorithmFPType, cpu>::xgemm(&notrans, &trans, &yDim, &dim, &dim, &one, fB, &yDim, gramMatrixPtr, &dim,
-                                                                      &zero, gradientForGramPtr, &yDim);
+                    daal::internal::BlasInst<algorithmFPType, cpu>::xgemm(&notrans, &trans, &yDim, &dim, &dim, &one, fB, &yDim, gramMatrixPtr, &dim,
+                                                                          &zero, gradientForGramPtr, &yDim);
                 }
                 if (previousFeatureId >= 0)
                 {
@@ -454,8 +454,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         {
                             if (previousFeatureId != 0)
                             {
-                                daal::internal::Blas<algorithmFPType, cpu>::xaxpy(&dim, &diff, gramMatrixPtr + (previousFeatureId - 1) * dim, &ione,
-                                                                                  gradientForGramPtr + i, &yDim);
+                                daal::internal::BlasInst<algorithmFPType, cpu>::xaxpy(&dim, &diff, gramMatrixPtr + (previousFeatureId - 1) * dim,
+                                                                                      &ione, gradientForGramPtr + i, &yDim);
                             }
                         }
                     }
@@ -552,7 +552,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                 for (size_t j = 0; j < nTheta; ++j)
                                 {
                                     hessianDiagonalLocal[j] +=
-                                        daal::internal::Blas<algorithmFPType, cpu>::xxdot(&localBlockSize, x + j, &dim, x + j, &dim);
+                                        daal::internal::BlasInst<algorithmFPType, cpu>::xxdot(&localBlockSize, x + j, &dim, x + j, &dim);
                                 }
                             });
                         }
@@ -567,7 +567,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                                 for (size_t j = 0; j < nTheta; ++j)
                                 {
-                                    hessianDiagonalLocal[j] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(
+                                    hessianDiagonalLocal[j] += daal::internal::BlasInst<algorithmFPType, cpu>::xxdot(
                                         &localBlockSize, X + startRow * dim + j, &dim, X + startRow * dim + j, &dim);
                                 }
                             });
@@ -644,7 +644,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     {
                         p[i] = bI[i] + l1;
                     }
-                    if (daal::internal::Math<algorithmFPType, cpu>::sFabs(bI[i]) <= l1)
+                    if (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(bI[i]) <= l1)
                     {
                         p[i] = 0;
                     }
@@ -667,7 +667,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     DAAL_INT one              = 1;
                     DAAL_INT n                = nDataRows;
 
-                    algorithmFPType norm = daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, x, &one, x, &one);
+                    algorithmFPType norm = daal::internal::BlasInst<algorithmFPType, cpu>::xxdot(&n, x, &one, x, &one);
 
                     for (size_t i = 0; i < proxSize; i++) p[i] *= 1.0 / (1.0 + l2 * nDataRows / norm);
                 }
@@ -812,7 +812,7 @@ inline void MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSize
 
     if (task.gradientFlag || task.valueFlag)
     {
-        Blas<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, data, &dim, theta, &ione, &zero, xMultTheta, &ione);
+        BlasInst<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, data, &dim, theta, &ione, &zero, xMultTheta, &ione);
 
         for (size_t i = 0; i < blockSize; i++)
         {
@@ -846,7 +846,7 @@ inline void MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSize
         char notrans          = 'N';
         DAAL_INT argumentSize = dim + 1;
 
-        Blas<algorithmFPType, cpu>::xsyrk(&uplo, &notrans, &dim, &n, &one, data, &dim, &one, hessian + argumentSize + 1, &argumentSize);
+        BlasInst<algorithmFPType, cpu>::xsyrk(&uplo, &notrans, &dim, &n, &one, data, &dim, &one, hessian + argumentSize + 1, &argumentSize);
 
         for (size_t i = 0; i < blockSize; i++)
         {

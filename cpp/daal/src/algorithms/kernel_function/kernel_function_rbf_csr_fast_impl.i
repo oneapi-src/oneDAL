@@ -80,7 +80,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalVe
         factor += dataA2[index] * dataA2[index];
     }
     factor *= coeff;
-    daal::internal::Math<algorithmFPType, cpu>::vExp(1, &factor, mtR.get());
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(1, &factor, mtR.get());
 
     return services::Status();
 }
@@ -130,12 +130,12 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
 
         // make all values less than threshold as threshold value
         // to fix slow work on vExp on large negative inputs
-        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
+        if (dataR[i] < MathInst<algorithmFPType, cpu>::vExpThreshold())
         {
-            dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
+            dataR[i] = MathInst<algorithmFPType, cpu>::vExpThreshold();
         }
     }
-    daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1, dataR, dataR);
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(nVectors1, dataR, dataR);
 
     return services::Status();
 }
@@ -166,7 +166,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
         DAAL_CHECK_BLOCK_STATUS(mtR);
         algorithmFPType * dataR = mtR.get();
 
-        SpBlas<algorithmFPType, cpu>::xsyrk_a_at(dataA1, colIndicesA1, rowOffsetsA1, nVectors1, a1->getNumberOfColumns(), dataR, nVectors2);
+        SpBlasInst<algorithmFPType, cpu>::xsyrk_a_at(dataA1, colIndicesA1, rowOffsetsA1, nVectors1, a1->getNumberOfColumns(), dataR, nVectors2);
 
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             for (size_t k = 0; k < i; k++)
@@ -176,7 +176,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
         });
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             dataR[i * nVectors1 + i] = zero;
-            daal::internal::Math<algorithmFPType, cpu>::vExp(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
+            daal::internal::MathInst<algorithmFPType, cpu>::vExp(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
         });
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             for (size_t k = i + 1; k < nVectors1; k++)
@@ -196,7 +196,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
     const size_t nBlocks1  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
     const size_t nBlocks2  = nVectors2 / blockSize + !!(nVectors2 % blockSize);
 
-    const algorithmFPType expExpThreshold = Math<algorithmFPType, cpu>::vExpThreshold();
+    const algorithmFPType expExpThreshold = MathInst<algorithmFPType, cpu>::vExpThreshold();
 
     SafeStatus safeStat;
     daal::tls<KernelRBFTask<algorithmFPType, cpu> *> tslTask([=, &safeStat]() {
@@ -262,8 +262,8 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
             if (!isSOARes)
             {
                 algorithmFPType * const dataR = mtRRows.get();
-                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
-                                                         nRowsInBlock2, nFeatures, mklBuff, blockSize);
+                SpBlasInst<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
+                                                             nRowsInBlock2, nFeatures, mklBuff, blockSize);
 
                 for (size_t i = 0; i < nRowsInBlock1; ++i)
                 {
@@ -276,8 +276,8 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
             }
             else
             {
-                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
-                                                         nRowsInBlock1, nFeatures, mklBuff, blockSize);
+                SpBlasInst<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
+                                                             nRowsInBlock1, nFeatures, mklBuff, blockSize);
 
                 for (size_t j = 0; j < nRowsInBlock2; ++j)
                 {

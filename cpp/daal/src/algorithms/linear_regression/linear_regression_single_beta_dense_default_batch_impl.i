@@ -72,10 +72,10 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeTestStatistics(con
     DAAL_CHECK_BLOCK_STATUS(varianceBD);
     const algorithmFPType * variance = varianceBD.get();
 
-    const algorithmFPType z_1_alpha = daal::internal::Math<algorithmFPType, cpu>::sCdfNormInv(1 - alpha);
+    const algorithmFPType z_1_alpha = daal::internal::MathInst<algorithmFPType, cpu>::sCdfNormInv(1 - alpha);
     for (size_t i = 0; i < nResponse; ++i)
     {
-        const algorithmFPType sigma = z_1_alpha * daal::internal::Math<algorithmFPType, cpu>::sSqrt(variance[i]);
+        const algorithmFPType sigma = z_1_alpha * daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(variance[i]);
         for (size_t j = 0; j < nBeta; ++j)
         {
             algorithmFPType vsigma = sigma * v[j];
@@ -144,22 +144,22 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const N
 
     if (bModelNe)
     {
-        Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);
+        LapackInst<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);
         if (info != 0) return Status(ErrorLinRegXtXInvFailed);
     }
 
-    Lapack<algorithmFPType, cpu>::xpotri(&uplo, &nBeta, pXtXInv, &nBeta, &info);
+    LapackInst<algorithmFPType, cpu>::xpotri(&uplo, &nBeta, pXtXInv, &nBeta, &info);
     if (info == 0) return Status();
     if (info < 0) return Status(ErrorLinRegXtXInvFailed);
     result |= services::internal::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     if (bModelNe)
     {
-        Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);
+        LapackInst<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);
         if (info != 0) return Status(ErrorLinRegXtXInvFailed);
     }
     if (!regularizeTriangularMatrix<algorithmFPType, cpu>(pXtXInv, nBetas)) return Status(ErrorLinRegXtXInvFailed);
-    Lapack<algorithmFPType, cpu>::xpotri(&uplo, &nBeta, pXtXInv, &nBeta, &info);
+    LapackInst<algorithmFPType, cpu>::xpotri(&uplo, &nBeta, pXtXInv, &nBeta, &info);
     return (info == 0) ? Status() : Status(ErrorLinRegXtXInvFailed);
 }
 
@@ -191,8 +191,8 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::compute(const NumericTabl
         const algorithmFPType * pXtxInv = xtxInv;
         algorithmFPType * pV            = v;
         for (auto i = 0; i < nBetas; ++i, pXtxInv += nBetas + 1, ++pV)
-            *pV = (*pXtxInv < 0 ? daal::internal::Math<algorithmFPType, cpu>::sSqrt(-*pXtxInv) :
-                                  daal::internal::Math<algorithmFPType, cpu>::sSqrt(*pXtxInv));
+            *pV = (*pXtxInv < 0 ? daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(-*pXtxInv) :
+                                  daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(*pXtxInv));
 
         //Compute beta variance-covariance matrices
         ReadRows<algorithmFPType, cpu> varianceBD(*out.variance, 0, 1);
@@ -283,7 +283,7 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
     for (size_t j = 0; j < k; ++j)
     {
         pVar[j] = div2 * pRms[j];
-        pRms[j] = daal::internal::Math<algorithmFPType, cpu>::sSqrt(div1 * pRms[j]);
+        pRms[j] = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(div1 * pRms[j]);
     }
     return Status();
 }

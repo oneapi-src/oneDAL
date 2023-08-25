@@ -32,9 +32,9 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 #define __GLUE__(a, b) a##b
 
 #ifdef _DEBUG
-    #define _DLL_SUFFIX(name) __GLUE__(name, "d.1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, "d.2.dll")
 #else
-    #define _DLL_SUFFIX(name) __GLUE__(name, ".1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, ".2.dll")
 #endif
 
 #define DAAL_LOAD_DLL(name) _daal_load_win_dynamic_lib(name)
@@ -58,7 +58,7 @@ static void load_daal_thr_dll(void)
         daal_thr_dll_handle = load_onedal_thread_dll();
         if (daal_thr_dll_handle == NULL)
         {
-            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
             exit(1);
         }
         break;
@@ -71,7 +71,7 @@ static void load_daal_thr_dll(void)
             return;
         }
 
-        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
         exit(1);
     }
     }

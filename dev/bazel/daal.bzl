@@ -60,6 +60,11 @@ def daal_module(name, features=[], lib_tag="daal",
                 "DEBUG_ASSERT=1",
             ],
             "//conditions:default": [],
+        }) + select({
+            "@config//:backend_ref": [
+                "DAAL_REF",
+            ],
+            "//conditions:default": [],
         }),
         **kwargs,
     )
