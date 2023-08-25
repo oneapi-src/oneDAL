@@ -78,6 +78,11 @@ DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(c
     : Parameter(other), outputForStep5Required(other.outputForStep5Required), firstIteration(other.firstIteration)
 {}
 
+services::Status DistributedStep2LocalPlusPlusParameter::check() const
+{
+    return services::Status();
+}
+
 } // namespace init
 } // namespace kmeans
 } // namespace algorithms

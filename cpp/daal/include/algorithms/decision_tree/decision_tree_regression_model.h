@@ -126,7 +126,8 @@ public:
     static services::SharedPtr<Model> create(services::Status * stat = NULL);
 
     /**
-     * \copydoc regression::Model::getNumberOfFeatures
+     * Returns the number of features in the training data set
+     * \return Number of features in the training data set
      */
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
