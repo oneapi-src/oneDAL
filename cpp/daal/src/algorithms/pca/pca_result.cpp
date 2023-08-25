@@ -44,7 +44,10 @@ Result::Result(const Result & o)
 {
     ResultImpl * pImpl = dynamic_cast<ResultImpl *>(getStorage(o).get());
     DAAL_ASSERT(pImpl);
-    Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
+    if (pImpl != NULL)
+    {
+        Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
+    }
 }
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1)
