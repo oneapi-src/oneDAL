@@ -116,6 +116,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
                 DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagErrorDecisionFunction).get(), outOfBagErrorDecisionFunctionStr(),
                                                                         0, 0, nClasses, nObs));
             }
+            else
+            {
+                s = s ? s : services::Status(services::ErrorNullParameterNotSupported);
+            }
         }
         if (algParameter2->varImportance != decision_forest::training::none)
         {
