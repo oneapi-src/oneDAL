@@ -102,7 +102,7 @@ struct OutlierDetectionKernel : public Kernel
                 for (size_t j = 0; j < nFeatures; j++)
                 {
                     weightPtr[j] = one;
-                    diff         = daal::internal::Math<algorithmFPType, cpu>::sFabs(dataPtr[j] - location[j]);
+                    diff         = daal::internal::MathInst<algorithmFPType, cpu>::sFabs(dataPtr[j] - location[j]);
                     if (scatter[j] != zero)
                     {
                         /* Here if scatter is greater than zero */

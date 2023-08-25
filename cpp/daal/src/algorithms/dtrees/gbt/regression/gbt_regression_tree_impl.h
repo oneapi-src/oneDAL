@@ -130,7 +130,7 @@ public:
             return services::SharedPtr<AOSNumericTable>();
         }
 
-        services::internal::service_memset<char, sse2>((char *)table->getArray(), (char)0, sizeof(TableRecordType) * nNodes);
+        services::internal::service_memset<char, DAAL_BASE_CPU>((char *)table->getArray(), (char)0, sizeof(TableRecordType) * nNodes);
 
         return table;
     }

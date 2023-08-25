@@ -73,7 +73,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         factor += diff * diff;
     }
     factor *= -0.5 * invSqrSigma;
-    daal::internal::Math<algorithmFPType, cpu>::vExp(1, &factor, mtR.get());
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(1, &factor, mtR.get());
     return services::Status();
 }
 
@@ -111,12 +111,12 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         }
         dataR[i] = -0.5 * invSqrSigma * factor;
 
-        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
+        if (dataR[i] < MathInst<algorithmFPType, cpu>::vExpThreshold())
         {
-            dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
+            dataR[i] = MathInst<algorithmFPType, cpu>::vExpThreshold();
         }
     }
-    daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1, dataR, dataR);
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(nVectors1, dataR, dataR);
     return services::Status();
 }
 
@@ -147,7 +147,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     const size_t blockSize                = 256;
     const size_t nBlocks1                 = nVectors1 / blockSize + !!(nVectors1 % blockSize);
     const size_t nBlocks2                 = nVectors2 / blockSize + !!(nVectors2 % blockSize);
-    const algorithmFPType expExpThreshold = Math<algorithmFPType, cpu>::vExpThreshold();
+    const algorithmFPType expExpThreshold = MathInst<algorithmFPType, cpu>::vExpThreshold();
 
     daal::tls<KernelRBFTask<algorithmFPType, cpu> *> tslTask([=, &safeStat]() {
         auto tlsData = KernelRBFTask<algorithmFPType, cpu>::create(blockSize, isEqualMatrix);
@@ -186,7 +186,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                 for (size_t i = 0; i < nRowsInBlock1; ++i)
                 {
                     const algorithmFPType * dataA1i = dataA1 + i * nFeatures;
-                    sqrDataA1[i]                    = Blas<algorithmFPType, cpu>::xxdot((DAAL_INT *)&nFeatures, dataA1i, &one, dataA1i, &one);
+                    sqrDataA1[i]                    = BlasInst<algorithmFPType, cpu>::xxdot((DAAL_INT *)&nFeatures, dataA1i, &one, dataA1i, &one);
                 }
             }
 
@@ -197,7 +197,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             for (size_t i = 0; i < nRowsInBlock2; ++i)
             {
                 const algorithmFPType * dataA2i = dataA2 + i * nFeatures;
-                sqrDataA2[i]                    = Blas<algorithmFPType, cpu>::xxdot((DAAL_INT *)&nFeatures, dataA2i, &one, dataA2i, &one);
+                sqrDataA2[i]                    = BlasInst<algorithmFPType, cpu>::xxdot((DAAL_INT *)&nFeatures, dataA2i, &one, dataA2i, &one);
             }
 
             DAAL_INT lda = nFeatures;
@@ -205,8 +205,8 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             DAAL_INT ldc = blockSize;
             if (!isSOARes)
             {
-                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &onef, dataA2, &ldb,
-                                                   dataA1, &lda, &zero, mklBuff, &ldc);
+                BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &onef, dataA2, &ldb,
+                                                       dataA1, &lda, &zero, mklBuff, &ldc);
 
                 algorithmFPType * const dataR = mtRRows.get();
                 for (size_t i = 0; i < nRowsInBlock1; ++i)
@@ -220,8 +220,8 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             }
             else
             {
-                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock1, &nRowsInBlock2, (DAAL_INT *)&nFeatures, &onef, dataA1, &lda,
-                                                   dataA2, &ldb, &zero, mklBuff, &ldc);
+                BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock1, &nRowsInBlock2, (DAAL_INT *)&nFeatures, &onef, dataA1, &lda,
+                                                       dataA2, &ldb, &zero, mklBuff, &ldc);
 
                 for (size_t j = 0; j < nRowsInBlock2; ++j)
                 {

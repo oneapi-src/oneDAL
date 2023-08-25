@@ -1119,8 +1119,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         HomogenNumericTable<int> * pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
         DAAL_CHECK_MALLOC(pTblSmplCnt);
 
-        DAAL_CHECK_STATUS_VAR(connector.template convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(),
-                                                                                pTblSmplCnt->getArray(), initResp, par));
+        DAAL_CHECK_STATUS_VAR(connector.template convertToGbtDecisionTree<DAAL_BASE_CPU>(
+            binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(), initResp, par));
         modelImpl.add(pTbl, pTblImp, pTblSmplCnt);
         initResp = 0.0;
     }

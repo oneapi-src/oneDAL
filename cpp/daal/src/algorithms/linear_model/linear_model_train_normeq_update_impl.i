@@ -87,8 +87,8 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
-        Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha, const_cast<algorithmFPType *>(x), &nFeatures, &alpha, _xtx,
-                                           &_nBetasIntercept);
+        BlasInst<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha, const_cast<algorithmFPType *>(x), &nFeatures, &alpha, _xtx,
+                                               &_nBetasIntercept);
     }
 
     if (nFeatures < _nBetasIntercept)
@@ -112,8 +112,8 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
-        Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x, &nFeatures, y, &_nResponses, &alpha, _xty,
-                                           &_nBetasIntercept);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x, &nFeatures, y, &_nResponses, &alpha,
+                                               _xty, &_nBetasIntercept);
     }
 
     if (nFeatures < _nBetasIntercept)

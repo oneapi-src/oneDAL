@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2012 Intel Corporation
+# Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,4 +48,4 @@ pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
 p4_OPT.gnu   = $(-Q)march=nocona
 mc3_OPT.gnu  = $(-Q)march=corei7
 avx2_OPT.gnu = $(-Q)march=haswell
-skx_OPT.gnu  = $(-Q)march=haswell
+skx_OPT.gnu  = $(-Q)march=skylake
