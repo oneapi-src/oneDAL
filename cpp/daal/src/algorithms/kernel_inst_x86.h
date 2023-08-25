@@ -41,7 +41,7 @@
     DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                  \
     DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                 \
     DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                  \
-    DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                                                                   \
+    DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                \
     template <>                                                                                                                                  \
     ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                             \
                         DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                               \
@@ -59,9 +59,9 @@
                                                                                                                                                  \
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)              \
                                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                \
-                                           DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;                                        \
+                                           DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;
 
-#define __DAAL_INSTANTIATE_DISPATCH_IMPL_OLD(ContainerTemplate, Mode, ClassName, BaseClassName, ...)                                                                                                                                       \
+#define __DAAL_INSTANTIATE_DISPATCH_IMPL_OLD(ContainerTemplate, Mode, ClassName, BaseClassName, ...)                                             \
     template <>                                                                                                                                  \
     ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                             \
                         DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                               \
@@ -79,7 +79,7 @@
                                                                                                                                                  \
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)              \
                                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                \
-                                           DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;                                        \
+                                           DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;
 
 #define __DAAL_INSTANTIATE_DISPATCH_LAYER_CONTAINER_SAFE(ContainerTemplate, ...)                                                                \
     __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, batch, AlgorithmDispatchLayerContainer, LayerContainerIfaceImpl, __DAAL_GET_CPUID_SAFE, \
@@ -106,7 +106,7 @@
     DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                  \
     DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                 \
     DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                  \
-    DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                                                                \
+    DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                                \
     template <>                                                                                                                                  \
     ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)                             \
                         DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                               \
@@ -130,7 +130,7 @@
                                                                                                                                                  \
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__)              \
                                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                                \
-                                           DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;                                        \
+                                           DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>;
 
 #define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(ContainerTemplate, Mode, ...)                                                               \
     __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID, \

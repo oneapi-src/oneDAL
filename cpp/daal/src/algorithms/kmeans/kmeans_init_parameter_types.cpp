@@ -59,7 +59,7 @@ Parameter::Parameter(const Parameter & other)
       seed(other.seed),
       oversamplingFactor(other.oversamplingFactor),
       nRounds(other.nRounds),
-      engine(other.engine), 
+      engine(other.engine),
       nTrials(other.nTrials)
 {}
 
