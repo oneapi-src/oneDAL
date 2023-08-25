@@ -504,7 +504,7 @@ struct InfoGain
                          const DataStatistics & dataStatistics, const DataStatistics & totalDataStatistics,
                          data_management::features::FeatureType featureType, size_t leftCount, size_t rightCount, size_t totalCount)
     {
-        typedef Math<algorithmFPType, cpu> MathType;
+        typedef MathInst<algorithmFPType, cpu> MathType;
 
         const ValueType leftProbability  = leftCount * static_cast<ValueType>(1) / totalCount;
         const ValueType rightProbability = rightCount * static_cast<ValueType>(1) / totalCount;
@@ -543,7 +543,7 @@ struct InfoGain
 
     ValueType operator()(const DataStatistics & totalDataStatistics, size_t totalCount)
     {
-        typedef Math<algorithmFPType, cpu> MathType;
+        typedef MathInst<algorithmFPType, cpu> MathType;
 
         ValueType info    = 0;
         const size_t size = totalDataStatistics.size();
@@ -609,7 +609,7 @@ struct InfoGainWeighted
                          const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType, ValueType leftWeight,
                          ValueType rightWeight, ValueType totalWeight)
     {
-        typedef Math<algorithmFPType, cpu> MathType;
+        typedef MathInst<algorithmFPType, cpu> MathType;
 
         const ValueType leftProbability  = leftWeight * static_cast<ValueType>(1) / totalWeight;
         const ValueType rightProbability = rightWeight * static_cast<ValueType>(1) / totalWeight;
@@ -648,7 +648,7 @@ struct InfoGainWeighted
 
     ValueType operator()(const DataStatistics & totalDataStatistics, algorithmFPType totalWeight)
     {
-        typedef Math<algorithmFPType, cpu> MathType;
+        typedef MathInst<algorithmFPType, cpu> MathType;
 
         ValueType info    = 0;
         const size_t size = totalDataStatistics.size();

@@ -75,8 +75,8 @@ services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::comp
         DAAL_INT ione         = 1;
 
         /* Compute sum of rows of input matrix */
-        Blas<algorithmFPType, cpu>::xgemv(&transa, (DAAL_INT *)&nItems, (DAAL_INT *)&nUsers, &alpha, const_cast<algorithmFPType *>(data),
-                                          (DAAL_INT *)&nItems, ones.get(), (DAAL_INT *)&ione, &beta, itemsSum.get(), &ione);
+        BlasInst<algorithmFPType, cpu>::xgemv(&transa, (DAAL_INT *)&nItems, (DAAL_INT *)&nUsers, &alpha, const_cast<algorithmFPType *>(data),
+                                              (DAAL_INT *)&nItems, ones.get(), (DAAL_INT *)&ione, &beta, itemsSum.get(), &ione);
     }
 
     WriteOnlyRows<algorithmFPType, cpu> mtItemsFactors(itemsFactorsTable, 0, nItems);

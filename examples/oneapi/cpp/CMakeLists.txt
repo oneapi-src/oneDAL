@@ -33,12 +33,21 @@ set_common_compiler_options()
 
 include_directories(source)
 
+option(REF_BACKEND "Exclude not supported files for non-MKL backend" OFF)
+
 # Initialize the EXCLUDE_LIST variable
 set(EXCLUDE_LIST
     "source/utils/*"
     "source/example_util/*"
     "jaccard_batch_app"
 )
+
+if(REF_BACKEND)
+    set(EXCLUDE_LIST
+        ${EXCLUDE_LIST}
+        "source/pca/*"
+)
+endif()
 
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")

@@ -194,8 +194,8 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
 
             for (size_t ic = 0; ic < nColsArgument; ic++)
             {
-                const algorithmFPType diff = daal::internal::Math<algorithmFPType, cpu>::sFabs(prews[ic] - workValue[id * nColsArgument + ic]);
-                const algorithmFPType maxValueCurr = daal::internal::Math<algorithmFPType, cpu>::sFabs(workValue[id * nColsArgument + ic]);
+                const algorithmFPType diff = daal::internal::MathInst<algorithmFPType, cpu>::sFabs(prews[ic] - workValue[id * nColsArgument + ic]);
+                const algorithmFPType maxValueCurr = daal::internal::MathInst<algorithmFPType, cpu>::sFabs(workValue[id * nColsArgument + ic]);
                 maxDiff                            = diff > maxDiff ? diff : maxDiff;
                 maxValue                           = maxValueCurr > maxValue ? maxValueCurr : maxValue;
             }

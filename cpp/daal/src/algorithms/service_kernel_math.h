@@ -42,7 +42,10 @@
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
-#include "immintrin.h"
+
+#if defined(DAAL_INTEL_CPP_COMPILER)
+    #include "immintrin.h"
+#endif
 
 namespace daal
 {
@@ -73,7 +76,7 @@ FPType distancePow(const FPType * a, const FPType * b, size_t dim, FPType p)
 
     for (size_t i = 0; i < dim; i++)
     {
-        sum += daal::internal::Math<FPType, cpu>::sPowx(b[i] - a[i], p);
+        sum += daal::internal::MathInst<FPType, cpu>::sPowx(b[i] - a[i], p);
     }
 
     return sum;
@@ -86,10 +89,10 @@ FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
 
     for (size_t i = 0; i < dim; i++)
     {
-        sum += daal::internal::Math<FPType, cpu>::sPowx(b[i] - a[i], p);
+        sum += daal::internal::MathInst<FPType, cpu>::sPowx(b[i] - a[i], p);
     }
 
-    return daal::internal::Math<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
+    return daal::internal::MathInst<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
 }
 
 enum class PairwiseDistanceType
@@ -175,7 +178,7 @@ public:
 
         if (!_squared)
         {
-            daal::internal::Math<FPType, cpu> math;
+            daal::internal::MathInst<FPType, cpu> math;
             daal::services::internal::TArray<FPType, cpu> tmpArr(nRowsC * nColsC);
             FPType * tmp = tmpArr.get();
             math.vSqrt(nRowsC * nColsC, res, tmp);
@@ -204,7 +207,7 @@ public:
             {
                 a[i] = services::internal::max<cpu, FPType>(FPType(0), a[i]);
             }
-            Math<FPType, cpu>::vSqrt(count, a + begin, a + begin);
+            MathInst<FPType, cpu>::vSqrt(count, a + begin, a + begin);
         }
         return services::Status();
     }
@@ -281,7 +284,7 @@ protected:
 
             if (_isSqrtNorm)
             {
-                Math<FPType, cpu>::vSqrt(end - begin, r, r);
+                MathInst<FPType, cpu>::vSqrt(end - begin, r, r);
             }
         });
 
@@ -302,7 +305,7 @@ protected:
         const FPType beta    = 0.0;
         const DAAL_INT ldaty = nRowsB;
 
-        Blas<FPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, b, &lda, a, &ldy, &beta, out, &ldaty);
+        BlasInst<FPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, b, &lda, a, &ldy, &beta, out, &ldaty);
     }
 
     const NumericTable & _a;
@@ -389,7 +392,7 @@ public:
     {
         if (_p != 1.0)
         {
-            daal::internal::mkl::MklMath<FPType, cpu> math;
+            daal::internal::MathInst<FPType, cpu> math;
             math.vPowx(n, a, 1.0 / _p, a);
         }
         return services::Status();
@@ -401,7 +404,7 @@ protected:
     services::Status computeBatchImpl(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                       FPType * const res)
     {
-        daal::internal::mkl::MklMath<FPType, cpu> math;
+        daal::internal::MathInst<FPType, cpu> math;
 
         const size_t nDims = _a.getNumberOfColumns();
         const size_t nX    = aSize;
@@ -434,7 +437,7 @@ private:
 template <typename FPType, CpuType cpu>
 inline FPType MinkowskiDistances<FPType, cpu>::computeDistance(const FPType * x, const FPType * y, const size_t n) const
 {
-    daal::internal::mkl::MklMath<FPType, cpu> math;
+    daal::internal::MathInst<FPType, cpu> math;
 
     FPType d = 0;
 
@@ -489,7 +492,7 @@ public:
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
     {
-        daal::internal::mkl::MklMath<FPType, cpu> math;
+        daal::internal::MathInst<FPType, cpu> math;
 
         FPType d = 0;
 
@@ -507,7 +510,7 @@ protected:
     services::Status computeBatchImpl(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                       FPType * const res)
     {
-        daal::internal::mkl::MklMath<FPType, cpu> math;
+        daal::internal::MathInst<FPType, cpu> math;
 
         const size_t nDims = _a.getNumberOfColumns();
         const size_t nX    = aSize;
@@ -540,7 +543,7 @@ private:
 template <>
 inline float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n) const
 {
-    daal::internal::mkl::MklMath<float, avx512> math;
+    daal::internal::MathInst<float, avx512> math;
 
     const size_t vecSize   = 16;
     float d                = 0.0;
@@ -590,7 +593,7 @@ inline float MinkowskiDistances<float, avx512>::computeDistance(const float * x,
 template <>
 inline double MinkowskiDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n) const
 {
-    daal::internal::mkl::MklMath<double, avx512> math;
+    daal::internal::MathInst<double, avx512> math;
 
     const size_t vecSize    = 8;
     double d                = 0.0;
@@ -649,22 +652,22 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     /* Perform L*L' factorization of A */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
+        LapackInst<FPType, cpu>::xxpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
+        LapackInst<FPType, cpu>::xpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
     }
     if (info != 0) return false;
 
     /* Solve L*L' * x = b */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
+        LapackInst<FPType, cpu>::xxpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
+        LapackInst<FPType, cpu>::xpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
     }
     return (info == 0);
 }
@@ -694,22 +697,22 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
     /* Perform P*L*U factorization of A */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
+        LapackInst<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
+        LapackInst<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
     }
     if (info != 0) return false;
 
     /* Solve P*L*U * x = b */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+        LapackInst<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+        LapackInst<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
     }
     return (info == 0);
 }

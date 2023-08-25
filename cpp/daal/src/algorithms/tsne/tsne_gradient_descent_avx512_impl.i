@@ -154,7 +154,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
                         logLocal[iSize++] = val[index] * multiplier * (1.f + sqDist);
                     }
 
-                    Math<float, avx512>::vLog(iSize, logLocal, logLocal);
+                    MathInst<float, avx512>::vLog(iSize, logLocal, logLocal);
                     IdxType start = row[iRow] - 1;
                     for (IdxType index = 0; index < iSize; ++index)
                     {
@@ -304,7 +304,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
                         logLocal[iSize++] = val[index] * multiplier * (1. + sqDist);
                     }
 
-                    Math<double, avx512>::vLog(iSize, logLocal, logLocal);
+                    MathInst<double, avx512>::vLog(iSize, logLocal, logLocal);
                     IdxType start = row[iRow] - 1;
                     for (IdxType index = 0; index < iSize; ++index)
                     {

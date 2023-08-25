@@ -81,7 +81,7 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         DAAL_INT m = blockSize1, k = 1, nn = blockSize1;
         DAAL_INT lda = m, ldb = nn, ldc = m;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum, &lda, sum, &ldb, &beta, buf, &ldc);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum, &lda, sum, &ldb, &beta, buf, &ldc);
 
         /* calculate x * x^t - 1/p * sum^t * sum */
         alpha  = one;
@@ -93,7 +93,7 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         ldb = k;
         ldc = m;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
 
         /* compute inverse of sqrt of gemm result and save for use in computation off-diagonal blocks */
         PRAGMA_VECTOR_ALWAYS
@@ -101,7 +101,7 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         {
             if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
             {
-                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
+                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
             }
         }
 
@@ -226,7 +226,7 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
             DAAL_INT m = blockSize2, k = 1, nn = blockSize1;
             DAAL_INT lda = m, ldb = nn, ldc = m;
 
-            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum2, &lda, sum1l, &ldb, &beta, buf, &ldc);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum2, &lda, sum1l, &ldb, &beta, buf, &ldc);
 
             /* calculate x1 * x2^t - 1/p * sum1^t * sum2 */
             alpha  = one;
@@ -241,7 +241,7 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
             ldc    = m;
 
             /* compute the distance between k1 and k2 blocks of rows in the input dataset */
-            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x2, &lda, x1, &ldb, &beta, buf, &ldc);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x2, &lda, x1, &ldb, &beta, buf, &ldc);
 
             for (size_t i = 0; i < blockSize1; i++)
             {

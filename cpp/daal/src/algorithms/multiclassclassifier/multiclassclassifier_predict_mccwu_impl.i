@@ -242,7 +242,7 @@ services::Status SubTask<algorithmFPType, cpu>::getBlockOfRowsOfResults(NumericT
         {
             /* Check convergence criteria */
             algorithmFPType objFunc = computeObjFunc<algorithmFPType, cpu>(nClasses, p, rProbPtr);
-            if (daal::internal::Math<algorithmFPType, cpu>::sFabs(objFunc - objFuncPrev) < eps) break;
+            if (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(objFunc - objFuncPrev) < eps) break;
             objFuncPrev = objFunc;
 
             /* Update multiclass probabilities estimates */
@@ -311,7 +311,7 @@ services::Status SubTask<algorithmFPType, cpu>::predictSimpleClassifier(size_t n
             if (!s) return services::Status(services::ErrorMultiClassFailedToComputeTwoClassPrediction).add(s);
 
             /* Use sigmoid to calculate probabilities */
-            daal::internal::Math<algorithmFPType, cpu>::vExp(nRows, y, y);
+            daal::internal::MathInst<algorithmFPType, cpu>::vExp(nRows, y, y);
             algorithmFPType * rProbPtr = rProb;
             for (size_t k = 0; k < nRows; k++, rProbPtr += nClasses * nClasses)
             {

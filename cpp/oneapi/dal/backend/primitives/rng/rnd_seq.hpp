@@ -60,7 +60,7 @@ private:
         const auto count_as_size_t = dal::detail::integral_cast<std::size_t>(count);
 
         auto number_array = array<std::size_t>::empty(queue, count);
-        daal::internal::RNGs<std::size_t, daal::sse2> rng;
+        daal::internal::RNGsInst<std::size_t, DAAL_BASE_CPU> rng;
         auto* number_ptr = number_array.get_mutable_data();
 
         rng.uniform(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);

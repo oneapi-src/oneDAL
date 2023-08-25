@@ -305,7 +305,7 @@ inline float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t st
         #endif // __CPUID__(DAAL_CPU) == __avx512__
 
     #endif // __DAAL_IA32e
-#endif     // __INTEL_COMPILER
+#endif     // DAAL_INTEL_CPP_COMPILER
 } // namespace internal
 } // namespace kernel_function
 } // namespace algorithms
