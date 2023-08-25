@@ -152,7 +152,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
     const auto nTrees = pModel->size();
 
-    TArray<const dtrees::internal::DecisionTreeTable *, sse2> _aTree;
+    TArray<const dtrees::internal::DecisionTreeTable *, DAAL_BASE_CPU> _aTree;
 
     _aTree.reset(nTrees);
     DAAL_CHECK_MALLOC(_aTree.get());
@@ -186,9 +186,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, maxTreeSize, nTrees);
     const size_t treeBlockSize = maxTreeSize * nTrees;
 
-    TArray<int32_t, sse2> tFI(treeBlockSize);
-    TArray<int32_t, sse2> tLC(treeBlockSize);
-    TArray<algorithmFPType, sse2> tFV(treeBlockSize);
+    TArray<int32_t, DAAL_BASE_CPU> tFI(treeBlockSize);
+    TArray<int32_t, DAAL_BASE_CPU> tLC(treeBlockSize);
+    TArray<algorithmFPType, DAAL_BASE_CPU> tFV(treeBlockSize);
 
     auto ftrIdxArr = context.allocate(TypeIds::id<int>(), treeBlockSize, status);
     DAAL_CHECK_STATUS_VAR(status);

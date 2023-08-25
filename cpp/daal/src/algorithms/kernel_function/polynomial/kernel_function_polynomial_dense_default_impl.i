@@ -113,11 +113,11 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 
     if (par->kernelType == KernelType::sigmoid)
     {
-        daal::internal::Math<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
+        daal::internal::MathInst<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
     }
     if (par->kernelType == KernelType::polynomial)
     {
-        daal::internal::Math<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
+        daal::internal::MathInst<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
     }
 
     return services::Status();
@@ -180,8 +180,8 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
             if (!isSOARes)
             {
                 algorithmFPType * const dataR = mtRRows.get() + startRow2;
-                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &alpha, dataA2,
-                                                   (DAAL_INT *)&nFeatures, dataA1, (DAAL_INT *)&nFeatures, &beta, dataR, (DAAL_INT *)&nVectors2);
+                BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock2, &nRowsInBlock1, (DAAL_INT *)&nFeatures, &alpha, dataA2,
+                                                       (DAAL_INT *)&nFeatures, dataA1, (DAAL_INT *)&nFeatures, &beta, dataR, (DAAL_INT *)&nVectors2);
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
@@ -205,7 +205,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                     }
                     if (par->kernelType == KernelType::sigmoid)
                     {
-                        daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * nVectors2, dataR + i * nVectors2);
+                        daal::internal::MathInst<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * nVectors2, dataR + i * nVectors2);
                     }
                 }
             }
@@ -215,8 +215,8 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                 DAAL_CHECK_MALLOC_THR(mklBuff);
                 DAAL_INT ldc2 = blockSize;
 
-                Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock1, &nRowsInBlock2, (DAAL_INT *)&nFeatures, &alpha, dataA1,
-                                                   (DAAL_INT *)&nFeatures, dataA2, (DAAL_INT *)&nFeatures, &beta, mklBuff, &ldc2);
+                BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &nRowsInBlock1, &nRowsInBlock2, (DAAL_INT *)&nFeatures, &alpha, dataA1,
+                                                       (DAAL_INT *)&nFeatures, dataA2, (DAAL_INT *)&nFeatures, &beta, mklBuff, &ldc2);
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
@@ -239,7 +239,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 
                 if (par->kernelType == KernelType::sigmoid)
                 {
-                    daal::internal::Math<algorithmFPType, cpu>::vTanh(blockSize * blockSize, mklBuff, mklBuff);
+                    daal::internal::MathInst<algorithmFPType, cpu>::vTanh(blockSize * blockSize, mklBuff, mklBuff);
                 }
 
                 for (size_t i = 0; i < nRowsInBlock2; ++i)

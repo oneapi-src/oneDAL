@@ -25,25 +25,25 @@
 
 float daal::services::daal_string_to_float(const char * nptr, char ** endptr)
 {
-    return daal::internal::Service<>::serv_string_to_float(nptr, endptr);
+    return daal::internal::ServiceInst::serv_string_to_float(nptr, endptr);
 }
 
 double daal::services::daal_string_to_double(const char * nptr, char ** endptr)
 {
-    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
+    return daal::internal::ServiceInst::serv_string_to_double(nptr, endptr);
 }
 
 int daal::services::daal_string_to_int(const char * nptr, char ** endptr)
 {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+    return daal::internal::ServiceInst::serv_string_to_int(nptr, endptr);
 }
 
 int daal::services::daal_int_to_string(char * buffer, size_t n, int value)
 {
-    return daal::internal::Service<>::serv_int_to_string(buffer, n, value);
+    return daal::internal::ServiceInst::serv_int_to_string(buffer, n, value);
 }
 
 int daal::services::daal_double_to_string(char * buffer, size_t n, double value)
 {
-    return daal::internal::Service<>::serv_double_to_string(buffer, n, value);
+    return daal::internal::ServiceInst::serv_double_to_string(buffer, n, value);
 }

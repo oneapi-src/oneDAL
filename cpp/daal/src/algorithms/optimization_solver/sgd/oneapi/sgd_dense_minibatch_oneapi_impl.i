@@ -167,7 +167,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::vectorNorm(const B
     status = sumReduction<algorithmFPType>(reductionBuffer, nWorkGroups, norm);
     DAAL_CHECK_STATUS_VAR(status);
 
-    norm = daal::internal::Math<algorithmFPType, sse2>::sSqrt(norm);
+    norm = daal::internal::MathInst<algorithmFPType, DAAL_BASE_CPU>::sSqrt(norm);
 
     return status;
 }
@@ -210,7 +210,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
 
     constexpr size_t maxInt32Value = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 
-    WriteRows<int, sse2> nIterationsBD(*nIterations, 0, 1);
+    WriteRows<int, DAAL_BASE_CPU> nIterationsBD(*nIterations, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(nIterationsBD);
     int * nProceededIterations = nIterationsBD.get();
     DAAL_CHECK(nProceededIterations != nullptr, services::ErrorIncorrectInputNumericTable);
@@ -246,13 +246,13 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);
     function->sumOfFunctionsInput->set(sum_of_functions::argument, workValueSNT);
 
-    ReadRows<algorithmFPType, sse2> learningRateBD(*learningRateSequence, 0, 1);
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> learningRateBD(*learningRateSequence, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(learningRateBD);
     const algorithmFPType * const learningRateArray = learningRateBD.get();
     DAAL_CHECK(learningRateArray != nullptr, services::ErrorIncorrectParameter);
 
     NumericTable * conservativeSequence = parameter->conservativeSequence.get();
-    ReadRows<algorithmFPType, sse2> consCoeffsBD(*conservativeSequence, 0, 1);
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> consCoeffsBD(*conservativeSequence, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(consCoeffsBD);
     const algorithmFPType * const consCoeffsArray = consCoeffsBD.get();
     DAAL_CHECK(consCoeffsArray != nullptr, services::ErrorIncorrectParameter);
@@ -261,12 +261,12 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     const size_t learningRateLength = learningRateSequence->getNumberOfColumns();
 
     const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
-    services::SharedPtr<HomogenNumericTableCPU<int, sse2> > ntBatchIndices;
+    services::SharedPtr<HomogenNumericTableCPU<int, DAAL_BASE_CPU> > ntBatchIndices;
 
     if (indicesStatus == user || indicesStatus == random)
     {
         // Replace by SyclNumericTable when will be RNG on GPU
-        ntBatchIndices = HomogenNumericTableCPU<int, sse2>::create(batchSize, 1, &status);
+        ntBatchIndices = HomogenNumericTableCPU<int, DAAL_BASE_CPU>::create(batchSize, 1, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -281,7 +281,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     size_t startIteration = 0, nProceededIters = 0;
     if (lastIterationInput)
     {
-        ReadRows<int, sse2> lastIterationInputBD(lastIterationInput, 0, 1);
+        ReadRows<int, DAAL_BASE_CPU> lastIterationInputBD(lastIterationInput, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(lastIterationInputBD);
         const int * lastIterationInputArray = lastIterationInputBD.get();
         DAAL_ASSERT(lastIterationInputArray[0] > 0);
@@ -312,9 +312,9 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
     DAAL_CHECK_STATUS_VAR(status);
     DAAL_CHECK_STATUS(status, inputArgument->releaseBlockOfRows(startValueBD));
 
-    ReadRows<int, sse2> predefinedBatchIndicesBD(batchIndices, 0, nIter);
+    ReadRows<int, DAAL_BASE_CPU> predefinedBatchIndicesBD(batchIndices, 0, nIter);
     DAAL_CHECK_BLOCK_STATUS(predefinedBatchIndicesBD);
-    iterative_solver::internal::RngTask<int, sse2> rngTask(predefinedBatchIndicesBD.get(), batchSize);
+    iterative_solver::internal::RngTask<int, DAAL_BASE_CPU> rngTask(predefinedBatchIndicesBD.get(), batchSize);
     rngTask.init(nTerms, engine);
 
     algorithmFPType learningRate = learningRateArray[0];
@@ -365,7 +365,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
                 algorithmFPType pointNorm = algorithmFPType(0), gradientNorm = algorithmFPType(0);
                 DAAL_CHECK_STATUS(status, vectorNorm(workValueBuff, argumentSize, pointNorm));
                 DAAL_CHECK_STATUS(status, vectorNorm(gradientBuff, argumentSize, gradientNorm));
-                const double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, sse2>::sMax(1.0, pointNorm);
+                const double gradientThreshold = accuracyThreshold * daal::internal::MathInst<algorithmFPType, DAAL_BASE_CPU>::sMax(1.0, pointNorm);
 
                 if (gradientNorm < gradientThreshold)
                 {
@@ -385,7 +385,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch>::compute(HostAppIfa
 
     if (lastIterationResult)
     {
-        WriteRows<int, sse2> lastIterationResultBD(lastIterationResult, 0, 1);
+        WriteRows<int, DAAL_BASE_CPU> lastIterationResultBD(lastIterationResult, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(lastIterationResultBD);
         int * lastIterationResultArray = lastIterationResultBD.get();
         lastIterationResultArray[0]    = startIteration + nProceededIters; // overflow is already checked for (startIteration + nIter)

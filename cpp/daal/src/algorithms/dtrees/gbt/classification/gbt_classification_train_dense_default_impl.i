@@ -60,7 +60,7 @@ public:
     {
         TVector<algorithmFPType, cpu, ScalableAllocator<cpu> > aExp(n);
         auto exp                           = aExp.get();
-        const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
+        const algorithmFPType expThreshold = daal::internal::MathInst<algorithmFPType, cpu>::vExpThreshold();
         const size_t nThreads              = daal::threader_get_threads_number();
         const size_t nBlocks               = getNBlocksForOpt<cpu>(nThreads, n);
         const size_t nPerBlock             = n / nBlocks;
@@ -93,7 +93,7 @@ public:
                     if (exp[i] < expThreshold) exp[i] = expThreshold;
                 }
             }
-            daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
+            daal::internal::MathInst<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
             if (sampleInd)
             {
                 PRAGMA_IVDEP
@@ -158,7 +158,7 @@ public:
 protected:
     void getSoftmax(const algorithmFPType * arg, algorithmFPType * res) const
     {
-        const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
+        const algorithmFPType expThreshold = daal::internal::MathInst<algorithmFPType, cpu>::vExpThreshold();
         algorithmFPType maxArg             = arg[0];
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 1; i < _nClasses; ++i)
@@ -174,7 +174,7 @@ protected:
             to fix slow work on vExp on large negative inputs */
             if (res[i] < expThreshold) res[i] = expThreshold;
         }
-        daal::internal::Math<algorithmFPType, cpu>::vExp(_nClasses, res, res);
+        daal::internal::MathInst<algorithmFPType, cpu>::vExp(_nClasses, res, res);
         algorithmFPType sum(0.);
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < _nClasses; ++i) sum += res[i];

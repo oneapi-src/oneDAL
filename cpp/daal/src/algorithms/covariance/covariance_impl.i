@@ -196,8 +196,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(gemmData);
-                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, (DAAL_INT *)&nFeatures_local, (DAAL_INT *)&nRows, &alpha, dataBlock_local,
-                                                   (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
+                BlasInst<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, (DAAL_INT *)&nFeatures_local, (DAAL_INT *)&nRows, &alpha, dataBlock_local,
+                                                       (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
             }
 
             if (!isNormalized && (method == defaultDense))
@@ -277,8 +277,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         DEFINE_TABLE_BLOCK(ReadRows, dataBlock, dataTable);
         algorithmFPType * dataBlockPtr = const_cast<algorithmFPType *>(dataBlock.get());
 
-        int errcode =
-            Statistics<algorithmFPType, cpu>::xcp(dataBlockPtr, (__int64)nFeatures, (__int64)nVectors, nObservations, sums, crossProduct, mklMethod);
+        int errcode = StatisticsInst<algorithmFPType, cpu>::xcp(dataBlockPtr, (__int64)nFeatures, (__int64)nVectors, nObservations, sums,
+                                                                crossProduct, mklMethod);
         DAAL_CHECK(errcode == 0, services::ErrorCovarianceInternal);
     }
 
@@ -293,9 +293,9 @@ services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors,
                                               algorithmFPType * nObservations)
 {
     char transa = 'T';
-    SpBlas<algorithmFPType, cpu>::xcsrmultd(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, (DAAL_INT *)&nFeatures, dataBlock,
-                                            (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, dataBlock, (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets,
-                                            crossProduct, (DAAL_INT *)&nFeatures);
+    SpBlasInst<algorithmFPType, cpu>::xcsrmultd(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, (DAAL_INT *)&nFeatures, dataBlock,
+                                                (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, dataBlock, (DAAL_INT *)colIndices,
+                                                (DAAL_INT *)rowOffsets, crossProduct, (DAAL_INT *)&nFeatures);
 
     if (method != sumCSR)
     {
@@ -316,8 +316,8 @@ services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors,
         matdescra[2] = (char)0;
         matdescra[4] = (char)0;
         matdescra[5] = (char)0;
-        SpBlas<algorithmFPType, cpu>::xcsrmv(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, &one, matdescra, dataBlock,
-                                             (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, (DAAL_INT *)rowOffsets + 1, ones, &one, sums);
+        SpBlasInst<algorithmFPType, cpu>::xcsrmv(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, &one, matdescra, dataBlock,
+                                                 (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, (DAAL_INT *)rowOffsets + 1, ones, &one, sums);
     }
 
     nObservations[0] += (algorithmFPType)nVectors;
@@ -409,7 +409,7 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
         algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
         for (size_t i = 0; i < nFeatures; i++)
         {
-            diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(crossProduct[i * nFeatures + i]);
+            diagInvSqrts[i] = 1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(crossProduct[i * nFeatures + i]);
         }
 
         for (size_t i = 0; i < nFeatures; i++)
