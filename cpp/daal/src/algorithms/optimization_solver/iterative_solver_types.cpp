@@ -26,9 +26,6 @@
 #include "src/services/serialization_utils.h"
 #include "src/services/daal_strings.h"
 
-using namespace daal::data_management;
-using namespace daal::services;
-
 namespace daal
 {
 namespace algorithms
@@ -39,6 +36,9 @@ namespace iterative_solver
 {
 namespace interface2
 {
+using namespace daal::data_management;
+using namespace daal::services;
+
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ITERATIVE_SOLVER_RESULT_ID);
 
 Parameter::Parameter(const sum_of_functions::BatchPtr & function_, const size_t nIterations_, const double accuracyThreshold_, bool optionalResultReq,

@@ -102,6 +102,19 @@ public:
                               const sycl::usm::alloc&) const {
         block.reset();
     }
+
+    template <typename Data>
+    void pull_csr_block_template(const detail::data_parallel_policy&,
+                                 dal::array<Data>& data,
+                                 dal::array<std::int64_t>& column_indices,
+                                 dal::array<std::int64_t>& row_offsets,
+                                 const sparse_indexing& indexing,
+                                 const range& row_range,
+                                 sycl::usm::alloc alloc) const {
+        data.reset();
+        column_indices.reset();
+        row_offsets.reset();
+    }
 #endif
 
 private:
