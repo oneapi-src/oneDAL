@@ -54,7 +54,7 @@ daaldep.fbsd32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
 
 
 daaldep.mkl     := $(daaldep.$(PLAT).mkl)
-daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr) $(daaldep.mkl)
+daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr)
 daaldep.math_backend.seq := $(daaldep.$(PLAT).mkl.seq) $(daaldep.mkl)
 
 daaldep.lnx32e.vml :=
