@@ -25,7 +25,6 @@ Data Management
    data-sources.rst
    data-dictionaries.rst
    data-serialization-and-deserialization.rst
-   data-compression.rst
    data-model.rst
 
 
@@ -37,11 +36,6 @@ management requires effectively performing the following operations:
    source interfaces.
 #. Data conversion to a numeric representation for numeric tables.
 #. Data streaming from a numeric table to an algorithm.
-
-Depending on the usage model, you may also want to apply compression
-and decompression to the data you operate on. You can either use
-compression and decompression embedded into data source interfaces or
-apply data serialization and deserialization interfaces.
 
 |short_name| provides a set of customizable interfaces to operate on
 your out-of-memory and in-memory data in different usage scenarios,

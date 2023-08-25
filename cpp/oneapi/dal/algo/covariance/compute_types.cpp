@@ -23,7 +23,8 @@ namespace oneapi::dal::covariance {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& data) : data(data) {}
+    compute_input_impl() : data(table()){};
+    compute_input_impl(const table& data) : data(data){};
     table data;
 };
 
@@ -36,10 +37,22 @@ public:
     result_option_id options;
 };
 
+template <typename Task>
+class detail::v1::partial_compute_result_impl : public base {
+public:
+    table nobs;
+    table crossproduct;
+    table sums;
+};
+
 using detail::v1::compute_input_impl;
 using detail::v1::compute_result_impl;
+using detail::v1::partial_compute_result_impl;
 
 namespace v1 {
+
+template <typename Task>
+compute_input<Task>::compute_input() : impl_(new compute_input_impl<Task>{}) {}
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
@@ -111,6 +124,22 @@ void compute_result<Task>::set_means_impl(const table& value) {
 }
 
 template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const table& data)
+        : compute_input<Task>(data),
+          prev_() {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input() : compute_input<Task>(),
+                                                       prev_() {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const partial_compute_result<Task>& prev,
+                                                   const table& data)
+        : compute_input<Task>(data) {
+    this->prev_ = prev;
+}
+
+template <typename Task>
 const result_option_id& compute_result<Task>::get_result_options() const {
     return impl_->options;
 }
@@ -120,8 +149,43 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
     impl_->options = value;
 }
 
+template <typename Task>
+const table& partial_compute_result<Task>::get_nobs() const {
+    return impl_->nobs;
+}
+
+template <typename Task>
+partial_compute_result<Task>::partial_compute_result()
+        : impl_(new partial_compute_result_impl<Task>()) {}
+
+template <typename Task>
+void partial_compute_result<Task>::set_nobs_impl(const table& value) {
+    impl_->nobs = value;
+}
+
+template <typename Task>
+const table& partial_compute_result<Task>::get_crossproduct() const {
+    return impl_->crossproduct;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_crossproduct_impl(const table& value) {
+    impl_->crossproduct = value;
+}
+template <typename Task>
+const table& partial_compute_result<Task>::get_sums() const {
+    return impl_->sums;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_sums_impl(const table& value) {
+    impl_->sums = value;
+}
+
 template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
+template class ONEDAL_EXPORT partial_compute_input<task::compute>;
+template class ONEDAL_EXPORT partial_compute_result<task::compute>;
 
 } // namespace v1
 } // namespace oneapi::dal::covariance
