@@ -158,7 +158,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             services::Status status = hyperparameter->find(denseUpdateStepBlockSize, numRowsInBlock);
             DAAL_CHECK_STATUS_VAR(status);
         }
-        size_t numBlocks      = nVectors / numRowsInBlock;
+        size_t numBlocks = nVectors / numRowsInBlock;
         if (numBlocks * numRowsInBlock < nVectors)
         {
             numBlocks++;
@@ -453,7 +453,8 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status finalizeCovariance(NumericTable * nObservationsTable, NumericTable * crossProductTable, NumericTable * sumTable,
-                                    NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter, const Hyperparameter * hyperparameter)
+                                    NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter,
+                                    const Hyperparameter * hyperparameter)
 {
     const size_t nFeatures = covTable->getNumberOfColumns();
 

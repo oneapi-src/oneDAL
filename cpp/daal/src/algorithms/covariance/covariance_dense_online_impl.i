@@ -61,7 +61,8 @@ services::Status prepareSums(NumericTable * dataTable, const bool isNormalized, 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * nObservationsTable,
                                                                                     NumericTable * crossProductTable, NumericTable * sumTable,
-                                                                                    const Parameter * parameter, const Hyperparameter * hyperparameter)
+                                                                                    const Parameter * parameter,
+                                                                                    const Hyperparameter * hyperparameter)
 {
     const size_t nFeatures  = dataTable->getNumberOfColumns();
     const size_t nVectors   = dataTable->getNumberOfRows();
@@ -115,7 +116,8 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
                                                                                             NumericTable * crossProductTable, NumericTable * sumTable,
                                                                                             NumericTable * covTable, NumericTable * meanTable,
-                                                                                            const Parameter * parameter, const Hyperparameter * hyperparameter)
+                                                                                            const Parameter * parameter,
+                                                                                            const Hyperparameter * hyperparameter)
 {
     return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter, hyperparameter);
 }

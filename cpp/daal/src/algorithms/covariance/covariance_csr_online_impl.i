@@ -80,8 +80,8 @@ services::Status computeOtherMethods(size_t nFeatures, size_t nVectors, algorith
 {
     algorithmFPType partialNObservations = 0.0;
 
-    services::Status status = updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets,
-                                                                                         partialCrossProduct, partialSums, &partialNObservations, hyperparameter);
+    services::Status status = updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(
+        nFeatures, nVectors, data, colIndices, rowOffsets, partialCrossProduct, partialSums, &partialNObservations, hyperparameter);
     DAAL_CHECK_STATUS_VAR(status);
 
     algorithmFPType invPartialNObservations = 1.0 / partialNObservations;
@@ -149,7 +149,8 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceCSROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
                                                                                           NumericTable * crossProductTable, NumericTable * sumTable,
                                                                                           NumericTable * covTable, NumericTable * meanTable,
-                                                                                          const Parameter * parameter, const Hyperparameter * hyperparameter)
+                                                                                          const Parameter * parameter,
+                                                                                          const Hyperparameter * hyperparameter)
 {
     return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter, hyperparameter);
 }

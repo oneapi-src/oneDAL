@@ -39,7 +39,8 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::compute(DataCollection * partialResultsCollection,
                                                                                     NumericTable * nObservationsTable,
                                                                                     NumericTable * crossProductTable, NumericTable * sumTable,
-                                                                                    const Parameter * parameter, const Hyperparameter * hyperparameter)
+                                                                                    const Parameter * parameter,
+                                                                                    const Hyperparameter * hyperparameter)
 {
     const size_t collectionSize = partialResultsCollection->size();
     const size_t nFeatures      = crossProductTable->getNumberOfColumns();
@@ -79,7 +80,8 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
                                                                                             NumericTable * crossProductTable, NumericTable * sumTable,
                                                                                             NumericTable * covTable, NumericTable * meanTable,
-                                                                                            const Parameter * parameter, const Hyperparameter * hyperparameter)
+                                                                                            const Parameter * parameter,
+                                                                                            const Hyperparameter * hyperparameter)
 {
     return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter, hyperparameter);
 }
