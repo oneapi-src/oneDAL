@@ -625,6 +625,11 @@ $(eval $(call .populate_cpus,ONEAPI.objs_y.dpc,$(ONEAPI.objs_y.dpc)))
 -include $(ONEAPI.tmpdir_a.dpc)/*.d
 -include $(ONEAPI.tmpdir_y.dpc)/*.d
 
+-include $(PARAMETERS.tmpdir_a)/*.d
+-include $(PARAMETERS.tmpdir_y)/*.d
+-include $(PARAMETERS.tmpdir_a.dpc)/*.d
+-include $(PARAMETERS.tmpdir_y.dpc)/*.d
+
 # Declares target for object file compilation
 # $1: Object file
 # $2: Temporary directory where object file is stored
@@ -732,33 +737,33 @@ $(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAP
 $(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
 # Filtering parameter files
-PARAMETERS.objs_a := $(filter %parameter%,$(ONEAPI.objs_a))
-ONEAPI.objs_a := $(filter-out %parameter%,$(ONEAPI.objs_a))
-PARAMETERS.objs_y := $(filter %parameter%,$(ONEAPI.objs_y))
-ONEAPI.objs_y := $(filter-out %parameter%,$(ONEAPI.objs_y))
-PARAMETERS.objs_a.dpc := $(filter %parameter%,$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_a.dpc := $(filter-out %parameter%,$(ONEAPI.objs_a.dpc))
-PARAMETERS.objs_y.dpc := $(filter %parameter%,$(ONEAPI.objs_y.dpc))
-ONEAPI.objs_y.dpc := $(filter-out %parameter%,$(ONEAPI.objs_y.dpc))
+PARAMETERS.objs_a.filtered := $(filter %parameters.o,$(ONEAPI.objs_a))
+ONEAPI.objs_a.filtered := $(filter-out %parameters.o,$(ONEAPI.objs_a))
+PARAMETERS.objs_y.filtered := $(filter %parameters.o,$(ONEAPI.objs_y))
+ONEAPI.objs_y.filtered := $(filter-out %parameters.o,$(ONEAPI.objs_y))
+PARAMETERS.objs_a.dpc.filtered := $(filter %parameter.o,$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_a.dpc.filtered := $(filter-out %parameter.o,$(ONEAPI.objs_a.dpc))
+PARAMETERS.objs_y.dpc.filtered := $(filter %parameter.o,$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc.filtered := $(filter-out %parameter.o,$(ONEAPI.objs_y.dpc))
 
 # Actual compilation
-$(foreach x,$(ONEAPI.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
-$(foreach x,$(ONEAPI.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
-$(foreach x,$(PARAMETERS.objs_a),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
-$(foreach x,$(PARAMETERS.objs_y),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
-$(foreach x,$(ONEAPI.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
-$(foreach x,$(ONEAPI.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
-$(foreach x,$(PARAMETERS.objs_a.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
-$(foreach x,$(PARAMETERS.objs_y.dpc),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
+$(foreach x,$(ONEAPI.objs_a.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
+$(foreach x,$(ONEAPI.objs_y.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
+$(foreach x,$(PARAMETERS.objs_a.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
+$(foreach x,$(PARAMETERS.objs_y.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y),C)))
+$(foreach x,$(ONEAPI.objs_a.dpc.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
+$(foreach x,$(ONEAPI.objs_y.dpc.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
+$(foreach x,$(PARAMETERS.objs_a.dpc.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a.dpc),DPC)))
+$(foreach x,$(PARAMETERS.objs_y.dpc.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
 
 # Create Host and DPC++ oneapi libraries
-$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
-$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
-$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a),$(ONEAPI.objs_a)))
-$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a.dpc),$(ONEAPI.objs_a.dpc)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a.filtered)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc.filtered)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a),$(PARAMETERS.objs_a.filtered)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a.dpc),$(PARAMETERS.objs_a.dpc.filtered)))
 
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
-    $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+    $(ONEAPI.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): \
     $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
@@ -771,7 +776,7 @@ $(WORKDIR.lib)/$(oneapi_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(onea
 endif
 
 $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
-    $(PARAMETERS.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+    $(PARAMETERS.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
@@ -784,7 +789,7 @@ $(WORKDIR.lib)/$(parameters_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(
 endif
 
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
-    $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
+    $(ONEAPI.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
     $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
@@ -799,7 +804,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(
 endif
 
 $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt): \
-    $(PARAMETERS.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
+    $(PARAMETERS.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y.dpc): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
@@ -1013,8 +1018,12 @@ $(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia
 $(foreach x,$(release.LIBS_J),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 endif
 
 ifeq ($(OS_is_win),yes)
@@ -1023,8 +1032,12 @@ $(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia)
 $(foreach x,$(release.LIBS_J),$(eval $(call .release.a_win,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
 endif
 
 ifneq ($(MKLGPUFPKDIR),)
