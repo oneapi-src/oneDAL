@@ -601,8 +601,7 @@ public:
     }
 
     auto& set_seed(std::int64_t value) {
-        base_t::set_seed_impl(value);
-        return *this;
+        return base_t::set_seed(value);
     }
 };
 
