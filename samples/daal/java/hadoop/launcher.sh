@@ -41,7 +41,7 @@ while [ "$1" != "" ]; do
 done
 
 # Setting CLASSPATH to build jar
-export CLASSPATH=${DAALROOT}/lib/onedal.jar:${SCALA_JARS}:$CLASSPATH
+export CLASSPATH=${DALROOT}/lib/onedal.jar:${SCALA_JARS}:$CLASSPATH
 
 # Creating _results folder
 result_folder=$(command -p cd "$(dirname -- "${BASH_SOURCE[0]}")"; pwd)/_results/
@@ -82,10 +82,10 @@ else
     exit 1
 fi
 
-hdfs dfs -put -f "${DAALROOT}/lib/intel64/${LIBJAVAAPI}" "${TBBLIBS}/${LIBTBB}" "${TBBLIBS}/${LIBTBBMALLOC}" /Hadoop/Libraries/ >> "${result_folder}/hdfs.log" 2>&1
+hdfs dfs -put -f "${DALROOT}/lib/intel64/${LIBJAVAAPI}" "${TBBLIBS}/${LIBTBB}" "${TBBLIBS}/${LIBTBBMALLOC}" /Hadoop/Libraries/ >> "${result_folder}/hdfs.log" 2>&1
 
 # Setting envs
-export LIBJARS=${DAALROOT}/lib/onedal.jar
+export LIBJARS=${DALROOT}/lib/onedal.jar
 export CLASSPATH=${LIBJARS}:${CLASSPATH}
 export HADOOP_CLASSPATH=${LIBJARS}
 

@@ -68,7 +68,7 @@ if [ -z "${Java_example_list}" ]; then
 fi
 
 # Setting path for JavaAPI library
-Djava_library_path=${DAALROOT}/lib/intel64
+Djava_library_path=${DALROOT}/lib/intel64
 
 # Setting a path for result folder to put results of examples in
 result_folder=./_results

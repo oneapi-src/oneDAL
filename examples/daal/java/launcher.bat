@@ -65,8 +65,8 @@ if not defined Java_example_list (
 )
 
 :: Setting path for JavaAPI library
-set Djava_library_path="%DAALROOT%"\..\redist\intel64\daal
-set Djava_library_path="%DAALROOT%"\redist\intel64;%Djava_library_path%
+set Djava_library_path="%DALROOT%"\..\redist\intel64\daal
+set Djava_library_path="%DALROOT%"\redist\intel64;%Djava_library_path%
 
 :: Setting a path for result folder to put results of examples in
 set result_folder=_results

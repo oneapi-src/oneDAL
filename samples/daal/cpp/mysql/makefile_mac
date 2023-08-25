@@ -49,8 +49,8 @@ ifeq (,$(filter gnu clang,$(compiler)))
     override compiler = intel
 endif
 
-ifndef DAALROOT
-    DAALROOT = ../../..
+ifndef DALROOT
+    DALROOT = ../../../../..
 endif
 
 ifndef sample
@@ -59,7 +59,7 @@ endif
 
 ODBC_PATH = /opt/local
 
-DAAL_PATH = "$(DAALROOT)/lib"
+DAAL_PATH = "$(DALROOT)/lib"
 TBB_PATH = "$(TBBROOT)/lib"
 DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
 
