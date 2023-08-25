@@ -57,7 +57,7 @@ endif
 ifndef TBBROOT
     TBBROOT = ./../../../../../../tbb/latest
 endif
-TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
+TBB_PATH = "$(TBBROOT)/lib/"
 
 ifndef sample
     sample = $(MYSQL)

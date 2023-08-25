@@ -58,7 +58,7 @@ export LIBTBB=
 export LIBTBBMALLOC=
 
 TBBLIBS=
-if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
+if [ -d "${TBBROOT}/lib/" ]; then TBBLIBS=${TBBROOT}/lib/; fi
 if [ -z "${TBBLIBS}" ]; then
     echo Can not find TBB runtimes
     exit 1
