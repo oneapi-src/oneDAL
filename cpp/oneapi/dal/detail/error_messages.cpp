@@ -211,7 +211,7 @@ MSG(regularization_coef_is_nan_or_inf,
 
 /* Optimizers */
 MSG(matrix_is_not_positively_definite,
-    "Matrix passed to conjugate gradients solver should be positively defined");
+    "Matrix passed to conjugate gradients solver should be positively defined")
 
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")

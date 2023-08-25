@@ -48,7 +48,7 @@ Status CommonKernel<algorithmFPType, cpu>::computeWorkSize(DAAL_INT nRows, DAAL_
     algorithmFPType workLocal;
 
     DAAL_INT lwork1 = -1;
-    Lapack<algorithmFPType, cpu>::xxgerqf(&nCols, &nRows, NULL, &nCols, NULL, &workLocal, &lwork1, &info);
+    LapackInst<algorithmFPType, cpu>::xxgerqf(&nCols, &nRows, NULL, &nCols, NULL, &workLocal, &lwork1, &info);
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     lwork1 = (DAAL_INT)workLocal;
@@ -56,8 +56,8 @@ Status CommonKernel<algorithmFPType, cpu>::computeWorkSize(DAAL_INT nRows, DAAL_
     char side       = 'R';
     char trans      = 'T';
     DAAL_INT lwork2 = -1;
-    Lapack<algorithmFPType, cpu>::xxormrq(&side, &trans, &nResponses, &nRows, &nCols, NULL, &nCols, NULL, NULL, &nResponses, &workLocal, &lwork2,
-                                          &info);
+    LapackInst<algorithmFPType, cpu>::xxormrq(&side, &trans, &nResponses, &nRows, &nCols, NULL, &nCols, NULL, NULL, &nResponses, &workLocal, &lwork2,
+                                              &info);
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     lwork2 = (DAAL_INT)workLocal;
@@ -74,7 +74,7 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
     DAAL_INT info = 0;
 
     /* Calculate RQ decomposition of X */
-    Lapack<algorithmFPType, cpu>::xxgerqf(&p, &n, const_cast<algorithmFPType *>(x), &p, tau, work, &lwork, &info);
+    LapackInst<algorithmFPType, cpu>::xxgerqf(&p, &n, const_cast<algorithmFPType *>(x), &p, tau, work, &lwork, &info);
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     /* Copy result into matrix R */
@@ -98,8 +98,8 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
     /* Calculate Y*Q' */
     char side  = 'R';
     char trans = 'T';
-    Lapack<algorithmFPType, cpu>::xxormrq(&side, &trans, &ny, &n, const_cast<DAAL_INT *>(&nRowsInR), const_cast<algorithmFPType *>(x + jOffset), &p,
-                                          tau, const_cast<algorithmFPType *>(y), &ny, work, &lwork, &info);
+    LapackInst<algorithmFPType, cpu>::xxormrq(&side, &trans, &ny, &n, const_cast<DAAL_INT *>(&nRowsInR), const_cast<algorithmFPType *>(x + jOffset),
+                                              &p, tau, const_cast<algorithmFPType *>(y), &ny, work, &lwork, &info);
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     if (p > n)

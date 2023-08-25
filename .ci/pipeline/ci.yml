@@ -37,7 +37,7 @@ jobs:
       displayName: 'clang-format check'
       failOnStderr: true
 
-- job: 'LinuxMakeGNU'
+- job: 'LinuxMakeGNU_MKL'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -81,6 +81,50 @@ jobs:
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
+
+- job: 'LinuxMakeGNU_OpenBLAS'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+  - script: |
+      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0 openjdk=17.0.3
+    displayName: 'apt-get and conda install'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend_config ref --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c --backend_config ref
+    displayName: 'make oneapi_c'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) OpenBLAS build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/java --conda-env ci-env
+    displayName: 'daal/java examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
+    displayName: 'oneapi/cpp examples'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) fail'
@@ -259,7 +303,7 @@ jobs:
     displayName: 'bazel-cache-limit'
 
 - job: LinuxDaal4py
-  dependsOn: LinuxMakeGNU
+  dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'

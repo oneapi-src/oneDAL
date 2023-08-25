@@ -101,7 +101,8 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
             Status s;
             for (uint32_t i = 0; i < nClusters; i++)
             {
-                DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, sse2>::compute(i, static_cast<int32_t>(nRowsTotal), engine, 1, indicesHost + k)));
+                DAAL_CHECK_STATUS(
+                    s, (UniformKernelDefault<int, DAAL_BASE_CPU>::compute(i, static_cast<int32_t>(nRowsTotal), engine, 1, indicesHost + k)));
                 uint32_t c  = (size_t)indicesHost[k];
                 int & value = indicesHost[k];
                 for (uint32_t j = k; j > 0; j--)

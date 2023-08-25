@@ -69,7 +69,7 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
     algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
     for (size_t i = 0; i < nFeatures; i++)
     {
-        diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]);
+        diagInvSqrts[i] = 1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]);
     }
 
     for (size_t i = 0; i < nFeatures; i++)
@@ -175,8 +175,8 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeEigenvectorsIn
     TArray<DAAL_INT, cpu> iwork(liwork);
     DAAL_CHECK_MALLOC(work.get() && iwork.get());
 
-    Lapack<algorithmFPType, cpu>::xsyevd(&jobz, &uplo, (DAAL_INT *)(&nFeatures), eigenvectors, (DAAL_INT *)(&nFeatures), eigenvalues, work.get(),
-                                         &lwork, iwork.get(), &liwork, &info);
+    LapackInst<algorithmFPType, cpu>::xsyevd(&jobz, &uplo, (DAAL_INT *)(&nFeatures), eigenvectors, (DAAL_INT *)(&nFeatures), eigenvalues, work.get(),
+                                             &lwork, iwork.get(), &liwork, &info);
     if (info != 0) return services::Status(services::ErrorPCAFailedToComputeCorrelationEigenvalues);
     return services::Status();
 }

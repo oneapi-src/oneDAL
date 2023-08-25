@@ -70,7 +70,7 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
     /* Find "large" itemsets */
     size_t L_size         = 0;
     size_t maxItemsetSize = ((parameter->maxItemsetSize == 0) ? (size_t)-1 : parameter->maxItemsetSize);
-    double ceil           = daal::internal::Math<double, cpu>::sCeil(minSupport * data.numOfTransactions);
+    double ceil           = daal::internal::MathInst<double, cpu>::sCeil(minSupport * data.numOfTransactions);
     DAAL_ASSERT(ceil >= 0)
     services::Status statLargeItemset = findLargeItemsets((size_t)ceil, maxItemsetSize, data, L.get(), L_size);
     DAAL_CHECK_STATUS_OK(statLargeItemset.ok(), statLargeItemset);

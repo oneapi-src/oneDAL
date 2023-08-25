@@ -146,7 +146,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
                 s = vectorNorm(workValue, argumentSize, pointNorm);
                 s |= vectorNorm(gradient, argumentSize, gradientNorm);
                 DAAL_CHECK_BREAK(!s);
-                double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
+                double gradientThreshold = accuracyThreshold * daal::internal::MathInst<algorithmFPType, cpu>::sMax(1.0, pointNorm);
                 DAAL_CHECK_BREAK(gradientNorm < gradientThreshold);
             }
             result |= daal::services::internal::daal_memcpy_s(task.prevWorkValue.get(), argumentSize * sizeof(algorithmFPType), workValue,
