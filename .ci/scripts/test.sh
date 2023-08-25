@@ -93,8 +93,8 @@ if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
     export LIBRARY_PATH=${TBBROOT}/lib:${LIBRARY_PATH}
 else
-    export LD_LIBRARY_PATH=${TBBROOT}/lib/:${LD_LIBRARY_PATH}
-    export LIBRARY_PATH=${TBBROOT}/lib/$:${LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
+    export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LIBRARY_PATH}
 fi
 
 interface=${interface:-daal/cpp}
