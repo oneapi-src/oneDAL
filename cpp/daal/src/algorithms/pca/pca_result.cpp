@@ -48,6 +48,9 @@ Result::Result(const Result & o)
     {
         Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
     }
+    else {
+        Result();
+    }
 }
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1)

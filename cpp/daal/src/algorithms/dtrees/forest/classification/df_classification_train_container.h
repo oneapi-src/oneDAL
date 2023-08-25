@@ -108,7 +108,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     {
         return services::Status(services::ErrorNullParameterNotSupported);
     }
-    DAAL_ASSERT(pImpl);
     pImpl->clear();
     return services::Status();
 }
