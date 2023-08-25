@@ -501,6 +501,37 @@ public:
 };
 
 /**
+ * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__BATCH__PARAMETER"></a>
+ * \brief Parameters for computing initial centroids for K-Means algorithm of the batch mode
+ */
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+{
+    Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
+
+    /**
+     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
+     * by copying another parameters object
+     * \param[in] other    Parameters of K-Means algorithm
+     */
+    Parameter(const Parameter & other);
+
+    size_t nClusters;  /*!< Number of clusters */
+    size_t nRowsTotal; /*!< Total number of rows in the data set  */
+    size_t offset;     /*!< Offset in the total data set specifying the start of a block stored on a given local node */
+    size_t seed;       /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
+
+    double oversamplingFactor; /*!< Kmeans|| only. A fraction of nClusters being chosen in each of nRounds of kmeans||.\
+                                                   L = nClusters* oversamplingFactor points are sampled in a round. */
+    size_t nRounds;            /*!< Kmeans|| only. Number of rounds for k-means||. (oversamplingFactor*nRounds) > 1 is a requirement.*/
+
+    engines::EnginePtr engine; /*!< Engine to be used for generating random numbers for the initialization */
+
+    size_t nTrials; /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+
+/**
 * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSPARAMETER"></a>
 * \brief Parameters for computing initial centroids for K-Means algorithm
 */
@@ -1034,37 +1065,6 @@ protected:
     }
 };
 typedef services::SharedPtr<DistributedStep5MasterPlusPlusPartialResult> DistributedStep5MasterPlusPlusPartialResultPtr;
-
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__BATCH__PARAMETER"></a>
- * \brief Parameters for computing initial centroids for K-Means algorithm of the batch mode
- */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
-{
-    Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
-
-    /**
-     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
-     * by copying another parameters object
-     * \param[in] other    Parameters of K-Means algorithm
-     */
-    Parameter(const Parameter & other);
-
-    size_t nClusters;  /*!< Number of clusters */
-    size_t nRowsTotal; /*!< Total number of rows in the data set  */
-    size_t offset;     /*!< Offset in the total data set specifying the start of a block stored on a given local node */
-    size_t seed;       /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
-
-    double oversamplingFactor; /*!< Kmeans|| only. A fraction of nClusters being chosen in each of nRounds of kmeans||.\
-                                                   L = nClusters* oversamplingFactor points are sampled in a round. */
-    size_t nRounds;            /*!< Kmeans|| only. Number of rounds for k-means||. (oversamplingFactor*nRounds) > 1 is a requirement.*/
-
-    engines::EnginePtr engine; /*!< Engine to be used for generating random numbers for the initialization */
-
-    size_t nTrials; /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
 
 } // namespace init
 /** @} */

@@ -94,16 +94,6 @@ void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor & visitor) c
     _impl->traverseBFS<tree_utils::classification::LeafNodeDescriptor>(visitor);
 }
 
-void Model::traverseDFS(tree_utils::classification::TreeNodeVisitor & visitor) const
-{
-    _impl->traverseDFS<tree_utils::classification::LeafNodeDescriptor>(visitor);
-}
-
-void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor & visitor) const
-{
-    _impl->traverseBFS<tree_utils::classification::LeafNodeDescriptor>(visitor);
-}
-
 services::Status Parameter::check() const
 {
     services::Status s;

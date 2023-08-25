@@ -36,20 +36,7 @@ namespace kmeans
 {
 namespace init
 {
-DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(size_t _nClusters, bool bFirstIteration)
-    : Parameter(_nClusters), outputForStep5Required(false), firstIteration(bFirstIteration)
-{}
-
-DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter & other)
-    : Parameter(other), outputForStep5Required(other.outputForStep5Required), firstIteration(other.firstIteration)
-{}
-
-services::Status DistributedStep2LocalPlusPlusParameter::check() const
-{
-    return services::Status();
-}
-
-Parameter::Parameter(size_t nClusters, size_t offset, size_t seed)
+Parameter::Parameter(size_t _nClusters, size_t _offset, size_t _seed)
     : nClusters(_nClusters),
       offset(_offset),
       nRowsTotal(0),
@@ -72,7 +59,7 @@ Parameter::Parameter(const Parameter & other)
       seed(other.seed),
       oversamplingFactor(other.oversamplingFactor),
       nRounds(other.nRounds),
-      engine(other.engine),
+      engine(other.engine), 
       nTrials(other.nTrials)
 {}
 
@@ -82,6 +69,14 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(nClusters > 0, ErrorIncorrectParameter, ParameterName, nClustersStr());
     return services::Status();
 }
+
+DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(size_t _nClusters, bool bFirstIteration)
+    : Parameter(_nClusters), outputForStep5Required(false), firstIteration(bFirstIteration)
+{}
+
+DistributedStep2LocalPlusPlusParameter::DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter & other)
+    : Parameter(other), outputForStep5Required(other.outputForStep5Required), firstIteration(other.firstIteration)
+{}
 
 } // namespace init
 } // namespace kmeans

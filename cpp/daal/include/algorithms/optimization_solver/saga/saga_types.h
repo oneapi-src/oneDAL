@@ -210,7 +210,7 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
