@@ -22,6 +22,7 @@
 namespace dal = oneapi::dal;
 int main(int argc, char const *argv[]) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
+    const std::int64_t nBlocks = 10;
 
     const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
