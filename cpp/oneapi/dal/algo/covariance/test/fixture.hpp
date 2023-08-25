@@ -143,7 +143,7 @@ public:
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
                 covariance::result_options::means);
         INFO("run compute optional: cov cor means");
-        auto partial_result = dal::covariance::partial_compute_result();
+        dal::covariance::partial_compute_result<> partial_result;
         auto input_table = split_table_by_rows<double>(data, 10);
         for (std::int64_t i = 0; i < 10; ++i) {
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
