@@ -23,10 +23,10 @@ dal_module(
 dal_module(
     name = "linear_regression",
     dal_deps = [
-        "@onedal//cpp/oneapi/dal/algo/linear_regression:core",
+        ":core",
+        ":parameters",
         "@onedal//cpp/oneapi/dal/algo/linear_regression/detail",
         "@onedal//cpp/oneapi/dal/algo/linear_regression/backend",
-        "@onedal//cpp/oneapi/dal/algo/linear_regression:parameters",
     ]
 )
 
