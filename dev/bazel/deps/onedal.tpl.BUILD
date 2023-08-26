@@ -55,6 +55,20 @@ cc_library(
 )
 
 cc_library(
+    name = "parameters_static",
+    srcs = [
+        "lib/intel64/libonedal_parameters.a",
+    ],
+    deps = [
+        ":headers",
+        ":onedal_static",
+        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
+        #       Remove TBB from deps once problem with vml_ipp is resolved
+        "@tbb//:tbb_binary",
+    ],
+)
+
+cc_library(
     name = "onedal_static_dpc",
     srcs = [
         "lib/intel64/libonedal_dpc.a",
@@ -62,6 +76,20 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_sycl",
+    ],
+)
+
+cc_library(
+    name = "parameters_static_dpc",
+    srcs = [
+        "lib/intel64/libonedal_parameters_dpc.a",
+    ],
+    deps = [
+        ":headers",
+        ":onedal_static_dpc",
+        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
+        #       Remove TBB from deps once problem with vml_ipp is resolved
+        "@tbb//:tbb_binary",
     ],
 )
 
@@ -101,6 +129,17 @@ cc_library(
 )
 
 cc_library(
+    name = "parameters_dynamic",
+    srcs = [
+        "lib/intel64/libonedal_parameters.so",
+    ],
+    deps = [
+        ":headers",
+        ":onedal_dynamic",
+    ],
+)
+
+cc_library(
     name = "onedal_dynamic_dpc",
     srcs = [
         "lib/intel64/libonedal_dpc.so",
@@ -108,5 +147,17 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_sycl",
+    ],
+)
+
+cc_library(
+    name = "parameters_dynamic_dpc",
+    srcs = [
+        "lib/intel64/libonedal_parameters_dpc.so",
+    ],
+    deps = [
+        ":headers",
+        ":onedal_sycl",
+        ":onedal_dynamic_dpc",
     ],
 )
