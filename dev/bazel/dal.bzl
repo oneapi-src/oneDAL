@@ -283,7 +283,6 @@ def dal_collect_parameters(name, root, modules=[], target="parameters", dal_deps
     for module_name in modules:
         module_label = "{0}/{1}:{2}".format(root, module_name, target)
         module_deps.append(module_label)
-    print("Parametrized: ", module_deps)
     dal_module(
         name = name,
         dal_deps = dal_deps + module_deps,
