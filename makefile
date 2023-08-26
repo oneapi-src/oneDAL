@@ -778,10 +778,11 @@ endif
 $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y): \
-    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(WORKDIR.lib)/$(oneapi_y) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(daaldep.rt.seq)
+#$(WORKDIR.lib)/$(parameters_y): LOPT += $(release.ONEAPI.LIBS_Y)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 ifdef OS_is_win
@@ -806,10 +807,11 @@ endif
 $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y.dpc): \
-    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(WORKDIR.lib)/$(oneapi_y.dpc) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(daaldep.rt.dpc)
+#$(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(release.ONEAPI.LIBS_Y.dpc)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
@@ -834,6 +836,7 @@ THR.tmpdir_a := $(WORKDIR)/threading_static
 THR.tmpdir_y := $(WORKDIR)/threading_dynamic
 THR_TBB.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_tbb.$o))
 THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
+
 -include $(THR.tmpdir_a)/*.d
 -include $(THR.tmpdir_y)/*.d
 
