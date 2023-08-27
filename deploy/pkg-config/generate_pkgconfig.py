@@ -20,12 +20,12 @@ import glob
 import argparse
 from sys import platform
 
-LIBS_PAR_STAT = ['onedal', 'onedal_core', 'onedal_thread']
+LIBS_PAR_STAT = ['onedal', 'onedal_core', 'onedal_thread', 'onedal_parameters']
 
 if platform in ["win32", "win64"]:
-    LIBS_PAR_DYN = ['onedal', 'onedal_core']
+    LIBS_PAR_DYN = ['onedal', 'onedal_core', 'onedal_parameters']
 else:
-    LIBS_PAR_DYN = ['onedal', 'onedal_core', 'onedal_thread']
+    LIBS_PAR_DYN = ['onedal', 'onedal_core', 'onedal_thread', 'onedal_parameters']
 
 RESULT_PKG_CONFIGS = {
     'dal-static-threading-host': {

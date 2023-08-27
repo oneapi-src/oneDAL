@@ -62,9 +62,6 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_static",
-        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
-        #       Remove TBB from deps once problem with vml_ipp is resolved
-        "@tbb//:tbb_binary",
     ],
 )
 
@@ -87,9 +84,6 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_static_dpc",
-        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
-        #       Remove TBB from deps once problem with vml_ipp is resolved
-        "@tbb//:tbb_binary",
     ],
 )
 
@@ -157,7 +151,6 @@ cc_library(
     ],
     deps = [
         ":headers",
-        ":onedal_sycl",
         ":onedal_dynamic_dpc",
     ],
 )

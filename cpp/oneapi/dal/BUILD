@@ -82,6 +82,7 @@ dal_static_lib(
     name = "static_parameters",
     lib_name = "onedal_parameters",
     dal_deps = [
+        ":static",
         "@onedal//cpp/oneapi/dal/algo:parameters",
     ],
 )
@@ -99,6 +100,7 @@ dal_dynamic_lib(
     name = "dynamic_parameters",
     lib_name = "onedal_parameters",
     dal_deps = [
+        ":dynamic",
         "@onedal//cpp/oneapi/dal/algo:parameters",
     ],
 )
