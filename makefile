@@ -969,11 +969,19 @@ _release:    _release_c _release_jj
 _release_c:  _release_c_h _release_common
 _release_jj: _release_common
 
+_parameters_c: info.building.parameters.C++.part
+_parameters_c: $(WORKDIR.lib)/$(parameters_a) $(WORKDIR.lib)/$(parameters_y)
+
 _oneapi_c: info.building.oneapi.C++.part
+_oneapi_c: _parameters_c
 _oneapi_c: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
 
+_parameters_dpc: info.building.parameters.DPC++.part
+_parameters_dpc: $(WORKDIR.lib)/$(parameters_a.dpc) $(WORKDIR.lib)/$(parameters_y.dpc)
+
 _oneapi_dpc: info.building.oneapi.DPC++.part
-_oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc)
+_oneapi_dpc: _parameters_dpc
+_oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc) $(WORKDIR.lib)/$(oneapi_y.dpc)
 
 _release_oneapi_c: _release_oneapi_c_h _release_oneapi_common
 _release_oneapi_dpc: _release_oneapi_c _release_oneapi_common
