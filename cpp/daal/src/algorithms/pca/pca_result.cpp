@@ -48,7 +48,8 @@ Result::Result(const Result & o)
     {
         Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
     }
-    else {
+    else
+    {
         Result();
     }
 }
