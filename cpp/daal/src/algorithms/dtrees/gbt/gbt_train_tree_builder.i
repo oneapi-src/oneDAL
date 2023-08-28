@@ -347,7 +347,7 @@ bool TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::initMemHelpe
     if (nFeat != _ctx.nFeaturesPerNode())
     {
         // cast to 64-bits uint to avoid potential overflow
-        const uint64_t nFeaturesPerNode =  static_cast<uint64_t>(_ctx.nFeaturesPerNode());
+        const auto nFeaturesPerNode = static_cast<uint64_t>(_ctx.nFeaturesPerNode());
         if (nFeaturesPerNode * nFeaturesPerNode < 2 * nFeat)
             featuresSampleBufSize = 2 * _ctx.nFeaturesPerNode();
         else
