@@ -45,9 +45,9 @@ cc_library(
 )
 
 cc_library(
-    name = "onedal_static",
+    name = "parameters_static",
     srcs = [
-        "lib/intel64/libonedal.a",
+        "lib/intel64/libonedal_parameters.a",
     ],
     deps = [
         ":headers",
@@ -55,13 +55,23 @@ cc_library(
 )
 
 cc_library(
-    name = "parameters_static",
+    name = "onedal_static",
     srcs = [
-        "lib/intel64/libonedal_parameters.a",
+        "lib/intel64/libonedal.a",
     ],
     deps = [
         ":headers",
-        ":onedal_static",
+        ":parameters_static",
+    ],
+)
+
+cc_library(
+    name = "parameters_static_dpc",
+    srcs = [
+        "lib/intel64/libonedal_parameters_dpc.a",
+    ],
+    deps = [
+        ":headers",
     ],
 )
 
@@ -73,17 +83,7 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_sycl",
-    ],
-)
-
-cc_library(
-    name = "parameters_static_dpc",
-    srcs = [
-        "lib/intel64/libonedal_parameters_dpc.a",
-    ],
-    deps = [
-        ":headers",
-        ":onedal_static_dpc",
+        ":parameters_static_dpc",
     ],
 )
 
@@ -113,9 +113,9 @@ cc_library(
 )
 
 cc_library(
-    name = "onedal_dynamic",
+    name = "parameters_dynamic",
     srcs = [
-        "lib/intel64/libonedal.so",
+        "lib/intel64/libonedal_parameters.so",
     ],
     deps = [
         ":headers",
@@ -123,13 +123,23 @@ cc_library(
 )
 
 cc_library(
-    name = "parameters_dynamic",
+    name = "onedal_dynamic",
     srcs = [
-        "lib/intel64/libonedal_parameters.so",
+        "lib/intel64/libonedal.so",
     ],
     deps = [
         ":headers",
-        ":onedal_dynamic",
+        ":parameters_dynamic",
+    ],
+)
+
+cc_library(
+    name = "parameters_dynamic_dpc",
+    srcs = [
+        "lib/intel64/libonedal_parameters_dpc.so",
+    ],
+    deps = [
+        ":headers",
     ],
 )
 
@@ -141,16 +151,6 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_sycl",
-    ],
-)
-
-cc_library(
-    name = "parameters_dynamic_dpc",
-    srcs = [
-        "lib/intel64/libonedal_parameters_dpc.so",
-    ],
-    deps = [
-        ":headers",
-        ":onedal_dynamic_dpc",
+        ":parameters_dynamic_dpc",
     ],
 )
