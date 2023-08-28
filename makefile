@@ -946,8 +946,8 @@ daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
 daal_c: _daal _release_c
 
 oneapi: oneapi_c oneapi_dpc
-oneapi_c: _oneapi_c _release_oneapi_c
-oneapi_dpc: _oneapi_dpc _release_oneapi_dpc
+oneapi_c: _oneapi_c _release_oneapi_c _release_parameters_c
+oneapi_dpc: _oneapi_dpc _release_oneapi_dpc _release_parameters_dpc
 
 onedal: oneapi daal
 onedal_c: daal_c oneapi_c
@@ -973,18 +973,19 @@ _parameters_c: info.building.parameters.C++.part
 _parameters_c: $(WORKDIR.lib)/$(parameters_a) $(WORKDIR.lib)/$(parameters_y)
 
 _oneapi_c: info.building.oneapi.C++.part
-_oneapi_c: _parameters_c
 _oneapi_c: $(WORKDIR.lib)/$(oneapi_a) $(WORKDIR.lib)/$(oneapi_y)
 
 _parameters_dpc: info.building.parameters.DPC++.part
 _parameters_dpc: $(WORKDIR.lib)/$(parameters_a.dpc) $(WORKDIR.lib)/$(parameters_y.dpc)
 
 _oneapi_dpc: info.building.oneapi.DPC++.part
-_oneapi_dpc: _parameters_dpc
 _oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc) $(WORKDIR.lib)/$(oneapi_y.dpc)
 
-_release_oneapi_c: _release_oneapi_c_h _parameters_c _release_oneapi_common
-_release_oneapi_dpc: _release_oneapi_c _parameters_dpc _release_oneapi_common
+_release_parameters_c: _parameters_c
+_release_parameters_c: _parameters_dpc
+
+_release_oneapi_c: _release_oneapi_c_h _release_oneapi_common
+_release_oneapi_dpc: _release_oneapi_c _release_oneapi_common
 
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
@@ -1027,12 +1028,12 @@ $(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia
 $(foreach x,$(release.LIBS_J),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach x,$(release.PARAMETERS.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
-$(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_parameters_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_parameters_c)))
 $(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
-$(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
-$(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_parameters_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_parameters_dpc)))
 endif
 
 ifeq ($(OS_is_win),yes)
@@ -1041,12 +1042,12 @@ $(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia)
 $(foreach x,$(release.LIBS_J),$(eval $(call .release.a_win,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
-$(foreach x,$(release.PARAMETERS.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
-$(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_parameters_c)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_parameters_c)))
 $(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
-$(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
-$(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_parameters_dpc)))
+$(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_parameters_dpc)))
 endif
 
 ifneq ($(MKLGPUFPKDIR),)
