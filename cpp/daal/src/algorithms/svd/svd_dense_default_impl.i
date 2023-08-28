@@ -61,15 +61,16 @@ Status compute_svd_on_one_node(DAAL_INT m, DAAL_INT n, const algorithmFPType * c
     algorithmFPType workQuery;
 
     /* buffer size query */
-    Lapack<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, const_cast<algorithmFPType *>(a), lda, s, u, ldu, vt, ldvt, &workQuery, workDim,
-                                         &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, const_cast<algorithmFPType *>(a), lda, s, u, ldu, vt, ldvt, &workQuery, workDim,
+                                             &mklStatus);
     workDim = workQuery;
 
     /* computation block */
     TArray<algorithmFPType, cpu> workPtr(workDim);
     algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
-    Lapack<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, const_cast<algorithmFPType *>(a), lda, s, u, ldu, vt, ldvt, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, const_cast<algorithmFPType *>(a), lda, s, u, ldu, vt, ldvt, work, workDim,
+                                             &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -105,7 +106,7 @@ Status compute_svd_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, 
     algorithmFPType workQuery[2]; /* align? */
 
     /* buffer size query */
-    Lapack<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, workQuery, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, workQuery, workDim, &mklStatus);
     workDim = workQuery[0];
 
     /* computation block */
@@ -113,7 +114,7 @@ Status compute_svd_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, 
     algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
-    Lapack<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -157,11 +158,11 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    Lapack<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
 
     // a bug in Intel(R) MKL with XORGQR workDim query, to be fixed
     const DAAL_INT nColumnsInQ = daal::services::internal::min<cpu, DAAL_INT>(m, n);
-    Lapack<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, &workQuery[1], workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, &workQuery[1], workDim, &mklStatus);
     workDim = daal::services::internal::max<cpu, algorithmFPType>(workQuery[0], workQuery[1]);
 
     // allocate buffer
@@ -170,7 +171,7 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
     // Compute QR decomposition
-    Lapack<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -210,7 +211,7 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     }
 
     // Get Q of the QR factorization formed by xgeqrf
-    Lapack<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -236,7 +237,7 @@ Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q,
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    Lapack<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
     workDim = workQuery[0];
 
     // a bug in Intel(R) MKL with XORGQR workDim query, to be fixed
@@ -249,7 +250,7 @@ Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q,
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
     // Compute QR decomposition
-    Lapack<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -267,7 +268,7 @@ Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q,
     }
 
     // Get Q of the QR factorization formed by xgeqrf
-    Lapack<algorithmFPType, cpu>::xxorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xxorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -286,7 +287,7 @@ Status compute_gemm_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAA
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    BlasInst<algorithmFPType, cpu>::xgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 
     return Status();
 }
@@ -300,7 +301,7 @@ Status compute_gemm_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a,
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 
     return Status();
 }

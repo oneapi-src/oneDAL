@@ -89,7 +89,7 @@ class LBFGSTask : public LBFGSTaskBase<algorithmFPType, cpu>
 {
 public:
     typedef LBFGSTaskBase<algorithmFPType, cpu> super;
-    typedef daal::internal::RNGs<int, cpu> RNGs;
+    typedef daal::internal::RNGsInst<int, cpu> RNGs;
 
     LBFGSTask(const Parameter * parameter, NumericTable * minimum);
 

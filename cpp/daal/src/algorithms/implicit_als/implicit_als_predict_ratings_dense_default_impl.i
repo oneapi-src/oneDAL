@@ -69,8 +69,8 @@ services::Status ImplicitALSPredictKernel<algorithmFPType, cpu>::compute(const N
     const algorithmFPType one(1.0);
     const algorithmFPType zero(0.0);
 
-    Blas<algorithmFPType, cpu>::xgemm(&trans, &notrans, (DAAL_INT *)&nItems, (DAAL_INT *)&nUsers, (DAAL_INT *)&nFactors, &one, itemsFactors,
-                                      (DAAL_INT *)&nFactors, usersFactors, (DAAL_INT *)&nFactors, &zero, ratings, (DAAL_INT *)&nItems);
+    BlasInst<algorithmFPType, cpu>::xgemm(&trans, &notrans, (DAAL_INT *)&nItems, (DAAL_INT *)&nUsers, (DAAL_INT *)&nFactors, &one, itemsFactors,
+                                          (DAAL_INT *)&nFactors, usersFactors, (DAAL_INT *)&nFactors, &zero, ratings, (DAAL_INT *)&nItems);
     return services::Status();
 }
 

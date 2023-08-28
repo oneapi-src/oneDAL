@@ -45,6 +45,12 @@ micromkl_dpc_repo(
     sha256 = "1bd9e3ef850d95d1ee00e0f04943c8ed2490175fca6a7b331cab91a124ab301e",
 )
 
+load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
+openblas_repo(
+    name = "openblas",
+    root_env_var = "OPENBLASROOT",
+)
+
 load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")
 tbb_repo(
     name = "tbb",

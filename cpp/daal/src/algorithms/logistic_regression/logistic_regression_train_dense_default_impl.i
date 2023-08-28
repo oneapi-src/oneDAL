@@ -110,7 +110,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(const H
             if (count && (count != nRows))
             {
                 auto val   = algorithmFPType(count) / (algorithmFPType(nRows) - algorithmFPType(count)); //mean/(1-mean)
-                initialVal = daal::internal::Math<algorithmFPType, cpu>::sLog(val);
+                initialVal = daal::internal::MathInst<algorithmFPType, cpu>::sLog(val);
             }
             pb[0] = initialVal;
         }

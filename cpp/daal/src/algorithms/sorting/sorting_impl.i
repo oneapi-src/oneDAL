@@ -46,7 +46,7 @@ Status SortingKernel<method, algorithmFPType, cpu>::compute(const NumericTable &
     DAAL_CHECK_BLOCK_STATUS(otputBlock);
     algorithmFPType * sortedData = otputBlock.get();
 
-    DAAL_CHECK(!(Statistics<algorithmFPType, cpu>::xSort(const_cast<algorithmFPType *>(data), nFeatures, nVectors, sortedData)), ErrorSorting);
+    DAAL_CHECK(!(StatisticsInst<algorithmFPType, cpu>::xSort(const_cast<algorithmFPType *>(data), nFeatures, nVectors, sortedData)), ErrorSorting);
     return Status();
 }
 

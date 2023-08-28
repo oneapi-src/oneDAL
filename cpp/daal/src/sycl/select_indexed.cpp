@@ -259,7 +259,7 @@ Status QuickSelectIndexed::init(Params & par)
         return Status(ErrorIncorrectEngineParameter);
     }
     size_t numbers[_maxSeqLength];
-    daal::internal::RNGs<size_t, sse2> rng;
+    daal::internal::RNGsInst<size_t, DAAL_BASE_CPU> rng;
     rng.uniform(_nRndSeq, &numbers[0], engineImpl->getState(), 0, (size_t)(_nRndSeq - 1));
     float values[_maxSeqLength];
     for (uint32_t i = 0; i < _nRndSeq; i++)

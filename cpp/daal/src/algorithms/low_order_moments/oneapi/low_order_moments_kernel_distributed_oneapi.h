@@ -151,7 +151,7 @@ private:
 
     NumericTablePtr resultTable[TaskInfoDistributed<algorithmFPType, scope>::nPartialResults];
     services::internal::sycl::UniversalBuffer bAuxBuffers[TaskInfoDistributed<algorithmFPType, scope>::nBuffers];
-    daal::services::internal::TArray<algorithmFPType, sse2> bAuxHostBuffers[TaskInfoDistributed<algorithmFPType, scope>::nBuffers];
+    daal::services::internal::TArray<algorithmFPType, DAAL_BASE_CPU> bAuxHostBuffers[TaskInfoDistributed<algorithmFPType, scope>::nBuffers];
 
     BlockDescriptor<algorithmFPType> resultBD[TaskInfoDistributed<algorithmFPType, scope>::nPartialResults];
 };

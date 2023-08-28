@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 #define __MICROMKL_INCLUDE_GUARD__
+
 #include "oneapi/dal/backend/micromkl/macro.hpp"
 
 /* ================================== SYEVD ================================= */
@@ -67,9 +68,13 @@
      1,                                    \
      1)
 
+#ifdef ONEDAL_REF
+FUNC_TEMPLATE(unused, syevd, SYEVD_F_DECLARGS, SYEVD_C_DECLARGS, SYEVD_F_CALLARGS, SYEVD_C_CALLARGS)
+#else
 FUNC_TEMPLATE(fpk_lapack,
               syevd,
               SYEVD_F_DECLARGS,
               SYEVD_C_DECLARGS,
               SYEVD_F_CALLARGS,
               SYEVD_C_CALLARGS)
+#endif

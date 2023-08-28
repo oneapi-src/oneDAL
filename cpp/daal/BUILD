@@ -11,20 +11,26 @@ load("@onedal//dev/bazel:daal.bzl",
 daal_module(
     name = "microvmlipp",
     override_deps_lib_tag = True,
-    deps = [
-        "@micromkl//:vml_ipp",
-        # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
-        #       Remove TBB from deps once problem with vml_ipp is resolved
-        "@tbb//:tbb_binary",
-    ],
+    deps = select({
+        "@config//:backend_ref": [ ],
+        "//conditions:default": [
+                                    "@micromkl//:vml_ipp",
+                                    # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
+                                    #       Remove TBB from deps once problem with vml_ipp is resolved
+                                    "@tbb//:tbb_binary",
+                                ],
+        }),
 )
 
 daal_module(
-    name = "micromkl_thread",
+    name = "mathbackend_thread",
     override_deps_lib_tag = True,
-    deps = [
-        "@micromkl//:mkl_thr",
-    ],
+    deps = select({
+        "@config//:backend_ref": [ "@openblas//:openblas",
+                                 ],
+        "//conditions:default": [ "@micromkl//:mkl_thr", 
+                                ],
+        }),
 )
 
 daal_patch_kernel_defines(
@@ -40,19 +46,24 @@ daal_module(
 
 daal_module(
     name = "includes",
-    hdrs = [
-        ":kernel_defines",
+    hdrs = [ ":kernel_defines",
     ],
     includes = [ "." ],
     defines = [
         "DAAL_NOTHROW_EXCEPTIONS",
         "DAAL_HIDE_DEPRECATED",
     ],
-    deps = [
-        ":public_includes",
-        "@micromkl//:headers",
-        "@micromkl_dpc//:headers",
-    ],
+    deps = select({
+        "@config//:backend_ref": [ 
+                                   ":public_includes",
+                                   "@openblas//:headers",
+                                 ],
+        "//conditions:default": [
+                                  ":public_includes",
+                                  "@micromkl//:headers",
+                                  "@micromkl_dpc//:headers",
+                                ],
+        }),
 )
 
 daal_generate_version(
@@ -111,11 +122,17 @@ daal_module(
     name = "sycl",
     hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
     srcs = glob(["src/sycl/**/*.cpp"]),
-    deps = [
-        ":services",
-        "@onedal//cpp/daal/src/algorithms/engines:kernel",
-        "@micromkl_dpc//:headers",
-    ],
+    deps = select({
+            "@config//:backend_ref": [ 
+                                    ":services",
+                                    "@onedal//cpp/daal/src/algorithms/engines:kernel",
+                                        ],
+            "//conditions:default": [ 
+                                    ":services",
+                                    "@onedal//cpp/daal/src/algorithms/engines:kernel",
+                                    "@micromkl_dpc//:headers",
+                                    ],
+        }),
 )
 
 daal_module(
@@ -128,12 +145,20 @@ daal_module(
         "TBB_SUPPRESS_DEPRECATED_MESSAGES",
         "TBB_USE_ASSERT=0",
     ],
-    deps = [
-        ":threading_headers",
-        ":micromkl_thread",
-        "@tbb//:tbb",
-        "@tbb//:tbbmalloc",
-    ],
+    deps = select({
+            "@config//:backend_ref": [ 
+                                          ":threading_headers",
+                                          ":mathbackend_thread",
+                                          "@tbb//:tbb",
+                                          "@tbb//:tbbmalloc",
+                                        ],
+            "//conditions:default": [ 
+                                      ":threading_headers",
+                                      ":mathbackend_thread",
+                                      "@tbb//:tbb",
+                                      "@tbb//:tbbmalloc",
+                                    ],
+        }),
 )
 
 daal_module(
@@ -242,7 +267,10 @@ daal_dynamic_lib(
     deps = [
         ":threading_tbb",
     ],
-    def_file = "src/threading/export_lnx32e.def",
+    def_file = select({
+        "@config//:backend_ref": "src/threading/export_lnx32e.ref.def",
+        "//conditions:default": "src/threading/export_lnx32e.mkl.def", 
+        }),
 )
 
 daal_module(

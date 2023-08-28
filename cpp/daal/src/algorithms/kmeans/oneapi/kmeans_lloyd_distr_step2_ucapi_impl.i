@@ -175,16 +175,16 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::finalizeCompute(size_
     const uint32_t p         = static_cast<uint32_t>(nDataColumnsAsSizeT);
     int result               = 0;
 
-    ReadRows<int, sse2> mtInClusterS0(*const_cast<NumericTable *>(a[0]), 0, nClusters);
+    ReadRows<int, DAAL_BASE_CPU> mtInClusterS0(*const_cast<NumericTable *>(a[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusterS0);
-    ReadRows<algorithmFPType, sse2> mtInClusterS1(*const_cast<NumericTable *>(a[1]), 0, nClusters);
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> mtInClusterS1(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusterS1);
-    ReadRows<algorithmFPType, sse2> mtInTargetFunc(*const_cast<NumericTable *>(a[2]), 0, 1);
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> mtInTargetFunc(*const_cast<NumericTable *>(a[2]), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtInTargetFunc);
 
-    ReadRows<algorithmFPType, sse2> mtCValues(*const_cast<NumericTable *>(a[3]), 0, nClusters);
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> mtCValues(*const_cast<NumericTable *>(a[3]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtCValues);
-    ReadRows<algorithmFPType, sse2> mtCCentroids(*const_cast<NumericTable *>(a[4]), 0, nClusters);
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> mtCCentroids(*const_cast<NumericTable *>(a[4]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtCCentroids);
 
     const int * clusterS0             = mtInClusterS0.get();
@@ -194,9 +194,9 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::finalizeCompute(size_
     const algorithmFPType * cValues    = mtCValues.get();
     const algorithmFPType * cCentroids = mtCCentroids.get();
 
-    WriteOnlyRows<algorithmFPType, sse2> mtClusters(*const_cast<NumericTable *>(r[0]), 0, nClusters);
+    WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> mtClusters(*const_cast<NumericTable *>(r[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusters);
-    WriteOnlyRows<algorithmFPType, sse2> mtTargetFunct(*const_cast<NumericTable *>(r[1]), 0, 1);
+    WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> mtTargetFunct(*const_cast<NumericTable *>(r[1]), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtTargetFunct);
 
     algorithmFPType * clusters  = mtClusters.get();

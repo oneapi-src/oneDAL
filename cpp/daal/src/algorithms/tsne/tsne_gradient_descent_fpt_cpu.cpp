@@ -31,7 +31,7 @@
         #include "tsne_gradient_descent_avx512_impl.i"
 
     #endif // __CPUID__(DAAL_CPU) == __avx512__
-#endif     // __INTEL_COMPILER
+#endif     // DAAL_INTEL_CPP_COMPILER
 
 namespace daal
 {

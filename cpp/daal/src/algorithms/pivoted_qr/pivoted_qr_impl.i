@@ -68,7 +68,7 @@ ServiceStatus compute_pivoted_QR_on_one_node(const DAAL_INT m, const DAAL_INT n,
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    Lapack<algorithmFPType, cpu>::xgeqp3(m, n, a_q, lda_q, jpvt, tau, workQuery, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xgeqp3(m, n, a_q, lda_q, jpvt, tau, workQuery, workDim, &mklStatus);
     workDim = workQuery[0];
 
     // allocate buffer
@@ -77,7 +77,7 @@ ServiceStatus compute_pivoted_QR_on_one_node(const DAAL_INT m, const DAAL_INT n,
     if (!work) return SERV_ERR_MALLOC;
 
     // Compute QR decomposition
-    Lapack<algorithmFPType, cpu>::xgeqp3(m, n, a_q, lda_q, jpvt, tau, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xgeqp3(m, n, a_q, lda_q, jpvt, tau, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
@@ -94,7 +94,7 @@ ServiceStatus compute_pivoted_QR_on_one_node(const DAAL_INT m, const DAAL_INT n,
     }
 
     // Get Q of the QR factorization formed by xgeqp3
-    Lapack<algorithmFPType, cpu>::xorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
+    LapackInst<algorithmFPType, cpu>::xorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
     if (mklStatus != 0)
     {
