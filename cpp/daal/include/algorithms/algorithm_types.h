@@ -73,7 +73,7 @@ struct Parameter
  * \brief Implements the abstract interface HyperparameterIface.
  *        Represents the common interface for performance-related hyperparameters of the computation.
  */
-struct HyperparameterIface
+struct DAAL_EXPORT HyperparameterIface
 {
     /**
      * Sets integer hyperparameter into this structure
@@ -126,7 +126,7 @@ struct HyperparameterBaseImpl : public HyperparameterIface
  *         Algorithm-specific hyperparameters are represented as derivative classes
  *         of the Hyperparameter class.
  */
-struct Hyperparameter : protected HyperparameterIface
+struct DAAL_EXPORT Hyperparameter : protected HyperparameterIface
 {
     DAAL_NEW_DELETE();
 
