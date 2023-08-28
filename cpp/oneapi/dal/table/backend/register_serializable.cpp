@@ -21,11 +21,13 @@
 
 using oneapi::dal::backend::empty_table_impl;
 using oneapi::dal::backend::homogen_table_impl;
-//using oneapi::dal::backend::heterogen_table_impl;
 using oneapi::dal::backend::csr_table_impl;
 
 ONEDAL_REGISTER_SERIALIZABLE(empty_table_impl)
 ONEDAL_REGISTER_SERIALIZABLE(homogen_table_impl)
-//ONEDAL_REGISTER_SERIALIZABLE(heterogen_table_impl)
 ONEDAL_REGISTER_SERIALIZABLE(csr_table_impl)
 ONEDAL_REGISTER_SERIALIZABLE_INIT(tables)
+
+// TODO: Implement serialization for heterogen table
+// using oneapi::dal::backend::heterogen_table_impl;
+// ONEDAL_REGISTER_SERIALIZABLE(heterogen_table_impl)
