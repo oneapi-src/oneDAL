@@ -983,8 +983,8 @@ _oneapi_dpc: info.building.oneapi.DPC++.part
 _oneapi_dpc: _parameters_dpc
 _oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc) $(WORKDIR.lib)/$(oneapi_y.dpc)
 
-_release_oneapi_c: _release_oneapi_c_h _release_oneapi_common
-_release_oneapi_dpc: _release_oneapi_c _release_oneapi_common
+_release_oneapi_c: _release_oneapi_c_h _parameters_c _release_oneapi_common
+_release_oneapi_dpc: _release_oneapi_c _parameters_dpc _release_oneapi_common
 
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
