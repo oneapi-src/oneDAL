@@ -55,8 +55,7 @@ std::pair<data_type, detail::chunked_array_base> heterogen_table::get_column_imp
     std::int64_t column) const {
     data_type dtype = this->get_metadata().get_data_type(column);
     auto array = detail::cast_impl<const detail::heterogen_table_iface>(*this).get_column(column);
-    return std::make_pair<data_type, detail::chunked_array_base>(std::move(dtype),
-                                                                 std::move(array));
+    return std::pair<data_type, detail::chunked_array_base>(std::move(dtype), std::move(array));
 }
 
 } // namespace v1
