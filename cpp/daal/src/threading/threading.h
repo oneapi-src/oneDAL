@@ -44,6 +44,7 @@ typedef void (*functype_int64)(int64_t i, const void * a);
 typedef void (*functype_int32ptr)(const int * i, const void * a);
 typedef void (*functype_static)(size_t i, size_t tid, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
+typedef void (*functype_blocked_size)(size_t first, size_t last, const void * a);
 typedef void * (*tls_functype)(const void * a);
 typedef void (*tls_reduce_functype)(void * p, const void * a);
 typedef void (*functype_break)(int i, bool & needBreak, const void * a);
@@ -65,6 +66,7 @@ extern "C"
     DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func);
     DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
+    DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const void * a, daal::functype_blocked_size func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
 
