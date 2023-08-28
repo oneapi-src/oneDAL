@@ -42,7 +42,7 @@ class ONEDAL_EXPORT chunked_array : public detail::chunked_array_base {
 public:
     using data_t = T;
 
-    /// @brief       Move constrtuctor
+    /// @brief       Move constructor
     /// @param array Source array
     chunked_array(chunked_array&& array) : chunked_array_base{ std::forward<base_t>(array) } {}
 
