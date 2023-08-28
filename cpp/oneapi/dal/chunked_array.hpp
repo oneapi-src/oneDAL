@@ -170,7 +170,7 @@ public:
         return this->get_data(policy);
     }
 
-    /// @brief       Constructs array of pointers to the data chunksd
+    /// @brief       Constructs array of pointers to the data chunks
     /// @param queue `sycl::queue` storing information abot the device
     /// @param alloc Type of memory allocation for the result
     /// @param deps  List of data dependencies
