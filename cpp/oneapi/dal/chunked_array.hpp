@@ -50,7 +50,7 @@ public:
     /// @param array Source array
     chunked_array(const chunked_array& array) : chunked_array_base{ array } {}
 
-    /// @brief             Coonstructs an empty `chunked_array`
+    /// @brief             Constructs an empty `chunked_array`
     ///                    with unpopulated chunks
     /// @param chunk_count Number of empty chunks in the
     ///                    constructed `chunked_array`
