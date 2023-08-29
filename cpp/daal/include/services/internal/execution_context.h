@@ -144,7 +144,11 @@ private:
         }
         else
         {
-            return new daal::services::internal::sycl::SyclExecutionContextImpl(queue);
+            try {
+                return new daal::services::internal::sycl::SyclExecutionContextImpl(queue);
+            } catch (const std::runtime_error& e) {
+                throw e;
+            }
         }
     }
 };

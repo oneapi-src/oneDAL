@@ -201,6 +201,7 @@ public:
     explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue)
         : _deviceQueue(deviceQueue), _kernelFactory(_deviceQueue), _kernelScheduler(_deviceQueue)
     {
+        throw std::runtime_error("CPP SYCL interfaces have been deprecated as of 2024.0 release.");
         const auto & device          = _deviceQueue.get_device();
         _infoDevice.isCpu            = device.is_cpu();
         _infoDevice.maxWorkGroupSize = device.get_info< ::sycl::info::device::max_work_group_size>();
