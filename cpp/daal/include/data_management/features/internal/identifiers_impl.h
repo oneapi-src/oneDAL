@@ -212,11 +212,7 @@ public:
 
         /* Check that size of 'InternalIndex' type is enough to store number of
          * features and is able to store intermediate result of computations */
-        if ((InternalIndex)numberOfFeatures + _index > (std::numeric_limits<InternalIndex>::max)())
-        {
-            services::internal::tryAssignStatusAndThrow(status, services::ErrorIncorrectIndex);
-            return FeatureIndexTraits::invalid();
-        }
+        DAAL_OVERFLOW_CHECK_BY_ADDING(InternalIndex, numberOfFeatures, _index);
 
         /* Positive indices in the range [0, nf - 1] and negative indices in the range [ -nf, -1 ] are allowed.
          * Negative indices should be interpreted as a result of subtraction nf - abs(index) */

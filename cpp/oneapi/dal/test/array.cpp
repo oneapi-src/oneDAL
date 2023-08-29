@@ -144,7 +144,6 @@ TEST("can make owning array from non owning readonly") {
     REQUIRE(arr.get_count() == 3);
     REQUIRE(arr.get_data() == data);
     REQUIRE(!arr.has_mutable_data());
-    // ASSERT_THROW(arr.get_mutable_data(), std::bad_variant_access);
 
     arr.need_mutable_data();
 
@@ -232,6 +231,33 @@ TEST("can be created from shared_ptr with const data") {
         REQUIRE(darr[i] == float(i));
     }
     delete[] data;
+}
+
+TEST("can get slice of data") {
+    constexpr std::int64_t size = 1024;
+    constexpr std::int64_t half = size / 2l;
+    constexpr std::int64_t quarter = half / 2l;
+
+    auto* const ptr = new float[size];
+    for (std::int64_t i = 0; i < size; i++) {
+        ptr[i] = float(i);
+    }
+
+    array arr(ptr, size, [](auto ptr) {
+        delete[] ptr;
+    });
+
+    auto slc1 = arr.get_slice(0l, half);
+    REQUIRE(slc1.get_count() == half);
+    REQUIRE(slc1.get_data() == ptr);
+
+    auto slc2 = arr.get_slice(half, size);
+    REQUIRE(slc2.get_count() == half);
+    REQUIRE(slc2.get_data() == ptr + half);
+
+    auto slc3 = arr.get_slice(quarter, half);
+    REQUIRE(slc3.get_count() == quarter);
+    REQUIRE(slc3.get_data() == ptr + quarter);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL

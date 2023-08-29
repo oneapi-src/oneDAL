@@ -83,7 +83,10 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         optionalResult ? NumericTable::cast(optionalResult->get(iterative_solver::lastIteration)).get() : nullptr);
 
     DAAL_CHECK_STATUS(s, task.init(inputArgument, learningRateSequence, conservativeSequence, nIterations, batchIndices, optionalArgument));
-
+    if (!task.ntBatchIndices)
+    {
+        return Status(ErrorIncorrectParameter);
+    }
     algorithmFPType * workValue = task.mtWorkValue.get();
 
     NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);

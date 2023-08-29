@@ -70,6 +70,11 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const Input * algInput   = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     const Parameter * algPar = static_cast<const Parameter *>(par);
 
+    if (!algInput)
+    {
+        return services::Status(services::ErrorIncorrectParameter);
+    }
+
     const size_t nRows     = algInput->get(data)->getNumberOfRows();
     const size_t nFeatures = algInput->get(data)->getNumberOfColumns();
 
