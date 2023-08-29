@@ -737,14 +737,14 @@ $(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAP
 $(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
 
 # Filtering parameter files
-PARAMETERS.objs_a.filtered := $(filter %parameters.o,$(ONEAPI.objs_a))
-ONEAPI.objs_a.filtered := $(filter-out %parameters.o,$(ONEAPI.objs_a))
-PARAMETERS.objs_y.filtered := $(filter %parameters.o,$(ONEAPI.objs_y))
-ONEAPI.objs_y.filtered := $(filter-out %parameters.o,$(ONEAPI.objs_y))
-PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.o %parameters_dpc.o,$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.o %parameters_dpc.o,$(ONEAPI.objs_a.dpc))
-PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.o %parameters_dpc.o,$(ONEAPI.objs_y.dpc))
-ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.o %parameters_dpc.o,$(ONEAPI.objs_y.dpc))
+PARAMETERS.objs_a.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_a))
+ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_a))
+PARAMETERS.objs_y.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_y))
+ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_y))
+PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
 
 # Actual compilation
 $(foreach x,$(ONEAPI.objs_a.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
