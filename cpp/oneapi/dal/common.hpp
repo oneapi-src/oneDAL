@@ -20,14 +20,24 @@
 #include <utility>
 
 #if defined(_WIN32) || defined(_WIN64)
-#ifdef __ONEDAL_ENABLE_DLL_EXPORT__
-#define ONEDAL_EXPORT __declspec(dllexport)
-#else
-#define ONEDAL_EXPORT
-#endif
-#else
-#define ONEDAL_EXPORT
-#endif
+    #ifdef __ONEDAL_ENABLE_DLL_EXPORT__
+        #ifdef INVERT_EXPORT_IMPORT
+            #define ONEDAL_EXPORT __declspec(dllimport)
+            #define ONEDAL_IMPORT __declspec(dllexport)
+        #else
+            #define ONEDAL_EXPORT __declspec(dllexport)
+            #define ONEDAL_IMPORT __declspec(dllimport)
+        #endif // defined(INVERT_EXPORT_IMPORT)
+    #endif // __ONEDAL_ENABLE_DLL_EXPORT__
+#endif // defined(_WIN32) || defined(_WIN64)
+
+#ifndef ONEDAL_EXPORT
+    #define ONEDAL_EXPORT
+#endif // ONEDAL_EXPORT
+
+#ifndef ONEDAL_IMPORT
+    #define ONEDAL_IMPORT
+#endif // ONEDAL_IMPORT
 
 #ifndef ONEDAL_ENABLE_ASSERT
 #define __ONEDAL_ASSERT_NO_MESSAGE__(condition) \
