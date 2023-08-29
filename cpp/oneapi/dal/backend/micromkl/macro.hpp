@@ -20,11 +20,18 @@
 #error "This header cannot be included outside of micromkl module"
 #endif
 
-#define STRINGIFY(x)                     #x
-#define EXPAND(...)                      __VA_ARGS__
+#define STRINGIFY(x) #x
+#define EXPAND(...)  __VA_ARGS__
+
+#ifdef ONEDAL_REF
+#define FUNC_NAME(prefix, name)          name
+#define FUNC_NAME_CPU(cpu, prefix, name) name
+#else
 #define FUNC_NAME(prefix, name)          prefix##_##name
 #define FUNC_NAME_CPU(cpu, prefix, name) prefix##_##cpu##_##name
-#define DISPATCH_ID_NAME(cpu)            oneapi::dal::backend::cpu_dispatch_##cpu
+#endif
+
+#define DISPATCH_ID_NAME(cpu) oneapi::dal::backend::cpu_dispatch_##cpu
 
 #define FUNC_CPU_DECL(cpu, prefix, name, argdecl) \
     extern "C" void FUNC_NAME_CPU(cpu, prefix, name) argdecl;
@@ -47,14 +54,10 @@
 #define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
 
 #ifdef __APPLE__
-#define FUNC_AVX(...)   EXPAND(FUNC_CPU(avx, avx2, __VA_ARGS__))
 #define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, avx2, __VA_ARGS__))
-#define FUNC_SSSE3(...) EXPAND(FUNC_CPU(ssse3, avx2, __VA_ARGS__))
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, avx2, __VA_ARGS__))
 #else
-#define FUNC_AVX(...)   EXPAND(FUNC_CPU(avx, avx, __VA_ARGS__))
 #define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, sse42, __VA_ARGS__))
-#define FUNC_SSSE3(...) EXPAND(FUNC_CPU(ssse3, ssse3, __VA_ARGS__))
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
 #endif
 
@@ -62,10 +65,20 @@
     DISPATCH_FUNC_DECL(prefix, name, argdecl)   \
     FUNC_AVX512(prefix, name, argdecl, argcall) \
     FUNC_AVX2(prefix, name, argdecl, argcall)   \
-    FUNC_AVX(prefix, name, argdecl, argcall)    \
     FUNC_SSE42(prefix, name, argdecl, argcall)  \
-    FUNC_SSSE3(prefix, name, argdecl, argcall)  \
     FUNC_SSE2(prefix, name, argdecl, argcall)
+
+#ifdef ONEDAL_REF
+#define FUNC_DECL(prefix, floatabr, name, argdecl, argcall) \
+    FUNC(prefix, floatabr##name##_, argdecl, argcall)
+
+#define FUNC_CALL(prefix, floatabr, name, cargcall) floatabr##name##_<Cpu> cargcall;
+#else
+#define FUNC_DECL(prefix, floatabr, name, argdecl, argcall) \
+    FUNC(prefix, floatabr##name, argdecl, argcall)
+
+#define FUNC_CALL(prefix, floatabr, name, cargcall) prefix##_##floatabr##name<Cpu> cargcall;
+#endif
 
 #define INSTANTIATE_CPU(cpu, name, Float, argdecl) \
     template void name<DISPATCH_ID_NAME(cpu), Float> argdecl(Float);
@@ -82,22 +95,10 @@
 #define INSTANTIATE_AVX2(...)
 #endif
 
-#ifdef ONEDAL_CPU_DISPATCH_AVX
-#define INSTANTIATE_AVX(...) EXPAND(INSTANTIATE_CPU(avx, __VA_ARGS__))
-#else
-#define INSTANTIATE_AVX(...)
-#endif
-
 #ifdef ONEDAL_CPU_DISPATCH_SSE42
 #define INSTANTIATE_SSE42(...) EXPAND(INSTANTIATE_CPU(sse42, __VA_ARGS__))
 #else
 #define INSTANTIATE_SSE42(...)
-#endif
-
-#ifdef ONEDAL_CPU_DISPATCH_SSSE3
-#define INSTANTIATE_SSSE3(...) EXPAND(INSTANTIATE_CPU(ssse3, __VA_ARGS__))
-#else
-#define INSTANTIATE_SSSE3(...)
 #endif
 
 #define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
@@ -105,14 +106,12 @@
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
     INSTANTIATE_AVX512(name, Float, argdecl)    \
     INSTANTIATE_AVX2(name, Float, argdecl)      \
-    INSTANTIATE_AVX(name, Float, argdecl)       \
     INSTANTIATE_SSE42(name, Float, argdecl)     \
-    INSTANTIATE_SSSE3(name, Float, argdecl)     \
     INSTANTIATE_SSE2(name, Float, argdecl)
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \
-    FUNC(prefix, s##name, fargdecl(float), fargcall)                        \
-    FUNC(prefix, d##name, fargdecl(double), fargcall)                       \
+    FUNC_DECL(prefix, s, name, fargdecl(float), fargcall)                   \
+    FUNC_DECL(prefix, d, name, fargdecl(double), fargcall)                  \
                                                                             \
     namespace oneapi::dal::backend::micromkl {                              \
                                                                             \
@@ -120,10 +119,10 @@
     void name cargdecl(Float) {                                             \
         static_assert(sizeof(std::int64_t) == sizeof(DAAL_INT));            \
         if constexpr (std::is_same_v<Float, float>) {                       \
-            prefix##_s##name<Cpu> cargcall;                                 \
+            FUNC_CALL(prefix, s, name, cargcall)                            \
         }                                                                   \
         else {                                                              \
-            prefix##_d##name<Cpu> cargcall;                                 \
+            FUNC_CALL(prefix, d, name, cargcall)                            \
         }                                                                   \
     }                                                                       \
                                                                             \

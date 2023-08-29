@@ -70,10 +70,10 @@ static inline unsigned int __lzcnt_u32__(unsigned int a)
 #define PCL_MKL_ERROR       services::UnknownError
 #define PCL_PARAMETER_ERROR services::ErrorIncorrectSizeOfArray
 
-#define LAPACK_GEQRF Lapack<algorithmFPType, cpu>::xxgeqrf
-#define LAPACK_ORGQR Lapack<algorithmFPType, cpu>::xxorgqr
-#define LAPACK_ORMQR Lapack<algorithmFPType, cpu>::xxormqr
-#define LAPACK_GESVD Lapack<algorithmFPType, cpu>::xxgesvd
+#define LAPACK_GEQRF LapackInst<algorithmFPType, cpu>::xxgeqrf
+#define LAPACK_ORGQR LapackInst<algorithmFPType, cpu>::xxorgqr
+#define LAPACK_ORMQR LapackInst<algorithmFPType, cpu>::xxormqr
+#define LAPACK_GESVD LapackInst<algorithmFPType, cpu>::xxgesvd
 
 #define _MIN_(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -99,20 +99,6 @@ template <>
 inline int * get_nblocks_array<double, avx2>(int * size)
 {
     static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 20, 24, 20, 0 };
-    *size              = sizeof(array) / sizeof(int) - 1;
-    return array;
-}
-template <>
-inline int * get_nblocks_array<float, avx512_mic>(int * size)
-{
-    static int array[] = { 1, 1, 1, 2, 4, 8, 8, 16, 32, 32, 32, 64, 0 };
-    *size              = sizeof(array) / sizeof(int) - 1;
-    return array;
-}
-template <>
-inline int * get_nblocks_array<double, avx512_mic>(int * size)
-{
-    static int array[] = { 1, 1, 1, 2, 4, 8, 8, 16, 32, 32, 32, 32, 0 };
     *size              = sizeof(array) / sizeof(int) - 1;
     return array;
 }

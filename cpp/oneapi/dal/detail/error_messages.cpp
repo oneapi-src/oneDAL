@@ -47,9 +47,13 @@ MSG(spmd_version_of_algorithm_is_not_implemented,
 MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
     "SPMD version of the algorithm is not implemented for this device. "
     "Consider running on it on the other device.")
+MSG(integral_type_conversion_overflow, "Integral type conversion overflow")
+MSG(integral_type_conversion_underflow, "Integral type conversion underflow")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(invalid_column_indices_block_size, "Invalid column indices block size")
 MSG(method_not_implemented, "Method is not implemented")
+MSG(negative_integral_value_conversion_to_unsigned,
+    "Negative integral value conversion to unsigned")
 MSG(unsupported_feature_type, "Feature type is not supported")
 MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
@@ -109,6 +113,8 @@ MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acc
 MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for CSR table")
 MSG(object_does_not_provide_read_access_to_csr,
     "Given object does not provide read access to the block of CSR format")
+MSG(pull_column_interface_is_not_implemented,
+    "Pull column interface is planned but not implemented yet")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
@@ -198,16 +204,20 @@ MSG(invalid_set_of_result_options_to_search,
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
 
 /* Objective function */
-MSG(resp_column_count_is_not_eq_to_one, "Responses should be a table of size n*1");
-MSG(params_column_count_is_not_eq_to_one, "Parameters should be a table of size (p + 1) * 1");
-MSG(value_is_not_provided, "Table with value is missing");
-MSG(gradient_is_not_provided, "Table with gradient is missing");
-MSG(hessian_is_not_provided, "Table withj hessian is missing");
-MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct");
+MSG(resp_column_count_is_not_eq_to_one, "Responses should be a table of size n*1")
+MSG(params_column_count_is_not_eq_to_one, "Parameters should be a table of size (p + 1) * 1")
+MSG(value_is_not_provided, "Table with value is missing")
+MSG(gradient_is_not_provided, "Table with gradient is missing")
+MSG(hessian_is_not_provided, "Table with hessian is missing")
+MSG(incorrect_output_table_size, "On of the tables sizes in result is not correct")
 MSG(regularization_coef_is_less_than_zero,
-    "L1 and L2 regularization coefs should not be less than zero");
+    "L1 and L2 regularization coefs should not be less than zero")
 MSG(regularization_coef_is_nan_or_inf,
     "L1 and L2 regularization coefs should be real decimal numbers")
+
+/* Optimizers */
+MSG(matrix_is_not_positively_definite,
+    "Matrix passed to conjugate gradients solver should be positively defined")
 
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")

@@ -85,8 +85,9 @@ Status ImplicitALSTrainDistrStep1Kernel<algorithmFPType, cpu>::compute(implicit_
         mtFactors.set(*pFactors, iStart, nRowsToCP);
         DAAL_CHECK_BLOCK_STATUS(mtFactors);
         const algorithmFPType * srcFactorsBlock = mtFactors.get();
-        Blas<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)&nFactors, (DAAL_INT *)&nRowsToCP, &alpha,
-                                          const_cast<algorithmFPType *>(srcFactorsBlock), (DAAL_INT *)&nFactors, &beta, cp, (DAAL_INT *)&nFactors);
+        BlasInst<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)&nFactors, (DAAL_INT *)&nRowsToCP, &alpha,
+                                              const_cast<algorithmFPType *>(srcFactorsBlock), (DAAL_INT *)&nFactors, &beta, cp,
+                                              (DAAL_INT *)&nFactors);
     }
     return Status();
 }

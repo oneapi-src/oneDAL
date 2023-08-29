@@ -9,10 +9,17 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 dal_module(
-    name = "common",
+    name = "core",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
+    ],
+)
+
+dal_module(
+    name = "common",
+    dal_deps = [
+        ":core",
         "@onedal//cpp/oneapi/dal:table",
     ],
 )
@@ -28,6 +35,7 @@ dal_collect_modules(
         "heap",
         "intersection",
         "lapack",
+        "optimizers",
         "objective_function",
         "placement",
         "reduction",
@@ -76,6 +84,7 @@ dal_collect_test_suites(
     modules = [
         "blas",
         "lapack",
+        "optimizers",
         "objective_function",
         "reduction",
         "placement",

@@ -53,11 +53,11 @@ static void applyBetaImpl(const algorithmFPType * x, const algorithmFPType * bet
     DAAL_INT ione        = 1;
     if (bThreaded)
     {
-        Blas<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione);
+        BlasInst<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione);
     }
     else
     {
-        Blas<algorithmFPType, cpu>::xxgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione);
+        BlasInst<algorithmFPType, cpu>::xxgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione);
     }
     if (bIntercept)
     {
@@ -80,7 +80,7 @@ void LogLossKernel<algorithmFPType, method, cpu>::applyBeta(const algorithmFPTyp
 template <typename algorithmFPType, CpuType cpu>
 static void vexp(const algorithmFPType * f, algorithmFPType * exp, size_t n)
 {
-    const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
+    const algorithmFPType expThreshold = daal::internal::MathInst<algorithmFPType, cpu>::vExpThreshold();
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < n; ++i)
@@ -90,7 +90,7 @@ static void vexp(const algorithmFPType * f, algorithmFPType * exp, size_t n)
         to fix slow work on vExp on large negative inputs */
         if (exp[i] < expThreshold) exp[i] = expThreshold;
     }
-    daal::internal::Math<algorithmFPType, cpu>::vExp(n, exp, exp);
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(n, exp, exp);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -176,7 +176,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
             {
                 prox[i] = b[i] + parameter->penaltyL1;
             }
-            if (daal::internal::Math<algorithmFPType, cpu>::sFabs(b[i]) <= parameter->penaltyL1)
+            if (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(b[i]) <= parameter->penaltyL1)
             {
                 prox[i] = 0;
             }
@@ -225,7 +225,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
 
         algorithmFPType alpha_scaled = algorithmFPType(parameter->penaltyL2) / algorithmFPType(n);
         algorithmFPType lipschitz    = 0.25 * (globalMaxNorm + algorithmFPType(parameter->interceptFlag)) + alpha_scaled;
-        algorithmFPType displacement = daal::internal::Math<algorithmFPType, cpu>::sMin(2 * parameter->penaltyL2, lipschitz);
+        algorithmFPType displacement = daal::internal::MathInst<algorithmFPType, cpu>::sMin(2 * parameter->penaltyL2, lipschitz);
         c                            = 2 * lipschitz + displacement;
     }
 
@@ -341,8 +341,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
                 DAAL_CHECK_THR(ls, services::ErrorMemoryAllocationFailed);
                 algorithmFPType * const ls1 = ls + nRowsInBlock;
 
-                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess, sgPtrLocal, ls);
-                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess, sgPtrLocal + n, ls1);
+                daal::internal::MathInst<algorithmFPType, cpu>::vLog(nRowsToProcess, sgPtrLocal, ls);
+                daal::internal::MathInst<algorithmFPType, cpu>::vLog(nRowsToProcess, sgPtrLocal + n, ls1);
 
                 algorithmFPType localValue(0);
 
@@ -377,8 +377,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const Nu
                     sgPtrLocal[i] -= yLocal[i];
                 }
 
-                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &dim, &yDim, &nN, &one, xLocal, &dim, sgPtrLocal, &nN, &zero,
-                                                                   pg, &dim);
+                daal::internal::BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &dim, &yDim, &nN, &one, xLocal, &dim, sgPtrLocal, &nN,
+                                                                       &zero, pg, &dim);
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS

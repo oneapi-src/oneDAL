@@ -60,7 +60,7 @@ struct DecisionTreeNode
 class DecisionTreeTable : public data_management::AOSNumericTable
 {
 public:
-    DecisionTreeTable(size_t rowCount = 0) : data_management::AOSNumericTable(sizeof(DecisionTreeNode), 3, rowCount)
+    DecisionTreeTable(size_t rowCount = 0) : data_management::AOSNumericTable(sizeof(DecisionTreeNode), 4, rowCount)
     {
         setFeature<int>(0, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, featureIndex));
         setFeature<ClassIndexType>(1, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, leftIndexOrClass));
@@ -358,7 +358,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
     const size_t noParent = static_cast<size_t>(-1);
     if (prob != nullptr)
     {
-        response = services::internal::getMaxElementIndex<double, sse2>(prob, nClasses);
+        response = services::internal::getMaxElementIndex<double, DAAL_BASE_CPU>(prob, nClasses);
     }
 
     services::Status s;

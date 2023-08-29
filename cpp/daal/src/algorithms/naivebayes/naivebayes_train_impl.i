@@ -40,7 +40,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
-#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
+#if (__CPUID__(DAAL_CPU) >= __avx512__)
 
     #define _CALLOC_ service_scalable_calloc
     #define _FREE_   service_scalable_free
@@ -266,7 +266,7 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
 
     if (!nbPar->priorClassEstimates.get())
     {
-        algorithmFPType log_p_const = -daal::internal::Math<algorithmFPType, cpu>::sLog((algorithmFPType)c);
+        algorithmFPType log_p_const = -daal::internal::MathInst<algorithmFPType, cpu>::sLog((algorithmFPType)c);
 
         for (size_t j = 0; j < c; j++)
         {
@@ -279,7 +279,7 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
         DAAL_CHECK_BLOCK_STATUS(rrPriorClassEstimates);
         const algorithmFPType * pe = rrPriorClassEstimates.get();
 
-        daal::internal::Math<algorithmFPType, cpu>::vLog(c, pe, log_p);
+        daal::internal::MathInst<algorithmFPType, cpu>::vLog(c, pe, log_p);
     }
 
     if (!nbPar->alpha.get())
@@ -296,7 +296,7 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
             {
                 log_theta[j * p + i] = (n_ci[j * p + i] + alpha_i) * denominator;
             }
-            daal::internal::Math<algorithmFPType, cpu>::vLog(p, log_theta + j * p, log_theta + j * p);
+            daal::internal::MathInst<algorithmFPType, cpu>::vLog(p, log_theta + j * p, log_theta + j * p);
         }
     }
     else
@@ -320,7 +320,7 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
             {
                 log_theta[j * p + i] = (n_ci[j * p + i] + alpha_i[i]) * denominator;
             }
-            daal::internal::Math<algorithmFPType, cpu>::vLog(p, log_theta + j * p, log_theta + j * p);
+            daal::internal::MathInst<algorithmFPType, cpu>::vLog(p, log_theta + j * p, log_theta + j * p);
         }
     }
 

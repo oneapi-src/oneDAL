@@ -159,7 +159,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
             DAAL_CHECK_BREAK(!s);
 
             const algorithmFPType one(1.0);
-            const algorithmFPType gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(one, pointNorm);
+            const algorithmFPType gradientThreshold = accuracyThreshold * daal::internal::MathInst<algorithmFPType, cpu>::sMax(one, pointNorm);
             if (gradientNorm < gradientThreshold)
             {
                 DAAL_ASSERT(nProceededIters <= services::internal::MaxVal<int>::get())

@@ -18,17 +18,21 @@
 
 /* Common */
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/chunked_array.hpp"
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/read.hpp"
 #include "oneapi/dal/train.hpp"
+#include "oneapi/dal/partial_compute.hpp"
+#include "oneapi/dal/finalize_compute.hpp"
 
 /* Tables */
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 

@@ -136,11 +136,11 @@ public:
                 {
                     WriteOnlyRows<algorithmFPType, cpu> logBD(_logProb, iStartRow, nRowsToProcess);
                     DAAL_CHECK_BLOCK_STATUS_THR(logBD);
-                    daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * _logProb->getNumberOfColumns(), prob, logBD.get());
+                    daal::internal::MathInst<algorithmFPType, cpu>::vLog(nRowsToProcess * _logProb->getNumberOfColumns(), prob, logBD.get());
                 }
                 else if (!_prob && _logProb)
                 {
-                    daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * _logProb->getNumberOfColumns(), prob, prob);
+                    daal::internal::MathInst<algorithmFPType, cpu>::vLog(nRowsToProcess * _logProb->getNumberOfColumns(), prob, prob);
                 }
             }
         });
@@ -165,7 +165,7 @@ protected:
             const algorithmFPType * const xData = xBlock.get();
             const algorithmFPType value         = b[i];
 
-            Blas<algorithmFPType, cpu>::xxaxpy(&size, &value, xData, &incX, res, &incY);
+            BlasInst<algorithmFPType, cpu>::xxaxpy(&size, &value, xData, &incX, res, &incY);
         }
         return services::Status();
     }
@@ -350,7 +350,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericT
             {
                 pLocal->tmp.set(_logProb, iStartRow, nRowsToProcess);
                 DAAL_CHECK_BLOCK_STATUS_THR(pLocal->tmp);
-                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * nClasses, pRawValues, pLocal->tmp.get());
+                daal::internal::MathInst<algorithmFPType, cpu>::vLog(nRowsToProcess * nClasses, pRawValues, pLocal->tmp.get());
             }
         }
     });

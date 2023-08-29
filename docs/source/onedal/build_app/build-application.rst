@@ -160,20 +160,20 @@ Applications on Windows* OS
           | onedal_threadd.lib
       * - Dynamic linking
         -
-          | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
-          | onedald_dll.lib (onedald_dll.1.lib),
-          | onedal_dpcd_dll.lib (onedal_dpcd_dll.1.lib),
-          | onedald.1.dll,
-          | onedal_cored.1.dll,
-          | onedal_dpcd.1.dll,
+          | onedal_cored_dll.lib (onedal_cored_dll.2.lib),
+          | onedald_dll.lib (onedald_dll.2.lib),
+          | onedal_dpcd_dll.lib (onedal_dpcd_dll.2.lib),
+          | onedald.2.dll,
+          | onedal_cored.2.dll,
+          | onedal_dpcd.2.dll,
         -
-          | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
-          | onedald_dll.lib (onedald_dll.1.lib),
-          | onedal_dpcd_dll.lib (onedal_dpcd_dll.1.lib),
-          | onedald.1.dll,
-          | onedal_cored.1.dll,
-          | onedal_dpcd.1.dll,
-          | onedal_threadd.1.dll
+          | onedal_cored_dll.lib (onedal_cored_dll.2.lib),
+          | onedald_dll.lib (onedald_dll.2.lib),
+          | onedal_dpcd_dll.lib (onedal_dpcd_dll.2.lib),
+          | onedald.2.dll,
+          | onedal_cored.2.dll,
+          | onedal_dpcd.2.dll,
+          | onedal_threadd.2.dll
 
 Examples
 ********

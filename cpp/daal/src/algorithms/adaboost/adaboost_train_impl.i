@@ -181,14 +181,14 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
         }
 
         algorithmFPType cM =
-            learningRate * (Math<algorithmFPType, cpu>::sLog((one - errM) / errM) + Math<algorithmFPType, cpu>::sLog(nClasses - one));
+            learningRate * (MathInst<algorithmFPType, cpu>::sLog((one - errM) / errM) + MathInst<algorithmFPType, cpu>::sLog(nClasses - one));
 
         /* Update weights */
         for (size_t i = 0; i < nVectors; i++)
         {
             errFlag[i] *= cM;
         }
-        Math<algorithmFPType, cpu>::vExp(nVectors, errFlag, errFlag);
+        MathInst<algorithmFPType, cpu>::vExp(nVectors, errFlag, errFlag);
         algorithmFPType wSum = zero;
         for (size_t i = 0; i < nVectors; i++)
         {
@@ -337,7 +337,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
             }
             t[i] *= scaling;
         }
-        Math<algorithmFPType, cpu>::vExp(nVectors, t, t);
+        MathInst<algorithmFPType, cpu>::vExp(nVectors, t, t);
         for (size_t i = 0; i < nVectors; i++)
         {
             w[i] *= t[i];

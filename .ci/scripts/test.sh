@@ -37,6 +37,9 @@ while [[ $# -gt 0 ]]; do
         --build_system)
         build_system="$2"
         ;;
+        --backend)
+        backend="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -53,6 +56,7 @@ OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 full_arch=intel64
 build_system=${build_system:-cmake}
+backend=${backend:-mkl}
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -150,7 +154,12 @@ for link_mode in ${link_modes}; do
             mkdir Build
         fi
 
-        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
+        ref_backend="OFF"
+        if [ "${backend}" == "ref" ]; then
+            ref_backend="ON"
+        fi
+
+        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb -DREF_BACKEND=${ref_backend}
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"

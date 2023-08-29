@@ -36,7 +36,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 
-#if (__CPUID__(DAAL_CPU) >= __avx512_mic__)
+#if (__CPUID__(DAAL_CPU) >= __avx512__)
 
     #if (__FPTYPE__(DAAL_FPTYPE) == __double__)
 
@@ -165,7 +165,7 @@ services::Status methodSpecific<defaultDense, algorithmFPType, cpu>::getPredicti
         const algorithmFPType beta  = 0.0;
         const DAAL_INT ldaty        = c;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, aux_table, &lda, data, &ldy, &beta, buff, &ldaty);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, aux_table, &lda, data, &ldy, &beta, buff, &ldaty);
     }
 
     for (size_t j = 0; j < n; j++)
@@ -212,8 +212,8 @@ services::Status methodSpecific<fastCSR, algorithmFPType, cpu>::getPredictionDat
         const algorithmFPType beta  = 0.0;
         const char matdescra[6]     = { 'G', 0, 0, 'F', 0, 0 };
 
-        SpBlas<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, values, (DAAL_INT *)colIdx, (DAAL_INT *)rowIdx, aux_table,
-                                              &_p, &beta, buff, &_n);
+        SpBlasInst<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, values, (DAAL_INT *)colIdx, (DAAL_INT *)rowIdx,
+                                                  aux_table, &_p, &beta, buff, &_n);
     }
 
     for (size_t j = 0; j < n; j++)

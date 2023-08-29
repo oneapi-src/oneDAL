@@ -47,6 +47,8 @@ MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
 COMPILERs = icc icx gnu clang vc
 COMPILER ?= icc
 
+BACKEND_CONFIG ?= mkl
+
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
 CPUs := sse2 sse42 avx2 avx512
@@ -80,7 +82,7 @@ endif
 DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 endif
 
-include dev/make/cmplr.$(COMPILER).mk
+include dev/make/cmplr.$(COMPILER).$(BACKEND_CONFIG).mk
 include dev/make/cmplr.dpcpp.mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
@@ -129,14 +131,14 @@ skx_OPT  := $(skx_OPT.$(COMPILER))
 
 _OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,))
 
-USECPUS.files := $(subst sse2,nrh,$(subst ssse3,,$(subst sse42,neh,$(subst avx,,$(subst avx2,hsw,$(subst avx512,skx,$(subst avx512_mic,,$(USECPUS))))))))
+USECPUS.files := $(subst sse2,nrh,$(subst sse42,neh,$(subst avx2,hsw,$(subst avx512,skx,$(USECPUS)))))
 USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
-USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),$(subst ssse3,^\#define DAAL_KERNEL_SSSE3$(sed.eow),\
-                    $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),$(subst avx,^\#define DAAL_KERNEL_AVX$(sed.eow),\
-                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),$(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow),\
-                    $(subst avx512_mic,^\#define DAAL_KERNEL_AVX512_MIC$(sed.eow),$(USECPUS.out))))))))
+USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),\
+                    $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),\
+                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),\
+                    $(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow),$(USECPUS.out)))))
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
@@ -197,12 +199,6 @@ WORKDIR.lib := $(WORKDIR)/daal/lib
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
 COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
-MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklfpk/$(_OS)/*),$(DIR)/__deps/mklfpk,                            \
-                $(if $(wildcard $(MKLFPKROOT)/include/*),$(subst \,/,$(MKLFPKROOT)),                              \
-                    $(error Can`t find MKLFPK libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLFPKROOT.)))
-MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(_OS)/include
-MKLFPKDIR.libia   := $(MKLFPKDIR)/$(_OS)/lib/$(_IA)
-
 topf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
 frompf = $(shell echo $1 | sed 's/111/ /g' | sed 's/222/(/g' | sed 's/333/)/g')
 frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
@@ -254,15 +250,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
                      $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.soia)/libtbb.12.dylib),$(wildcard $(TBBDIR.soia)/libtbb.12.dylib))\
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
-#============================= Micromkl folders =====================================
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
-
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
-MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
-MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
-
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl$d.$(a)
-mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+include dev/make/deps.$(BACKEND_CONFIG).mk
 
 #============================= oneAPI folders =====================================
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)
@@ -316,46 +304,25 @@ release.ONEAPI.LIBS_A.dpc := $(oneapi_a.dpc) \
 release.ONEAPI.LIBS_Y.dpc := $(oneapi_y.dpc)
 
 # Libraries required for building
-daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
-daaldep.lnx32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.lnx32e.vml :=
-daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.lnx32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.lnx32e.rt.thr := -L$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.lnx32e.threxport := export_lnx32e.def
+daaldep.lnx32e.threxport := export_lnx32e.$(BACKEND_CONFIG).def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread$d.$a
-daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
-daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core$d.$a
-daaldep.win32e.vml :=
-daaldep.win32e.ipp :=
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) $(dep_thr) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.seq  := $(dep_seq) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
 
 daaldep.win.threxport.create = grep -v -E '^(;|$$)' $< $(USECPUS.out.grep.filter)
 
-
-daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
-daaldep.mac32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
-daaldep.mac32e.vml :=
-daaldep.mac32e.ipp :=
 daaldep.mac32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc $(daaldep.mac32e.rt.$(COMPILER))
 daaldep.mac32e.rt.seq := $(daaldep.mac32e.rt.$(COMPILER))
 daaldep.mac32e.threxport := export_mac.def
 
 daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-daaldep.mkl.thr := $(daaldep.$(PLAT).mkl.thr)
-daaldep.mkl.seq := $(daaldep.$(PLAT).mkl.seq)
-daaldep.mkl     := $(daaldep.$(PLAT).mkl)
-daaldep.vml     := $(daaldep.$(PLAT).vml)
-daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 daaldep.rt.dpc  := $(daaldep.$(PLAT).rt.dpc)
@@ -449,7 +416,7 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(CPPDIR.daal)/src/data_management
 
 CORE.incdirs.common := $(RELEASEDIR.include) $(CPPDIR.daal) $(WORKDIR)
-CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
+CORE.incdirs.thirdp := $(daaldep.math_backend.incdir) $(TBBDIR.include)
 CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
 
 containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
@@ -492,7 +459,7 @@ $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt): $(CORE.objs_a) | $(CORE.tmpdir_a)/. 
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  LOPT:=
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt) | $(CORE.tmpdir_a)/. ; $(LINK.STATIC)
 $(WORKDIR.lib)/$(core_a):                   LOPT:=
-$(WORKDIR.lib)/$(core_a):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(core_a):                   $(daaldep.math_backend.ext) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
 
 $(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
@@ -501,7 +468,7 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
                                             $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
@@ -572,8 +539,8 @@ ONEAPI.tmpdir_a.dpc := $(WORKDIR)/oneapi_dpc_static
 ONEAPI.tmpdir_y.dpc := $(WORKDIR)/oneapi_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include) $(TBBDIR.include)
-ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend.incdir) $(TBBDIR.include)
+ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp) $(ONEAPI.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
 ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=__CPU_TAG_SSE2__
@@ -758,7 +725,7 @@ $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
     $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): \
-    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
@@ -771,7 +738,7 @@ endif
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
     $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
-    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
@@ -804,14 +771,14 @@ THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
-$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.mkl.thr) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.math_backend.thr) ; $(LINK.STATIC)
 
 $(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
 	$(daaldep.$(_OS).threxport.create) > $@
 
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.mkl.thr) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.math_backend.thr) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 THR.objs_a := $(THR_TBB.objs_a)
 THR.objs_y := $(THR_TBB.objs_y)
@@ -884,7 +851,7 @@ $(WORKDIR.lib)/$(daal_jar):                  $(WORKDIR.lib)/$(daal_jar:%.jar=%_j
 
 #----- production of JNI dll
 $(WORKDIR.lib)/$(jni_so): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(jni_so): LOPT += $(daaldep.rt.thr) $(daaldep.mkl.thr)
+$(WORKDIR.lib)/$(jni_so): LOPT += $(daaldep.rt.thr) $(daaldep.math_backend.thr)
 $(JNI.tmpdir)/$(jni_so:%.$y=%_link.txt): $(JNI.objs) $(if $(OS_is_win),$(JNI.tmpdir)/dll.res,) $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(thr_tbb_a) ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(jni_so):                $(JNI.tmpdir)/$(jni_so:%.$y=%_link.txt); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 

@@ -21,6 +21,7 @@
 #include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/algo/decision_tree/detail/node_visitor.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -646,6 +647,23 @@ public:
             decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor)));
     }
 
+    /// Performs Depth First Traversal for all trees
+    /// @param[in] visitor_array    This an array of functors which are notified when tree nodes are visited,
+    ///                             via corresponding operators:
+    ///                             bool operator()(const decision_forest::split_node_info<Task>&)
+    ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
+    template <typename T, typename Visitor>
+    void traverse_depth_first(T&& visitor_array) const {
+        dal::detail::threader_for(this->get_tree_count(),
+                                  this->get_tree_count(),
+                                  [&](std::int64_t i) {
+                                      traverse_depth_first_impl(
+                                          i,
+                                          decision_tree::detail::make_node_visitor<dtree_task_t>(
+                                              std::forward<Visitor>(visitor_array[i])));
+                                  });
+    }
+
     /// Performs Breadth First Traversal of i-th tree
     /// @param[in] tree_idx    Index of the tree to traverse
     /// @param[in] visitor      This functor gets notified when tree nodes are visited, via corresponding operators:
@@ -656,6 +674,23 @@ public:
         traverse_breadth_first_impl(
             tree_idx,
             decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor)));
+    }
+
+    /// Performs Breadth First Traversal for all trees
+    /// @param[in] visitor_array    This an array of functors which are notified when tree nodes are visited,
+    ///                             via corresponding operators:
+    ///                             bool operator()(const decision_forest::split_node_info<Task>&)
+    ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
+    template <typename T, typename Visitor>
+    void traverse_breadth_first(T&& visitor_array) const {
+        dal::detail::threader_for(this->get_tree_count(),
+                                  this->get_tree_count(),
+                                  [&](std::int64_t i) {
+                                      traverse_breadth_first_impl(
+                                          i,
+                                          decision_tree::detail::make_node_visitor<dtree_task_t>(
+                                              std::forward<Visitor>(visitor_array[i])));
+                                  });
     }
 
 protected:

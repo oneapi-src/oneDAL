@@ -26,7 +26,9 @@
 
 #include "services/daal_defines.h"
 #include "src/externals/service_memory.h"
-#include "src/externals/service_rng_mkl.h"
+#include "src/externals/service_rng_common.h"
+
+#include "src/externals/config.h"
 
 using namespace daal::services;
 
@@ -34,7 +36,7 @@ namespace daal
 {
 namespace internal
 {
-template <CpuType cpu, typename _BaseGenerators = mkl::BaseRNG<cpu> >
+template <CpuType cpu, typename _BaseGenerators>
 class BaseRNGs : public BaseRNGIface<cpu>
 {
 public:
@@ -61,7 +63,7 @@ private:
     _BaseGenerators _baseRNG;
 };
 
-template <typename Type, CpuType cpu, typename _RNGs = mkl::RNGs<Type, cpu> >
+template <typename Type, CpuType cpu, typename _RNGs>
 class RNGs
 {
 public:
@@ -186,6 +188,19 @@ public:
 private:
     _RNGs _generators;
 };
+
+} // namespace internal
+} // namespace daal
+
+namespace daal
+{
+namespace internal
+{
+template <CpuType cpu>
+using BaseRNGsInst = BaseRNGs<cpu, BaseRngBackend<cpu> >;
+
+template <typename Type, CpuType cpu>
+using RNGsInst = RNGs<Type, cpu, RNGsBackend<Type, cpu> >;
 
 } // namespace internal
 } // namespace daal
