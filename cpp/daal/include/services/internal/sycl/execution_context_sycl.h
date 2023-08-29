@@ -195,7 +195,7 @@ private:
     ::sycl::queue & _deviceQueue;
 };
 
-class SyclExecutionContextImpl : public Base, public ExecutionContextIface
+class [[deprecated]] SyclExecutionContextImpl : public Base, public ExecutionContextIface
 {
 public:
     explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue)

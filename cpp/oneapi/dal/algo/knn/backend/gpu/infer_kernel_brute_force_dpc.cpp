@@ -96,8 +96,6 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
 
     ONEDAL_ASSERT(train.get_column_count() == infer.get_column_count());
 
-    bk::interop::execution_context_guard guard(queue);
-
     auto arr_responses = array<res_t>{};
     auto wrapped_responses = pr::ndview<res_t, 1>{};
     if (desc.get_result_options().test(result_options::responses)) {

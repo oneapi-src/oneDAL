@@ -22,7 +22,7 @@
 
 namespace oneapi::dal::backend::interop {
 
-struct execution_context_guard {
+struct [[deprecated]] execution_context_guard {
     explicit execution_context_guard(const sycl::queue &queue);
 
     ~execution_context_guard();
