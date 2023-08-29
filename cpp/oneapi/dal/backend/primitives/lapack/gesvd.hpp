@@ -36,8 +36,6 @@ sycl::event gesvd(sycl::queue &queue,
                   std::int64_t ldu,
                   Float *vt,
                   std::int64_t ldvt,
-                  Float *scratchpad,
-                  std::int64_t scratchpad_size,
                   const event_vector &deps = {});
 
 #endif

@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/primitives/lapack/gesvd.hpp"
 #include "oneapi/dal/backend/primitives/blas/misc.hpp"
-
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include <mkl_dal_sycl.hpp>
 
 namespace oneapi::dal::backend::primitives {
@@ -39,10 +39,10 @@ static sycl::event gesvd_wrapper(sycl::queue& queue,
                                  std::int64_t scratchpad_size,
                                  const event_vector& deps) {
     ONEDAL_ASSERT(lda >= n);
-
+    std::cout << "here" << std::endl;
     return mkl::lapack::gesvd(queue,
-                              jobu,
-                              jobvt,
+                              mkl::jobsvd::vectors,
+                              mkl::jobsvd::vectors,
                               m,
                               n,
                               a,
@@ -68,16 +68,20 @@ sycl::event gesvd(sycl::queue& queue,
                   std::int64_t ldu,
                   Float* vt,
                   std::int64_t ldvt,
-                  Float* scratchpad,
-                  std::int64_t scratchpad_size,
                   const event_vector& deps) {
     // ONEDAL_PROFILER_TASK(blas.gesvd, queue);
 
     constexpr auto job_u = ident_jobsvd(jobu);
     constexpr auto job_vt = ident_jobsvd(jobvt);
+    const auto scratchpad_size =
+        mkl::lapack::gesvd_scratchpad_size<Float>(queue, job_u, job_vt, m, n, lda, ldu, ldvt);
+    std::cout << scratchpad_size << std::endl;
+    auto scratchpad =
+        ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
+    auto scratchpad_ptr = scratchpad.get_mutable_data();
     return gesvd_wrapper(queue,
-                         job_u,
-                         job_vt,
+                         mkl::jobsvd::vectors,
+                         mkl::jobsvd::vectors,
                          m,
                          n,
                          a,
@@ -87,24 +91,22 @@ sycl::event gesvd(sycl::queue& queue,
                          ldu,
                          vt,
                          ldvt,
-                         scratchpad,
+                         scratchpad_ptr,
                          scratchpad_size,
                          deps);
 }
 
-#define INSTANTIATE(jobu, jobvt, F)                                                        \
-    template ONEDAL_EXPORT sycl::event gesvd<jobu, jobvt, F>(sycl::queue & queue,          \
-                                                             std::int64_t m,               \
-                                                             std::int64_t n,               \
-                                                             F * a,                        \
-                                                             std::int64_t lda,             \
-                                                             F * s,                        \
-                                                             F * u,                        \
-                                                             std::int64_t ldu,             \
-                                                             F * vt,                       \
-                                                             std::int64_t ldvt,            \
-                                                             F * scratchpad,               \
-                                                             std::int64_t scratchpad_size, \
+#define INSTANTIATE(jobu, jobvt, F)                                               \
+    template ONEDAL_EXPORT sycl::event gesvd<jobu, jobvt, F>(sycl::queue & queue, \
+                                                             std::int64_t m,      \
+                                                             std::int64_t n,      \
+                                                             F * a,               \
+                                                             std::int64_t lda,    \
+                                                             F * s,               \
+                                                             F * u,               \
+                                                             std::int64_t ldu,    \
+                                                             F * vt,              \
+                                                             std::int64_t ldvt,   \
                                                              const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(jobu, jobvt) \

@@ -69,31 +69,42 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
     auto S = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
     auto V_T = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
-    auto scratchpad =
-        pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
-    Float* scratchpad_ptr = scratchpad.get_mutable_data();
-    std::int64_t lda = column_count;
+    std::int64_t lda = row_count;
     std::int64_t ldu = row_count;
     std::int64_t ldvt = column_count;
 
-    auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::vectors>(queue,
-                                                                       row_count,
-                                                                       column_count,
-                                                                       data_ptr,
-                                                                       lda,
-                                                                       S_ptr,
-                                                                       U_ptr,
-                                                                       ldu,
-                                                                       V_T_ptr,
-                                                                       ldvt,
-                                                                       scratchpad_ptr,
-                                                                       0,
-                                                                       {});
+    const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
+                                                                           mkl::jobsvd::vectors,
+                                                                           mkl::jobsvd::vectors,
+                                                                           row_count,
+                                                                           column_count,
+                                                                           lda,
+                                                                           ldu,
+                                                                           ldvt);
+
+    auto scratchpad =
+        pr::ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
+    auto scratchpad_ptr = scratchpad.get_mutable_data();
+    auto event = mkl::lapack::gesvd(queue,
+                                    mkl::jobsvd::vectors,
+                                    mkl::jobsvd::vectors,
+                                    row_count,
+                                    column_count,
+                                    data_ptr,
+                                    lda,
+                                    S_ptr,
+                                    U_ptr,
+                                    ldu,
+                                    V_T_ptr,
+                                    ldvt,
+                                    scratchpad_ptr,
+                                    scratchpad_size,
+                                    {});
 
     return std::make_tuple(U, S, V_T);
 }
@@ -118,17 +129,17 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     //                                                    mean_centered_data_nd);
     // }
 
-    auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-    sycl::event gemm_event;
-    {
-        ONEDAL_PROFILER_TASK(gemm, q_);
-        gemm_event = pr::gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0));
-        gemm_event.wait_and_throw();
-    }
+    // auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+    // sycl::event gemm_event;
+    // {
+    //     ONEDAL_PROFILER_TASK(gemm, q_);
+    //     gemm_event = pr::gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0));
+    //     gemm_event.wait_and_throw();
+    // }
 
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T] = svd_decomposition(q_, xtx);
+        auto [U, S, V_T] = svd_decomposition(q_, data_nd);
 
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(S.flatten(), 1, component_count));
