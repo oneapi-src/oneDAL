@@ -36,7 +36,7 @@ namespace oneapi
 {
 namespace internal
 {
-template class LowOrderMomentsOnlineKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+template class DAAL_EXPORT LowOrderMomentsOnlineKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 template class LowOrderMomentsOnlineKernelOneAPI<DAAL_FPTYPE, singlePassDense>;
 template class LowOrderMomentsOnlineKernelOneAPI<DAAL_FPTYPE, sumDense>;
 template class LowOrderMomentsOnlineKernelOneAPI<DAAL_FPTYPE, fastCSR>;

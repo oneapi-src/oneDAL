@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/basic_statistics/compute.hpp"
-#include "oneapi/dal/algo/basic_statistics/partial_compute.hpp"
-#include "oneapi/dal/algo/basic_statistics/finalize_compute.hpp"
+#include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/algo/basic_statistics/detail/partial_compute_ops.hpp"
+#include "oneapi/dal/partial_compute.hpp"
+
+namespace oneapi::dal::detail {
+namespace v1 {
+
+template <typename Descriptor>
+struct partial_compute_ops<Descriptor, dal::basic_statistics::detail::descriptor_tag>
+        : dal::basic_statistics::detail::partial_compute_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail
