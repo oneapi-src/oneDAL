@@ -238,7 +238,7 @@ services::Status DistributedContainer<step3Master, algorithmFPType, method, cpu>
     DistributedStep3MasterPlusPlusInput * input      = static_cast<DistributedStep3MasterPlusPlusInput *>(_in);
     DistributedStep3MasterPlusPlusPartialResult * pr = static_cast<DistributedStep3MasterPlusPlusPartialResult *>(_pres);
     data_management::MemoryBlock * pRngState         = dynamic_cast<data_management::MemoryBlock *>(pr->get(rngState).get());
-    DAAL_CHECK(pRngState, ErrorNullPtr);
+    DAAL_CHECK(pRngState, services::ErrorNullPtr);
     const Parameter * par = (const Parameter *)(_par);
     __DAAL_CALL_KERNEL(env, internal::KMeansInitStep3MasterKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, par,
                        input->get(inputOfStep3FromStep2).get(), pRngState, pr->get(outputOfStep3ForStep4).get(), *par->engine);
