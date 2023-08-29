@@ -21,6 +21,8 @@
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
 
+#include "oneapi/dal/chunked_array.hpp"
+
 namespace oneapi::dal {
 namespace v1 {
 class table_metadata;
@@ -57,6 +59,14 @@ public:
 class homogen_table_iface : public table_iface {
 public:
     virtual dal::array<byte_t> get_data() const = 0;
+};
+
+class heterogen_table_iface : public table_iface {
+public:
+    //virtual heterogen_table get_row_slice(const range&) const = 0;
+    virtual detail::chunked_array_base& get_column(std::int64_t) = 0;
+    virtual const detail::chunked_array_base& get_column(std::int64_t) const = 0;
+    virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;
 };
 
 class csr_table_iface : public table_iface {
@@ -112,6 +122,11 @@ public:
 #endif
 };
 
+class heterogen_table_builder_iface : public table_builder_iface {
+public:
+    virtual heterogen_table_iface* build_heterogen() = 0;
+};
+
 /// Generic table template is expected to implement all access interfaces to the table.
 /// The example of the table that implements generic interface is the empty one.
 template <typename Derived>
@@ -138,6 +153,25 @@ template <typename Derived>
 class homogen_table_template : public homogen_table_iface,
                                public pull_rows_template<Derived>,
                                public pull_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return nullptr;
+    }
+};
+
+/// Heterogen table template must implement row and column accessor, but not CSR.
+template <typename Derived>
+class heterogen_table_template : public heterogen_table_iface,
+                                 public pull_rows_template<Derived>,
+                                 public pull_column_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
@@ -197,16 +231,39 @@ public:
     }
 };
 
+template <typename Derived>
+class heterogen_table_builder_template : public heterogen_table_builder_iface,
+                                         public pull_rows_template<Derived>,
+                                         public pull_column_template<Derived>,
+                                         public push_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    push_column_iface* get_push_column_iface() override {
+        return this;
+    }
+};
+
 } // namespace v1
 
 using v1::table_iface;
 using v1::generic_table_template;
 using v1::homogen_table_iface;
 using v1::homogen_table_template;
+using v1::heterogen_table_iface;
+using v1::heterogen_table_template;
 using v1::csr_table_iface;
 using v1::csr_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
 using v1::homogen_table_builder_template;
+using v1::heterogen_table_builder_iface;
+using v1::heterogen_table_builder_template;
 
 } // namespace oneapi::dal::detail
