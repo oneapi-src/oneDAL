@@ -51,7 +51,7 @@ BEGIN
             VALUE "OriginalFilename", ORIG_FILE_NAME
             VALUE "CompanyName", "Intel Corporation\0"
             VALUE "FileVersion", FILE_VERSION_STR
-            VALUE "LegalCopyright", "Copyright 2022, Intel Corporation.\0"
+            VALUE "LegalCopyright", "Copyright 2023, Intel Corporation.\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", PRODUCT_NAME_STR

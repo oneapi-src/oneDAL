@@ -819,12 +819,12 @@ endif
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
 $(ONEAPI.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(WORKDIR) $(CORE.SERV.srcdir))
-$(ONEAPI.tmpdir_y)/dll.res: $(CPPDIR.onedal)/dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+$(ONEAPI.tmpdir_y)/dll.res: $(CPPDIR.onedal)/onedal_dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 $(ONEAPI.tmpdir_y.dpc)/dll.res: $(VERSION_DATA_FILE)
 $(ONEAPI.tmpdir_y.dpc)/dll.res: RCOPT += $(addprefix -I, $(WORKDIR) $(CORE.SERV.srcdir)) \
                                          -DONEDAL_DLL_RC_DATA_PARALLEL
-$(ONEAPI.tmpdir_y.dpc)/dll.res: $(CPPDIR.onedal)/dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
+$(ONEAPI.tmpdir_y.dpc)/dll.res: $(CPPDIR.onedal)/onedal_dll.rc | $(ONEAPI.tmpdir_y)/. ; $(RC.COMPILE)
 
 #===============================================================================
 # Threading parts
