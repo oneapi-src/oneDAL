@@ -41,7 +41,7 @@ std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, cons
 }
 
 template <typename Float, typename Task>
-struct train_parameters_gpu<Float, method::norm_eq, Task> {
+struct ONEDAL_EXPORT train_parameters_gpu<Float, method::norm_eq, Task> {
     using params_t = detail::train_parameters<Task>;
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
