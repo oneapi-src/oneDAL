@@ -25,9 +25,9 @@
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 
-#undef INVERT_EXPORT_IMPORT
-
 #include "oneapi/dal/algo/linear_regression/parameters/cpu/train_parameters.hpp"
+
+#undef INVERT_EXPORT_IMPORT
 
 namespace oneapi::dal::linear_regression::parameters {
 
