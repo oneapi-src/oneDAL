@@ -354,6 +354,7 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
 {
     Status s;
     const Parameter * prm = dynamic_cast<const Parameter *>(par);
+    DAAL_CHECK(prm, ErrorNullParameterNotSupported);
     DAAL_CHECK(prm->numBeta > 0, ErrorIncorrectNumberOfFeatures);                                                            //TODO
     DAAL_CHECK((prm->numBetaReducedModel > 0) && (prm->numBetaReducedModel < prm->numBeta), ErrorIncorrectNumberOfFeatures); //TODO
     DAAL_CHECK(Argument::size() == 3, ErrorIncorrectNumberOfInputNumericTables);
@@ -402,7 +403,8 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     Status s;
     DAAL_CHECK(Argument::size() == 7, ErrorIncorrectNumberOfElementsInResultCollection);
 
-    const Input * inp     = dynamic_cast<const Input *>(input);
+    const Input * inp = dynamic_cast<const Input *>(input);
+    DAAL_CHECK(inp, ErrorNullInput);
     const size_t k        = inp->get(expectedResponses)->getNumberOfColumns();
     int unexpectedLayouts = (int)NumericTableIface::csrArray;
     for (size_t i = 0; i < 7; ++i)

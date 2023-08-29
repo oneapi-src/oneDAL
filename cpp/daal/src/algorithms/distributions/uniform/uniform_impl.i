@@ -69,6 +69,7 @@ Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, a
                                                             algorithmFPType * resultArray)
 {
     auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
+    DAAL_CHECK(engineImpl, ErrorIncorrectEngineParameter);
     return compute(a, b, *engineImpl, n, resultArray);
 }
 
