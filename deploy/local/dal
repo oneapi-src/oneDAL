@@ -46,8 +46,10 @@ module-whatis "Description: Library for building compute-intense applications op
 module-whatis "URL: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onedal.html"
 module-whatis "Dependencies: none"
 
+set moduleinfoname [file dirname [module-info name]]
+
 proc ModulesHelp { } {
-    global modulefilename
+    global moduleinfoname
     global modulefilever
     module whatis "${modulefilename}/${modulefilever}"
 }
