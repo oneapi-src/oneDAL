@@ -257,14 +257,14 @@ jobs:
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
-      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      export DALROOT=`pwd`/bazel-bin/release/daal/latest
       $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
-      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      export DALROOT=`pwd`/bazel-bin/release/daal/latest
       $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
                  --test_thread_mode=par
