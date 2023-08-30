@@ -232,7 +232,6 @@ fi
 export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
 export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
 export DALROOT=$__daal_tmp_dir
-export DAALROOT=$__daal_tmp_dir
 export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
 export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
 export DYLD_LIBRARY_PATH=$__daal_tmp_dir/lib${DYLD_LIBRARY_PATH+:${DYLD_LIBRARY_PATH}}

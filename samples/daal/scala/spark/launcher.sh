@@ -50,7 +50,7 @@ while [ "$1" != "" ]; do
 done
 
 # Setting CLASSPATH to build jar
-export CLASSPATH=${SPARK_HOME}/jars/spark-core_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-sql_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-catalyst_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-mllib_2.11-2.0.0.jar:${SPARK_HOME}/jars/hadoop-common-2.7.2.jar:${SPARK_HOME}/jars/jackson-annotations-2.6.5.jar:${SPARK_HOME}/jars/breeze_2.11-0.11.2.jar:${SPARK_HOME}/jars/breeze-macros_2.11-0.11.2.jar:${DAALROOT}/lib/onedal.jar:$CLASSPATH
+export CLASSPATH=${SPARK_HOME}/jars/spark-core_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-sql_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-catalyst_2.11-2.0.0.jar:${SPARK_HOME}/jars/spark-mllib_2.11-2.0.0.jar:${SPARK_HOME}/jars/hadoop-common-2.7.2.jar:${SPARK_HOME}/jars/jackson-annotations-2.6.5.jar:${SPARK_HOME}/jars/breeze_2.11-0.11.2.jar:${SPARK_HOME}/jars/breeze-macros_2.11-0.11.2.jar:${DALROOT}/lib/onedal.jar:$CLASSPATH
 export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 
 # Setting paths by OS
@@ -65,7 +65,7 @@ if [ -z "${TBBLIBS}" ]; then
 fi
 
 #Comma-separated list of shared libs
-export SHAREDLIBS=${DAALROOT}/lib/intel64/${LIBJAVAAPI}
+export SHAREDLIBS=${DALROOT}/lib/intel64/${LIBJAVAAPI}
 
 if [ -f "${TBBLIBS}/libtbb.so" ]; then
     SHAREDLIBS=${SHAREDLIBS},${TBBLIBS}/libtbb.so
@@ -113,7 +113,7 @@ for sample in "${Spark_samples_list[@]}"; do
     cd "_results/${sample}" || exit 1
 
     # Running samples. Can be run with "--master yarn-cluster --deploy-mode cluster" as well as with "--master yarn-client"
-    cmd=(spark-submit --driver-class-path "${DAALROOT}/lib/onedal.jar:${SCALA_JARS}" --jars "${DAALROOT}/lib/onedal.jar" --files "${SHAREDLIBS},${DAALROOT}/lib/onedal.jar" -v --master yarn-cluster --deploy-mode cluster --class "DAAL.Sample${sample}" "Spark${sample}.jar")
+    cmd=(spark-submit --driver-class-path "${DALROOT}/lib/onedal.jar:${SCALA_JARS}" --jars "${DALROOT}/lib/onedal.jar" --files "${SHAREDLIBS},${DALROOT}/lib/onedal.jar" -v --master yarn-cluster --deploy-mode cluster --class "DAAL.Sample${sample}" "Spark${sample}.jar")
     echo "${cmd[@]}" > "${sample}.res"
     "${cmd[@]}" >> "${sample}.res" 2>&1
 
