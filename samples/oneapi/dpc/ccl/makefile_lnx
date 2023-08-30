@@ -70,7 +70,7 @@ DAAL_PATH = $(DAALROOT)/lib/intel64
 ifndef TBBROOT
     TBBROOT = ./../../../../../tbb/latest
 endif
-TBB_PATH = $(TBBROOT)/lib/
+TBB_PATH = $(TBBROOT)/lib
 MPI_PATH = $(I_MPI_ROOT)
 CCL_PATH = $(CCL_ROOT)
 
@@ -120,7 +120,7 @@ EXT_LIB := $(LOPTS) $(LIBS)
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
-CC = icpx -fsycl 
+CC = icpx -fsycl
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn $(proc)
 

@@ -58,7 +58,7 @@ export LIBTBB=
 export LIBTBBMALLOC=
 
 TBBLIBS=
-if [ -d "${TBBROOT}/lib/" ]; then TBBLIBS=${TBBROOT}/lib/; fi
+if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
 if [ -z "${TBBLIBS}" ]; then
     echo Can not find TBB runtimes
     exit 1
@@ -68,7 +68,7 @@ if [ -f "${TBBLIBS}/libtbb.so.2" ]; then
     export LIBTBB=libtbb.so.2
 elif [ -f "${TBBLIBS}/libtbb.so.12" ]; then
     export LIBTBB=libtbb.so.12
-else 
+else
     echo Can not find libtbb.so
     exit 1
 fi
@@ -77,7 +77,7 @@ if [ -f "${TBBLIBS}/libtbbmalloc.so.2" ]; then
     export LIBTBBMALLOC=libtbbmalloc.so.2
 elif [ -f "${TBBLIBS}/libtbbmalloc.so.12" ]; then
     export LIBTBBMALLOC=libtbbmalloc.so.12
-else 
+else
     echo Can not find libtbbmalloc.so
     exit 1
 fi
