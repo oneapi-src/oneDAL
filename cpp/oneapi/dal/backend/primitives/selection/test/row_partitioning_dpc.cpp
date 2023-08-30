@@ -133,6 +133,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test on single random row",
                      "[row_partitioning][small]",
                      partitioning_types) {
+    SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 17;
@@ -149,6 +150,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (two rows)",
                      "[row_partitioning][small]",
                      partitioning_types) {
+    SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
     std::int64_t rows = 2;
     std::int64_t cols = 17;
@@ -165,6 +167,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (unaligned block)",
                      "[row_partitioning][small]",
                      partitioning_types) {
+    SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
     std::int64_t rows = 17;
     std::int64_t cols = 37;
@@ -181,6 +184,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (partial single row)",
                      "[row_partitioning][small]",
                      partitioning_types) {
+    SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 37;
@@ -199,6 +203,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (end of single row)",
                      "[row_partitioning][small]",
                      partitioning_types) {
+    SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 35;
@@ -216,6 +221,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (partial unaligned block)",
                      "[row_partitioning][small]",
                      partitioning_types) {
+    SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
     std::int64_t rows = 17;
     std::int64_t cols = 37;
