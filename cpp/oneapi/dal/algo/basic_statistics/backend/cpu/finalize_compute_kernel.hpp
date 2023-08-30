@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/covariance/compute_types.hpp"
+#include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::covariance::backend {
+namespace oneapi::dal::basic_statistics::backend {
 
 template <typename Float, typename Method, typename Task>
 struct finalize_compute_kernel_cpu {
@@ -28,4 +28,4 @@ struct finalize_compute_kernel_cpu {
                                     const partial_compute_result<Task>& input) const;
 };
 
-} // namespace oneapi::dal::covariance::backend
+} // namespace oneapi::dal::basic_statistics::backend
