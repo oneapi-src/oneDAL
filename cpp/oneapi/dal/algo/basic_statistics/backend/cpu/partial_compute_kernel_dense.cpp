@@ -34,8 +34,8 @@ namespace oneapi::dal::basic_statistics::backend {
 using dal::backend::context_cpu;
 using method_t = method::dense;
 using task_t = task::compute;
-using input_t = compute_input<task_t>;
-using result_t = compute_result<task_t>;
+using input_t = partial_compute_input<task_t>;
+using result_t = partial_compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 namespace daal_lom = daal::algorithms::low_order_moments;
@@ -89,166 +89,168 @@ void initialize_result(Result& result, const Input* input, const Parameter* para
     interop::status_to_exception(status);
 }
 
-template <typename Float>
-result_t call_daal_kernel_with_weights(const context_cpu& ctx,
-                                       const descriptor_t& desc,
-                                       const table& data,
-                                       const table& weights) {
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(weights.has_data());
+// template <typename Float>
+// result_t call_daal_kernel_with_weights(const context_cpu& ctx,
+//                                        const descriptor_t& desc,
+//                                        const table& data,
+//                                        const table& weights) {
+//     ONEDAL_ASSERT(data.has_data());
+//     ONEDAL_ASSERT(weights.has_data());
 
-    constexpr bool is_online = true;
+//     constexpr bool is_online = true;
 
-    const auto sample_count = data.get_row_count();
-    const auto feature_count = data.get_column_count();
+//     const auto sample_count = data.get_row_count();
+//     const auto feature_count = data.get_column_count();
 
-    ONEDAL_ASSERT(weights.get_row_count() == sample_count);
-    ONEDAL_ASSERT(weights.get_column_count() == std::int64_t(1));
+//     ONEDAL_ASSERT(weights.get_row_count() == sample_count);
+//     ONEDAL_ASSERT(weights.get_column_count() == std::int64_t(1));
 
-    row_accessor<const Float> data_accessor(data);
-    row_accessor<const Float> weights_accessor(weights);
+//     row_accessor<const Float> data_accessor(data);
+//     row_accessor<const Float> weights_accessor(weights);
 
-    const auto block = propose_block_size<Float>(sample_count, feature_count);
-    const bk::uniform_blocking blocking(sample_count, block);
+//     const auto block = propose_block_size<Float>(sample_count, feature_count);
+//     const bk::uniform_blocking blocking(sample_count, block);
 
-    auto daal_input = daal_lom::Input();
-    auto daal_result = daal_lom::Result();
-    auto daal_partial = daal_lom::PartialResult();
+//     auto daal_input = daal_lom::Input();
+//     auto daal_result = daal_lom::Result();
+//     auto daal_partial = daal_lom::PartialResult();
 
-    const auto result_ids = get_daal_estimates_to_compute(desc);
-    const auto daal_parameter = daal_lom::Parameter(result_ids);
+//     const auto result_ids = get_daal_estimates_to_compute(desc);
+//     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
-    const auto block_count = blocking.get_block_count();
-    for (std::int64_t b = 0; b < block_count; ++b) {
-        const auto f_row = blocking.get_block_start_index(b);
-        const auto l_row = blocking.get_block_end_index(b);
-        const std::int64_t len = l_row - f_row;
-        ONEDAL_ASSERT(l_row > f_row);
+//     const auto block_count = blocking.get_block_count();
+//     for (std::int64_t b = 0; b < block_count; ++b) {
+//         const auto f_row = blocking.get_block_start_index(b);
+//         const auto l_row = blocking.get_block_end_index(b);
+//         const std::int64_t len = l_row - f_row;
+//         ONEDAL_ASSERT(l_row > f_row);
 
-        auto weights_arr = weights_accessor.pull({ f_row, l_row });
-        auto gen_data_block = data_accessor.pull({ f_row, l_row });
-        auto data_arr = copy_immutable(std::move(gen_data_block));
+//         auto weights_arr = weights_accessor.pull({ f_row, l_row });
+//         auto gen_data_block = data_accessor.pull({ f_row, l_row });
+//         auto data_arr = copy_immutable(std::move(gen_data_block));
 
-        {
-            auto data_ndarr = pr::ndarray<Float, 2>::wrap_mutable(data_arr, { len, feature_count });
-            auto weights_ndarr = pr::ndarray<Float, 1>::wrap(weights_arr, len);
+//         {
+//             auto data_ndarr = pr::ndarray<Float, 2>::wrap_mutable(data_arr, { len, feature_count });
+//             auto weights_ndarr = pr::ndarray<Float, 1>::wrap(weights_arr, len);
 
-            apply_weights(ctx, weights_ndarr, data_ndarr);
-        }
+//             apply_weights(ctx, weights_ndarr, data_ndarr);
+//         }
 
-        const auto onedal_data = homogen_table::wrap(data_arr, len, feature_count);
+//         const auto onedal_data = homogen_table::wrap(data_arr, len, feature_count);
 
-        const auto daal_data = interop::convert_to_daal_table<Float>(onedal_data);
+//         const auto daal_data = interop::convert_to_daal_table<Float>(onedal_data);
 
-        daal_input.set(daal_lom::InputId::data, daal_data);
+//         daal_input.set(daal_lom::InputId::data, daal_data);
 
-        if (b == std::int64_t(0)) {
-            alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
-            initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
-        }
+//         if (b == std::int64_t(0)) {
+//             alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
+//             initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
+//         }
 
-        {
-            const auto status =
-                interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
-                                                                           daal_data.get(),
-                                                                           &daal_partial,
-                                                                           &daal_parameter,
-                                                                           is_online);
-            interop::status_to_exception(status);
-        }
-    }
+//         {
+//             const auto status =
+//                 interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
+//                                                                            daal_data.get(),
+//                                                                            &daal_partial,
+//                                                                            &daal_parameter,
+//                                                                            is_online);
+//             interop::status_to_exception(status);
+//         }
+//     }
 
-    {
-        alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
+//     {
+//         alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
 
-        daal_result.set(daal_lom::ResultId::maximum,
-                        daal_partial.get(daal_lom::PartialResultId::partialMaximum));
-        daal_result.set(daal_lom::ResultId::minimum,
-                        daal_partial.get(daal_lom::PartialResultId::partialMinimum));
+//         daal_result.set(daal_lom::ResultId::maximum,
+//                         daal_partial.get(daal_lom::PartialResultId::partialMaximum));
+//         daal_result.set(daal_lom::ResultId::minimum,
+//                         daal_partial.get(daal_lom::PartialResultId::partialMinimum));
 
-        daal_result.set(daal_lom::ResultId::sum,
-                        daal_partial.get(daal_lom::PartialResultId::partialSum));
-        daal_result.set(daal_lom::ResultId::sumSquares,
-                        daal_partial.get(daal_lom::PartialResultId::partialSumSquares));
-        daal_result.set(daal_lom::ResultId::sumSquaresCentered,
-                        daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered));
-    }
+//         daal_result.set(daal_lom::ResultId::sum,
+//                         daal_partial.get(daal_lom::PartialResultId::partialSum));
+//         daal_result.set(daal_lom::ResultId::sumSquares,
+//                         daal_partial.get(daal_lom::PartialResultId::partialSumSquares));
+//         daal_result.set(daal_lom::ResultId::sumSquaresCentered,
+//                         daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered));
+//     }
 
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
-                daal_partial.get(daal_lom::PartialResultId::nObservations).get(),
-                daal_partial.get(daal_lom::PartialResultId::partialSum).get(),
-                daal_partial.get(daal_lom::PartialResultId::partialSumSquares).get(),
-                daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered).get(),
-                daal_result.get(daal_lom::ResultId::mean).get(),
-                daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
-                daal_result.get(daal_lom::ResultId::variance).get(),
-                daal_result.get(daal_lom::ResultId::standardDeviation).get(),
-                daal_result.get(daal_lom::ResultId::variation).get(),
-                &daal_parameter);
-        });
+//     {
+//         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+//             constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+//             return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
+//                 daal_partial.get(daal_lom::PartialResultId::nObservations).get(),
+//                 daal_partial.get(daal_lom::PartialResultId::partialSum).get(),
+//                 daal_partial.get(daal_lom::PartialResultId::partialSumSquares).get(),
+//                 daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered).get(),
+//                 daal_result.get(daal_lom::ResultId::mean).get(),
+//                 daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
+//                 daal_result.get(daal_lom::ResultId::variance).get(),
+//                 daal_result.get(daal_lom::ResultId::standardDeviation).get(),
+//                 daal_result.get(daal_lom::ResultId::variation).get(),
+//                 &daal_parameter);
+//         });
 
-        interop::status_to_exception(status);
-    }
+//         interop::status_to_exception(status);
+//     }
 
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+//     auto result =
+//         get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
 
-    return result;
-}
+//     return result;
+// }
 
-template <typename Float>
+template <typename Float, typename Task>
 result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                           const descriptor_t& desc,
-                                          const table& data) {
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+                                          const partial_compute_input<Task>& input) {
+    // const auto daal_data = interop::convert_to_daal_table<Float>(input.get_data());
 
-    auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
-    auto daal_input = daal_lom::Input();
-    auto daal_result = daal_lom::Result();
+    // auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
+    // auto daal_input = daal_lom::Input();
+    // auto daal_result = daal_lom::Result();
 
-    daal_input.set(daal_lom::InputId::data, daal_data);
+    // daal_input.set(daal_lom::InputId::data, daal_data);
 
-    interop::status_to_exception(
-        daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
+    // interop::status_to_exception(
+    //     daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
-                                                                  daal_data.get(),
-                                                                  &daal_result,
-                                                                  &daal_parameter));
+    // interop::status_to_exception(
+    //     interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
+    //                                                               daal_data.get(),
+    //                                                               &daal_result,
+    //                                                               &daal_parameter));
 
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+    auto result = partial_compute_result();
 
     return result;
 }
 
-template <typename Float>
-static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    if (input.get_weights().has_data()) {
-        return call_daal_kernel_with_weights<Float>(ctx,
-                                                    desc,
-                                                    input.get_data(),
-                                                    input.get_weights());
-    }
-    else {
-        return call_daal_kernel_without_weights<Float>(ctx, desc, input.get_data());
-    }
+template <typename Float, typename Task>
+static partial_compute_result<Task> partial_compute(const context_cpu& ctx,
+                                                    const descriptor_t& desc,
+                                                    const partial_compute_input<Task>& input) {
+    // if (input.get_weights().has_data()) {
+    //     return call_daal_kernel_with_weights<Float>(ctx,
+    //                                                 desc,
+    //                                                 input.get_data(),
+    //                                                 input.get_weights());
+    // }
+    // else {
+    return call_daal_kernel_without_weights<Float, Task>(ctx, desc, input.get_data());
+    //}
 }
 
 template <typename Float>
-struct compute_kernel_cpu<Float, method_t, task_t> {
-    result_t operator()(const context_cpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
-        return compute<Float>(ctx, desc, input);
+struct partial_compute_kernel_cpu<Float, method_t, task_t> {
+    partial_compute_result<task::compute> operator()(
+        const context_cpu& ctx,
+        const descriptor_t& desc,
+        const partial_compute_input<task::compute>& input) const {
+        return partial_compute<Float, task::compute>(ctx, desc, input);
     }
 };
 
-template struct compute_kernel_cpu<float, method_t, task_t>;
-template struct compute_kernel_cpu<double, method_t, task_t>;
+template struct partial_compute_kernel_cpu<float, method_t, task_t>;
+template struct partial_compute_kernel_cpu<double, method_t, task_t>;
 
 } // namespace oneapi::dal::basic_statistics::backend

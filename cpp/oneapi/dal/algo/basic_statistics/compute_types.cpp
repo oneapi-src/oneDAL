@@ -22,6 +22,7 @@ namespace oneapi::dal::basic_statistics {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
+    compute_input_impl() : data(table()){};
     compute_input_impl(const table& data) : data(data) {}
     compute_input_impl(const table& data, const table& weights) : data(data), weights(weights) {}
     table data, weights;
@@ -44,10 +45,25 @@ public:
     result_option_id options;
 };
 
+template <typename Task>
+class detail::v1::partial_compute_result_impl : public base {
+public:
+    table nobs;
+    table partialmin;
+    table partialmax;
+    table partialsums;
+    table partialsumsquares;
+    table partialSumSquaresCentered;
+};
+
 using detail::v1::compute_input_impl;
 using detail::v1::compute_result_impl;
+using detail::v1::partial_compute_result_impl;
 
 namespace v1 {
+
+template <typename Task>
+compute_input<Task>::compute_input() : impl_(new compute_input_impl<Task>{}) {}
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
@@ -251,8 +267,87 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
     impl_->options = value;
 }
 
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const table& data)
+        : compute_input<Task>(data),
+          prev_() {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input() : compute_input<Task>(),
+                                                       prev_() {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const partial_compute_result<Task>& prev,
+                                                   const table& data)
+        : compute_input<Task>(data) {
+    this->prev_ = prev;
+}
+
+template <typename Task>
+const table& partial_compute_result<Task>::get_nobs() const {
+    return impl_->nobs;
+}
+
+template <typename Task>
+partial_compute_result<Task>::partial_compute_result()
+        : impl_(new partial_compute_result_impl<Task>()) {}
+
+template <typename Task>
+void partial_compute_result<Task>::set_nobs_impl(const table& value) {
+    impl_->nobs = value;
+}
+
+template <typename Task>
+const table& partial_compute_result<Task>::get_partial_min() const {
+    return impl_->partialmin;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_partial_min_impl(const table& value) {
+    impl_->partialmin = value;
+}
+template <typename Task>
+const table& partial_compute_result<Task>::get_partial_max() const {
+    return impl_->partialmax;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_partial_max_impl(const table& value) {
+    impl_->partialmax = value;
+}
+
+template <typename Task>
+const table& partial_compute_result<Task>::get_partial_sums() const {
+    return impl_->partialsums;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_partial_sums_impl(const table& value) {
+    impl_->partialsums = value;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_partial_sums_squares_impl(const table& value) {
+    impl_->partialsumsquares = value;
+}
+template <typename Task>
+const table& partial_compute_result<Task>::get_partial_sums_squares() const {
+    return impl_->partialsumsquares;
+}
+
+template <typename Task>
+void partial_compute_result<Task>::set_partial_sums_squares_centered_impl(const table& value) {
+    impl_->partialSumSquaresCentered = value;
+}
+
+template <typename Task>
+const table& partial_compute_result<Task>::get_partial_sums_squares_centered() const {
+    return impl_->partialSumSquaresCentered;
+}
 template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
+template class ONEDAL_EXPORT partial_compute_input<task::compute>;
+template class ONEDAL_EXPORT partial_compute_result<task::compute>;
 
 } // namespace v1
 } // namespace oneapi::dal::basic_statistics

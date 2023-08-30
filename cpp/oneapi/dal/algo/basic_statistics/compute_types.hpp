@@ -282,8 +282,10 @@ public:
 
 protected:
     void set_nobs_impl(const table&);
-    void set_crossproduct_impl(const table&);
-    void set_sums_impl(const table&);
+    void set_partial_min_impl(const table&);
+    void set_partial_max_impl(const table&);
+    void set_partial_sums_impl(const table&);
+    void set_partial_sums_squares_impl(const table&);
     void set_partial_sums_squares_centered_impl(const table&);
 
 private:

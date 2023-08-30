@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
-#include "oneapi/dal/algo/basic_statistics/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/basic_statistics/backend/cpu/finalize_compute_kernel.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -195,57 +195,56 @@ void initialize_result(Result& result, const Input* input, const Parameter* para
 //     return result;
 // }
 
-template <typename Float>
-result_t call_daal_kernel_partial_compute_without_weights(
+template <typename Float, typename Task>
+static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
     const context_cpu& ctx,
     const descriptor_t& desc,
-    const partial_compute_input<Task>& input) {
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const partial_compute_result<Task>& input) {
+    // const auto daal_data = interop::convert_to_daal_table<Float>(input.get_partial_sums());
 
-    auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
-    auto daal_input = daal_lom::Input();
-    auto daal_result = daal_lom::Result();
+    // auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
+    // auto daal_input = daal_lom::Input();
+    // auto daal_result = daal_lom::Result();
 
-    daal_input.set(daal_lom::InputId::data, daal_data);
+    // daal_input.set(daal_lom::InputId::data, daal_data);
 
-    interop::status_to_exception(
-        daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
+    // interop::status_to_exception(
+    //     daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
-                                                                  daal_data.get(),
-                                                                  &daal_result,
-                                                                  &daal_parameter));
+    // interop::status_to_exception(
+    //     interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
+    //                                                               daal_data.get(),
+    //                                                               &daal_result,
+    //                                                               &daal_parameter));
 
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+    auto result = compute_result();
 
     return result;
 }
 
 template <typename Float, typename Task>
-static partial_compute_result<Task> partial_compute(const context_cpu& ctx,
-                                                    const descriptor_t& desc,
-                                                    const partial_compute_input<Task>& input) {
-    if (input.get_weights().has_data()) {
-        return call_daal_kernel_partial_compute_with_weights<Float>(ctx, desc, input);
-    }
-    else {
-        return call_daal_kernel_partial_compute_without_weights<Float>(ctx, desc, input);
-    }
+static compute_result<Task> finalize_compute(const context_cpu& ctx,
+                                             const descriptor_t& desc,
+                                             const partial_compute_result<Task>& input) {
+    // if (input.get_weights().has_data()) {
+    //     return call_daal_kernel_partial_compute_with_weights<Float>(ctx, desc, input);
+    // }
+    // else {
+    return call_daal_kernel_finalize_compute_without_weights<Float, Task>(ctx, desc, input);
+    //}
 }
 
 template <typename Float>
-struct partial_compute_kernel_cpu<Float, method_t, task_t> {
-    partial_compute_result<task::compute> operator()(
+struct finalize_compute_kernel_cpu<Float, method_t, task_t> {
+    compute_result<task::compute> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
-        const partial_compute_input<task::compute>& input) const {
-        return partial_compute<Float, task::compute>(ctx, desc, input);
+        const partial_compute_result<task::compute>& input) const {
+        return finalize_compute<Float, task::compute>(ctx, desc, input);
     }
 };
 
-template struct partial_compute_kernel_cpu<float, method_t, task_t>;
-template struct partial_compute_kernel_cpu<double, method_t, task_t>;
+template struct finalize_compute_kernel_cpu<float, method_t, task_t>;
+template struct finalize_compute_kernel_cpu<double, method_t, task_t>;
 
 } // namespace oneapi::dal::basic_statistics::backend

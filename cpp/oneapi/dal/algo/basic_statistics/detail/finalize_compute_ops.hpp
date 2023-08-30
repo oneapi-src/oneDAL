@@ -38,49 +38,49 @@ struct finalize_compute_ops {
     using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const input_t& input) const {
-        ONEDAL_ASSERT(input.get_nobs().has_data());
-        ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
-        ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
-        ONEDAL_ASSERT(input.get_crossproduct().has_data());
-        ONEDAL_ASSERT(input.get_sums().has_data());
-    }
+    // void check_preconditions(const Descriptor& params, const input_t& input) const {
+    //     ONEDAL_ASSERT(input.get_nobs().has_data());
+    //     ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
+    //     ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
+    //     ONEDAL_ASSERT(input.get_crossproduct().has_data());
+    //     ONEDAL_ASSERT(input.get_sums().has_data());
+    // }
 
-    void check_postconditions(const Descriptor& params,
-                              const input_t& input,
-                              const result_t& result) const {
-        if (result.get_result_options().test(result_options::means)) {
-            ONEDAL_ASSERT(result.get_means().has_data());
-            ONEDAL_ASSERT(result.get_means().get_column_count() ==
-                          input.get_crossproduct().get_column_count());
-            ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
-        }
+    // void check_postconditions(const Descriptor& params,
+    //                           const input_t& input,
+    //                           const result_t& result) const {
+    //     if (result.get_result_options().test(result_options::means)) {
+    //         ONEDAL_ASSERT(result.get_means().has_data());
+    //         ONEDAL_ASSERT(result.get_means().get_column_count() ==
+    //                       input.get_crossproduct().get_column_count());
+    //         ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
+    //     }
 
-        if (result.get_result_options().test(result_options::cov_matrix)) {
-            ONEDAL_ASSERT(result.get_cov_matrix().has_data());
-            ONEDAL_ASSERT(result.get_cov_matrix().get_column_count() ==
-                          input.get_crossproduct().get_column_count());
-            ONEDAL_ASSERT(result.get_cov_matrix().get_row_count() ==
-                          input.get_crossproduct().get_column_count());
-        }
+    //     if (result.get_result_options().test(result_options::cov_matrix)) {
+    //         ONEDAL_ASSERT(result.get_cov_matrix().has_data());
+    //         ONEDAL_ASSERT(result.get_cov_matrix().get_column_count() ==
+    //                       input.get_crossproduct().get_column_count());
+    //         ONEDAL_ASSERT(result.get_cov_matrix().get_row_count() ==
+    //                       input.get_crossproduct().get_column_count());
+    //     }
 
-        if (result.get_result_options().test(result_options::cor_matrix)) {
-            ONEDAL_ASSERT(result.get_cor_matrix().has_data());
-            ONEDAL_ASSERT(result.get_cor_matrix().get_column_count() ==
-                          input.get_crossproduct().get_column_count());
-            ONEDAL_ASSERT(result.get_cor_matrix().get_row_count() ==
-                          input.get_crossproduct().get_column_count());
-        }
-    }
+    //     if (result.get_result_options().test(result_options::cor_matrix)) {
+    //         ONEDAL_ASSERT(result.get_cor_matrix().has_data());
+    //         ONEDAL_ASSERT(result.get_cor_matrix().get_column_count() ==
+    //                       input.get_crossproduct().get_column_count());
+    //         ONEDAL_ASSERT(result.get_cor_matrix().get_row_count() ==
+    //                       input.get_crossproduct().get_column_count());
+    //     }
+    // }
 
     template <typename Context>
     auto operator()(const Context& ctx,
                     const Descriptor& desc,
                     const partial_compute_result<task_t>& input) const {
-        check_preconditions(desc, input);
+        //check_preconditions(desc, input);
         const auto result =
             finalize_compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
-        check_postconditions(desc, input, result);
+        //check_postconditions(desc, input, result);
         return result;
     }
 };
