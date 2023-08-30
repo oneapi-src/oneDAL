@@ -30,6 +30,14 @@ endif()
 # ONEDAL_INTERFACE: yes | no. Default is no
 # ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
 unset(DAL_LIBS)
+
+if(WIN32)
+    set(ONEDAL_USE_PARAMETERS_LIBRARY yes)
+else()
+    message(STATUS "Optimization library is not enabled on Windows")
+    set(ONEDAL_USE_PARAMETERS_LIBRARY no)
+endif()
+
 #Backward compatibility section to be removed with next major version
 if(NOT DEFINED ONEDAL_LINK AND DEFINED TARGET_LINK)
   message(STATUS "TARGET_LINK is deprecated. Please use ONEDAL_LINK instead.")
@@ -106,11 +114,17 @@ if (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "no")
 elseif (ONEDAL_USE_DPCPP STREQUAL "no" AND ONEDAL_INTERFACE STREQUAL "yes")
     list(APPEND DAL_LIBS onedal${DAL_DEBUG_SUFFIX})
 elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_parameters_dpc${DAL_DEBUG_SUFFIX})
     list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX} onedal_sycl${DAL_DEBUG_SUFFIX})
+    if(ONEDAL_USE_PARAMETERS_LIBRARY)
+        list(APPEND DAL_LIBS onedal_parameters_dpc${DAL_DEBUG_SUFFIX})
+    endif()
 endif()
 
-list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX} onedal_parameters${DAL_DEBUG_SUFFIX})
+list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX})
+if(ONEDAL_USE_PARAMETERS_LIBRARY)
+    list(APPEND DAL_LIBS onedal_parameters${DAL_DEBUG_SUFFIX})
+endif()
+
 
 set(THREADING_TYPE "parallel")
 set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})

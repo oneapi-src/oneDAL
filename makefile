@@ -43,6 +43,7 @@ OS_is_$(_OS)                       := yes
 IA_is_$(_IA)                       := yes
 PLAT_is_$(PLAT)                    := yes
 MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
+BUILD_PARAMETERS_LIB               := ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 
 COMPILERs = icc icx gnu clang vc
 COMPILER ?= icc
@@ -757,13 +758,19 @@ $(foreach x,$(PARAMETERS.objs_a.dpc.filtered),$(eval $(call .ONEAPI.compile,$x,$
 $(foreach x,$(PARAMETERS.objs_y.dpc.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_y.dpc),DPC)))
 
 # Create Host and DPC++ oneapi libraries
+ifdef BUILD_PARAMETERS_LIB
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a.filtered)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc.filtered)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a),$(PARAMETERS.objs_a.filtered)))
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(parameters_a.dpc),$(PARAMETERS.objs_a.dpc.filtered)))
+else
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.objs_a)))
+$(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
+endif
 
+ONEAPI.objs_y.lib := $(if $(BUILD_PARAMETERS_LIB),$(ONEAPI.objs_y.filtered),$(ONEAPI.objs_y))
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
-    $(ONEAPI.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
+    $(ONEAPI.objs_y.lib) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): \
     $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
@@ -775,6 +782,7 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y)
 endif
 
+ifdef BUILD_PARAMETERS_LIB
 $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y): \
@@ -787,9 +795,11 @@ $(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_
 ifdef OS_is_win
 $(WORKDIR.lib)/$(parameters_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(parameters_y)
 endif
+endif
 
+ONEAPI.objs_y.dpc.lib := $(if $(BUILD_PARAMETERS_LIB),$(ONEAPI.objs_y.dpc.filtered),$(ONEAPI.objs_y.dpc))
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
-    $(ONEAPI.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
+    $(ONEAPI.objs_y.dpc.lib) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
     $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
@@ -803,6 +813,7 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
 endif
 
+ifdef BUILD_PARAMETERS_LIB
 $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y.dpc): \
@@ -815,6 +826,7 @@ $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(c
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(parameters_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(parameters_y.dpc)
+endif
 endif
 
 $(ONEAPI.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
@@ -981,8 +993,13 @@ _parameters_dpc: $(WORKDIR.lib)/$(parameters_a.dpc) $(WORKDIR.lib)/$(parameters_
 _oneapi_dpc: info.building.oneapi.DPC++.part
 _oneapi_dpc: $(WORKDIR.lib)/$(oneapi_a.dpc) $(WORKDIR.lib)/$(oneapi_y.dpc)
 
+ifdef BUILD_PARAMETERS_LIB
 _release_parameters_c: _parameters_c
-_release_parameters_c: _parameters_dpc
+_release_parameters_dpc: _parameters_dpc
+else
+_release_parameters_c:
+_release_parameters_dpc:
+endif
 
 _release_oneapi_c: _release_oneapi_c_h _release_oneapi_common
 _release_oneapi_dpc: _release_oneapi_c _release_oneapi_common
