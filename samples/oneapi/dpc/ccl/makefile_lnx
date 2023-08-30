@@ -120,7 +120,7 @@ EXT_LIB := $(LOPTS) $(LIBS)
 
 RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
 
-CC = icpx -fsycl 
+CC = icpx -fsycl
 CRUN = mpirun
 RUNOPTS = -n $(proc) -ppn $(proc)
 

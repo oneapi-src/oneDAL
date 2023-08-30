@@ -1,0 +1,10 @@
+diff a/samples/oneapi/dpc/ccl/makefile_lnx b/samples/oneapi/dpc/ccl/makefile_lnx	(rejected hunks)
+@@ -70,7 +70,7 @@ DAAL_PATH = $(DAALROOT)/lib/intel64
+ ifndef TBBROOT
+     TBBROOT = ./../../../../../tbb/latest
+ endif
+-TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
++TBB_PATH = $(TBBROOT)/lib
+ MPI_PATH = $(I_MPI_ROOT)
+ CCL_PATH = $(CCL_ROOT)
+ 

@@ -95,7 +95,7 @@ DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,-lonedal_
 COPTS := -Wall -w -I./source/utils
 
 ifeq ($(compiler),dpcpp)
-    CC = icpx -fsycl 
+    CC = icpx -fsycl
     COPTS += -fsycl-device-code-split=per_kernel
 endif
 
