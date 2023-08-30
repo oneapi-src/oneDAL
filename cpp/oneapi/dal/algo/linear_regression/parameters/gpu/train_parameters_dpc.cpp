@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#define INVERT_EXPORT_IMPORT
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
@@ -26,7 +25,6 @@
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 
 #include "oneapi/dal/algo/linear_regression/parameters/gpu/train_parameters.hpp"
-#undef INVERT_EXPORT_IMPORT
 
 namespace oneapi::dal::linear_regression::parameters {
 
