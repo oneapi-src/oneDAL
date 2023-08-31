@@ -36,7 +36,7 @@ std::int64_t propose_block_size(const std::int64_t f, const std::int64_t r) {
 }
 
 template <typename Float, typename Task>
-struct ONEDAL_EXPORT train_parameters_cpu<Float, method::norm_eq, Task> {
+struct train_parameters_cpu<Float, method::norm_eq, Task> {
     using params_t = detail::train_parameters<Task>;
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
