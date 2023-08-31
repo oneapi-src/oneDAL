@@ -85,134 +85,129 @@ void initialize_result(Result& result, const Input* input, const Parameter* para
     interop::status_to_exception(status);
 }
 
-// template <typename Float>
-// result_t call_daal_kernel_with_weights(const context_cpu& ctx,
-//                                        const descriptor_t& desc,
-//                                        const table& data,
-//                                        const table& weights) {
-//     ONEDAL_ASSERT(data.has_data());
-//     ONEDAL_ASSERT(weights.has_data());
+template <typename Float, typename Task>
+result_t call_daal_kernel_with_weights(const context_cpu& ctx,
+                                       const descriptor_t& desc,
+                                       const partial_compute_input<Task>& input) {
+    auto data = input.get_data();
+    auto weights = input.get_weights();
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(weights.has_data());
 
-//     constexpr bool is_online = true;
+    constexpr bool is_online = true;
 
-//     const auto sample_count = data.get_row_count();
-//     const auto feature_count = data.get_column_count();
+    ONEDAL_ASSERT(weights.get_row_count() == data.get_row_count());
+    ONEDAL_ASSERT(weights.get_column_count() == std::int64_t(1));
 
-//     ONEDAL_ASSERT(weights.get_row_count() == sample_count);
-//     ONEDAL_ASSERT(weights.get_column_count() == std::int64_t(1));
+    auto daal_input = daal_lom::Input();
+    auto daal_partial = daal_lom::PartialResult();
 
-//     row_accessor<const Float> data_accessor(data);
-//     row_accessor<const Float> weights_accessor(weights);
+    auto result = partial_compute_result();
+    const auto input_ = input.get_prev();
 
-//     const auto block = propose_block_size<Float>(sample_count, feature_count);
-//     const bk::uniform_blocking blocking(sample_count, block);
+    const auto result_ids = get_daal_estimates_to_compute(desc);
+    const auto daal_parameter = daal_lom::Parameter(result_ids);
 
-//     auto daal_input = daal_lom::Input();
-//     auto daal_result = daal_lom::Result();
-//     auto daal_partial = daal_lom::PartialResult();
+    //apply_weights(ctx, weights_ndarr, data_ndarr);
 
-//     const auto result_ids = get_daal_estimates_to_compute(desc);
-//     const auto daal_parameter = daal_lom::Parameter(result_ids);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-//     const auto block_count = blocking.get_block_count();
-//     for (std::int64_t b = 0; b < block_count; ++b) {
-//         const auto f_row = blocking.get_block_start_index(b);
-//         const auto l_row = blocking.get_block_end_index(b);
-//         const std::int64_t len = l_row - f_row;
-//         ONEDAL_ASSERT(l_row > f_row);
+    daal_input.set(daal_lom::InputId::data, daal_data);
+    const bool has_nobs_data = input_.get_nobs().has_data();
+    if (has_nobs_data) {
+        auto daal_partial_max =
+            interop::copy_to_daal_homogen_table<Float>(input_.get_partial_max());
+        auto daal_partial_min =
+            interop::copy_to_daal_homogen_table<Float>(input_.get_partial_min());
+        auto daal_partial_sums =
+            interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sums());
+        auto daal_partial_sums_squares =
+            interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sums_squares());
+        auto daal_partial_sums_squares_centered =
+            interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sums_squares_centered());
+        auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_nobs());
 
-//         auto weights_arr = weights_accessor.pull({ f_row, l_row });
-//         auto gen_data_block = data_accessor.pull({ f_row, l_row });
-//         auto data_arr = copy_immutable(std::move(gen_data_block));
+        daal_partial.set(daal_lom::PartialResultId::nObservations, daal_nobs);
 
-//         {
-//             auto data_ndarr = pr::ndarray<Float, 2>::wrap_mutable(data_arr, { len, feature_count });
-//             auto weights_ndarr = pr::ndarray<Float, 1>::wrap(weights_arr, len);
+        daal_partial.set(daal_lom::PartialResultId::partialMaximum, daal_partial_max);
+        daal_partial.set(daal_lom::PartialResultId::partialMinimum, daal_partial_min);
+        daal_partial.set(daal_lom::PartialResultId::partialSum, daal_partial_sums);
+        daal_partial.set(daal_lom::PartialResultId::partialSumSquaresCentered,
+                         daal_partial_sums_squares_centered);
 
-//             apply_weights(ctx, weights_ndarr, data_ndarr);
-//         }
+        daal_partial.set(daal_lom::PartialResultId::partialSumSquares, daal_partial_sums_squares);
 
-//         const auto onedal_data = homogen_table::wrap(data_arr, len, feature_count);
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
+                                                                       daal_data.get(),
+                                                                       &daal_partial,
+                                                                       &daal_parameter,
+                                                                       is_online));
 
-//         const auto daal_data = interop::convert_to_daal_table<Float>(onedal_data);
+        result.set_nobs(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::nObservations)));
+        result.set_partial_max(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialMaximum)));
+        result.set_partial_min(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialMinimum)));
+        result.set_partial_sums(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialSum)));
+        result.set_partial_sums_squares_centered(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered)));
+        result.set_partial_sums_squares(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialSumSquares)));
 
-//         daal_input.set(daal_lom::InputId::data, daal_data);
+        return result;
+    }
+    else {
+        alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
+        initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
 
-//         if (b == std::int64_t(0)) {
-//             alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
-//             initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
-//         }
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
+                                                                       daal_data.get(),
+                                                                       &daal_partial,
+                                                                       &daal_parameter,
+                                                                       is_online));
 
-//         {
-//             const auto status =
-//                 interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
-//                                                                            daal_data.get(),
-//                                                                            &daal_partial,
-//                                                                            &daal_parameter,
-//                                                                            is_online);
-//             interop::status_to_exception(status);
-//         }
-//     }
-
-//     {
-//         alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
-
-//         daal_result.set(daal_lom::ResultId::maximum,
-//                         daal_partial.get(daal_lom::PartialResultId::partialMaximum));
-//         daal_result.set(daal_lom::ResultId::minimum,
-//                         daal_partial.get(daal_lom::PartialResultId::partialMinimum));
-
-//         daal_result.set(daal_lom::ResultId::sum,
-//                         daal_partial.get(daal_lom::PartialResultId::partialSum));
-//         daal_result.set(daal_lom::ResultId::sumSquares,
-//                         daal_partial.get(daal_lom::PartialResultId::partialSumSquares));
-//         daal_result.set(daal_lom::ResultId::sumSquaresCentered,
-//                         daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered));
-//     }
-
-//     {
-//         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-//             constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-//             return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
-//                 daal_partial.get(daal_lom::PartialResultId::nObservations).get(),
-//                 daal_partial.get(daal_lom::PartialResultId::partialSum).get(),
-//                 daal_partial.get(daal_lom::PartialResultId::partialSumSquares).get(),
-//                 daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered).get(),
-//                 daal_result.get(daal_lom::ResultId::mean).get(),
-//                 daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
-//                 daal_result.get(daal_lom::ResultId::variance).get(),
-//                 daal_result.get(daal_lom::ResultId::standardDeviation).get(),
-//                 daal_result.get(daal_lom::ResultId::variation).get(),
-//                 &daal_parameter);
-//         });
-
-//         interop::status_to_exception(status);
-//     }
-
-//     auto result =
-//         get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
-
-//     return result;
-// }
+        result.set_nobs(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::nObservations)));
+        result.set_partial_max(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialMaximum)));
+        result.set_partial_min(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialMinimum)));
+        result.set_partial_sums(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialSum)));
+        result.set_partial_sums_squares_centered(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered)));
+        result.set_partial_sums_squares(interop::convert_from_daal_homogen_table<Float>(
+            daal_partial.get(daal_lom::PartialResultId::partialSumSquares)));
+        return result;
+    }
+}
 
 template <typename Float, typename Task>
 result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                           const descriptor_t& desc,
                                           const partial_compute_input<Task>& input) {
     auto data = input.get_data();
+    ONEDAL_ASSERT(data.has_data());
+
     constexpr bool is_online = true;
 
     auto daal_input = daal_lom::Input();
-    auto result = partial_compute_result();
     auto daal_partial = daal_lom::PartialResult();
+
+    auto result = partial_compute_result();
     const auto input_ = input.get_prev();
+
     const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     daal_input.set(daal_lom::InputId::data, daal_data);
-    const bool has_nobs_data = input_.get_partial_sums().has_data();
+    const bool has_nobs_data = input_.get_nobs().has_data();
 
     if (has_nobs_data) {
         auto daal_partial_max =
@@ -237,15 +232,12 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
 
         daal_partial.set(daal_lom::PartialResultId::partialSumSquares, daal_partial_sums_squares);
 
-        {
-            const auto status =
-                interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
-                                                                           daal_data.get(),
-                                                                           &daal_partial,
-                                                                           &daal_parameter,
-                                                                           is_online);
-            interop::status_to_exception(status);
-        }
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
+                                                                       daal_data.get(),
+                                                                       &daal_partial,
+                                                                       &daal_parameter,
+                                                                       is_online));
 
         result.set_nobs(interop::convert_from_daal_homogen_table<Float>(
             daal_partial.get(daal_lom::PartialResultId::nObservations)));
@@ -266,15 +258,12 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
         alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
         initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
 
-        {
-            const auto status =
-                interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
-                                                                           daal_data.get(),
-                                                                           &daal_partial,
-                                                                           &daal_parameter,
-                                                                           is_online);
-            interop::status_to_exception(status);
-        }
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
+                                                                       daal_data.get(),
+                                                                       &daal_partial,
+                                                                       &daal_parameter,
+                                                                       is_online));
 
         result.set_nobs(interop::convert_from_daal_homogen_table<Float>(
             daal_partial.get(daal_lom::PartialResultId::nObservations)));
@@ -296,15 +285,12 @@ template <typename Float, typename Task>
 static partial_compute_result<Task> partial_compute(const context_cpu& ctx,
                                                     const descriptor_t& desc,
                                                     const partial_compute_input<Task>& input) {
-    // if (input.get_weights().has_data()) {
-    //     return call_daal_kernel_with_weights<Float>(ctx,
-    //                                                 desc,
-    //                                                 input.get_data(),
-    //                                                 input.get_weights());
-    // }
-    // else {
-    return call_daal_kernel_without_weights<Float, Task>(ctx, desc, input);
-    //}
+    if (input.get_weights().has_data()) {
+        return call_daal_kernel_with_weights<Float>(ctx, desc, input);
+    }
+    else {
+        return call_daal_kernel_without_weights<Float, Task>(ctx, desc, input);
+    }
 }
 
 template <typename Float>

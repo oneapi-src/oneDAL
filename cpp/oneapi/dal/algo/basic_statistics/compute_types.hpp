@@ -312,6 +312,15 @@ public:
         return *this;
     }
 
+    const table& get_weights() const {
+        return compute_input<Task>::get_weights();
+    }
+
+    auto& set_weights(const table& value) {
+        compute_input<Task>::set_weights(value);
+        return *this;
+    }
+
     const partial_compute_result<Task>& get_prev() const {
         return prev_;
     }
