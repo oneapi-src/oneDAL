@@ -200,24 +200,9 @@ static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_compute_result<Task>& input) {
-    // const auto daal_data = interop::convert_to_daal_table<Float>(input.get_partial_sums());
-
-    // auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
-    // auto daal_input = daal_lom::Input();
-    // auto daal_result = daal_lom::Result();
-
-    // daal_input.set(daal_lom::InputId::data, daal_data);
-
-    // interop::status_to_exception(
-    //     daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
-
-    // interop::status_to_exception(
-    //     interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
-    //                                                               daal_data.get(),
-    //                                                               &daal_result,
-    //                                                               &daal_parameter));
     const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
+
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
@@ -226,7 +211,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
         interop::convert_to_daal_table<Float>(input.get_partial_sums_squares());
     auto daal_partial_sums_squares_centered =
         interop::convert_to_daal_table<Float>(input.get_partial_sums_squares_centered());
+
     auto daal_result = daal_lom::Result();
+
+    //TODO:make a workaround for providin gnumber of rows and columns of full dataset
     auto daal_input = daal_lom::Input();
     auto arr_input = array<Float>::zeros(200 * 10);
     auto daal_input_ = interop::convert_to_daal_homogen_table<Float>(arr_input, 200, 10);
@@ -240,9 +228,9 @@ static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
     daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sums_squares);
     daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sums_squares_centered);
 
-    const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-        return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
+    interop::status_to_exception(
+        interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
+            ctx,
             daal_partial_obs.get(),
             daal_partial_sums.get(),
             daal_partial_sums_squares.get(),
@@ -252,10 +240,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
             daal_result.get(daal_lom::ResultId::variance).get(),
             daal_result.get(daal_lom::ResultId::standardDeviation).get(),
             daal_result.get(daal_lom::ResultId::variation).get(),
-            &daal_parameter);
-    });
-
-    interop::status_to_exception(status);
+            &daal_parameter));
 
     auto result =
         get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
