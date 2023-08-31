@@ -216,8 +216,49 @@ static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
     //                                                               daal_data.get(),
     //                                                               &daal_result,
     //                                                               &daal_parameter));
+    const auto result_ids = get_daal_estimates_to_compute(desc);
+    const auto daal_parameter = daal_lom::Parameter(result_ids);
+    auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
+    auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
+    auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
+    auto daal_partial_sums = interop::convert_to_daal_table<Float>(input.get_partial_sums());
+    auto daal_partial_sums_squares =
+        interop::convert_to_daal_table<Float>(input.get_partial_sums_squares());
+    auto daal_partial_sums_squares_centered =
+        interop::convert_to_daal_table<Float>(input.get_partial_sums_squares_centered());
+    auto daal_result = daal_lom::Result();
+    auto daal_input = daal_lom::Input();
+    auto arr_input = array<Float>::zeros(200 * 10);
+    auto daal_input_ = interop::convert_to_daal_homogen_table<Float>(arr_input, 200, 10);
+    daal_input.set(daal_lom::InputId::data, daal_input_);
+    alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
 
-    auto result = compute_result();
+    daal_result.set(daal_lom::ResultId::maximum, daal_partial_max);
+    daal_result.set(daal_lom::ResultId::minimum, daal_partial_min);
+
+    daal_result.set(daal_lom::ResultId::sum, daal_partial_sums);
+    daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sums_squares);
+    daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sums_squares_centered);
+
+    const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+        return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
+            daal_partial_obs.get(),
+            daal_partial_sums.get(),
+            daal_partial_sums_squares.get(),
+            daal_partial_sums_squares_centered.get(),
+            daal_result.get(daal_lom::ResultId::mean).get(),
+            daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
+            daal_result.get(daal_lom::ResultId::variance).get(),
+            daal_result.get(daal_lom::ResultId::standardDeviation).get(),
+            daal_result.get(daal_lom::ResultId::variation).get(),
+            &daal_parameter);
+    });
+
+    interop::status_to_exception(status);
+
+    auto result =
+        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
 
     return result;
 }
