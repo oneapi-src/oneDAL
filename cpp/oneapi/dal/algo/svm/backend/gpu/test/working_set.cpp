@@ -27,7 +27,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class working_set_test : public te::policy_fixture {
+class working_set_test : public te::float_algo_fixture<TestType> {
 public:
     using float_t = TestType;
 
