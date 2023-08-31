@@ -313,8 +313,8 @@ jobs:
     maxParallel: 2
   strategy:
     matrix:
-      Python38:
-        python.version: '3.8'
+      Python311:
+        python.version: '3.11'
   steps:
   - task: DownloadPipelineArtifact@2
     inputs:
@@ -327,7 +327,7 @@ jobs:
     displayName: 'System info'
   - script: |
       conda update -y -q conda
-      conda create -q -y -n CB -c intel python=$(python.version) tbb
+      conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
     displayName: 'Conda create'
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git daal4py
@@ -344,7 +344,6 @@ jobs:
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       cd daal4py
-      export NO_DIST=1
       export PYTHON=python
       ./conda-recipe/build.sh
     displayName: daal4py build
@@ -365,7 +364,6 @@ jobs:
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      export NO_DIST=1
       ./daal4py/conda-recipe/run_test.sh
     timeoutInMinutes: 15
     displayName: daal4py test
