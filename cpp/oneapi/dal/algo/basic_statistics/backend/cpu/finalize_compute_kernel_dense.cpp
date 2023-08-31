@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -214,7 +214,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute_without_weights(
 
     auto daal_result = daal_lom::Result();
 
-    //TODO:make a workaround for providin gnumber of rows and columns of full dataset
+    //TODO:make a workaround for providing number of rows and columns of full dataset
     auto daal_input = daal_lom::Input();
     auto arr_input = array<Float>::zeros(200 * 10);
     auto daal_input_ = interop::convert_to_daal_homogen_table<Float>(arr_input, 200, 10);

@@ -19,7 +19,7 @@
 #include "oneapi/dal/detail/finalize_compute_ops.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/spmd/communicator.hpp"
-//TODO: move partial compute into preview(detail::data_parallel_policy is not in preview)
+
 namespace oneapi::dal {
 namespace v1 {
 

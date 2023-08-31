@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
-
+//TODO:add checks for pre and postconditions
 namespace oneapi::dal::basic_statistics::detail {
 namespace v1 {
 
