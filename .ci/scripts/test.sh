@@ -57,6 +57,7 @@ ARCH=${PLATFORM:3:3}
 full_arch=intel64
 build_system=${build_system:-cmake}
 backend=${backend:-mkl}
+n_cpus=$(python -c "from multiprocessing import cpu_count; print(cpu_count())")
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -166,7 +167,7 @@ for link_mode in ${link_modes}; do
             TESTING_RETURN=${err}
             continue
         fi
-        make -C Build
+        make -j${n_cpus} -C Build
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"
@@ -195,7 +196,7 @@ for link_mode in ${link_modes}; do
             echo -e $status_ex
         done
     else
-        build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
+        build_command="make -j${n_cpus} ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
         echo "Building ${TEST_KIND} ${build_command}"
         (${build_command})
         err=$?
