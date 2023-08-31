@@ -93,6 +93,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
+    auto column_numbers = input.get_partial_min().get_column_count();
+    const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
+    auto row_count = nobs[0];
+
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
@@ -104,10 +108,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
 
     auto daal_result = daal_lom::Result();
 
-    //TODO:make a workaround for providing number of rows and columns of full dataset
     auto daal_input = daal_lom::Input();
-    auto arr_input = array<Float>::zeros(200 * 10);
-    auto daal_input_ = interop::convert_to_daal_homogen_table<Float>(arr_input, 200, 10);
+    auto arr_input = array<Float>::zeros(row_count * column_numbers);
+    auto daal_input_ =
+        interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
     daal_input.set(daal_lom::InputId::data, daal_input_);
     alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
 

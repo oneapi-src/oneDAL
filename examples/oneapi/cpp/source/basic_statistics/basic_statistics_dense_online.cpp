@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
 
     dal::basic_statistics::partial_compute_result<> partial_result;
 
-    auto input_table = split_table_by_rows<double>(input, nBlocks);
+    auto input_table = split_table_by_rows<double>(data, nBlocks);
     for (std::int64_t i = 0; i < nBlocks; i++) {
         partial_result = dal::partial_compute(bs_desc, partial_result, input_table[i]);
     }
