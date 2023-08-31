@@ -22,7 +22,7 @@
 namespace oneapi::dal::linear_regression::parameters {
 
 template <typename Float, typename Method, typename Task>
-struct ONEDAL_EXPORT train_parameters_gpu {
+struct train_parameters_gpu {
     using params_t = detail::train_parameters<Task>;
     params_t operator()(const dal::backend::context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,

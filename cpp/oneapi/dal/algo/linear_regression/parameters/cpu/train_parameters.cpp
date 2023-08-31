@@ -53,7 +53,7 @@ struct train_parameters_cpu<Float, method::norm_eq, Task> {
     }
 };
 
-template struct ONEDAL_EXPORT train_parameters_cpu<float, method::norm_eq, task::regression>;
-template struct ONEDAL_EXPORT train_parameters_cpu<double, method::norm_eq, task::regression>;
+template struct train_parameters_cpu<float, method::norm_eq, task::regression>;
+template struct train_parameters_cpu<double, method::norm_eq, task::regression>;
 
 } // namespace oneapi::dal::linear_regression::parameters

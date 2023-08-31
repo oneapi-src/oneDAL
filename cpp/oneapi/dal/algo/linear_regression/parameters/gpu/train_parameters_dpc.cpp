@@ -56,7 +56,7 @@ struct train_parameters_gpu<Float, method::norm_eq, Task> {
     }
 };
 
-template struct ONEDAL_EXPORT train_parameters_gpu<float, method::norm_eq, task::regression>;
-template struct ONEDAL_EXPORT train_parameters_gpu<double, method::norm_eq, task::regression>;
+template struct train_parameters_gpu<float, method::norm_eq, task::regression>;
+template struct train_parameters_gpu<double, method::norm_eq, task::regression>;
 
 } // namespace oneapi::dal::linear_regression::parameters
