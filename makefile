@@ -976,10 +976,6 @@ _release:    _release_c _release_jj
 _release_c:  _release_c_h _release_common
 _release_jj: _release_common#
 
-$(info "BUILD_PARAMETERS_LIB")
-$(info $(BUILD_PARAMETERS_LIB))
-
-
 ifdef BUILD_PARAMETERS_LIB
 _parameters_c: info.building.parameters.C++.part
 _parameters_c: $(WORKDIR.lib)/$(parameters_a) $(WORKDIR.lib)/$(parameters_y)
