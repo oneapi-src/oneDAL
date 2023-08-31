@@ -47,6 +47,12 @@ MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
 DEFAULT_BUILD_PARAMETERS_LIB       := $(if $(OS_is_win),no,yes)
 BUILD_PARAMETERS_LIB               ?= $(DEFAULT_BUILD_PARAMETERS_LIB)
 
+ifdef OS_is_win
+ifeq ($(BUILD_PARAMETERS_LIB),yes)
+$(error Building with the parameters library is not available on Windows OS)
+endif
+endif
+
 COMPILERs = icc icx gnu clang vc
 COMPILER ?= icc
 
