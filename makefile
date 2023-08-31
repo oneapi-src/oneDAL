@@ -765,7 +765,11 @@ $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a),$(ONEAPI.obj
 $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI.objs_a.dpc)))
 endif
 
-ONEAPI.objs_y.lib := $(if $(patsubst yes,,$(BUILD_PARAMETERS_LIB)),$(ONEAPI.objs_y.filtered),$(ONEAPI.objs_y))
+ONEAPI.objs_y.lib := $(ONEAPI.objs_y.filtered)
+ifeq ($(BUILD_PARAMETERS_LIB),no)
+  ONEAPI.objs_y.lib += $(PARAMETERS.objs_y.filtered)
+endif
+
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
     $(ONEAPI.objs_y.lib) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): \
@@ -794,7 +798,11 @@ $(WORKDIR.lib)/$(parameters_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(
 endif
 endif
 
-ONEAPI.objs_y.dpc.lib := $(if $(patsubst yes,,$(BUILD_PARAMETERS_LIB)),$(ONEAPI.objs_y.dpc.filtered),$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc.lib := $(ONEAPI.objs_y.dpc.filtered)
+ifeq ($(BUILD_PARAMETERS_LIB),no)
+  ONEAPI.objs_y.dpc.lib += $(PARAMETERS.objs_y.dpc.filtered)
+endif
+
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
     $(ONEAPI.objs_y.dpc.lib) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
