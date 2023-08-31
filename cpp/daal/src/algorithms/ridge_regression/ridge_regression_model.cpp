@@ -54,6 +54,7 @@ Status checkModel(ridge_regression::Model * model, const daal::algorithms::Param
     size_t dimWithoutBeta = (model->getInterceptFlag() ? nBeta : nBeta - 1);
 
     ridge_regression::ModelNormEq * modelNormEq = dynamic_cast<ridge_regression::ModelNormEq *>(model);
+    DAAL_CHECK(modelNormEq, ErrorNullModel);
 
     DAAL_CHECK_STATUS(s, checkNumericTable(modelNormEq->getXTXTable().get(), XTXTableStr(), 0, 0, dimWithoutBeta, dimWithoutBeta));
     return checkNumericTable(modelNormEq->getXTYTable().get(), XTYTableStr(), 0, 0, dimWithoutBeta, nResponses);
