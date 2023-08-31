@@ -72,10 +72,10 @@ ifneq ($(mode),build)
     override mode = run
 endif
 
-ifndef DAALROOT
-    DAALROOT = ./../../../..
+ifndef DALROOT
+    DALROOT = ./../../../..
 endif
-DAAL_PATH = "$(DAALROOT)/lib/intel64"
+DAAL_PATH = "$(DALROOT)/lib/intel64"
 
 ifndef TBBROOT
     TBBROOT = ./../../../../../../tbb/latest

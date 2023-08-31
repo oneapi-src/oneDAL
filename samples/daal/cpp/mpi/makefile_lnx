@@ -51,8 +51,8 @@ ifneq ($(compiler),gnu)
 	endif
 endif
 
-ifndef DAALROOT
-    DAALROOT =./../..
+ifndef DALROOT
+    DALROOT =./../../../..
 endif
 
 ifndef TBBROOT
@@ -60,7 +60,7 @@ ifndef TBBROOT
 endif
 TBB_PATH = "$(TBBROOT)/lib"
 
-DAAL_PATH = "$(DAALROOT)/lib/intel64"
+DAAL_PATH = "$(DALROOT)/lib/intel64"
 DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
 COPTS := -Wall -w
 RES_DIR=_results/$(compiler)_intel64_$(RES_EXT)

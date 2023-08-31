@@ -66,6 +66,7 @@ MSG(empty_set_of_result_options, "Empty set of result options")
 MSG(this_result_is_not_enabled_via_result_options, "This result is not enabled via result options")
 MSG(spmd_error_holder_message, "SPMD failure occurred, use e.rethrow_actual() to get actual error")
 MSG(spmd_coworker_failure, "SPMD execution was interrupted because of coworker's failure")
+MSG(unexpected_dataset_type, "Unexpected dataset type")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")

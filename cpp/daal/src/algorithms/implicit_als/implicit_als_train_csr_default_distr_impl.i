@@ -261,6 +261,7 @@ Status ImplicitALSTrainDistrStep4Kernel<algorithmFPType, fastCSR, cpu>::compute(
 
     const size_t nRows                    = dataTable->getNumberOfRows();
     const CSRNumericTableIface * csrIface = dynamic_cast<const CSRNumericTableIface *>(dataTable);
+    DAAL_CHECK(csrIface, ErrorEmptyCSRNumericTable);
     ReadRowsCSR<algorithmFPType, cpu> mtData(*const_cast<CSRNumericTableIface *>(csrIface), 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(mtData);
 

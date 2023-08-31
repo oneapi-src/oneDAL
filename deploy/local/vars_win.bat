@@ -34,7 +34,6 @@ if "%SCRIPT_PATH%"=="%DAAL%\env\" (
   goto :GoodArgs
 ) else (
   set "DALROOT=%ONEAPI_ROOT%"
-  set "DAALROOT=%ONEAPI_ROOT%"
   set "CLASSPATH=%ONEAPI_ROOT%\share\java\onedal.jar;%CLASSPATH%"
   set "INCLUDE=%ONEAPI_ROOT%\include\dal;%INCLUDE%"
   set "CPATH=%ONEAPI_ROOT%\include\dal;%CPATH%"
@@ -54,7 +53,9 @@ echo default is intel64
 exit /b 0
 
 :GoodArgs
-set "DAALROOT=%DAAL%"
+
+set "DALROOT=%DAAL%"
+
 if exist "%DAAL%\include\dal" (
   set "INCLUDE=%DAAL%\include\dal;%INCLUDE%"
   set "CPATH=%DAAL%\include\dal;%CPATH%"
@@ -78,8 +79,7 @@ set "PKG_CONFIG_PATH=%DAAL%\lib\pkgconfig;%PKG_CONFIG_PATH%"
 endlocal& ^
 set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
 set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
-set DALROOT=%DAALROOT%& ^
-set DAALROOT=%DAALROOT%& ^
+set DALROOT=%DALROOT%& ^
 set INCLUDE=%INCLUDE%& ^
 set CPATH=%CPATH%& ^
 set LIB=%LIB%& ^
@@ -92,8 +92,7 @@ goto:eof
 
 :GoodArgs2024
 endlocal& ^
-set DALROOT=%DAALROOT%& ^
-set DAALROOT=%DAALROOT%& ^
+set DALROOT=%DALROOT%& ^
 set CLASSPATH=%CLASSPATH%& ^
 set INCLUDE=%INCLUDE%& ^
 set CPATH=%CPATH%& ^
