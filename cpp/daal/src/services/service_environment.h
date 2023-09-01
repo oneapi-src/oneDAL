@@ -25,26 +25,26 @@ namespace services
 namespace internal
 {
 //returns size of L1 cache in bytes
-unsigned getL1CacheSize();
+size_t getL1CacheSize();
 //returns size of L2 cache in bytes
-unsigned getL2CacheSize();
+size_t getL2CacheSize();
 //returns size of LL (last level) cache in bytes
-unsigned getLLCacheSize();
+size_t getLLCacheSize();
 
 //returns number of elements that fit into the memory of given size
 //param sizeofAnElement - size of an element in bytes
 //param defaultNumElements - return this number of element if sizeofMemory is 0
-unsigned getNumElementsFitInMemory(size_t sizeofMemory, size_t sizeofAnElement, size_t defaultNumElements);
+size_t getNumElementsFitInMemory(size_t sizeofMemory, size_t sizeofAnElement, size_t defaultNumElements);
 
 //returns number of elements that fit into L1 cache
 //param sizeofAnElement - size of an element in bytes
 //param defaultNumElements - return this number of elements if cache size system method call failed
-unsigned getNumElementsFitInL1Cache(size_t sizeofAnElement, size_t defaultNumElements);
+size_t getNumElementsFitInL1Cache(size_t sizeofAnElement, size_t defaultNumElements);
 
 //returns number of elements that fit into LL cache
 //param sizeofAnElement - size of an element in bytes
 //param defaultNumElements - return this number of element if cache size system method call failed
-unsigned getNumElementsFitInLLCache(size_t sizeofAnElement, size_t defaultNumElements);
+size_t getNumElementsFitInLLCache(size_t sizeofAnElement, size_t defaultNumElements);
 
 } // namespace internal
 } // namespace services
