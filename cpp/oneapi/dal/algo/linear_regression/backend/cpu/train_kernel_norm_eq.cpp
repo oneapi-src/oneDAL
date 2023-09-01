@@ -154,6 +154,7 @@ template <typename Float, typename Task>
 struct train_kernel_cpu<Float, method::norm_eq, Task> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
+                                  const detail::train_parameters<Task>& params,
                                   const train_input<Task>& input) const {
         return train<Float, Task>(ctx, desc, input);
     }
