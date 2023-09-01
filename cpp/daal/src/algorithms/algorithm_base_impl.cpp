@@ -160,7 +160,7 @@ services::Status AlgorithmImpl<mode>::computeNoThrow()
 
     DAAL_CHECK_MALLOC(this->allocatePartialResultMemory());
 
-    this->_ac->setArguments(this->_in, this->_pres, this->_par);
+    this->_ac->setArguments(this->_in, this->_pres, this->_par, this->_hpar);
 
     if (this->isChecksEnabled())
     {
@@ -226,7 +226,7 @@ services::Status AlgorithmImpl<batch>::computeNoThrow()
     services::Status s = this->allocateResultMemory();
     DAAL_CHECK_MALLOC(s);
 
-    this->_ac->setArguments(this->_in, this->_res, this->_par);
+    this->_ac->setArguments(this->_in, this->_res, this->_par, this->_hpar);
 
     if (this->isChecksEnabled())
     {
