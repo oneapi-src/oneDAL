@@ -29,7 +29,7 @@ dal_test_suite(
         "detail/test/metadata_utils.cpp",
         "backend/test/copy_convert_cpp.cpp",
         # TODO: Fix before code freeze
-        #"backend/test/copy_convert_gpu.cpp",
+        "backend/test/copy_convert_gpu.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",
