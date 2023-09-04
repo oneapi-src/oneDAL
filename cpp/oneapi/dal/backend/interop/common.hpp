@@ -47,4 +47,12 @@ inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     });
 }
 
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_finalize_compute(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().finalizeCompute(
+            std::forward<Args>(args)...);
+    });
+}
+
 } // namespace oneapi::dal::backend::interop

@@ -30,8 +30,8 @@ public:
     }
 };
 
-host_policy::host_policy(bool thread_pinning, int max_threads_per_core) : 
-    impl_(new host_policy_impl(thread_pinning, max_threads_per_core)) {}
+host_policy::host_policy(bool thread_pinning, int max_threads_per_core)
+        : impl_(new host_policy_impl(thread_pinning, max_threads_per_core)) {}
 
 void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
     impl_->cpu_extensions_mask = extensions;
@@ -60,7 +60,6 @@ int host_policy::get_max_threads_per_core() const noexcept {
 threading_policy host_policy::get_threading_policy() const noexcept {
     return impl_->threading_parameters;
 }
-
 
 #ifdef ONEDAL_DATA_PARALLEL
 void data_parallel_policy::init_impl(const sycl::queue& queue) {

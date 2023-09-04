@@ -1,6 +1,5 @@
-/* file: covariance_dense_default_online_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,30 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of Covariance kernel.
-//--
-*/
+#pragma once
 
-#include "src/externals/service_profiler.h"
-#include "src/algorithms/covariance/covariance_container.h"
-#include "src/algorithms/covariance/oneapi/covariance_dense_online_oneapi_impl.i"
+#include "oneapi/dal/algo/covariance/compute_types.hpp"
+#include "oneapi/dal/algo/covariance/detail/partial_compute_ops.hpp"
+#include "oneapi/dal/partial_compute.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace covariance
-{
-namespace oneapi
-{
-namespace internal
-{
-template class DAAL_EXPORT CovarianceDenseOnlineKernelOneAPI<DAAL_FPTYPE, defaultDense>;
-}
-} // namespace oneapi
+namespace oneapi::dal::detail {
+namespace v1 {
 
-} // namespace covariance
-} // namespace algorithms
-} // namespace daal
+template <typename Descriptor>
+struct partial_compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
+        : dal::covariance::detail::partial_compute_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail

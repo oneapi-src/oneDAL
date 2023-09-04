@@ -19,11 +19,10 @@
 #include "src/threading/service_thread_pinner.h"
 #include "src/services/service_topo.h"
 
-
 namespace oneapi::dal::backend {
 
-struct task_daal: public daal::services::internal::thread_pinner_task_t {
-    task_daal(task& f): task_oneapi(f) {}
+struct task_daal : public daal::services::internal::thread_pinner_task_t {
+    task_daal(task& f) : task_oneapi(f) {}
     void operator()() final {
         task_oneapi();
     }
@@ -33,20 +32,27 @@ struct task_daal: public daal::services::internal::thread_pinner_task_t {
 class thread_pinner_impl {
 public:
     thread_pinner_impl() {
-        daal_thread_pinner = std::shared_ptr<daal::services::internal::thread_pinner_t> (daal::services::internal::getThreadPinner(true, read_topology, delete_topology));
-}
+        daal_thread_pinner = std::shared_ptr<daal::services::internal::thread_pinner_t>(
+            daal::services::internal::getThreadPinner(true, read_topology, delete_topology));
+    }
     thread_pinner_impl(tbb::task_arena& task_arena) {
-        daal_thread_pinner = std::shared_ptr<daal::services::internal::thread_pinner_t> (daal::services::internal::getThreadPinnerFromTaskArena(true, read_topology, delete_topology, task_arena));
-}
-void execute(task& task_) {
-    auto task_daal_ = task_daal(task_);
-    daal_thread_pinner->execute(task_daal_);
-}
+        daal_thread_pinner = std::shared_ptr<daal::services::internal::thread_pinner_t>(
+            daal::services::internal::getThreadPinnerFromTaskArena(true,
+                                                                   read_topology,
+                                                                   delete_topology,
+                                                                   task_arena));
+    }
+    void execute(task& task_) {
+        auto task_daal_ = task_daal(task_);
+        daal_thread_pinner->execute(task_daal_);
+    }
+
 private:
     std::shared_ptr<daal::services::internal::thread_pinner_t> daal_thread_pinner;
 };
 
-tbb::task_arena* task_executor::create_task_arena(const oneapi::dal::detail::threading_policy& policy) {
+tbb::task_arena* task_executor::create_task_arena(
+    const oneapi::dal::detail::threading_policy& policy) {
     if (policy.max_threads_per_core) {
         static tbb::task_arena task_arena{ tbb::task_arena::constraints{}.set_max_threads_per_core(
             policy.max_threads_per_core) };
@@ -54,9 +60,9 @@ tbb::task_arena* task_executor::create_task_arena(const oneapi::dal::detail::thr
             using daal::services::internal::thread_pinner_t;
             thread_pinner_t* thread_pinner_ptr =
                 daal::services::internal::getThreadPinnerFromTaskArena(true,
-                                                          read_topology,
-                                                          delete_topology,
-                                                          task_arena);
+                                                                       read_topology,
+                                                                       delete_topology,
+                                                                       task_arena);
             return thread_pinner_ptr->get_task_arena();
         }
         return &task_arena;
@@ -67,9 +73,9 @@ tbb::task_arena* task_executor::create_task_arena(const oneapi::dal::detail::thr
             using daal::services::internal::thread_pinner_t;
             thread_pinner_t* thread_pinner_ptr =
                 daal::services::internal::getThreadPinnerFromTaskArena(true,
-                                                          read_topology,
-                                                          delete_topology,
-                                                          task_arena);
+                                                                       read_topology,
+                                                                       delete_topology,
+                                                                       task_arena);
             return thread_pinner_ptr->get_task_arena();
         }
         return &task_arena;

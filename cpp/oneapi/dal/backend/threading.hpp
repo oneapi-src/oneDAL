@@ -26,17 +26,17 @@ using detail::threading_policy;
 class thread_pinner_impl;
 
 struct task {
-    virtual void operator()()  = 0;
+    virtual void operator()() = 0;
 };
 
-template<typename F>
+template <typename F>
 class non_void_task : public task {
 public:
     typedef std::invoke_result_t<F> result_t;
 
     explicit non_void_task(F&& functor, result_t* result_ptr)
-        : functor_{ std::forward<F>(functor) }, 
-          result_ptr_{ result_ptr } {}
+            : functor_{ std::forward<F>(functor) },
+              result_ptr_{ result_ptr } {}
 
     void operator()() final {
         auto result = functor_();
@@ -48,11 +48,10 @@ private:
     result_t* result_ptr_;
 };
 
-template<typename F>
+template <typename F>
 class void_task : public task {
 public:
-    explicit void_task(F&& functor) 
-        : functor_{ std::forward<F>(functor) } {}
+    explicit void_task(F&& functor) : functor_{ std::forward<F>(functor) } {}
 
     void operator()() final {
         functor_();
@@ -63,17 +62,17 @@ private:
 };
 
 class thread_pinner {
-friend detail::pimpl_accessor;
+    friend detail::pimpl_accessor;
 
 public:
     thread_pinner();
     thread_pinner(tbb::task_arena& task_arena);
     thread_pinner(const thread_pinner&) = default;
     thread_pinner(thread_pinner&&) = default;
-    template<typename F>
+    template <typename F>
     auto execute(F&& task_) -> decltype(task_()) {
         using result_t = decltype(task_());
-        if constexpr ( std::is_same_v<void, result_t>) {
+        if constexpr (std::is_same_v<void, result_t>) {
             void_task wrapper(std::forward<F>(task_));
             execute(std::move(wrapper));
             return;
@@ -91,35 +90,35 @@ private:
     detail::pimpl<thread_pinner_impl> impl_;
 };
 
-
 class task_executor {
     threading_policy policy_;
-    tbb::task_arena *task_arena_;
-    thread_pinner *thread_pinner_;
+    tbb::task_arena* task_arena_;
+    thread_pinner* thread_pinner_;
     tbb::task_arena* create_task_arena(const threading_policy& policy);
+
 public:
-    template<typename F> 
+    template <typename F>
     auto execute(F&& f) -> decltype(f());
-    task_executor(threading_policy &policy) {
-      policy_ = policy;
-      task_arena_ = create_task_arena(policy_);
+    task_executor(threading_policy& policy) {
+        policy_ = policy;
+        task_arena_ = create_task_arena(policy_);
     }
 };
 
-template<typename F> 
-auto task_executor::execute(F&& f) -> decltype(f()){
+template <typename F>
+auto task_executor::execute(F&& f) -> decltype(f()) {
     if (this->policy_.thread_pinning) {
         using result_t = decltype(f());
         if constexpr (std::is_same_v<result_t, void>) {
-          void_task wrapper(std::forward<F>(f));
-          thread_pinner_->execute(std::move(wrapper));
-          return;
+            void_task wrapper(std::forward<F>(f));
+            thread_pinner_->execute(std::move(wrapper));
+            return;
         }
         else {
-          result_t result;
-          non_void_task wrapper(std::forward<F>(f), &result);
-          thread_pinner_->execute(wrapper);
-          return result;
+            result_t result;
+            non_void_task wrapper(std::forward<F>(f), &result);
+            thread_pinner_->execute(std::move(wrapper));
+            return result;
         }
     }
     else {
