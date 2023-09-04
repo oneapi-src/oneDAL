@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
+
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
@@ -32,7 +34,8 @@ using dal::backend::context_cpu;
 template <typename Float>
 std::int64_t propose_block_size(const std::int64_t f, const std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
-    return 0x1000l * (8 / fsize);
+    std::int64_t proposal = 0x100l * (8 / fsize);
+    return std::max<std::int64_t>(128l, proposal);
 }
 
 template <typename Float, typename Task>
