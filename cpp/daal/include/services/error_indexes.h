@@ -142,6 +142,7 @@ enum ErrorID
     ErrorDataTypeNotSupported                         = -79, /*!< Data type not supported */
     ErrorBufferSizeIntegerOverflow                    = -80, /*!< Integer oveflow is occured during buffer size calculation */
     ErrorHyperparameterNotFound                       = -81, /*!< Cannot find a hyperparameter with a given id */
+    ErrorHyperparameterCanNotBeSet                    = -82, /*!< Cannot set a hyperparameter with a specified id */
 
     // Environment errors: -2000..-2999
     ErrorCpuNotSupported          = -2000, /*!< CPU not supported */
