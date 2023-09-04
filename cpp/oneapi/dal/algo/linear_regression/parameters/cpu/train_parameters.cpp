@@ -32,7 +32,7 @@ using dal::backend::context_cpu;
 template <typename Float>
 std::int64_t propose_block_size(const std::int64_t f, const std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
+    return 0x1000l * (8 / fsize);
 }
 
 template <typename Float, typename Task>

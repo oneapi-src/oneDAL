@@ -22,6 +22,8 @@
 */
 
 #include "src/algorithms/linear_model/linear_model_train_normeq_kernel.h"
+#include "src/algorithms/linear_model/linear_model_hyperparameter_impl.h"
+
 #include "src/algorithms/service_kernel_math.h"
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_profiler.h"
@@ -47,6 +49,15 @@ template <typename algorithmFPType, CpuType cpu>
 Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & xtxTable, const NumericTable & xtyTable, NumericTable & xtxFinalTable,
                                                      NumericTable & xtyFinalTable, NumericTable & betaTable, bool interceptFlag,
                                                      const KernelHelperIface<algorithmFPType, cpu> & helper)
+{
+    return FinalizeKernel<algorithmFPType, cpu>::compute(xtxTable, xtyTable, xtxFinalTable, xtyFinalTable, betaTable, interceptFlag, helper, nullptr);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & xtxTable, const NumericTable & xtyTable, NumericTable & xtxFinalTable,
+                                                     NumericTable & xtyFinalTable, NumericTable & betaTable, bool interceptFlag,
+                                                     const KernelHelperIface<algorithmFPType, cpu> & helper,
+                                                     const HyperparameterType * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize);
     const size_t nBetas(betaTable.getNumberOfColumns());
