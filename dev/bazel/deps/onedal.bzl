@@ -39,4 +39,11 @@ onedal_repo = repos.prebuilt_libs_repo_rule(
         "lib/intel64/libonedal_parameters_dpc.so",
     ],
     build_template = "@onedal//dev/bazel/deps:onedal.tpl.BUILD",
+    download_mapping = {
+    # Required directory layout and layout in the downloaded
+    # archives may be different. Mapping helps to setup relations
+    # between required layout (LHS) and downloaded (RHS).
+    # In this case, files from `lib/*` will be copied to `lib/intel64/*`.
+    "lib/": "lib/intel64/",
+    }
 )
