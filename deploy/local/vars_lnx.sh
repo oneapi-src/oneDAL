@@ -227,10 +227,6 @@ case "${my_script_path}" in
     export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
     export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
     export DALROOT=$__daal_tmp_dir
-    export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-    export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
-    export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-    export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
     export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
     export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
     if [ -d ${component_root}/include/dal ]; then
