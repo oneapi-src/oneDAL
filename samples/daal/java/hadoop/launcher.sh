@@ -57,12 +57,22 @@ export LIBJAVAAPI=libJavaAPI.so
 export LIBTBB=
 export LIBTBBMALLOC=
 
-TBBLIBS=
-if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
-if [ -z "${TBBLIBS}" ]; then
+ifeq ($(MKL_FPK_CPU_VERSION_LINE),2024.0.0)
+	TBBLIBS=
+    if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
+    if [ -z "${TBBLIBS}" ]; then
     echo Can not find TBB runtimes
     exit 1
 fi
+else
+TBBLIBS=
+    if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
+    if [ -z "${TBBLIBS}" ]; then
+    echo Can not find TBB runtimes
+    exit 1
+fi  
+endif
+
 
 if [ -f "${TBBLIBS}/libtbb.so.2" ]; then
     export LIBTBB=libtbb.so.2

@@ -56,12 +56,22 @@ export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 os_name=$(uname -s)
 export LIBJAVAAPI=libJavaAPI.so
 
-TBBLIBS=
-if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
-if [ -z "${TBBLIBS}" ]; then
+ifeq ($(MKL_FPK_CPU_VERSION_LINE),2024.0.0)
+	TBBLIBS=
+    if [ -d "${TBBROOT}/lib" ]; then TBBLIBS=${TBBROOT}/lib; fi
+    if [ -z "${TBBLIBS}" ]; then
     echo Can not find TBB runtimes
     exit 1
 fi
+else
+TBBLIBS=
+    if [ -d "${TBBROOT}/lib/intel64/gcc4.8" ]; then TBBLIBS=${TBBROOT}/lib/intel64/gcc4.8; fi
+    if [ -z "${TBBLIBS}" ]; then
+    echo Can not find TBB runtimes
+    exit 1
+fi  
+endif
+
 
 #Comma-separated list of shared libs
 export SHAREDLIBS=${DALROOT}/lib/intel64/${LIBJAVAAPI}
