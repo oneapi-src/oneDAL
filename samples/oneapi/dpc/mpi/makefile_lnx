@@ -71,7 +71,7 @@ ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc                              \
                    -lonedal_core                             \
                    -lonedal_thread                           \
-                   -lonedal_parameters                       \
+                   -lonedal_parameters_dpc                   \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a            \
