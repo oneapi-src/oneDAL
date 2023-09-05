@@ -56,17 +56,25 @@ Applications on Linux* OS
             -
               | libonedal_core.a,
               | libonedal_dpc.a,
+              | libonedal_parameters.a,
+              | libonedal_parameters_dpc.a,
             -
               | libonedal_core.a,
               | libonedal_dpc.a,
+              | libonedal_parameters.a,
+              | libonedal_parameters_dpc.a,
               | libonedal_thread.a
           * - Dynamic linking
             -
               | libonedal_core.so,
               | libonedal_dpc.so,
+              | libonedal_parameters.so,
+              | libonedal_parameters_dpc.so,
             -
               | libonedal_core.so,
               | libonedal_dpc.so,
+              | libonedal_parameters.so,
+              | libonedal_parameters_dpc.so,
               | libonedal_thread.so
 
    - Add an additional |short_name| library:
