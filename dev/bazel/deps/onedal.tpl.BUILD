@@ -12,7 +12,7 @@ cc_library(
 cc_library(
     name = "core_static",
     srcs = [
-        "lib/intel64/libonedal_core.a",
+        "lib/libonedal_core.a",
     ],
     deps = [
         ":headers",
@@ -25,7 +25,7 @@ cc_library(
 cc_library(
     name = "thread_static",
     srcs = [
-        "lib/intel64/libonedal_thread.a",
+        "lib/libonedal_thread.a",
     ],
     deps = [
         ":headers",
@@ -37,7 +37,7 @@ cc_library(
 cc_library(
     name = "onedal_sycl",
     srcs = [
-        "lib/intel64/libonedal_sycl.a",
+        "lib/libonedal_sycl.a",
     ],
     deps = [
         ":headers",
@@ -47,7 +47,7 @@ cc_library(
 cc_library(
     name = "parameters_static",
     srcs = [
-        "lib/intel64/libonedal_parameters.a",
+        "lib/libonedal_parameters.a",
     ],
     deps = [
         ":headers",
@@ -57,7 +57,7 @@ cc_library(
 cc_library(
     name = "onedal_static",
     srcs = [
-        "lib/intel64/libonedal.a",
+        "lib/libonedal.a",
     ],
     deps = [
         ":headers",
@@ -68,7 +68,7 @@ cc_library(
 cc_library(
     name = "parameters_static_dpc",
     srcs = [
-        "lib/intel64/libonedal_parameters_dpc.a",
+        "lib/libonedal_parameters_dpc.a",
     ],
     deps = [
         ":headers",
@@ -78,7 +78,7 @@ cc_library(
 cc_library(
     name = "onedal_static_dpc",
     srcs = [
-        "lib/intel64/libonedal_dpc.a",
+        "lib/libonedal_dpc.a",
     ],
     deps = [
         ":headers",
@@ -90,7 +90,7 @@ cc_library(
 cc_library(
     name = "core_dynamic",
     srcs = [
-        "lib/intel64/libonedal_core.so",
+        "lib/libonedal_core.so",
     ],
     deps = [
         ":headers",
@@ -103,7 +103,7 @@ cc_library(
 cc_library(
     name = "thread_dynamic",
     srcs = [
-        "lib/intel64/libonedal_thread.so",
+        "lib/libonedal_thread.so",
     ],
     deps = [
         ":headers",
@@ -115,7 +115,7 @@ cc_library(
 cc_library(
     name = "parameters_dynamic",
     srcs = [
-        "lib/intel64/libonedal_parameters.so",
+        "lib/libonedal_parameters.so",
     ],
     deps = [
         ":headers",
@@ -125,7 +125,7 @@ cc_library(
 cc_library(
     name = "onedal_dynamic",
     srcs = [
-        "lib/intel64/libonedal.so",
+        "lib/libonedal.so",
     ],
     deps = [
         ":headers",
@@ -136,7 +136,7 @@ cc_library(
 cc_library(
     name = "parameters_dynamic_dpc",
     srcs = [
-        "lib/intel64/libonedal_parameters_dpc.so",
+        "lib/libonedal_parameters_dpc.so",
     ],
     deps = [
         ":headers",
@@ -146,7 +146,7 @@ cc_library(
 cc_library(
     name = "onedal_dynamic_dpc",
     srcs = [
-        "lib/intel64/libonedal_dpc.so",
+        "lib/libonedal_dpc.so",
     ],
     deps = [
         ":headers",
