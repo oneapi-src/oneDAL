@@ -170,7 +170,7 @@ vars_script_shell="$(ps -p "$$" -o comm=)"
 # see https://unix.stackexchange.com/a/381465/103967
 # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
 if [ -n "${ZSH_VERSION:-}" ] && [ -n "${ZSH_EVAL_CONTEXT:-}" ] ; then     # zsh 5.x and later
-  # shellcheck disable=2249
+  # shellcheck disable=2249,2296
   case $ZSH_EVAL_CONTEXT in (*:file*) vars_script_name="${(%):-%x}" ;; esac ;
 elif [ -n "${KSH_VERSION:-}" ] ; then                                     # ksh, mksh or lksh
   if [ "$(set | grep -Fq "KSH_VERSION=.sh.version" ; echo $?)" -eq 0 ] ; then # ksh

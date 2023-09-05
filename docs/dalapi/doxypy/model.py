@@ -74,7 +74,7 @@ def model_object(cls):
         setattr(cls, field, _ModelProperty(f'_{field}'))
 
     # __init__
-    s =  f'def __init__(self, {", ".join(fields)}): \n'
+    s = f'def __init__(self, {", ".join(fields)}): \n'
     for field in fields:
         s += f'    self._{field} = {field}\n'
 
