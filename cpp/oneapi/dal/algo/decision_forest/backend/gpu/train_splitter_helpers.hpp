@@ -165,6 +165,7 @@ struct split_scalar {
     Float left_imp;
     Float right_imp;
     Float imp_dec;
+    Float left_weight_sum;
 
     void clear() {
         ftr_id = impl_const_t::leaf_mark_;
@@ -174,6 +175,7 @@ struct split_scalar {
         left_imp = Float(0);
         right_imp = Float(0);
         imp_dec = -de::limits<Float>::max();
+        left_weight_sum = Float(0);
     }
 };
 
@@ -257,7 +259,8 @@ struct split_smp {
                              const Float* imp_list_ptr_,
                              const hist_type_t* node_class_hist_list_ptr_,
                              Index class_count,
-                             Index node_id) {
+                             Index node_id,
+                             bool is_weighted) {
         Index node_row_count = node_ptr[impl_const_t::ind_grc];
         const Float* node_imp_ptr = imp_list_ptr_ + node_id * impl_const_t::node_imp_prop_count_;
         Float node_imp = node_imp_ptr[0];
@@ -288,6 +291,9 @@ struct split_smp {
         sc.imp_dec =
             node_imp - (Float(sc.left_count) * sc.left_imp + Float(sc.right_count) * sc.right_imp) /
                            Float(node_row_count);
+        if (sc.left_count > 0 && is_weighted) {
+            sc.imp_dec /= (sc.left_weight_sum / sc.left_count);
+        }
     }
 
     // Check if node impurity valid. True if valid
@@ -313,7 +319,8 @@ struct split_smp {
     inline void calc_imp_dec(split_info_t& si,
                              const Index* node_ptr,
                              const Float* imp_list_ptr,
-                             Index node_id) {
+                             Index node_id,
+                             bool is_weighted) {
         constexpr Index buff_size = impl_const_t::node_imp_prop_count_ + 1;
         Index node_row_count = node_ptr[impl_const_t::ind_grc];
         split_scalar_t& sc = si.scalars;
@@ -331,6 +338,9 @@ struct split_smp {
 
         sc.right_count = node_row_count - sc.left_count;
         sc.imp_dec = node_imp_ptr[1] - (si.left_hist[2] + right_hist[2]);
+        if (sc.left_count > 0 && is_weighted) {
+            sc.imp_dec *= (sc.left_weight_sum / sc.left_count);
+        }
     }
 
     inline bool test_split_is_best(const split_info_t& bs,

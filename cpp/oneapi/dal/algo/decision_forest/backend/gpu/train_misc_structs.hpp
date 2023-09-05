@@ -136,6 +136,7 @@ struct train_context {
     bool bootstrap_ = false;
     bool use_private_mem_buf_ = true; // valuable for classification only
         // for switching between private mem and other buffers(local, global) for storing class hist
+    bool is_weighted_ = false;
 
     splitter_mode splitter_mode_value_;
     std::uint64_t seed_;

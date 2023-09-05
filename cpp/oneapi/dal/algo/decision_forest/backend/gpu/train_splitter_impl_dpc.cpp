@@ -249,11 +249,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
                                             node_imp_list_ptr,
                                             class_hist_list_ptr,
                                             class_count,
-                                            node_id);
+                                            node_id,
+                                            false);
                         sp_hlp.choose_best_split(bs, ts, class_count, min_obs_leaf);
                     }
                     else {
-                        sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
+                        sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id, false);
                         sp_hlp.choose_best_split(bs,
                                                  ts,
                                                  impl_const_t::hist_prop_count_,
@@ -314,6 +315,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const context_t& ctx,
     const pr::ndview<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
+    const pr::ndview<Float, 1>& weights,
     const pr::ndview<Index, 1>& tree_order,
     const pr::ndview<Index, 1>& selected_ftr_list,
     const pr::ndview<Index, 1>& bin_offset_list,
@@ -335,6 +337,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     const Bin* const data_ptr = data.get_data();
     const Float* const response_ptr = response.get_data();
+    const Float* const weights_ptr = weights.get_data();
     const Index* const tree_order_ptr = tree_order.get_data();
 
     const Index* const selected_ftr_list_ptr = selected_ftr_list.get_data();
@@ -367,6 +370,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const Float imp_threshold = ctx.impurity_threshold_;
     const Index min_obs_leaf = ctx.min_observations_in_leaf_node_;
     const Index index_max = ctx.index_max_;
+    const bool is_weighted = ctx.is_weighted_;
 
     // following vars are not used for regression, but should present to compile kernel
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
@@ -381,7 +385,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     std::int64_t device_local_mem_size = device.get_info<sycl::info::device::local_mem_size>();
     // Compute memory requirements depending on task and device specs
     const std::int64_t bin_local_mem_size =
-        2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t) + sizeof(Float);
+        2 * hist_prop_count * sizeof(hist_type_t) + sizeof(split_scalar_t) + 2 * sizeof(Float);
     const std::int64_t common_local_data_size = 2 * hist_prop_count * sizeof(hist_type_t);
     std::int64_t batch_size = (device_local_mem_size - common_local_data_size) / bin_local_mem_size;
     const Index all_bin_count = selected_ftr_count * bin_count;
@@ -400,6 +404,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
         local_accessor_rw_t<hist_type_t> best_split_hist(hist_prop_count, cgh);
         local_accessor_rw_t<hist_type_t> last_bin_prev_batch(hist_prop_count, cgh);
         local_accessor_rw_t<Index> last_bin_index(1, cgh);
+        local_accessor_rw_t<Float> local_weights(local_splits_size, cgh);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             // Load common data
             const Index node_id = item.get_global_id(1);
@@ -428,6 +433,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             hist_type_t* const buf_hist_ptr = buf_hist.get_pointer().get();
             hist_type_t* const last_bin = last_bin_prev_batch.get_pointer().get();
             split_scalar_t* const scalars_buf_ptr = scalars_buf.get_pointer().get();
+            Float* const local_weights_ptr = local_weights.get_pointer().get();
             Index* const last_bin_idx_ptr = last_bin_index.get_pointer().get();
 #endif
             if (local_id == 0) {
@@ -450,6 +456,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
                         buf_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
                     }
+                    local_weights_ptr[work_bin] = Float(0);
                 }
                 item.barrier(sycl::access::fence_space::local_space);
                 // Calculate histogram
@@ -497,6 +504,14 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                 hist_count += 1;
                                 hist_sum += response;
                             }
+                        }
+                        if (is_weighted) {
+                            sycl::atomic_ref<Float,
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
+                                hist_weight(local_weights_ptr[ftr_idx * bin_count + bin]);
+                            hist_weight += weights_ptr[id];
                         }
                     }
                 }
@@ -585,6 +600,14 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                         }
                         left_count += Index(cur_hist[0]);
                     }
+                    // Need to collect all weights for weighted case
+                    if (is_weighted) {
+                        for (Index bin_idx = 0; bin_idx <= cur_bin; ++bin_idx) {
+                            scalars_buf_ptr[work_bin].left_weight_sum +=
+                                local_weights_ptr[work_bin - cur_bin + bin_idx];
+                        }
+                        // scalars_buf_ptr[work_bin].left_weight_sum = 1;
+                    }
                     // Save last bin to proccess rest bins in next batch
                     if (work_bin == (real_bin_count - 1)) {
                         for (Index cls = 0; cls < hist_prop_count; ++cls) {
@@ -605,10 +628,11 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                             node_imp_list_ptr,
                                             class_hist_list_ptr,
                                             class_count,
-                                            node_id);
+                                            node_id,
+                                            is_weighted);
                     }
                     else {
-                        sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id);
+                        sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id, is_weighted);
                     }
                     scalars_buf_ptr[work_bin] = ts.scalars;
                 }

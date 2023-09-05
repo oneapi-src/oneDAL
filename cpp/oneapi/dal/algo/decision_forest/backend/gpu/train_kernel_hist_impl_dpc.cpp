@@ -129,10 +129,13 @@ template <typename Float, typename Bin, typename Index, typename Task>
 void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_t& ctx,
                                                                   const descriptor_t& desc,
                                                                   const table& data,
-                                                                  const table& responses) {
+                                                                  const table& responses,
+                                                                  const table& weights) {
     ctx.distr_mode_ = (comm_.get_rank_count() > 1);
 
     ctx.use_private_mem_buf_ = true;
+
+    ctx.is_weighted_ = (weights.get_row_count() == data.get_row_count());
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         ctx.class_count_ = de::integral_cast<Index>(desc.get_class_count());
@@ -211,6 +214,10 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     data_host_ = pr::table2ndarray_1d<Float>(queue_, data, alloc::device).to_host(queue_);
 
     response_nd_ = pr::table2ndarray_1d<Float>(queue_, responses, alloc::device);
+
+    if (ctx.is_weighted_) {
+        weights_nd_ = pr::table2ndarray_1d<Float>(queue_, weights, alloc::device);
+    }
 
     response_host_ = response_nd_.to_host(queue_);
 
@@ -1182,6 +1189,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     const train_context_t& ctx,
     const pr::ndarray<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
+    const pr::ndview<Float, 1>& weights,
     const pr::ndarray<Index, 1>& tree_order,
     const pr::ndarray<Index, 1>& selected_ftr_list,
     const pr::ndarray<Float, 1>& random_bins_com,
@@ -1201,6 +1209,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                   ctx,
                                                   data,
                                                   response,
+                                                  weights,
                                                   tree_order,
                                                   selected_ftr_list,
                                                   bin_offset_list,
@@ -1805,14 +1814,15 @@ template <typename Float, typename Bin, typename Index, typename Task>
 train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
     const descriptor_t& desc,
     const table& data,
-    const table& responses) {
+    const table& responses,
+    const table& weights) {
     using imp_data_mng_t = impurity_data_manager<Float, Index, Task>;
     using tree_level_record_t = tree_level_record<Float, Index, Task>;
 
     validate_input(desc, data, responses);
 
     train_context_t ctx;
-    init_params(ctx, desc, data, responses);
+    init_params(ctx, desc, data, responses, weights);
 
     allocate_buffers(ctx);
 
@@ -1927,6 +1937,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             last_event = compute_best_split(ctx,
                                             full_data_nd_,
                                             response_nd_,
+                                            weights_nd_,
                                             tree_order_lev_,
                                             selected_features_com,
                                             random_bins_com,

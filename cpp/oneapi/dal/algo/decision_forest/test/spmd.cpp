@@ -58,13 +58,27 @@ public:
         const auto split_responses = te::split_table_by_rows<float_t>(this->get_policy(),
                                                                       input.get_responses(),
                                                                       split_count);
+        bool is_weighted = input.get_weights().get_row_count() > 0;
+
+        std::vector<table> split_weights;
+        if (is_weighted) {
+            split_weights = te::split_table_by_rows<float_t>(this->get_policy(),
+                                                             input.get_weights(),
+                                                             split_count);
+        }
 
         std::vector<train_input_t> split_input;
         split_input.reserve(split_count);
 
         for (std::int64_t i = 0; i < split_count; i++) {
-            split_input.push_back( //
-                train_input_t{ split_data[i], split_responses[i] });
+            if (is_weighted) {
+                split_input.push_back( //
+                    train_input_t{ split_data[i], split_responses[i], split_weights[i] });
+            }
+            else {
+                split_input.push_back( //
+                    train_input_t{ split_data[i], split_responses[i] });
+            }
         }
 
         return split_input;
@@ -387,11 +401,9 @@ DF_SPMD_CLS_TEST("df cls base check with default params") {
 }
 
 DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
-    SKIP_IF(this->is_gpu()); // TODO: Fix weighted case is not supported for GPU
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
-
     const auto [data, data_test, class_count, checker_list] =
         this->get_cls_dataframe_weighted_base();
 
@@ -407,11 +419,9 @@ DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
 }
 
 DF_SPMD_CLS_TEST("df cls base check with non default params") {
-    SKIP_IF(this->is_gpu()); // TODO: Fix SPMD test case for GPU
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
-
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
     const std::int64_t tree_count_val = GENERATE_COPY(10, 50);

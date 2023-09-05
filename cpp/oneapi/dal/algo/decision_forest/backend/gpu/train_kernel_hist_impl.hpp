@@ -65,7 +65,10 @@ public:
               train_service_kernels_(queue_) {}
     ~train_kernel_hist_impl() = default;
 
-    result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
+    result_t operator()(const descriptor_t& desc,
+                        const table& data,
+                        const table& labels,
+                        const table& weights);
 
 private:
     std::int64_t get_part_hist_required_mem_size(Index selected_ftr_count,
@@ -98,7 +101,8 @@ private:
     void init_params(train_context_t& ctx,
                      const descriptor_t& desc,
                      const table& data,
-                     const table& labels);
+                     const table& labels,
+                     const table& weights);
     /// Allocates all buffers that are used for training.
     /// @param[in] ctx  a training context structure for a GPU backend
     void allocate_buffers(const train_context_t& ctx);
@@ -283,6 +287,7 @@ private:
     sycl::event compute_best_split(const train_context_t& ctx,
                                    const pr::ndarray<Bin, 2>& data,
                                    const pr::ndview<Float, 1>& response,
+                                   const pr::ndview<Float, 1>& weights,
                                    const pr::ndarray<Index, 1>& tree_order,
                                    const pr::ndarray<Index, 1>& selected_ftr_list,
                                    const pr::ndarray<Float, 1>& random_bins_com,
@@ -613,6 +618,7 @@ private:
     pr::ndarray<Index, 1> ftr_bin_offsets_nd_;
     std::vector<pr::ndarray<Float, 1>> bin_borders_host_;
     pr::ndarray<Float, 1> response_nd_;
+    pr::ndarray<Float, 1> weights_nd_;
     pr::ndarray<Float, 1> response_host_;
     pr::ndarray<Float, 1> data_host_;
 

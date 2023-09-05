@@ -32,15 +32,20 @@ template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
-                                 const table& responses) {
+                                 const table& responses,
+                                 const table& weights) {
     train_kernel_hist_impl<Float, std::uint32_t, std::int32_t, task::classification>
         train_hist_impl(ctx);
-    return train_hist_impl(desc, data, responses);
+    return train_hist_impl(desc, data, responses, weights);
 }
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float>(ctx,
+                                   desc,
+                                   input.get_data(),
+                                   input.get_responses(),
+                                   input.get_weights());
 }
 
 template <typename Float, typename Task>
