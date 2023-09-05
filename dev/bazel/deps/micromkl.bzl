@@ -26,6 +26,13 @@ micromkl_repo = repos.prebuilt_libs_repo_rule(
         "%{os}/lib/libdaal_vmlipp_core.a",
     ],
     build_template = "@onedal//dev/bazel/deps:micromkl.tpl.BUILD",
+    download_mapping = {
+    # Required directory layout and layout in the downloaded
+    # archives may be different. Mapping helps to setup relations
+    # between required layout (LHS) and downloaded (RHS).
+    # In this case, files from `lib/*` will be copied to `lib/intel64/*`.
+    "lib/": "lib/intel64/",
+    },
 )
 
 micromkl_dpc_repo = repos.prebuilt_libs_repo_rule(
@@ -36,4 +43,11 @@ micromkl_dpc_repo = repos.prebuilt_libs_repo_rule(
         "lib/libdaal_sycl.a",
     ],
     build_template = "@onedal//dev/bazel/deps:micromkldpc.tpl.BUILD",
+    download_mapping = {
+    # Required directory layout and layout in the downloaded
+    # archives may be different. Mapping helps to setup relations
+    # between required layout (LHS) and downloaded (RHS).
+    # In this case, files from `lib/*` will be copied to `lib/intel64/*`.
+    "lib/": "lib/intel64/",
+    },
 )
