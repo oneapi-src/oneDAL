@@ -1,4 +1,0 @@
-CovarianceCSR_1.csv
-CovarianceCSR_2.csv
-CovarianceCSR_3.csv
-CovarianceCSR_4.csv
