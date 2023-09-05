@@ -884,7 +884,7 @@ $(THR.tmpdir_y)/%_tbb.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 #===============================================================================
 daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
           _daal _release_c,                     \
-          _release _release_doc                 \
+          _daal _release _release_doc           \
       )
 daal_c: _daal _release_c
 
