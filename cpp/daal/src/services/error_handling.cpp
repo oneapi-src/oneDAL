@@ -717,6 +717,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorDataTypeNotSupported, "Data type not supported");
     add(ErrorNullByteInjection, "Null byte injection has been detected");
     add(ErrorBufferSizeIntegerOverflow, "Integer overflow is occured");
+    add(ErrorHyperparameterNotFound, "Cannot find a hyperparameter");
 
     // Environment errors: -2000..-2999
     add(ErrorCpuNotSupported, "CPU not supported");
@@ -1002,6 +1003,7 @@ void ErrorDetailCollection::parseResourceFile()
     add(ActualValue, "Actual");
     add(Sycl, "Sycl error");
     add(OpenCL, "OpenCL error");
+    add(Key, "Key");
 }
 
 } // namespace services

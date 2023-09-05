@@ -70,7 +70,7 @@ public:
 
         _parameter = (daal::algorithms::Parameter *)(tls.jniEnv->CallLongMethod(javaObject, getParameterMethodID));
 
-        setArguments(_input, NULL, _parameter);
+        setArguments(_input, NULL, _parameter, NULL);
         if (!tls.is_main_thread)
         {
             status = jvm->DetachCurrentThread();

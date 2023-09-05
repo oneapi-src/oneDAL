@@ -166,7 +166,7 @@ for link_mode in ${link_modes}; do
             TESTING_RETURN=${err}
             continue
         fi
-        make -C Build
+        make ${make_op} -C Build
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"

@@ -46,6 +46,19 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
+    daal_covariance::internal::Hyperparameter daal_hyperparameter;
+    /// the logic of block size calculation is copied from DAAL,
+    /// to be changed to passing the values from the performance model
+    std::int64_t blockSize = 140;
+    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
+        const std::int64_t row_count = data.get_row_count();
+        if (5000 < row_count && row_count <= 50000) {
+            blockSize = 1024;
+        }
+    }
+    interop::status_to_exception(
+        daal_hyperparameter.set(daal_covariance::internal::denseUpdateStepBlockSize, blockSize));
+
     dal::detail::check_mul_overflow(component_count, component_count);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -65,7 +78,8 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                        daal_data.get(),
                                                                        daal_cov_matrix.get(),
                                                                        daal_means.get(),
-                                                                       &daal_parameter));
+                                                                       &daal_parameter,
+                                                                       &daal_hyperparameter));
         is_mean_computed = true;
         result.set_cov_matrix(
             homogen_table::wrap(arr_cov_matrix, component_count, component_count));
@@ -83,7 +97,8 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                        daal_data.get(),
                                                                        daal_cor_matrix.get(),
                                                                        daal_means.get(),
-                                                                       &daal_parameter));
+                                                                       &daal_parameter,
+                                                                       &daal_hyperparameter));
         is_mean_computed = true;
         result.set_cor_matrix(
             homogen_table::wrap(arr_cor_matrix, component_count, component_count));
@@ -99,7 +114,8 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                            daal_data.get(),
                                                                            daal_cov_matrix.get(),
                                                                            daal_means.get(),
-                                                                           &daal_parameter));
+                                                                           &daal_parameter,
+                                                                           &daal_hyperparameter));
         }
         result.set_means(homogen_table::wrap(arr_means, 1, component_count));
     }
