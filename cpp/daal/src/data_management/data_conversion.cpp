@@ -152,15 +152,15 @@ DAAL_EXPORT vectorCopy2vFuncType getVector<int>()
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
 {
-    DAAL_ASSERT(idx1 < 10);
     static vectorConvertFuncType table[][3] = DAAL_CONVERT_UP_TABLE(vectorConvertFunc);
+    DAAL_ASSERT(idx1 < sizeof table / sizeof table[0]);
     return table[idx1][idx2];
 }
 
 DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int idx1, int idx2)
 {
-    DAAL_ASSERT(idx1 < 10);
     static vectorConvertFuncType table[][3] = DAAL_CONVERT_DOWN_TABLE(vectorConvertFunc);
+    DAAL_ASSERT(idx1 < sizeof table / sizeof table[0]);
     return table[idx1][idx2];
 }
 

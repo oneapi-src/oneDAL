@@ -2114,6 +2114,7 @@ namespace internal
 size_t getNumElementsFitInMemory(size_t sizeofMemory, size_t sizeofAnElement, size_t defaultNumElements)
 {
     const size_t n = sizeofMemory / sizeofAnElement;
+    // TODO substitute this if-statement with DAAL_ASSERT
     if (n < 1) return sizeofMemory ? 1 : defaultNumElements;
 
     return n;
