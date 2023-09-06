@@ -19,7 +19,7 @@ ALGOS = [
     "decision_forest",
     "decision_tree",
     "jaccard",
-    "kmeans",
+    # "kmeans",
     "kmeans_init",
     "knn",
     "linear_kernel",
