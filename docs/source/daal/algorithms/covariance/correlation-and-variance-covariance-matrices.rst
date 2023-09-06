@@ -84,15 +84,6 @@ Examples
     -  :cpp_example:`cov_dense_batch.cpp <covariance/cov_dense_batch.cpp>`
     -  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
 
-  .. tab:: Java*
-
-    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    -  :java_example:`CovDenseBatch.java <covariance/CovDenseBatch.java>`
-    -  :java_example:`CovCSRBatch.java <covariance/CovCSRBatch.java>`
-
   .. tab:: Python* with DPC++ support
 
     Batch Processing:

@@ -134,30 +134,6 @@ Examples
       - :cpp_example:`pca_cor_csr_distr.cpp <pca/pca_cor_csr_distr.cpp>`
       - :cpp_example:`pca_svd_dense_distr.cpp <pca/pca_svd_dense_distr.cpp>`
 
-   .. tab:: Java*
-
- 
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-      Batch Processing:
-
-      - :java_example:`PCACorDenseBatch.java <pca/PCACorDenseBatch.java>`
-      - :java_example:`PCACorCSRBatch.java <pca/PCACorCSRBatch.java>`
-      - :java_example:`PCASVDDenseBatch.java <pca/PCASVDDenseBatch.java>`
-
-      Online Processing:
-
-      - :java_example:`PCACorDenseOnline.java <pca/PCACorDenseOnline.java>`
-      - :java_example:`PCACorCSROnline.java <pca/PCACorCSROnline.java>`
-      - :java_example:`PCASVDDenseOnline.java <pca/PCASVDDenseOnline.java>`
-
-      Distributed Processing:
-
-      - :java_example:`PCACorDenseDistr.java <pca/PCACorDenseDistr.java>`
-      - :java_example:`PCACorCSRDistr.java <pca/PCACorCSRDistr.java>`
-      - :java_example:`PCASVDDenseDistr.java <pca/PCASVDDenseDistr.java>`
-
    .. tab:: Python* with DPC++ support
 
       Batch Processing:

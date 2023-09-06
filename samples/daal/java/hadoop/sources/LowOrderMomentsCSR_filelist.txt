@@ -1,4 +1,0 @@
-LowOrderMomentsCSR_1.csv
-LowOrderMomentsCSR_2.csv
-LowOrderMomentsCSR_3.csv
-LowOrderMomentsCSR_4.csv
