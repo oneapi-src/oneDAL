@@ -35,11 +35,58 @@ using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
+
+// template <typename Float>
+// auto compute_all_metrics(sycl::queue& q,
+//                       const pr::ndview<Float, 2>& data,
+//                       std::int64_t column_count,
+//                       std::int64_t row_count,
+//                       const dal::backend::event_vector& deps = {}) {
+//     ONEDAL_PROFILER_TASK(init_partial_results, q);
+
+//         const Float inv_n = Float(1.0 / double(rows_count_global));
+
+//         last_event = q_.submit([&](sycl::handler& cgh) {
+//             cgh.depends_on(deps);
+//             cgh.parallel_for(range, [=](sycl::id<1> id) {
+//                 Float mrgsum2cent = bsum2cent_ptr[id];
+//                 Float mrgmean = bsum_ptr[id] * inv_n;
+
+//                 Float local_mean = bmean_ptr[id];
+
+//                 Float delta = mrgmean - local_mean;
+
+//                 mrgsum2cent += delta * delta * row_count;
+//                 if constexpr (check_mask_flag(bs_list::mean, List)) {
+//                     rmean_ptr[id] = mrgmean;
+//                 }
+//                 if constexpr (check_mask_flag(bs_list::sum2cent, List)) {
+//                     rsum2cent_ptr[id] = mrgsum2cent;
+//                 }
+//                 if constexpr (check_mask_flag(bs_list::varc, List)) {
+//                     rvarc_ptr[id] = mrgsum2cent / (rows_count_global - 1);
+//                 }
+//                 if constexpr (check_mask_flag(bs_list::sorm, List)) {
+//                     rsorm_ptr[id] = bsum2_ptr[id] * inv_n;
+//                 }
+//             });
+//         });
+
+
+//     return std::make_tuple(result_min,
+//                            result_max,
+//                            result_sums,
+//                            result_sums2,
+//                            result_sums2cent,
+//                            result_nobs,
+//                            update_event);
+// }
+
 template <typename Float, typename Task>
 static compute_result<Task> finalize_compute(const context_gpu& ctx,
                                              const descriptor_t& desc,
                                              const partial_compute_result<Task>& input) {
-    // auto& q_ = ctx.get_queue();
+    //auto& q_ = ctx.get_queue();
     result_t res;
 
     // auto column_count = input.get_partial_sums_squares().get_column_count();
@@ -64,11 +111,12 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
         // ONEDAL_ASSERT(input.get_sum2().get_count() == column_count);
         res.set_sum_squares(input.get_partial_sums_squares());
     }
-    // if (res_op.test(result_options::sum_squares_centered)) {
-    //     ONEDAL_ASSERT(ndres.get_sum2cent().get_count() == column_count);
-    //     res.set_sum_squares_centered(
-    //         homogen_table::wrap(ndres.get_sum2cent().flatten(q_, {event}), 1, column_count));
-    // }
+
+    if (res_op.test(result_options::sum_squares_centered)) {
+        // ONEDAL_ASSERT(ndres.get_sum2cent().get_count() == column_count);
+        res.set_sum_squares_centered(
+            input.get_partial_sums_squares_centered());
+    }
     // if (res_op.test(result_options::mean)) {
     //     ONEDAL_ASSERT(ndres.get_mean().get_count() == column_count);
     //     res.set_mean(homogen_table::wrap(ndres.get_mean().flatten(q_, {event}), 1, column_count));

@@ -51,6 +51,8 @@ auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 1>& sums2cent,
                             const pr::ndview<Float, 1>& current_sums2cent,
                             const std::int64_t column_count,
+                            const std::int64_t row_count,
+                            const pr::ndview<Float, 1>& nobs,
                             const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(update_partial_results, q);
 
@@ -71,24 +73,29 @@ auto update_partial_results(sycl::queue& q,
     auto current_sums_ptr = current_sums.get_mutable_data();
     auto current_sums2_ptr = current_sums2.get_mutable_data();
     auto current_sums2cent_ptr = current_sums2cent.get_mutable_data();
+auto nobs_ptr = nobs.get_mutable_data();
 
     auto min_data = min.get_data();
     auto max_data = max.get_data();
     auto sums_data = sums.get_data();
     auto sums2_data = sums2.get_data();
     auto sums2cent_data = sums2cent.get_data();
-
+    
     auto update_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(column_count);
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
+            auto current_mean = sums_data[id]/row_count;
+
             result_min_ptr[id] = sycl::fmin(current_min_ptr[id], min_data[id]);
             result_max_ptr[id] = sycl::fmax(current_max_ptr[id], max_data[id]);
-
+             
             result_sums_ptr[id] = current_sums_ptr[id] + sums_data[id];
+            auto global_mean = result_sums_ptr[id]/nobs_ptr[0];
             result_sums2_ptr[id] = current_sums2_ptr[id] + sums2_data[id];
             result_sums2cent_ptr[id] = current_sums2cent_ptr[id] + sums2cent_data[id];
+            result_sums2cent_ptr[id] += (current_mean - global_mean)*(current_mean - global_mean) * (nobs_ptr[0]);
         });
     });
 
@@ -104,6 +111,7 @@ auto update_partial_results(sycl::queue& q,
 template <typename Float>
 auto init_computation(sycl::queue& q,
                       const pr::ndview<Float, 2>& data,
+                      const pr::ndview<Float, 1>& nobs,
                       std::int64_t column_count,
                       std::int64_t row_count,
                       const dal::backend::event_vector& deps = {}) {
@@ -111,7 +119,7 @@ auto init_computation(sycl::queue& q,
 
     auto copy_data = data;
     auto component_count = column_count;
-
+    auto current_nobs_ptr = nobs.get_data();
     auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
     auto result_nobs_ptr = result_nobs.get_mutable_data();
     auto result_max = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
@@ -125,11 +133,11 @@ auto init_computation(sycl::queue& q,
     auto result_sums2cent = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
 
     auto init_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<1>(1);
+        const auto range = sycl::range(1);
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
-            result_nobs_ptr[0] += row_count;
+            result_nobs_ptr[0] = current_nobs_ptr[0] + row_count;
         });
     });
     auto reduce_event_min =
@@ -152,13 +160,20 @@ auto init_computation(sycl::queue& q,
                                                           pr::sum<Float>{},
                                                           pr::square<Float>{},
                                                           { reduce_event_min });
+    auto result_sums2cent_ptr = result_sums2cent.get_mutable_data();
+    auto result_sums2_ptr = result_sums2.get_mutable_data();
+    auto result_sums_ptr = result_sums.get_mutable_data();
+    auto update_event = q.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range<1>(column_count);
 
-    auto reduce_event_sumssquarescentered = pr::reduce_by_columns(q,
-                                                                  data,
-                                                                  result_sums2cent,
-                                                                  pr::sum<Float>{},
-                                                                  pr::square<Float>{},
-                                                                  { reduce_event_min });
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::item<1> id) {
+            const std::int64_t col = id[0];
+
+            result_sums2cent_ptr[col] = result_sums2_ptr[col] - result_sums_ptr[col] * result_sums_ptr[col] / row_count;
+        });
+    });
+
 
     return std::make_tuple(result_min,
                            result_max,
@@ -166,7 +181,30 @@ auto init_computation(sycl::queue& q,
                            result_sums2,
                            result_sums2cent,
                            result_nobs,
-                           reduce_event_sumssquarescentered);
+                           update_event);
+}
+
+
+template <typename Float>
+auto init(sycl::queue& q,
+          const std::int64_t row_count,
+          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(init_partial_results, q);
+
+    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
+
+    auto result_nobs_ptr = result_nobs.get_mutable_data();
+
+    auto init_event = q.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range<1>(1);
+
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::item<1> id) {
+            result_nobs_ptr[0] = row_count;
+        });
+    });
+
+    return std::make_tuple(result_nobs, init_event);
 }
 
 //TODO: add weights and checks
@@ -211,7 +249,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               partial_sums2,
               partial_sums2cent,
               partial_nobs,
-              update_event] = init_computation(q, data_nd, column_count, row_count);
+              update_event] = init_computation(q, data_nd, nobs_nd, column_count, row_count);
         auto [result_min, result_max, result_sums, result_sums2, result_sums2cent, second_event] =
             update_partial_results(q,
                                    min_nd,
@@ -224,7 +262,9 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                    sums2_nd,
                                    partial_sums2cent,
                                    sums2cent_nd,
-                                   column_count);
+                                   column_count,
+                                   row_count,
+                                   partial_nobs);
         result.set_partial_min(
             (homogen_table::wrap(result_min.flatten(q, { update_event }), 1, column_count)));
         result.set_partial_max(
@@ -239,13 +279,15 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
         result.set_nobs((homogen_table::wrap(partial_nobs.flatten(q, { update_event }), 1, 1)));
     }
     else {
+auto init_nobs = pr::ndarray<Float, 1>::empty(q, 1);
+
         auto [result_min,
               result_max,
               result_sums,
               result_sums2,
               result_sums2cent,
               result_nobs,
-              update_event] = init_computation(q, data_nd, column_count, row_count);
+              update_event] = init_computation(q, data_nd, init_nobs, column_count, row_count);
         result.set_partial_min(
             (homogen_table::wrap(result_min.flatten(q, { update_event }), 1, column_count)));
         result.set_partial_max(
