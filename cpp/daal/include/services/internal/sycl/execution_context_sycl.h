@@ -195,13 +195,16 @@ private:
     ::sycl::queue & _deviceQueue;
 };
 
-class [[deprecated]] SyclExecutionContextImpl : public Base, public ExecutionContextIface
+class [[deprecated("CPP SYCL interfaces have been deprecated as of 2024.0 release.")]] SyclExecutionContextImpl : public Base, public ExecutionContextIface
 {
 public:
-    explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue)
+    explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue, const bool fromPython = false)
         : _deviceQueue(deviceQueue), _kernelFactory(_deviceQueue), _kernelScheduler(_deviceQueue)
     {
-        throw std::runtime_error("CPP SYCL interfaces have been deprecated as of 2024.0 release.");
+        if (!fromPython)
+        {
+            throw std::runtime_error("CPP SYCL interfaces have been deprecated as of 2024.0 release.");
+        }
         const auto & device          = _deviceQueue.get_device();
         _infoDevice.isCpu            = device.is_cpu();
         _infoDevice.maxWorkGroupSize = device.get_info< ::sycl::info::device::max_work_group_size>();
