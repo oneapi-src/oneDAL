@@ -65,9 +65,6 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake
     displayName: 'daal/cpp examples'
   - script: |
@@ -117,9 +114,6 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
     displayName: 'daal/cpp examples'
   - script: |
@@ -166,10 +160,6 @@ jobs:
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
@@ -425,9 +415,6 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
     displayName: 'daal/cpp examples'
   - script: |
@@ -475,9 +462,6 @@ jobs:
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
-  - script: |
-      .\.ci\scripts\test.bat daal\java dll msvs
-    displayName: 'daal/java examples'
   - script: |
       .\.ci\scripts\test.bat daal\cpp lib msvs cmake
       .\.ci\scripts\test.bat daal\cpp dll msvs cmake

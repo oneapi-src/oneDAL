@@ -90,16 +90,6 @@ Examples
 
     :cpp_example:`stump_reg_mse_dense_batch.cpp <stump/stump_reg_mse_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    :java_example:`StumpRegMseDenseBatch.java <stump/StumpRegMseDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

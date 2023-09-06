@@ -104,20 +104,6 @@ fi
 interface=${interface:-daal/cpp}
 cd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}"
 
-if [ "${interface}" == "daal/java" ]; then
-    bash launcher.sh
-    err=$?
-    if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') EXAMPLES FAILED\t\t with errno ${err}"
-        TESTING_RETURN=${err}
-        continue
-    else
-        echo -e "$(date +'%H:%M:%S') EXAMPLES PASSED\t\t"
-    fi
-
-    exit ${TESTING_RETURN}
-fi
-
 for link_mode in ${link_modes}; do
     if [ "${link_mode}" == "static" ]; then
         lib_ext="a"

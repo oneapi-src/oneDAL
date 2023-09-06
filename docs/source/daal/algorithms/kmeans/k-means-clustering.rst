@@ -285,21 +285,6 @@ Examples
     - :cpp_example:`kmeans_dense_distr.cpp <kmeans/kmeans_dense_distr.cpp>`
     - :cpp_example:`kmeans_csr_distr.cpp <kmeans/kmeans_csr_distr.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`KMeansDenseBatch.java <kmeans/KMeansDenseBatch.java>`
-    - :java_example:`KMeansCSRBatch.java <kmeans/KMeansCSRBatch.java>`
-
-    Distributed Processing
-
-    - :java_example:`KMeansDenseDistr.java <kmeans/KMeansDenseDistr.java>`
-    - :java_example:`KMeansCSRDistr.java <kmeans/KMeansCSRDistr.java>`
 
   .. tab:: Python* with DPC++ support
 

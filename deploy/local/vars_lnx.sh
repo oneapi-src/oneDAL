@@ -233,17 +233,14 @@ case "${my_script_path}" in
       export CPATH=$__daal_tmp_dir/include/dal${CPATH+:${CPATH}}
       export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
       export LD_LIBRARY_PATH=$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-      export CLASSPATH=$__daal_tmp_dir/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
     else
       export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
       export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
       export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-      export CLASSPATH=$__daal_tmp_dir/lib/onedal.jar${CLASSPATH+:${CLASSPATH}}
     fi
   ;;
   *"etc"*)
     export DALROOT=$ONEAPI_ROOT
     export CPATH=$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}
-    export CLASSPATH=$ONEAPI_ROOT/share/java/onedal.jar${CLASSPATH+:${CLASSPATH}}
   ;;
 esac

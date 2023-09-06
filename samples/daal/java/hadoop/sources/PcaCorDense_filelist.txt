@@ -1,3 +1,0 @@
-PcaCorDense_normalized_1.csv
-PcaCorDense_normalized_2.csv
-PcaCorDense_normalized_3.csv
