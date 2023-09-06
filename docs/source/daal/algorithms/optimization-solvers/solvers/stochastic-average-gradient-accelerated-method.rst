@@ -181,17 +181,6 @@ Examples
     - :cpp_example:`saga_dense_batch.cpp <optimization_solvers/saga_dense_batch.cpp>`
     - :cpp_example:`saga_logistic_loss_dense_batch.cpp <optimization_solvers/saga_logistic_loss_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`SAGADenseBatch.java <optimization_solvers/SAGADenseBatch.java>`
-    - :java_example:`SAGALogisticLossDenseBatch.java <optimization_solvers/SAGALogisticLossDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

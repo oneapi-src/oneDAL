@@ -106,16 +106,6 @@ Examples
 
     - :cpp_example:`svm_multi_class_model_builder.cpp <svm/svm_multi_class_model_builder.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing
-
-    - :java_example:`SVMMultiClassModelBuilder.java <svm/SVMMultiClassModelBuilder.java>`
-
   .. tab:: Python*
 
     :daal4py_example:`svm_multi_class_model_builder.py`
@@ -260,19 +250,6 @@ Examples
     -  :cpp_example:`svm_multi_class_boser_dense_batch.cpp <svm/svm_multi_class_boser_dense_batch.cpp>`
     -  :cpp_example:`svm_multi_class_thunder_csr_batch.cpp <svm/svm_multi_class_thunder_csr_batch.cpp>`
     -  :cpp_example:`svm_multi_class_thunder_dense_batch.cpp <svm/svm_multi_class_thunder_dense_batch.cpp>`
-
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    -  :java_example:`SVMMultiClassBoserCSRBatch.java <svm/SVMMultiClassBoserCSRBatch.java>`
-    -  :java_example:`SVMMultiClassBoserDenseBatch.java <svm/SVMMultiClassBoserDenseBatch.java>`
-    -  :java_example:`SVMMultiClassThunderCSRBatch.java <svm/SVMMultiClassThunderCSRBatch.java>`
-    -  :java_example:`SVMMultiClassThunderDenseBatch.java <svm/SVMMultiClassThunderDenseBatch.java>`
 
   .. tab:: Python*
 

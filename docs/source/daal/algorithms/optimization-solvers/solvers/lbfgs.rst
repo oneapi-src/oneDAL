@@ -301,15 +301,6 @@ Examples
      - :cpp_example:`lbfgs_dense_batch.cpp <optimization_solvers/lbfgs_dense_batch.cpp>`
      - :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-  
-    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-     Batch Processing:
-
-     - :java_example:`LBFGSDenseBatch.java <optimization_solvers/LBFGSDenseBatch.java>`
-     - :java_example:`LBFGSOptResDenseBatch.java <optimization_solvers/LBFGSOptResDenseBatch.java>`
 
   .. tab:: Python*
 

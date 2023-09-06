@@ -1,8 +1,13 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_collect_modules",
+    "dal_collect_parameters",
     "dal_collect_test_suites",
 )
+
+PARAMETRIZED_ALGOS = [
+    "linear_regression",
+]
 
 ALGOS = [
     "basic_statistics",
@@ -18,7 +23,6 @@ ALGOS = [
     "kmeans_init",
     "knn",
     "linear_kernel",
-    "linear_regression",
     "logloss_objective",
     "louvain",
     "minkowski_distance",
@@ -31,12 +35,18 @@ ALGOS = [
     "subgraph_isomorphism",
     "svm",
     "triangle_counting",
-]
+] + PARAMETRIZED_ALGOS
 
 dal_collect_modules(
     name = "algo",
-    root = "@onedal//cpp/oneapi/dal/algo",
     modules = ALGOS,
+    root = "@onedal//cpp/oneapi/dal/algo",
+)
+
+dal_collect_parameters(
+    name = "parameters",
+    modules = PARAMETRIZED_ALGOS,
+    root = "@onedal//cpp/oneapi/dal/algo",
 )
 
 dal_collect_test_suites(

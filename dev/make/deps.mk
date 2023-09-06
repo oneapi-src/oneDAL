@@ -86,11 +86,8 @@ cmd-enhanced-with-dep-gen = $(or $(dep-gen-enhanced.$(call get-command-name,$($(
 
 $(call .inject.dep.gen, C.COMPILE,     $$(cmd-enhanced-with-dep-gen))
 $(call .inject.dep.gen, DPC.COMPILE,   $$(cmd-enhanced-with-dep-gen))
-$(call .inject.dep.gen, JAVAC.COMPILE)
-$(call .inject.dep.gen, JAVAH.COMPILE)
 $(call .inject.dep.gen, LINK.STATIC)  # TODO: md5 removed because buggy
 $(call .inject.dep.gen, LINK.DYNAMIC,  ,$$(call md5,$$(link.dynamic.cmd)))
-$(call .inject.dep.gen, LINK.JAVA,  ,$$(call md5,$$(link.java.cmd)))
 
 #
 # Dependency generation implementation {

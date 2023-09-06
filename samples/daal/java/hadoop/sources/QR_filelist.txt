@@ -1,4 +1,0 @@
-QR_1.csv
-QR_2.csv
-QR_3.csv
-QR_4.csv

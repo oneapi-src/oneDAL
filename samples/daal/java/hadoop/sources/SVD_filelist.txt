@@ -1,4 +1,0 @@
-SVD_1.csv
-SVD_2.csv
-SVD_3.csv
-SVD_4.csv

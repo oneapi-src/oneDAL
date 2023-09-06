@@ -53,14 +53,6 @@ set PATH=%~dp0..\..\__release_win_vc\tbb\latest\redist\intel64\vc_mt;%PATH%
 echo set TBB_DIR=%~dp0..\..\__deps\tbb\win\tbb\lib\cmake\tbb
 set TBB_DIR=%~dp0..\..\__deps\tbb\win\tbb\lib\cmake\tbb
 
-echo Java installation
-echo JAVA_HOME=%JAVA_HOME_17_X64%
-set JAVA_HOME=%JAVA_HOME_17_X64%
-echo PATH=%JAVA_HOME%\bin;%PATH%
-set PATH=%JAVA_HOME%\bin;%PATH%
-echo set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-
 echo __release_win_vc\daal\latest\examples\%examples%
 cd __release_win_vc\daal\latest\examples\%examples%
 
@@ -71,7 +63,6 @@ if "%link_mode%"=="lib" (
     set cmake_link_mode=static
 )
 
-if "%examples%"=="daal\java" call launcher.bat intel64
 if "%build_system%"=="cmake" (
     if exist Build rd /S /Q Build
     md Build

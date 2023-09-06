@@ -23,6 +23,7 @@
 */
 
 #include "src/algorithms/linear_regression/linear_regression_train_container.h"
+#include "src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h"
 #include "src/algorithms/linear_regression/linear_regression_train_dense_normeq_impl.i"
 
 namespace daal
@@ -40,7 +41,6 @@ template class OnlineContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 namespace internal
 {
 template class DAAL_EXPORT OnlineKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
-
 }
 } // namespace training
 } // namespace linear_regression
