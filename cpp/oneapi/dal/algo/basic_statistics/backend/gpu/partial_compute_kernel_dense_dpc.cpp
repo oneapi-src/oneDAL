@@ -90,7 +90,7 @@ auto nobs_ptr = nobs.get_mutable_data();
 
             result_min_ptr[id] = sycl::fmin(current_min_ptr[id], min_data[id]);
             result_max_ptr[id] = sycl::fmax(current_max_ptr[id], max_data[id]);
-             
+
             result_sums_ptr[id] = current_sums_ptr[id] + sums_data[id];
             auto global_mean = result_sums_ptr[id]/nobs_ptr[0];
             result_sums2_ptr[id] = current_sums2_ptr[id] + sums2_data[id];

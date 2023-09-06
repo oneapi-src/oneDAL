@@ -29,7 +29,7 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue &q) {
     const auto data_file_name = get_data_path("covcormoments_dense.csv");
-    const std::int64_t nBlocks = 2;
+    const std::int64_t nBlocks = 10;
     const auto data = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
 
     const auto bs_desc = dal::basic_statistics::descriptor{};
