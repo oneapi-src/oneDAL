@@ -52,9 +52,7 @@ echo default is intel64
 exit /b 0
 
 :GoodArgs
-
 set "DALROOT=%DAAL%"
-
 if exist "%DAAL%\include\dal" (
   set "INCLUDE=%DAAL%\include\dal;%INCLUDE%"
   set "CPATH=%DAAL%\include\dal;%CPATH%"

@@ -26,20 +26,17 @@ if { $tcl_version < $min_tcl_ver } {
     exit 1
 }
 
-
 # if modulefile script name is a symlink, resolve it to get the fully
 # qualified pathname that points to the actual modulefile script
 # see: https://wiki.tcl-lang.org/page/file+normalize
 set scriptpath "${ModulesCurrentModulefile}"
 set scriptpath "[file dirname [file normalize "$scriptpath/___"]]"
 
-
 # define componentroot, modulefileroot, modulefilename and modulefilever
 set modulefilename "[file tail [file dirname "${scriptpath}"]]"
 set modulefilever "[file tail "$scriptpath"]"
 set modulefilepath "${scriptpath}"
 set componentroot "[file dirname [file dirname [file dirname [file dirname "${scriptpath}"]]]]"
-
 
 ##############################################################################
 
@@ -53,7 +50,6 @@ set moduleinfoname [file dirname [module-info name]]
 
 proc ModulesHelp { } {
     global moduleinfoname
-
     global modulefilever
     module whatis "${modulefilename}/${modulefilever}"
 }
@@ -63,14 +59,12 @@ proc ModulesHelp { } {
 # Define environment variables needed for an isolated component install.
 
 # Set intermediate variables
-
 set dalroot "$componentroot"
 set daal_target_arch "intel64"
 
 # Setup environment variables
 setenv          DAL_MAJOR_BINARY   1
 setenv          DAL_MINOR_BINARY   1
-
 setenv          DALROOT            "$dalroot"
 
 prepend-path    LD_LIBRARY_PATH    "$dalroot/lib"
@@ -78,4 +72,3 @@ prepend-path    LIBRARY_PATH       "$dalroot/lib"
 prepend-path    CPATH              "$dalroot/include/dal"
 prepend-path    CMAKE_PREFIX_PATH  "$dalroot"
 prepend-path    PKG_CONFIG_PATH    "$dalroot/lib/pkgconfig"
-

@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "headers",
-    hdrs = glob(["include/**/*.h", "include/*.h"]),
+    hdrs = glob(["include/**/*.h"]),
     includes = [ "include" ],
     defines = [
         "MKL_ILP64"
