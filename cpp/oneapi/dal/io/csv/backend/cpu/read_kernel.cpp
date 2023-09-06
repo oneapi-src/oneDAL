@@ -52,7 +52,7 @@ table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
     daal_data_source.loadDataBlock();
     interop::status_to_exception(daal_data_source.status());
 
-    return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(
+    return oneapi::dal::backend::interop::convert_from_daal_homogen_table<double>(
         daal_data_source.getNumericTable());
 }
 
