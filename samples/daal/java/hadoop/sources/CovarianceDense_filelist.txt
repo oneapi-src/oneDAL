@@ -1,4 +1,0 @@
-CovarianceDense_1.csv
-CovarianceDense_2.csv
-CovarianceDense_3.csv
-CovarianceDense_4.csv

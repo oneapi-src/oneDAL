@@ -111,7 +111,7 @@ services::Status SGDKernel<algorithmFPType, momentum, cpu>::compute(HostAppIface
 
             DAAL_CHECK_BREAK(!s || host.isCancelled(s, 1));
             const algorithmFPType one(1.0);
-            const algorithmFPType gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(one, pointNorm);
+            const algorithmFPType gradientThreshold = accuracyThreshold * daal::internal::MathInst<algorithmFPType, cpu>::sMax(one, pointNorm);
             DAAL_CHECK_BREAK(gradientNorm < gradientThreshold);
         }
 

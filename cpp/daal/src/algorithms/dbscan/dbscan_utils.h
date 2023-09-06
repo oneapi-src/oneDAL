@@ -449,7 +449,7 @@ public:
         EuclideanDistances<FPType, cpu> metric(*_inTable, *_outTable);
         DAAL_CHECK_STATUS_VAR(metric.init());
 
-        const FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
+        const FPType epsP = MathInst<FPType, cpu>::sPowx(_eps, _p);
 
         const size_t inBlockSize = 128;
         const size_t nInBlocks   = inRows / inBlockSize + (inRows % inBlockSize > 0);
@@ -561,7 +561,7 @@ public:
             }
         }
 
-        FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
+        FPType epsP = MathInst<FPType, cpu>::sPowx(_eps, _p);
 
         size_t outBlockSize = 256;
         size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);

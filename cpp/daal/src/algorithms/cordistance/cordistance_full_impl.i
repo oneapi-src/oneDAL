@@ -85,7 +85,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
         DAAL_INT m = blockSize1, k = 1, nn = blockSize1;
         DAAL_INT lda = m, ldb = nn, ldc = m;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum, &lda, sum, &ldb, &beta, buf, &ldc);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum, &lda, sum, &ldb, &beta, buf, &ldc);
 
         /* calculate x * x^t - 1/p * sum^t * sum */
         alpha  = one;
@@ -95,14 +95,14 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
         m = blockSize1, k = p, nn = blockSize1;
         lda = k, ldb = k, ldc = m;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
 
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < blockSize1; i++)
         {
             if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
             {
-                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
+                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
             }
         }
 
@@ -212,7 +212,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
             DAAL_INT m = blockSize2, k = 1, nn = blockSize1;
             DAAL_INT lda = m, ldb = nn, ldc = m;
 
-            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum2, &lda, sum1l, &ldb, &beta, buf, &ldc);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum2, &lda, sum1l, &ldb, &beta, buf, &ldc);
 
             /* calculate x1 * x2^t - 1/p * sum1^t * sum2 */
             alpha  = one;
@@ -226,7 +226,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
             ldb    = k;
             ldc    = m;
 
-            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x2, &lda, x1, &ldb, &beta, buf, &ldc);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x2, &lda, x1, &ldb, &beta, buf, &ldc);
 
             for (size_t i = 0; i < blockSize1; i++)
             {

@@ -44,7 +44,7 @@ template <CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method
 class BatchImpl : public algorithms::engines::mt2203::interface1::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
 {
 private:
-    using BaseRNGsPtr = SharedPtr<daal::internal::BaseRNGs<cpu> >;
+    using BaseRNGsPtr = SharedPtr<daal::internal::BaseRNGsInst<cpu> >;
 
 private:
     const int32_t header = 0x4441414C;
@@ -55,7 +55,7 @@ public:
 
     BatchImpl(size_t seed = 777, services::Status * st = nullptr) : super1(seed), super2(seed)
     {
-        push_back(0, BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(seed, __DAAL_BRNG_MT2203)));
+        push_back(0, BaseRNGsPtr(new daal::internal::BaseRNGsInst<cpu>(seed, __DAAL_BRNG_MT2203)));
     }
 
     services::Status addImpl(size_t numberOfStreams) DAAL_C11_OVERRIDE
@@ -65,7 +65,7 @@ public:
 
         for (size_t i = 0; i < numberOfStreams; i++)
         {
-            push_back(indices[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(this->getSeed(), __DAAL_BRNG_MT2203 + indices[i])));
+            push_back(indices[i], BaseRNGsPtr(new daal::internal::BaseRNGsInst<cpu>(this->getSeed(), __DAAL_BRNG_MT2203 + indices[i])));
         }
         return s;
     }
@@ -97,7 +97,7 @@ public:
 
         for (size_t i = 0; i < this->getNumberOfStreams(); i++)
         {
-            (*streamsIn)[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(_streams[i])));
+            (*streamsIn)[i] = BaseRNGsPtr(new daal::internal::BaseRNGsInst<cpu>(*(_streams[i])));
         }
         return services::Status();
     }
@@ -122,7 +122,7 @@ public:
 
         for (size_t i = 0; i < this->getNumberOfStreams(); i++)
         {
-            _streams[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(streamsIn[i])));
+            _streams[i] = BaseRNGsPtr(new daal::internal::BaseRNGsInst<cpu>(*(streamsIn[i])));
         }
 
         return services::Status();
@@ -175,11 +175,11 @@ protected:
     {
         for (size_t i = 0; i < other.getNumberOfStreams(); i++)
         {
-            push_back(other._streamIdxs[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(other._streams[i]))));
+            push_back(other._streamIdxs[i], BaseRNGsPtr(new daal::internal::BaseRNGsInst<cpu>(*(other._streams[i]))));
         }
     }
 
-    BatchImpl(size_t seed, size_t i, services::SharedPtr<daal::internal::BaseRNGs<cpu> > baseRng) : super1(seed), super2(seed)
+    BatchImpl(size_t seed, size_t i, services::SharedPtr<daal::internal::BaseRNGsInst<cpu> > baseRng) : super1(seed), super2(seed)
     {
         push_back(i, baseRng);
     }
@@ -206,7 +206,7 @@ protected:
         return s;
     }
 
-    void push_back(size_t idx, SharedPtr<daal::internal::BaseRNGs<cpu> > brngPtr)
+    void push_back(size_t idx, SharedPtr<daal::internal::BaseRNGsInst<cpu> > brngPtr)
     {
         _streamIdxs.push_back(idx);
         _streams.push_back(brngPtr);

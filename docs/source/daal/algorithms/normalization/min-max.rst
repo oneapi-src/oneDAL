@@ -133,16 +133,6 @@ Examples
 
     - :cpp_example:`minmax_dense_batch.cpp <normalization/minmax_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`MinMaxDenseBatch.java <normalization/MinMaxDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

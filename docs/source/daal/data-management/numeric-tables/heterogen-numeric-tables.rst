@@ -44,10 +44,6 @@ Examples
 
 C++: :cpp_example:`datasource/datastructures_aos.cpp`
 
-.. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-Java*: :java_example:`datasource/DataStructuresAOS.java`
-
 .. Python*: datastructures_aos.py
 
 .. _soa_layout:
@@ -68,7 +64,5 @@ Examples
 --------
 
 C++: :cpp_example:`datasource/datastructures_soa.cpp`
-
-Java*: :java_example:`datasource/DataStructuresSOA.java`
 
 .. Python*:datastructures_soa.py

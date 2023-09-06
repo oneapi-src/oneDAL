@@ -84,7 +84,7 @@ services::Status HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(algorithmFP
         const algorithmFPType rbf = (mklBuff[i] * negTwo + sqrA2i + sqrA1i[i]) * coeff;
         mklBuff[i]                = rbf > expExpThreshold ? rbf : expExpThreshold;
     }
-    Math<algorithmFPType, cpu>::vExp(n, mklBuff, dataRBlock);
+    MathInst<algorithmFPType, cpu>::vExp(n, mklBuff, dataRBlock);
     return services::Status();
 }
 
@@ -120,7 +120,7 @@ inline services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * c
         mklBuff[i]       = rbf > expExpThreshold ? rbf : expExpThreshold;
     }
 
-    Math<double, avx512>::vExp(n, mklBuff, mklBuff);
+    MathInst<double, avx512>::vExp(n, mklBuff, mklBuff);
     i = 0;
 
     const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 3;
@@ -170,7 +170,7 @@ inline services::Status HelperKernelRBF<float, avx512>::postGemmPart(float * con
         mklBuff[i]      = rbf > expExpThreshold ? rbf : expExpThreshold;
     }
 
-    Math<float, avx512>::vExp(n, mklBuff, mklBuff);
+    MathInst<float, avx512>::vExp(n, mklBuff, mklBuff);
     i = 0;
 
     const size_t align = ((64 - (reinterpret_cast<size_t>(dataRBlock) & 63)) & 63) >> 2;

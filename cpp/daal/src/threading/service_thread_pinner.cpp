@@ -209,11 +209,7 @@ class thread_pinner_impl_t : public tbb::task_scheduler_observer
 
 public:
     thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *));
-<<<<<<< HEAD
-    thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena);
-=======
     thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena & task_arena);
->>>>>>> 64e741bdc38679f544c98a830a68cb7c5646d131
     void on_scheduler_entry(bool);
     void on_scheduler_exit(bool);
     void init_thread_pinner(int statusToSet, int nthreadsToSet, int max_threadsToSet, int * cpu_queueToSet);

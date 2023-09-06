@@ -83,7 +83,10 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         optionalResult ? NumericTable::cast(optionalResult->get(iterative_solver::lastIteration)).get() : nullptr);
 
     DAAL_CHECK_STATUS(s, task.init(inputArgument, learningRateSequence, conservativeSequence, nIterations, batchIndices, optionalArgument));
-
+    if (!task.ntBatchIndices)
+    {
+        return Status(ErrorIncorrectParameter);
+    }
     algorithmFPType * workValue = task.mtWorkValue.get();
 
     NumericTablePtr previousArgument = function->sumOfFunctionsInput->get(sum_of_functions::argument);
@@ -146,7 +149,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
                 s = vectorNorm(workValue, argumentSize, pointNorm);
                 s |= vectorNorm(gradient, argumentSize, gradientNorm);
                 DAAL_CHECK_BREAK(!s);
-                double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
+                double gradientThreshold = accuracyThreshold * daal::internal::MathInst<algorithmFPType, cpu>::sMax(1.0, pointNorm);
                 DAAL_CHECK_BREAK(gradientNorm < gradientThreshold);
             }
             result |= daal::services::internal::daal_memcpy_s(task.prevWorkValue.get(), argumentSize * sizeof(algorithmFPType), workValue,

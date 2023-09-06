@@ -45,9 +45,30 @@ cc_library(
 )
 
 cc_library(
+    name = "parameters_static",
+    srcs = [
+        "lib/intel64/libonedal_parameters.a",
+    ],
+    deps = [
+        ":headers",
+    ],
+)
+
+cc_library(
     name = "onedal_static",
     srcs = [
         "lib/intel64/libonedal.a",
+    ],
+    deps = [
+        ":headers",
+        ":parameters_static",
+    ],
+)
+
+cc_library(
+    name = "parameters_static_dpc",
+    srcs = [
+        "lib/intel64/libonedal_parameters_dpc.a",
     ],
     deps = [
         ":headers",
@@ -62,6 +83,7 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_sycl",
+        ":parameters_static_dpc",
     ],
 )
 
@@ -91,9 +113,30 @@ cc_library(
 )
 
 cc_library(
+    name = "parameters_dynamic",
+    srcs = [
+        "lib/intel64/libonedal_parameters.so",
+    ],
+    deps = [
+        ":headers",
+    ],
+)
+
+cc_library(
     name = "onedal_dynamic",
     srcs = [
         "lib/intel64/libonedal.so",
+    ],
+    deps = [
+        ":headers",
+        ":parameters_dynamic",
+    ],
+)
+
+cc_library(
+    name = "parameters_dynamic_dpc",
+    srcs = [
+        "lib/intel64/libonedal_parameters_dpc.so",
     ],
     deps = [
         ":headers",
@@ -108,5 +151,6 @@ cc_library(
     deps = [
         ":headers",
         ":onedal_sycl",
+        ":parameters_dynamic_dpc",
     ],
 )

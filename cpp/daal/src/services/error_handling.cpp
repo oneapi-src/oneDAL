@@ -196,8 +196,9 @@ const ErrorDetailCollection & errorDetailCollection()
 
 int cat(const char * source, char * destination)
 {
-    return daal::internal::Service<>::serv_strncat_s(destination, DAAL_MAX_STRING_SIZE, source,
-                                                     DAAL_MAX_STRING_SIZE - strnlen(destination, DAAL_MAX_STRING_SIZE));
+    return daal::internal::ServiceInst::serv_strncat_s(
+        destination, DAAL_MAX_STRING_SIZE, source,
+        DAAL_MAX_STRING_SIZE - daal::internal::ServiceInst::serv_strnlen_s(destination, DAAL_MAX_STRING_SIZE));
 }
 } // namespace
 
@@ -249,14 +250,17 @@ private:
 template <typename T>
 void ErrorDetailImpl<T>::describe(char * str) const
 {
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, errorDetailCollection().find(id())->description(),
-                                              DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, ": ", DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::ServiceInst::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, errorDetailCollection().find(id())->description(),
+                                                DAAL_MAX_STRING_SIZE - daal::internal::ServiceInst::serv_strnlen_s(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::ServiceInst::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, ": ",
+                                                DAAL_MAX_STRING_SIZE - daal::internal::ServiceInst::serv_strnlen_s(str, DAAL_MAX_STRING_SIZE));
     char buffer[DAAL_MAX_STRING_SIZE] = { 0 };
     internal::toStringBuffer<T>(value(), buffer);
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, buffer, DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::ServiceInst::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, buffer,
+                                                DAAL_MAX_STRING_SIZE - daal::internal::ServiceInst::serv_strnlen_s(str, DAAL_MAX_STRING_SIZE));
 
-    daal::internal::Service<>::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, "\n", DAAL_MAX_STRING_SIZE - strnlen(str, DAAL_MAX_STRING_SIZE));
+    daal::internal::ServiceInst::serv_strncat_s(str, DAAL_MAX_STRING_SIZE, "\n",
+                                                DAAL_MAX_STRING_SIZE - daal::internal::ServiceInst::serv_strnlen_s(str, DAAL_MAX_STRING_SIZE));
 }
 
 Error::Error(const ErrorID id) : _id(id), _details(nullptr) {}
@@ -449,7 +453,7 @@ const char * KernelErrorCollection::getDescription() const
             for (const auto * ptr = e->details(); ptr; ptr = ptr->next()) ptr->describe(errorDescription[i]);
         }
 
-        descriptionSize += strnlen(errorDescription[i], DAAL_MAX_STRING_SIZE);
+        descriptionSize += daal::internal::ServiceInst::serv_strnlen_s(errorDescription[i], DAAL_MAX_STRING_SIZE);
     }
 
     if (_description)
@@ -713,6 +717,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorDataTypeNotSupported, "Data type not supported");
     add(ErrorNullByteInjection, "Null byte injection has been detected");
     add(ErrorBufferSizeIntegerOverflow, "Integer overflow is occured");
+    add(ErrorHyperparameterNotFound, "Cannot find a hyperparameter");
 
     // Environment errors: -2000..-2999
     add(ErrorCpuNotSupported, "CPU not supported");
@@ -998,6 +1003,7 @@ void ErrorDetailCollection::parseResourceFile()
     add(ActualValue, "Actual");
     add(Sycl, "Sycl error");
     add(OpenCL, "OpenCL error");
+    add(Key, "Key");
 }
 
 } // namespace services

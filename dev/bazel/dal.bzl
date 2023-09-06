@@ -278,6 +278,17 @@ def dal_collect_test_suites(name, root, modules=[], target="tests", tests=[], **
         **kwargs,
     )
 
+def dal_collect_parameters(name, root, modules=[], target="parameters", dal_deps=[], **kwargs):
+    module_deps = []
+    for module_name in modules:
+        module_label = "{0}/{1}:{2}".format(root, module_name, target)
+        module_deps.append(module_label)
+    dal_module(
+        name = name,
+        dal_deps = dal_deps + module_deps,
+        **kwargs,
+    )
+
 def dal_example(name, dal_deps=[], **kwargs):
     dal_test(
         name = name,
@@ -334,10 +345,12 @@ def _test_deps_on_daal():
         ],
         "@config//:test_link_mode_release_static": [
             "@onedal_release//:core_static",
+            "@onedal_release//:parameters_static",
             "@onedal//cpp/daal:threading_release_static",
         ],
         "@config//:test_link_mode_release_dynamic": [
             "@onedal_release//:core_dynamic",
+            "@onedal_release//:parameters_dynamic",
             "@onedal//cpp/daal:threading_release_dynamic",
         ],
     })
@@ -497,6 +510,12 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         }) + select({
             "@config//:assert_enabled": [
                 "ONEDAL_ENABLE_ASSERT=1",
+            ],
+            "//conditions:default": [],
+        }) + select({
+            "@config//:backend_ref": [
+                "DAAL_REF",
+                "ONEDAL_REF",
             ],
             "//conditions:default": [],
         }),

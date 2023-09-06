@@ -52,7 +52,7 @@ services::Status DistributedParameter::check() const
     size_t nRows = partition->getNumberOfRows();
     DAAL_CHECK_EX(nRows > 0, ErrorIncorrectNumberOfRows, ParameterName, partitionStr());
 
-    daal::internal::ReadRows<int, sse2> partitionRows(partition.get(), 0, nRows);
+    daal::internal::ReadRows<int, DAAL_BASE_CPU> partitionRows(partition.get(), 0, nRows);
     const int * p = partitionRows.get();
     DAAL_ASSERT(p);
 

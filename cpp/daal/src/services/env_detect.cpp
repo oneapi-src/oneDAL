@@ -21,8 +21,6 @@
 //--
 */
 
-#include <immintrin.h>
-
 #include "services/env_detect.h"
 #include "services/daal_defines.h"
 #include "src/services/service_defines.h"
@@ -162,7 +160,7 @@ DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const
 DAAL_EXPORT int daal::services::Environment::setMemoryLimit(MemType type, size_t limit)
 {
     initNumberOfThreads();
-    return daal::internal::Service<>::serv_set_memory_limit(type, limit);
+    return daal::internal::ServiceInst::serv_set_memory_limit(type, limit);
 }
 
 DAAL_EXPORT void daal::services::Environment::enableThreadPinning(const bool enableThreadPinningFlag)

@@ -27,10 +27,13 @@
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
-#include "algorithms/linear_regression/linear_regression_training_types.h"
+#include "algorithms/algorithm_kernel.h"
+
 #include "src/algorithms/linear_model/linear_model_train_normeq_kernel.h"
 #include "src/algorithms/linear_model/linear_model_train_qr_kernel.h"
-#include "algorithms/algorithm_kernel.h"
+
+#include "src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h"
+#include "algorithms/linear_regression/linear_regression_training_types.h"
 
 namespace daal
 {
@@ -44,6 +47,8 @@ namespace internal
 {
 using namespace daal::data_management;
 using namespace daal::services;
+
+using namespace daal::algorithms::linear_regression::internal;
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -65,8 +70,11 @@ class BatchKernel<algorithmFPType, training::normEqDense, cpu> : public daal::al
     typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
 
 public:
+    typedef linear_regression::internal::Hyperparameter HyperparameterType;
     Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta,
                    bool interceptFlag) const;
+    Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta, bool interceptFlag,
+                   const HyperparameterType * hyperparameter) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -91,9 +99,14 @@ class OnlineKernel<algorithmFPType, training::normEqDense, cpu> : public daal::a
     typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
 
 public:
+    typedef linear_regression::internal::Hyperparameter HyperparameterType;
     Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag) const;
     Status finalizeCompute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
                            bool interceptFlag) const;
+    Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag,
+                   const HyperparameterType * hyperparameter) const;
+    Status finalizeCompute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                           bool interceptFlag, const HyperparameterType * hyperparameter) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -119,9 +132,14 @@ class DistributedKernel<algorithmFPType, training::normEqDense, cpu> : public da
     typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
 
 public:
+    typedef linear_regression::internal::Hyperparameter HyperparameterType;
     Status compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtx, NumericTable & xty) const;
     Status finalizeCompute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
                            bool interceptFlag) const;
+    Status compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtx, NumericTable & xty,
+                   const HyperparameterType * hyperparameter) const;
+    Status finalizeCompute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                           bool interceptFlag, const HyperparameterType * hyperparameter) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>

@@ -236,7 +236,7 @@ void TreeThreadCtxBase<algorithmFPType, cpu>::finalizeVarImp(training::VariableI
             {
                 varImpVariance[i] *= div;
                 if (isPositive<algorithmFPType, cpu>(varImpVariance[i]))
-                    varImp[i] /= daal::internal::Math<algorithmFPType, cpu>::sSqrt(varImpVariance[i] * div);
+                    varImp[i] /= daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(varImpVariance[i] * div);
             }
         }
         else
@@ -262,8 +262,8 @@ void TreeThreadCtxBase<algorithmFPType, cpu>::finalizeVarImp(training::VariableI
         algorithmFPType maxVal = 0;
         for (size_t i = 0; i < nVars; ++i)
         {
-            const algorithmFPType val = daal::internal::Math<algorithmFPType, cpu>::sFabs(varImp[i]);
-            maxVal                    = daal::internal::Math<algorithmFPType, cpu>::sMax(maxVal, val);
+            const algorithmFPType val = daal::internal::MathInst<algorithmFPType, cpu>::sFabs(varImp[i]);
+            maxVal                    = daal::internal::MathInst<algorithmFPType, cpu>::sMax(maxVal, val);
         }
         if (!isPositive<algorithmFPType, cpu>(maxVal)) return;
         const algorithmFPType div = 1. / maxVal;
@@ -306,6 +306,11 @@ template <CpuType cpu>
 services::Status selectParallelizationTechnique(const Parameter & par, engines::internal::ParallelizationTechnique & technique)
 {
     auto engineImpl = dynamic_cast<engines::internal::BatchBaseImpl *>(par.engine.get());
+
+    if (engineImpl == NULL)
+    {
+        return services::Status(services::ErrorNullResult);
+    }
 
     engines::internal::ParallelizationTechnique techniques[] = { engines::internal::family, engines::internal::leapfrog,
                                                                  engines::internal::skipahead };
@@ -711,7 +716,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
     if (_par.bootstrap)
     {
         *_numElems += _nSamples;
-        RNGs<int, cpu> rng;
+        RNGsInst<int, cpu> rng;
         rng.uniform(_nSamples, _aSample.get(), _helper.engineImpl->getState(), 0, _data->getNumberOfRows());
         daal::algorithms::internal::qSort<int, cpu>(_nSamples, _aSample.get());
     }
@@ -1044,7 +1049,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
                                                                                                 typename DataHelper::TSplitData & split)
 {
     services::Status st;
-    RNGs<IndexType, cpu> rng;
+    RNGsInst<IndexType, cpu> rng;
     algorithmFPType featBuf[2];
     IndexType * aIdx = _aSample.get() + iStart;
     for (size_t i = 0; i < _nFeaturesPerNode; ++i)
@@ -1111,7 +1116,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
     int64_t idxFeatureValueBestSplit = -1;
     typename DataHelper::TSplitData split;
     /* RNG for sample drawing */
-    RNGs<IndexType, cpu> rng;
+    RNGsInst<IndexType, cpu> rng;
     /* index for swapping samples in Fisher-Yates sampling */
     IndexType swapIdx;
 

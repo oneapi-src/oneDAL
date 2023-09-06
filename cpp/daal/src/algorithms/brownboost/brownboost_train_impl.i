@@ -254,8 +254,8 @@ void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(size_t n
         nre2[j] = nra[j] * invSqrtC;
         w[j]    = -nra[j] * nra[j] / c;
     }
-    daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, w, w);
-    daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, nre2, nre2);
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(nVectors, w, w);
+    daal::internal::MathInst<algorithmFPType, cpu>::vErf(nVectors, nre2, nre2);
     algorithmFPType wSum = (algorithmFPType)0.0;
     for (size_t j = 0; j < nVectors; j++)
     {
@@ -309,11 +309,11 @@ NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nV
 {
     const algorithmFPType one = (algorithmFPType)1.0;
     const algorithmFPType pi  = (algorithmFPType)3.1415926535897932384626433832795;
-    sqrtC                     = daal::internal::Math<algorithmFPType, cpu>::sErfInv(one - error);
+    sqrtC                     = daal::internal::MathInst<algorithmFPType, cpu>::sErfInv(one - error);
     c                         = sqrtC * sqrtC;
     invC                      = one / c;
     invSqrtC                  = one / sqrtC;
-    sqrtPiC                   = daal::internal::Math<algorithmFPType, cpu>::sSqrt(pi * c);
+    sqrtPiC                   = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(pi * c);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
@@ -360,8 +360,8 @@ void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType 
             nrw[j]  = -invC * nrd[j] * nrd[j];
             nre1[j] = nrd[j] * invSqrtC;
         }
-        daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, nrw, nrw);
-        daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, nre1, nre1);
+        daal::internal::MathInst<algorithmFPType, cpu>::vExp(nVectors, nrw, nrw);
+        daal::internal::MathInst<algorithmFPType, cpu>::vErf(nVectors, nre1, nre1);
         algorithmFPType nrW(0.0);
         algorithmFPType nrU(0.0);
         algorithmFPType nrB(0.0);
@@ -383,9 +383,9 @@ void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType 
         nrAlpha += invDenom * (c * nrW * nrB + sqrtPiC * nrU * nrE);
         nrT += invDenom * (c * nrB * nrB + sqrtPiC * nrV * nrE);
 
-        if ((daal::internal::Math<algorithmFPType, cpu>::sFabs(nrB / nrW) <= nu)
-            || (daal::internal::Math<algorithmFPType, cpu>::sFabs(nrB) <= nrAccuracy
-                && daal::internal::Math<algorithmFPType, cpu>::sFabs(nrE) <= nrAccuracy))
+        if ((daal::internal::MathInst<algorithmFPType, cpu>::sFabs(nrB / nrW) <= nu)
+            || (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(nrB) <= nrAccuracy
+                && daal::internal::MathInst<algorithmFPType, cpu>::sFabs(nrE) <= nrAccuracy))
             break;
     }
     nrAlpha *= alphaSign;

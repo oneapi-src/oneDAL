@@ -90,11 +90,7 @@ public:
 extern "C"
 {
     DAAL_EXPORT void _thread_pinner_thread_pinner_init(void(int &, int &, int &, int **), void (*deleter)(void *));
-<<<<<<< HEAD
-    DAAL_EXPORT void _thread_pinner_init_with_task_arena(void(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena);
-=======
     DAAL_EXPORT void _thread_pinner_init_with_task_arena(void(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena & task_arena);
->>>>>>> 64e741bdc38679f544c98a830a68cb7c5646d131
     DAAL_EXPORT void _thread_pinner_read_topology();
     DAAL_EXPORT void _thread_pinner_on_scheduler_entry(bool);
     DAAL_EXPORT void _thread_pinner_on_scheduler_exit(bool);
@@ -104,18 +100,11 @@ extern "C"
     DAAL_EXPORT bool _thread_pinner_get_pinning();
     DAAL_EXPORT bool _thread_pinner_set_pinning(bool p);
 
-<<<<<<< HEAD
-    DAAL_EXPORT tbb::task_arena* _thread_pinner_get_task_arena();
-
-    DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *));
-    DAAL_EXPORT void * _getThreadPinnerFromTaskArena(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *), tbb::task_arena& task_arena);
-=======
     DAAL_EXPORT tbb::task_arena * _thread_pinner_get_task_arena();
 
     DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *));
     DAAL_EXPORT void * _getThreadPinnerFromTaskArena(bool create_pinner, void(int &, int &, int &, int **), void (*deleter)(void *),
                                                      tbb::task_arena & task_arena);
->>>>>>> 64e741bdc38679f544c98a830a68cb7c5646d131
 }
 
 namespace daal

@@ -214,7 +214,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
                 DAAL_CHECK_BLOCK_STATUS_THR(xBD);
                 algorithmFPType * xPtr = xBD.get();
 
-                daal::internal::Blas<algorithmFPType, cpu>::xxaxpy(&n, &neg_one, xMeansPtr + j, &zero, xPtr, &one);
+                daal::internal::BlasInst<algorithmFPType, cpu>::xxaxpy(&n, &neg_one, xMeansPtr + j, &zero, xPtr, &one);
             });
         }
         else
@@ -230,7 +230,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
                 for (size_t j = 0; j < nFeatures; j++)
                 {
-                    daal::internal::Blas<algorithmFPType, cpu>::xxaxpy(&numRowsInBlock, &neg_one, xMeansPtr + j, &zero, xPtr + j, &p);
+                    daal::internal::BlasInst<algorithmFPType, cpu>::xxaxpy(&numRowsInBlock, &neg_one, xMeansPtr + j, &zero, xPtr + j, &p);
                 }
             });
         }

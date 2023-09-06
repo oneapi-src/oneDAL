@@ -861,7 +861,7 @@ struct AttractiveKernel
 
                 if (DivComp)
                 {
-                    Math<DataType, cpu>::vLog(iSize, logLocal, logLocal);
+                    MathInst<DataType, cpu>::vLog(iSize, logLocal, logLocal);
                     IdxType start = row[iRow] - 1;
                     for (IdxType index = 0; index < iSize; ++index)
                     {
@@ -929,7 +929,7 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
     DAAL_CHECK_SAFE_STATUS();
 
     sumTlsData.reduceTo(&gradNorm, 1);
-    gradNorm = Math<DataType, cpu>::sSqrt(gradNorm);
+    gradNorm = MathInst<DataType, cpu>::sSqrt(gradNorm);
 
     return services::Status();
 }

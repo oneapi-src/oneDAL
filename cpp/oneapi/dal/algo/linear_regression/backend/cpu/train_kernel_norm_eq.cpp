@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/linear_regression/linear_regression_train_kernel.h>
+#include <daal/src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -45,8 +46,23 @@ template <typename Float, daal::CpuType Cpu>
 using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
 
 template <typename Float, typename Task>
+static auto convert_parameters(const detail::train_parameters<Task>& params) {
+    using daal_lr::internal::Hyperparameter;
+    using daal_lr::internal::HyperparameterId;
+
+    const std::int64_t block = params.get_cpu_macro_block();
+
+    Hyperparameter daal_hyperparameter;
+    auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
+}
+
+template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
+                                           const detail::train_parameters<Task>& params,
                                            const table& data,
                                            const table& resp) {
     using dal::detail::check_mul_overflow;
@@ -80,13 +96,16 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
 
+    const auto hp = convert_parameters<Float>(params);
+
     {
         const auto status = interop::call_daal_kernel<Float, online_kernel_t>(ctx,
                                                                               *x_daal_table,
                                                                               *y_daal_table,
                                                                               *xtx_daal_table,
                                                                               *xty_daal_table,
-                                                                              intp);
+                                                                              intp,
+                                                                              &hp);
 
         interop::status_to_exception(status);
     }
@@ -99,7 +118,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                       *xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *betas_daal_table,
-                                                                      intp);
+                                                                      intp,
+                                                                      &hp);
         });
 
         interop::status_to_exception(status);
@@ -146,16 +166,22 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
+                                const detail::train_parameters<Task>& params,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float, Task>(ctx,
+                                         desc,
+                                         params,
+                                         input.get_data(),
+                                         input.get_responses());
 }
 
 template <typename Float, typename Task>
 struct train_kernel_cpu<Float, method::norm_eq, Task> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
+                                  const detail::train_parameters<Task>& params,
                                   const train_input<Task>& input) const {
-        return train<Float, Task>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, params, input);
     }
 };
 

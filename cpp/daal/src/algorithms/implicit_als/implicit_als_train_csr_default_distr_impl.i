@@ -85,8 +85,9 @@ Status ImplicitALSTrainDistrStep1Kernel<algorithmFPType, cpu>::compute(implicit_
         mtFactors.set(*pFactors, iStart, nRowsToCP);
         DAAL_CHECK_BLOCK_STATUS(mtFactors);
         const algorithmFPType * srcFactorsBlock = mtFactors.get();
-        Blas<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)&nFactors, (DAAL_INT *)&nRowsToCP, &alpha,
-                                          const_cast<algorithmFPType *>(srcFactorsBlock), (DAAL_INT *)&nFactors, &beta, cp, (DAAL_INT *)&nFactors);
+        BlasInst<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)&nFactors, (DAAL_INT *)&nRowsToCP, &alpha,
+                                              const_cast<algorithmFPType *>(srcFactorsBlock), (DAAL_INT *)&nFactors, &beta, cp,
+                                              (DAAL_INT *)&nFactors);
     }
     return Status();
 }
@@ -260,6 +261,7 @@ Status ImplicitALSTrainDistrStep4Kernel<algorithmFPType, fastCSR, cpu>::compute(
 
     const size_t nRows                    = dataTable->getNumberOfRows();
     const CSRNumericTableIface * csrIface = dynamic_cast<const CSRNumericTableIface *>(dataTable);
+    DAAL_CHECK(csrIface, ErrorEmptyCSRNumericTable);
     ReadRowsCSR<algorithmFPType, cpu> mtData(*const_cast<CSRNumericTableIface *>(csrIface), 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(mtData);
 

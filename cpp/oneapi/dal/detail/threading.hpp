@@ -29,6 +29,7 @@ namespace oneapi::dal::preview {
 typedef void (*functype)(std::int32_t i, const void *a);
 typedef void (*functype_int64)(std::int64_t i, const void *a);
 typedef void (*functype_int32ptr)(const std::int32_t *i, const void *a);
+typedef void (*functype_blocked_size)(std::size_t, std::size_t, const void *);
 typedef void *(*tls_functype)(const void *a);
 typedef void (*tls_reduce_functype)(void *p, const void *a);
 
@@ -72,6 +73,12 @@ ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
                                                  const std::int32_t *end,
                                                  const void *a,
                                                  oneapi::dal::preview::functype_int32ptr func);
+
+ONEDAL_EXPORT void _onedal_threader_for_blocked_size(
+    std::size_t count,
+    std::size_t block,
+    const void *a,
+    oneapi::dal::preview::functype_blocked_size func);
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
     std::int32_t n,
@@ -142,6 +149,12 @@ inline void threader_func_int32ptr(const std::int32_t *i, const void *a) {
 }
 
 template <typename F>
+inline void threader_func_blocked_size(std::size_t f, std::size_t l, const void *a) {
+    const F &lambda = *static_cast<const F *>(a);
+    lambda(f, l);
+}
+
+template <typename F>
 inline ONEDAL_EXPORT void threader_for(std::int32_t n,
                                        std::int32_t threads_request,
                                        const F &lambda) {
@@ -173,6 +186,15 @@ inline ONEDAL_EXPORT void threader_for_int32ptr(const std::int32_t *begin,
     const void *a = static_cast<const void *>(&lambda);
 
     _onedal_threader_for_int32ptr(begin, end, a, threader_func_int32ptr<F>);
+}
+
+template <typename F>
+inline ONEDAL_EXPORT void threader_for_blocked_size(std::size_t count,
+                                                    std::size_t block,
+                                                    const F &lambda) {
+    const void *a = static_cast<const void *>(&lambda);
+
+    _onedal_threader_for_blocked_size(count, block, a, threader_func_blocked_size<F>);
 }
 
 template <typename F>

@@ -19,17 +19,13 @@
 #include "winresrc.h"
 #include "daal_version.h"
 
-#if   defined(_DAAL_JAVA_INTERF)
-  #define FILE_COMMENT "Analitics algorithms for Java*.\0"
-  #define ORIG_FILE_NAME "JavaAPI.1.dll\0"
-  #define INTERNAL_FILE_NAME "JavaAPI.\0"
-#elif defined(_DAAL_THR_TBB)
+#if   defined(_DAAL_THR_TBB)
   #define FILE_COMMENT "Parallel version.\0"
-  #define ORIG_FILE_NAME "onedal_thread.1.dll \0"
+  #define ORIG_FILE_NAME "onedal_thread.2.dll \0"
   #define INTERNAL_FILE_NAME "onedal_thread\0"
 #else
   #define FILE_COMMENT "Analitics algorithms optimized for IA.\0"
-  #define ORIG_FILE_NAME "onedal_core.1.dll\0"
+  #define ORIG_FILE_NAME "onedal_core.2.dll\0"
   #define INTERNAL_FILE_NAME "onedal_core\0"
 #endif
 
