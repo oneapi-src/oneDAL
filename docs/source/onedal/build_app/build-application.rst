@@ -50,7 +50,6 @@ Applications on Linux* OS
           :class: longtable
 
           * -
-            - Single-threaded (non-threaded)
             - Multi-threaded (internally threaded)
           * - Static linking
             -
@@ -58,18 +57,8 @@ Applications on Linux* OS
               | libonedal_dpc.a,
               | libonedal_parameters.a,
               | libonedal_parameters_dpc.a,
-            -
-              | libonedal_core.a,
-              | libonedal_dpc.a,
-              | libonedal_parameters.a,
-              | libonedal_parameters_dpc.a,
               | libonedal_thread.a
           * - Dynamic linking
-            -
-              | libonedal_core.so,
-              | libonedal_dpc.so,
-              | libonedal_parameters.so,
-              | libonedal_parameters_dpc.so,
             -
               | libonedal_core.so,
               | libonedal_dpc.so,
@@ -186,14 +175,14 @@ Applications on Windows* OS
 Examples
 ********
 
-Dynamic linking, Multi-threaded |short_name|:
+Dynamic linking, Multi-threaded |short_name| with the GPU target:
 
    * Linux* OS:
    
    .. code-block:: text
 
      icpx -fsycl my_first_dal_program.cpp -Wl,
-     --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_parameters_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
 
    * Windows* OS:
    
@@ -201,19 +190,3 @@ Dynamic linking, Multi-threaded |short_name|:
 
      icx-cl -fsycl my_first_dal_program.cpp -Wl,
      --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
-
-Static linking, Single-threaded |short_name|:
-
-   * Linux* OS:
-   
-   .. code-block:: text
-
-     icpx -fsycl my_first_dal_program.cpp -Wl,
-     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
-     
-   * Windows* OS:
-   
-   .. code-block:: text
-
-     icx-cl -fsycl my_first_dal_program.cpp -Wl,
-     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
