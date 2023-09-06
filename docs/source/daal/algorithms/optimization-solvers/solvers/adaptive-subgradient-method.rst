@@ -148,15 +148,6 @@ Examples
     - :cpp_example:`adagrad_dense_batch.cpp <optimization_solvers/adagrad_dense_batch.cpp>`
     - :cpp_example:`adagrad_opt_res_dense_batch.cpp <optimization_solvers/adagrad_opt_res_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    - :java_example:`AdagradDenseBatch.java <optimization_solvers/AdagradDenseBatch.java>`
-    - :java_example:`AdagradOptResDenseBatch.java <optimization_solvers/AdagradOptResDenseBatch.java>`
-
   .. tab:: Python*
 
       - :daal4py_example:`adagrad_mse_batch.py`

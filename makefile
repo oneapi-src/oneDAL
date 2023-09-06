@@ -160,7 +160,7 @@ USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -
 # daal/bin - platform independent binaries: env setters
 # daal/examples - usage demonstrations
 # daal/include - header files
-# daal/lib - platform-independent libraries (jar files)
+# daal/lib - platform-independent libraries
 # daal/lib/intel64 - static and dynamic libraries for intel64
 
 # macOS* release structure (under __release_mac):
@@ -168,14 +168,14 @@ USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -
 # daal/bin - platform independent binaries: env setters
 # daal/examples - usage demonstrations
 # daal/include - header files
-# daal/lib - platform-independent libraries (jar files), and Mach-O intel64 binaries
+# daal/lib - platform-independent libraries, and Mach-O intel64 binaries
 
 # WINDOWS release structure (under __release_win):
 # daal
 # daal/bin - platform independent binaries: env setters
 # daal/examples - usage demonstrations
 # daal/include - header files
-# daal/lib - platform-independent libraries (jar files)
+# daal/lib - platform-independent libraries
 # daal/lib/intel64 - static and import libraries for intel64
 # redist/intel64/daal - dlls for intel64
 
@@ -198,7 +198,6 @@ RELEASEDIR.conf        := $(RELEASEDIR.daal)/config
 RELEASEDIR.nuspec      := $(RELEASEDIR.daal)/nuspec
 RELEASEDIR.doc         := $(RELEASEDIR.daal)/documentation
 RELEASEDIR.samples     := $(RELEASEDIR.daal)/samples
-RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
 RELEASEDIR.libia       := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA))
 RELEASEDIR.include     := $(RELEASEDIR.daal)/include
 RELEASEDIR.pkgconfig   := $(RELEASEDIR.daal)/lib/pkgconfig
@@ -296,17 +295,11 @@ parameters_y.dpc := $(plib)onedal_parameters_dpc$d$(if $(OS_is_win),.$(MAJORBINA
 thr_tbb_a := $(plib)onedal_thread$d.$a
 thr_tbb_y := $(plib)onedal_thread$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
-daal_jar  := onedal.jar
-
-jni_so    := $(plib)JavaAPI.$y
-
 release.LIBS_A := $(core_a) \
                   $(if $(OS_is_win),$(foreach ilib,$(core_a),$(ilib:%.lib=%_dll.lib)),) \
                   $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_a)),)
 release.LIBS_Y := $(core_y) \
                   $(if $(DAALTHRS),$(foreach i,$(DAALTHRS),$(thr_$(i)_y)),)
-release.LIBS_J := $(jni_so)
-release.JARS = $(daal_jar)
 
 release.ONEAPI.LIBS_A := $(oneapi_a) \
                          $(if $(OS_is_win),$(foreach ilib,$(oneapi_a),$(ilib:%.lib=%_dll.lib)),)
@@ -362,12 +355,11 @@ release.HEADERS.COMMON := $(foreach fn,$(release.HEADERS),$(if $(filter $(addpre
 release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC)),$(release.HEADERS.COMMON))
 
 # List examples files to populate release/examples.
-expat = %.java %.cpp %.h %.hpp %.txt %.csv %.cmake
+expat = %.cpp %.h %.hpp %.txt %.csv %.cmake
 expat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %_$(_OS).sh)
 release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f)) $(filter $(expat),$(shell find examples/daal/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
-release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -type f))
 release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
 release.ONEAPI.EXAMPLES.DPC  := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
 release.ONEAPI.EXAMPLES.DATA := $(filter $(expat),$(shell find examples/oneapi/data -type f))
@@ -383,7 +375,7 @@ release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.java %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
+spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
 spat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %makefile_$(_OS) %.sh)
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
@@ -397,16 +389,6 @@ release.SAMPLES.ONEDAL.DPC  := $(if $(wildcard $(SAMPLES.srcdir)/oneapi/dpc/*), 
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/oneapi/dpc -not -wholename '*mpi*' -type f)) \
                           ,                                                                                              \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/oneapi/dpc -type f))                         \
-                          )                                                                                              \
-                        )
-release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/daal/java/*),                                                  \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac)),                                            \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/java -type f))                          \
-                          )                                                                                              \
-                        )
-release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/daal/scala/*),                                                \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac)),                                            \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/scala -type f))                         \
                           )                                                                                              \
                         )
 
@@ -898,73 +880,11 @@ $(THR.tmpdir_y)/dll_tbb.res: RCOPT += -D_DAAL_THR_TBB $(addprefix -I, $(CORE.inc
 $(THR.tmpdir_y)/%_tbb.res: %.rc | $(THR.tmpdir_y)/. ; $(RC.COMPILE)
 
 #===============================================================================
-# Java/JNI part
-#===============================================================================
-# Deprecation Notice: Java interfaces in the oneDAL library have been deprecated
-# and may no longer be supported in future releases.
-JAVA.srcdir      := $(DIR)/java
-JAVA.srcdir.full := $(JAVA.srcdir)/com/intel/daal
-JAVA.tmpdir      := $(WORKDIR)/java_tmpdir
-
-JNI.srcdir       := $(DIR)/java
-JNI.srcdir.full  := $(JNI.srcdir)/com/intel/daal
-JNI.tmpdir       := $(WORKDIR)/jni_tmpdir
-
-JAVA.srcdirs := $(JAVA.srcdir.full)                                                                                         \
-                $(JAVA.srcdir.full)/algorithms $(addprefix $(JAVA.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                \
-                $(JAVA.srcdir.full)/data_management $(addprefix $(JAVA.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
-                $(JAVA.srcdir.full)/services \
-				$(JAVA.srcdir.full)/utils
-JAVA.srcs.f := $(wildcard $(JAVA.srcdirs:%=%/*.java))
-JAVA.srcs   := $(subst $(JAVA.srcdir)/,,$(JAVA.srcs.f))
-
-JNI.srcdirs := $(JNI.srcdir.full)                                                                                        \
-               $(JNI.srcdir.full)/algorithms $(addprefix $(JNI.srcdir.full)/algorithms/,$(JJ.ALGORITHMS))                \
-               $(JNI.srcdir.full)/data_management $(addprefix $(JNI.srcdir.full)/data_management/,$(JJ.DATA_MANAGEMENT)) \
-               $(JNI.srcdir.full)/services \
-			   $(JNI.srcdir.full)/utils
-JNI.srcs.f := $(wildcard $(JNI.srcdirs:%=%/*.cpp))
-JNI.srcs   := $(subst $(JNI.srcdir)/,,$(JNI.srcs.f))
-JNI.objs   := $(addprefix $(JNI.tmpdir)/,$(JNI.srcs:%.cpp=%.$o))
-
--include $(if $(wildcard $(JNI.tmpdir)/*),$(shell find $(JNI.tmpdir) -name "*.d"))
-
-#----- production of $(daal_jar)
-# javac does not generate dependences. Therefore we pass all *.java files to
-# a single launch of javac and let it resolve dependences on its own.
-# TODO: create hierarchy in java/jni temp folders madually
-$(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt): $(JAVA.srcs.f) | $(WORKDIR.lib)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(daal_jar):                  $(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt)
-	rm -rf $(JAVA.tmpdir) ; mkdir -p $(JAVA.tmpdir)
-	mkdir -p $(JNI.tmpdir)
-	javac -classpath $(JAVA.tmpdir) $(-DEBJ) -d $(JAVA.tmpdir) -h $(JNI.tmpdir) @$(WORKDIR.lib)/$(daal_jar:%.jar=%_jar_link.txt)
-	jar cvf $@ -C $(JAVA.tmpdir) .
-
-#----- production of JNI dll
-$(WORKDIR.lib)/$(jni_so): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(jni_so): LOPT += $(daaldep.rt.thr) $(daaldep.math_backend.thr)
-$(JNI.tmpdir)/$(jni_so:%.$y=%_link.txt): $(JNI.objs) $(if $(OS_is_win),$(JNI.tmpdir)/dll.res,) $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(thr_tbb_a) ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(jni_so):                $(JNI.tmpdir)/$(jni_so:%.$y=%_link.txt); $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
-
-$(JNI.objs): $(JNI.tmpdir)/inc_j_folders.txt
-$(JNI.objs): $(WORKDIR.lib)/$(daal_jar)
-$(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
-$(JNI.objs): COPT += @$(JNI.tmpdir)/inc_j_folders.txt
-
-$(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir)),$(space))
-
-$(JNI.objs): $(JNI.tmpdir)/%.$o: $(JNI.srcdir)/%.cpp; mkdir -p $(@D); $(C.COMPILE)
-
-$(JNI.tmpdir)/dll.res: $(VERSION_DATA_FILE)
-$(JNI.tmpdir)/dll.res: RCOPT += -D_DAAL_JAVA_INTERF $(addprefix -I, $(CORE.incdirs.common))
-$(JNI.tmpdir)/%.res: %.rc | $(JNI.tmpdir)/. ; $(RC.COMPILE)
-
-#===============================================================================
 # Top level targets
 #===============================================================================
 daal: $(if $(CORE.ALGORITHMS.CUSTOM),           \
           _daal _release_c,                     \
-          _daal _daal_jj _release _release_doc  \
+          _daal _release _release_doc           \
       )
 daal_c: _daal _release_c
 
@@ -977,20 +897,15 @@ onedal_c: daal_c oneapi_c
 onedal_dpc: daal_c oneapi_c oneapi_dpc
 
 _daal:    _daal_core _daal_thr
-_daal_jj: _daal_jar _daal_jni
 
 _daal_core:  info.building.core
 _daal_core:  $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(core_y) ## TODO: move list of needed libs to one env var!!!
 _daal_thr:   info.building.threading
 _daal_thr:   $(if $(DAALTHRS),$(foreach ithr,$(DAALTHRS),_daal_thr_$(ithr)),)
 _daal_thr_tbb:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
-_daal_jar _daal_jni: info.building.java
-_daal_jar: $(WORKDIR.lib)/$(daal_jar)
-_daal_jni: $(WORKDIR.lib)/$(jni_so)
 
-_release:    _release_c _release_jj
+_release:    _release_c
 _release_c:  _release_c_h _release_common
-_release_jj: _release_common#
 
 ifeq ($(BUILD_PARAMETERS_LIB),yes)
 _parameters_c: info.building.parameters.C++.part
@@ -1053,7 +968,6 @@ endef
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_mac)),yes,),yes)
 $(foreach x,$(release.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_c)))
 $(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_c)))
-$(foreach x,$(release.LIBS_J),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_link,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
@@ -1070,7 +984,6 @@ endif
 ifeq ($(OS_is_win),yes)
 $(foreach x,$(release.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_c)))
 $(foreach x,$(release.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_c)))
-$(foreach x,$(release.LIBS_J),$(eval $(call .release.a_win,$x,$(RELEASEDIR.soia),_release_jj)))
 $(foreach x,$(release.ONEAPI.LIBS_A),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_oneapi_dpc)))
@@ -1100,10 +1013,6 @@ endif
 _release_c: ./deploy/pkg-config/pkg-config.tpl
 	python ./deploy/pkg-config/generate_pkgconfig.py --output_dir $(RELEASEDIR.pkgconfig) --template_name ./deploy/pkg-config/pkg-config.tpl
 
-#----- releasing jar files
-_release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
-$(RELEASEDIR.jardir)/%.jar: $(WORKDIR.lib)/%.jar | $(RELEASEDIR.jardir)/. ; $(cpy)
-
 #----- releasing examples
 define .release.x
 $3: $2/$(subst _$(_OS),,$1)
@@ -1113,7 +1022,6 @@ $2/$(subst _$(_OS),,$1): $(DIR)/$1 | $(dir $2/$1)/.
 endef
 $(foreach x,$(release.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_c)))
-$(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
@@ -1151,8 +1059,6 @@ $2: $1 | $(dir $2)/. ; $(value cpy)
 endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
 $(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_oneapi_dpc)))
-$(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
-$(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 
 $(CORE.incdirs): _release_c_h
 
@@ -1205,7 +1111,7 @@ define help
 Usage: make [target...] [flag=value...]
 Targets:
   daal      - build all (use -j to speedup the build)
-  _daal_core ... _daal_jar _daal_jni - build only a part of the product,
+  _daal_core ... - build only a part of the product,
              without populating release directory (read makefile for details)
   _release - populate release directory
   clean    - clean working directory $(WORKDIR)
