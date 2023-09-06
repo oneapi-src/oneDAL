@@ -276,7 +276,6 @@ std::int64_t chunked_array_base::get_chunk_count() const noexcept {
 const array_impl<byte_t>& chunked_array_base::get_chunk_impl(std::int64_t i) const {
     const auto cbegin = impl_->immutable_access().get_chunks().cbegin();
     using diff_t = typename decltype(cbegin)::difference_type;
-    ONEDAL_ASSERT(i < std::numeric_limits<diff_t>::min());
     const auto element = detail::integral_cast_debug<diff_t>(i);
 
     return *std::next(cbegin, element);

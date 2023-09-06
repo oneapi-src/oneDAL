@@ -36,10 +36,10 @@ struct csr_block_owner {
         status_to_exception(status);
     }
 
-    ~csr_block_owner() noexcept(false) {
+    ~csr_block_owner() {
         if (!_is_empty) {
             daal::services::Status status = _csr_nt->releaseSparseBlock(_block);
-            status_to_exception(status);
+            ONEDAL_ASSERT(status);
             _is_empty = true;
         }
     }
