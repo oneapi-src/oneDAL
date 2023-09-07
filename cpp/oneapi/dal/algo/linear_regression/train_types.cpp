@@ -20,8 +20,10 @@
 
 namespace oneapi::dal::linear_regression {
 
+namespace detail::v1 {
+
 template <typename Task>
-class detail::v1::train_input_impl : public base {
+class train_input_impl : public base {
 public:
     train_input_impl(const table& data, const table& responses = table{})
             : data(data),
@@ -32,7 +34,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::train_result_impl : public base {
+class train_result_impl : public base {
 public:
     table intercept;
     table coefficients;
@@ -42,8 +44,42 @@ public:
     model<Task> trained_model;
 };
 
+template <typename Task>
+struct train_parameters_impl : public base {
+    std::int64_t cpu_macro_block = 8'192l;
+    std::int64_t gpu_macro_block = 16'384l;
+};
+
+template <typename Task>
+train_parameters<Task>::train_parameters() : impl_(new train_parameters_impl<Task>{}) {}
+
+template <typename Task>
+std::int64_t train_parameters<Task>::get_cpu_macro_block() const {
+    return impl_->cpu_macro_block;
+}
+
+template <typename Task>
+void train_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
+    impl_->cpu_macro_block = val;
+}
+
+template <typename Task>
+std::int64_t train_parameters<Task>::get_gpu_macro_block() const {
+    return impl_->gpu_macro_block;
+}
+
+template <typename Task>
+void train_parameters<Task>::set_gpu_macro_block_impl(std::int64_t val) {
+    impl_->gpu_macro_block = val;
+}
+
+template class ONEDAL_EXPORT train_parameters<task::regression>;
+
+} // namespace detail::v1
+
 using detail::v1::train_input_impl;
 using detail::v1::train_result_impl;
+using detail::v1::train_parameters;
 
 namespace v1 {
 
@@ -143,8 +179,8 @@ void train_result<Task>::set_result_options_impl(const result_option_id& value) 
     impl_->options = value;
 }
 
-template class ONEDAL_EXPORT train_input<task::regression>;
 template class ONEDAL_EXPORT train_result<task::regression>;
+template class ONEDAL_EXPORT train_input<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::linear_regression

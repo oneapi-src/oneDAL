@@ -28,6 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/covariance/covariance_types.h"
+#include "src/algorithms/covariance/covariance_hyperparameter_impl.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -44,14 +45,16 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceDenseBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter,
+                             const Hyperparameter * hyperparameter = nullptr);
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceCSRBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter,
+                             const Hyperparameter * hyperparameter = nullptr);
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -59,10 +62,10 @@ class CovarianceDenseOnlineKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(NumericTable * dataTable, NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable,
-                             const Parameter * parameter);
+                             const Parameter * parameter, const Hyperparameter * hyperparameter = nullptr);
 
     services::Status finalizeCompute(NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable, NumericTable * covTable,
-                                     NumericTable * meanTable, const Parameter * parameter);
+                                     NumericTable * meanTable, const Parameter * parameter, const Hyperparameter * hyperparameter = nullptr);
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -70,10 +73,10 @@ class CovarianceCSROnlineKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(NumericTable * dataTable, NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable,
-                             const Parameter * parameter);
+                             const Parameter * parameter, const Hyperparameter * hyperparameter = nullptr);
 
     services::Status finalizeCompute(NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable, NumericTable * covTable,
-                                     NumericTable * meanTable, const Parameter * parameter);
+                                     NumericTable * meanTable, const Parameter * parameter, const Hyperparameter * hyperparameter = nullptr);
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -81,10 +84,10 @@ class CovarianceDistributedKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(DataCollection * partialResultsCollection, NumericTable * nObsTable, NumericTable * crossProductTable,
-                             NumericTable * sumTable, const Parameter * parameter);
+                             NumericTable * sumTable, const Parameter * parameter, const Hyperparameter * hyperparameter = nullptr);
 
     services::Status finalizeCompute(NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable, NumericTable * covTable,
-                                     NumericTable * meanTable, const Parameter * parameter);
+                                     NumericTable * meanTable, const Parameter * parameter, const Hyperparameter * hyperparameter = nullptr);
 };
 
 } // namespace internal

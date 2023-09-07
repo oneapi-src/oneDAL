@@ -222,19 +222,6 @@ Examples
     - :cpp_example:`sgd_moment_dense_batch.cpp <optimization_solvers/sgd_moment_dense_batch.cpp>`
     - :cpp_example:`sgd_moment_opt_res_dense_batch.cpp <optimization_solvers/sgd_moment_opt_res_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`SGDDenseBatch.java <optimization_solvers/SGDDenseBatch.java>`
-    - :java_example:`SGDMiniDenseBatch.java <optimization_solvers/SGDMiniDenseBatch.java>`
-    - :java_example:`SGDMomentDenseBatch.java <optimization_solvers/SGDMomentDenseBatch.java>`
-    - :java_example:`SGDMomentOptResDenseBatch.java <optimization_solvers/SGDMomentOptResDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

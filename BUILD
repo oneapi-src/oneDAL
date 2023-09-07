@@ -26,10 +26,14 @@ release(
         "@onedal//cpp/daal:thread_dynamic",
         "@onedal//cpp/oneapi/dal:static",
         "@onedal//cpp/oneapi/dal:dynamic",
+        "@onedal//cpp/oneapi/dal:static_parameters",
+        "@onedal//cpp/oneapi/dal:dynamic_parameters",
     ] + select({
         "@config//:release_dpc_enabled": [
             "@onedal//cpp/oneapi/dal:static_dpc",
             "@onedal//cpp/oneapi/dal:dynamic_dpc",
+            "@onedal//cpp/oneapi/dal:static_parameters_dpc",
+            "@onedal//cpp/oneapi/dal:dynamic_parameters_dpc",
             # TODO: Add onedal_sycl
         ],
         "//conditions:default": [],

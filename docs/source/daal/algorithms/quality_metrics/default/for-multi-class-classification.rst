@@ -244,13 +244,3 @@ Examples
     Batch Processing:
 
     - :cpp_example:`svm_multi_class_metrics_dense_batch.cpp <quality_metrics/svm_multi_class_metrics_dense_batch.cpp>`
-
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`SVMMultiClassMetricsDenseBatch.java <quality_metrics/SVMMultiClassMetricsDenseBatch.java>`

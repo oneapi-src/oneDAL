@@ -113,7 +113,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     Result * result                              = static_cast<Result *>(_res);
     gbt::regression::Model * m                   = result->get(model).get();
     gbt::regression::internal::ModelImpl * pImpl = dynamic_cast<gbt::regression::internal::ModelImpl *>(m);
-    DAAL_ASSERT(pImpl);
+    DAAL_CHECK(pImpl != nullptr, services::ErrorIncorrectTypeOfModel)
     pImpl->clear();
     return services::Status();
 }
