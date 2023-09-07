@@ -72,30 +72,27 @@ auto update_partial_results(sycl::queue& q,
     auto current_max_ptr = current_max.get_mutable_data();
     auto current_sums_ptr = current_sums.get_mutable_data();
     auto current_sums2_ptr = current_sums2.get_mutable_data();
-    auto current_sums2cent_ptr = current_sums2cent.get_mutable_data();
-auto nobs_ptr = nobs.get_mutable_data();
+    auto nobs_ptr = nobs.get_mutable_data();
 
     auto min_data = min.get_data();
     auto max_data = max.get_data();
     auto sums_data = sums.get_data();
-    auto sums2_data = sums2.get_data();
-    auto sums2cent_data = sums2cent.get_data();
-    
-    auto update_event = q.submit([&](sycl::handler& cgh) {
+    auto sums2_data = sums2.get_data()
+
+                          auto update_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(column_count);
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
-            auto current_mean = sums_data[id]/row_count;
-
             result_min_ptr[id] = sycl::fmin(current_min_ptr[id], min_data[id]);
             result_max_ptr[id] = sycl::fmax(current_max_ptr[id], max_data[id]);
 
             result_sums_ptr[id] = current_sums_ptr[id] + sums_data[id];
-            auto global_mean = result_sums_ptr[id]/nobs_ptr[0];
+
             result_sums2_ptr[id] = current_sums2_ptr[id] + sums2_data[id];
-            result_sums2cent_ptr[id] = current_sums2cent_ptr[id] + sums2cent_data[id];
-            result_sums2cent_ptr[id] += (current_mean - global_mean)*(current_mean - global_mean) * (nobs_ptr[0]);
+
+            result_sums2cent_ptr[id] =
+                result_sums2_ptr[id] - result_sums_ptr[id] * result_sums_ptr[id] / nobs_ptr[0];
         });
     });
 
@@ -107,7 +104,7 @@ auto nobs_ptr = nobs.get_mutable_data();
                            update_event);
 }
 
-//TODO:: optimize+fix sum2cent counting
+//TODO:: optimize
 template <typename Float>
 auto init_computation(sycl::queue& q,
                       const pr::ndview<Float, 2>& data,
@@ -160,20 +157,6 @@ auto init_computation(sycl::queue& q,
                                                           pr::sum<Float>{},
                                                           pr::square<Float>{},
                                                           { reduce_event_min });
-    auto result_sums2cent_ptr = result_sums2cent.get_mutable_data();
-    auto result_sums2_ptr = result_sums2.get_mutable_data();
-    auto result_sums_ptr = result_sums.get_mutable_data();
-    auto update_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<1>(column_count);
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<1> id) {
-            const std::int64_t col = id[0];
-
-            result_sums2cent_ptr[col] = result_sums2_ptr[col] - result_sums_ptr[col] * result_sums_ptr[col] / row_count;
-        });
-    });
-
 
     return std::make_tuple(result_min,
                            result_max,
@@ -181,9 +164,8 @@ auto init_computation(sycl::queue& q,
                            result_sums2,
                            result_sums2cent,
                            result_nobs,
-                           update_event);
+                           reduce_event_sumssquares);
 }
-
 
 template <typename Float>
 auto init(sycl::queue& q,
@@ -279,7 +261,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
         result.set_nobs((homogen_table::wrap(partial_nobs.flatten(q, { update_event }), 1, 1)));
     }
     else {
-auto init_nobs = pr::ndarray<Float, 1>::empty(q, 1);
+        auto init_nobs = pr::ndarray<Float, 1>::empty(q, 1);
 
         auto [result_min,
               result_max,
@@ -306,7 +288,7 @@ auto init_nobs = pr::ndarray<Float, 1>::empty(q, 1);
 }
 
 template <typename Float>
-struct partial_compute_kernel_gpu<Float, method::by_default, task::compute> {
+struct partial_compute_kernel_gpu<Float, method::dense, task::compute> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
