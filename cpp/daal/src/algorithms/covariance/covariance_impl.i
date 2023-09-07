@@ -99,10 +99,12 @@ struct tls_data_t
 
         if (!(object->crossProduct))
         {
+            delete object;
             return nullptr;
         }
         if (!(object->sums) && !isNormalized)
         {
+            delete object;
             return nullptr;
         }
 
