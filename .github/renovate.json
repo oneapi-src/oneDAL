@@ -10,13 +10,10 @@
   },
   "packageRules": [
     {
-    "matchUpdateTypes": ["minor", "patch"],
-    "matchFileNames": [
-      "(^|/)docs/requirements.txt$"
-    ],
+    "groupName": "Doc packages",
+    "matchUpdateTypes": ["patch", "minor"],
     "schedule": ["before 2am on monday"],
-    "matchCurrentVersion": "!/^0/",
-    "groupName": "Doc packages"
+    "matchFileNames": ["docs/requirements.txt"]
     }
   ]
 }
