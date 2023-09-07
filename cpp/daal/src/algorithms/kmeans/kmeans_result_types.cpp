@@ -66,7 +66,9 @@ void Result::set(ResultId id, const NumericTablePtr & ptr)
 */
 services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    Input * algInput       = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    const Input * algInput = dynamic_cast<const Input *>(const_cast<daal::algorithms::Input *>(input));
+    DAAL_CHECK(algInput, services::ErrorNullInput);
+
     size_t inputFeatures   = algInput->getNumberOfFeatures();
     const size_t inputRows = algInput->get(data)->getNumberOfRows();
 
