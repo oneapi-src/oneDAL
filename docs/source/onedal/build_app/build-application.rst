@@ -39,7 +39,7 @@ Applications on Linux* OS
 
         -I<install dir>/dal/latest/include
 
-   - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
+   - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| linking method:
 
      .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
@@ -49,8 +49,6 @@ Applications on Linux* OS
           :align: left
           :class: longtable
 
-          * -
-            - Multi-threaded (internally threaded)
           * - Static linking
             -
               | libonedal_core.a,
@@ -107,7 +105,7 @@ Applications on Windows* OS
        :align: center
        :alt: In Linker configuration properties, choose Input.
 
-#. Add the appropriate libraries to your project based on |short_name| threading mode and linking method:
+#. Add the appropriate libraries to your project based on |short_name| linking method:
 
    .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
@@ -117,9 +115,6 @@ Applications on Windows* OS
       :align: left
       :class: longtable
 
-      * -
-        - Single-threaded (non-threaded)
-        - Multi-threaded (internally threaded)
       * - Static linking
         -
           | onedal_core.lib,
@@ -140,9 +135,6 @@ Applications on Windows* OS
       :align: left
       :class: longtable
 
-      * -
-        - Single-threaded (non-threaded)
-        - Multi-threaded (internally threaded)
       * - Static linking
         -
           | onedal_cored.lib,
