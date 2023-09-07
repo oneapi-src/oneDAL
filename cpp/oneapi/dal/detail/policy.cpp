@@ -21,7 +21,7 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 class host_policy_impl : public base {
-public: 
+public:
     cpu_extension cpu_extensions_mask = backend::detect_top_cpu_extension();
     threading_policy threading_parameters;
 
