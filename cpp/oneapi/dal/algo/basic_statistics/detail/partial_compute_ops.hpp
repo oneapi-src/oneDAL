@@ -38,38 +38,38 @@ struct partial_compute_ops {
     using result_t = partial_compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    // void check_preconditions(const Descriptor& params, const input_t& input) const {
-    //     using msg = dal::detail::error_messages;
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
+        using msg = dal::detail::error_messages;
 
-    //     if (!input.get_data().has_data()) {
-    //         throw domain_error(msg::input_data_is_empty());
-    //     }
-    // }
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+    }
 
-    // void check_postconditions(const Descriptor& params,
-    //                           const input_t& input,
-    //                           const result_t& result) const {
-    //     ONEDAL_ASSERT(result.get_nobs().has_data());
-    //     ONEDAL_ASSERT(result.get_nobs().get_column_count() == 1);
-    //     ONEDAL_ASSERT(result.get_nobs().get_row_count() == 1);
-    //     ONEDAL_ASSERT(result.get_crossproduct().has_data());
-    //     ONEDAL_ASSERT(result.get_crossproduct().get_column_count() ==
-    //                   input.get_data().get_column_count());
-    //     ONEDAL_ASSERT(result.get_crossproduct().get_row_count() ==
-    //                   input.get_data().get_column_count());
-    //     ONEDAL_ASSERT(result.get_sums().has_data());
-    //     ONEDAL_ASSERT(result.get_sums().get_column_count() == input.get_data().get_column_count());
-    //     ONEDAL_ASSERT(result.get_sums().get_row_count() == 1);
-    // }
+    void check_postconditions(const Descriptor& params,
+                              const input_t& input,
+                              const result_t& result) const {
+        ONEDAL_ASSERT(result.get_nobs().has_data());
+        ONEDAL_ASSERT(result.get_nobs().get_column_count() == 1);
+        ONEDAL_ASSERT(result.get_nobs().get_row_count() == 1);
+        // ONEDAL_ASSERT(result.get_crossproduct().has_data());
+        // ONEDAL_ASSERT(result.get_crossproduct().get_column_count() ==
+        //               input.get_data().get_column_count());
+        // ONEDAL_ASSERT(result.get_crossproduct().get_row_count() ==
+        //               input.get_data().get_column_count());
+        // ONEDAL_ASSERT(result.get_sums().has_data());
+        // ONEDAL_ASSERT(result.get_sums().get_column_count() == input.get_data().get_column_count());
+        // ONEDAL_ASSERT(result.get_sums().get_row_count() == 1);
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx,
                     const Descriptor& desc,
                     const partial_compute_input<task_t>& input) const {
-        //check_preconditions(desc, input);
+        check_preconditions(desc, input);
         const auto result =
             partial_compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
-        //check_postconditions(desc, input, result);
+        check_postconditions(desc, input, result);
         return result;
     }
 };

@@ -38,13 +38,13 @@ struct finalize_compute_ops {
     using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    // void check_preconditions(const Descriptor& params, const input_t& input) const {
-    //     ONEDAL_ASSERT(input.get_nobs().has_data());
-    //     ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
-    //     ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
-    //     ONEDAL_ASSERT(input.get_crossproduct().has_data());
-    //     ONEDAL_ASSERT(input.get_sums().has_data());
-    // }
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
+        ONEDAL_ASSERT(input.get_nobs().has_data());
+        ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
+        ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
+        // ONEDAL_ASSERT(input.get_crossproduct().has_data());
+        // ONEDAL_ASSERT(input.get_sums().has_data());
+    }
 
     // void check_postconditions(const Descriptor& params,
     //                           const input_t& input,
@@ -77,7 +77,7 @@ struct finalize_compute_ops {
     auto operator()(const Context& ctx,
                     const Descriptor& desc,
                     const partial_compute_result<task_t>& input) const {
-        //check_preconditions(desc, input);
+        check_preconditions(desc, input);
         const auto result =
             finalize_compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
         //check_postconditions(desc, input, result);

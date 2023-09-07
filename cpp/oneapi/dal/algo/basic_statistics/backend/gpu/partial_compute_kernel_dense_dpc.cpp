@@ -77,9 +77,9 @@ auto update_partial_results(sycl::queue& q,
     auto min_data = min.get_data();
     auto max_data = max.get_data();
     auto sums_data = sums.get_data();
-    auto sums2_data = sums2.get_data()
+    auto sums2_data = sums2.get_data();
 
-                          auto update_event = q.submit([&](sycl::handler& cgh) {
+    auto update_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(column_count);
 
         cgh.depends_on(deps);
