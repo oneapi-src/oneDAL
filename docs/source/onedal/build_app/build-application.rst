@@ -175,7 +175,7 @@ Applications on Windows* OS
 Examples
 ********
 
-Dynamic linking, Multi-threaded |short_name| with the GPU target:
+Dynamic linking short_name| with the GPU target:
 
    * Linux* OS:
    
