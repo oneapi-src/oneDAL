@@ -101,7 +101,7 @@ def _prebuilt_libs_repo_impl(repo_ctx):
             mapping = repo_ctx.attr._local_mapping
         elif "20230413" in root:
             mapping = repo_ctx.attr._local_mapping
-        elif "2021.10.0-RC" in root:
+        elif "2021.10.0-RC" or "2021.2-gold_236" in root:
             mapping = repo_ctx.attr._local_mapping
         else:
             mapping = {}
