@@ -11,10 +11,12 @@
   "packageRules": [
     {
     "matchUpdateTypes": ["minor", "patch"],
-    "groupName": "Doc packages",
+    "matchFileNames": [
+      "(^|/)docs/requirements.txt$"
+    ],
     "schedule": ["before 2am on monday"],
     "matchCurrentVersion": "!/^0/",
-    "automerge": true
+    "groupName": "Doc packages"
     }
   ]
 }
