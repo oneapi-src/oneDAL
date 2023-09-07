@@ -89,10 +89,22 @@ def _download(repo_ctx):
         )
     return str(output)
 
+# TODO: Delete hardcoded package keywords after release
 def _prebuilt_libs_repo_impl(repo_ctx):
-    mapping = repo_ctx.attr._local_mapping
     root = repo_ctx.os.environ.get(repo_ctx.attr.root_env_var)
-    if not root:
+    print(root)
+    if root:
+        if "2017" in root:
+            mapping = repo_ctx.attr._local_mapping
+        elif "2023u1" in root:
+            mapping = repo_ctx.attr._local_mapping
+        elif "20230413" in root:
+            mapping = repo_ctx.attr._local_mapping
+        elif "2021.2-gold_236" in root:
+            mapping = repo_ctx.attr._local_mapping
+        else:
+            mapping = {}
+    else:
         if repo_ctx.attr.url or repo_ctx.attr.urls:
             root = _download(repo_ctx)
             mapping = repo_ctx.attr._download_mapping
