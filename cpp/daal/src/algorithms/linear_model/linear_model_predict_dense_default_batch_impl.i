@@ -154,8 +154,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute_impl
     if (dataTable->getDataLayout() & NumericTableIface::soa)
     {
         SOANumericTable * soaDataPtr = dynamic_cast<SOANumericTable *>(dataTable);
-        isHomogeneous                = soaDataPtr->isHomogeneousFloatOrDouble();
-        auto f                       = (*(soaDataPtr->getDictionary()))[0];
+        DAAL_CHECK(soaDataPtr, services::ErrorNullNumericTable);
+        isHomogeneous = soaDataPtr->isHomogeneousFloatOrDouble();
+        auto f        = (*(soaDataPtr->getDictionary()))[0];
         isHomogeneous &= data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
 
         for (size_t i = 1; i < numFeatures && isHomogeneous; ++i)
