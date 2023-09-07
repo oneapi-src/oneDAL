@@ -21,17 +21,13 @@ MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklfpk/$(_OS)/*),$(DIR)/__deps/mklfpk,
             $(if $(wildcard $(MKLFPKROOT)/include/*),$(subst \,/,$(MKLFPKROOT)),                        \
             $(error Can`t find MKLFPK libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLFPKROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
-ifeq ($(MKL_FPK_CPU_VERSION_LINE),2024.0.0)
-    MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/
-else
-    MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
-endif
+MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
-ifeq ($(MKL_FPK_CPU_VERSION_LINE),2024.0.0)
+ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
     MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/
 else
     MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
