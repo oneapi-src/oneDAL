@@ -44,7 +44,7 @@ Applications on Linux* OS
      .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
      .. list-table:: |short_name| libraries for Linux
-          :widths: 15 25 25
+          :widths: 15 25
           :header-rows: 1
           :align: left
           :class: longtable
@@ -110,7 +110,7 @@ Applications on Windows* OS
    .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
    .. list-table:: |short_name| libraries for Windows
-      :widths: 15 25 25
+      :widths: 15 25
       :header-rows: 1
       :align: left
       :class: longtable
@@ -130,7 +130,7 @@ Applications on Windows* OS
    .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
    .. list-table:: |short_name| debug libraries for Windows
-      :widths: 15 25 25
+      :widths: 15 25
       :header-rows: 1
       :align: left
       :class: longtable
