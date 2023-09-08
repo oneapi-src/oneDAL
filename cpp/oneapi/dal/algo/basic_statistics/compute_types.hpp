@@ -235,7 +235,7 @@ public:
         return *this;
     }
 
-    /// The partial min matrix.
+    /// A $1 \\times p$ table, where element $j$ is the minimum current result for feature $j$.
     /// @remark default = table{}
     const table& get_partial_min() const;
 
@@ -244,7 +244,7 @@ public:
         return *this;
     }
 
-    /// The crosspartial max matrix.
+    /// A $1 \\times p$ table, where element $j$ is the maximum current result for feature $j$.
     /// @remark default = table{}
     const table& get_partial_max() const;
 
@@ -253,30 +253,30 @@ public:
         return *this;
     }
 
-    /// Sums.
+    /// A $1 \\times p$ table, where element $j$ is the sum result of current blocks for feature $j$.
     /// @remark default = table{}
-    const table& get_partial_sums() const;
+    const table& get_partial_sum() const;
 
-    auto& set_partial_sums(const table& value) {
-        set_partial_sums_impl(value);
+    auto& set_partial_sum(const table& value) {
+        set_partial_sum_impl(value);
         return *this;
     }
 
-    /// Sums.
+    /// A $1 \\times p$ table, where element $j$ is the sum_squares result of current blocks for feature $j$.
     /// @remark default = table{}
-    const table& get_partial_sums_squares() const;
+    const table& get_partial_sum_squares() const;
 
-    auto& set_partial_sums_squares(const table& value) {
-        set_partial_sums_squares_impl(value);
+    auto& set_partial_sum_squares(const table& value) {
+        set_partial_sum_squares_impl(value);
         return *this;
     }
 
-    /// Sums.
+    /// A $1 \\times p$ table, where element $j$ is the sum_squares_centered result of current blocks for feature $j$.
     /// @remark default = table{}
-    const table& get_partial_sums_squares_centered() const;
+    const table& get_partial_sum_squares_centered() const;
 
-    auto& set_partial_sums_squares_centered(const table& value) {
-        set_partial_sums_squares_centered_impl(value);
+    auto& set_partial_sum_squares_centered(const table& value) {
+        set_partial_sum_squares_centered_impl(value);
         return *this;
     }
 
@@ -284,9 +284,9 @@ protected:
     void set_nobs_impl(const table&);
     void set_partial_min_impl(const table&);
     void set_partial_max_impl(const table&);
-    void set_partial_sums_impl(const table&);
-    void set_partial_sums_squares_impl(const table&);
-    void set_partial_sums_squares_centered_impl(const table&);
+    void set_partial_sum_impl(const table&);
+    void set_partial_sum_squares_impl(const table&);
+    void set_partial_sum_squares_centered_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::partial_compute_result_impl<Task>> impl_;

@@ -211,7 +211,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     if (has_nobs_data) {
         const auto sums_nd =
-            pr::table2ndarray_1d<Float>(q, input_.get_partial_sums(), sycl::usm::alloc::device);
+            pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
         const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_nobs());
 
         const auto min_nd =
@@ -219,11 +219,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
         const auto max_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_max());
 
         const auto sums2_nd = pr::table2ndarray_1d<Float>(q,
-                                                          input_.get_partial_sums_squares(),
+                                                          input_.get_partial_sum_squares(),
                                                           sycl::usm::alloc::device);
         const auto sums2cent_nd =
             pr::table2ndarray_1d<Float>(q,
-                                        input_.get_partial_sums_squares_centered(),
+                                        input_.get_partial_sum_squares_centered(),
                                         sycl::usm::alloc::device);
         auto [partial_min,
               partial_max,
@@ -252,11 +252,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
         result.set_partial_max(
             (homogen_table::wrap(result_max.flatten(q, { update_event }), 1, column_count)));
 
-        result.set_partial_sums(
+        result.set_partial_sum(
             (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));
-        result.set_partial_sums_squares(
+        result.set_partial_sum_squares(
             (homogen_table::wrap(result_sums2.flatten(q, { update_event }), 1, column_count)));
-        result.set_partial_sums_squares_centered(
+        result.set_partial_sum_squares_centered(
             (homogen_table::wrap(result_sums2cent.flatten(q, { update_event }), 1, column_count)));
         result.set_nobs((homogen_table::wrap(partial_nobs.flatten(q, { update_event }), 1, 1)));
     }
@@ -275,11 +275,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
         result.set_partial_max(
             (homogen_table::wrap(result_max.flatten(q, { update_event }), 1, column_count)));
 
-        result.set_partial_sums(
+        result.set_partial_sum(
             (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));
-        result.set_partial_sums_squares(
+        result.set_partial_sum_squares(
             (homogen_table::wrap(result_sums2.flatten(q, { update_event }), 1, column_count)));
-        result.set_partial_sums_squares_centered(
+        result.set_partial_sum_squares_centered(
             (homogen_table::wrap(result_sums2cent.flatten(q, { update_event }), 1, column_count)));
         result.set_nobs((homogen_table::wrap(result_nobs.flatten(q, { update_event }), 1, 1)));
     }

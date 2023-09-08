@@ -100,11 +100,11 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
-    auto daal_partial_sums = interop::convert_to_daal_table<Float>(input.get_partial_sums());
-    auto daal_partial_sums_squares =
-        interop::convert_to_daal_table<Float>(input.get_partial_sums_squares());
-    auto daal_partial_sums_squares_centered =
-        interop::convert_to_daal_table<Float>(input.get_partial_sums_squares_centered());
+    auto daal_partial_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
+    auto daal_partial_sum_squares =
+        interop::convert_to_daal_table<Float>(input.get_partial_sum_squares());
+    auto daal_partial_sum_squares_centered =
+        interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
 
     auto daal_result = daal_lom::Result();
 
@@ -119,16 +119,16 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     daal_result.set(daal_lom::ResultId::minimum, daal_partial_min);
 
     daal_result.set(daal_lom::ResultId::sum, daal_partial_sums);
-    daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sums_squares);
-    daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sums_squares_centered);
+    daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sum_squares);
+    daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sum_squares_centered);
 
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
             ctx,
             daal_partial_obs.get(),
             daal_partial_sums.get(),
-            daal_partial_sums_squares.get(),
-            daal_partial_sums_squares_centered.get(),
+            daal_partial_sum_squares.get(),
+            daal_partial_sum_squares_centered.get(),
             daal_result.get(daal_lom::ResultId::mean).get(),
             daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
             daal_result.get(daal_lom::ResultId::variance).get(),

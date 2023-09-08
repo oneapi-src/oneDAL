@@ -49,11 +49,11 @@ template <typename Task>
 class detail::v1::partial_compute_result_impl : public base {
 public:
     table nobs;
-    table partialmin;
-    table partialmax;
-    table partialsums;
-    table partialsumsquares;
-    table partialSumSquaresCentered;
+    table partial_min;
+    table partial_max;
+    table partial_sum;
+    table partial_sum_squares;
+    table partial_sum_squares_centered;
 };
 
 using detail::v1::compute_input_impl;
@@ -299,50 +299,50 @@ void partial_compute_result<Task>::set_nobs_impl(const table& value) {
 
 template <typename Task>
 const table& partial_compute_result<Task>::get_partial_min() const {
-    return impl_->partialmin;
+    return impl_->partial_min;
 }
 
 template <typename Task>
 void partial_compute_result<Task>::set_partial_min_impl(const table& value) {
-    impl_->partialmin = value;
+    impl_->partial_min = value;
 }
 template <typename Task>
 const table& partial_compute_result<Task>::get_partial_max() const {
-    return impl_->partialmax;
+    return impl_->partial_max;
 }
 
 template <typename Task>
 void partial_compute_result<Task>::set_partial_max_impl(const table& value) {
-    impl_->partialmax = value;
+    impl_->partial_max = value;
 }
 
 template <typename Task>
-const table& partial_compute_result<Task>::get_partial_sums() const {
-    return impl_->partialsums;
+const table& partial_compute_result<Task>::get_partial_sum() const {
+    return impl_->partial_sum;
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_partial_sums_impl(const table& value) {
-    impl_->partialsums = value;
+void partial_compute_result<Task>::set_partial_sum_impl(const table& value) {
+    impl_->partial_sum = value;
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_partial_sums_squares_impl(const table& value) {
-    impl_->partialsumsquares = value;
+void partial_compute_result<Task>::set_partial_sum_squares_impl(const table& value) {
+    impl_->partial_sum_squares = value;
 }
 template <typename Task>
-const table& partial_compute_result<Task>::get_partial_sums_squares() const {
-    return impl_->partialsumsquares;
-}
-
-template <typename Task>
-void partial_compute_result<Task>::set_partial_sums_squares_centered_impl(const table& value) {
-    impl_->partialSumSquaresCentered = value;
+const table& partial_compute_result<Task>::get_partial_sum_squares() const {
+    return impl_->partial_sum_squares;
 }
 
 template <typename Task>
-const table& partial_compute_result<Task>::get_partial_sums_squares_centered() const {
-    return impl_->partialSumSquaresCentered;
+void partial_compute_result<Task>::set_partial_sum_squares_centered_impl(const table& value) {
+    impl_->partial_sum_squares_centered = value;
+}
+
+template <typename Task>
+const table& partial_compute_result<Task>::get_partial_sum_squares_centered() const {
+    return impl_->partial_sum_squares_centered;
 }
 template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
