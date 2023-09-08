@@ -196,7 +196,7 @@ private:
 };
 
 class [[deprecated("CPP SYCL interfaces have been removed as of 2024.0 release.")]] SyclExecutionContextImpl : public Base,
-                                                                                                                  public ExecutionContextIface
+                                                                                                               public ExecutionContextIface
 {
 public:
     explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue, const bool fromPython = false)
