@@ -170,14 +170,16 @@ vars_script_shell="$(ps -p "$$" -o comm=)"
 # see https://unix.stackexchange.com/a/381465/103967
 # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
 if [ -n "${ZSH_VERSION:-}" ] && [ -n "${ZSH_EVAL_CONTEXT:-}" ] ; then     # zsh 5.x and later
-  # shellcheck disable=2249
+  # shellcheck disable=2249,2296
   case $ZSH_EVAL_CONTEXT in (*:file*) vars_script_name="${(%):-%x}" ;; esac ;
 elif [ -n "${KSH_VERSION:-}" ] ; then                                     # ksh, mksh or lksh
   if [ "$(set | grep -Fq "KSH_VERSION=.sh.version" ; echo $?)" -eq 0 ] ; then # ksh
+    # shellcheck disable=2296
     vars_script_name="${.sh.file}" ;
   else # mksh or lksh or [lm]ksh masquerading as ksh or sh
     # force [lm]ksh to issue error msg; which contains this script's path/filename, e.g.:
     # mksh: /home/ubuntu/intel/oneapi/vars.sh[137]: ${.sh.file}: bad substitution
+    # shellcheck disable=2296
     vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
     vars_script_name="$(expr "${vars_script_name:-}" : '^.*sh: \(.*\)\[[0-9]*\]:')" ;
   fi
@@ -187,11 +189,13 @@ elif [ -n "${BASH_VERSION:-}" ] ; then        # bash
 elif [ "dash" = "$vars_script_shell" ] ; then # dash
   # force dash to issue error msg; which contains this script's rel/path/filename, e.g.:
   # dash: 146: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
+  # shellcheck disable=2296
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   vars_script_name="$(expr "${vars_script_name:-}" : '^.*dash: [0-9]*: \(.*\):')" ;
 elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /bin/sh
   # force a shell error msg; which should contain this script's path/filename
   # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
+  # shellcheck disable=2296
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   if [ "$(printf "%s" "$vars_script_name" | grep -Eq "sh: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash as sh
     # sh: 155: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
@@ -200,6 +204,7 @@ elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /b
 else  # unrecognized shell or dash being sourced from within a user's script
   # force a shell error msg; which should contain this script's path/filename
   # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
+  # shellcheck disable=2296
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   if [ "$(printf "%s" "$vars_script_name" | grep -Eq "^.+: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash
     # .*: 164: intel/oneapi/vars.sh: Bad substitution

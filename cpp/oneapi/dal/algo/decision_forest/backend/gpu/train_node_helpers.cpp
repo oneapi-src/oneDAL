@@ -64,9 +64,12 @@ sycl::event node_group_list<Index>::filter_internal(const node_list_t& node_list
 
             const Index local_id = sbg.get_local_id();
             const Index local_size = sbg.get_local_range()[0];
-
+#if __SYCL_COMPILER_VERSION >= 20230828
+            Index* local_buf_ptr =
+                local_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+#else
             Index* local_buf_ptr = local_buf.get_pointer().get();
-
+#endif
             Index bucket_count = 0;
             Index max_row_count = 1;
 

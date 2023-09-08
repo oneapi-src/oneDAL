@@ -63,7 +63,6 @@ struct KernelCSRImplBase : public Kernel
         case matrixMatrix: return computeInternalMatrixMatrix(a1, a2, r, par);
         default: return services::ErrorIncorrectParameter;
         }
-        return services::Status();
     }
 
 protected:

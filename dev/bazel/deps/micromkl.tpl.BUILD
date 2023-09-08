@@ -9,7 +9,7 @@ cc_library(
 cc_library(
     name = "vml_ipp",
     srcs = [
-        "%{os}/lib/intel64/libdaal_vmlipp_core.a",
+        "%{os}/lib/libdaal_vmlipp_core.a",
     ],
     deps = [
         ":headers",
@@ -19,7 +19,7 @@ cc_library(
 cc_library(
     name = "mkl_thr",
     srcs = [
-        "%{os}/lib/intel64/libdaal_mkl_thread.a",
+        "%{os}/lib/libdaal_mkl_thread.a",
     ],
     deps = [
         ":headers",
