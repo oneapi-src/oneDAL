@@ -195,7 +195,7 @@ private:
     ::sycl::queue & _deviceQueue;
 };
 
-class [[deprecated("CPP SYCL interfaces have been deprecated as of 2024.0 release.")]] SyclExecutionContextImpl : public Base,
+class [[deprecated("CPP SYCL interfaces have been removed as of 2024.0 release.")]] SyclExecutionContextImpl : public Base,
                                                                                                                   public ExecutionContextIface
 {
 public:
@@ -204,7 +204,7 @@ public:
     {
         if (!fromPython)
         {
-            throw std::runtime_error("CPP SYCL interfaces have been deprecated as of 2024.0 release.");
+            throw std::runtime_error("CPP SYCL interfaces have been removed as of 2024.0 release.");
         }
         const auto & device          = _deviceQueue.get_device();
         _infoDevice.isCpu            = device.is_cpu();
