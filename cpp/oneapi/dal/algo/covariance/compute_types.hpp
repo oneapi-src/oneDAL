@@ -159,15 +159,15 @@ public:
     /// @remark default = table{}
     const table& get_partial_sum() const;
 
-    auto& set_partial_sums(const table& value) {
-        set_partial_sums_impl(value);
+    auto& set_partial_sum(const table& value) {
+        set_partial_sum_impl(value);
         return *this;
     }
 
 protected:
     void set_nobs_impl(const table&);
     void set_partial_crossproduct_impl(const table&);
-    void set_partial_sums_impl(const table&);
+    void set_partial_sum_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::partial_compute_result_impl<Task>> impl_;

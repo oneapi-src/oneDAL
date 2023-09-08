@@ -191,7 +191,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                    nobs_nd,
                                    row_count,
                                    { crossproduct_event });
-        result.set_sums(
+        result.set_partial_sum(
             (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));
         result.set_partial_crossproduct(
             (homogen_table::wrap(result_crossproducts.flatten(q, { update_event }),
@@ -205,7 +205,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                                      row_count,
                                                      { crossproduct_event });
 
-        result.set_sums((homogen_table::wrap(sums.flatten(q, { init_event }), 1, column_count)));
+        result.set_partial_sum((homogen_table::wrap(sums.flatten(q, { init_event }), 1, column_count)));
         result.set_partial_crossproduct((homogen_table::wrap(crossproduct.flatten(q, { init_event }),
                                                      column_count,
                                                      column_count)));

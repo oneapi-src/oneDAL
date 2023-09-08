@@ -178,7 +178,7 @@ const table& partial_compute_result<Task>::get_partial_sum() const {
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_partial_sums_impl(const table& value) {
+void partial_compute_result<Task>::set_partial_sum_impl(const table& value) {
     impl_->sums = value;
 }
 

@@ -66,7 +66,7 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
                                                                        &daal_parameter));
-        result.set_sums(interop::convert_from_daal_homogen_table<Float>(daal_sums));
+        result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
         result.set_nobs(interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
         result.set_partial_crossproduct(interop::convert_from_daal_homogen_table<Float>(daal_crossproduct));
     }
@@ -89,7 +89,7 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
                                                                        daal_sums.get(),
                                                                        &daal_parameter));
 
-        result.set_sums(interop::convert_from_daal_homogen_table<Float>(daal_sums));
+        result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
         result.set_nobs(interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
         result.set_partial_crossproduct(interop::convert_from_daal_homogen_table<Float>(daal_crossproduct));
     }
