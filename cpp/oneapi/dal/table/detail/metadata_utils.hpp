@@ -21,7 +21,6 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename... Types>
 inline dal::array<data_type> find_array_dtypes() {
@@ -110,13 +109,5 @@ inline table_metadata make_default_metadata_from_arrays() {
     using type_seq_t = std::tuple<array_type_t<Arrays>...>;
     return make_default_metadata_from_arrays_impl(reinterpret_cast<const type_seq_t*>(0ul));
 }
-
-} // namespace v1
-
-using v1::find_array_dtypes;
-using v1::find_array_ftypes;
-
-using v1::make_default_metadata;
-using v1::make_default_metadata_from_arrays;
 
 } // namespace oneapi::dal::detail

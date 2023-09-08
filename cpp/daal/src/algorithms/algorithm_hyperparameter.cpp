@@ -74,8 +74,6 @@ protected:
 
 } // namespace internal
 
-namespace interface1
-{
 Hyperparameter::Hyperparameter(size_t intParamCount, size_t doubleParamCount)
     : _pimpl(new internal::HyperparameterImpl(intParamCount, doubleParamCount))
 {}
@@ -100,6 +98,5 @@ services::Status Hyperparameter::find(std::uint32_t id, double & value) const
     return _pimpl->find(id, value);
 }
 
-} // namespace interface1
 } // namespace algorithms
 } // namespace daal

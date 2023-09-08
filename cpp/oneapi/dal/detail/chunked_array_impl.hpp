@@ -29,8 +29,6 @@
 
 namespace oneapi::dal::detail {
 
-namespace v2 {
-
 template <typename T>
 class chunked_array;
 
@@ -211,10 +209,5 @@ inline std::int64_t get_element_count(data_type dt, const chunked_array_base& ar
 
     return result;
 }
-
-} // namespace v2
-
-using v2::chunked_array_base;
-using v2::get_element_count;
 
 } // namespace oneapi::dal::detail

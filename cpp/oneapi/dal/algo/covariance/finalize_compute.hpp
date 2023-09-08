@@ -21,11 +21,9 @@
 #include "oneapi/dal/finalize_compute.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 template <typename Descriptor>
 struct finalize_compute_ops<Descriptor, dal::covariance::detail::descriptor_tag>
         : dal::covariance::detail::finalize_compute_ops<Descriptor> {};
 
-} // namespace v1
 } // namespace oneapi::dal::detail

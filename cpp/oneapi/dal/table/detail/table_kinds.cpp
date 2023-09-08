@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/table/detail/table_kinds.hpp"
 
-namespace oneapi::dal::detail::v1 {
+namespace oneapi::dal::detail {
 
 std::int64_t get_empty_table_kind() {
     return 0l;
@@ -34,4 +34,4 @@ std::int64_t get_heterogen_table_kind() {
     return 100l;
 }
 
-} // namespace oneapi::dal::detail::v1
+} // namespace oneapi::dal::detail

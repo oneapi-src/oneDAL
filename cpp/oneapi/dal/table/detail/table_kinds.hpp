@@ -17,18 +17,10 @@
 #include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
 
 ONEDAL_EXPORT std::int64_t get_empty_table_kind();
 ONEDAL_EXPORT std::int64_t get_homogen_table_kind();
 ONEDAL_EXPORT std::int64_t get_csr_table_kind();
 ONEDAL_EXPORT std::int64_t get_heterogen_table_kind();
-
-} // namespace v1
-
-using v1::get_empty_table_kind;
-using v1::get_homogen_table_kind;
-using v1::get_csr_table_kind;
-using v1::get_heterogen_table_kind;
 
 } // namespace oneapi::dal::detail

@@ -20,7 +20,6 @@
 #include "oneapi/dal/table/backend/heterogen_table_impl.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 static std::shared_ptr<detail::heterogen_table_iface> get_heterogen_iface(const table& other) {
     if (const auto heterogen_iface = detail::get_heterogen_table_iface(other)) {
@@ -58,5 +57,4 @@ std::pair<data_type, detail::chunked_array_base> heterogen_table::get_column_imp
     return std::pair<data_type, detail::chunked_array_base>(std::move(dtype), std::move(array));
 }
 
-} // namespace v1
 } // namespace oneapi::dal

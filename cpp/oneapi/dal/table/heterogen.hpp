@@ -27,7 +27,6 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
 class ONEDAL_EXPORT heterogen_table : public table {
     friend detail::pimpl_accessor;
@@ -104,9 +103,5 @@ private:
     explicit heterogen_table(const detail::shared<detail::heterogen_table_iface>& impl)
             : table(impl) {}
 };
-
-} // namespace v1
-
-using v1::heterogen_table;
 
 } // namespace oneapi::dal

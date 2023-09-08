@@ -20,7 +20,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::covariance::detail {
-namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct finalize_compute_ops_dispatcher {
@@ -84,9 +83,5 @@ struct finalize_compute_ops {
         return result;
     }
 };
-
-} // namespace v1
-
-using v1::finalize_compute_ops;
 
 } // namespace oneapi::dal::covariance::detail

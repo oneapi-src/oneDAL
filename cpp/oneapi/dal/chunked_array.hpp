@@ -21,7 +21,6 @@
 #include "oneapi/dal/detail/chunked_array_impl.hpp"
 
 namespace oneapi::dal {
-namespace v2 {
 
 template <typename T>
 class ONEDAL_EXPORT chunked_array : public detail::chunked_array_base {
@@ -311,9 +310,5 @@ protected:
         return detail::make_data_type<T>();
     }
 }; // class chunked_array
-
-} // namespace v2
-
-using v2::chunked_array;
 
 } // namespace oneapi::dal

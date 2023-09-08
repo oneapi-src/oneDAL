@@ -21,7 +21,6 @@
 #include "oneapi/dal/spmd/communicator.hpp"
 //TODO: move partial compute into preview(detail::data_parallel_policy is not in preview)
 namespace oneapi::dal {
-namespace v1 {
 
 template <typename... Args>
 auto finalize_compute(Args&&... args) {
@@ -35,10 +34,6 @@ auto finalize_compute(sycl::queue& queue, Args&&... args) {
                                                   std::forward<Args>(args)...);
 }
 #endif
-
-} // namespace v1
-
-using v1::finalize_compute;
 
 namespace preview {
 

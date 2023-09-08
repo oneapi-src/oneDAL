@@ -25,7 +25,6 @@
 #include "oneapi/dal/detail/chunked_array_impl.hpp"
 
 namespace oneapi::dal::detail {
-namespace v2 {
 
 template <typename T, typename Policy>
 void copy(T* const ptr, const Policy& policy, const chunked_array_base& src) {
@@ -86,9 +85,5 @@ void copy(dal::array<T>& dst, const chunked_array_base& src) {
     auto& dst_impl = accessor.get_pimpl(dst);
     return copy(*dst_impl, src);
 }
-
-} // namespace v2
-
-using v2::copy;
 
 } // namespace oneapi::dal::detail
