@@ -34,6 +34,11 @@ class array {
     template <typename U>
     friend class array;
 
+    template <typename U>
+    friend class chunked_array;
+
+    friend class chunked_array_base;
+
     using impl_t = detail::array_impl<T>;
 
 public:
@@ -654,16 +659,23 @@ public:
     }
 #endif
 
+    /// Creates slice of this array
+    array<T> get_slice(std::int64_t first, std::int64_t last) const {
+        const auto slice_impl = impl_->get_slice(first, last);
+        return array<T>{ new impl_t{ std::move(slice_impl) } };
+    }
+
+    /// @brief Creates array from impl
+    array(impl_t* impl) : impl_(impl) {
+        update_data(impl_.get());
+    }
+
 private:
     static void swap(array<T>& a, array<T>& b) {
         std::swap(a.impl_, b.impl_);
         std::swap(a.data_ptr_, b.data_ptr_);
         std::swap(a.mutable_data_ptr_, b.mutable_data_ptr_);
         std::swap(a.count_, b.count_);
-    }
-
-    array(impl_t* impl) : impl_(impl) {
-        update_data(impl_.get());
     }
 
     void update_data(impl_t* impl) {
@@ -707,5 +719,23 @@ private:
     T* mutable_data_ptr_;
     std::int64_t count_;
 };
+
+template <typename Type>
+struct is_array {
+    constexpr static bool value = false;
+};
+
+template <typename Type>
+struct is_array<array<Type>> {
+    constexpr static bool value = true;
+};
+
+/// @tparam T Type to be checked for being an array
+template <typename T>
+constexpr bool is_array_v = is_array<T>::value;
+
+/// @tparam T Type to be checked for being an array
+template <typename T>
+using enable_if_array_t = std::enable_if_t<is_array_v<T>>;
 
 } // namespace oneapi::dal

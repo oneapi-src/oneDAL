@@ -100,7 +100,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     Result * result                                          = static_cast<Result *>(_res);
     decision_forest::regression::Model * m                   = result->get(model).get();
     decision_forest::regression::internal::ModelImpl * pImpl = dynamic_cast<decision_forest::regression::internal::ModelImpl *>(m);
-    DAAL_ASSERT(pImpl);
+    if (pImpl == NULL)
+    {
+        return services::Status(services::ErrorNullResult);
+    }
     pImpl->clear();
     return services::Status();
 }

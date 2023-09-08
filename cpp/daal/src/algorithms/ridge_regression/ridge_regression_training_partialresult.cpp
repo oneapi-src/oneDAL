@@ -92,6 +92,7 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
        Both classes have multiple inheritance with InputIface as a second base class.
        That's why we use dynamic_cast here. */
     const InputIface * in = dynamic_cast<const InputIface *>(input);
+    DAAL_CHECK(in, ErrorNullInput);
 
     ridge_regression::ModelPtr partialModel = get(training::partialModel);
 

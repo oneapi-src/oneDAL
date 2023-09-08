@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace oneapi::dal::detail {
 
 #define ONEDAL_HAS_METHOD_TRAIT(return_value, method_name, params, checker_name)            \

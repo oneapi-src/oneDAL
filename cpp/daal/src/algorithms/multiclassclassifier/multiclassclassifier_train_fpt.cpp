@@ -51,7 +51,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     else
     {
         const ParameterBase * algParameter2 = dynamic_cast<const ParameterBase *>(parameter);
-        ModelPtr modelPtr                   = Model::create(algInput->getNumberOfFeatures(), algParameter2, &st);
+        DAAL_CHECK(algParameter2, services::ErrorNullParameterNotSupported);
+        ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter2, &st);
         set(classifier::training::model, modelPtr);
     }
     DAAL_CHECK_STATUS_VAR(st);

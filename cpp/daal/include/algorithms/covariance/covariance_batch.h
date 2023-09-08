@@ -254,7 +254,7 @@ public:
     typedef algorithms::covariance::Result ResultType;
 
     /** Default constructor */
-    BatchImpl() { initialize(); }
+    BatchImpl() : daal::algorithms::Analysis<batch>() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -263,7 +263,11 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter) { initialize(); }
+    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter)
+    {
+        initialize();
+        _hpar = other.daal::algorithms::Analysis<batch>::_hpar;
+    }
 
     /**
      * Returns the structure that contains correlation or variance-covariance matrix
@@ -302,8 +306,9 @@ protected:
     void initialize()
     {
         _result.reset(new ResultType());
-        _in  = &input;
-        _par = &parameter;
+        _in   = &input;
+        _par  = &parameter;
+        _hpar = nullptr;
     }
     virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };

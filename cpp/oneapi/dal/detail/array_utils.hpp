@@ -16,7 +16,10 @@
 
 #pragma once
 
+#include <variant>
+
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal::detail {
 
@@ -72,6 +75,56 @@ inline dal::array<T> discard_mutable_data(const dal::array<T>& ary) {
         return ary;
     }
     return dal::array<T>{ ary, ary.get_data(), ary.get_count() };
+}
+
+template <typename T>
+inline void copy_impl(detail::array_impl<T>& dst, const detail::array_impl<T>& src) {
+    const auto size_in_bytes = src.get_size_in_bytes();
+    ONEDAL_ASSERT(size_in_bytes <= dst.get_size_in_bytes());
+
+    auto* const dst_ptr = reinterpret_cast<void*>(dst.get_mutable_data());
+    const auto* const src_ptr = reinterpret_cast<const void*>(src.get_data());
+
+    const auto copy_visitor = [&](const auto& dst_policy, const auto& src_policy) {
+        memcpy(dst_policy, src_policy, dst_ptr, src_ptr, size_in_bytes);
+    };
+
+    std::visit(copy_visitor, dst.get_policy(), src.get_policy());
+}
+
+template <typename Policy, typename T, typename Alloc>
+inline detail::array_impl<T> copy_impl(const Policy& policy,
+                                       const detail::array_impl<T>& src,
+                                       const Alloc& alloc) {
+    using res_t = detail::array_impl<T>;
+    auto res = res_t::empty_unique(policy, src.get_count(), alloc);
+
+    copy_impl(*res, src);
+
+    return res_t{ std::move(*res) };
+}
+
+template <typename Policy, typename T>
+inline detail::array_impl<T> copy_impl(const Policy& policy, const detail::array_impl<T>& src) {
+    const auto alloc = make_policy_allocator<Policy, T>(policy);
+    return copy_impl(policy, src, alloc);
+}
+
+template <typename T>
+inline void copy(dal::array<T>& dst, const dal::array<T>& src) {
+    constexpr detail::pimpl_accessor accessor;
+    auto& dst_pimpl = accessor.get_pimpl(dst);
+    const auto& src_pimpl = accessor.get_pimpl(src);
+
+    copy_impl(*dst_pimpl, *src_pimpl);
+}
+
+template <typename Policy, typename T>
+inline auto copy(const Policy& policy, const dal::array<T>& src) {
+    constexpr detail::pimpl_accessor accessor;
+    const auto& pimpl = accessor.get_pimpl(src);
+    array_impl<T> impl = copy_impl(policy, *pimpl);
+    return array<T>{ new array_impl<T>{ std::move(impl) } };
 }
 
 } // namespace oneapi::dal::detail

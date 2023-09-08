@@ -37,7 +37,8 @@ namespace internal
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * covTable,
-                                                                                 NumericTable * meanTable, const Parameter * parameter)
+                                                                                 NumericTable * meanTable, const Parameter * parameter,
+                                                                                 const Hyperparameter * hyperparameter)
 {
     algorithmFPType nObservations = 0.0;
 
@@ -64,7 +65,7 @@ services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= updateCSRCrossProductAndSums<algorithmFPType, method, cpu>(nFeatures, nVectors, data, colIndices, rowOffsets, crossProduct, sums,
-                                                                         &nObservations);
+                                                                         &nObservations, hyperparameter);
     DAAL_CHECK_STATUS_VAR(status);
 
     const algorithmFPType invNRows = 1.0 / (algorithmFPType)nVectors;
@@ -78,7 +79,7 @@ services::Status CovarianceCSRBatchKernel<algorithmFPType, method, cpu>::compute
         crossProduct[i * nFeatures + i] -= sums[i] * sums[i] * invNRows;
     }
 
-    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter);
+    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter, hyperparameter);
 
     return status;
 }

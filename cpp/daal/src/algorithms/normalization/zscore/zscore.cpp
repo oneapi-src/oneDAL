@@ -26,6 +26,7 @@
 #include "src/services/serialization_utils.h"
 #include "src/services/daal_strings.h"
 #include "src/services/service_defines.h"
+#include <assert.h>
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -89,7 +90,7 @@ Result::Result() : daal::algorithms::Result(lastResultId + 1)
 Result::Result(const Result & o)
 {
     ResultImpl * pImpl = dynamic_cast<ResultImpl *>(getStorage(o).get());
-    DAAL_ASSERT(pImpl);
+    assert(pImpl);
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
 }
 

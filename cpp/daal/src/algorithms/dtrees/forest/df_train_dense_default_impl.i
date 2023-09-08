@@ -307,6 +307,11 @@ services::Status selectParallelizationTechnique(const Parameter & par, engines::
 {
     auto engineImpl = dynamic_cast<engines::internal::BatchBaseImpl *>(par.engine.get());
 
+    if (engineImpl == NULL)
+    {
+        return services::Status(services::ErrorNullResult);
+    }
+
     engines::internal::ParallelizationTechnique techniques[] = { engines::internal::family, engines::internal::leapfrog,
                                                                  engines::internal::skipahead };
 

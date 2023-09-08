@@ -21,6 +21,7 @@
 namespace oneapi::dal::detail {
 
 ONEDAL_EXPORT homogen_table_iface* get_homogen_table_iface_impl(table_iface* table);
+ONEDAL_EXPORT heterogen_table_iface* get_heterogen_table_iface_impl(table_iface* table);
 ONEDAL_EXPORT pull_rows_iface* get_pull_rows_iface_impl(table_iface* table);
 ONEDAL_EXPORT pull_column_iface* get_pull_column_iface_impl(table_iface* table);
 ONEDAL_EXPORT pull_csr_block_iface* get_pull_csr_block_iface_impl(table_iface* table);
@@ -35,6 +36,13 @@ inline std::shared_ptr<homogen_table_iface> get_homogen_table_iface(Object&& obj
     const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
     auto homogen_iface_ptr = get_homogen_table_iface_impl(pimpl.get());
     return std::shared_ptr<homogen_table_iface>{ pimpl, homogen_iface_ptr };
+}
+
+template <typename Object>
+inline std::shared_ptr<heterogen_table_iface> get_heterogen_table_iface(Object&& obj) {
+    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
+    auto heterogen_iface_ptr = get_heterogen_table_iface_impl(pimpl.get());
+    return std::shared_ptr<heterogen_table_iface>{ pimpl, heterogen_iface_ptr };
 }
 
 template <typename Object>

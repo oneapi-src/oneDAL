@@ -27,6 +27,34 @@ class train_input_impl;
 template <typename Task>
 class train_result_impl;
 
+template <typename Task>
+struct train_parameters_impl;
+
+template <typename Task = task::by_default>
+class train_parameters : public base {
+public:
+    explicit train_parameters();
+    train_parameters(train_parameters&&) = default;
+    train_parameters(const train_parameters&) = default;
+
+    std::int64_t get_cpu_macro_block() const;
+    auto& set_cpu_macro_block(std::int64_t val) {
+        set_cpu_macro_block_impl(val);
+        return *this;
+    }
+
+    std::int64_t get_gpu_macro_block() const;
+    auto& set_gpu_macro_block(std::int64_t val) {
+        set_gpu_macro_block_impl(val);
+        return *this;
+    }
+
+private:
+    void set_cpu_macro_block_impl(std::int64_t val);
+    void set_gpu_macro_block_impl(std::int64_t val);
+    dal::detail::pimpl<train_parameters_impl<Task>> impl_;
+};
+
 } // namespace detail
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can

@@ -111,7 +111,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
         classifier::training::Input * input     = static_cast<classifier::training::Input *>(_in);
         solver->parameter.batchSize             = input->get(classifier::training::data)->getNumberOfRows();
     }
-    DAAL_ASSERT(pImpl);
+    DAAL_CHECK(pImpl, ErrorNullPtr);
     return pImpl->reset(par->interceptFlag);
 }
 

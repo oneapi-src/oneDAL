@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/algo/linear_regression/parameters/cpu/train_parameters.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/detail/train_ops.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -26,10 +27,34 @@ template <typename Policy, typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<Policy, Float, Method, Task> {
     train_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& desc,
+                                  const train_parameters<Task>& params,
                                   const train_input<Task>& input) const {
+        return implementation(ctx, desc, params, input);
+    }
+
+    train_parameters<Task> select_parameters(const Policy& ctx,
+                                             const descriptor_base<Task>& desc,
+                                             const train_input<Task>& input) const {
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
+            KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t{}(ctx, desc, input);
+    }
+
+    train_result<Task> operator()(const Policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
+        const auto params = select_parameters(ctx, desc, input);
+        return implementation(ctx, desc, params, input);
+    }
+
+private:
+    inline auto implementation(const Policy& ctx,
+                               const descriptor_base<Task>& desc,
+                               const train_parameters<Task>& params,
+                               const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t()(ctx, desc, input);
+        return kernel_dispatcher_t{}(ctx, desc, params, input);
     }
 };
 

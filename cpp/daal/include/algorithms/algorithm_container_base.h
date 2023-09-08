@@ -160,12 +160,14 @@ public:
      * \param[in] in    Pointer to the input arguments of the algorithm
      * \param[in] pres  Pointer to the partial results of the algorithm
      * \param[in] par   Pointer to the parameters of the algorithm
+     * \param[in] hpar  Pointer to the hyperparameters of the algorithm
      */
-    void setArguments(Input * in, PartialResult * pres, Parameter * par)
+    void setArguments(Input * in, PartialResult * pres, Parameter * par, const Hyperparameter * hpar)
     {
         _in   = in;
         _pres = pres;
         _par  = par;
+        _hpar = hpar;
     }
 
     /**
@@ -199,6 +201,7 @@ protected:
     PartialResult * _pres;
     Result * _res;
     Parameter * _par;
+    const Hyperparameter * _hpar;
 };
 
 /** @} */

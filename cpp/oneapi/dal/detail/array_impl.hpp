@@ -59,19 +59,38 @@ std::tuple<shared<byte_t>, std::int64_t> deserialize_array(const Policy& policy,
 
 template <typename T>
 class array_impl : public base {
-    using cshared = detail::shared<const T>;
     using shared = detail::shared<T>;
+    using cshared = detail::shared<const T>;
 
     template <typename U>
     friend class array_impl;
 
+    friend class chunked_array_base;
+
+    using dhp_t = default_host_policy;
+#ifndef ONEDAL_DATA_PARALLEL
+    using policy_var_t = std::variant<dhp_t>;
+#else // ifdef ONEDAL_DATA_PARALLEL
+    using dpp_t = data_parallel_policy;
+    using policy_var_t = std::variant<dhp_t, dpp_t>;
+#endif
+
 public:
+    using data_t = T;
+
     template <typename Policy, typename Allocator>
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
         auto data = alloc.allocate(count);
         return new array_impl<T>(policy, data, count, [alloc, count](T* ptr) {
             alloc.deallocate(ptr, count);
         });
+    }
+
+    template <typename Policy, typename Allocator>
+    static unique<array_impl<T>> empty_unique(const Policy& policy,
+                                              std::int64_t count,
+                                              const Allocator& alloc) {
+        return unique<array_impl<T>>{ array_impl<T>::empty(policy, count, alloc) };
     }
 
     template <typename Policy, typename K, typename Allocator>
@@ -84,6 +103,7 @@ public:
         return array;
     }
 
+    // Old
     array_impl() : count_(0) {}
 
     template <typename Policy>
@@ -109,6 +129,56 @@ public:
     template <typename Y, typename K>
     array_impl(const array_impl<Y>& ref, K* data, std::int64_t count) {
         reset(ref, data, count);
+    }
+
+    array_impl(array_impl<T>&& ref) = default;
+
+    array_impl& operator=(array_impl<T>&& ref) = default;
+
+    array_impl(const array_impl<T>& ref) = default;
+
+    array_impl& operator=(const array_impl<T>& ref) = default;
+
+    // We want to be explicit about type conversion
+    template <typename Y>
+    static array_impl<T> reinterpret(const array_impl<Y>& ref) {
+        array_impl<T> res;
+
+        const auto ref_size_in_bytes = ref.get_size_in_bytes();
+        const auto count = ref_size_in_bytes / sizeof(T);
+
+        if (ref.has_mutable_data()) {
+            T* data = reinterpret_cast<T*>(ref.get_mutable_data());
+            res = array_impl<T>(ref, data, count);
+        }
+        else {
+            const T* data = reinterpret_cast<const T*>(ref.get_data());
+            res = array_impl<T>(ref, data, count);
+        }
+
+        ONEDAL_ASSERT(res.get_size_in_bytes() == ref_size_in_bytes);
+
+        return res;
+    }
+
+    array_impl<T> get_slice(std::int64_t first, std::int64_t last) const {
+        array_impl<T> res;
+
+        ONEDAL_ASSERT(0l <= first);
+        ONEDAL_ASSERT(first <= last);
+        ONEDAL_ASSERT(last <= get_count());
+        const auto new_count = last - first;
+
+        if (has_mutable_data()) {
+            T* new_data = get_mutable_data() + first;
+            res.reset(*this, new_data, new_count);
+        }
+        else {
+            const T* new_data = get_data() + first;
+            res.reset(*this, new_data, new_count);
+        }
+
+        return res;
     }
 
     std::int64_t get_count() const noexcept {
@@ -146,6 +216,10 @@ public:
         else {
             data_owned_ = copy();
         }
+    }
+
+    bool has_data() const {
+        return get_data() != nullptr;
     }
 
     void reset() {
@@ -214,6 +288,19 @@ public:
         reset_policy(ref);
     }
 
+    template <typename Y>
+    void reset(const array_impl<Y>& ref) {
+        if (ref.has_data()) {
+            reset();
+        }
+        else if (ref.has_mutable_data()) {
+            reset(ref, ref.get_mutable_data(), ref.get_count());
+        }
+        else {
+            reset(ref, ref.get_data(), ref.get_count());
+        }
+    }
+
     void serialize(output_archive& ar) const {
         static_assert(is_trivially_serializable_v<T>,
                       "Serialization for non-trivial types is not implemented");
@@ -221,7 +308,7 @@ public:
         using data_t = detail::trivial_serialization_type_t<T>;
         const byte_t* data_bytes = reinterpret_cast<const byte_t*>(get_data());
         const data_type dtype = make_data_type<data_t>();
-        const std::int64_t size_in_bytes = check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
+        const std::int64_t size_in_bytes = get_size_in_bytes();
 
         __ONEDAL_IF_QUEUE__(get_queue(), {
             ONEDAL_ASSERT(dp_policy_.has_value());
@@ -280,6 +367,21 @@ public:
     }
 #endif
 
+    std::int64_t get_size_in_bytes() const {
+        ONEDAL_ASSERT(std::int64_t{ 0l } <= count_);
+        return check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
+    }
+
+    policy_var_t get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        if (dp_policy_.has_value()) {
+            return policy_var_t{ dp_policy_.value() };
+        }
+#endif // ONEDAL_DATA_PARALLEL
+        const default_host_policy host_policy{};
+        return policy_var_t{ host_policy };
+    }
+
 private:
     void reset_policy() {
 #ifdef ONEDAL_DATA_PARALLEL
@@ -334,7 +436,178 @@ private:
     std::int64_t count_;
 #ifdef ONEDAL_DATA_PARALLEL
     std::optional<data_parallel_policy> dp_policy_;
-#endif
+#endif // ONEDAL_DATA_PARALLEL
+};
+
+template <typename T>
+class array_impl : public base {
+    using cshared = detail::shared<const T>;
+    using shared = detail::shared<T>;
+
+    template <typename U>
+    friend class array_impl;
+
+public:
+    template <typename Policy, typename Allocator>
+    static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
+        auto data = alloc.allocate(count);
+        return new array_impl<T>{ data, count, [alloc, count](T* ptr) {
+                                     alloc.deallocate(ptr, count);
+                                 } };
+    }
+
+    template <typename Policy, typename K, typename Allocator>
+    static array_impl<T>* full(const Policy& policy,
+                               std::int64_t count,
+                               K&& element,
+                               const Allocator& alloc) {
+        auto array = empty(policy, count, alloc);
+        detail::fill(policy, array->get_mutable_data(), count, std::forward<K>(element));
+        return array;
+    }
+
+public:
+    array_impl() : count_(0) {}
+
+    array_impl(const shared& data, std::int64_t count) {
+        reset(data, count);
+    }
+
+    array_impl(const cshared& data, std::int64_t count) {
+        reset(data, count);
+    }
+
+    template <typename Deleter>
+    array_impl(T* data, std::int64_t count, Deleter&& d) {
+        reset(data, count, std::forward<Deleter>(d));
+    }
+
+    template <typename ConstDeleter>
+    array_impl(const T* data, std::int64_t count, ConstDeleter&& d) {
+        reset(data, count, std::forward<ConstDeleter>(d));
+    }
+
+    template <typename Y, typename K>
+    array_impl(const array_impl<Y>& ref, K* data, std::int64_t count) {
+        reset(ref, data, count);
+    }
+
+    std::int64_t get_count() const noexcept {
+        return count_;
+    }
+
+    const T* get_data() const noexcept {
+        if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
+            return mut_ptr->get();
+        }
+        else {
+            const auto& immut_ptr = std::get<cshared>(data_owned_);
+            return immut_ptr.get();
+        }
+    }
+
+    T* get_mutable_data() const {
+        try {
+            const auto& mut_ptr = std::get<shared>(data_owned_);
+            return mut_ptr.get();
+        }
+        catch (std::bad_variant_access&) {
+            throw internal_error(
+                dal::detail::error_messages::array_does_not_contain_mutable_data());
+        }
+    }
+
+    bool has_mutable_data() const noexcept {
+        return std::holds_alternative<shared>(data_owned_) && (get_mutable_data() != nullptr);
+    }
+
+    template <typename Policy, typename Allocator>
+    void need_mutable_data(const Policy& policy, const Allocator& alloc) {
+        if (has_mutable_data() || count_ == 0) {
+            return;
+        }
+        else {
+            auto immutable_data = get_data();
+            auto copy_data = alloc.allocate(count_);
+            detail::memcpy(policy, copy_data, immutable_data, sizeof(T) * count_);
+
+            reset(copy_data, count_, [alloc, count = this->count_](T* ptr) {
+                alloc.deallocate(ptr, count);
+            });
+            return;
+        }
+    }
+
+    void reset() {
+        data_owned_ = std::variant<cshared, shared>();
+        count_ = 0;
+    }
+
+    template <typename Policy, typename Allocator>
+    void reset(const Policy& policy, std::int64_t count, const Allocator& alloc) {
+        auto new_data = alloc.allocate(count);
+        reset(new_data, count, [alloc, count](T* ptr) {
+            alloc.deallocate(ptr, count);
+        });
+    }
+
+    void reset(const shared& data, std::int64_t count) {
+        data_owned_ = data;
+        count_ = count;
+    }
+
+    void reset(const cshared& data, std::int64_t count) {
+        data_owned_ = data;
+        count_ = count;
+    }
+
+    template <typename Deleter>
+    void reset(T* data, std::int64_t count, Deleter&& deleter) {
+        data_owned_ = shared(data, std::forward<Deleter>(deleter));
+        count_ = count;
+    }
+
+    template <typename ConstDeleter>
+    void reset(const T* data, std::int64_t count, ConstDeleter&& deleter) {
+        data_owned_ = cshared(data, std::forward<ConstDeleter>(deleter));
+        count_ = count;
+    }
+
+    template <typename Y>
+    void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
+        if (ref.has_mutable_data()) {
+            data_owned_ = shared(std::get<1>(ref.data_owned_), data);
+        }
+        else {
+            data_owned_ = shared(std::get<0>(ref.data_owned_), data);
+        }
+        count_ = count;
+    }
+
+    template <typename Y>
+    void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
+        if (ref.has_mutable_data()) {
+            data_owned_ = cshared(std::get<1>(ref.data_owned_), data);
+        }
+        else {
+            data_owned_ = cshared(std::get<0>(ref.data_owned_), data);
+        }
+        count_ = count;
+    }
+
+    shared get_shared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
+        return std::get<shared>(data_owned_);
+    }
+
+    cshared get_cshared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
+        return std::get<cshared>(data_owned_);
+    }
+
+private:
+    std::variant<cshared, shared> data_owned_;
+    std::int64_t count_;
 };
 
 } // namespace oneapi::dal::detail

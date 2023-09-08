@@ -21,13 +21,25 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #ifdef __ONEDAL_ENABLE_DLL_EXPORT__
-#define ONEDAL_EXPORT __declspec(dllexport)
+#define __ONEDAL_IMPORT_IMPL __declspec(dllimport)
+#define __ONEDAL_EXPORT_IMPL __declspec(dllexport)
+#ifdef INVERT_EXPORT_IMPORT
+#define ONEDAL_EXPORT __ONEDAL_IMPORT_IMPL
+#define ONEDAL_IMPORT __ONEDAL_EXPORT_IMPL
 #else
+#define ONEDAL_EXPORT __ONEDAL_EXPORT_IMPL
+#define ONEDAL_IMPORT __ONEDAL_IMPORT_IMPL
+#endif // defined(INVERT_EXPORT_IMPORT)
+#endif // __ONEDAL_ENABLE_DLL_EXPORT__
+#endif // defined(_WIN32) || defined(_WIN64)
+
+#ifndef ONEDAL_EXPORT
 #define ONEDAL_EXPORT
-#endif
-#else
-#define ONEDAL_EXPORT
-#endif
+#endif // ONEDAL_EXPORT
+
+#ifndef ONEDAL_IMPORT
+#define ONEDAL_IMPORT
+#endif // ONEDAL_IMPORT
 
 #ifndef ONEDAL_ENABLE_ASSERT
 #define __ONEDAL_ASSERT_NO_MESSAGE__(condition) \
@@ -66,18 +78,18 @@ public:
     virtual ~base() = default;
 };
 
-enum class data_type {
-    int8,
-    int16,
-    int32,
-    int64,
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-    float32,
-    float64,
-    bfloat16
+enum class data_type : std::int32_t {
+    int8 = 0x0001,
+    int16 = 0x0002,
+    int32 = 0x0004,
+    int64 = 0x0008,
+    uint8 = 0x0010,
+    uint16 = 0x0020,
+    uint32 = 0x0040,
+    uint64 = 0x0080,
+    float32 = 0x0100,
+    float64 = 0x0200,
+    bfloat16 = 0x0400
 };
 
 struct range {
@@ -88,6 +100,11 @@ public:
         // TODO: handle error if (max_end_index + end_idx) < 0
         std::int64_t final_row = (end_idx < 0) ? max_end_index + end_idx + 1 : end_idx;
         return (final_row - start_idx - 1) + 1;
+    }
+
+    range normalize_range(std::int64_t element_count) const noexcept {
+        const auto last = (end_idx < 0l) ? element_count : end_idx;
+        return range(start_idx, last);
     }
 
     std::int64_t start_idx;

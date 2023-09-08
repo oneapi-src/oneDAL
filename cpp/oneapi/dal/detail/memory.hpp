@@ -23,6 +23,54 @@
 #include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::detail {
+template <typename Policy, typename T>
+struct policy_allocator {};
+
+template <typename T>
+struct policy_allocator<host_policy, T> {
+    using type = host_allocator<T>;
+};
+
+template <typename T>
+struct policy_allocator<default_host_policy, T> {
+    using type = host_allocator<T>;
+};
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T>
+struct policy_allocator<data_parallel_policy, T> {
+    using type = data_parallel_allocator<T>;
+};
+#endif // ONEDAL_DATA_PARALLEL
+
+template <typename Policy, typename T = byte_t>
+using policy_allocator_t = typename policy_allocator<Policy, T>::type;
+
+template <typename Policy, typename T = byte_t>
+inline auto make_policy_allocator(const Policy& policy) {
+    return policy_allocator_t<Policy, T>(policy);
+}
+
+template <typename DstPolicy, typename SrcPolicy>
+inline void memcpy(const DstPolicy& dst_policy,
+                   const SrcPolicy& src_policy,
+                   void* dst,
+                   const void* src,
+                   std::int64_t size) {
+#ifdef ONEDAL_DATA_PARALLEL
+    constexpr bool is_dst_usm = std::is_same_v<DstPolicy, data_parallel_policy>;
+    constexpr bool is_src_usm = std::is_same_v<SrcPolicy, data_parallel_policy>;
+
+    if constexpr (is_dst_usm && is_src_usm)
+        memcpy(src_policy, dst, src, size);
+    else if constexpr (!is_dst_usm && is_src_usm)
+        memcpy_usm2host(src_policy, dst, src, size);
+    else if constexpr (is_dst_usm && !is_src_usm)
+        memcpy_host2usm(dst_policy, dst, src, size);
+    else
+#endif // ONEDAL_DATA_PARALLEL
+        memcpy(dst_policy, dst, src, size);
+}
 
 template <typename T>
 class empty_delete {

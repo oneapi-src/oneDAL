@@ -262,6 +262,25 @@ inline constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
 }
 
+template <typename... Types, typename Op>
+constexpr inline void apply(Op&& op) {
+    ((void)op(Types{}), ...);
+}
+
+template <typename Op, typename... Args>
+constexpr inline void apply(Op&& op, Args&&... args) {
+    ((void)op(std::forward<Args>(args)), ...);
+}
+
+template <typename Data>
+struct integer_overflow_ops {
+    void check_mul_overflow(const Data& first, const Data& second);
+    void check_sum_overflow(const Data& first, const Data& second);
+
+    bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
+    bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
+};
+
 template <typename Data>
 struct limits {
     static constexpr Data min() {
@@ -277,6 +296,41 @@ struct limits {
 
 template <typename Out, typename In>
 inline Out integral_cast(const In& value) {
+    static_assert(std::is_integral_v<In> && std::is_integral_v<Out>,
+                  "The cast requires integral operands");
+    if constexpr (std::is_signed_v<Out> && std::is_signed_v<In>) {
+        if (value > limits<Out>::max()) {
+            throw range_error{ dal::detail::error_messages::integral_type_conversion_overflow() };
+        }
+        if (value < limits<Out>::min()) {
+            throw range_error{ dal::detail::error_messages::integral_type_conversion_underflow() };
+        }
+    }
+    else if constexpr (std::is_unsigned_v<Out> && std::is_unsigned_v<In>) {
+        if (value > limits<Out>::max()) {
+            throw range_error{ dal::detail::error_messages::integral_type_conversion_overflow() };
+        }
+    }
+    else if constexpr (std::is_unsigned_v<Out> && std::is_signed_v<In>) {
+        if (value < In(0)) {
+            throw range_error{
+                dal::detail::error_messages::negative_integral_value_conversion_to_unsigned()
+            };
+        }
+        if (static_cast<std::make_unsigned_t<In>>(value) > limits<Out>::max()) {
+            throw range_error{ dal::detail::error_messages::integral_type_conversion_overflow() };
+        }
+    }
+    else if constexpr (std::is_signed_v<Out> && std::is_unsigned_v<In>) {
+        if (value > static_cast<std::make_unsigned_t<Out>>(limits<Out>::max())) {
+            throw range_error{ dal::detail::error_messages::integral_type_conversion_overflow() };
+        }
+    }
+    return static_cast<Out>(value);
+}
+
+template <typename Out, typename In>
+inline Out integral_cast_debug(const In& value) {
     static_assert(std::is_integral_v<In> && std::is_integral_v<Out>,
                   "The cast requires integral operands");
     if constexpr (std::is_signed_v<Out> && std::is_signed_v<In>) {

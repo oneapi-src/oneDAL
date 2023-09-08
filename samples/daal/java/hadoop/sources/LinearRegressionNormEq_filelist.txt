@@ -1,4 +1,0 @@
-LinearRegressionNormEq_1
-LinearRegressionNormEq_2
-LinearRegressionNormEq_3
-LinearRegressionNormEq_4

@@ -26,8 +26,6 @@
 #include "src/services/service_data_utils.h"
 #include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
-using namespace daal::data_management;
-
 namespace daal
 {
 namespace algorithms
@@ -36,6 +34,9 @@ namespace optimization_solver
 {
 namespace sgd
 {
+namespace dm  = daal::data_management;
+namespace dmi = daal::data_management::internal;
+
 template <typename algorithmFPType>
 services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
@@ -58,9 +59,10 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
     // NumericTablePtr pTbl = NumericTable::cast(pOpt->get(pastUpdateVector));
     if (algParam->optionalResultRequired)
     {
-        const Input * algInput = static_cast<const Input *>(input);
-        size_t argumentSize    = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
-        NumericTablePtr pTbl   = NumericTablePtr(new HomogenNumericTable<int>(1, 1, NumericTable::doAllocate, 0));
+        const Input * algInput   = static_cast<const Input *>(input);
+        size_t argumentSize      = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
+        dm::NumericTablePtr pTbl = dm::NumericTablePtr(new dm::HomogenNumericTable<int>(1, 1, dm::NumericTable::doAllocate, 0));
+
         DAAL_CHECK_MALLOC(pTbl)
         pOpt->set(iterative_solver::lastIteration, pTbl);
         DAAL_ASSERT(momentum <= services::internal::MaxVal<int>::get())
@@ -68,7 +70,7 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
         {
             if (!pOpt->get(pastUpdateVector))
             {
-                pTbl = NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, argumentSize, NumericTable::doAllocate, 0.0));
+                pTbl = dm::NumericTablePtr(new dm::HomogenNumericTable<algorithmFPType>(1, argumentSize, dm::NumericTable::doAllocate, 0.0));
                 DAAL_CHECK_MALLOC(pTbl.get())
                 pOpt->set(pastUpdateVector, pTbl);
             }
@@ -83,11 +85,11 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
             {
                 if (deviceInfo.isCpu)
                 {
-                    pTbl = HomogenNumericTable<algorithmFPType>::create(1, argumentSize, NumericTable::doAllocate, 0.0, &s);
+                    pTbl = dm::HomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
                 }
                 else
                 {
-                    pTbl = internal::SyclHomogenNumericTable<algorithmFPType>::create(1, argumentSize, NumericTable::doAllocate, 0.0, &s);
+                    pTbl = dmi::SyclHomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
                 }
                 DAAL_CHECK_MALLOC(pTbl.get())
                 pOpt->set(pastWorkValue, pTbl);

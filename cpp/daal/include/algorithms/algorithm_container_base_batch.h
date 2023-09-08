@@ -100,12 +100,14 @@ public:
      * \param[in] in    Pointer to the input arguments of the algorithm
      * \param[in] res   Pointer to the final results of the algorithm
      * \param[in] par   Pointer to the parameters of the algorithm
+     * \param[in] hpar  Pointer to the hyperparameters of the algorithm
      */
-    void setArguments(Input * in, Result * res, Parameter * par)
+    void setArguments(Input * in, Result * res, Parameter * par, const Hyperparameter * hpar)
     {
-        _in  = in;
-        _par = par;
-        _res = res;
+        _in   = in;
+        _par  = par;
+        _res  = res;
+        _hpar = hpar;
     }
 
     /**
@@ -119,6 +121,7 @@ public:
     virtual services::Status resetCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
+    const Hyperparameter * _hpar;
     Parameter * _par;
     Input * _in;
     Result * _res;
@@ -158,13 +161,13 @@ public:
         services::internal::sycl::ExecutionContextIface & context = services::internal::getDefaultContext();
         services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();
         if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
-        _cntr->setArguments(this->_in, this->_res, this->_par);
+        _cntr->setArguments(this->_in, this->_res, this->_par, this->_hpar);
         return _cntr->compute();
     }
 
     virtual services::Status setupCompute() DAAL_C11_OVERRIDE
     {
-        _cntr->setArguments(this->_in, this->_res, this->_par);
+        _cntr->setArguments(this->_in, this->_res, this->_par, this->_hpar);
         return _cntr->setupCompute();
     }
 

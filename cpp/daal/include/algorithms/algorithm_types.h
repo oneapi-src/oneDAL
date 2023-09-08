@@ -29,6 +29,7 @@
 #include "data_management/data/data_serialize.h"
 #include "data_management/data/data_collection.h"
 #include "services/error_handling.h"
+#include "services/daal_shared_ptr.h"
 
 namespace daal
 {
@@ -61,6 +62,117 @@ struct Parameter
     virtual ~Parameter() {}
 
     virtual services::Status check() const { return services::Status(); }
+};
+
+/**
+ * \brief Implements the abstract interface HyperparameterIface.
+ *        Represents the common interface for performance-related hyperparameters of the computation.
+ */
+struct DAAL_EXPORT HyperparameterIface
+{
+    /**
+     * Sets integer hyperparameter into this structure
+     * \param[in] id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[in] value The value of the hyperparameter
+     * \return Execution status
+     */
+    virtual services::Status set(std::uint32_t id, std::int64_t value) = 0;
+
+    /**
+     * Sets double precision hyperparameter into this structure
+     * \param[in] id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[in] value The value of the hyperparameter
+     * \return Execution status
+     */
+    virtual services::Status set(std::uint32_t id, double value) = 0;
+
+    /**
+     * Finds integer hyperparameter in this structure
+     * \param[in]  id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[out] value The value of the hyperparameter
+     * \return Execution status.
+     *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
+     *         in the structure.
+     */
+    virtual services::Status find(std::uint32_t id, std::int64_t & value) const = 0;
+
+    /**
+     * Finds double precision hyperparameter in this structure
+     * \param[in]  id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[out] value The value of the hyperparameter
+     * \return Execution status.
+     *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
+     *         in the structure.
+     */
+    virtual services::Status find(std::uint32_t id, double & value) const = 0;
+
+    virtual ~HyperparameterIface() {}
+};
+
+/**
+ * \brief %Base class to represent the implementation of performance-related hyperparameters
+ *        of the computation.
+ */
+struct HyperparameterBaseImpl : public HyperparameterIface
+{};
+
+/**
+ *  \brief %Base class to represent performance-related hyperparameters of the computation.
+ *         Algorithm-specific hyperparameters are represented as derivative classes
+ *         of the Hyperparameter class.
+ */
+struct DAAL_EXPORT Hyperparameter : protected HyperparameterIface
+{
+    DAAL_NEW_DELETE();
+
+    /**
+     * Constructs the requested number of performance-related hyperparameters for the algorithm
+     * \param[in] intParamCount     Number of integer hyperparameters
+     * \param[in] doubleParamCount  Number of double precision hyperparameters
+     */
+    Hyperparameter(size_t intParamCount = 0, size_t doubleParamCount = 0);
+
+    virtual ~Hyperparameter() {}
+
+protected:
+    /**
+     * Sets integer hyperparameter into this structure
+     * \param[in] id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[in] value The value of the hyperparameter
+     * \return Execution status
+     */
+    services::Status set(std::uint32_t id, std::int64_t value) final;
+
+    /**
+     * Sets double precision hyperparameter into this structure
+     * \param[in] id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[in] value The value of the hyperparameter
+     * \return Execution status
+     */
+    services::Status set(std::uint32_t id, double value) final;
+
+    /**
+     * Finds integer hyperparameter in this structure
+     * \param[in]  id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[out] value The value of the found hyperparameter
+     * \return Execution status.
+     *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
+     *         in the structure.
+     */
+    services::Status find(std::uint32_t id, std::int64_t & value) const final;
+
+    /**
+     * Finds double precision hyperparameter in this structure
+     * \param[in]  id    Unique to the particular algorithm identifier of the hyperparameter
+     * \param[out] value The value of the found hyperparameter
+     * \return Execution status.
+     *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
+     *         in the structure.
+     */
+    services::Status find(std::uint32_t id, double & value) const final;
+
+    /** Pointer to the implementation */
+    services::SharedPtr<HyperparameterBaseImpl> _pimpl;
 };
 
 /**

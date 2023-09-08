@@ -119,16 +119,6 @@ Examples
 
     - :cpp_example:`quantiles_dense_batch.cpp <quantiles/quantiles_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`QuantilesDenseBatch.java <quantiles/QuantilesDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

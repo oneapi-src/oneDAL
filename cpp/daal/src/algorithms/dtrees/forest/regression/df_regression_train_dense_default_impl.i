@@ -707,8 +707,11 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::finalizeBestSplit(const IndexTy
     bestSplit.iStart = 0;
     DAAL_ASSERT(iRowSplitVal >= 0);
     if (idxNext == this->_aResponse.size() - 1) iNext = iRowSplitVal;
-    bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
-    if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    if (iNext >= 0 && iRowSplitVal >= 0)
+    {
+        bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
+        if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu, typename crtp>
@@ -1273,7 +1276,7 @@ public:
                 if (resPrediction) resPrediction[i] = algorithmFPType(0);
             }
         }
-        if (res) *res = _res / algorithmFPType(nPredicted);
+        if (res && nPredicted > 0) *res = _res / algorithmFPType(nPredicted);
         if (resR2) *resR2 = 1 - _res / sumMeanDiff;
         return Status();
     }

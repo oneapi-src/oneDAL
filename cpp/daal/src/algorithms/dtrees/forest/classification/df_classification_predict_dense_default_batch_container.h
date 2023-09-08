@@ -70,6 +70,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
     const decision_forest::classification::prediction::Parameter * const par =
         dynamic_cast<decision_forest::classification::prediction::Parameter *>(_par);
+    if (par == NULL)
+    {
+        return services::Status(services::ErrorNullResult);
+    }
     const decision_forest::classification::Model * const m =
         static_cast<decision_forest::classification::Model *>(input->get(classifier::prediction::model).get());
 

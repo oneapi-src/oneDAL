@@ -51,7 +51,7 @@ class Algorithm : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0) {}
+    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0), _hpar(0) {}
 
     virtual ~Algorithm()
     {
@@ -72,6 +72,10 @@ public:
      * Validates parameters of the finalizeCompute method
      */
     virtual services::Status checkFinalizeComputeParams() = 0;
+
+    const Hyperparameter * getBaseHyperparameter() { return _hpar; }
+
+    void setHyperparameter(const Hyperparameter * hpar) { _hpar = hpar; }
 
 protected:
     PartialResult * allocatePartialResultMemory()
@@ -109,6 +113,7 @@ protected:
     PartialResult * _pres;
     Result * _res;
     Parameter * _par;
+    const Hyperparameter * _hpar;
 
 private:
     Algorithm(const Algorithm &);
@@ -126,7 +131,7 @@ class Algorithm<batch> : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _par(0), _in(0), _res(0) {}
+    Algorithm() : _ac(0), _par(0), _in(0), _res(0), _hpar(0) {}
 
     virtual ~Algorithm()
     {
@@ -143,6 +148,10 @@ public:
 
     Parameter * getBaseParameter() { return _par; }
 
+    const Hyperparameter * getBaseHyperparameter() { return _hpar; }
+
+    void setHyperparameter(const Hyperparameter * hpar) { _hpar = hpar; }
+
 protected:
     services::Status allocateResultMemory()
     {
@@ -158,6 +167,7 @@ protected:
 
     daal::algorithms::AlgorithmContainerImpl<batch> * _ac;
 
+    const Hyperparameter * _hpar;
     Parameter * _par;
     Input * _in;
     Result * _res;

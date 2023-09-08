@@ -46,9 +46,13 @@ MSG(spmd_version_of_algorithm_is_not_implemented,
 MSG(spmd_version_of_algorithm_is_not_implemented_for_this_device,
     "SPMD version of the algorithm is not implemented for this device. "
     "Consider running on it on the other device.")
+MSG(integral_type_conversion_overflow, "Integral type conversion overflow")
+MSG(integral_type_conversion_underflow, "Integral type conversion underflow")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(invalid_column_indices_block_size, "Invalid column indices block size")
 MSG(method_not_implemented, "Method is not implemented")
+MSG(negative_integral_value_conversion_to_unsigned,
+    "Negative integral value conversion to unsigned")
 MSG(unsupported_feature_type, "Feature type is not supported")
 MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
@@ -61,6 +65,7 @@ MSG(empty_set_of_result_options, "Empty set of result options")
 MSG(this_result_is_not_enabled_via_result_options, "This result is not enabled via result options")
 MSG(spmd_error_holder_message, "SPMD failure occurred, use e.rethrow_actual() to get actual error")
 MSG(spmd_coworker_failure, "SPMD execution was interrupted because of coworker's failure")
+MSG(unexpected_dataset_type, "Unexpected dataset type")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
@@ -108,6 +113,8 @@ MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acc
 MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for CSR table")
 MSG(object_does_not_provide_read_access_to_csr,
     "Given object does not provide read access to the block of CSR format")
+MSG(pull_column_interface_is_not_implemented,
+    "Pull column interface is planned but not implemented yet")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

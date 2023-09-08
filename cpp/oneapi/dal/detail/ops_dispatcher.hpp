@@ -50,11 +50,36 @@ struct ops_error_handling_dispatcher {
     }
 };
 
-template <typename T, typename Ops, bool IsInput = std::is_same_v<T, typename Ops::input_t>>
-struct ops_input_dispatcher;
+template <typename T, typename Enable = void>
+struct is_parametrized : std::false_type {};
+
+template <typename T>
+struct is_parametrized<T, enable_if_type_t<typename T::param_t>> : std::true_type {};
+
+template <typename T>
+constexpr bool is_parametrized_v = is_parametrized<T>::value;
 
 template <typename T, typename Ops>
-struct ops_input_dispatcher<T, Ops, /* IsInput = */ true> {
+constexpr bool is_ops_parameter_v = std::is_same_v<T, typename Ops::param_t>;
+
+template <typename T, typename Ops>
+constexpr bool is_input_v = std::is_same_v<T, typename Ops::input_t>;
+
+template <typename T, typename Ops>
+constexpr bool is_parameter() {
+    if constexpr (is_parametrized_v<Ops>) {
+        return is_ops_parameter_v<T, Ops>;
+    }
+    else {
+        return false;
+    }
+}
+
+template <typename T, typename Ops>
+constexpr bool is_parameter_v = is_parameter<T, Ops>();
+
+template <typename T, typename Ops, bool IsParameter = false, bool IsInput = is_input_v<T, Ops>>
+struct ops_input_dispatcher {
     template <typename... Args>
     auto operator()(Args&&... args) {
         return Ops{}(std::forward<Args>(args)...);
@@ -62,7 +87,7 @@ struct ops_input_dispatcher<T, Ops, /* IsInput = */ true> {
 };
 
 template <typename T, typename Ops>
-struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
+struct ops_input_dispatcher<T, Ops, /*IsParameter = */ false, /* IsInput = */ false> {
     template <typename Policy, typename Descriptor, typename... Args>
     auto operator()(Policy&& policy, Descriptor&& desc, Args&&... args) {
         using input_t = typename Ops::input_t;
@@ -75,6 +100,57 @@ struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
     }
 };
 
+template <typename T, typename Ops>
+struct ops_input_dispatcher<T, Ops, /*IsParameter = */ true, /* IsInput = */ false> {
+    template <typename Policy, typename Descriptor, typename Parameter, typename... Args>
+    auto operator()(Policy&& policy, Descriptor&& desc, Parameter&& param, Args&&... args) {
+        using input_t = typename Ops::input_t;
+
+        return ops_error_handling_dispatcher{}(std::forward<Policy>(policy), [&]() {
+            return Ops{}(std::forward<Policy>(policy),
+                         std::forward<Descriptor>(desc),
+                         std::forward<Parameter>(param),
+                         input_t{ std::forward<Args>(args)... });
+        });
+    }
+};
+
+template <typename T, typename Ops, bool IsParameter = is_parameter_v<T, Ops>>
+struct ops_parameter_dispatcher;
+
+template <typename T, typename Ops>
+struct ops_parameter_dispatcher<T, Ops, /* IsParameter = */ true> {
+    template <typename Policy,
+              typename Descriptor,
+              typename Parameter,
+              typename Head,
+              typename... Tail>
+    auto operator()(Policy&& policy,
+                    Descriptor&& desc,
+                    Parameter&& param,
+                    Head&& head,
+                    Tail&&... tail) {
+        using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, Ops, true>;
+        return dispatcher_t{}(std::forward<Policy>(policy),
+                              std::forward<Descriptor>(desc),
+                              std::forward<Parameter>(param),
+                              std::forward<Head>(head),
+                              std::forward<Tail>(tail)...);
+    }
+};
+
+template <typename T, typename Ops>
+struct ops_parameter_dispatcher<T, Ops, /* IsParameter = */ false> {
+    template <typename Policy, typename Descriptor, typename Head, typename... Tail>
+    auto operator()(Policy&& policy, Descriptor&& desc, Head&& head, Tail&&... tail) {
+        using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, Ops, false>;
+        return dispatcher_t{}(std::forward<Policy>(policy),
+                              std::forward<Descriptor>(desc),
+                              std::forward<Head>(head),
+                              std::forward<Tail>(tail)...);
+    }
+};
+
 template <typename T, template <typename> typename Ops, bool IsPolicy = is_execution_policy_v<T>>
 struct ops_policy_dispatcher;
 
@@ -83,7 +159,7 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ true> {
     template <typename Policy, typename Descriptor, typename Head, typename... Tail>
     auto operator()(Policy&& policy, Descriptor&& desc, Head&& head, Tail&&... tail) {
         using ops_t = Ops<std::decay_t<Descriptor>>;
-        using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
+        using dispatcher_t = ops_parameter_dispatcher<std::decay_t<Head>, ops_t>;
         return dispatcher_t{}(std::forward<Policy>(policy),
                               std::forward<Descriptor>(desc),
                               std::forward<Head>(head),
@@ -96,7 +172,7 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ false> {
     template <typename Descriptor, typename Head, typename... Tail>
     auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
         using ops_t = Ops<std::decay_t<Descriptor>>;
-        using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
+        using dispatcher_t = ops_parameter_dispatcher<std::decay_t<Head>, ops_t>;
         return dispatcher_t{}(host_policy::get_default(),
                               std::forward<Descriptor>(desc),
                               std::forward<Head>(head),

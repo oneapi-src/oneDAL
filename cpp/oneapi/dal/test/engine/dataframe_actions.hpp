@@ -221,8 +221,7 @@ public:
                                        data_table.get_column_count() };
         }
         else {
-            throw internal_error{ fmt::format("{} dataset extension was not handled",
-                                              get_extension(dataset_)) };
+            throw internal_error{ dal::detail::error_messages::unexpected_dataset_type() };
         }
     }
 

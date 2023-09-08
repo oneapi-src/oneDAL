@@ -15,12 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/csr.hpp"
+#include "oneapi/dal/table/detail/table_kinds.hpp"
 #include "oneapi/dal/table/backend/csr_table_impl.hpp"
 
 namespace oneapi::dal {
 
 std::int64_t csr_table::kind() {
-    return 10;
+    return detail::get_csr_table_kind();
 }
 
 std::int64_t csr_table::get_non_zero_count() const {

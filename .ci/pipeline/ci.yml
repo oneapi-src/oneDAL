@@ -65,9 +65,6 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake
     displayName: 'daal/cpp examples'
   - script: |
@@ -117,9 +114,6 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
     displayName: 'daal/cpp examples'
   - script: |
@@ -166,10 +160,6 @@ jobs:
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
@@ -257,14 +247,14 @@ jobs:
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
-      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      export DALROOT=`pwd`/bazel-bin/release/daal/latest
       $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
-      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      export DALROOT=`pwd`/bazel-bin/release/daal/latest
       $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
                  --test_thread_mode=par
@@ -313,8 +303,8 @@ jobs:
     maxParallel: 2
   strategy:
     matrix:
-      Python38:
-        python.version: '3.8'
+      Python311:
+        python.version: '3.11'
   steps:
   - task: DownloadPipelineArtifact@2
     inputs:
@@ -327,7 +317,7 @@ jobs:
     displayName: 'System info'
   - script: |
       conda update -y -q conda
-      conda create -q -y -n CB -c intel python=$(python.version) tbb
+      conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
     displayName: 'Conda create'
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git daal4py
@@ -344,7 +334,6 @@ jobs:
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       cd daal4py
-      export NO_DIST=1
       export PYTHON=python
       ./conda-recipe/build.sh
     displayName: daal4py build
@@ -365,7 +354,6 @@ jobs:
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      export NO_DIST=1
       ./daal4py/conda-recipe/run_test.sh
     timeoutInMinutes: 15
     displayName: daal4py test
@@ -427,9 +415,6 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/java --conda-env ci-env
-    displayName: 'daal/java examples'
-  - script: |
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
     displayName: 'daal/cpp examples'
   - script: |
@@ -477,9 +462,6 @@ jobs:
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
-  - script: |
-      .\.ci\scripts\test.bat daal\java dll msvs
-    displayName: 'daal/java examples'
   - script: |
       .\.ci\scripts\test.bat daal\cpp lib msvs cmake
       .\.ci\scripts\test.bat daal\cpp dll msvs cmake

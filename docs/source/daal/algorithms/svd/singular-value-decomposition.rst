@@ -73,24 +73,6 @@ Examples
 
       - :cpp_example:`svd_dense_distr.cpp <svd/svd_dense_distr.cpp>`
 
-   .. tab:: Java*
-
- 
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-      Batch Processing:
-
-      - :java_example:`SVDDenseBatch.java <svd/SVDDenseBatch.java>`
-
-      Online Processing:
-
-      - :java_example:`SVDDenseOnline.java <svd/SVDDenseOnline.java>`
-
-      Distributed Processing:
-
-      - :java_example:`SVDDenseDistr.java <svd/SVDDenseDistr.java>`
-
    .. tab:: Python*
 
       Batch Processing:
