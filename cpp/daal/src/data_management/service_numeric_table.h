@@ -904,13 +904,12 @@ public:
             _status = services::Status(services::ErrorIncorrectTypeOfNumericTable);
             return nullptr;
         }
-        if (ptr)
+        else
         {
             _data   = ptr;
             _status = _data->getPackedArray(mode, _block);
             return _block.getBlockPtr();
         }
-        return nullptr;
     }
     void release()
     {
