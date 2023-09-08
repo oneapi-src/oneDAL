@@ -116,14 +116,14 @@ Applications on Windows* OS
       :class: longtable
 
       * - Static linking
-        -
+        - 
           | onedal_core.lib,
-        -
           | onedal_core.lib,
           | onedal_thread.lib
       * - Dynamic linking
-        - onedal_core_dll.lib
-        - onedal_core_dll.lib
+        - 
+          | onedal_core_dll.lib
+          | onedal_core_dll.lib
 
    You may also add debug versions of the libraries based on the threading mode and linking method:
 
@@ -141,7 +141,6 @@ Applications on Windows* OS
           | onedald.lib,
           | onedal_dpcd.lib,
           | onedal_sycld.lib,
-        -
           | onedal_cored.lib,
           | onedald.lib,
           | onedal_dpcd.lib,
@@ -155,7 +154,6 @@ Applications on Windows* OS
           | onedald.2.dll,
           | onedal_cored.2.dll,
           | onedal_dpcd.2.dll,
-        -
           | onedal_cored_dll.lib (onedal_cored_dll.2.lib),
           | onedald_dll.lib (onedald_dll.2.lib),
           | onedal_dpcd_dll.lib (onedal_dpcd_dll.2.lib),
