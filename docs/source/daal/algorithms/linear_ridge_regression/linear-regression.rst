@@ -106,14 +106,6 @@ Examples
 
     - :cpp_example:`lin_reg_model_builder.cpp <linear_regression/lin_reg_model_builder.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    - :java_example:`LinRegModelBuilder.java <linear_regression/LinRegModelBuilder.java>`
-
   .. tab:: Python*
 
     - :daal4py_example:`lin_reg_model_builder.py`

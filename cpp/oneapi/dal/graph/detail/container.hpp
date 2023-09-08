@@ -167,12 +167,12 @@ public:
 
     virtual ~vector_container() {}
 
-    const T& operator[](std::int64_t index) const noexcept {
+    const T& operator[](std::int64_t index) const {
         //TODO: add check for index
         return impl_->get_data()[index];
     }
 
-    T& operator[](std::int64_t index) noexcept {
+    T& operator[](std::int64_t index) {
         //TODO: add check for index
         return impl_->get_mutable_data()[index];
     }

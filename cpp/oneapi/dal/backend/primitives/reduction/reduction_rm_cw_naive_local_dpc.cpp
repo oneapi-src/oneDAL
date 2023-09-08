@@ -47,9 +47,12 @@ public:
         const auto loc_idx = it.get_local_id(1);
         const auto range = it.get_local_range(1);
         const auto lm = cache_.size();
-
+#if __SYCL_COMPILER_VERSION >= 20230828
+        sycl::local_ptr<const Float> local(
+            (const Float*)cache_.template get_multi_ptr<sycl::access::decorated::yes>().get_raw());
+#else
         sycl::local_ptr<const Float> local((const Float*)cache_.get_pointer().get());
-
+#endif
         Float acc = (override_init_ || (loc_idx != 0)) ? //
                         binary_.init_value
                                                        : output_[col_idx];
@@ -59,7 +62,17 @@ public:
             sycl::global_ptr<const Float> global(from);
             const auto count =
                 sycl::min(static_cast<std::int32_t>(lm), static_cast<std::int32_t>(height_ - j));
+#if __SYCL_COMPILER_VERSION >= 20230828
+            it.async_work_group_copy(
+                  cache_.template get_multi_ptr<sycl::access::decorated::yes>(),
+                  sycl::address_space_cast<sycl::access::address_space::global_space,
+                                           sycl::access::decorated::yes>(from),
+                  count,
+                  lstride_)
+                .wait();
+#else
             it.async_work_group_copy<const Float>(local, global, count, lstride_).wait();
+#endif
             // Exclusive for EU
             for (std::int32_t i = loc_idx; i < count; i += range) {
                 acc = binary_.native(acc, unary_(cache_[i]));

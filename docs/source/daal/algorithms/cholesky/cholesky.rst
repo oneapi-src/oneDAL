@@ -111,14 +111,6 @@ Examples
 
     - :cpp_example:`cholesky_dense_batch.cpp <cholesky/cholesky_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`CholeskyDenseBatch.java <cholesky/CholeskyDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

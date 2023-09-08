@@ -513,7 +513,6 @@ sycl::event shift_array_values(const detail::data_parallel_policy& policy,
             return sycl::event();
         }
     });
-    return sycl::event();
 }
 
 #endif

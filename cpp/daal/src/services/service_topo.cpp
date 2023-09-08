@@ -1990,17 +1990,17 @@ long long getCacheSize(int cache_num)
     }
 }
 
-unsigned getL1CacheSize()
+size_t getL1CacheSize()
 {
     return getCacheSize(1);
 }
 
-unsigned getL2CacheSize()
+size_t getL2CacheSize()
 {
     return getCacheSize(2);
 }
 
-unsigned getLLCacheSize()
+size_t getLLCacheSize()
 {
     return getCacheSize(3);
 }
@@ -2084,17 +2084,17 @@ namespace services
 {
 namespace internal
 {
-unsigned getL1CacheSize()
+size_t getL1CacheSize()
 {
     return 32 * 1024;
 }
 
-unsigned getL2CacheSize()
+size_t getL2CacheSize()
 {
     return 256 * 1024;
 }
 
-unsigned getLLCacheSize()
+size_t getLLCacheSize()
 {
     return 25 * 1024 * 1024; //estimate based on mac pro
 }
@@ -2111,20 +2111,21 @@ namespace services
 {
 namespace internal
 {
-unsigned getNumElementsFitInMemory(size_t sizeofMemory, size_t sizeofAnElement, size_t defaultNumElements)
+size_t getNumElementsFitInMemory(size_t sizeofMemory, size_t sizeofAnElement, size_t defaultNumElements)
 {
     const size_t n = sizeofMemory / sizeofAnElement;
+    // TODO substitute this if-statement with DAAL_ASSERT
     if (n < 1) return sizeofMemory ? 1 : defaultNumElements;
 
     return n;
 }
 
-unsigned getNumElementsFitInL1Cache(size_t sizeofAnElement, size_t defaultNumElements)
+size_t getNumElementsFitInL1Cache(size_t sizeofAnElement, size_t defaultNumElements)
 {
     return getNumElementsFitInMemory(getL1CacheSize(), sizeofAnElement, defaultNumElements);
 }
 
-unsigned getNumElementsFitInLLCache(size_t sizeofAnElement, size_t defaultNumElements)
+size_t getNumElementsFitInLLCache(size_t sizeofAnElement, size_t defaultNumElements)
 {
     return getNumElementsFitInMemory(getLLCacheSize(), sizeofAnElement, defaultNumElements);
 }

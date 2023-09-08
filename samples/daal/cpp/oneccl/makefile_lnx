@@ -80,7 +80,12 @@ DAAL_PATH = "$(DALROOT)/lib/intel64"
 ifndef TBBROOT
     TBBROOT = ./../../../../../../tbb/latest
 endif
-TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
+
+ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+	TBB_PATH = "$(TBBROOT)/lib"
+else
+	TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
+endif
 
 EXT_LIB := -Bdynamic -lpthread -ldl -lOpenCL -lccl -lmpi $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
 
@@ -95,7 +100,7 @@ DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,-lonedal_
 COPTS := -Wall -w -I./source/utils
 
 ifeq ($(compiler),dpcpp)
-    CC = icpx -fsycl 
+    CC = icpx -fsycl
     COPTS += -fsycl-device-code-split=per_kernel
 endif
 

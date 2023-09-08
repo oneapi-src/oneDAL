@@ -105,10 +105,6 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
     const algorithmFPType * pBasis = basis.get();
 
     size_t numRowsInBlock = _numRowsInBlock;
-    if (numRowsInBlock < 1)
-    {
-        numRowsInBlock = 1;
-    }
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
