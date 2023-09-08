@@ -176,11 +176,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     if (has_nobs_data) {
         const auto sums_nd =
-            pr::table2ndarray_1d<Float>(q, input_.get_sums(), sycl::usm::alloc::device);
+            pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
         const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_nobs());
 
         const auto crossproducts_nd =
-            pr::table2ndarray<Float>(q, input_.get_crossproduct(), sycl::usm::alloc::device);
+            pr::table2ndarray<Float>(q, input_.get_partial_crossproduct(), sycl::usm::alloc::device);
 
         auto [result_sums, result_crossproducts, result_nobs, update_event] =
             update_partial_results(q,
@@ -193,7 +193,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                    { crossproduct_event });
         result.set_sums(
             (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));
-        result.set_crossproduct(
+        result.set_partial_crossproduct(
             (homogen_table::wrap(result_crossproducts.flatten(q, { update_event }),
                                  column_count,
                                  column_count)));
@@ -206,7 +206,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                                      { crossproduct_event });
 
         result.set_sums((homogen_table::wrap(sums.flatten(q, { init_event }), 1, column_count)));
-        result.set_crossproduct((homogen_table::wrap(crossproduct.flatten(q, { init_event }),
+        result.set_partial_crossproduct((homogen_table::wrap(crossproduct.flatten(q, { init_event }),
                                                      column_count,
                                                      column_count)));
         result.set_nobs((homogen_table::wrap(result_nobs.flatten(q, { init_event }), 1, 1)));

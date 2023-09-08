@@ -164,21 +164,21 @@ void partial_compute_result<Task>::set_nobs_impl(const table& value) {
 }
 
 template <typename Task>
-const table& partial_compute_result<Task>::get_crossproduct() const {
+const table& partial_compute_result<Task>::get_partial_crossproduct() const {
     return impl_->crossproduct;
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_crossproduct_impl(const table& value) {
+void partial_compute_result<Task>::set_partial_crossproduct_impl(const table& value) {
     impl_->crossproduct = value;
 }
 template <typename Task>
-const table& partial_compute_result<Task>::get_sums() const {
+const table& partial_compute_result<Task>::get_partial_sum() const {
     return impl_->sums;
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_sums_impl(const table& value) {
+void partial_compute_result<Task>::set_partial_sums_impl(const table& value) {
     impl_->sums = value;
 }
 
