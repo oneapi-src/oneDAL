@@ -16,10 +16,51 @@
 
 Introduction
 ************
+oneDAL provides redesizgned version of interfaces that accounts for multi-device targets
+such as CPU and GPU, distributed SPMD interfaces and many more.
+
+Algorithms support
+*****************
+
+For the following algorithms are avaialbe in oneDAL:
+
+.. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
+
+.. list-table:: Computation Modes
+   :header-rows: 1
+   :widths: 10 10
+   :align: left
+
+   * - Algorithm
+     - Supported
+   * - :ref:`alg_kmeans`
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+   * - :ref:`alg_covariance`
+     - :ref:`batch <batch>`, :ref:`online <online>`, :ref:`distributed <distributed>`
+   * - :ref:`alg_pca`
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+   * - :ref: Logistic Regression
+     - :ref:`batch <batch>`
+   * - :ref: Linear Regression
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+   * - :ref:`_alg_df`
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+   * - :ref: Extra Trees 
+     - :ref:`batch <batch>`
+   * - :ref:`_alg_knn`
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+   * - :ref:`_alg_svm`
+     - :ref:`batch <batch>`
+   * - :ref:`_alg_dbscan`
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+   * - :ref:`_alg_basic_statistics`
+     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+
 
 .. toctree::
    :maxdepth: 1
 
+   gpu_support.rst
    build_app/build-application.rst
    glossary.rst
    notations.rst
