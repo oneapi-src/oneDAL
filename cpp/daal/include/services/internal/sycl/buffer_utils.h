@@ -31,8 +31,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 template <typename DataType>
 class BufferConverterFrom
 {
@@ -242,12 +240,6 @@ inline UniversalBuffer allocateByNumericTableFeature(const data_management::Nume
 }
 
 /** @} */
-} // namespace interface1
-
-using interface1::BufferConverterFrom;
-using interface1::BufferConverterTo;
-using interface1::BufferHostReinterpreter;
-using interface1::allocateByNumericTableFeature;
 
 } // namespace sycl
 } // namespace internal

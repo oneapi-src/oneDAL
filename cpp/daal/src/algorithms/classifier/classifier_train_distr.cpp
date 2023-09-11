@@ -32,8 +32,6 @@ namespace classifier
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_CLASSIFIER_TRAINING_PARTIAL_RESULT_ID);
 
 PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {};
@@ -76,7 +74,6 @@ services::Status PartialResult::checkImpl(const daal::algorithms::Input * input,
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace classifier
 } // namespace algorithms

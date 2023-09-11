@@ -35,8 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup data_sources
  * @{
@@ -170,8 +168,6 @@ private:
     bool _contextDictFlag;
 };
 /** @} */
-} // namespace interface1
-using interface1::StringDataSource;
 
 } // namespace data_management
 } // namespace daal

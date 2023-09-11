@@ -39,8 +39,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_STUMP_REGRESSION_TRAINING_RESULT_ID);
 Result::Result() : algorithms::regression::training::Result(lastResultId + 1) {}
 
@@ -74,7 +72,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return checkNumericTable(dependentVariableTable.get(), dependentVariableStr(), 0, 0, 1);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace stump

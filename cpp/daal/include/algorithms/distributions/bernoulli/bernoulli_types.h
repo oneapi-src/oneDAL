@@ -53,11 +53,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DISTRIBUTIONS__BERNOULLI__PARAMETER"></a>
  * \brief Bernoulli distribution parameters
  */
@@ -78,9 +73,6 @@ public:
      */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-
-} // namespace interface1
-using interface1::Parameter;
 
 } // namespace bernoulli
 /** @} */

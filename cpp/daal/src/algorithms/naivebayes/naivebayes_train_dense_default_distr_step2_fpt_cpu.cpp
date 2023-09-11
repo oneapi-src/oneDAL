@@ -33,10 +33,7 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface2
-{
 template class DistributedContainer<step2Master, DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class NaiveBayesDistributedTrainKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

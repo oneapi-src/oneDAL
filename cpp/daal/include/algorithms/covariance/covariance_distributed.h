@@ -37,8 +37,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 /**
  * @defgroup covariance_distributed Distributed
  * @ingroup covariance
@@ -681,11 +679,6 @@ protected:
     void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env); }
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainerIface;
-using interface1::DistributedContainer;
-using interface1::DistributedIface;
-using interface1::Distributed;
 
 } // namespace covariance
 } // namespace algorithms

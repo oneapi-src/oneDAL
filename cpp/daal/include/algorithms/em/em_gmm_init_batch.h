@@ -37,8 +37,6 @@ namespace em_gmm
 {
 namespace init
 {
-namespace interface1
-{
 /**
  * @defgroup em_gmm_init_batch Batch
  * @ingroup em_gmm_init
@@ -154,9 +152,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace init
 } // namespace em_gmm

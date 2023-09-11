@@ -38,8 +38,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_CLASSIFICATION_TRAINING_RESULT_ID);
 
 Result::Result() : classifier::training::Result(lastResultId + 1)
@@ -87,8 +85,8 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     DAAL_CHECK(m.get(), ErrorNullModel);
 
     services::Status s;
-    const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter2 =
-        dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(par);
+    const daal::algorithms::decision_forest::training::Parameter * algParameter2 =
+        dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(par);
     if (algParameter2 != NULL)
     {
         if (algParameter2->resultsToCompute & decision_forest::training::computeOutOfBagError)
@@ -138,10 +136,7 @@ engines::EnginePtr Result::get(ResultEngineId id) const
 {
     return _impl->getEngine();
 }
-} // namespace interface1
 
-namespace interface3
-{
 services::Status Parameter::check() const
 {
     services::Status s;
@@ -149,7 +144,6 @@ services::Status Parameter::check() const
     DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
     return s;
 }
-} // namespace interface3
 
 } // namespace training
 } // namespace classification

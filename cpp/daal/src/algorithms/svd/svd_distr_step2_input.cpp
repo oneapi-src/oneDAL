@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /** Default constructor */
 DistributedStep2Input::DistributedStep2Input() : daal::algorithms::Input(lastMasterInputId + 1)
 {
@@ -182,7 +180,6 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter * paramete
     return Status();
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

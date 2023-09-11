@@ -36,8 +36,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface1
-{
 DistributedStep2MasterInput::DistributedStep2MasterInput() : InputIface(lastDistributedStep2MasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -145,8 +143,8 @@ static services::Status checkPartialResult(const SerializationIfacePtr & ptr, co
 */
 services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
-    DataCollectionPtr collection        = get(partialResults);
+    const Parameter * kmPar      = static_cast<const Parameter *>(par);
+    DataCollectionPtr collection = get(partialResults);
 
     DAAL_CHECK(collection, ErrorNullInputDataCollection);
     const size_t nBlocks = collection->size();
@@ -166,7 +164,6 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
     return s;
 }
 
-} // namespace interface1
 } // namespace init
 } // namespace kmeans
 } // namespace algorithms

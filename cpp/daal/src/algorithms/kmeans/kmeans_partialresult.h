@@ -44,7 +44,7 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                      const int method)
 {
-    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);
+    const Parameter * kmPar2 = dynamic_cast<const Parameter *>(parameter);
     if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     size_t nFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();

@@ -24,14 +24,11 @@ namespace daal
 {
 namespace services
 {
-namespace interface1
-{
 class Status;
-} // namespace interface1
 
 namespace internal
 {
-daal::services::ErrorID DAAL_EXPORT get_error_id(const daal::services::interface1::Status & s);
+daal::services::ErrorID DAAL_EXPORT get_error_id(const daal::services::Status & s);
 } // namespace internal
 
 } // namespace services

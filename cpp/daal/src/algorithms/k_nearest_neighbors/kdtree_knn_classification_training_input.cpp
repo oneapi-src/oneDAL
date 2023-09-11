@@ -33,8 +33,6 @@ namespace kdtree_knn_classification
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -59,7 +57,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows));
     }
 
-    const auto par = static_cast<const kdtree_knn_classification::interface3::Parameter *>(parameter);
+    const auto par = static_cast<const kdtree_knn_classification::Parameter *>(parameter);
 
     if (par != NULL)
     {
@@ -90,7 +88,6 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace kdtree_knn_classification
 } // namespace algorithms

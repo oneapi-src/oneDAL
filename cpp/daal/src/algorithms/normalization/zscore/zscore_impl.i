@@ -86,8 +86,8 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
         return safeStat.detach();
     }
 
-    const daal::algorithms::normalization::zscore::interface3::BaseParameter * const par =
-        static_cast<const daal::algorithms::normalization::zscore::interface3::BaseParameter *>(&parameter);
+    const daal::algorithms::normalization::zscore::BaseParameter * const par =
+        static_cast<const daal::algorithms::normalization::zscore::BaseParameter *>(&parameter);
     const bool doScale = par->doScale;
 
     SafeStatus safeStat;
@@ -185,8 +185,8 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::compute(NumericTable & inputTable
                                                        NumericTable & resultVariances, const daal::algorithms::Parameter & parameter)
 {
     const size_t _nFeatures = inputTable.getNumberOfColumns();
-    const daal::algorithms::normalization::zscore::interface3::BaseParameter * par =
-        static_cast<const daal::algorithms::normalization::zscore::interface3::BaseParameter *>(&parameter);
+    const daal::algorithms::normalization::zscore::BaseParameter * par =
+        static_cast<const daal::algorithms::normalization::zscore::BaseParameter *>(&parameter);
 
     bool computeMeans     = par->resultsToCompute & mean;
     bool computeVariances = par->resultsToCompute & variances;

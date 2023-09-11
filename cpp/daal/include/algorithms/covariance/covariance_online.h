@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 /**
  * @defgroup covariance_online Online
  * @ingroup covariance
@@ -458,11 +456,6 @@ protected:
     void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env); }
 };
 /** @} */
-} // namespace interface1
-using interface1::OnlineContainerIface;
-using interface1::OnlineContainer;
-using interface1::OnlineImpl;
-using interface1::Online;
 
 } // namespace covariance
 } // namespace algorithms

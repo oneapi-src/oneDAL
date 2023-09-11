@@ -35,8 +35,6 @@ namespace optimization_solver
 {
 namespace mse
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -123,8 +121,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        hessian, gradient, nonSmoothTermValue, proximalProjection, lipschitzConstant, componentOfGradient, componentOfHessianDiagonal,
                        componentOfProximalProjection, parameter);
 }
-
-} // namespace interface2
 
 } // namespace mse
 

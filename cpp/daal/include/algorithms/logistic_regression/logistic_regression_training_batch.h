@@ -35,8 +35,6 @@ namespace logistic_regression
 {
 namespace training
 {
-namespace interface3
-{
 /**
  * @defgroup logistic_regression_training_batch Batch
  * @ingroup logistic_regression_training
@@ -84,8 +82,8 @@ public:
  *      - \ref classifier::training::ResultId Identifiers of logistic regression training results
  *
  * \par References
- *      - \ref logistic_regression::interface1::Model "Model" class
- *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
+ *      - \ref logistic_regression::Model "Model" class
+ *      - \ref classifier::training::Input "classifier::training::Input" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -189,9 +187,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface3
-using interface3::BatchContainer;
-using interface3::Batch;
 
 } // namespace training
 } // namespace logistic_regression

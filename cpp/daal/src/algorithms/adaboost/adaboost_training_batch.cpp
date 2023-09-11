@@ -35,8 +35,6 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MULTICLASS_ADABOOST_TRAINING_RESULT_ID);
 
 Result::Result() : classifier::training::Result(lastResultNumericTableId + 1) {}
@@ -69,7 +67,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;
 }
-} // namespace interface2
 } // namespace training
 } // namespace adaboost
 } // namespace algorithms

@@ -33,8 +33,6 @@ namespace decision_tree
 {
 namespace classification
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -96,20 +94,6 @@ void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor & visitor) c
     _impl->traverseBFS<tree_utils::classification::LeafNodeDescriptor>(visitor);
 }
 
-void Model::traverseDFS(tree_utils::classification::interface1::TreeNodeVisitor & visitor) const
-{
-    _impl->traverseDFS<tree_utils::classification::interface1::LeafNodeDescriptor>(visitor);
-}
-
-void Model::traverseBFS(tree_utils::classification::interface1::TreeNodeVisitor & visitor) const
-{
-    _impl->traverseBFS<tree_utils::classification::interface1::LeafNodeDescriptor>(visitor);
-}
-
-} // namespace interface1
-
-namespace interface2
-{
 services::Status Parameter::check() const
 {
     services::Status s;
@@ -121,7 +105,6 @@ services::Status Parameter::check() const
     return s;
 }
 
-} // namespace interface2
 } // namespace classification
 } // namespace decision_tree
 } // namespace algorithms

@@ -31,8 +31,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -537,9 +535,6 @@ protected:
 };
 typedef services::SharedPtr<SOANumericTable> SOANumericTablePtr;
 /** @} */
-} // namespace interface1
-using interface1::SOANumericTable;
-using interface1::SOANumericTablePtr;
 
 } // namespace data_management
 } // namespace daal

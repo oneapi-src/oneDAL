@@ -36,8 +36,6 @@ namespace optimization_solver
 {
 namespace cross_entropy_loss
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -122,7 +120,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
 }
 
-} // namespace interface2
 } // namespace cross_entropy_loss
 } // namespace optimization_solver
 } // namespace algorithms

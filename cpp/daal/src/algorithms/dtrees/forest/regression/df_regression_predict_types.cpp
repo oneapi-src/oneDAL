@@ -38,8 +38,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_REGRESSION_PREDICTION_RESULT_ID);
 
 /** Default constructor */
@@ -133,7 +131,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace regression
 } // namespace decision_forest

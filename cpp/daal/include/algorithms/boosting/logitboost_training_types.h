@@ -61,11 +61,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__TRAINING__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method
  *        of the LogitBoost training algorithm in the batch processing mode
@@ -102,9 +97,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface2
-using interface2::Result;
-using interface2::ResultPtr;
 
 } // namespace training
 /** @} */

@@ -38,8 +38,6 @@ namespace optimization_solver
 {
 namespace saga
 {
-namespace interface2
-{
 /**
  * @defgroup saga_batch Batch
  * @ingroup saga
@@ -185,9 +183,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace saga
 } // namespace optimization_solver

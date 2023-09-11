@@ -39,8 +39,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface1
-{
 Input::Input() : InputIface(lastInputId + 1) {}
 Input::Input(size_t nElements) : InputIface(nElements) {};
 
@@ -90,7 +88,7 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     if (isParallelPlusMethod(method))
     {
         //check parallel plus method parameters
-        const interface1::Parameter * prm = (const interface1::Parameter *)(parameter);
+        const Parameter * prm = (const Parameter *)(parameter);
         DAAL_CHECK_EX(prm->oversamplingFactor > 0, ErrorIncorrectParameter, ParameterName, oversamplingFactorStr());
 
         DAAL_CHECK_EX(prm->nRounds > 0, ErrorIncorrectParameter, ParameterName, nRoundsStr());
@@ -144,8 +142,8 @@ services::Status DistributedStep2LocalPlusPlusInput::check(const daal::algorithm
     services::Status s = Input::check(par, method);
     if (!s) return s;
 
-    const auto nFeatures                                               = get(data)->getNumberOfColumns();
-    const interface1::DistributedStep2LocalPlusPlusParameter * stepPar = (const interface1::DistributedStep2LocalPlusPlusParameter *)(par);
+    const auto nFeatures                                   = get(data)->getNumberOfColumns();
+    const DistributedStep2LocalPlusPlusParameter * stepPar = (const DistributedStep2LocalPlusPlusParameter *)(par);
     const size_t nRows = (stepPar->firstIteration || !(isParallelPlusMethod(method)) ? 1 : size_t(stepPar->oversamplingFactor * stepPar->nClusters));
     s                  = checkNumericTable(get(inputOfStep2).get(), inputOfStep2Str(), (int)packed_mask, 0, nFeatures, nRows);
     if (!stepPar->firstIteration)
@@ -246,7 +244,7 @@ services::Status DistributedStep4LocalPlusPlusInput::check(const daal::algorithm
 {
     services::Status s = Input::check(par, method);
     if (!s) return s;
-    const interface1::Parameter * stepPar = (const interface1::Parameter *)(par);
+    const Parameter * stepPar = (const Parameter *)(par);
     s = internal::checkLocalData(get(internalInput).get(), stepPar, internalInputStr(), get(data).get(), isParallelPlusMethod(method));
     s |= checkNumericTable(get(inputOfStep4FromStep3).get(), inputOfStep4FromStep3Str(), (int)packed_mask, 0, 0, 1);
     return s;
@@ -325,11 +323,9 @@ services::Status DistributedStep5MasterPlusPlusInput::check(const daal::algorith
     return s;
 }
 
-} // namespace interface1
-
 namespace internal
 {
-services::Status checkLocalData(const DataCollection * pInput, const interface1::Parameter * par, const char * dataName, const NumericTable * pData,
+services::Status checkLocalData(const DataCollection * pInput, const Parameter * par, const char * dataName, const NumericTable * pData,
                                 bool bParallelPlus)
 {
     const auto nRows = pData->getNumberOfRows();

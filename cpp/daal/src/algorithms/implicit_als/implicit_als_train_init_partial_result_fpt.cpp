@@ -37,8 +37,6 @@ namespace training
 {
 namespace init
 {
-namespace interface1
-{
 template <typename algorithmFPType>
 DAAL_EXPORT Status PartialResultBase::allocate(size_t nParts)
 {
@@ -114,7 +112,6 @@ template DAAL_EXPORT Status PartialResult::allocate<DAAL_FPTYPE>(const daal::alg
 template DAAL_EXPORT Status DistributedPartialResultStep2::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                                  const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace init
 } // namespace training
 } // namespace implicit_als

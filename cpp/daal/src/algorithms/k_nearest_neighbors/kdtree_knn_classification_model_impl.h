@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace kdtree_knn_classification
 {
-namespace interface1
-{
 struct KDTreeNode
 {
     size_t dimension;
@@ -262,13 +260,6 @@ private:
     data_management::NumericTablePtr _labels;
     data_management::NumericTablePtr _indices;
 };
-
-} // namespace interface1
-
-using interface1::KDTreeTable;
-using interface1::KDTreeTablePtr;
-using interface1::KDTreeTableConstPtr;
-using interface1::KDTreeNode;
 
 } // namespace kdtree_knn_classification
 } // namespace algorithms

@@ -39,11 +39,6 @@ namespace multinomial_naive_bayes
 {
 namespace prediction
 {
-/*
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
 /**
  * @defgroup multinomial_naive_bayes_prediction_batch Batch
  * @ingroup multinomial_naive_bayes_prediction
@@ -98,7 +93,7 @@ public:
     typedef typename super::ResultType ResultType;
 
     InputType input;         /*!< %Input objects of the algorithm */
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the prediction algorithm */
     /**
      * Default constructor
      * \param nClasses  Number of classes
@@ -158,9 +153,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace prediction
 } // namespace multinomial_naive_bayes

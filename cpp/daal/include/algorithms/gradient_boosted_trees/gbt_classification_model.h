@@ -45,11 +45,6 @@ namespace gbt
 namespace classification
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup gbt_classification
  * @{
  */
@@ -58,8 +53,8 @@ namespace interface1
  * \brief %Model of the classifier trained by the gbt::training::Batch algorithm.
  *
  * \par References
- *      - \ref classification::training::interface2::Batch "training::Batch" class
- *      - \ref classification::prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref classification::training::Batch "training::Batch" class
+ *      - \ref classification::prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {
@@ -128,9 +123,6 @@ protected:
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;
-} // namespace interface1
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace classification
 } // namespace gbt

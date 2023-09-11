@@ -36,11 +36,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
-/**
-    * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
-    */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHCONTAINER"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm */
@@ -183,9 +178,6 @@ private:
 };
 
 /** @} */
-} // namespace interface3
-using interface3::BatchContainer;
-using interface3::Batch;
 
 } // namespace pca
 } // namespace algorithms

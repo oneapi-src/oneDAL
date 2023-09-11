@@ -538,8 +538,8 @@ protected:
         if (_impurityThreshold < _accuracy) _impurityThreshold = _accuracy;
 
         _memorySavingMode = indexedFeatures == nullptr;
-        const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
-            dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&par);
+        const daal::algorithms::decision_forest::training::Parameter * algParameter =
+            dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(&par);
         if (algParameter != NULL)
         {
             _minSamplesSplit = 2 > par.minObservationsInSplitNode ? 2 : par.minObservationsInSplitNode;
@@ -593,8 +593,8 @@ protected:
     }
     bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData & imp, algorithmFPType totalWeights) const
     {
-        const daal::algorithms::decision_forest::training::interface2::Parameter * algParameter =
-            dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(&_par);
+        const daal::algorithms::decision_forest::training::Parameter * algParameter =
+            dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(&_par);
         if (algParameter != NULL)
         {
             return ((nSamples < 2 * _par.minObservationsInLeafNode) || (nSamples < _minSamplesSplit) || (totalWeights < 2 * _minWeightLeaf)

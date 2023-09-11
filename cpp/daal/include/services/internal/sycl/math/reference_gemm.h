@@ -39,8 +39,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 /** @ingroup oneapi_internal
  * @{
  */
@@ -61,9 +59,6 @@ struct DAAL_EXPORT ReferenceGemm
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::ReferenceGemm;
 
 } // namespace math
 } // namespace sycl

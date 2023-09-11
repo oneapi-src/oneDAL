@@ -36,8 +36,6 @@ namespace implicit_als
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup implicit_als_training_distributed Distributed
  * @ingroup implicit_als_training
@@ -209,7 +207,7 @@ public:
     typedef algorithms::implicit_als::training::DistributedPartialResultStep1 PartialResultType;
 
     DistributedInput<step1Local> input; /*!< %Input data structure */
-    ParameterType parameter;            /*!< %Training \ref implicit_als::interface1::Parameter "parameters" */
+    ParameterType parameter;            /*!< %Training \ref implicit_als::Parameter "parameters" */
 
     /** Default constructor */
     Distributed() { initialize(); }
@@ -316,7 +314,7 @@ public:
     typedef algorithms::implicit_als::training::DistributedPartialResultStep2 PartialResultType;
 
     DistributedInput<step2Master> input; /*!< %Input data structure */
-    ParameterType parameter;             /*!< %Training \ref implicit_als::interface1::Parameter "parameters" */
+    ParameterType parameter;             /*!< %Training \ref implicit_als::Parameter "parameters" */
 
     /** Default constructor */
     Distributed() { initialize(); }
@@ -423,7 +421,7 @@ public:
     typedef algorithms::implicit_als::training::DistributedPartialResultStep3 PartialResultType;
 
     DistributedInput<step3Local> input; /*!< %Input data structure */
-    ParameterType parameter;            /*!< %Training \ref implicit_als::interface1::Parameter "parameters" */
+    ParameterType parameter;            /*!< %Training \ref implicit_als::Parameter "parameters" */
 
     /** Default constructor */
     Distributed() { initialize(); }
@@ -530,7 +528,7 @@ public:
     typedef algorithms::implicit_als::training::DistributedPartialResultStep4 PartialResultType;
 
     DistributedInput<step4Local> input; /*!< %Input data structure */
-    ParameterType parameter;            /*!< %Training \ref implicit_als::interface1::Parameter "parameters" */
+    ParameterType parameter;            /*!< %Training \ref implicit_als::Parameter "parameters" */
 
     /** Default constructor */
     Distributed() { initialize(); }
@@ -612,9 +610,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace training
 } // namespace implicit_als

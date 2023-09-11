@@ -32,8 +32,6 @@ namespace optimization_solver
 {
 namespace iterative_solver
 {
-namespace interface2
-{
 
 namespace dm  = daal::data_management;
 namespace dmi = daal::data_management::internal;
@@ -78,7 +76,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface2
 } // namespace iterative_solver
 } // namespace optimization_solver
 } // namespace algorithms

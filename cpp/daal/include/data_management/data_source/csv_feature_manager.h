@@ -311,8 +311,6 @@ public:
     }
 };
 
-namespace interface1
-{
 /**
  * @defgroup data_sources Data Sources
  * \brief Specifies methods to access data
@@ -567,9 +565,6 @@ private:
     modifiers::csv::internal::ModifiersManagerPtr _modifiersManager;
 };
 /** @} */
-} // namespace interface1
-
-using interface1::CSVFeatureManager;
 
 } // namespace data_management
 } // namespace daal

@@ -36,8 +36,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_REGRESSION_PREDICTION_RESULT_ID);
 
 Input::Input(size_t nElements) : daal::algorithms::Input(nElements) {}
@@ -97,7 +95,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 
     return checkNumericTable(predictionTable.get(), predictionStr(), 0, 0, 0, nRowsInData);
 }
-} // namespace interface1
 } // namespace prediction
 } // namespace regression
 } // namespace algorithms

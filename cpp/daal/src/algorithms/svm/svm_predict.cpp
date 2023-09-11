@@ -32,8 +32,6 @@ namespace svm
 {
 namespace prediction
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -102,7 +100,6 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace svm
 } // namespace algorithms

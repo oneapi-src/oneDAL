@@ -33,8 +33,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * Allocates memory to store final results of the decision stump training algorithm
  * \tparam algorithmFPType  Data type to store prediction results
@@ -55,7 +53,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace stump

@@ -42,8 +42,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 Parameter::Parameter() : loss(squared), varImportance(0) {}
 Status Parameter::check() const
 {
@@ -97,7 +95,6 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace gbt

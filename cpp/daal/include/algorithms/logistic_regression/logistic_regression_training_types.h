@@ -56,11 +56,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of model-based training
@@ -107,7 +102,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -118,12 +113,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 
-} // namespace interface2
-using interface2::Result;
-using interface2::ResultPtr;
-
-namespace interface3
-{
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGISTIC_REGRESSION__TRAINING__PARAMETER"></a>
  * \brief logistic regression algorithm parameters
@@ -152,8 +141,6 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
     SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
 };
 /* [Parameter source code] */
-} // namespace interface3
-using interface3::Parameter;
 
 } // namespace training
 /** @} */

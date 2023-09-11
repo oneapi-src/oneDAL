@@ -37,8 +37,6 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 /**
  * @defgroup qr_distributed Distributed
  * @ingroup qr_without_pivoting
@@ -456,9 +454,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace qr
 } // namespace algorithms

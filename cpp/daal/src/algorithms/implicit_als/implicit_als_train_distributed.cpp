@@ -35,14 +35,9 @@ namespace algorithms
 {
 namespace implicit_als
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialModel, SERIALIZATION_IMPLICIT_ALS_PARTIALMODEL_ID);
-}
 
 namespace training
-{
-namespace interface1
 {
 DistributedInput<step1Local>::DistributedInput() : daal::algorithms::Input(lastPartialModelInputId + 1) {}
 
@@ -652,7 +647,6 @@ services::Status DistributedPartialResultStep4::check(const daal::algorithms::In
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace implicit_als
 } // namespace algorithms

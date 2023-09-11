@@ -44,8 +44,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 template <typename OpenClType, typename OpenClRetain, typename OpenClRelease>
 class OpenClResourceRef : public Base
 {
@@ -652,7 +650,6 @@ private:
     ::sycl::queue & _queue;
 };
 
-} // namespace interface1
 } // namespace sycl
 } // namespace internal
 } // namespace services

@@ -38,8 +38,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup gbt_regression_prediction_batch Batch
  * @ingroup gbt_regression_prediction
@@ -79,8 +77,8 @@ public:
  *      - \ref Method  Computation methods for model-based prediction
  *
  * \par References
- *      - \ref gbt::regression::interface1::Model "gbt::regression::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref gbt::regression::Model "gbt::regression::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public algorithms::regression::prediction::Batch
@@ -164,9 +162,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace prediction
 } // namespace regression

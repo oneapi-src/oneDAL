@@ -32,10 +32,7 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 template class OnlineContainer<DAAL_FPTYPE, sumCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class LowOrderMomentsOnlineKernel<DAAL_FPTYPE, sumCSR, DAAL_CPU>;

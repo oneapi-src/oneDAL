@@ -50,16 +50,11 @@ namespace weak_learner
 namespace training
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__WEAK_LEARNER__TRAINING__RESULT"></a>
  * \brief Provides methods to access final results obtained with compute() method of Batch
  *        or finalizeCompute() method of Online and Distributed weak learners algorithms
  */
-class DAAL_EXPORT Result : public daal::algorithms::classifier::training::interface1::Result
+class DAAL_EXPORT Result : public daal::algorithms::classifier::training::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -89,9 +84,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

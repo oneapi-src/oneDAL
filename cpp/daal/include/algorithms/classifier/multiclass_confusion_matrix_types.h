@@ -97,11 +97,6 @@ enum MultiClassMetricsId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__QUALITY_METRIC__MULTICLASS_CONFUSION_MATRIX__PARAMETER"></a>
  * \brief Parameters for the compute() method of the multi-class confusion matrix
  *
@@ -209,12 +204,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace multiclass_confusion_matrix
 /** @} */

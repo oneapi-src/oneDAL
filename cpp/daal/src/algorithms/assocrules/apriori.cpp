@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace association_rules
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ASSOCIATION_RULES_RESULT_ID);
 
 Parameter::Parameter(double minSupport, double minConfidence, size_t nUniqueItems, size_t nTransactions, bool discoverRules,
@@ -156,7 +154,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return s;
 }
 
-} // namespace interface1
 } // namespace association_rules
 } // namespace algorithms
 } // namespace daal

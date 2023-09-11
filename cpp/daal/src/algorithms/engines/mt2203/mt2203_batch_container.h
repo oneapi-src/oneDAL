@@ -35,8 +35,6 @@ namespace engines
 {
 namespace mt2203
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
@@ -59,7 +57,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::Mt2203Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, resultTable);
 }
 
-} // namespace interface1
 } // namespace mt2203
 } // namespace engines
 } // namespace algorithms

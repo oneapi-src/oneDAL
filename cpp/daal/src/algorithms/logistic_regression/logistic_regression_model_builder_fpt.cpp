@@ -25,8 +25,6 @@ namespace algorithms
 {
 namespace logistic_regression
 {
-namespace interface1
-{
 using namespace daal::data_management;
 
 template <typename modelFPType>
@@ -50,7 +48,6 @@ void ModelBuilder<modelFPType>::setInterceptFlag(bool interceptFlag)
 }
 
 template class ModelBuilder<DAAL_FPTYPE>;
-} // namespace interface1
 } // namespace logistic_regression
 } // namespace algorithms
 } // namespace daal

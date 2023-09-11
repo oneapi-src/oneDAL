@@ -38,8 +38,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup decision_forest_regression_prediction_batch Batch
  * @ingroup decision_forest_regression_prediction
@@ -79,8 +77,8 @@ public:
  *      - \ref Method  Computation methods for decision forest model-based prediction
  *
  * \par References
- *      - \ref decision_forest::regression::interface1::Model "decision_forest::regression::Model" class
- *      - \ref training::interface2::Batch "training::Batch" class
+ *      - \ref decision_forest::regression::Model "decision_forest::regression::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public algorithms::regression::prediction::Batch
@@ -93,7 +91,7 @@ public:
     typedef algorithms::decision_forest::regression::prediction::Result ResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< \ref algorithms::interface1::Parameter "Parameters" of prediction */
+    ParameterType parameter; /*!< \ref algorithms::Parameter "Parameters" of prediction */
 
     /** Default constructor */
     Batch() { initialize(); }
@@ -149,9 +147,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace prediction
 } // namespace regression

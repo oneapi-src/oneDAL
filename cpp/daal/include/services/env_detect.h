@@ -51,8 +51,6 @@ enum CpuType
 
 namespace services
 {
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-SERVICES__ENVIRONMENT"></a>
  * \brief Class that provides methods to interact with the environment, including processor detection and control by the number of threads
@@ -182,9 +180,6 @@ private:
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
-} // namespace interface1
-
-using interface1::Environment;
 
 } // namespace services
 /** @} */

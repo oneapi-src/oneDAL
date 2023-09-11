@@ -42,7 +42,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const size_t nFeatures                  = inp->get(classifier::training::data)->getNumberOfColumns();
     set(classifier::training::model, daal::algorithms::gbt::classification::Model::create(nFeatures, &s));
 
-    const interface2::Parameter * par = dynamic_cast<const interface2::Parameter *>(parameter);
+    const Parameter * par = dynamic_cast<const Parameter *>(parameter);
     if (par != nullptr)
     {
         if (par->varImportance & gbt::training::gain)

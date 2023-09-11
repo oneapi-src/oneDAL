@@ -35,8 +35,6 @@ namespace ridge_regression
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_RIDGE_REGRESSION_PARTIAL_RESULT_ID);
 
 PartialResult::PartialResult() : linear_model::training::PartialResult(lastPartialResultID + 1) {};
@@ -124,7 +122,6 @@ services::Status PartialResult::check(const daal::algorithms::Parameter * par, i
     return ridge_regression::checkModel(partialModel.get(), *par, nBeta, nResponses, method);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace ridge_regression
 } // namespace algorithms

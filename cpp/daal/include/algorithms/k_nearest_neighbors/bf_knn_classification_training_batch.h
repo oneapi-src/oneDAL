@@ -37,8 +37,6 @@ namespace bf_knn_classification
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup bf_knn_classification_batch Batch
  * @ingroup bf_knn_classification_training
@@ -80,8 +78,8 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref bf_knn_classification::interface1::Model "bf_knn_classification::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref bf_knn_classification::Model "bf_knn_classification::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -193,10 +191,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace bf_knn_classification

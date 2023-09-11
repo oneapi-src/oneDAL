@@ -35,8 +35,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 /** @ingroup oneapi_internal
  * @{
  */
@@ -55,10 +53,6 @@ struct DAAL_EXPORT ReferenceAxpy
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::ReferenceAxpy;
-
 } // namespace math
 } // namespace sycl
 } // namespace internal

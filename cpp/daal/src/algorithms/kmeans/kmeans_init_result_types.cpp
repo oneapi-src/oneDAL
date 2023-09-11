@@ -37,8 +37,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_KMEANS_INIT_RESULT_ID);
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
@@ -89,8 +87,8 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     else
         nFeatures = (static_cast<const Input *>(input))->get(data)->getNumberOfColumns();
 
-    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
-    const int unexpectedLayouts         = (int)packed_mask;
+    const Parameter * kmPar     = static_cast<const Parameter *>(par);
+    const int unexpectedLayouts = (int)packed_mask;
     return checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, nFeatures, kmPar->nClusters);
 }
 
@@ -102,14 +100,13 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 */
 services::Status Result::check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const
 {
-    size_t inputFeatures = const_cast<PartialResult *>(static_cast<const PartialResult *>(pres))->get(partialClusters)->getNumberOfColumns();
-    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
+    size_t inputFeatures    = const_cast<PartialResult *>(static_cast<const PartialResult *>(pres))->get(partialClusters)->getNumberOfColumns();
+    const Parameter * kmPar = static_cast<const Parameter *>(par);
 
     int unexpectedLayouts = (int)packed_mask;
     return checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters);
 }
 
-} // namespace interface1
 } // namespace init
 } // namespace kmeans
 } // namespace algorithms

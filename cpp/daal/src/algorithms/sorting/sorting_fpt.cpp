@@ -31,8 +31,6 @@ namespace algorithms
 {
 namespace sorting
 {
-namespace interface1
-{
 /**
  * Allocates memory to store final results of the sorting algorithms
  * \param[in] input     Input objects for the sorting algorithm
@@ -52,7 +50,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const int method);
 
-} // namespace interface1
 } // namespace sorting
 } // namespace algorithms
 } // namespace daal

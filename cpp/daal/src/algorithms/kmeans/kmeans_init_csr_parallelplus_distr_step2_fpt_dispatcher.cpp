@@ -33,8 +33,6 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 using DistributedType = Distributed<step2Local, DAAL_FPTYPE, kmeans::init::parallelPlusCSR>;
 
 template <>
@@ -51,7 +49,6 @@ DistributedType::Distributed(const DistributedType & other)
     initialize();
 }
 
-} // namespace interface2
 } // namespace init
 } // namespace kmeans
 

@@ -34,8 +34,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface3
-{
 /** Constructs z-score normalization parameters */
 template <typename algorithmFPType>
 DAAL_EXPORT Parameter<algorithmFPType, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> & moments, const bool doScale)
@@ -58,8 +56,6 @@ DAAL_EXPORT Status Parameter<algorithmFPType, defaultDense>::check() const
 template DAAL_EXPORT Parameter<DAAL_FPTYPE, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> & moments, const bool doScale);
 template DAAL_EXPORT Parameter<DAAL_FPTYPE, sumDense>::Parameter(const bool doScale);
 template DAAL_EXPORT Status Parameter<DAAL_FPTYPE, defaultDense>::check() const;
-
-} // namespace interface3
 
 } // namespace zscore
 } // namespace normalization

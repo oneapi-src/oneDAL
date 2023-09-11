@@ -35,8 +35,6 @@ namespace optimization_solver
 {
 namespace logistic_loss
 {
-namespace interface2
-{
 /**
  * Constructs the parameter of Logistic loss objective function
  * \param[in] numberOfTerms    The number of terms in the function
@@ -114,7 +112,6 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     return s;
 }
 
-} // namespace interface2
 } // namespace logistic_loss
 } // namespace optimization_solver
 } // namespace algorithms

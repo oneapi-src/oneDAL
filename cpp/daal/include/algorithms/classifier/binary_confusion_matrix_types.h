@@ -101,11 +101,6 @@ enum BinaryMetricsId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__QUALITY_METRIC__BINARY_CONFUSION_MATRIX__PARAMETER"></a>
  * \brief Parameters for the binary confusion matrix compute() method
  *
@@ -202,7 +197,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -212,12 +207,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace binary_confusion_matrix
 /** @} */

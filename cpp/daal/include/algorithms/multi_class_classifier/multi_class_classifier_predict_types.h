@@ -63,8 +63,6 @@ enum ResultId
     lastResultId     = decisionFunction
 };
 
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the Multi-class classifier algorithm
@@ -181,12 +179,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
-
-} // namespace interface1
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
 
 } // namespace prediction
 /** @} */

@@ -34,8 +34,6 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 typedef SharedPtr<low_order_moments::BatchImpl> LowOrderMomentsPtr;
 
 /** Constructs min-max normalization parameters with default low order algorithm */
@@ -54,7 +52,6 @@ template DAAL_EXPORT Parameter<DAAL_FPTYPE>::Parameter(double lowerBound, double
 
 template DAAL_EXPORT Parameter<DAAL_FPTYPE>::Parameter(double lowerBound, double upperBound, const LowOrderMomentsPtr & moments);
 
-} // namespace interface1
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

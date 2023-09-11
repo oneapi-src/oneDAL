@@ -39,8 +39,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 /** @ingroup oneapi_internal
  * @{
  */
@@ -71,10 +69,6 @@ struct DAAL_EXPORT ReferencePotrs
 };
 
 /** @} */
-} // namespace interface1
-
-using interface1::ReferencePotrf;
-using interface1::ReferencePotrs;
 
 } // namespace math
 } // namespace sycl

@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 template <>
 DistributedInput<step2Master>::DistributedInput() : InputIface(lastMasterInputId + 1)
 {
@@ -142,7 +140,6 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
     return s;
 }
 
-} // namespace interface1
 } // namespace low_order_moments
 } // namespace algorithms
 } // namespace daal

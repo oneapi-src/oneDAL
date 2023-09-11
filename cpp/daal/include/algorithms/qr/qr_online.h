@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace qr
 {
-namespace interface1
-{
 /**
  * @defgroup qr_online Online
  * @ingroup qr_without_pivoting
@@ -200,9 +198,6 @@ private:
     Online & operator=(const Online &);
 };
 /** @} */
-} // namespace interface1
-using interface1::OnlineContainer;
-using interface1::Online;
 
 } // namespace qr
 } // namespace algorithms

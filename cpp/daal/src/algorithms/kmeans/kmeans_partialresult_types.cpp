@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_KMEANS_PARTIAL_RESULT_ID);
 PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResultId + 1) {}
 
@@ -79,7 +77,7 @@ size_t PartialResult::getNumberOfFeatures() const
 */
 services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(par);
+    const Parameter * kmPar2 = dynamic_cast<const Parameter *>(par);
     if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     size_t inputFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();
@@ -118,15 +116,14 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
  */
 services::Status PartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(par);
-    const int unexpectedLayouts         = (int)packed_mask;
+    const Parameter * kmPar     = static_cast<const Parameter *>(par);
+    const int unexpectedLayouts = (int)packed_mask;
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nObservations).get(), nObservationsStr(), unexpectedLayouts, 0, 1, kmPar->nClusters));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialSums).get(), partialSumsStr(), unexpectedLayouts, 0, 0, kmPar->nClusters));
     return s;
 }
 
-} // namespace interface1
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

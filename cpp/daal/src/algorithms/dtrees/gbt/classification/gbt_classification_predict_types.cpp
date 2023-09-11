@@ -39,8 +39,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * Returns an input object for making gradient boosted trees model-based prediction
  * \param[in] id    Identifier of the input object
@@ -96,8 +94,7 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 
     size_t nClasses = 0, nIterations = 0;
 
-    const gbt::classification::prediction::interface2::Parameter * pPrm2 =
-        dynamic_cast<const gbt::classification::prediction::interface2::Parameter *>(parameter);
+    const gbt::classification::prediction::Parameter * pPrm2 = dynamic_cast<const gbt::classification::prediction::Parameter *>(parameter);
     if (pPrm2)
     {
         nClasses    = pPrm2->nClasses;
@@ -113,7 +110,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace classification
 } // namespace gbt

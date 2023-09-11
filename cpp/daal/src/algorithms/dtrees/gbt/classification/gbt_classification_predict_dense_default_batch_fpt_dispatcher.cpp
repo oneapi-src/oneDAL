@@ -38,8 +38,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
-{
 template <>
 Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t nClasses)
 {
@@ -55,7 +53,6 @@ Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const B
     _par = new ParameterType(other.parameter());
     initialize();
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace classification
 } // namespace gbt

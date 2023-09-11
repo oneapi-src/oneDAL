@@ -259,50 +259,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__PARAMETER"></a>
- * \brief Base classes parameters for computing initial centroids for K-Means algorithm
- *
- * \snippet kmeans/kmeans_init_types.h Parameter source code
- */
-/* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
-{
-    /**
-     *  Parameter constructor
-     *  \param[in] _nClusters     Number of clusters
-     *  \param[in] _offset        Offset in the total data set specifying the start of a block stored on a given local node
-     *  \param[in] _seed          Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine }
-     */
-    Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
-
-    /**
-     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
-     * by copying another parameters object
-     * \param[in] other    Parameters of K-Means algorithm
-     */
-    Parameter(const Parameter & other);
-
-    size_t nClusters;  /*!< Number of clusters */
-    size_t nRowsTotal; /*!< Total number of rows in the data set  */
-    size_t offset;     /*!< Offset in the total data set specifying the start of a block stored on a given local node */
-    size_t seed;       /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
-
-    double oversamplingFactor; /*!< Kmeans|| only. A fraction of nClusters being chosen in each of nRounds of kmeans||.\
-                                                   L = nClusters* oversamplingFactor points are sampled in a round. */
-    size_t nRounds;            /*!< Kmeans|| only. Number of rounds for k-means||. (oversamplingFactor*nRounds) > 1 is a requirement.*/
-
-    engines::EnginePtr engine; /*!< Engine to be used for generating random numbers for the initialization */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [Parameter source code] */
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__INPUTIFACE"></a>
  * \brief Interface for K-Means initialization batch and distributed Input classes
  */
@@ -542,6 +498,37 @@ public:
      * \param[in] method  Computation method of the algorithm
      */
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+};
+
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__BATCH__PARAMETER"></a>
+ * \brief Parameters for computing initial centroids for K-Means algorithm of the batch mode
+ */
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+{
+    Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
+
+    /**
+     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
+     * by copying another parameters object
+     * \param[in] other    Parameters of K-Means algorithm
+     */
+    Parameter(const Parameter & other);
+
+    size_t nClusters;  /*!< Number of clusters */
+    size_t nRowsTotal; /*!< Total number of rows in the data set  */
+    size_t offset;     /*!< Offset in the total data set specifying the start of a block stored on a given local node */
+    size_t seed;       /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
+
+    double oversamplingFactor; /*!< Kmeans|| only. A fraction of nClusters being chosen in each of nRounds of kmeans||.\
+                                                   L = nClusters* oversamplingFactor points are sampled in a round. */
+    size_t nRounds;            /*!< Kmeans|| only. Number of rounds for k-means||. (oversamplingFactor*nRounds) > 1 is a requirement.*/
+
+    engines::EnginePtr engine; /*!< Engine to be used for generating random numbers for the initialization */
+
+    size_t nTrials; /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
+
+    services::Status check() const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1078,54 +1065,6 @@ protected:
     }
 };
 typedef services::SharedPtr<DistributedStep5MasterPlusPlusPartialResult> DistributedStep5MasterPlusPlusPartialResultPtr;
-
-} // namespace interface1
-
-namespace interface2
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__BATCH__PARAMETER"></a>
- * \brief Parameters for computing initial centroids for K-Means algorithm of the batch mode
- */
-struct DAAL_EXPORT Parameter : public interface1::Parameter
-{
-    Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
-
-    /**
-     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
-     * by copying another parameters object
-     * \param[in] other    Parameters of K-Means algorithm
-     */
-    Parameter(const Parameter & other);
-
-    size_t nTrials; /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-
-} // namespace interface2
-
-using interface2::Parameter;
-using interface1::InputIface;
-using interface1::Input;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::DistributedStep2MasterInput;
-using interface1::DistributedStep2LocalPlusPlusParameter;
-using interface1::DistributedStep2LocalPlusPlusInput;
-using interface1::DistributedStep3MasterPlusPlusInput;
-using interface1::DistributedStep4LocalPlusPlusInput;
-using interface1::DistributedStep5MasterPlusPlusInput;
-using interface1::DistributedStep2LocalPlusPlusPartialResult;
-using interface1::DistributedStep2LocalPlusPlusPartialResultPtr;
-using interface1::DistributedStep3MasterPlusPlusPartialResult;
-using interface1::DistributedStep3MasterPlusPlusPartialResultPtr;
-using interface1::DistributedStep4LocalPlusPlusPartialResult;
-using interface1::DistributedStep4LocalPlusPlusPartialResultPtr;
-using interface1::DistributedStep5MasterPlusPlusPartialResult;
-using interface1::DistributedStep5MasterPlusPlusPartialResultPtr;
 
 } // namespace init
 /** @} */

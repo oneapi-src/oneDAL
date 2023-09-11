@@ -35,10 +35,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class StumpPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

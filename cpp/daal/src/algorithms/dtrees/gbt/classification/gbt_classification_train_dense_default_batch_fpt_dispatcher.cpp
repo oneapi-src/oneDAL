@@ -35,8 +35,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
-{
 template <>
 Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::Batch(size_t nClasses)
 {
@@ -65,7 +63,6 @@ DAAL_EXPORT services::Status Batch<DAAL_FPTYPE, gbt::classification::training::d
     DAAL_CHECK_EX(nSamplesPerTree > 0, services::ErrorIncorrectParameter, services::ParameterName, observationsPerTreeFractionStr());
     return s;
 }
-} // namespace interface2
 } // namespace training
 } // namespace classification
 } // namespace gbt

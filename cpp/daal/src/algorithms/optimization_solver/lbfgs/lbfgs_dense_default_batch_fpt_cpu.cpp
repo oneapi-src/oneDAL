@@ -31,10 +31,7 @@ namespace optimization_solver
 {
 namespace lbfgs
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class LBFGSKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

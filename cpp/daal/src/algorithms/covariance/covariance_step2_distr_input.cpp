@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 DistributedInput<step2Master>::DistributedInput() : InputIface(lastMasterInputId + 1)
 {
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
@@ -107,7 +105,6 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
     return s;
 }
 
-} //namespace interface1
 } //namespace covariance
 } // namespace algorithms
 } // namespace daal

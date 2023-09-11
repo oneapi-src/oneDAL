@@ -39,8 +39,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface1
-{
 /** Default constructor */
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 Input::Input(const Input & other) : daal::algorithms::Input(other) {}
@@ -83,10 +81,6 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     return s;
 }
 
-} // namespace interface1
-
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NORMALIZATION_ZSCORE_RESULT_ID);
 Result::Result() : daal::algorithms::Result(lastResultId + 1)
 {
@@ -133,13 +127,7 @@ Status Result::check(const daal::algorithms::Input * in, const daal::algorithms:
     return impl->check(in, par);
 }
 
-} // namespace interface2
-
-namespace interface3
-{
 BaseParameter::BaseParameter(const bool doScale) : resultsToCompute(none), doScale(doScale) {}
-
-} // namespace interface3
 
 } // namespace zscore
 } // namespace normalization

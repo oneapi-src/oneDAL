@@ -31,8 +31,6 @@ namespace engines
 {
 namespace mt19937
 {
-namespace interface1
-{
 using namespace daal::services;
 using namespace mt19937::internal;
 
@@ -52,7 +50,6 @@ SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::creat
 template class Batch<double, defaultDense>;
 template class Batch<float, defaultDense>;
 
-} // namespace interface1
 } // namespace mt19937
 } // namespace engines
 } // namespace algorithms

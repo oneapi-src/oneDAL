@@ -75,11 +75,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__UNIVARIATE_OUTLIER_DETECTION__INITIFACE"></a>
  * \brief Abstract class that provides a functor for the initial procedure \DAAL_DEPRECATED
  */
@@ -220,7 +215,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -232,13 +227,6 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 /** @} */
-} // namespace interface1
-using interface1::InitIface;
-using interface1::DefaultInit;
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace univariate_outlier_detection
 } // namespace algorithms

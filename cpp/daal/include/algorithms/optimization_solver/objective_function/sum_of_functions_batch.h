@@ -39,8 +39,6 @@ namespace optimization_solver
 {
 namespace sum_of_functions
 {
-namespace interface2
-{
 /**
  * @defgroup sum_of_functions_batch Batch
  * @ingroup sum_of_functions
@@ -56,8 +54,8 @@ namespace interface2
  *      - \ref objective_function::ResultId Result identifiers for the Sum of functions
  *
  * \par References
- *      - \ref interface1::Input class
- *      - \ref interface1::Result class
+ *      - \ref Input class
+ *      - \ref Result class
  */
 class DAAL_EXPORT Batch : public objective_function::Batch
 {
@@ -116,9 +114,6 @@ private:
 typedef services::SharedPtr<Batch> BatchPtr;
 
 /** @} */
-} // namespace interface2
-using interface2::Batch;
-using interface2::BatchPtr;
 
 } // namespace sum_of_functions
 } // namespace optimization_solver

@@ -33,8 +33,6 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ADAGRAD_RESULT_ID);
 
 Parameter::Parameter(const sum_of_functions::BatchPtr & function_, size_t nIterations_, double accuracyThreshold_,
@@ -145,7 +143,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface2
 } // namespace adagrad
 } // namespace optimization_solver
 } // namespace algorithms

@@ -36,8 +36,6 @@ namespace linear_model
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LM_PREDICTION_RESULT_ID);
 
 Input::Input(size_t nElements) : regression::prediction::Input(nElements) {}
@@ -95,7 +93,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == nResponses, ErrorIncorrectNumberOfFeatures, ArgumentName, predictionStr());
     return s;
 }
-} // namespace interface1
 } // namespace prediction
 } // namespace linear_model
 } // namespace algorithms

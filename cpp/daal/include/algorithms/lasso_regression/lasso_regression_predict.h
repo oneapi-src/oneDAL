@@ -37,8 +37,6 @@ namespace lasso_regression
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup lasso_regression_prediction_batch Batch
  * @ingroup lasso_regression_prediction
@@ -54,8 +52,8 @@ namespace interface1
  *                          in the batch processing mode, double or float
  *
  * \par References
- *      - \ref lasso_regression::interface1::Model "lasso_regression::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref lasso_regression::Model "lasso_regression::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
@@ -127,8 +125,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace prediction
 } // namespace lasso_regression

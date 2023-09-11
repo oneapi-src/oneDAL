@@ -31,8 +31,6 @@ namespace multi_class_classifier
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * Registers user-allocated memory to store the results of the multi-class classifier training decomposition
  * \param[in] input       Pointer to the structure with input objects
@@ -44,8 +42,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 {
     const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
     services::Status st;
-    const multi_class_classifier::interface1::ParameterBase * algParameter1 =
-        dynamic_cast<const multi_class_classifier::interface1::ParameterBase *>(parameter);
+    const multi_class_classifier::ParameterBase * algParameter1 = dynamic_cast<const multi_class_classifier::ParameterBase *>(parameter);
     if (algParameter1)
     {
         multi_class_classifier::ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter1, &st);
@@ -65,7 +62,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                     const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace training
 } // namespace multi_class_classifier
 } // namespace algorithms

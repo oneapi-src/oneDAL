@@ -21,8 +21,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 #define DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(T)                                                                                    \
     template <>                                                                                                                       \
     CSRBlockDescriptor<T>::CSRBlockDescriptor()                                                                                       \
@@ -41,6 +39,5 @@ DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(short)
 DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned short)
 DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned long)
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal

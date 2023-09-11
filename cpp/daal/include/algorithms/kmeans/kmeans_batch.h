@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
-{
 /**
  * @defgroup kmeans_batch Batch
  * @ingroup kmeans_compute
@@ -175,10 +173,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace kmeans
 } // namespace algorithms

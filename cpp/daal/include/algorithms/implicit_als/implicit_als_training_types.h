@@ -217,11 +217,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__INPUT"></a>
  * \brief %Input objects for the implicit ALS training algorithm
  */
@@ -810,7 +805,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -820,19 +815,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Input;
-using interface1::DistributedInput;
-using interface1::DistributedPartialResultStep1;
-using interface1::DistributedPartialResultStep1Ptr;
-using interface1::DistributedPartialResultStep2;
-using interface1::DistributedPartialResultStep2Ptr;
-using interface1::DistributedPartialResultStep3;
-using interface1::DistributedPartialResultStep3Ptr;
-using interface1::DistributedPartialResultStep4;
-using interface1::DistributedPartialResultStep4Ptr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

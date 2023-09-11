@@ -57,11 +57,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__PARAMETER"></a>
  * \brief Parameters of the prediction algorithm
  *
@@ -75,13 +70,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     size_t nIterations; /*!< Number of iterations of the trained model to be used for prediction */
 };
 /* [Parameter source code] */
-} // namespace interface2
 
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the GBT_CLASSIFICATION algorithm
@@ -135,9 +124,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
-} // namespace interface1
-using interface2::Parameter;
-using interface1::Input;
 } // namespace prediction
 /** @} */
 } // namespace classification

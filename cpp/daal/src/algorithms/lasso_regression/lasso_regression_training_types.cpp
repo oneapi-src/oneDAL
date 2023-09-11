@@ -34,8 +34,6 @@ namespace lasso_regression
 {
 namespace training
 {
-namespace interface1
-{
 Input::Input() : linear_model::training::Input(lastOptionalInputId + 1) {}
 Input::Input(const Input & other) : linear_model::training::Input(other) {}
 
@@ -167,7 +165,6 @@ services::Status Parameter::check() const
     return checkNumericTable(lassoParameters.get(), lassoParametersStr(), packed_mask, 0, 0, 1);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace lasso_regression
 } // namespace algorithms

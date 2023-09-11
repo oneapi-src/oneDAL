@@ -38,11 +38,6 @@ namespace optimization_solver
 {
 namespace iterative_solver
 {
-/**
-* \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
-*/
-namespace interface2
-{
 /** @defgroup iterative_solver_batch Batch
  * @ingroup iterative_solver
  * @{
@@ -112,10 +107,6 @@ private:
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;
-
-} // namespace interface2
-using interface2::Batch;
-using interface2::BatchPtr;
 
 } // namespace iterative_solver
 } // namespace optimization_solver

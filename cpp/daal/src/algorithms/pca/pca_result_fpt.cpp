@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 /**
  * Allocates memory for storing partial results of the PCA algorithm
  * \param[in] input Pointer to an object containing input data
@@ -80,7 +78,6 @@ template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
                                                                     daal::algorithms::Parameter * parameter, const Method method);
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

@@ -35,8 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup data_sources
  * @{
@@ -268,14 +266,6 @@ private:
 typedef Dictionary<DataSourceFeature, SERIALIZATION_DATADICTIONARY_DS_ID> DataSourceDictionary;
 typedef services::SharedPtr<DataSourceDictionary> DataSourceDictionaryPtr;
 /** @} */
-
-} // namespace interface1
-
-using interface1::CategoricalFeatureDictionary;
-using interface1::CategoricalFeatureDictionaryPtr;
-using interface1::DataSourceFeature;
-using interface1::DataSourceDictionary;
-using interface1::DataSourceDictionaryPtr;
 
 } // namespace data_management
 } // namespace daal

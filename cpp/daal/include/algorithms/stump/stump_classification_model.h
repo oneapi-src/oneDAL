@@ -58,11 +58,6 @@ enum VariableImportanceMode
     none /* Do not compute */
 };
 
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
 // CLARIFICATION:: Added parameter class to support different split criterions for stump.
 /**
  * @ingroup stump_classification
@@ -99,8 +94,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
  * \brief %Model of the classifier trained by the stump::classification::training::Batch algorithm.
  *
  * \par References
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::decision_tree::classification::Model
 {
@@ -164,13 +159,6 @@ private:
 
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
-
-} // namespace interface1
-
-using interface1::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 /** @} */
 } // namespace classification

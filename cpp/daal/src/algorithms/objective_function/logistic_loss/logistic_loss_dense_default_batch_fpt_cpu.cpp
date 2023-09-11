@@ -31,10 +31,7 @@ namespace optimization_solver
 {
 namespace logistic_loss
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class DAAL_EXPORT LogLossKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

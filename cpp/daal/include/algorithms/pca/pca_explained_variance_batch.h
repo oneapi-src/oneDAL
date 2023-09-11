@@ -40,8 +40,6 @@ namespace quality_metric
  */
 namespace explained_variance
 {
-namespace interface1
-{
 /**
  * @defgroup pca_quality_metric_explained_variance_batch Batch
  * @ingroup pca_quality_metric_explained_variance
@@ -178,9 +176,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace explained_variance
 } // namespace quality_metric

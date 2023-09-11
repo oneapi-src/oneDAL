@@ -23,8 +23,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 DataCollection::DataCollection(size_t n) : super(n) {}
 
 DataCollection::DataCollection() : super() {}
@@ -113,6 +111,5 @@ void MemoryBlock::release()
     }
 }
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal

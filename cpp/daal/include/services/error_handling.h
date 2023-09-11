@@ -38,8 +38,6 @@ namespace daal
 {
 namespace services
 {
-namespace interface1
-{
 /**
  * @ingroup error_handling
  * @{
@@ -94,13 +92,6 @@ private:
 
 #endif
 
-} // namespace interface1
-#if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-using interface1::Exception;
-#endif
-
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-SERVICES__ERROR"></a>
  * \brief Class that represents an error
@@ -577,15 +568,6 @@ inline const Status & throwIfPossible(const Status & s)
     return s;
 }
 
-} // namespace interface1
-using interface1::Error;
-using interface1::KernelErrorCollection;
-using interface1::ErrorCollection;
-using interface1::ErrorPtr;
-using interface1::KernelErrorCollectionPtr;
-using interface1::ErrorCollectionPtr;
-using interface1::Status;
-using interface1::throwIfPossible;
 namespace internal
 {
 inline Status checkForNullByteInjection(const char * begin, const char * const end)

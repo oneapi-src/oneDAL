@@ -36,8 +36,6 @@ namespace linear_model
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup linear_model_training_online Online
  * @ingroup linear_model_training
@@ -49,8 +47,8 @@ namespace interface1
  * \brief Provides methods for the linear model-based training in the online processing mode
  *
  * \par References
- *      - \ref linear_model::interface1::Model "linear_model::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref linear_model::Model "linear_model::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Online : public regression::training::Online
 {
@@ -73,8 +71,6 @@ public:
     ResultPtr getResult() { return ResultType::cast(_result); }
 }; // class  : public Online
 /** @} */
-} // namespace interface1
-using interface1::Online;
 
 } // namespace training
 } // namespace linear_model

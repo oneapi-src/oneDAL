@@ -31,8 +31,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 using namespace daal::internal;
 
 template <typename algorithmFPType>
@@ -91,7 +89,6 @@ template class ReferencePotrf<double>;
 template class ReferencePotrs<float>;
 template class ReferencePotrs<double>;
 
-} // namespace interface1
 } // namespace math
 } // namespace sycl
 } // namespace internal

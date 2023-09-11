@@ -33,10 +33,7 @@ namespace logistic_regression
 {
 namespace training
 {
-namespace interface3
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 
 namespace internal
 {

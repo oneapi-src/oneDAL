@@ -36,8 +36,6 @@ namespace ridge_regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup ridge_regression_online Online
  * @ingroup ridge_regression_training
@@ -88,10 +86,10 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref interface1::TrainParameter "TrainParameter" class
- *      - \ref ridge_regression::interface1::Model "ridge_regression::Model" class
- *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref TrainParameter "TrainParameter" class
+ *      - \ref ridge_regression::Model "ridge_regression::Model" class
+ *      - \ref ridge_regression::ModelNormEq "ridge_regression::ModelNormEq" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
 class DAAL_EXPORT Online : public linear_model::training::Online
@@ -184,10 +182,6 @@ private:
     Online & operator=(const Online &);
 }; // class : Online
 /** @} */
-} // namespace interface1
-
-using interface1::OnlineContainer;
-using interface1::Online;
 
 } // namespace training
 } // namespace ridge_regression

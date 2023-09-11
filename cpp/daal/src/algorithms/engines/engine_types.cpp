@@ -28,8 +28,6 @@ namespace algorithms
 {
 namespace engines
 {
-namespace interface1
-{
 Input::Input() : daal::algorithms::Input(1) {}
 
 Input::Input(const Input & other) : daal::algorithms::Input(other) {}
@@ -70,7 +68,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return data_management::checkNumericTable(get(randomNumbers).get(), randomNumbersStr());
 }
 
-} // namespace interface1
 } // namespace engines
 } // namespace algorithms
 } // namespace daal

@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace brownboost
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_BROWNBOOST_MODEL_ID);
 
 /** Default constructor */
@@ -126,8 +124,6 @@ void Model::clearWeakLearnerModels()
 {
     _models->clear();
 }
-
-} // namespace interface2
 
 } // namespace brownboost
 } // namespace algorithms

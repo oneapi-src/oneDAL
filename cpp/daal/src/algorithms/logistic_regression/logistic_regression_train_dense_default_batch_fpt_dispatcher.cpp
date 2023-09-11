@@ -35,8 +35,6 @@ namespace logistic_regression
 {
 namespace training
 {
-namespace interface3
-{
 template <>
 Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(size_t nClasses, const SolverPtr & solver)
 {
@@ -53,7 +51,6 @@ Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(const Bat
     initialize();
 }
 
-} // namespace interface3
 } // namespace training
 } // namespace logistic_regression
 } // namespace algorithms

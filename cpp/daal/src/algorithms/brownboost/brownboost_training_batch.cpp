@@ -35,8 +35,6 @@ namespace brownboost
 {
 namespace training
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RESULT_ID);
 
 /**
@@ -57,7 +55,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;
 }
-} // namespace interface2
 
 } // namespace training
 } // namespace brownboost

@@ -33,10 +33,7 @@ namespace multinomial_naive_bayes
 {
 namespace prediction
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class NaiveBayesPredictKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

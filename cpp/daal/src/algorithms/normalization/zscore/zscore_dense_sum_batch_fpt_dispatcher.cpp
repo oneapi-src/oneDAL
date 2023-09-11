@@ -26,7 +26,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::interface3::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::sumDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::sumDense)
 } // namespace algorithms
 } // namespace daal
 
@@ -37,8 +37,6 @@ namespace algorithms
 namespace normalization
 {
 namespace zscore
-{
-namespace interface3
 {
 template <typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
 Batch<algorithmFPType, method>::Batch()
@@ -57,7 +55,6 @@ template Batch<DAAL_FPTYPE, normalization::zscore::sumDense>::Batch();
 template Batch<DAAL_FPTYPE, normalization::zscore::defaultDense>::Batch();
 template Batch<DAAL_FPTYPE, normalization::zscore::sumDense>::Batch(const Batch &);
 template Batch<DAAL_FPTYPE, normalization::zscore::defaultDense>::Batch(const Batch &);
-} // namespace interface3
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

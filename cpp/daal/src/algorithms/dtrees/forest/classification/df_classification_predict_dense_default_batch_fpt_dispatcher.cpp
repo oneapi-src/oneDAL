@@ -37,8 +37,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface3
-{
 template <>
 Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(size_t nClasses)
 {
@@ -54,7 +52,6 @@ Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::B
     _par = new ParameterType(other.parameter());
     initialize();
 }
-} // namespace interface3
 } // namespace prediction
 } // namespace classification
 } // namespace decision_forest

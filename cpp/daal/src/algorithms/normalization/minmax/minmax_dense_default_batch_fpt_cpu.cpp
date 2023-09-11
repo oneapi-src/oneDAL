@@ -31,10 +31,7 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 
 namespace internal
 {

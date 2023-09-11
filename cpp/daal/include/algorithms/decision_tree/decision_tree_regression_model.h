@@ -54,11 +54,6 @@ namespace decision_tree
 namespace regression
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup decision_tree_regression
  * @{
  */
@@ -93,8 +88,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface2::Batch "training::Batch" class
- *      - \ref prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public algorithms::regression::Model
 {
@@ -131,7 +126,8 @@ public:
     static services::SharedPtr<Model> create(services::Status * stat = NULL);
 
     /**
-     * \copydoc regression::Model::getNumberOfFeatures
+     * Returns the number of features in the training data set
+     * \return Number of features in the training data set
      */
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
@@ -174,13 +170,6 @@ private:
 
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
-
-} // namespace interface1
-
-using interface1::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 /** @} */
 } // namespace regression

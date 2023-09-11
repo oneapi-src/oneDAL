@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
-{
 /**
  *  Constructs parameters of the K-Means algorithm
  *  \param[in] _nClusters   Number of clusters
@@ -73,7 +71,6 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} // namespace interface2
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

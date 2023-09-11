@@ -34,14 +34,9 @@ namespace algorithms
 {
 namespace implicit_als
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_IMPLICIT_ALS_MODEL_ID);
-}
 
 namespace training
-{
-namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_IMPLICIT_ALS_TRAINING_RESULT_ID);
 
@@ -94,7 +89,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace implicit_als
 } // namespace algorithms

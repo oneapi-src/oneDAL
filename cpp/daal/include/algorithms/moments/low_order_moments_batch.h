@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 /**
  * @defgroup low_order_moments_batch Batch
  * @ingroup low_order_moments
@@ -222,11 +220,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainerIface;
-using interface1::BatchContainer;
-using interface1::BatchImpl;
-using interface1::Batch;
 
 } // namespace low_order_moments
 } // namespace algorithms

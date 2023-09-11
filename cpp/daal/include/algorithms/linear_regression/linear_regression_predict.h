@@ -37,8 +37,6 @@ namespace linear_regression
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup linear_regression_prediction_batch Batch
  * @ingroup linear_regression_prediction
@@ -57,12 +55,12 @@ namespace interface1
  *      - \ref Method  Computation methods for linear regression model-based prediction
  *
  * \par References
- *      - \ref linear_regression::interface1::Model "linear_regression::Model" class
- *      - \ref linear_regression::interface1::ModelNormEq "linear_regression::ModelNormEq" class
- *      - \ref linear_regression::interface1::ModelQR "linear_regression::ModelQR" class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref training::interface1::Online "training::Online" class
- *      - \ref training::interface1::Distributed "training::Distributed" class
+ *      - \ref linear_regression::Model "linear_regression::Model" class
+ *      - \ref linear_regression::ModelNormEq "linear_regression::ModelNormEq" class
+ *      - \ref linear_regression::ModelQR "linear_regression::ModelQR" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref training::Online "training::Online" class
+ *      - \ref training::Distributed "training::Distributed" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch
@@ -77,12 +75,12 @@ class Batch
  *                          in the batch processing mode, double or float
  *
  * \par References
- *      - \ref linear_regression::interface1::Model "linear_regression::Model" class
- *      - \ref linear_regression::interface1::ModelNormEq "linear_regression::ModelNormEq" class
- *      - \ref linear_regression::interface1::ModelQR "linear_regression::ModelQR" class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref training::interface1::Online "training::Online" class
- *      - \ref training::interface1::Distributed "training::Distributed" class
+ *      - \ref linear_regression::Model "linear_regression::Model" class
+ *      - \ref linear_regression::ModelNormEq "linear_regression::ModelNormEq" class
+ *      - \ref linear_regression::ModelQR "linear_regression::ModelQR" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref training::Online "training::Online" class
+ *      - \ref training::Distributed "training::Distributed" class
  */
 template <typename algorithmFPType>
 class Batch<algorithmFPType, defaultDense> : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
@@ -152,8 +150,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace prediction
 } // namespace linear_regression

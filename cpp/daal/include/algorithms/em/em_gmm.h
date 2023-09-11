@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace em_gmm
 {
-namespace interface1
-{
 /**
  * @defgroup em_gmm_batch Batch
  * @ingroup em_gmm_compute
@@ -152,9 +150,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace em_gmm
 } // namespace algorithms

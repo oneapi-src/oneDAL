@@ -39,8 +39,6 @@ namespace elastic_net
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup elastic_net_batch Batch
  * @ingroup elastic_net_training
@@ -83,8 +81,8 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref elastic_net::interface1::Model "elastic_net::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref elastic_net::Model "elastic_net::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public linear_model::training::Batch
@@ -180,10 +178,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace elastic_net

@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace interface1
-{
 /**
  * @addtogroup kernel_function
  * @{
@@ -111,9 +109,6 @@ private:
 };
 typedef services::SharedPtr<KernelIface> KernelIfacePtr;
 /** @} */
-} // namespace interface1
-using interface1::KernelIface;
-using interface1::KernelIfacePtr;
 
 } // namespace kernel_function
 } // namespace algorithms

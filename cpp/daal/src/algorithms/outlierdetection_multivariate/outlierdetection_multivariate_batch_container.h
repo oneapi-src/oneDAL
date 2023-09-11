@@ -30,8 +30,6 @@ namespace algorithms
 {
 namespace multivariate_outlier_detection
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -61,7 +59,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::OutlierDetectionKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, defaultDense), compute, dataTable,
                        locationTable, scatterTable, thresholdTable, weightsTable);
 }
-} // namespace interface1
 } // namespace multivariate_outlier_detection
 
 } // namespace algorithms

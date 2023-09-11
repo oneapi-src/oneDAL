@@ -34,8 +34,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface3
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
@@ -70,8 +68,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::ZScoreKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *inputTable, *resultTable,
                        *resultMeans, *resultVariances, *par);
 }
-
-} // namespace interface3
 
 } // namespace zscore
 } // namespace normalization

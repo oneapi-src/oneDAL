@@ -99,11 +99,6 @@ enum OptionalDataId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__ITERATIVE_SOLVER__PARAMETER"></a>
  * \brief %Parameter base class for the iterative solver algorithm
  *
@@ -296,7 +291,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -308,11 +303,6 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 /** @} */
-} // namespace interface2
-using interface2::Parameter;
-using interface2::Input;
-using interface2::Result;
-using interface2::ResultPtr;
 
 } // namespace iterative_solver
 } // namespace optimization_solver

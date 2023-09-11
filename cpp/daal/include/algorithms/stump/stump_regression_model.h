@@ -62,11 +62,6 @@ enum VariableImportanceMode
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup stump_regression
  * @{
  */
@@ -100,8 +95,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief %Model of the regression trained by the stump::regression::training::Batch algorithm.
  *
  * \par References
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::decision_tree::regression::Model
 {
@@ -160,13 +155,6 @@ protected:
 
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
-
-} // namespace interface1
-
-using interface1::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 /** @} */
 } // namespace regression

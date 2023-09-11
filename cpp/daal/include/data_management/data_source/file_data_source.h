@@ -37,8 +37,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup data_sources
  * @{
@@ -226,10 +224,6 @@ private:
     static const size_t INITIAL_FILE_BUFFER_LENGTH = 1048576;
 };
 /** @} */
-
-} // namespace interface1
-
-using interface1::FileDataSource;
 
 } // namespace data_management
 } // namespace daal

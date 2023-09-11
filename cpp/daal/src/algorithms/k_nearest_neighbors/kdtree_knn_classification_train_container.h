@@ -41,8 +41,6 @@ namespace training
 {
 using namespace daal::data_management;
 
-namespace interface3
-{
 /**
  *  \brief Initialize list of K-Nearest Neighbors kernels with implementations for supported architectures
  */
@@ -89,7 +87,6 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
                        r->impl()->getData().get(), labelsPtr, r.get(), *par->engine);
 }
-} // namespace interface3
 } // namespace training
 } // namespace kdtree_knn_classification
 } // namespace algorithms

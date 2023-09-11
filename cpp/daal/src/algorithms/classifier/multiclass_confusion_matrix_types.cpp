@@ -38,8 +38,6 @@ namespace quality_metric
 {
 namespace multiclass_confusion_matrix
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_MULTICLASS_CONFUSION_MATRIX_RESULT_ID);
 Parameter::Parameter(size_t nClasses, double beta) : nClasses(nClasses), beta(beta) {}
 
@@ -132,7 +130,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return checkNumericTable(multiClassMetricsTable.get(), multiClassMetricsStr(), unexpectedLayouts, 0, 8, 1);
 }
 
-} // namespace interface1
 } // namespace multiclass_confusion_matrix
 } // namespace quality_metric
 } // namespace classifier

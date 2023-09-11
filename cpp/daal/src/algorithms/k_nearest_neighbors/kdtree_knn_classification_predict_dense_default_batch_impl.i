@@ -134,7 +134,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     VoteWeights voteWeights       = voteUniform;
     DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
 
-    const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
+    const auto par3 = dynamic_cast<const kdtree_knn_classification::Parameter *>(par);
     if (par3)
     {
         k                 = par3->k;

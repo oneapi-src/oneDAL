@@ -29,10 +29,7 @@ namespace algorithms
 {
 namespace cholesky
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface1
 
 namespace internal
 {

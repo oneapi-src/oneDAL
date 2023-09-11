@@ -56,14 +56,9 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__STUMP__REGRESSION__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the decision stump prediction algorithm.
- *        It is associated with the daal::algorithms::stump::regression::prediction::interface1::Batch class
+ *        It is associated with the daal::algorithms::stump::regression::prediction::Batch class
  *        and supports methods to run based on the decision stump model
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the decision stump prediction algorithm, double or float
@@ -102,9 +97,9 @@ public:
  *      - \ref daal::algorithms::regression::prediction::ResultId             Identifiers of the results of the decision stump prediction algorithm
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref daal::algorithms::regression::prediction::interface1::Input "regression::prediction::Input" class
- *      - \ref daal::algorithms::regression::prediction::interface1::Result "regression::prediction::Result" class
+ *      - \ref Model "Model" class
+ *      - \ref daal::algorithms::regression::prediction::Input "regression::prediction::Input" class
+ *      - \ref daal::algorithms::regression::prediction::Result "regression::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::regression::prediction::Batch
@@ -187,9 +182,6 @@ protected:
 private:
     Batch & operator=(const Batch &);
 };
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace prediction
 /** @} */

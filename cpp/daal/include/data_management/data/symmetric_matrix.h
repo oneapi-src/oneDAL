@@ -34,8 +34,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -1481,10 +1479,6 @@ protected:
     }
 };
 /** @} */
-} // namespace interface1
-using interface1::PackedArrayNumericTableIface;
-using interface1::PackedSymmetricMatrix;
-using interface1::PackedTriangularMatrix;
 
 } // namespace data_management
 } // namespace daal

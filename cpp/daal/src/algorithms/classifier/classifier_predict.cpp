@@ -33,8 +33,6 @@ namespace classifier
 {
 namespace prediction
 {
-namespace interface1
-{
 InputIface::InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
 
 Input::Input() : InputIface(lastModelInputId + 1) {}
@@ -129,10 +127,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     DAAL_CHECK_EX(trainingDataFeatures == predictionDataFeatures, services::ErrorIncorrectNumberOfColumns, services::ArgumentName, dataStr());
     return s;
 }
-} // namespace interface1
 
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_ID);
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
@@ -192,7 +187,6 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
 
     return s;
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace classifier
 } // namespace algorithms

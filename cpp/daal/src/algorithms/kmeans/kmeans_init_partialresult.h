@@ -61,8 +61,7 @@ DAAL_EXPORT services::Status DistributedStep2LocalPlusPlusPartialResult::allocat
                                                                                   const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
-    const interface1::DistributedStep2LocalPlusPlusParameter * kmPar =
-        static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(parameter);
+    const DistributedStep2LocalPlusPlusParameter * kmPar = static_cast<const DistributedStep2LocalPlusPlusParameter *>(parameter);
 
     set(outputOfStep2ForStep3, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
 
@@ -115,7 +114,7 @@ DAAL_EXPORT services::Status DistributedStep5MasterPlusPlusPartialResult::alloca
                                                                                    const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
-    const interface1::Parameter * stepPar               = static_cast<const interface1::Parameter *>(parameter);
+    const Parameter * stepPar                           = static_cast<const Parameter *>(parameter);
     const DistributedStep5MasterPlusPlusInput * kmInput = static_cast<const DistributedStep5MasterPlusPlusInput *>(input);
 
     const size_t nMaxCandidates = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;

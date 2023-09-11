@@ -34,14 +34,9 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialModel, SERIALIZATION_NAIVE_BAYES_PARTIALMODEL_ID);
-}
 
 namespace training
-{
-namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_NAIVE_BAYES_PARTIAL_RESULT_ID);
 
@@ -121,7 +116,6 @@ services::Status PartialResult::checkImpl(size_t nFeatures, const daal::algorith
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace multinomial_naive_bayes
 } // namespace algorithms

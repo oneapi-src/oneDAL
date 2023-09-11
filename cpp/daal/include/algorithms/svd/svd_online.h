@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /**
  * @defgroup svd_online Online
  * @ingroup svd
@@ -221,9 +219,6 @@ private:
     Online & operator=(const Online &);
 };
 /** @} */
-} // namespace interface1
-using interface1::OnlineContainer;
-using interface1::Online;
 
 } // namespace svd
 } // namespace algorithms

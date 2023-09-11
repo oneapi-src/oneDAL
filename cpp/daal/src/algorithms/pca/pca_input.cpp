@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 InputIface::InputIface(size_t nElements) : daal::algorithms::Input(nElements), _isCorrelation(false) {};
 InputIface::InputIface(const InputIface & other) : daal::algorithms::Input(other), _isCorrelation(other._isCorrelation) {};
 
@@ -106,7 +104,6 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     return s;
 }
 
-} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

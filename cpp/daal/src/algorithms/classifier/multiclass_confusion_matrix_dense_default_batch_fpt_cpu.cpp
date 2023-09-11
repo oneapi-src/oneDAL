@@ -35,10 +35,7 @@ namespace quality_metric
 {
 namespace multiclass_confusion_matrix
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class MultiClassConfusionMatrixKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

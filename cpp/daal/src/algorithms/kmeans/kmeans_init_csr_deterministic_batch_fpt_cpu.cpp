@@ -33,10 +33,7 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 template class BatchContainer<DAAL_FPTYPE, deterministicCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class KMeansInitKernel<deterministicCSR, DAAL_FPTYPE, DAAL_CPU>;

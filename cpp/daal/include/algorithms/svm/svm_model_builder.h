@@ -43,11 +43,6 @@ namespace algorithms
 namespace svm
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup svm
  * @{
  */
@@ -56,7 +51,7 @@ namespace interface1
  * \brief %Model Builder class for class SVM Model.
  *
  * \par References
- *      - \ref interface1::Model "Model" class
+ *      - \ref Model "Model" class
  */
 template <typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
 class DAAL_EXPORT ModelBuilder
@@ -174,8 +169,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::ModelBuilder;
 
 } // namespace svm
 } // namespace algorithms

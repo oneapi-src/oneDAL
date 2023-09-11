@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MOMENTS_RESULT_ID);
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
@@ -103,7 +101,6 @@ services::Status Result::checkImpl(size_t nFeatures) const
     return s;
 }
 
-} // namespace interface1
 } // namespace low_order_moments
 } // namespace algorithms
 } // namespace daal

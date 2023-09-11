@@ -36,8 +36,6 @@ namespace linear_model
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup linear_model_training_batch Batch
  * @ingroup linear_model_training
@@ -48,8 +46,8 @@ namespace interface1
  * \brief Provides methods for linear model model-based training in the batch processing mode
  *
  * \par References
- *      - \ref linear_model::interface1::Model "linear_model::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref linear_model::Model "linear_model::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Batch : public regression::training::Batch
 {
@@ -65,8 +63,6 @@ public:
     ResultPtr getResult() { return ResultType::cast(_result); }
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 } // namespace training
 } // namespace linear_model
 } // namespace algorithms

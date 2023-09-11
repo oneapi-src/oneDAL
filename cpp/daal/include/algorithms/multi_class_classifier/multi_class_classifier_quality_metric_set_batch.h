@@ -39,8 +39,6 @@ namespace multi_class_classifier
  */
 namespace quality_metric_set
 {
-namespace interface1
-{
 /**
  * @defgroup multi_class_classifier_quality_metric_set_batch Batch
  * @ingroup multi_class_classifier_quality_metric_set
@@ -54,7 +52,7 @@ namespace interface1
  *      - \ref QualityMetricId  Identifiers of quality metrics provided by the library
  *
  * \par References
- *      - \ref algorithms::quality_metric_set::interface1::InputAlgorithmsCollection "algorithms::quality_metric_set::InputAlgorithmsCollection" class
+ *      - \ref algorithms::quality_metric_set::InputAlgorithmsCollection "algorithms::quality_metric_set::InputAlgorithmsCollection" class
  */
 class Batch : public algorithms::quality_metric_set::Batch
 {
@@ -104,8 +102,6 @@ protected:
     }
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace quality_metric_set
 } // namespace multi_class_classifier

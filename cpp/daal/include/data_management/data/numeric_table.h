@@ -40,8 +40,6 @@ namespace daal
 /** \brief Contains classes that implement data management functionality, including NumericTables, DataSources, and Compression */
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -404,7 +402,7 @@ public:
     {
         doNotAllocate = 0, /*!< Memory will not be allocated by NumericTable */
         notAllocate =
-            0, /*!< Memory will not be allocated by NumericTable \DAAL_DEPRECATED_USE{ \ref daal::data_management::interface1::NumericTableIface::doNotAllocate "doNotAllocate" }*/
+            0, /*!< Memory will not be allocated by NumericTable \DAAL_DEPRECATED_USE{ \ref daal::data_management::NumericTableIface::doNotAllocate "doNotAllocate" }*/
         doAllocate = 1 /*!< Memory will be allocated by NumericTable when needed */
     };
 
@@ -550,16 +548,11 @@ public:
      */
     virtual services::Status check(const char * description, bool checkDataAllocation = true) const = 0;
 };
-} // namespace interface1
-using interface1::BlockDescriptor;
-using interface1::NumericTableIface;
 
 const int packed_mask = (int)NumericTableIface::csrArray | (int)NumericTableIface::upperPackedSymmetricMatrix
                         | (int)NumericTableIface::lowerPackedSymmetricMatrix | (int)NumericTableIface::upperPackedTriangularMatrix
                         | (int)NumericTableIface::lowerPackedTriangularMatrix;
 
-namespace interface1
-{
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__DENSENUMERICTABLEIFACE"></a>
  *  \brief Abstract interface class for a data management component responsible for accessing data in the numeric format.
@@ -1074,12 +1067,6 @@ inline int NumericTable::getValue<int>(size_t column, size_t row, services::Stat
 }
 
 /** @} */
-
-} // namespace interface1
-using interface1::DenseNumericTableIface;
-using interface1::NumericTable;
-using interface1::NumericTablePtr;
-using interface1::NumericTableConstPtr;
 
 /**
  * Checks the correctness of this numeric table

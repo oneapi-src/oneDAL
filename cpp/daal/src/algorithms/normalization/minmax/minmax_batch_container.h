@@ -36,8 +36,6 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -72,7 +70,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        (algorithmFPType)(parameter->upperBound));
 }
 
-} // namespace interface1
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

@@ -28,8 +28,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @defgroup data_model Data Model
  * \brief Contains classes that provide functionality of Collection container for objects derived from SerializationIface interface and implements SerializationIface itself
@@ -129,15 +127,9 @@ public:
     */
     bool resize(size_t newCapacity);
 
-    services::Status serializeImpl(interface1::InputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<interface1::InputDataArchive, false>(arch);
-    }
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<InputDataArchive, false>(arch); }
 
-    services::Status deserializeImpl(const interface1::OutputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<const interface1::OutputDataArchive, true>(arch);
-    }
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<const OutputDataArchive, true>(arch); }
 
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -282,16 +274,10 @@ public:
     virtual ~SerializableKeyValueCollection() {}
 
     /** \private */
-    services::Status serializeImpl(interface1::InputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<interface1::InputDataArchive, false>(arch);
-    }
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<InputDataArchive, false>(arch); }
 
     /** \private */
-    services::Status deserializeImpl(const interface1::OutputDataArchive * arch) DAAL_C11_OVERRIDE
-    {
-        return serialImpl<const interface1::OutputDataArchive, true>(arch);
-    }
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<const OutputDataArchive, true>(arch); }
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -326,15 +312,6 @@ typedef SerializableKeyValueCollection<SerializationIface> KeyValueDataCollectio
 typedef services::SharedPtr<KeyValueDataCollection> KeyValueDataCollectionPtr;
 typedef services::SharedPtr<const KeyValueDataCollection> KeyValueDataCollectionConstPtr;
 /** @} */
-} // namespace interface1
-using interface1::DataCollection;
-using interface1::DataCollectionPtr;
-using interface1::KeyValueCollection;
-using interface1::SerializableKeyValueCollection;
-using interface1::KeyValueDataCollection;
-using interface1::KeyValueDataCollectionPtr;
-using interface1::KeyValueDataCollectionConstPtr;
-using interface1::SerializationIfacePtr;
 
 } // namespace data_management
 } // namespace daal

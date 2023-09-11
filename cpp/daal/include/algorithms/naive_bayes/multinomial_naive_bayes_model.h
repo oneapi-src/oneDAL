@@ -45,11 +45,6 @@ namespace algorithms
 namespace multinomial_naive_bayes
 {
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PARAMETER"></a>
  * \brief Naive Bayes algorithm parameters
  *
@@ -75,10 +70,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-} // namespace interface2
 
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__MODEL"></a>
  * \brief Multinomial naive Bayes model
@@ -102,7 +94,7 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy);
+    DAAL_EXPORT Model(size_t nFeatures, const Parameter & parameter, modelFPType dummy);
 
     /**
      * Constructs multinomial naive Bayes model
@@ -111,7 +103,7 @@ public:
      * \param[out] stat      Status of the model construction
      */
     template <typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const interface2::Parameter & parameter, services::Status * stat = NULL);
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const Parameter & parameter, services::Status * stat = NULL);
     /** \private */
     virtual ~Model() {}
 
@@ -145,7 +137,7 @@ protected:
     data_management::NumericTablePtr _auxTable;
 
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st);
+    DAAL_EXPORT Model(size_t nFeatures, const Parameter & parameter, modelFPType dummy, services::Status & st);
 
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -184,7 +176,7 @@ public:
      * \DAAL_DEPRECATED_USE{ PartialModel::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy);
+    DAAL_EXPORT PartialModel(size_t nFeatures, const Parameter & parameter, modelFPType dummy);
 
     /**
      * Constructs multinomial naive Bayes partial model
@@ -194,8 +186,7 @@ public:
      * \return Multinomial naive Bayes partial model
      */
     template <typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const interface2::Parameter & parameter,
-                                                                services::Status * stat = NULL);
+    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const Parameter & parameter, services::Status * stat = NULL);
     /** \private */
     virtual ~PartialModel() {}
 
@@ -239,7 +230,7 @@ protected:
     size_t _nObservations;
 
     template <typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st);
+    DAAL_EXPORT PartialModel(size_t nFeatures, const Parameter & parameter, modelFPType dummy, services::Status & st);
 
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
@@ -254,12 +245,6 @@ protected:
     }
 };
 typedef services::SharedPtr<PartialModel> PartialModelPtr;
-} // namespace interface1
-using interface2::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::PartialModel;
-using interface1::PartialModelPtr;
 
 } // namespace multinomial_naive_bayes
 /** @} */

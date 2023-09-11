@@ -34,8 +34,6 @@ namespace brownboost
 {
 namespace training
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch()
 {
@@ -63,7 +61,6 @@ template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch();
 template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch(size_t nClasses);
 template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch(const Batch &);
 
-} // namespace interface2
 } // namespace training
 } // namespace brownboost
 

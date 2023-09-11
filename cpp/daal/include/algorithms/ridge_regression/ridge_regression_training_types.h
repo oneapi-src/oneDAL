@@ -101,11 +101,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__INPUTIFACE"></a>
  * \brief Abstract class that specifies the interface of input objects for ridge regression model-based training
  */
@@ -403,17 +398,6 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
-} // namespace interface1
-
-using interface1::InputIface;
-using interface1::Input;
-using interface1::DistributedInput;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::PartialResultConstPtr;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
 
 } // namespace training
 } // namespace ridge_regression

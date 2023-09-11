@@ -32,10 +32,7 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class DAAL_EXPORT LowOrderMomentsBatchKernel<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;

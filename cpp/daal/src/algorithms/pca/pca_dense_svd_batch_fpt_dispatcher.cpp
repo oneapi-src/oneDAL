@@ -27,6 +27,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::interface3::BatchContainer, batch, DAAL_FPTYPE, pca::svdDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::BatchContainer, batch, DAAL_FPTYPE, pca::svdDense)
 }
 } // namespace daal

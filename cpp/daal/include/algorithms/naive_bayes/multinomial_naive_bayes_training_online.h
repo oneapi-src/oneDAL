@@ -37,8 +37,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup multinomial_naive_bayes_training_online Online
  * @ingroup multinomial_naive_bayes_training
@@ -175,7 +173,7 @@ public:
      */
     services::SharedPtr<Online<algorithmFPType, method> > clone() const { return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl()); }
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the training */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the training */
 
 protected:
     virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, method>(*this); }
@@ -218,9 +216,6 @@ private:
     Online & operator=(const Online &);
 };
 /** @} */
-} // namespace interface2
-using interface2::OnlineContainer;
-using interface2::Online;
 
 } // namespace training
 } // namespace multinomial_naive_bayes

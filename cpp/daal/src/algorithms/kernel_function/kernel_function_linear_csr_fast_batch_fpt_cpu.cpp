@@ -31,11 +31,7 @@ namespace kernel_function
 {
 namespace linear
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-
-}
 
 } // namespace linear
 

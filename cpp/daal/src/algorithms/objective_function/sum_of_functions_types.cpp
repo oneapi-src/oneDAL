@@ -36,8 +36,6 @@ namespace optimization_solver
 {
 namespace sum_of_functions
 {
-namespace interface2
-{
 Parameter::Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices, const DAAL_UINT64 resultsToCompute)
     : numberOfTerms(numberOfTerms), objective_function::Parameter(resultsToCompute), batchIndices(batchIndices), featureId(0)
 {}
@@ -100,7 +98,6 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     return s;
 }
 
-} // namespace interface2
 } // namespace sum_of_functions
 } // namespace optimization_solver
 } // namespace algorithms

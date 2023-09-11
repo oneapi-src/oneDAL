@@ -35,8 +35,6 @@ namespace decision_forest
 {
 namespace training
 {
-namespace interface2
-{
 using namespace daal::services;
 
 Parameter::Parameter()
@@ -61,8 +59,7 @@ Parameter::Parameter()
       splitter(best),
       binningStrategy(quantiles)
 {}
-} // namespace interface2
-Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
+Status checkImpl(const decision_forest::training::Parameter & prm)
 {
     DAAL_CHECK_EX(prm.nTrees, ErrorIncorrectParameter, ParameterName, nTreesStr());
     DAAL_CHECK_EX(prm.minObservationsInLeafNode, ErrorIncorrectParameter, ParameterName, minObservationsInLeafNodeStr());

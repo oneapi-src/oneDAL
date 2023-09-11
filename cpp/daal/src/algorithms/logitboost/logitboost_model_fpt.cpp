@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace interface2
-{
 /**
  *  Constructs the logitBoost %Model
  * \tparam modelFPType  Data type to store logitBoost model data, double or float
@@ -43,7 +41,6 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const Parameter * par, modelFPType du
 {}
 
 template DAAL_EXPORT Model::Model(size_t, const Parameter *, DAAL_FPTYPE);
-} // namespace interface2
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

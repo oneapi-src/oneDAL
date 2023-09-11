@@ -35,8 +35,6 @@ namespace normalization
 {
 namespace minmax
 {
-namespace interface1
-{
 /**
  * Allocates memory to store the result of the minmax normalization algorithm
  * \param[in] input  %Input object for the minmax normalization algorithm
@@ -64,7 +62,6 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, int m
 
 template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, int method);
 
-} // namespace interface1
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

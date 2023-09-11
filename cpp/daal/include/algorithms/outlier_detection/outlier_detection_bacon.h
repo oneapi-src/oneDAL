@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace bacon_outlier_detection
 {
-namespace interface1
-{
 /**
  * @defgroup bacon_outlier_detection_batch Batch
  * @ingroup bacon_outlier_detection
@@ -169,9 +167,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace bacon_outlier_detection
 } // namespace algorithms

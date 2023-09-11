@@ -35,10 +35,7 @@ namespace quality_metric
 {
 namespace group_of_betas
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class GroupOfBetasKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

@@ -35,10 +35,7 @@ namespace quality_metric
 {
 namespace single_beta
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class SingleBetaKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

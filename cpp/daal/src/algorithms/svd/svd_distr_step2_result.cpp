@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResult, SERIALIZATION_SVD_DISTRIBUTED_PARTIAL_RESULT_ID);
 
 /** Default constructor */
@@ -165,7 +163,6 @@ Status DistributedPartialResult::check(const daal::algorithms::Input * input, co
     return check(parameter, method);
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

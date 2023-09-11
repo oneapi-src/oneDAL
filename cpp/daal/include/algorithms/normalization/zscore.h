@@ -38,8 +38,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface3
-{
 /** @defgroup zscore_batch Batch
  * @ingroup zscore
  * @{
@@ -245,10 +243,6 @@ private:
 };
 
 /** @} */
-} // namespace interface3
-using interface3::BatchContainer;
-using interface3::BatchImpl;
-using interface3::Batch;
 
 } // namespace zscore
 } // namespace normalization

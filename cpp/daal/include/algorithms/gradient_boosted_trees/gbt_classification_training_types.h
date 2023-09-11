@@ -80,11 +80,6 @@ enum ResultNumericTableId
 };
 
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__TRAINING__PARAMETER"></a>
  * \brief Gradient Boosted Trees algorithm parameters
  *
@@ -100,10 +95,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     DAAL_UINT64 varImportance; /*!< 64 bit integer flag VariableImportanceModes that indicates the variable importance computation modes */
 };
 /* [Parameter source code] */
-} // namespace interface2
 
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
@@ -165,7 +157,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -175,11 +167,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-
-} // namespace interface1
-using interface2::Parameter;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

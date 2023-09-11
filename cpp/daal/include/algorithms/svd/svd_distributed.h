@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 /**
  * @defgroup svd_distributed Distributed
  * @ingroup svd
@@ -450,9 +448,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace svd
 } // namespace algorithms

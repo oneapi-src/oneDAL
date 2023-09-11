@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace univariate_outlier_detection
 {
-namespace interface1
-{
 /**
  * @defgroup univariate_outlier_detection_batch Batch
  * @ingroup univariate_outlier_detection
@@ -162,9 +160,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace univariate_outlier_detection
 } // namespace algorithms

@@ -28,11 +28,9 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kmeans::interface2::DistributedContainer, distributed, step1Local, DAAL_FPTYPE, kmeans::lloydDense);
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kmeans::DistributedContainer, distributed, step1Local, DAAL_FPTYPE, kmeans::lloydDense);
 
 namespace kmeans
-{
-namespace interface2
 {
 using DistributedType = Distributed<step1Local, DAAL_FPTYPE, kmeans::lloydDense>;
 
@@ -56,7 +54,6 @@ DistributedType::Distributed(const DistributedType & other)
     input.set(inputCentroids, other.input.get(inputCentroids));
 }
 
-} // namespace interface2
 } // namespace kmeans
 
 } // namespace algorithms

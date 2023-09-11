@@ -37,8 +37,6 @@ namespace svm
 {
 namespace training
 {
-namespace interface2
-{
 using namespace daal::data_management;
 
 /**
@@ -78,7 +76,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    const svm::interface2::Parameter * const par = static_cast<svm::interface2::Parameter *>(_par);
+    const svm::Parameter * const par = static_cast<svm::Parameter *>(_par);
 
     internal::KernelParameter kernelPar;
     kernelPar.C                 = par->C;
@@ -103,7 +101,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
     }
 }
-} // namespace interface2
 
 namespace internal
 {

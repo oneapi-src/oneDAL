@@ -35,16 +35,12 @@ namespace algorithms
 {
 namespace ridge_regression
 {
-namespace interface1
-{
 TrainParameter::TrainParameter() : Parameter(), ridgeParameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 1.0)) {};
 
 services::Status TrainParameter::check() const
 {
     return checkNumericTable(ridgeParameters.get(), ridgeParametersStr(), packed_mask, 0, 0, 1);
 }
-
-} // namespace interface1
 
 Status checkModel(ridge_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses, int method)
 {

@@ -36,8 +36,6 @@ namespace weak_learner
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup weak_learner_training_batch Batch
  * @ingroup weak_learner_training
@@ -52,14 +50,14 @@ namespace interface1
  *      - \ref classifier::training::ResultId Identifiers of results
  *
  * \par References
- *      - \ref interface1::Input "Input" class
- *      - \ref interface1::Model "Model" class
+ *      - \ref Input "Input" class
+ *      - \ref Model "Model" class
  *      - Result class
  */
-class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
+class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
-    typedef classifier::training::interface1::Batch super;
+    typedef classifier::training::Batch super;
 
     typedef super::InputType InputType;
     typedef super::ParameterType ParameterType;
@@ -73,7 +71,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : classifier::training::interface1::Batch(other) {}
+    Batch(const Batch & other) : classifier::training::Batch(other) {}
 
     virtual ~Batch() {}
 
@@ -81,10 +79,7 @@ public:
      * Returns structure that contains computed weak learner results
      * \return Structure that contains computed weak learner results
      */
-    weak_learner::training::ResultPtr getResult()
-    {
-        return services::staticPointerCast<ResultType, classifier::training::interface1::Result>(_result);
-    }
+    weak_learner::training::ResultPtr getResult() { return services::staticPointerCast<ResultType, classifier::training::Result>(_result); }
 
     /**
      * Returns a pointer to the newly allocated algorithm for training the weak learner model
@@ -100,8 +95,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace training
 } // namespace weak_learner

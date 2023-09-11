@@ -41,11 +41,6 @@ namespace algorithms
 namespace logistic_regression
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup logistic_regression
  * @{
  */
@@ -195,8 +190,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::ModelBuilder;
 
 } // namespace logistic_regression
 } // namespace algorithms

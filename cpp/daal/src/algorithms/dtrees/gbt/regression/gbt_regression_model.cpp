@@ -39,8 +39,6 @@ using namespace daal::algorithms::gbt::internal;
 
 namespace regression
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_GBT_REGRESSION_MODEL_ID);
 Model::Model() {}
 
@@ -50,8 +48,6 @@ ModelPtr Model::create(size_t nFeatures, services::Status * stat)
     if ((!pRes.get()) && stat) stat->add(services::ErrorMemoryAllocationFailed);
     return pRes;
 }
-
-} // namespace interface1
 
 namespace internal
 {

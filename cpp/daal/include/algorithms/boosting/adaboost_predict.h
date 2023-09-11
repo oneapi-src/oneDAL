@@ -56,14 +56,9 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the AdaBoost algorithm.
- *        It is associated with daal::algorithms::adaboost::prediction::interface1::Batch class
+ *        It is associated with daal::algorithms::adaboost::prediction::Batch class
  *        and supports method to compute AdaBoost prediction
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the AdaBoost, double or float
@@ -101,9 +96,9 @@ public:
  *      - \ref classifier::prediction::ResultId             Enumeration of supported AdaBoost prediction results
  *
  * \par References
- *      - \ref interface2::Model "Model" class
+ *      - \ref Model "Model" class
  *      - classifier::prediction::Input class
- *      - \ref classifier::prediction::interface2::Result "classifier::prediction::Result" class
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
@@ -183,9 +178,6 @@ protected:
 private:
     Batch & operator=(const Batch &);
 };
-} // namespace interface2
-using interface2::Batch;
-using interface2::BatchContainer;
 
 /** @} */
 } // namespace prediction

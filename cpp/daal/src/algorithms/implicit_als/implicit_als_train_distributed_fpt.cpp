@@ -34,8 +34,6 @@ namespace implicit_als
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * Allocates memory to store a partial result of the implicit ALS training algorithm
  * \param[in] input     Pointer to the input object
@@ -129,7 +127,6 @@ template DAAL_EXPORT Status DistributedPartialResultStep3::allocate<DAAL_FPTYPE>
 template DAAL_EXPORT Status DistributedPartialResultStep4::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                                  const daal::algorithms::Parameter * parameter, const int method);
 
-} // namespace interface1
 } // namespace training
 } // namespace implicit_als
 } // namespace algorithms

@@ -38,8 +38,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 /**
  * @defgroup pca_distributed Distributed
  * @ingroup pca
@@ -149,7 +147,7 @@ public:
  *      - \ref Method  Computation methods for the algorithm
  *
  * \par References
- *      - \ref interface1::DistributedParameter class
+ *      - \ref DistributedParameter class
  */
 template <ComputeStep computeStep, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
 class DAAL_EXPORT Distributed : public Analysis<distributed>
@@ -167,7 +165,7 @@ class DAAL_EXPORT Distributed : public Analysis<distributed>
  *      - \ref Method  Computation methods for the algorithm
  *
  * \par References
- *      - \ref interface1::DistributedParameter class
+ *      - \ref DistributedParameter class
  */
 template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
@@ -460,9 +458,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface1
-using interface1::DistributedContainer;
-using interface1::Distributed;
 
 } // namespace pca
 } // namespace algorithms

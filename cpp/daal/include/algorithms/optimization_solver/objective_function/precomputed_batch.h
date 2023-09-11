@@ -38,8 +38,6 @@ namespace optimization_solver
 {
 namespace precomputed
 {
-namespace interface2
-{
 /**
  * @defgroup precomputed_batch Batch
  * @ingroup precomputed
@@ -90,7 +88,7 @@ public:
  *
  * \par References
  * <!--     - <a href="DAAL-REF-PRECOMPUTED-ALGORITHM">The objective function with precomputed characteristics algorithm description and usage models</a> -->
- *      - \ref objective_function::interface2::Result "objective_function::Result" class
+ *      - \ref objective_function::Result "objective_function::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public sum_of_functions::Batch
@@ -182,9 +180,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace precomputed
 } // namespace optimization_solver

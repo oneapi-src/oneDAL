@@ -24,14 +24,11 @@ namespace services
 {
 namespace internal
 {
-namespace interface1
-{
 sycl::ExecutionContextIface & getDefaultContext()
 {
     return services::Environment::getInstance()->getDefaultExecutionContext();
 }
 
-} // namespace interface1
 } // namespace internal
 } // namespace services
 } // namespace daal

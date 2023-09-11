@@ -22,8 +22,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 template <typename T>
 DAAL_EXPORT services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k)
 {
@@ -46,7 +44,5 @@ DAAL_INSTANTIATE_KEYVALUECOLLECTION(SerializationIface)
 DAAL_INSTANTIATE_KEYVALUECOLLECTION(algorithms::Input)
 
 /** @} */
-} // namespace interface1
-
 } // namespace data_management
 } // namespace daal

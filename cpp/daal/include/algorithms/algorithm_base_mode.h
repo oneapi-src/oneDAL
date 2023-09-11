@@ -35,8 +35,6 @@ namespace daal
 {
 namespace algorithms
 {
-namespace interface1
-{
 /**
  * @addtogroup base_algorithms
  * @{
@@ -180,8 +178,6 @@ private:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::Algorithm;
 
 } // namespace algorithms
 } // namespace daal

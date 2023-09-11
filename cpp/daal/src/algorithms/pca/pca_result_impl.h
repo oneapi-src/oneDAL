@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 class ResultImpl : public data_management::DataCollection
 {
 public:
@@ -102,7 +100,6 @@ protected:
     services::Status __allocate__impl(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute);
 };
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

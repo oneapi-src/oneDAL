@@ -36,8 +36,6 @@ namespace bf_knn_classification
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_K_NEAREST_NEIGHBOR_BF_PREDICTION_RESULT_ID);
 
 Result::Result() : classifier::prediction::Result(lastResultId + 1) {}
@@ -98,7 +96,6 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
 
     return s;
 }
-} // namespace interface1
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms

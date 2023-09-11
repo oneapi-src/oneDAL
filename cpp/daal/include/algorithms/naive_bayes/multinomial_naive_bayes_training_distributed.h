@@ -36,8 +36,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup multinomial_naive_bayes_training_distributed Distributed
  * @ingroup multinomial_naive_bayes_training
@@ -183,7 +181,7 @@ public:
     typedef algorithms::multinomial_naive_bayes::training::Result ResultType;
     typedef algorithms::multinomial_naive_bayes::training::PartialResult PartialResultType;
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the distributed training algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the distributed training algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /**
@@ -318,9 +316,6 @@ private:
     Distributed & operator=(const Distributed &);
 };
 /** @} */
-} // namespace interface2
-using interface2::DistributedContainer;
-using interface2::Distributed;
 
 } // namespace training
 } // namespace multinomial_naive_bayes

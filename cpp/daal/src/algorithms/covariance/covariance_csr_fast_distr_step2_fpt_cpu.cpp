@@ -30,10 +30,7 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 template class DistributedContainer<step2Master, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class CovarianceDistributedKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

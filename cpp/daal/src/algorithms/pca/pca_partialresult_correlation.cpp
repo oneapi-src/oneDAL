@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS3(PartialResult, correlationDense, SERIALIZATION_PCA_PARTIAL_RESULT_CORRELATION_ID);
 
 PartialResult<correlationDense>::PartialResult() : PartialResultBase(lastPartialCorrelationResultId + 1) {};
@@ -100,7 +98,6 @@ Status PartialResult<correlationDense>::checkImpl(size_t nFeatures) const
     return checkNumericTable(get(pca::crossProductCorrelation).get(), crossProductCorrelationStr(), packedLayouts, 0, nFeatures, nFeatures);
 }
 
-} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

@@ -36,8 +36,6 @@ namespace regression
 {
 namespace prediction
 {
-namespace interface1
-{
 template <>
 Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch()
 {
@@ -52,7 +50,6 @@ Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch(const Batch
     _par = new ParameterType(other.parameter());
     initialize();
 }
-} // namespace interface1
 } // namespace prediction
 } // namespace regression
 } // namespace gbt

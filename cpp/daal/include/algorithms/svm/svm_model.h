@@ -48,11 +48,6 @@ namespace algorithms
 namespace svm
 {
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * @ingroup svm
  * @{
  */
@@ -91,18 +86,15 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-} // namespace interface2
 
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__MODEL"></a>
  * \brief %Model of the classifier trained by the svm::training::Batch algorithm
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface2::Batch "training::Batch" class
- *      - \ref prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {
@@ -232,10 +224,6 @@ protected:
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
-} // namespace interface1
-using interface2::Parameter;
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace svm
 /** @} */

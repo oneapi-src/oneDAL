@@ -30,8 +30,6 @@ namespace algorithms
 {
 namespace cholesky
 {
-namespace interface1
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
@@ -57,7 +55,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                        result->get(choleskyFactor).get(), par);
 }
 
-} // namespace interface1
 } // namespace cholesky
 } // namespace algorithms
 } // namespace daal

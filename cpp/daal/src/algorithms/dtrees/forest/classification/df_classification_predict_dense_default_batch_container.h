@@ -38,8 +38,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface3
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -102,7 +100,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                            daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);
     }
 }
-} // namespace interface3
 } // namespace prediction
 } // namespace classification
 } // namespace decision_forest

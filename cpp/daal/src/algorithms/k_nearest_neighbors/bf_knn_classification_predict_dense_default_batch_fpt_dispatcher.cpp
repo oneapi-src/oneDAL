@@ -29,8 +29,6 @@ namespace bf_knn_classification
 {
 namespace prediction
 {
-namespace interface1
-{
 template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
 Batch<algorithmFPType, method>::Batch() : classifier::prediction::Batch()
 {
@@ -54,7 +52,6 @@ Batch<algorithmFPType, method>::Batch(size_t nClasses)
 
 template class Batch<DAAL_FPTYPE, defaultDense>;
 
-} // namespace interface1
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms

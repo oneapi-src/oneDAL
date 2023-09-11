@@ -34,14 +34,8 @@ namespace algorithms
 {
 namespace svm
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_SVM_MODEL_ID);
 
-}
-
-namespace interface2
-{
 services::Status Parameter::check() const
 {
     services::Status s;
@@ -76,11 +70,8 @@ services::Status Parameter::check() const
     }
     return s;
 }
-} // namespace interface2
 
 namespace training
-{
-namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_SVM_TRAINING_RESULT_ID);
 Result::Result() : classifier::training::Result() {}
@@ -106,7 +97,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace svm
 } // namespace algorithms

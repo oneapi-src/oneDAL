@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace classifier
 {
-namespace interface2
-{
 Parameter::Parameter(size_t nClasses) : nClasses(nClasses), resultsToEvaluate(computeClassLabels) {}
 
 services::Status Parameter::check() const
@@ -43,11 +41,8 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(resultsToEvaluate != 0, services::ErrorIncorrectParameter, services::ParameterName, resultsToEvaluateStr())
     return services::Status();
 }
-} // namespace interface2
 
 namespace training
-{
-namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_TRAINING_RESULT_ID);
 
@@ -109,10 +104,9 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::interface1::Parameter * algParameter1 =
-            dynamic_cast<const daal::algorithms::classifier::interface1::Parameter *>(parameter);
-        const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
-            dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
+        const daal::algorithms::classifier::Parameter * algParameter1 = dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
+        const daal::algorithms::classifier::Parameter * algParameter2 = dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
+        // TODO :should support for this be removed completely? and in general?
         if (algParameter1 != NULL)
         {
             DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
@@ -186,7 +180,6 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace classifier
 } // namespace algorithms

@@ -41,8 +41,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface2
-{
 using namespace daal::data_management;
 
 /**
@@ -83,7 +81,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, x.get(), y.get(),
                        w.get(), px.get(), py.get(), r.get(), par);
 }
-} // namespace interface2
 } // namespace training
 } // namespace regression
 } // namespace decision_tree

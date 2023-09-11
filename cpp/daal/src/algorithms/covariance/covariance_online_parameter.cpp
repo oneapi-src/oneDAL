@@ -32,8 +32,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 /** Default constructor */
 OnlineParameter::OnlineParameter() : Parameter() {}
 
@@ -50,8 +48,6 @@ services::Status OnlineParameter::check() const
 {
     return services::Status();
 }
-
-} //namespace interface1
 
 } //namespace covariance
 } // namespace algorithms

@@ -35,8 +35,6 @@ namespace optimization_solver
 {
 namespace objective_function
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_OBJECTIVE_FUNCTION_RESULT_ID);
 Parameter::Parameter(const DAAL_UINT64 resultsToCompute) : resultsToCompute(resultsToCompute) {}
 
@@ -133,7 +131,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace objective_function
 } // namespace optimization_solver
 } // namespace algorithms

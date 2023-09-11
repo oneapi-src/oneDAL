@@ -34,8 +34,6 @@ namespace ridge_regression
 {
 namespace training
 {
-namespace interface1
-{
 Input::Input() : linear_model::training::Input(lastInputId + 1) {}
 Input::Input(const Input & other) : linear_model::training::Input(other) {}
 
@@ -107,7 +105,6 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace ridge_regression
 } // namespace algorithms

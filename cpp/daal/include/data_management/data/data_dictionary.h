@@ -36,8 +36,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @defgroup data_dictionary Data Dictionaries
  * \brief Contains classes that represent a dictionary of a data set and provide methods to work with the data dictionary
@@ -438,14 +436,6 @@ typedef Dictionary<NumericTableFeature, SERIALIZATION_DATADICTIONARY_NT_ID> Nume
 typedef services::SharedPtr<NumericTableDictionary> NumericTableDictionaryPtr;
 typedef services::SharedPtr<NumericTableFeature> NumericTableFeaturePtr;
 /** @} */
-
-} // namespace interface1
-using interface1::NumericTableFeature;
-using interface1::NumericTableFeaturePtr;
-using interface1::DictionaryIface;
-using interface1::Dictionary;
-using interface1::NumericTableDictionary;
-using interface1::NumericTableDictionaryPtr;
 
 } // namespace data_management
 } // namespace daal

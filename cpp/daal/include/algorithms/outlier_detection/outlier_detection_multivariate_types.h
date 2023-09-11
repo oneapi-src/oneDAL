@@ -50,7 +50,7 @@ enum Method
 {
     defaultDense = 0, /*!< Default method */
     baconDense   = 1  /*!< Blocked Adaptive Computationally-efficient Outlier Nominators(BACON) method
-                             * \DAAL_DEPRECATED_USE{\ref daal::algorithms::bacon_outlier_detection::interface1::Batch "bacon_outlier_detection::Batch" algorithm } */
+                             * \DAAL_DEPRECATED_USE{\ref daal::algorithms::bacon_outlier_detection::Batch "bacon_outlier_detection::Batch" algorithm } */
 };
 
 /**
@@ -87,11 +87,6 @@ enum ResultId
     lastResultId = weights
 };
 
-/**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__MULTIVARIATE_OUTLIER_DETECTION__INITIFACE"></a>
  * \brief Abstract interface class that provides function for the initialization procedure \DAAL_DEPRECATED
@@ -156,7 +151,7 @@ struct DAAL_EXPORT Parameter<defaultDense> : public daal::algorithms::Parameter
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTIVARIATE_OUTLIER_DETECTION__PARAMETER"></a>
  * \brief Parameters of the outlier detection computation using the baconDense method
- * \DAAL_DEPRECATED_USE{\ref daal::algorithms::bacon_outlier_detection::interface1::Parameter "bacon_outlier_detection::Parameter"}
+ * \DAAL_DEPRECATED_USE{\ref daal::algorithms::bacon_outlier_detection::Parameter "bacon_outlier_detection::Parameter"}
  *
  * \snippet outlier_detection/outlier_detection_multivariate_types.h ParameterBacon source code
  */
@@ -261,7 +256,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -273,13 +268,6 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 /** @} */
-} // namespace interface1
-using interface1::InitIface;
-using interface1::DefaultInit;
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace multivariate_outlier_detection
 } // namespace algorithms

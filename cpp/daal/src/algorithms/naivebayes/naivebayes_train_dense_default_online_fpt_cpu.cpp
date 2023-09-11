@@ -33,10 +33,7 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface2
-{
 template class OnlineContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class NaiveBayesOnlineTrainKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

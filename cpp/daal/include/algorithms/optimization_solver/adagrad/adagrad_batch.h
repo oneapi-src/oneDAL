@@ -39,8 +39,6 @@ namespace optimization_solver
 {
 namespace adagrad
 {
-namespace interface2
-{
 /**
  * @defgroup adagrad_batch Batch
  * @ingroup adagrad
@@ -178,9 +176,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace adagrad
 } // namespace optimization_solver

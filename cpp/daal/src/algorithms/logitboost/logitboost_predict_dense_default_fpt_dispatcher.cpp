@@ -36,8 +36,6 @@ namespace logitboost
 {
 namespace prediction
 {
-namespace interface2
-{
 template <>
 Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(size_t nClasses)
 {
@@ -53,7 +51,6 @@ Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(const BatchType 
     _par = new ParameterType(other.parameter());
     initialize();
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace logitboost
 

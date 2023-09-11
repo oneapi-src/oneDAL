@@ -39,8 +39,6 @@ namespace pca
 {
 namespace quality_metric_set
 {
-namespace interface1
-{
 Parameter::Parameter(size_t nComponents, size_t nFeatures) : nComponents(nComponents), nFeatures(nFeatures) {}
 
 services::Status Parameter::check() const
@@ -77,14 +75,11 @@ algorithms::InputPtr InputDataCollection::getInput(QualityMetricId id) const
     return algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id);
 }
 
-} //namespace interface1
 } //namespace quality_metric_set
 
 namespace quality_metric
 {
 namespace explained_variance
-{
-namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PCA_QUALITY_METRIC_RESULT_ID);
 
@@ -190,7 +185,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} //namespace interface1
 } //namespace explained_variance
 } //namespace quality_metric
 } //namespace pca

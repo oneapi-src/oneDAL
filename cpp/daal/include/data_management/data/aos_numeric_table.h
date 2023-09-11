@@ -38,8 +38,6 @@ namespace data_management
    The constant 0x1000 (not NULL) is necessary to appease GCC. */
 #define DAAL_STRUCT_MEMBER_OFFSET(class_name, member_name) ((ptrdiff_t) & (reinterpret_cast<class_name *>(0x1000)->member_name) - 0x1000)
 
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -522,9 +520,6 @@ private:
 };
 typedef services::SharedPtr<AOSNumericTable> AOSNumericTablePtr;
 /** @} */
-} // namespace interface1
-using interface1::AOSNumericTable;
-using interface1::AOSNumericTablePtr;
 
 } // namespace data_management
 } // namespace daal

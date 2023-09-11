@@ -30,8 +30,6 @@ namespace algorithms
 {
 namespace bf_knn_classification
 {
-namespace interface1
-{
 class Model::ModelImpl
 {
 public:
@@ -126,7 +124,6 @@ private:
     data_management::NumericTablePtr _labels;
 };
 
-} // namespace interface1
 } // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal

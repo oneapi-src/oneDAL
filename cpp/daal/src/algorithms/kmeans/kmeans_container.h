@@ -42,8 +42,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -297,7 +295,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     }
 }
 
-} // namespace interface2
 } // namespace kmeans
 } // namespace algorithms
 } // namespace daal

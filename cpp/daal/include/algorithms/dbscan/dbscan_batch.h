@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-namespace interface1
-{
 /**
  * @defgroup dbscan_batch Batch
  * @ingroup dbscan_compute
@@ -178,9 +176,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace dbscan
 } // namespace algorithms

@@ -27,8 +27,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
 *  <a name="DAAL-CLASS-DATA_MANAGEMENT__MEMORYBLOCK"></a>
 *  \brief Serializable memory block, owner of the memory
@@ -81,7 +79,7 @@ public:
     void release();
 
 protected:
-    virtual services::Status serializeImpl(interface1::InputDataArchive * arch) DAAL_C11_OVERRIDE
+    virtual services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         arch->set(_size);
         if (_size) arch->set(_value, _size);
@@ -89,7 +87,7 @@ protected:
         return services::Status();
     }
 
-    virtual services::Status deserializeImpl(const interface1::OutputDataArchive * arch) DAAL_C11_OVERRIDE
+    virtual services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         size_t sz = 0;
         arch->set(sz);
@@ -104,10 +102,6 @@ protected:
     byte * _value;
 };
 typedef services::SharedPtr<MemoryBlock> MemoryBlockPtr;
-
-} // namespace interface1
-using interface1::MemoryBlock;
-using interface1::MemoryBlockPtr;
 
 } // namespace data_management
 } // namespace daal

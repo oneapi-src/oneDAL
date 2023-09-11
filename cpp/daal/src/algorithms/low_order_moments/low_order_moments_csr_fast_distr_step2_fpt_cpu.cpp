@@ -31,10 +31,7 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 template class DistributedContainer<step2Master, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
 namespace internal
 {
 template class LowOrderMomentsDistributedKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

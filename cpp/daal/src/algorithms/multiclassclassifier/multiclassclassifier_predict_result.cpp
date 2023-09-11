@@ -33,8 +33,6 @@ namespace multi_class_classifier
 {
 namespace prediction
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MULTICLASS_PREDICTION_RESULT_ID);
 
 Result::Result() : classifier::prediction::Result(lastResultId + 1) {}
@@ -91,7 +89,6 @@ services::Status Result::checkImpl(const daal::algorithms::Input * input, const 
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace multi_class_classifier
 } // namespace algorithms

@@ -37,8 +37,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 inline ::oneapi::fpk::transpose to_fpk_transpose(const math::Transpose & trans)
 {
     using fpk_transpose = ::oneapi::fpk::transpose;
@@ -50,11 +48,6 @@ inline ::oneapi::fpk::uplo to_fpk_uplo(const math::UpLo & uplo)
     using fpk_uplo = ::oneapi::fpk::uplo;
     return uplo == math::UpLo::Upper ? fpk_uplo::upper : fpk_uplo::lower;
 }
-
-} // namespace interface1
-
-using interface1::to_fpk_transpose;
-using interface1::to_fpk_uplo;
 
 } // namespace math
 } // namespace sycl

@@ -28,8 +28,6 @@ namespace sycl
 {
 namespace math
 {
-namespace interface1
-{
 enum Layout
 {
     ColMajor,
@@ -47,12 +45,6 @@ enum UpLo
     Upper,
     Lower
 };
-
-} // namespace interface1
-
-using interface1::Layout;
-using interface1::Transpose;
-using interface1::UpLo;
 
 } // namespace math
 } // namespace sycl

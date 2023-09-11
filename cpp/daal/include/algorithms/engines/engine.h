@@ -36,8 +36,6 @@ namespace engines
  * @ingroup engines
  * @{
  */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__BATCHBASE"></a>
  *  \brief Class representing an engine
@@ -102,9 +100,6 @@ protected:
 };
 typedef services::SharedPtr<BatchBase> EnginePtr;
 
-} // namespace interface1
-using interface1::BatchBase;
-using interface1::EnginePtr;
 /** @} */
 } // namespace engines
 } // namespace algorithms

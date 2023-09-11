@@ -34,8 +34,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * Allocates memory for storing partial results of the naive Bayes training algorithm
  * \param[in] input        Pointer to input object
@@ -71,7 +69,6 @@ DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input * input
     return st;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace multinomial_naive_bayes
 } // namespace algorithms

@@ -61,8 +61,6 @@ template ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClas
 
 namespace training
 {
-namespace interface2
-{
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
@@ -77,7 +75,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                     const daal::algorithms::Parameter * parameter, const int method);
-} // namespace interface2
 
 } // namespace training
 } // namespace logistic_regression

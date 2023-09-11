@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace em_gmm
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_EM_GMM_RESULT_ID);
 /**
  * Constructs the parameter of EMM for GMM algorithm
@@ -300,7 +298,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return s;
 }
 
-} // namespace interface1
 } // namespace em_gmm
 } // namespace algorithms
 } // namespace daal

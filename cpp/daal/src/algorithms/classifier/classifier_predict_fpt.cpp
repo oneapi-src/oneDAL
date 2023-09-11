@@ -35,8 +35,6 @@ namespace prediction
 namespace dm  = daal::data_management;
 namespace dmi = daal::data_management::internal;
 
-namespace interface2
-{
 /**
  * Allocates memory for storing prediction results of the classification algorithm
  * \tparam  algorithmFPType     Data type for storing prediction results
@@ -92,8 +90,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
-
-} // namespace interface2
 
 } // namespace prediction
 } // namespace classifier

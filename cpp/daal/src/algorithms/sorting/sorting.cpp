@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace sorting
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_SORTING_RESULT_ID);
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
 Input::Input(const Input & other) : daal::algorithms::Input(other) {}
@@ -110,7 +108,6 @@ Status Result::check(const daal::algorithms::Input * in, const Parameter * par, 
     return checkNumericTable(get(sortedData).get(), sortedDataStr(), unexpectedLayouts, 0, nFeatures, nVectors);
 }
 
-} // namespace interface1
 } // namespace sorting
 } // namespace algorithms
 } // namespace daal

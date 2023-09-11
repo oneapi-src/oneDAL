@@ -38,8 +38,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 template <typename algorithmFPType, CpuType cpu>
 BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -69,11 +67,10 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    Input * input   = static_cast<Input *>(_in);
-    Result * result = static_cast<Result *>(_res);
-    interface3::BatchParameter<algorithmFPType, correlationDense> * parameter =
-        static_cast<interface3::BatchParameter<algorithmFPType, correlationDense> *>(_par);
-    services::Environment::env & env = *_env;
+    Input * input                                                 = static_cast<Input *>(_in);
+    Result * result                                               = static_cast<Result *>(_res);
+    BatchParameter<algorithmFPType, correlationDense> * parameter = static_cast<BatchParameter<algorithmFPType, correlationDense> *>(_par);
+    services::Environment::env & env                              = *_env;
 
     data_management::NumericTablePtr data         = input->get(pca::data);
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
@@ -103,7 +100,6 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
     }
 }
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

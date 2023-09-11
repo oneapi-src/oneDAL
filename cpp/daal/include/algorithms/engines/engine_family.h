@@ -36,8 +36,6 @@ namespace engines
  * @ingroup engines
  * @{
  */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__FAMILYBATCHBASE"></a>
  *  \brief Class representing an engine that has collection of independent streams obtained from RNGs from same family.
@@ -96,9 +94,6 @@ private:
 };
 typedef services::SharedPtr<FamilyBatchBase> FamilyEnginePtr;
 
-} // namespace interface1
-using interface1::FamilyBatchBase;
-using interface1::FamilyEnginePtr;
 /** @} */
 } // namespace engines
 } // namespace algorithms

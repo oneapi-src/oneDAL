@@ -37,8 +37,6 @@ namespace elastic_net
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup elastic_net_prediction_batch Batch
  * @ingroup elastic_net_prediction
@@ -54,8 +52,8 @@ namespace interface1
  *                          in the batch processing mode, double or float
  *
  * \par References
- *      - \ref elastic_net::interface1::Model "elastic_net::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref elastic_net::Model "elastic_net::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
@@ -127,8 +125,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
 
 } // namespace prediction
 } // namespace elastic_net

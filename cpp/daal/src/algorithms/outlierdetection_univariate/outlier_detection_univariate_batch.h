@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace univariate_outlier_detection
 {
-namespace interface1
-{
 /**
  * Registers user-allocated memory to store univariate outlier detection results
  * \param[in] input   Pointer to the %input objects for the algorithm
@@ -53,7 +51,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     return s;
 }
 
-} // namespace interface1
 } // namespace univariate_outlier_detection
 } // namespace algorithms
 } // namespace daal

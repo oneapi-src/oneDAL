@@ -39,8 +39,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup decision_tree_classification_training_batch Batch
  * @ingroup decision_tree_classification_training
@@ -82,8 +80,8 @@ public:
  *      - \ref Method  Computation methods
  *
  * \par References
- *      - \ref decision_tree::classification::interface1::Model "decision_tree::classification::Model" class
- *      - \ref prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref decision_tree::classification::Model "decision_tree::classification::Model" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -96,7 +94,7 @@ public:
     typedef algorithms::decision_tree::classification::training::Result ResultType;
 
     InputType input;         /*!< %Input objects of the algorithm */
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the algorithm */
 
     /** Default constructor */
     Batch(size_t nClasses) : parameter(nClasses) { initialize(); }
@@ -173,10 +171,6 @@ private:
 };
 
 /** @} */
-} // namespace interface2
-
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace training
 } // namespace classification

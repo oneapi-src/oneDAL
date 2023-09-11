@@ -43,8 +43,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 {
 public:
@@ -278,9 +276,6 @@ private:
     SyclKernelScheduler _kernelScheduler;
     InfoDevice _infoDevice;
 };
-} // namespace interface1
-
-using interface1::SyclExecutionContextImpl;
 
 } // namespace sycl
 } // namespace internal

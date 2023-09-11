@@ -21,8 +21,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 MergedNumericTable::MergedNumericTable() : NumericTable(0, 0), _tables(new DataCollection) {}
 
 MergedNumericTable::MergedNumericTable(NumericTablePtr table) : NumericTable(0, 0), _tables(new DataCollection)
@@ -83,6 +81,5 @@ services::SharedPtr<MergedNumericTable> MergedNumericTable::create(const Numeric
     DAAL_DEFAULT_CREATE_IMPL_EX(MergedNumericTable, first, second);
 }
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal

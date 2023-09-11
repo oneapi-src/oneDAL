@@ -34,8 +34,6 @@ namespace svm
 {
 namespace prediction
 {
-namespace interface2
-{
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
 */
@@ -84,7 +82,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         __DAAL_CALL_KERNEL_SYCL(env, internal::SVMPredictImplOneAPI, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
     }
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace svm
 } // namespace algorithms

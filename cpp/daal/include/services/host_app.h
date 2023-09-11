@@ -33,11 +33,6 @@ namespace daal
 namespace services
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  *  <a name="DAAL-CLASS-SERVICES__HOSTAPPIFACE"></a>
  *  \brief Abstract class which defines callback interface for the host application of this library
  *         to enable such features as computation cancelling, progress bar, status bar, verbose, etc.
@@ -59,10 +54,6 @@ private:
     Base * _impl;
 };
 typedef services::SharedPtr<HostAppIface> HostAppIfacePtr;
-
-} // namespace interface1
-using interface1::HostAppIface;
-using interface1::HostAppIfacePtr;
 
 } // namespace services
 } // namespace daal

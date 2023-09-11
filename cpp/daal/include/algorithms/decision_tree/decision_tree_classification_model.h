@@ -63,18 +63,13 @@ enum SplitCriterion
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__CLASSIFICATION__MODEL"></a>
  * \brief %Base class for models trained with the Decision tree algorithm
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface2::Batch "training::Batch" class
- *      - \ref prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {
@@ -136,18 +131,6 @@ public:
     *  Perform Depth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    void traverseDFS(tree_utils::classification::interface1::TreeNodeVisitor & visitor) const;
-
-    /**
-    *  Perform Breadth First Traversal of tree
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
-    void traverseBFS(tree_utils::classification::interface1::TreeNodeVisitor & visitor) const;
-
-    /**
-    *  Perform Depth First Traversal of tree
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
     void traverseDFS(tree_utils::classification::TreeNodeVisitor & visitor) const;
 
     /**
@@ -170,17 +153,6 @@ private:
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 
-} // namespace interface1
-
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
-
-/**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
 /**
  * @ingroup decision_tree_classification
  * @{
@@ -220,8 +192,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     SplitCriterion splitCriterion;     /*!< Split criterion for Decision tree classification */
 };
 /* [Parameter source code] */
-} // namespace interface2
-using interface2::Parameter;
 
 /** @} */
 } // namespace classification

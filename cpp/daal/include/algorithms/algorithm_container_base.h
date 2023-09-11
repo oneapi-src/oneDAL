@@ -38,11 +38,6 @@ namespace algorithms
  * @{
  */
 /**
-* \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
-*/
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMCONTAINERIFACE"></a>
  * \brief Implements the abstract interface AlgorithmContainerIface. It is associated with the Algorithm class
  *        and supports the methods for computation and finalization of the algorithm results
@@ -210,9 +205,6 @@ protected:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::AlgorithmContainerImpl;
-using interface1::AlgorithmContainerIface;
 
 } // namespace algorithms
 } // namespace daal

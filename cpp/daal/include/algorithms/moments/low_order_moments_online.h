@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
 /**
  * @defgroup low_order_moments_online Online
  * @ingroup low_order_moments
@@ -203,9 +201,6 @@ private:
     Online & operator=(const Online &);
 };
 /** @} */
-} // namespace interface1
-using interface1::OnlineContainer;
-using interface1::Online;
 
 } // namespace low_order_moments
 } // namespace algorithms

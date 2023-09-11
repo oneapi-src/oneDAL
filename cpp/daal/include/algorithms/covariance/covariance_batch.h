@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace covariance
 {
-namespace interface1
-{
 /**
  * @defgroup covariance_batch Batch
  * @ingroup covariance
@@ -384,11 +382,6 @@ protected:
     void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env); }
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainerIface;
-using interface1::BatchContainer;
-using interface1::BatchImpl;
-using interface1::Batch;
 
 } // namespace covariance
 } // namespace algorithms

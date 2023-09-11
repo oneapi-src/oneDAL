@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PCA_RESULT_ID);
 
 Result::Result(const Result & o)
@@ -178,13 +176,12 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
         resultsToCompute = par->resultsToCompute;
     }
 
-    const interface1::InputIface * in = static_cast<const interface1::InputIface *>(input);
+    const InputIface * in = static_cast<const InputIface *>(input);
     DAAL_CHECK(in, ErrorNullPtr);
 
     return checkImpl(in->getNFeatures(), nComponents, resultsToCompute);
 }
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

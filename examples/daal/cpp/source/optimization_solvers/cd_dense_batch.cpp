@@ -67,8 +67,8 @@ int main(int argc, char* argv[]) {
                                     dependentVariables);
 
     /* Create objects to compute the Coordinate descent result using the default method */
-    optimization_solver::coordinate_descent::interface1::Batch<>* cdAlgorithm =
-        new optimization_solver::coordinate_descent::interface1::Batch<>(mseObjectiveFunction);
+    optimization_solver::coordinate_descent::Batch<>* cdAlgorithm =
+        new optimization_solver::coordinate_descent::Batch<>(mseObjectiveFunction);
 
     /* Set input objects for the the Coordinate descent algorithm */
     cdAlgorithm->input.set(

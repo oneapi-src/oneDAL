@@ -38,8 +38,6 @@ namespace training
 {
 namespace init
 {
-namespace interface1
-{
 DistributedParameter::DistributedParameter(size_t nFactors, size_t fullNUsers, size_t seed) : Parameter(nFactors, fullNUsers, seed) {}
 
 services::Status DistributedParameter::check() const
@@ -143,7 +141,6 @@ services::Status DistributedInput<step2Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace init
 } // namespace training
 } // namespace implicit_als

@@ -25,8 +25,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 struct TypeToStringConverter
 {
     services::String result;
@@ -48,7 +46,6 @@ services::String getKeyFPType(TypeId typeId)
     return converter.result;
 }
 
-} // namespace interface1
 } // namespace sycl
 } // namespace internal
 } // namespace services

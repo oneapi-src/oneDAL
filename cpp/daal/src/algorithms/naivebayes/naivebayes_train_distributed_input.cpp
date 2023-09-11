@@ -33,8 +33,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -152,8 +150,7 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
-            dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
+        const daal::algorithms::classifier::Parameter * algParameter2 = dynamic_cast<const daal::algorithms::classifier::Parameter *>(parameter);
         if (algParameter2 != NULL)
         {
             DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,
@@ -168,7 +165,6 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace multinomial_naive_bayes
 } // namespace algorithms

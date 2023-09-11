@@ -34,8 +34,6 @@ namespace optimization_solver
 {
 namespace iterative_solver
 {
-namespace interface2
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -194,7 +192,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return checkNumericTable(get(nIterations).get(), nIterationsStr(), 0, 0, 1, 1);
 }
 
-} // namespace interface2
 } // namespace iterative_solver
 } // namespace optimization_solver
 } // namespace algorithms

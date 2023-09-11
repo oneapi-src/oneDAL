@@ -41,7 +41,7 @@ namespace mt2203
 namespace internal
 {
 template <CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class BatchImpl : public algorithms::engines::mt2203::interface1::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
+class BatchImpl : public algorithms::engines::mt2203::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
 {
 private:
     using BaseRNGsPtr = SharedPtr<daal::internal::BaseRNGsInst<cpu> >;
@@ -50,7 +50,7 @@ private:
     const int32_t header = 0x4441414C;
 
 public:
-    typedef algorithms::engines::mt2203::interface1::Batch<algorithmFPType, method> super1;
+    typedef algorithms::engines::mt2203::Batch<algorithmFPType, method> super1;
     typedef algorithms::engines::internal::BatchBaseImpl super2;
 
     BatchImpl(size_t seed = 777, services::Status * st = nullptr) : super1(seed), super2(seed)

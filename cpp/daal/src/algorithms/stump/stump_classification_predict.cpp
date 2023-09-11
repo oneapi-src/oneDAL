@@ -37,8 +37,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
 Input::Input() {}
 Input::Input(const Input & other) : classifier::prediction::Input(other) {}
 
@@ -98,7 +96,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace classification
 } // namespace stump

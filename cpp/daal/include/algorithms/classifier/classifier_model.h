@@ -51,37 +51,6 @@ enum ResultToComputeId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * @ingroup classifier
- * @{
- */
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__PARAMETER"></a>
- * \brief Base class for the parameters of the classification algorithm  \DAAL_DEPRECATED
- *
- * \snippet classifier/classifier_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
-{
-    Parameter(size_t nClasses = 2) : nClasses(nClasses) {}
-
-    size_t nClasses; /*!< Number of classes */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-/**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * @ingroup classifier
  * @{
  */
@@ -102,14 +71,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 };
 /* [Parameter source code] */
 /** @} */
-} // namespace interface2
-using interface2::Parameter;
 
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
 /**
  * @ingroup classifier
  * @{
@@ -148,10 +110,6 @@ public:
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
-} // namespace interface1
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 } // namespace classifier
 } // namespace algorithms

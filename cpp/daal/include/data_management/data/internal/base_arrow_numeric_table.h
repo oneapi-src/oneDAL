@@ -25,8 +25,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -66,12 +64,6 @@ protected:
 typedef services::SharedPtr<BaseArrowImmutableNumericTable> BaseArrowImmutableNumericTablePtr;
 
 /** @} */
-} // namespace interface1
-
-using interface1::ArrowNumericTable;
-using interface1::ArrowNumericTablePtr;
-using interface1::BaseArrowImmutableNumericTable;
-using interface1::BaseArrowImmutableNumericTablePtr;
 
 } // namespace data_management
 } // namespace daal

@@ -33,8 +33,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup numeric_tables
  * @{
@@ -394,9 +392,6 @@ protected:
 };
 typedef services::SharedPtr<RowMergedNumericTable> RowMergedNumericTablePtr;
 /** @} */
-} // namespace interface1
-using interface1::RowMergedNumericTable;
-using interface1::RowMergedNumericTablePtr;
 
 } // namespace data_management
 } // namespace daal

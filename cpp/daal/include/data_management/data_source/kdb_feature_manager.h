@@ -35,8 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-KDBFEATUREMANAGER"></a>
  * \brief Contains KDB-specific commands
@@ -213,9 +211,6 @@ public:
 private:
     services::SharedPtr<services::ErrorCollection> _errors;
 };
-
-} // namespace interface1
-using interface1::KDBFeatureManager;
 
 } // namespace data_management
 } // namespace daal

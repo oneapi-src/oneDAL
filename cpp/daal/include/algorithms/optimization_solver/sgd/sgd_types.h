@@ -73,11 +73,6 @@ enum OptionalDataId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__SGD__BASEPARAMETER"></a>
  * \brief %BaseParameter base class for the Stochastic gradient descent algorithm
  *
@@ -350,18 +345,11 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
 /** @} */
-
-} // namespace interface2
-using interface2::BaseParameter;
-using interface2::Parameter;
-using interface2::Input;
-using interface2::Result;
-using interface2::ResultPtr;
 
 } // namespace sgd
 } // namespace optimization_solver

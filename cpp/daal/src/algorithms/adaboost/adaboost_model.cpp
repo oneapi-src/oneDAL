@@ -36,8 +36,6 @@ namespace algorithms
 {
 namespace adaboost
 {
-namespace interface2
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_MULTICLASS_ADABOOST_MODEL_ID);
 
 Parameter::Parameter(size_t nClasses_)
@@ -119,7 +117,6 @@ void Model::clearWeakLearnerModels()
     _models->clear();
 }
 
-} // namespace interface2
 } // namespace adaboost
 } // namespace algorithms
 } // namespace daal

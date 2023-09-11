@@ -59,11 +59,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__TRAINING__INPUT"></a>
  * \brief %Input objects for brute force kNN model-based training
  */
@@ -101,7 +96,7 @@ public:
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
      */
-    daal::algorithms::bf_knn_classification::interface1::ModelPtr get(classifier::training::ResultId id) const;
+    daal::algorithms::bf_knn_classification::ModelPtr get(classifier::training::ResultId id) const;
 
     /**
      * Allocates memory to store the result of BF kNN model-based training
@@ -121,14 +116,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-
-using interface1::Result;
-using interface1::ResultPtr;
-
-using interface1::Input;
-using interface1::InputPtr;
-using interface1::InputConstPtr;
 
 } // namespace training
 /** @} */

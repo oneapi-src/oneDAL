@@ -26,6 +26,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::interface3::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::defaultDense)
 }
 } // namespace daal

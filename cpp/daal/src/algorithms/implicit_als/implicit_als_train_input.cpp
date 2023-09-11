@@ -35,8 +35,6 @@ namespace implicit_als
 {
 namespace training
 {
-namespace interface1
-{
 Input::Input() : daal::algorithms::Input(lastModelInputId + 1) {}
 
 /**
@@ -133,7 +131,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace implicit_als
 } // namespace algorithms

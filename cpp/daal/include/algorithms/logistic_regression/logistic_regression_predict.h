@@ -47,14 +47,9 @@ namespace prediction
  */
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the logistic regression algorithm.
- *        This class is associated with daal::algorithms::logistic_regression::prediction::interface2::Batch class
+ *        This class is associated with daal::algorithms::logistic_regression::prediction::Batch class
  *        and supports method to compute logistic regression prediction
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float
@@ -94,9 +89,9 @@ public:
  *      - \ref classifier::prediction::ResultId             Identifiers of prediction results
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
- *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
+ *      - \ref Model "Model" class
+ *      - \ref classifier::prediction::Input "classifier::prediction::Input" class
+ *      - \ref classifier::prediction::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
@@ -178,7 +173,7 @@ protected:
     void initialize()
     {
         _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, interface2::BatchContainer, algorithmFPType, method)(&_env);
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _result.reset(new ResultType());
     }
 
@@ -186,9 +181,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace prediction
 } // namespace logistic_regression

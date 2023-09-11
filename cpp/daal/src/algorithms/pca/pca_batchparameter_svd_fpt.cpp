@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface3
-{
 /** Constructs PCA parameters */
 template <typename algorithmFPType>
 DAAL_EXPORT BatchParameter<algorithmFPType, svdDense>::BatchParameter(const services::SharedPtr<normalization::zscore::BatchImpl> & normalization)
@@ -48,7 +46,6 @@ template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter(
 
 template DAAL_EXPORT services::Status BatchParameter<DAAL_FPTYPE, svdDense>::check() const;
 
-} // namespace interface3
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

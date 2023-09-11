@@ -39,11 +39,6 @@ namespace algorithms
 namespace ridge_regression
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup ridge_regression
  * @{
  */
@@ -82,10 +77,10 @@ struct DAAL_EXPORT TrainParameter : public Parameter
  * \tparam modelFPType  Data type to store ridge regression model data, double or float
  *
  * \par References
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref training::interface1::Online "training::Online" class
- *      - \ref training::interface1::Distributed "training::Distributed" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref training::Online "training::Online" class
+ *      - \ref training::Distributed "training::Distributed" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public linear_model::Model
 {
@@ -95,13 +90,6 @@ public:
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 /** @} */
-} // namespace interface1
-
-using interface1::Parameter;
-using interface1::TrainParameter;
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 /**
  * Checks the correctness of ridge regression model

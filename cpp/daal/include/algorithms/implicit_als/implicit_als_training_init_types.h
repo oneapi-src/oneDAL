@@ -139,11 +139,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__IMPLICIT_ALS__TRAINING__INIT__PARAMETER"></a>
  * \brief Parameters of the compute() method of the implicit ALS initialization algorithm
  *
@@ -538,19 +533,6 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
 typedef services::SharedPtr<DistributedPartialResultStep2> DistributedPartialResultStep2Ptr;
-
-} // namespace interface1
-using interface1::Parameter;
-using interface1::DistributedParameter;
-using interface1::Input;
-using interface1::DistributedInput;
-using interface1::PartialResultBase;
-using interface1::PartialResult;
-using interface1::PartialResultPtr;
-using interface1::DistributedPartialResultStep2;
-using interface1::DistributedPartialResultStep2Ptr;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace init
 /** @} */

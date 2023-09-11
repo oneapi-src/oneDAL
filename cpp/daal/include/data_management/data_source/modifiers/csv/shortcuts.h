@@ -29,8 +29,6 @@ namespace modifiers
 {
 namespace csv
 {
-namespace interface1
-{
 /**
  * @ingroup data_source_modifiers_csv
  * @{
@@ -76,12 +74,6 @@ inline FeatureModifierIfacePtr automatic()
 }
 
 /** @} */
-} // namespace interface1
-
-using interface1::custom;
-using interface1::continuous;
-using interface1::categorical;
-using interface1::automatic;
 
 } // namespace csv
 } // namespace modifiers

@@ -34,10 +34,7 @@ namespace implicit_als
 {
 namespace training
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class ImplicitALSTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

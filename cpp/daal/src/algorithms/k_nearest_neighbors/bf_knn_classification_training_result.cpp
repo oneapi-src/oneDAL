@@ -29,8 +29,6 @@ namespace bf_knn_classification
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_K_NEAREST_NEIGHBOR_BF_TRAINING_RESULT_ID);
 
 Result::Result() : classifier::training::Result() {}
@@ -40,7 +38,6 @@ daal::algorithms::bf_knn_classification::ModelPtr Result::get(classifier::traini
     return services::staticPointerCast<daal::algorithms::bf_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace bf_knn_classification
 } // namespace algorithms

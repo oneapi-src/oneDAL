@@ -38,8 +38,6 @@ namespace stump
 {
 namespace regression
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -89,7 +87,6 @@ services::Status Parameter::check() const
     return s;
 }
 
-} // namespace interface1
 } // namespace regression
 } // namespace stump
 } // namespace algorithms

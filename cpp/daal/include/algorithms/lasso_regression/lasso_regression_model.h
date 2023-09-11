@@ -39,19 +39,14 @@ namespace algorithms
 namespace lasso_regression
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LASSO_REGRESSION__MODEL"></a>
  * \brief %Base class for models trained with the lasso regression algorithm
  *
  * \tparam modelFPType  Data type to store lasso regression model data, double or float
  *
  * \par References
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::Batch "training::Batch" class
+ *      - \ref prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public linear_model::Model
 {
@@ -61,11 +56,6 @@ public:
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 /** @} */
-} // namespace interface1
-
-using interface1::Model;
-using interface1::ModelPtr;
-using interface1::ModelConstPtr;
 
 /**
  * Checks the correctness of lasso regression model

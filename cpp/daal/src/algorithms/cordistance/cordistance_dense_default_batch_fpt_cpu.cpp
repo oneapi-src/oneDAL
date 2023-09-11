@@ -31,11 +31,8 @@ namespace algorithms
 {
 namespace correlation_distance
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
-}
 namespace internal
 {
 template class DistanceKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

@@ -49,8 +49,6 @@ namespace daal
  */
 namespace services
 {
-namespace interface1
-{
 /**
  * @defgroup library_version_info Extracting Version Information
  * \brief Provides information about the version of Intel(R) oneAPI Data Analytics Library.
@@ -78,8 +76,6 @@ public:
     ~LibraryVersionInfo();
 };
 /** @} */
-} // namespace interface1
-using interface1::LibraryVersionInfo;
 
 } // namespace services
 /** @} */

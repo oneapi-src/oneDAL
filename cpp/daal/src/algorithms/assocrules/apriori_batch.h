@@ -33,8 +33,6 @@ namespace algorithms
 {
 namespace association_rules
 {
-namespace interface1
-{
 /**
  * Allocates memory for storing Association Rules algorithm results
  * \param[in] input         Pointer to input structure
@@ -59,7 +57,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     return status;
 }
 
-} // namespace interface1
 } // namespace association_rules
 } // namespace algorithms
 } // namespace daal

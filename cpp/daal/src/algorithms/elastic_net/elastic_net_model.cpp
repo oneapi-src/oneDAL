@@ -35,10 +35,7 @@ namespace algorithms
 {
 namespace elastic_net
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_ELASTIC_NET_MODEL_ID);
-}
 services::Status checkModel(elastic_net::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses, int method)
 {
     services::Status s;

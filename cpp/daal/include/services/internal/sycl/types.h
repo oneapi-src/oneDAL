@@ -84,8 +84,6 @@ inline String getKeyFPType()
     return String();
 }
 
-namespace interface1
-{
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEIDS"></a>
  *  \brief Mapping from standart types to enum values
@@ -251,17 +249,6 @@ private:
     TypeId _id;
     size_t _size;
 };
-
-} // namespace interface1
-
-using interface1::TypeId;
-using interface1::TypeIds;
-using interface1::ExecutionTargetId;
-using interface1::ExecutionTargetIds;
-using interface1::AccessModeId;
-using interface1::AccessModeIds;
-using interface1::UniversalBuffer;
-using interface1::LocalBuffer;
 
 /** @} */
 } // namespace sycl

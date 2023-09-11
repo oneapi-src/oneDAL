@@ -33,8 +33,6 @@ namespace data_management
 {
 namespace internal
 {
-namespace interface1
-{
 /**
  * @ingroup sycl
  * @{
@@ -644,11 +642,6 @@ inline daal::data_management::NumericTablePtr convertToSyclHomogen(NumericTable 
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(st, emptyPtr);
     return dst;
 }
-
-} // namespace interface1
-
-using interface1::SyclHomogenNumericTable;
-using interface1::convertToSyclHomogen;
 
 } // namespace internal
 } // namespace data_management

@@ -43,11 +43,6 @@ namespace daal
 namespace data_management
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup data_sources
  * @{
  */
@@ -637,11 +632,6 @@ private:
     SQLHSTMT _hdlStmt;
 };
 /** @} */
-
-} // namespace interface1
-
-using interface1::ODBCDataSource;
-using interface1::ODBCDataSourceOptions;
 
 inline ODBCDataSourceOptions::Value operator|(const ODBCDataSourceOptions::Value & lhs, const ODBCDataSourceOptions::Value & rhs)
 {

@@ -39,8 +39,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup serialization
  * @{
@@ -1005,12 +1003,6 @@ private:
     OutputDataArchive & operator=(const OutputDataArchive &);
 };
 /** @} */
-
-} // namespace interface1
-using interface1::DataArchiveIface;
-using interface1::DataArchive;
-using interface1::InputDataArchive;
-using interface1::OutputDataArchive;
 
 } // namespace data_management
 } // namespace daal

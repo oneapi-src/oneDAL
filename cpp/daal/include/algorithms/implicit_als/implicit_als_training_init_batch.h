@@ -38,8 +38,6 @@ namespace training
 {
 namespace init
 {
-namespace interface1
-{
 /**
  * @defgroup implicit_als_init_batch Batch
  * @ingroup implicit_als_init
@@ -156,9 +154,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace init
 } // namespace training

@@ -35,8 +35,6 @@ namespace brownboost
 {
 namespace prediction
 {
-namespace interface2
-{
 template <>
 Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch()
 {
@@ -51,7 +49,6 @@ Batch<DAAL_FPTYPE, brownboost::prediction::defaultDense>::Batch(const BatchType 
     _par = new ParameterType(other.parameter());
     initialize();
 }
-} // namespace interface2
 } // namespace prediction
 } // namespace brownboost
 

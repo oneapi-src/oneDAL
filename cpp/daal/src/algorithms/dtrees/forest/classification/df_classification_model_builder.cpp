@@ -38,8 +38,6 @@ namespace decision_forest
 {
 namespace classification
 {
-namespace interface2
-{
 
 ModelBuilder::ModelBuilder() : _nClasses(0), _model(new decision_forest::classification::internal::ModelImpl()) {}
 
@@ -125,7 +123,6 @@ services::Status ModelBuilder::addSplitNodeInternal(const TreeId treeId, const N
                                                                     featureValue, res);
 }
 
-} // namespace interface2
 } // namespace classification
 } // namespace decision_forest
 } // namespace algorithms

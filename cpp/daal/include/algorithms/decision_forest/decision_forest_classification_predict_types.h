@@ -58,11 +58,6 @@ enum VotingMethod
     lastResultId = unweighted
 };
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST_CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the DECISION_FOREST_CLASSIFICATION algorithm
  */
@@ -130,10 +125,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-
-} // namespace interface1
-using interface1::Input;
-using interface1::Parameter;
 } // namespace prediction
 /** @} */
 } // namespace classification

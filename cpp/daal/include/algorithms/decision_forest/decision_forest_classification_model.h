@@ -46,11 +46,6 @@ namespace decision_forest
 namespace classification
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup decision_forest_classification
  * @{
  */
@@ -59,8 +54,8 @@ namespace interface1
  * \brief %Model of the classifier trained by the decision_forest::training::Batch algorithm.
  *
  * \par References
- *      - \ref classification::training::interface3::Batch "training::Batch" class
- *      - \ref classification::prediction::interface3::Batch "prediction::Batch" class
+ *      - \ref classification::training::Batch "training::Batch" class
+ *      - \ref classification::prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {
@@ -96,20 +91,6 @@ public:
     virtual void clear() = 0;
 
     /**
-    *  Perform Depth First Traversal of i-th tree
-    *  \param[in] iTree    Index of the tree to traverse
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const = 0;
-
-    /**
-    *  Perform Breadth First Traversal of i-th tree
-    *  \param[in] iTree    Index of the tree to traverse
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const = 0;
-
-    /**
     *  Get number of trees in the decision forest model
     *  \return number of trees
     */
@@ -140,9 +121,6 @@ protected:
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;
-} // namespace interface1
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace classification
 } // namespace decision_forest

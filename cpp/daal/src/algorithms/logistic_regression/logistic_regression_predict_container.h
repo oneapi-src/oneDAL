@@ -37,8 +37,6 @@ namespace logistic_regression
 {
 namespace prediction
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -93,8 +91,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                                 daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
     }
 }
-
-} // namespace interface2
 
 } // namespace prediction
 } // namespace logistic_regression

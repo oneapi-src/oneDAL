@@ -70,11 +70,6 @@ enum OptionalDataId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__SAGA__PARAMETER"></a>
  * \brief %Parameter base class for the Stochastic average  gradient descent algorithm
  *
@@ -215,18 +210,12 @@ public:
                                    int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
 
 /** @} */
-} // namespace interface2
-
-using interface2::Parameter;
-using interface2::Input;
-using interface2::Result;
-using interface2::ResultPtr;
 
 } // namespace saga
 } // namespace optimization_solver

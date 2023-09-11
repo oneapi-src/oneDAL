@@ -36,11 +36,6 @@ namespace daal
 namespace algorithms
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMIMPL"></a>
  * \brief Provides implementations of the compute and finalizeCompute methods of the Algorithm class.
  *        The methods of the class support different computation modes: batch, distributed and online(see \ref ComputeMode)
@@ -315,8 +310,6 @@ private:
     AlgorithmImpl & operator=(const AlgorithmImpl &);
 };
 /** @} */
-} // namespace interface1
-using interface1::AlgorithmImpl;
 
 } // namespace algorithms
 } // namespace daal

@@ -28,15 +28,12 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 template DAAL_EXPORT Status OnlinePartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                        const daal::algorithms::Parameter * parameter, const int method);
 template DAAL_EXPORT Status OnlinePartialResult::initialize<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                          const daal::algorithms::Parameter * parameter, const int method);
 template DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage<DAAL_FPTYPE>(size_t m, size_t n, Parameter & par);
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

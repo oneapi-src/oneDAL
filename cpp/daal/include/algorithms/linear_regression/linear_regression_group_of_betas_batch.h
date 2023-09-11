@@ -43,8 +43,6 @@ namespace quality_metric
  */
 namespace group_of_betas
 {
-namespace interface1
-{
 /**
  * @defgroup linear_regression_quality_metric_group_of_betas_batch Batch
  * @ingroup linear_regression_quality_metric_group_of_betas
@@ -185,9 +183,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace group_of_betas
 } // namespace quality_metric

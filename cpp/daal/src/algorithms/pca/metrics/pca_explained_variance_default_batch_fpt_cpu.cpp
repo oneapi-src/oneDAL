@@ -35,10 +35,7 @@ namespace quality_metric
 {
 namespace explained_variance
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class ExplainedVarianceKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

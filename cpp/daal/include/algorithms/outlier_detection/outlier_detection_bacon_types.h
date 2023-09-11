@@ -80,11 +80,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__BACON_OUTLIER_DETECTION__PARAMETER"></a>
  * \brief Parameters of the outlier detection computation using the baconDense method
  *
@@ -190,7 +185,7 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -202,11 +197,6 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 /** @} */
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace bacon_outlier_detection
 } // namespace algorithms

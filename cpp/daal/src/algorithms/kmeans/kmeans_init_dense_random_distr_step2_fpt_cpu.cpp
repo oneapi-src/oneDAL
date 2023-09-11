@@ -33,10 +33,7 @@ namespace kmeans
 {
 namespace init
 {
-namespace interface2
-{
 template class DistributedContainer<step2Master, DAAL_FPTYPE, randomDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class KMeansInitStep2MasterKernel<randomDense, DAAL_FPTYPE, DAAL_CPU>;

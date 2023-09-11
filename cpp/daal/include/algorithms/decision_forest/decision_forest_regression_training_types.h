@@ -116,11 +116,6 @@ enum ResultEngineId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__PARAMETER"></a>
  * \brief Parameters for the decision forest algorithm
  *
@@ -134,13 +129,7 @@ public:
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-} // namespace interface2
 
-/**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
- */
-namespace interface1
-{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSSION__TRAINING__INPUT"></a>
  * \brief %Input objects for decision forest model-based training
@@ -246,7 +235,7 @@ public:
     engines::EnginePtr get(ResultEngineId id) const;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -268,12 +257,6 @@ private:
     Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-
-using interface2::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace training
 /** @} */

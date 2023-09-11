@@ -34,8 +34,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -60,7 +58,6 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     return Status();
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace regression
 } // namespace algorithms

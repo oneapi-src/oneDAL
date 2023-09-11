@@ -36,8 +36,6 @@ namespace implicit_als
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup implicit_als_training_batch Batch
  * @ingroup implicit_als_training
@@ -86,7 +84,7 @@ public:
     typedef algorithms::implicit_als::training::Result ResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< %Algorithm \ref implicit_als::interface1::Parameter "parameter" */
+    ParameterType parameter; /*!< %Algorithm \ref implicit_als::Parameter "parameter" */
 
     /** Default constructor */
     Batch() { initialize(); }
@@ -154,9 +152,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace implicit_als

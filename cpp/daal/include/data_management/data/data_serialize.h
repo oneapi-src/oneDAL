@@ -32,8 +32,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @defgroup serialization Data Serialization and Deserialization
  * \brief Contains classes that implement serialization and deserialization.
@@ -57,13 +55,13 @@ public:
      *  Performs serialization
      *  \param[in]  archive  Storage for a serialized object or data structure
      */
-    void serialize(interface1::InputDataArchive & archive);
+    void serialize(InputDataArchive & archive);
 
     /**
      *  Performs deserialization
      *  \param[in]  archive  Storage for a deserialized object or data structure
      */
-    void deserialize(interface1::OutputDataArchive & archive);
+    void deserialize(OutputDataArchive & archive);
 
     /**
      * Returns a serialization tag, a unique identifier of this class used in serialization
@@ -75,13 +73,13 @@ public:
      *  Interfaces for the implementation of serialization
      *  \param[in]  archive  Storage for a serialized object or data structure
      */
-    virtual services::Status serializeImpl(interface1::InputDataArchive * archive) = 0;
+    virtual services::Status serializeImpl(InputDataArchive * archive) = 0;
 
     /**
      *  Interfaces for the implementation of deserialization
      *  \param[in]  archive  Storage for a deserialized object or data structure
      */
-    virtual services::Status deserializeImpl(const interface1::OutputDataArchive * archive) = 0;
+    virtual services::Status deserializeImpl(const OutputDataArchive * archive) = 0;
 };
 
 /// @cond
@@ -104,9 +102,6 @@ private:
 /// @endcond
 
 /** @} */
-} // namespace interface1
-using interface1::SerializationIface;
-using interface1::SerializationDesc;
 
 } // namespace data_management
 } // namespace daal

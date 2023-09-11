@@ -35,8 +35,6 @@ namespace algorithms
 {
 namespace svd
 {
-namespace interface1
-{
 using namespace daal::services;
 
 /**
@@ -102,7 +100,6 @@ DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t
     return st;
 }
 
-} // namespace interface1
 } // namespace svd
 } // namespace algorithms
 } // namespace daal

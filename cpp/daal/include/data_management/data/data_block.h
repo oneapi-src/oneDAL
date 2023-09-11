@@ -31,8 +31,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 /**
  * @ingroup serialization
  * @{
@@ -131,10 +129,6 @@ private:
 };
 typedef services::SharedPtr<DataBlock> DataBlockPtr;
 /** @} */
-} // namespace interface1
-using interface1::DataBlock;
-using interface1::DataBlockPtr;
-using interface1::DataBlockIface;
 } // namespace data_management
 } // namespace daal
 

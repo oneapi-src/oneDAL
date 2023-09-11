@@ -72,7 +72,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     size_t inputFeatures   = algInput->getNumberOfFeatures();
     const size_t inputRows = algInput->get(data)->getNumberOfRows();
 
-    const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(par);
+    const Parameter * kmPar2 = dynamic_cast<const Parameter *>(par);
     if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
     const int unexpectedLayouts = (int)packed_mask;
     services::Status s;
@@ -103,10 +103,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
  */
 services::Status Result::check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const
 {
-    const interface2::Parameter * kmPar = static_cast<const interface2::Parameter *>(par);
-    const int unexpectedLayouts         = (int)packed_mask;
-    PartialResult * algPres             = static_cast<PartialResult *>(const_cast<daal::algorithms::PartialResult *>(pres));
-    size_t presFeatures                 = algPres->get(partialSums)->getNumberOfColumns();
+    const Parameter * kmPar     = static_cast<const Parameter *>(par);
+    const int unexpectedLayouts = (int)packed_mask;
+    PartialResult * algPres     = static_cast<PartialResult *>(const_cast<daal::algorithms::PartialResult *>(pres));
+    size_t presFeatures         = algPres->get(partialSums)->getNumberOfColumns();
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, presFeatures, kmPar->nClusters));
     return checkNumericTable(get(objectiveFunction).get(), objectiveFunctionStr(), unexpectedLayouts, 0, 1, 1);

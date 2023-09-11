@@ -71,11 +71,6 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__MSE__PARAMETER"></a>
  * \brief %Parameter for Logistic loss objective function
  *
@@ -156,9 +151,6 @@ public:
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
-} // namespace interface2
-using interface2::Parameter;
-using interface2::Input;
 
 } // namespace logistic_loss
 } // namespace optimization_solver

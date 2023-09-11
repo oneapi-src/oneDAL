@@ -30,11 +30,6 @@ namespace data_management
 namespace features
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__FEATURES__FEATUREIDFACTORY"></a>
  * \brief Auxiliary class that simplifies definition of feature ids collections
  */
@@ -193,14 +188,6 @@ inline FeatureIdCollectionIfacePtr allReverse()
 {
     return range(-1, 0);
 }
-
-} // namespace interface1
-
-using interface1::IdFactory;
-using interface1::list;
-using interface1::range;
-using interface1::all;
-using interface1::allReverse;
 
 } // namespace features
 } // namespace data_management

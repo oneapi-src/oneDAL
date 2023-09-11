@@ -34,8 +34,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -82,7 +80,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return classifier::prediction::Input::check(parameter, method);
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace classification
 } // namespace decision_tree

@@ -35,8 +35,6 @@ namespace linear_model
 {
 namespace prediction
 {
-namespace interface1
-{
 /**
  * @defgroup linear_model_prediction_batch Batch
  * @ingroup linear_model_prediction
@@ -76,8 +74,8 @@ public:
  *      - \ref Method  Computation methods for the regression model-based prediction
  *
  * \par References
- *      - \ref linear_model::interface1::Model "linear_model::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref linear_model::Model "linear_model::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public regression::prediction::Batch
@@ -100,9 +98,6 @@ public:
     ResultPtr getResult() { return ResultType::cast(_result); }
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
-using interface1::BatchContainer;
 } // namespace prediction
 } // namespace linear_model
 } // namespace algorithms

@@ -34,8 +34,6 @@ namespace daal
 {
 namespace algorithms
 {
-namespace interface1
-{
 /**
  * @addtogroup base_algorithms
  * @{
@@ -128,10 +126,6 @@ protected:
 };
 
 /** @} */
-} // namespace interface1
-using interface1::AlgorithmIface;
-using interface1::AlgorithmIfaceImpl;
-
 } // namespace algorithms
 } // namespace daal
 #endif

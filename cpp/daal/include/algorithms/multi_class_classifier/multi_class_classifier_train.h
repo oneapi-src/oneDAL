@@ -43,11 +43,6 @@ namespace multi_class_classifier
 namespace training
 {
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * @defgroup multi_class_classifier_training_batch Batch
  * @ingroup multi_class_classifier_training
  * @{
@@ -93,8 +88,8 @@ public:
  *      - \ref classifier::training::ResultId Identifiers of multi-class classifier training results
  *
  * \par References
- *      - \ref interface1::Model "Model" class
- *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
+ *      - \ref Model "Model" class
+ *      - \ref classifier::training::Input "classifier::training::Input" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = oneAgainstOne>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -106,7 +101,7 @@ public:
     typedef algorithms::multi_class_classifier::Parameter ParameterType;
     typedef algorithms::multi_class_classifier::training::Result ResultType;
 
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of the algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
     /**
@@ -194,9 +189,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace training
 } // namespace multi_class_classifier

@@ -28,8 +28,6 @@ namespace algorithms
 {
 namespace pca
 {
-namespace interface1
-{
 /** Constructs PCA parameters */
 template <typename algorithmFPType, Method method>
 DAAL_EXPORT BaseParameter<algorithmFPType, method>::BaseParameter() {};
@@ -37,7 +35,6 @@ DAAL_EXPORT BaseParameter<algorithmFPType, method>::BaseParameter() {};
 template DAAL_EXPORT BaseParameter<DAAL_FPTYPE, correlationDense>::BaseParameter();
 template DAAL_EXPORT BaseParameter<DAAL_FPTYPE, svdDense>::BaseParameter();
 
-} // namespace interface1
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

@@ -35,8 +35,6 @@ namespace linear_regression
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_LINEAR_REGRESSION_PARTIAL_RESULT_ID);
 PartialResult::PartialResult() : linear_model::training::PartialResult(lastPartialResultID + 1) {};
 
@@ -125,7 +123,6 @@ services::Status PartialResult::check(const daal::algorithms::Parameter * par, i
     return linear_regression::checkModel(partialModel.get(), *par, nBeta, nResponses, method);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace linear_regression
 } // namespace algorithms

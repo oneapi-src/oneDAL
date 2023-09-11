@@ -33,11 +33,6 @@ namespace daal
 namespace algorithms
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @addtogroup base_algorithms
  * @{
  */
@@ -60,7 +55,7 @@ public:
     virtual ~Model() DAAL_C11_OVERRIDE {}
 
     /**
-     * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
+     * \copydoc daal::data_management::SerializationIface::getSerializationTag()
      */
     int getSerializationTag() const DAAL_C11_OVERRIDE { return 0; }
 
@@ -75,10 +70,6 @@ protected:
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
-} // namespace interface1
-using interface1::ValidationMetricIface;
-using interface1::Model;
-using interface1::ModelPtr;
 
 } // namespace algorithms
 } // namespace daal

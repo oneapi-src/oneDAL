@@ -50,8 +50,6 @@ namespace internal
 {
 namespace sycl
 {
-namespace interface1
-{
 #define DAAL_LEVEL_ZERO_VERSION_SUFF          ".1"
 #define DAAL_LEVEL_ZERO_LIB_VERSIONED_NAME(n) #n DAAL_LEVEL_ZERO_VERSION_SUFF
 
@@ -175,7 +173,6 @@ private:
 
 typedef SharedPtr<ZeModule> ZeModulePtr;
 
-} // namespace interface1
 } // namespace sycl
 } // namespace internal
 } // namespace services

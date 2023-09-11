@@ -35,8 +35,6 @@ namespace brownboost
 {
 namespace prediction
 {
-namespace interface2
-{
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
  * \param[in] id    Identifier of the input NumericTable object
@@ -96,7 +94,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface2
 } // namespace prediction
 } // namespace brownboost
 } // namespace algorithms

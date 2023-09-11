@@ -34,8 +34,6 @@ namespace algorithms
 {
 namespace multivariate_outlier_detection
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_OUTLIER_DETECTION_MULTIVARIATE_RESULT_ID);
 
 Input::Input() : daal::algorithms::Input(4) {}
@@ -120,7 +118,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     return checkNumericTable(get(weights).get(), weightsStr(), unexpectedLayouts, 0, 1, nVectors);
 }
 
-} // namespace interface1
 } // namespace multivariate_outlier_detection
 } // namespace algorithms
 } // namespace daal

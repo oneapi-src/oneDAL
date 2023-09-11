@@ -71,11 +71,6 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__QUANTILES__PARAMETER"></a>
  * \brief Parameters of the quantiles algorithm
  */
@@ -164,7 +159,7 @@ public:
     virtual services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -176,11 +171,6 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 /** @} */
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
 
 } // namespace quantiles
 } // namespace algorithms

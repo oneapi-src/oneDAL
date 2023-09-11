@@ -28,8 +28,6 @@ namespace data_management
 {
 namespace internal
 {
-namespace interface1
-{
 /**
  * @ingroup sycl
  * @{
@@ -628,10 +626,6 @@ private:
 
 typedef services::SharedPtr<SyclSOANumericTable> SyclSOANumericTablePtr;
 /** @} */
-} // namespace interface1
-
-using interface1::SyclSOANumericTable;
-using interface1::SyclSOANumericTablePtr;
 
 } // namespace internal
 } // namespace data_management

@@ -21,8 +21,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 AOSNumericTable::AOSNumericTable(size_t structSize, size_t ncol, size_t nrow) : NumericTable(ncol, nrow)
 {
     _layout     = aos;
@@ -45,6 +43,5 @@ services::SharedPtr<AOSNumericTable> AOSNumericTable::create(size_t structSize, 
     DAAL_DEFAULT_CREATE_IMPL_EX(AOSNumericTable, structSize, ncol, nrow);
 }
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal

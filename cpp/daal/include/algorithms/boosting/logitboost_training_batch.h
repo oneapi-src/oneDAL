@@ -35,8 +35,6 @@ namespace logitboost
 {
 namespace training
 {
-namespace interface2
-{
 /**
  * @defgroup logitboost_training_batch Batch
  * @ingroup logitboost_training
@@ -81,7 +79,7 @@ public:
  *      - \ref classifier::training::ResultId Identifiers of LogitBoost training results
  *
  * \par References
- *      - \ref interface2::Model "Model" class
+ *      - \ref Model "Model" class
  *      - classifier::training::Input class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = friedman>
@@ -183,9 +181,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface2
-using interface2::Batch;
-using interface2::BatchContainer;
 
 } // namespace training
 } // namespace logitboost

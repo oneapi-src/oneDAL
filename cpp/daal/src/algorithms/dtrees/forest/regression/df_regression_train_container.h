@@ -42,8 +42,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -109,7 +107,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     pImpl->clear();
     return services::Status();
 }
-} // namespace interface2
 } // namespace training
 } // namespace regression
 } // namespace decision_forest

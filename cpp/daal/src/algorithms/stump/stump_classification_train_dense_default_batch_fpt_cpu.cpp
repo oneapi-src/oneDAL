@@ -35,10 +35,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface1
-{
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace internal
 {
 template class StumpTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

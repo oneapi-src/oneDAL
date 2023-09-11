@@ -41,11 +41,6 @@ namespace algorithms
 namespace logistic_regression
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * @ingroup logistic_regression
  * @{
  */
@@ -54,8 +49,8 @@ namespace interface1
  * \brief %Model of the classifier trained by the logistic_regression::training::Batch algorithm.
  *
  * \par References
- *      - \ref logistic_regression::training::interface3::Batch "training::Batch" class
- *      - \ref logistic_regression::prediction::interface2::Batch "prediction::Batch" class
+ *      - \ref logistic_regression::training::Batch "training::Batch" class
+ *      - \ref logistic_regression::prediction::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {
@@ -91,10 +86,6 @@ protected:
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;
-} // namespace interface1
-using interface1::Model;
-using interface1::ModelPtr;
-
 } // namespace logistic_regression
 } // namespace algorithms
 } // namespace daal

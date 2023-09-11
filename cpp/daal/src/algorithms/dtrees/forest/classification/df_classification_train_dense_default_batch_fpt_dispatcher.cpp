@@ -36,8 +36,6 @@ namespace classification
 {
 namespace training
 {
-namespace interface3
-{
 using BatchType = Batch<DAAL_FPTYPE, decision_forest::classification::training::defaultDense>;
 
 template <>
@@ -67,7 +65,6 @@ DAAL_EXPORT services::Status BatchType::checkComputeParams()
     DAAL_CHECK_EX(nSamplesPerTree > 0, services::ErrorIncorrectParameter, services::ParameterName, observationsPerTreeFractionStr());
     return s;
 }
-} // namespace interface3
 } // namespace training
 } // namespace classification
 } // namespace decision_forest

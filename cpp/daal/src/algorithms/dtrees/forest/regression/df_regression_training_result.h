@@ -50,8 +50,8 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status status;
-    const daal::algorithms::decision_forest::training::interface2::Parameter * parameter2 =
-        dynamic_cast<const daal::algorithms::decision_forest::training::interface2::Parameter *>(parameter);
+    const daal::algorithms::decision_forest::training::Parameter * parameter2 =
+        dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(parameter);
     const Input * inp      = static_cast<const Input *>(input);
     const size_t nFeatures = inp->get(data)->getNumberOfColumns();
     set(model, daal::algorithms::decision_forest::regression::ModelPtr(new decision_forest::regression::internal::ModelImpl(nFeatures)));

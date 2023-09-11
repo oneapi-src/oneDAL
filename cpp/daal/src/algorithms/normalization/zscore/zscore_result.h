@@ -37,8 +37,6 @@ namespace normalization
 {
 namespace zscore
 {
-namespace interface2
-{
 class ResultImpl : public DataCollection
 {
 public:
@@ -69,8 +67,6 @@ public:
     */
     services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par) const;
 };
-
-} // namespace interface2
 
 } // namespace zscore
 } // namespace normalization

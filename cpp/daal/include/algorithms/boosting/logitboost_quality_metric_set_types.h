@@ -53,11 +53,6 @@ enum QualityMetricId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
 * <a name="DAAL-STRUCT-ALGORITHMS__LOGITBOOST__QUALITY_METRIC_SET__PARAMETER"></a>
 * \brief Parameters for the LogitBoost compute() method
 *
@@ -112,12 +107,6 @@ public:
     classifier::quality_metric::multiclass_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-} // namespace interface1
-using interface1::Parameter;
-using interface1::ResultCollection;
-using interface1::ResultCollectionPtr;
-using interface1::InputDataCollection;
-using interface1::InputDataCollectionPtr;
 
 } // namespace quality_metric_set
 /** @} */

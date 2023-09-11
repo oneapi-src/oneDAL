@@ -40,8 +40,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
-{
 /**
  * @defgroup decision_tree_classification_prediction_batch Batch
  * @ingroup decision_tree_classification_prediction
@@ -83,8 +81,8 @@ public:
  *      - \ref Method  Computation methods for Decision tree model-based prediction
  *
  * \par References
- *      - \ref decision_tree::classification::interface1::Model "decision_tree::classification::Model" class
- *      - \ref training::interface2::Batch "training::Batch" class
+ *      - \ref decision_tree::classification::Model "decision_tree::classification::Model" class
+ *      - \ref training::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::Batch
@@ -97,7 +95,7 @@ public:
     typedef typename super::ResultType ResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of prediction */
+    ParameterType parameter; /*!< \ref Parameter "Parameters" of prediction */
 
     /** Default constructor */
     Batch(size_t nClasses = 2) : classifier::prediction::Batch(), input(), parameter(nClasses) { initialize(); }
@@ -154,10 +152,6 @@ private:
 };
 
 /** @} */
-} // namespace interface2
-
-using interface2::BatchContainer;
-using interface2::Batch;
 
 } // namespace prediction
 } // namespace classification

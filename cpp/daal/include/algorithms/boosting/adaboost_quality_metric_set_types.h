@@ -55,11 +55,6 @@ enum QualityMetricId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
 * <a name="DAAL-STRUCT-ALGORITHMS__ADABOOST__QUALITY_METRIC_SET__PARAMETER"></a>
 * \brief Parameters for the AdaBoost compute() method
 *
@@ -114,12 +109,6 @@ public:
     classifier::quality_metric::multiclass_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-} // namespace interface2
-using interface2::Parameter;
-using interface2::ResultCollection;
-using interface2::ResultCollectionPtr;
-using interface2::InputDataCollection;
-using interface2::InputDataCollectionPtr;
 
 } // namespace quality_metric_set
 /** @} */

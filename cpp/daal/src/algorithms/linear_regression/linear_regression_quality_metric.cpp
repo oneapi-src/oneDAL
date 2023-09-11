@@ -42,8 +42,6 @@ namespace linear_regression
 {
 namespace quality_metric_set
 {
-namespace interface1
-{
 Parameter::Parameter(size_t nBeta, size_t nBetaReducedModel, double alphaVal, double accuracyVal)
     : alpha(alphaVal), accuracyThreshold(accuracyVal), numBeta(nBeta), numBetaReducedModel(nBetaReducedModel)
 {}
@@ -93,14 +91,11 @@ algorithms::InputPtr InputDataCollection::getInput(QualityMetricId id) const
     return algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id);
 }
 
-} //namespace interface1
 } //namespace quality_metric_set
 
 namespace quality_metric
 {
 namespace single_beta
-{
-namespace interface1
 {
 Parameter::Parameter(double alphaVal, double accuracyVal) : alpha(alphaVal), accuracyThreshold(accuracyVal) {}
 
@@ -313,8 +308,6 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} //namespace interface1
-
 namespace internal
 {
 SingleBetaOutput::SingleBetaOutput(size_t nResponses)
@@ -347,8 +340,6 @@ const NumericTable * getXtXTable(const linear_regression::Model & model, bool & 
 } //namespace single_beta
 
 namespace group_of_betas
-{
-namespace interface1
 {
 services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
@@ -426,7 +417,6 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-} //namespace interface1
 } //namespace group_of_betas
 
 } //namespace quality_metric

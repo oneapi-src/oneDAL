@@ -102,11 +102,6 @@ enum ResultDataCollectionId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
  * <a name="DAAL-STRUCT-ALGORITHMS__LINEAR_REGRESSION__QUALITY_METRIC__SINGLE_BETA__PARAMETER"></a>
  * \brief Parameters for the compute() method of single beta quality metrics
  *
@@ -253,12 +248,12 @@ public:
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-     * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
+     * \copydoc daal::data_management::SerializationIface::getSerializationTag()
      */
     int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_LINEAR_REGRESSION_SINGLE_BETA_RESULT_ID; }
 
 protected:
-    using daal::algorithms::interface1::Result::check;
+    using daal::algorithms::Result::check;
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -284,13 +279,6 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-
-} // namespace interface1
-using interface1::Parameter;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::Input;
-using interface1::InputPtr;
 
 } // namespace single_beta
 /** @} */

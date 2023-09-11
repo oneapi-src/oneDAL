@@ -21,8 +21,6 @@ namespace daal
 {
 namespace data_management
 {
-namespace interface1
-{
 SOANumericTable::SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag)
     : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
@@ -273,6 +271,5 @@ services::Status SOANumericTable::allocateDataMemoryImpl(daal::MemType /*type*/)
     return services::Status();
 }
 
-} // namespace interface1
 } // namespace data_management
 } // namespace daal

@@ -42,11 +42,6 @@ namespace decision_forest
 namespace classification
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
  * @ingroup decision_forest_classification
  * @{
  */
@@ -55,7 +50,7 @@ namespace interface2
  * \brief %Model Builder class for Decision Forest Classification Model algorithm
  *
  * \par References
- *      - \ref classification::interface1::Model "classification::Model" class
+ *      - \ref classification::Model "classification::Model" class
  */
 class DAAL_EXPORT ModelBuilder
 {
@@ -194,8 +189,6 @@ private:
     size_t _nClasses;
 };
 /** @} */
-} // namespace interface2
-using interface2::ModelBuilder;
 
 } // namespace classification
 } // namespace decision_forest

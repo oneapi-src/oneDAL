@@ -25,13 +25,11 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::logistic_loss::interface2::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::logistic_loss::BatchContainer, batch, DAAL_FPTYPE,
                                            optimization_solver::logistic_loss::defaultDense)
 namespace optimization_solver
 {
 namespace logistic_loss
-{
-namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::logistic_loss::defaultDense>;
 
@@ -56,7 +54,6 @@ services::SharedPtr<BatchType> BatchType::create(size_t numberOfTerms)
     return services::SharedPtr<BatchType>(new BatchType(numberOfTerms));
 }
 
-} // namespace interface2
 } // namespace logistic_loss
 } // namespace optimization_solver
 } // namespace algorithms

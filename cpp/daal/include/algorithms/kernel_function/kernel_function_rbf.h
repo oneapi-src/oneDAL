@@ -37,8 +37,6 @@ namespace kernel_function
 {
 namespace rbf
 {
-namespace interface1
-{
 /**
  * @defgroup kernel_function_rbf_batch Batch
  * @ingroup kernel_function_rbf
@@ -85,7 +83,7 @@ public:
  *      - \ref ResultId Identifiers of results of the kernel function algorithm
  *
  * \par References
- *      - \ref interface1::Result "Result" class
+ *      - \ref Result "Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public KernelIface
@@ -156,9 +154,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace rbf
 } // namespace kernel_function

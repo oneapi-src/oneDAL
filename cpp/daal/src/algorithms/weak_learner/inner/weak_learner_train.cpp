@@ -35,8 +35,6 @@ namespace weak_learner
 {
 namespace training
 {
-namespace interface1
-{
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_WEAK_LEARNER_RESULT_ID);
 Result::Result() {}
 
@@ -60,7 +58,6 @@ void Result::set(classifier::training::ResultId id, daal::algorithms::weak_learn
     Argument::set(id, value);
 }
 
-} // namespace interface1
 } // namespace training
 } // namespace weak_learner
 } // namespace algorithms

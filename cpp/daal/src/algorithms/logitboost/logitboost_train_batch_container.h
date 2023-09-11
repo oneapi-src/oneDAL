@@ -36,8 +36,6 @@ namespace logitboost
 {
 namespace training
 {
-namespace interface2
-{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
@@ -67,7 +65,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::LogitBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
 }
-} // namespace interface2
 } // namespace training
 } // namespace logitboost
 } // namespace algorithms

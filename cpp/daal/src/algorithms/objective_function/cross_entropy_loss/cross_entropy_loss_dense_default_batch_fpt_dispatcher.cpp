@@ -25,14 +25,12 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::cross_entropy_loss::interface2::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::cross_entropy_loss::BatchContainer, batch, DAAL_FPTYPE,
                                            optimization_solver::cross_entropy_loss::defaultDense)
 
 namespace optimization_solver
 {
 namespace cross_entropy_loss
-{
-namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense>;
 
@@ -56,8 +54,6 @@ services::SharedPtr<BatchType> BatchType::create(size_t nClasses, size_t numberO
 {
     return services::SharedPtr<BatchType>(new BatchType(nClasses, numberOfTerms));
 }
-
-} // namespace interface2
 
 } // namespace cross_entropy_loss
 } // namespace optimization_solver

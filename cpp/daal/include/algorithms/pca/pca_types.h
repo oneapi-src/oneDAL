@@ -160,11 +160,6 @@ enum ResultToComputeId
 };
 
 /**
-    * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
-    */
-namespace interface1
-{
-/**
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__INPUTIFACE"></a>
     * \brief Abstract class that specifies interface for classes that declare input of the PCA algorithm */
 class DAAL_EXPORT InputIface : public daal::algorithms::Input
@@ -652,13 +647,6 @@ public:
     size_t getNFeatures() const DAAL_C11_OVERRIDE;
 };
 
-} // namespace interface1
-
-/**
-    * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
-    */
-namespace interface3
-{
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__BASEBATCHPARAMETER"></a>
 * \brief Class that specifies the common parameters of the PCA Batch algorithms
@@ -827,19 +815,6 @@ private:
     Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
-
-} // namespace interface3
-using interface1::InputIface;
-using interface1::Input;
-using interface1::PartialResultBase;
-using interface1::PartialResult;
-using interface3::BatchParameter;
-using interface3::BaseBatchParameter;
-using interface1::OnlineParameter;
-using interface1::DistributedParameter;
-using interface1::DistributedInput;
-using interface3::Result;
-using interface3::ResultPtr;
 
 } // namespace pca
 } // namespace algorithms

@@ -29,8 +29,6 @@ namespace algorithms
 {
 namespace quantiles
 {
-namespace interface1
-{
 /**
  * Allocates memory to store final results of the quantile algorithms
  * \param[in] input     Input objects for the quantiles algorithm
@@ -55,7 +53,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                                     const int method);
 
-} // namespace interface1
 } // namespace quantiles
 } // namespace algorithms
 } // namespace daal

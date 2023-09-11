@@ -36,8 +36,6 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-namespace interface1
-{
 /** Default constructor */
 Input::Input() : classifier::prediction::Input() {}
 
@@ -48,7 +46,7 @@ Input::Input() : classifier::prediction::Input() {}
  */
 kdtree_knn_classification::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
 {
-    return services::staticPointerCast<kdtree_knn_classification::interface1::Model, data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<kdtree_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 /**
@@ -66,7 +64,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const kdtree_knn_classification::interface1::ModelPtr & value)
+void Input::set(classifier::prediction::ModelInputId id, const kdtree_knn_classification::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -86,7 +84,7 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     errors.setCanThrow(false);
     s |= checkNumericTable(m->impl()->getData().get(), dataStr());
     DAAL_CHECK(s, ErrorModelNotFullInitialized);
-    const auto par = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(parameter);
+    const auto par = dynamic_cast<const kdtree_knn_classification::Parameter *>(parameter);
     if ((par == nullptr) || (par->resultsToEvaluate != 0))
     {
         s |= checkNumericTable(m->impl()->getLabels().get(), labelsStr());
@@ -101,7 +99,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
-} // namespace interface1
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms

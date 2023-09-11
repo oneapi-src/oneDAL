@@ -38,8 +38,6 @@ namespace regression
 {
 namespace training
 {
-namespace interface1
-{
 /**
  * @defgroup stump_regression_training_batch Batch
  * @ingroup stump_regression_training
@@ -85,8 +83,8 @@ public:
  *      - \ref daal::algorithms::regression::training::ResultId Identifiers of results of the decision stump training algorithm
  *
  * \par References
- *      - \ref daal::algorithms::regression::training::interface1::Input "regression::training::Input" class
- *      - \ref interface1::Model "Model" class
+ *      - \ref daal::algorithms::regression::training::Input "regression::training::Input" class
+ *      - \ref Model "Model" class
  *      - Result class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
@@ -183,9 +181,6 @@ private:
     Batch & operator=(const Batch &);
 };
 /** @} */
-} // namespace interface1
-using interface1::BatchContainer;
-using interface1::Batch;
 
 } // namespace training
 } // namespace regression
