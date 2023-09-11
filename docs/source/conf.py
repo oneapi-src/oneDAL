@@ -217,7 +217,6 @@ nitpick_ignore = [
     ('cpp:identifier', 'Kernel'),
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
-    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
     ('cpp:identifier', 'Kernel'),
     ('cpp:identifier', 'task::regression'),
     ('cpp:identifier', 'task::classification'),
@@ -264,11 +263,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'covariance::compute_input'),
     ('cpp:identifier', 'oneapi::dal::covariance'),
     ('cpp:identifier', 'oneapi::dal::covariance::task'),
-    ('cpp:identifier', 'oneapi::dal::covariance::task::v1'),
-    ('cpp:identifier', 'oneapi::dal::covariance::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::covariance::task::compute'),
     ('cpp:identifier', 'oneapi::dal::covariance::method'),
-    ('cpp:identifier', 'oneapi::dal::covariance::method::v1'),
-    ('cpp:identifier', 'oneapi::dal::covariance::method::v1::dense'),
+    ('cpp:identifier', 'oneapi::dal::covariance::method::dense'),
     # basic statistics
     ('cpp:identifier', 'basic_statistics'),
     ('cpp:identifier', 'basic_statistics::descriptor'),
@@ -276,11 +273,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'basic_statistics::compute_input'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::task'),
-    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1'),
-    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::task::compute'),
     ('cpp:identifier', 'oneapi::dal::basic_statistics::method'),
-    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1'),
-    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::v1::dense'),
+    ('cpp:identifier', 'oneapi::dal::basic_statistics::method::dense'),
     # dbscan
     ('cpp:identifier', 'dbscan'),
     ('cpp:identifier', 'dbscan::descriptor'),
@@ -288,11 +283,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'dbscan::compute_input'),
     ('cpp:identifier', 'oneapi::dal::dbscan'),
     ('cpp:identifier', 'oneapi::dal::dbscan::task'),
-    ('cpp:identifier', 'oneapi::dal::dbscan::task::v1'),
-    ('cpp:identifier', 'oneapi::dal::dbscan::task::v1::compute'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::task::compute'),
     ('cpp:identifier', 'oneapi::dal::dbscan::method'),
-    ('cpp:identifier', 'oneapi::dal::dbscan::method::v1'),
-    ('cpp:identifier', 'oneapi::dal::dbscan::method::v1::brute_force'),
+    ('cpp:identifier', 'oneapi::dal::dbscan::method::brute_force'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
@@ -340,7 +333,6 @@ nitpick_ignore = [
     # oneapi - decision_forest
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
-    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
     # oneapi - svm
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),

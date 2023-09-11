@@ -118,15 +118,6 @@ public:
         return true;
     }
 
-    detail::access_iface_host& get_access_iface_host() const override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
-    }
-#ifdef ONEDAL_DATA_PARALLEL
-    detail::access_iface_dpc& get_access_iface_dpc() const override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
-    }
-#endif
-
     template <typename T>
     void pull_rows_template(const detail::default_host_policy& policy,
                             array<T>& block,

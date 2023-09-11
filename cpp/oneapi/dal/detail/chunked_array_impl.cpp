@@ -30,7 +30,7 @@
 #include "oneapi/dal/detail/chunked_array_impl.hpp"
 #include "oneapi/dal/detail/chunked_array_utils.hpp"
 
-namespace oneapi::dal::detail::v2 {
+namespace oneapi::dal::detail {
 
 class chunked_array_impl {
 public:
@@ -508,4 +508,4 @@ template array_impl<byte_t*> chunked_array_base::get_mutable_data_impl(
     const data_parallel_allocator<byte_t*>&) const;
 #endif // ONEDAL_DATA_PARALLEL
 
-} // namespace oneapi::dal::detail::v2
+} // namespace oneapi::dal::detail

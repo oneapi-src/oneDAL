@@ -273,15 +273,6 @@ constexpr inline void apply(Op&& op, Args&&... args) {
 }
 
 template <typename Data>
-struct integer_overflow_ops {
-    void check_mul_overflow(const Data& first, const Data& second);
-    void check_sum_overflow(const Data& first, const Data& second);
-
-    bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
-    bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
-};
-
-template <typename Data>
 struct limits {
     static constexpr Data min() {
         return std::numeric_limits<Data>::min();
