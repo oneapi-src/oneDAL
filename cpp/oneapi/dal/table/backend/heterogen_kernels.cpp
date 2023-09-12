@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <memory>
+#include <cstddef>
 #include <numeric>
 
 #include "oneapi/dal/array.hpp"
@@ -112,6 +114,20 @@ std::int64_t propose_row_block_size(const Meta& meta, const Data& data) {
     return std::max<std::int64_t>(1l, initial);
 }
 
+template <typename Meta, typename Data>
+std::int64_t compute_full_block_size(std::int64_t block,
+                    const Meta& meta, const Data& data) {
+    constexpr std::int64_t align = sizeof(std::max_align_t);
+
+    const auto row_size = get_row_size(meta, data);
+    const auto col_count = get_column_count(meta, data);
+
+    const auto base_size = detail::check_mul_overflow(block, row_size);
+    const auto align_size = detail::check_mul_overflow(align, col_count);
+
+    return  detail::check_mul_overflow(base_size, align_size);
+}
+
 heterogen_data heterogen_row_slice(const range& rows_range,
                                    const table_metadata& meta,
                                    const heterogen_data& data) {
@@ -146,26 +162,34 @@ using sliced_buffer = array<array<dal::byte_t>>;
 sliced_buffer slice_buffer(const shape_t& buff_shape,
                            const array<dal::byte_t>& buff,
                            const array<data_type>& data_types) {
+    constexpr std::size_t alignment = sizeof(std::max_align_t);
+
     const auto [row_count, col_count] = buff_shape;
 
+    auto* const first_ptr = buff.get_mutable_data();
+    auto* const last_ptr = first_ptr + buff.get_count();
     const auto* const data_types_ptr = data_types.get_data();
 
     const dal::array<dal::byte_t> empty{};
     auto result = sliced_buffer::full(col_count, empty);
     auto* const result_ptr = result.get_mutable_data();
 
-    std::int64_t first = 0l;
+    dal::byte_t* curr_ptr = first_ptr;
     for (std::int64_t c = 0l; c < col_count; ++c) {
         const data_type dtype = data_types_ptr[c];
         const auto dsize = detail::get_data_type_size(dtype);
-        const auto csize = detail::check_mul_overflow(dsize, row_count);
+        const auto dalign = detail::get_data_type_align(dtype);
 
-        const auto last = detail::check_sum_overflow(first, csize);
+        std::size_t space = std::distance(curr_ptr, last_ptr);
+        auto* slc_ptr = std::align(dalign, dsize, curr_ptr, space);
+        auto slc_size = detail::check_mul_overflow(dsize, row_count);
 
-        result_ptr[c] = buff.get_slice(first, last);
+        result_ptr[c].reset(buff, slc_ptr, slc_size);
 
-        first = last;
+        curr_ptr += slc_size;
     }
+
+    ONEDAL_ASSERT(0l < std::distance(curr_ptr, last_ptr));
 
     return result;
 }
@@ -209,7 +233,7 @@ struct heterogen_dispatcher<detail::host_policy> {
 
         const auto row_size = get_row_size(meta, data);
         const auto block = propose_row_block_size(meta, data);
-        const auto block_size = detail::check_mul_overflow(block, row_size);
+        const auto block_size = compute_block_size(bloc, meta, data);
 
         const auto& data_types = meta.get_data_types();
         auto buff = array<dal::byte_t>::empty(block_size);

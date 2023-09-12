@@ -41,7 +41,7 @@ dal_test_suite(
     srcs = [
         "test/row_accessor.cpp",
         # TODO: Fix before code freeze
-        #"test/heterogen.cpp",
+        "test/heterogen.cpp",
         "test/homogen.cpp",
         "test/common_serialization.cpp",
         #"test/heterogen_serialization.cpp",
