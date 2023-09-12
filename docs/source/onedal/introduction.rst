@@ -43,17 +43,17 @@ The following algorithms are available in oneDAL:
      - :ref:`batch <batch>`
    * - :ref: Linear Regression
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
-   * - :ref:`_alg_df`
+   * - :ref:`alg_df`
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
    * - :ref: Extra Trees 
      - :ref:`batch <batch>`
-   * - :ref:`_alg_knn`
+   * - :ref:`alg_knn`
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
-   * - :ref:`_alg_svm`
+   * - :ref:`alg_svm`
      - :ref:`batch <batch>`
-   * - :ref:`_alg_dbscan`
+   * - :ref:`alg_dbscan`
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
-   * - :ref:`_alg_basic_statistics`
+   * - :ref:`alg_basic_statistics`
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
 
 
