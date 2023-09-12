@@ -16,13 +16,13 @@
 
 Introduction
 ************
-oneDAL provides redesizgned version of interfaces that accounts for multi-device targets
+oneDAL provides redesigned versions of interfaces that account for multi-device targets
 such as CPU and GPU, distributed SPMD interfaces and many more.
 
 Algorithms support
 *****************
 
-For the following algorithms are avaialbe in oneDAL:
+The following algorithms are available in oneDAL:
 
 .. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
 

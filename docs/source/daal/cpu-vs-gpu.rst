@@ -19,5 +19,5 @@
 CPU and GPU Support
 ===================
 
-GPU support in DAAL part of library have been deprecated and removed from library.
+GPU support in DAAL part of library has been deprecated and removed from library.
 Please use GPU support in oneDAL :ref:`_onedal_gpu_support`
