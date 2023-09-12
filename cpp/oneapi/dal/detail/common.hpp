@@ -448,6 +448,7 @@ using v1::cast_impl;
 using v1::make_private;
 using v1::make_data_type;
 using v1::get_data_type_size;
+using v1::get_data_type_align;
 using v1::is_floating_point;
 using v2::check_sum_overflow;
 using v2::check_mul_overflow;

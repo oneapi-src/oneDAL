@@ -162,8 +162,6 @@ using sliced_buffer = array<array<dal::byte_t>>;
 sliced_buffer slice_buffer(const shape_t& buff_shape,
                            const array<dal::byte_t>& buff,
                            const array<data_type>& data_types) {
-    constexpr std::size_t alignment = sizeof(std::max_align_t);
-
     const auto [row_count, col_count] = buff_shape;
 
     auto* const first_ptr = buff.get_mutable_data();
@@ -179,14 +177,21 @@ sliced_buffer slice_buffer(const shape_t& buff_shape,
         const data_type dtype = data_types_ptr[c];
         const auto dsize = detail::get_data_type_size(dtype);
         const auto dalign = detail::get_data_type_align(dtype);
+        const auto curr_size = detail::check_mul_overflow(dsize, row_count);
 
-        std::size_t space = std::distance(curr_ptr, last_ptr);
-        auto* slc_ptr = std::align(dalign, dsize, curr_ptr, space);
-        auto slc_size = detail::check_mul_overflow(dsize, row_count);
+        {
+            void* tmp_ptr = reinterpret_cast<void*>(curr_ptr);
+            std::size_t space = std::distance(curr_ptr, last_ptr);
+            [[maybe_unused]] auto* slc_ptr = std::align(dalign, dsize, tmp_ptr, space);
+            ONEDAL_ASSERT(static_cast<std::size_t>(curr_size) <= space);
+            ONEDAL_ASSERT(slc_ptr != nullptr);
 
-        result_ptr[c].reset(buff, slc_ptr, slc_size);
+            curr_ptr = reinterpret_cast<dal::byte_t*>(tmp_ptr);
+        }
 
-        curr_ptr += slc_size;
+        result_ptr[c].reset(buff, curr_ptr, curr_size);
+
+        curr_ptr += curr_size;
     }
 
     ONEDAL_ASSERT(0l < std::distance(curr_ptr, last_ptr));
@@ -231,9 +236,9 @@ struct heterogen_dispatcher<detail::host_policy> {
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
 
-        const auto row_size = get_row_size(meta, data);
+        //const auto row_size = get_row_size(meta, data);
         const auto block = propose_row_block_size(meta, data);
-        const auto block_size = compute_block_size(bloc, meta, data);
+        const auto block_size = compute_full_block_size(block, meta, data);
 
         const auto& data_types = meta.get_data_types();
         auto buff = array<dal::byte_t>::empty(block_size);
@@ -376,9 +381,9 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
 
-        const auto row_size = get_row_size(meta, data);
-        const auto block = propose_row_block_size(queue, meta, data);
-        const auto block_size = detail::check_mul_overflow(block, row_size);
+        //const auto row_size = get_row_size(meta, data);
+        const auto block = propose_row_block_size(meta, data);
+        const auto block_size = compute_full_block_size(block, meta, data);
 
         const auto& data_types = meta.get_data_types();
         auto buff_shape = std::make_pair(block, col_count);
