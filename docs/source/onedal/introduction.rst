@@ -16,11 +16,11 @@
 
 Introduction
 ************
-oneDAL provides redesigned versions of interfaces that account for multi-device targets
-such as CPU and GPU, distributed SPMD interfaces and many more.
+oneDAL provides redesigned versions of interfaces that account for the multi-device targets.
+For example, CPU and GPU, distributed SPMD interfaces, and many more.
 
-Algorithms support
-*****************
+Algorithms Support
+******************
 
 The following algorithms are available in oneDAL:
 
