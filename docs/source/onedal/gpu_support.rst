@@ -21,10 +21,10 @@ CPU and GPU Support
 Not all computation modes, methods, and parameters are supported on both CPU and GPU.
 Differences in CPU and GPU support are listed below.
 
-GPU supported tragets
+GPU supported targets
 *********************
 oneDAL library targets Intel GPUs support only, while technically it should be feasible
-to run on other HW platforms asuming SYCL runtime availability for platform.
+to run on other HW platforms assuming SYCL runtime availability for platform.
 
 
 
