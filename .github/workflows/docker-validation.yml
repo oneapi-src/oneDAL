@@ -1,4 +1,4 @@
-name: renovate-validation
+name: docker-validation
 
 on:
   pull_request:
