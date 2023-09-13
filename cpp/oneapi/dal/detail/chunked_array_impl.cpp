@@ -81,7 +81,7 @@ public:
     }
 
     explicit chunked_array_impl(std::int64_t chunk_count) {
-        auto raw = detail::integral_cast_debug<std::size_t>(chunk_count);
+        auto raw = detail::integral_cast<std::size_t>(chunk_count);
         const auto empty_chunk = detail::array_impl<byte_t>{};
         chunks = std::vector<array_impl_t>(raw, empty_chunk);
         [[maybe_unused]] auto res = update_offsets();
