@@ -26,69 +26,34 @@ GPU supported targets
 oneDAL library targets Intel GPUs support only, while technically it should be feasible
 to run on other HW platforms assuming SYCL runtime availability for platform.
 
-
-
-TODO: below need to be updated in P
-Methods
-*******
-
-For the following algorithms, only listed methods are supported on GPU:
-
 .. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
 
-.. list-table:: GPU Support: Methods
+.. list-table:: GPU support conciderations
    :header-rows: 1
    :widths: 10 10
    :align: left
-   :class: longtable
 
    * - Algorithm
-     - Supported on GPU
-   * - :ref:`kmeans`
-     - ``defaultDense``
-   * - :ref:`kmeans_init`
-     - ``defaultDense``, ``randomDense``
-   * - /:ref:`linear_regression`
-     - ``defaultDense``
-   * - :ref:`moments_low_order`
-     - ``defaultDense``
-   * - :ref:`sgd_solver`
-     - ``miniBatch``
-   * - :ref:`Covariance <cor_cov>`
-     - ``defaultDense``
-   * - :ref:`pca`
-     - ``defaultDense``
-   * - :ref:`knn`
-     - Brute Force
-   * - :ref:`svm`
-     - ``thunder``
-   * - :ref:`decision_forest`
-     - ``hist``
-
-Parameters
-**********
-
-.. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
-
-.. list-table:: GPU Support: Algorithm Parameters
-   :header-rows: 1
-   :widths: 10 10
-   :align: left
-   :class: longtable
-
-   * - Algorithm
-     - Notes
-   * - :ref:`svm`
-     - ``doShrinking`` is only supported for ``defaultDense`` method.
-   * - :ref:`dbscan`
-     -
-       - On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
-       - On GPU, the ``weights`` parameter is not supported.
-   * - :ref:`kernel`
-     - On GPU, the only supported computation mode (``ComputationMode``) is ``matrixMatrix``.
-   * - :ref:`objective_function`
-     -
-       - On GPU, only :ref:`logistic_loss` and :ref:`cross_entropy_loss` are supported, :ref:`mse` is not supported.
-       - On GPU, ``resultsToCompute`` only computes ``value``, ``gradient``, and ``hessian``.
-   * - :ref:`logistic_regression`
-     - ``penaltyL1`` is not supported on GPU
+     - GPU support
+   * - :ref:`alg_kmeans`
+     - 
+   * - :ref:`alg_covariance`
+     - 
+   * - :ref:`alg_pca`
+     - 
+   * - :ref: Logistic Regression
+     - 
+   * - :ref: Linear Regression
+     - 
+   * - :ref:`alg_df`
+     - 
+   * - :ref: Extra Trees 
+     - 
+   * - :ref:`alg_knn`
+     - 
+   * - :ref:`alg_svm`
+     - 
+   * - :ref:`alg_dbscan`
+     - 
+   * - :ref:`alg_basic_statistics`
+     - 
