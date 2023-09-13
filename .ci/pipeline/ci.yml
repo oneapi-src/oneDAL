@@ -188,8 +188,8 @@ jobs:
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
-    .ci/env/bazelisk.sh
-    echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}
+      .ci/env/bazelisk.sh
+      echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}
     displayName: 'install-bazel'
   - script: |
       .ci/scripts/describe_system.sh
