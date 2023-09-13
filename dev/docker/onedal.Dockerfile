@@ -1,6 +1,5 @@
-#!/bin/bash
 #===============================================================================
-# Copyright 2023 Intel Corporation
+# Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +14,12 @@
 # limitations under the License.
 #===============================================================================
 
-wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
-sudo apt-get update
-sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.2.1
-sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
-sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
+ARG UBUNTU_VERSION="22.04"
+
+FROM ubuntu:${UBUNTU_VERSION}
+
+RUN apt-get update && \
+    apt-get install -y \
+        git
+
+RUN git checkout 

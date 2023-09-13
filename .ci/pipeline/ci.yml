@@ -28,9 +28,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        sudo apt-get update && sudo apt-get install -y clang-format-14
-        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
-        sudo update-alternatives --set clang-format /usr/bin/clang-format-14
+      bash .ci/env/apt.sh clang-format
       displayName: 'apt-get'
     - script: |
         .ci/scripts/clang-format.sh
@@ -46,7 +44,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+      bash .ci/env/apt.sh dev-base
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
@@ -95,7 +93,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
+      bash .ci/env/apt.sh dev-base
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0
     displayName: 'apt-get and conda install'
   - script: |
@@ -136,11 +134,11 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
+      bash .ci/env/apt.sh dev-base
       conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
-      bash .ci/scripts/install_dpcpp.sh
+      bash .ci/env/apt.sh install_dpcpp
     displayName: 'dpcpp installation'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
@@ -310,7 +308,7 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
+  - script: bash .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
       .ci/scripts/describe_system.sh
