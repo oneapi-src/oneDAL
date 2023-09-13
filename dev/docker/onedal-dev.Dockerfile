@@ -14,12 +14,22 @@
 # limitations under the License.
 #===============================================================================
 
-ARG UBUNTU_VERSION="22.04"
+FROM ubuntu:22.04
 
-FROM ubuntu:${UBUNTU_VERSION}
+ARG workdirectory="/sources/oneDAL"
 
-RUN apt-get update && \
-    apt-get install -y \
-        git
+ADD ../../ ${workdirectory}
 
-RUN git checkout 
+WORKDIR ${workdirectory}
+
+# Installing environment for base development dependencies
+RUN .ci/env/apt.sh dev-base
+
+# Installing environment for DPCPP development dependencies
+RUN .ci/env/apt.sh install_dpcpp
+
+# Installing environment for clang-format
+RUN .ci/env/apt.sh clang-format
+
+# Installing environment for bazel
+RUN .ci/env/bazilisk.sh
