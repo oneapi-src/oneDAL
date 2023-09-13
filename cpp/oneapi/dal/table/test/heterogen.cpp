@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
+#include "oneapi/dal/detail/debug.hpp"
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 #include "oneapi/dal/table/heterogen.hpp"
@@ -278,9 +278,12 @@ TEST("Can get row slice from host to shared") {
 }
 
 TEST("Can get row slice from heterogen to shared") {
+    using detail::operator<<;
+
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 
+    constexpr auto host = sycl::usm::alloc::host;
     constexpr auto device = sycl::usm::alloc::device;
     constexpr auto shared = sycl::usm::alloc::shared;
 
@@ -294,23 +297,31 @@ TEST("Can get row slice from heterogen to shared") {
     std::iota(begin(arr3), end(arr3), std::int8_t(0));
     chunked_array<std::int8_t> chunked2(arr3);
 
-    auto arr4 = array<std::int64_t>::empty(q, 20, shared);
-    std::iota(begin(arr4), end(arr4), std::int64_t(0l));
-    auto arr5 = array<std::int64_t>::empty(q, 20, device);
-    /*Let's copy to device*/ detail::copy(arr5, arr4);
-    chunked_array<std::int64_t> chunked3(arr5);
+    auto arr4 = array<std::uint16_t>::empty(q, 20, host);
+    std::iota(begin(arr4), end(arr4), std::uint16_t(0));
+    chunked_array<std::uint16_t> chunked3(arr4);
+
+    auto arr5 = array<std::int32_t>::empty(q, 20, host);
+    std::iota(begin(arr5), end(arr5), std::int32_t(0l));
+    auto arr6 = array<std::int32_t>::empty(q, 20, device);
+    /*Let's copy to device*/ detail::copy(arr6, arr5);
+    chunked_array<std::int32_t> chunked4(arr6);
 
     auto table = heterogen_table::wrap( //
         chunked1,
         chunked2,
-        chunked3);
+        chunked3,
+        chunked4);
 
     row_accessor<const float> accessor{ table };
     auto res = accessor.pull(q, { 1l, 19l }, shared);
-    REQUIRE(res.get_count() == 3l * 18l);
+    REQUIRE(res.get_count() == 4l * 18l);
+
+    std::cout << "Result array: " << res << std::endl;
 
     for (std::int64_t i = 0l; i < res.get_count(); ++i) {
-        const auto val = i / 3l + 1l;
+        const auto val = i / 4l + 1l;
+        CAPTURE(i, val, res[i]);
         REQUIRE(res[i] == float(val));
     }
 }
