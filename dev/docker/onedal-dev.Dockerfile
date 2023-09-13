@@ -22,6 +22,8 @@ ADD ../../ ${workdirectory}
 
 WORKDIR ${workdirectory}
 
+#Env setup
+
 # Installing environment for base development dependencies
 RUN .ci/env/apt.sh dev-base
 
