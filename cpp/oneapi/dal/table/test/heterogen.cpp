@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#include "oneapi/dal/detail/debug.hpp"
+
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 #include "oneapi/dal/table/heterogen.hpp"
@@ -316,8 +316,6 @@ TEST("Can get row slice from heterogen to shared") {
     row_accessor<const float> accessor{ table };
     auto res = accessor.pull(q, { 1l, 19l }, shared);
     REQUIRE(res.get_count() == 4l * 18l);
-
-    std::cout << "Result array: " << res << std::endl;
 
     for (std::int64_t i = 0l; i < res.get_count(); ++i) {
         const auto val = i / 4l + 1l;
