@@ -23,6 +23,8 @@ ADD ../../ ${workdirectory}
 WORKDIR ${workdirectory}
 
 #Env setup
+RUN apt-get update && \
+      apt-get -y install sudo
 
 # Installing environment for base development dependencies
 RUN .ci/env/apt.sh dev-base
