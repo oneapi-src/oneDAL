@@ -47,7 +47,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0 openjdk=17.0.3
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -96,7 +96,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0 openjdk=17.0.3
+      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -137,7 +137,7 @@ jobs:
   steps:
   - script: |
       sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
-      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0 openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
       bash .ci/scripts/install_dpcpp.sh
@@ -392,7 +392,7 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge python=3.9
       source /usr/local/miniconda/etc/profile.d/conda.sh
       conda activate ci-env
       pip install -q cpufeature
