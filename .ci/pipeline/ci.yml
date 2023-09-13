@@ -189,7 +189,7 @@ jobs:
   steps:
   - script: |
       .ci/env/bazelisk.sh
-      echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}
+      echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}"
     displayName: 'install-bazel'
   - script: |
       .ci/scripts/describe_system.sh
