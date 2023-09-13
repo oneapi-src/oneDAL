@@ -138,7 +138,7 @@ jobs:
       conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
-      .ci/env/apt.sh install_dpcpp
+      .ci/env/apt.sh dpcpp
     displayName: 'dpcpp installation'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh

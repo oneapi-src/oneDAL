@@ -30,7 +30,7 @@ RUN apt-get update && \
 RUN .ci/env/apt.sh dev-base
 
 # Installing environment for DPCPP development dependencies
-RUN .ci/env/apt.sh install_dpcpp
+RUN .ci/env/apt.sh dpcpp
 
 # Installing environment for clang-format
 RUN .ci/env/apt.sh clang-format
