@@ -37,3 +37,6 @@ RUN .ci/env/apt.sh clang-format
 
 # Installing environment for bazel
 RUN .ci/env/bazelisk.sh
+
+# Installing openBLAS dependency
+RUN .ci/env/openblas.sh
