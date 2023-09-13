@@ -36,4 +36,4 @@ RUN .ci/env/apt.sh dpcpp
 RUN .ci/env/apt.sh clang-format
 
 # Installing environment for bazel
-RUN .ci/env/bazilisk.sh
+RUN .ci/env/bazelisk.sh
