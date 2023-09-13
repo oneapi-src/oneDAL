@@ -278,8 +278,6 @@ TEST("Can get row slice from host to shared") {
 }
 
 TEST("Can get row slice from heterogen to shared") {
-    using detail::operator<<;
-
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 
