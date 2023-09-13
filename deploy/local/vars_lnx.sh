@@ -1,4 +1,7 @@
 #!/bin/sh
+# shellcheck shell=sh
+# shellcheck disable=SC2296
+
 #===============================================================================
 # Copyright 2014 Intel Corporation
 #
@@ -14,8 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #===============================================================================
-
-# shellcheck shell=sh
 
 # Copyright Intel Corporation
 # SPDX-License-Identifier: MIT
@@ -101,6 +102,7 @@ _vars_this_script_name="vars.sh"
 if [ "$_vars_this_script_name" = "$(_vars_get_proc_name "$0")" ] ; then
   echo "   ERROR: Incorrect usage: this script must be sourced."
   echo "   Usage: . path/to/${_vars_this_script_name}"
+  # shellcheck disable=SC2317
   return 255 2>/dev/null || exit 255
 fi
 
@@ -162,32 +164,28 @@ vars_script_shell="$(ps -p "$$" -o comm=)"
 # see https://unix.stackexchange.com/a/381465/103967
 # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
 if [ -n "${ZSH_VERSION:-}" ] && [ -n "${ZSH_EVAL_CONTEXT:-}" ] ; then     # zsh 5.x and later
-  # shellcheck disable=2249,2296
+  # shellcheck disable=2249
   case $ZSH_EVAL_CONTEXT in (*:file*) vars_script_name="${(%):-%x}" ;; esac ;
 elif [ -n "${KSH_VERSION:-}" ] ; then                                     # ksh, mksh or lksh
   if [ "$(set | grep -Fq "KSH_VERSION=.sh.version" ; echo $?)" -eq 0 ] ; then # ksh
-    # shellcheck disable=2296
     vars_script_name="${.sh.file}" ;
   else # mksh or lksh or [lm]ksh masquerading as ksh or sh
     # force [lm]ksh to issue error msg; which contains this script's path/filename, e.g.:
     # mksh: /home/ubuntu/intel/oneapi/vars.sh[137]: ${.sh.file}: bad substitution
-    # shellcheck disable=2296
     vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
     vars_script_name="$(expr "${vars_script_name:-}" : '^.*sh: \(.*\)\[[0-9]*\]:')" ;
   fi
 elif [ -n "${BASH_VERSION:-}" ] ; then        # bash
-  # shellcheck disable=2128
+  # shellcheck disable=2128,3028
   (return 0 2>/dev/null) && vars_script_name="${BASH_SOURCE}" ;
 elif [ "dash" = "$vars_script_shell" ] ; then # dash
   # force dash to issue error msg; which contains this script's rel/path/filename, e.g.:
   # dash: 146: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
-  # shellcheck disable=2296
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   vars_script_name="$(expr "${vars_script_name:-}" : '^.*dash: [0-9]*: \(.*\):')" ;
 elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /bin/sh
   # force a shell error msg; which should contain this script's path/filename
   # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
-  # shellcheck disable=2296
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   if [ "$(printf "%s" "$vars_script_name" | grep -Eq "sh: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash as sh
     # sh: 155: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
@@ -196,7 +194,6 @@ elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /b
 else  # unrecognized shell or dash being sourced from within a user's script
   # force a shell error msg; which should contain this script's path/filename
   # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
-  # shellcheck disable=2296
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   if [ "$(printf "%s" "$vars_script_name" | grep -Eq "^.+: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash
     # .*: 164: intel/oneapi/vars.sh: Bad substitution
@@ -212,6 +209,7 @@ if [ "" = "$vars_script_name" ] ; then
   >&2 echo "   Unrecognized/unsupported shell (supported: bash, zsh, ksh, m/lksh, dash)." ;
   >&2 echo "   May fail in dash if you rename this script (assumes \"vars.sh\")." ;
   >&2 echo "   Can be caused by sourcing from ZSH version 4.x or older." ;
+  # shellcheck disable=SC2317
   return 255 2>/dev/null || exit 255
 fi
 
@@ -225,27 +223,48 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
-case "${my_script_path}" in
-  *"env"*)
+if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
+# case "${my_script_path}" in
+  # *"env"*)
     component_root=$(dirname -- "${my_script_path}")
     __daal_tmp_dir=${component_root}
     export DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__
     export DAL_MINOR_BINARY=__DAL_MINOR_BINARY__
-    export DALROOT=$__daal_tmp_dir
-    export PKG_CONFIG_PATH=$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}
-    export CMAKE_PREFIX_PATH=$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}
-    if [ -d ${component_root}/include/dal ]; then
-      export CPATH=$__daal_tmp_dir/include/dal${CPATH+:${CPATH}}
-      export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
-      export LD_LIBRARY_PATH=$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+    export DALROOT="$__daal_tmp_dir"
+    export PKG_CONFIG_PATH="$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}"
+    export CMAKE_PREFIX_PATH="$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}"
+    if [ -d "${component_root}/include/dal" ]; then
+      export CPATH="$__daal_tmp_dir/include/dal${CPATH+:${CPATH}}"
+      export LIBRARY_PATH="$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}"
+      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     else
-      export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-      export LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}
-      export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+      export CPATH="$__daal_tmp_dir/include${CPATH+:${CPATH}}"
+      export LIBRARY_PATH="$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}"
+      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     fi
-  ;;
-  *"etc"*)
-    export DALROOT=$ONEAPI_ROOT
-    export CPATH=$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}
-  ;;
-esac
+  # ;;
+else   # must be a consolidated layout
+    # within this "else" reference $ONEAPI_ROOT **not** $my_script_path
+
+    if [ -z "${SETVARS_CALL:-}" ] ; then
+    >&2 echo " "
+    >&2 echo ":: ERROR: This script must be sourced by oneapi-vars.sh."
+    >&2 echo "   Try 'source <install-dir>/oneapi-vars.sh --help' for help."
+    >&2 echo " "
+    return 255
+    fi
+
+    if [ -z "${ONEAPI_ROOT:-}" ] ; then
+    >&2 echo " "
+    >&2 echo ":: ERROR: This script requires that the ONEAPI_ROOT env variable is set."
+    >&2 echo "   Try 'source <install-dir>\oneapi-vars.sh --help' for help."
+    >&2 echo " "
+    return 254
+    fi
+
+  # *"etc"*)
+    export DALROOT="$ONEAPI_ROOT"
+    export CPATH="$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}"
+  # ;;
+# esac
+fi
