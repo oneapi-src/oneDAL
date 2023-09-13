@@ -163,8 +163,10 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
             // slm pointers declaration
 #if __SYCL_COMPILER_VERSION >= 20230828
-            hist_type_t* hist_ptr = local_hist_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            Float* local_buf_float_ptr = local_float_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            hist_type_t* hist_ptr =
+                local_hist_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* local_buf_float_ptr =
+                local_float_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 #else
             hist_type_t* hist_ptr = local_hist_buf.get_pointer().get();
             Float* local_buf_float_ptr = local_float_buf.get_pointer().get();
@@ -421,13 +423,21 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             }
             split_info_t global_bs;
 #if __SYCL_COMPILER_VERSION >= 20230828
-            hist_type_t* const best_split_hist_ptr = best_split_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            hist_type_t* const local_hist_ptr = local_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            hist_type_t* const buf_hist_ptr = buf_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            hist_type_t* const last_bin = last_bin_prev_batch.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            Float* const local_weights_ptr = local_weights.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            split_scalar_t* const scalars_buf_ptr = scalars_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            Index* const last_bin_idx_ptr = last_bin_index.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            hist_type_t* const best_split_hist_ptr =
+                best_split_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            hist_type_t* const local_hist_ptr =
+                local_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            hist_type_t* const buf_hist_ptr =
+                buf_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            hist_type_t* const last_bin =
+                last_bin_prev_batch.template get_multi_ptr<sycl::access::decorated::yes>()
+                    .get_raw();
+            Float* const local_weights_ptr =
+                local_weights.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            split_scalar_t* const scalars_buf_ptr =
+                scalars_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Index* const last_bin_idx_ptr =
+                last_bin_index.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 #else
             hist_type_t* const best_split_hist_ptr = best_split_hist.get_pointer().get();
             hist_type_t* const local_hist_ptr = local_hist.get_pointer().get();
