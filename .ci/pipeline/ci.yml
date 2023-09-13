@@ -439,7 +439,7 @@ jobs:
     displayName: 'pacman'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
-      .ci/scripts/describe_system.sh
+      bash .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
