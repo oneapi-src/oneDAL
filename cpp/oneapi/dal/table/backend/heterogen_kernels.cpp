@@ -115,8 +115,7 @@ std::int64_t propose_row_block_size(const Meta& meta, const Data& data) {
 }
 
 template <typename Meta, typename Data>
-std::int64_t compute_full_block_size(std::int64_t block,
-                    const Meta& meta, const Data& data) {
+std::int64_t compute_full_block_size(std::int64_t block, const Meta& meta, const Data& data) {
     constexpr std::int64_t align = sizeof(std::max_align_t);
 
     const auto row_size = get_row_size(meta, data);
@@ -125,7 +124,7 @@ std::int64_t compute_full_block_size(std::int64_t block,
     const auto base_size = detail::check_mul_overflow(block, row_size);
     const auto align_size = detail::check_mul_overflow(align, col_count);
 
-    return  detail::check_mul_overflow(base_size, align_size);
+    return detail::check_mul_overflow(base_size, align_size);
 }
 
 heterogen_data heterogen_row_slice(const range& rows_range,
