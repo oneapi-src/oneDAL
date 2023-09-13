@@ -28,7 +28,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-      bash .ci/env/apt.sh clang-format
+      .ci/env/apt.sh clang-format
       displayName: 'apt-get'
     - script: |
         .ci/scripts/clang-format.sh
@@ -44,7 +44,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      bash .ci/env/apt.sh dev-base
+      .ci/env/apt.sh dev-base
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
@@ -93,7 +93,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      bash .ci/env/apt.sh dev-base
+      .ci/env/apt.sh dev-base
       conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0
     displayName: 'apt-get and conda install'
   - script: |
@@ -134,11 +134,11 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      bash .ci/env/apt.sh dev-base
+      .ci/env/apt.sh dev-base
       conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
-      bash .ci/env/apt.sh install_dpcpp
+      .ci/env/apt.sh install_dpcpp
     displayName: 'dpcpp installation'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
@@ -301,7 +301,7 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: bash .ci/env/apt.sh dev-base
+  - script: .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
       .ci/scripts/describe_system.sh
@@ -439,7 +439,7 @@ jobs:
     displayName: 'pacman'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
-      bash .ci/scripts/describe_system.sh
+      .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
       .\.ci\scripts\build.bat daal vc avx2
@@ -463,7 +463,7 @@ jobs:
     displayName: 'oneapi/cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
-      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
       ls -lh __nuget/inteldal*.nupkg
     displayName: 'nuget pkg'
