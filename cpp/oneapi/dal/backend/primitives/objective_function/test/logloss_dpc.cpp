@@ -53,8 +53,7 @@ public:
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
-            this->n_ = 216;
-            //this->n_ = GENERATE(7, 827, 13, 216);
+            this->n_ = GENERATE(7, 827, 13, 216);
             this->p_ = GENERATE(4, 17, 41, 256);
         }
         else {
@@ -134,6 +133,9 @@ public:
         const std::int64_t p = data_host.get_dimension(1);
         const std::int64_t dim = params_host.get_dimension(0);
 
+        std::cout << "Test: n = " << n << " p = " << p << " fit_intercept = " << fit_intercept
+                  << std::endl;
+
         auto data_gpu = data_host.to_device(this->get_queue());
         auto labels_gpu = labels_host.to_device(this->get_queue());
         auto params_gpu = params_host.to_device(this->get_queue());
@@ -150,7 +152,7 @@ public:
         p_event.wait_and_throw();
 
         auto predictions_host = out_predictions.to_host(this->get_queue(), {});
-
+        // std::cout << "test predictions" << std::endl;
         const float_t logloss = test_predictions_and_logloss(data_host,
                                                              params_host,
                                                              labels_host,
@@ -178,6 +180,9 @@ public:
                                                                 { logloss_event });
         logloss_reg_event.wait_and_throw();
         const float_t val_logloss1 = out_logloss.to_host(this->get_queue(), {}).at(0);
+
+        // std::cout << "LogLoss1: " <<  logloss << " " << val_logloss1 << std::endl;
+
         check_val(val_logloss1, logloss, rtol, atol);
 
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
@@ -202,6 +207,9 @@ public:
         regul_logloss_and_der_event.wait_and_throw();
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
         const float_t val_logloss2 = out_logloss.to_host(this->get_queue(), {}).at(0);
+
+        // std::cout << "LogLoss2: " <<  logloss << " " << val_logloss2 << std::endl;
+
         check_val(val_logloss2, logloss, rtol, atol);
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { dim }, sycl::usm::alloc::device);
@@ -222,6 +230,9 @@ public:
 
         der_reg_event.wait_and_throw();
         auto out_derivative_host2 = out_derivative2.to_host(this->get_queue());
+
+        // std::cout << "derivative check" << std::endl;
+
         for (auto i = 0; i < dim; ++i) {
             REQUIRE(abs(out_derivative_host.at(i) - out_derivative_host2.at(i)) < atol);
         }
@@ -240,6 +251,8 @@ public:
 
         auto hessian_host = out_hessian.to_host(this->get_queue(), { hess_event });
 
+        // std::cout << "derivative naive check" << std::endl;
+
         test_formula_derivative(data_host,
                                 predictions_host,
                                 params_host,
@@ -250,6 +263,8 @@ public:
                                 fit_intercept,
                                 rtol,
                                 atol);
+
+        // std::cout << "hessian naive check" << std::endl;
 
         test_formula_hessian(data_host,
                              predictions_host,
@@ -269,17 +284,20 @@ public:
             auto set_point_event = functor.update_x(params_gpu, true, {});
             wait_or_pass(set_point_event).wait_and_throw();
 
+            // std::cout << "func logloss" << logloss << " " << functor.get_value() << std::endl;
             check_val(logloss, functor.get_value(), rtol, atol);
             auto grad_func = functor.get_gradient();
             auto grad_func_host = grad_func.to_host(this->get_queue());
 
             int dim = fit_intercept ? p + 1 : p;
-
+            // std::cout << "func deriv check" << std::endl;
             for (int i = 0; i < dim; ++i) {
                 check_val(out_derivative_host.at(i), grad_func_host.at(i), rtol, atol);
             }
             BaseMatrixOperator<float_t>& hessp = functor.get_hessian_product();
+            // std::cout << "hessian product check" << std::endl;
             test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
+            // std::cout << "after test hessian product" << std::endl;
         }
     }
 
@@ -462,6 +480,17 @@ public:
                               std::int32_t num_checks = 5) {
         const std::int64_t p = hessian_host.get_dimension(0) - 1;
         const std::int64_t dim = fit_intercept ? p + 1 : p;
+        // std::cout << "In hessian prodcut!" << std::endl;
+        /*
+        if (p == 256) {
+            for (int i = 0; i < p + 1; ++i) {
+                for (int j = 0; j < p + 1; ++j) {
+                    std::cout << hessian_host.at(i, j) << " ";
+                }
+                std::cout << std::endl;
+            }
+        }
+        */
 
         primitives::rng<float_t> rn_gen;
         auto vec_host =
@@ -478,13 +507,22 @@ public:
             auto out_vector_host = out_vector.to_host(this->get_queue());
 
             const std::int64_t st = fit_intercept ? 0 : 1;
+
+            // for (int i = 0; i < dim; ++i) {
+            //    std::cout << out_vector_host.at(i) << " ";
+            //}
+            //std::cout << std::endl;
+            //std::cout << std::endl;
             for (std::int64_t i = st; i < p + 1; ++i) {
                 float_t correct = 0;
                 for (std::int64_t j = st; j < p + 1; ++j) {
                     correct += vec_host.at(j - st) * hessian_host.at(i, j);
                 }
+                //std::cout << correct << " ";
                 check_val(out_vector_host.at(i - st), correct, rtol, atol);
             }
+            //std::cout << std::endl;
+            //std::cout << std::endl;
         }
     }
 
@@ -525,6 +563,16 @@ TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss
     this->run_test(0.0, 1.3);
 }
 
+TEMPLATE_TEST_M(logloss_test,
+                "test random input - double without L1 - no fit intercept",
+                "[logloss]",
+                double) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    this->generate_input();
+    this->run_test(0.0, 1.3, false);
+}
+
 TEMPLATE_TEST_M(logloss_test, "test random input - double with L1", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -532,10 +580,26 @@ TEMPLATE_TEST_M(logloss_test, "test random input - double with L1", "[logloss]",
     this->run_test(0.4, 1.3);
 }
 
+TEMPLATE_TEST_M(logloss_test,
+                "test random input - double with L1 -- no fit intercept",
+                "[logloss]",
+                double) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    this->generate_input();
+    this->run_test(0.4, 1.3, false);
+}
+
 TEMPLATE_TEST_M(logloss_test, "test random input - float", "[logloss]", float) {
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
     this->run_test(0.4, 1.3);
+}
+
+TEMPLATE_TEST_M(logloss_test, "test random input - float - no fit intercept", "[logloss]", float) {
+    SKIP_IF(this->get_policy().is_cpu());
+    this->generate_input();
+    this->run_test(0.4, 1.3, false);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

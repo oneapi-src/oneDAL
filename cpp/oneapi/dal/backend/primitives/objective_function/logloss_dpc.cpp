@@ -17,6 +17,7 @@
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -31,6 +32,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
+
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(parameters.has_data());
     ONEDAL_ASSERT(probabilities.has_mutable_data());
@@ -508,8 +510,9 @@ sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndvie
         sycl::usm::alloc::device); // Substitue this line with batch multiplication
 
     sycl::event event_xv = gemv(q_, data_nd, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
+    ;
+    event_xv.wait_and_throw(); // Without this line gemv does not work correctly
 
-    event_xv.wait_and_throw();
     auto tmp_host = buffer_.to_host(q_);
 
     sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
@@ -521,8 +524,10 @@ sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndvie
             sum_v0 += buffer_ptr[idx];
         });
     });
-    auto event_xtdxv =
+
+    sycl::event event_xtdxv =
         gemv(q_, data_nd.t(), buffer_, out_suf, Float(1), Float(0), { event_dxv, fill_out_event });
+    event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
 
     const Float regularization_factor = L2_;
 
@@ -549,7 +554,8 @@ sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const nd
         data_,
         sycl::usm::alloc::device); // Substitue this line with batch multiplication
 
-    auto event_xv = gemv(q_, data_nd, vec, buffer_, Float(1), Float(0), deps);
+    sycl::event event_xv = gemv(q_, data_nd, vec, buffer_, Float(1), Float(0), deps);
+    event_xv.wait_and_throw(); // Without this line gemv does not work correctly
 
     auto& buf_ndview = static_cast<ndview<Float, 1>&>(buffer_);
     auto& hess_ndview = static_cast<ndview<Float, 1>&>(raw_hessian_);
@@ -557,8 +563,9 @@ sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const nd
     auto event_dxv =
         element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
 
-    auto event_xtdxv =
+    sycl::event event_xtdxv =
         gemv(q_, data_nd.t(), buffer_, out, Float(1), Float(0), { event_dxv, fill_out_event });
+    event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
 
     const Float regularization_factor = L2_;
 
