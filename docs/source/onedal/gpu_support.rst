@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,53 +14,46 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Introduction
-************
-oneDAL provides redesigned versions of interfaces that account for multi-device targets.
-For example, CPU and GPU, distributed SPMD interfaces, and many more.
+.. _onedal_gpu_support:
 
-Algorithms Support
-******************
+CPU and GPU Support
+===================
+Not all computation modes, methods, and parameters are supported on both CPU and GPU.
+See the differences in CPU and GPU support below.
 
-The following algorithms are available in oneDAL:
+GPU-Supported Targets
+*********************
+OneDAL is designed to work with Intel(R) GPUs specifically, but it could potentially 
+run on other hardware platforms if a SYCL runtime is available.
 
 .. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
 
-.. list-table:: Computation Modes
+.. list-table:: GPU Support Considerations
    :header-rows: 1
    :widths: 10 10
    :align: left
 
    * - Algorithm
-     - Supported
+     - GPU Support
    * - :ref:`alg_kmeans`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - 
    * - :ref:`alg_covariance`
-     - :ref:`batch <batch>`, :ref:`online <online>`, :ref:`distributed <distributed>`
+     - 
    * - :ref:`alg_pca`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - 
    * - Logistic Regression
-     - :ref:`batch <batch>`
+     - 
    * - Linear Regression
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - 
    * - :ref:`alg_df`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - 
    * - Extra Trees 
-     - :ref:`batch <batch>`
+     - 
    * - :ref:`alg_knn`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - 
    * - :ref:`alg_svm`
-     - :ref:`batch <batch>`
+     - 
    * - :ref:`alg_dbscan`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - 
    * - :ref:`alg_basic_statistics`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
-
-
-.. toctree::
-   :maxdepth: 1
-
-   gpu_support.rst
-   build_app/build-application.rst
-   glossary.rst
-   notations.rst
+     - 
