@@ -52,7 +52,7 @@ RUN .ci/env/openblas.sh
 ARG config
 
 RUN \
-if [ "${config}" == "build_make" ] ; \
+if [ "${config}" = "build_make" ] ; \
 then \
     .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env; \
     .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c; \
