@@ -50,6 +50,10 @@ function install_dev-base {
     sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
 }
 
+function install_dev-base-conda {
+    conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
+}
+
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
@@ -62,6 +66,7 @@ elif [ "${component}" == "clang-format" ]; then
 elif [ "${component}" == "dev-base" ]; then
     update
     install_dev-base
+    install_dev-base-conda
 else
     echo "Usage:"
     echo "   $0 [dpcpp|mkl|clang-format|dev-base]"

@@ -45,7 +45,6 @@ jobs:
   steps:
   - script: |
       .ci/env/apt.sh dev-base
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -94,7 +93,6 @@ jobs:
   steps:
   - script: |
       .ci/env/apt.sh dev-base
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -135,7 +133,6 @@ jobs:
   steps:
   - script: |
       .ci/env/apt.sh dev-base
-      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
     displayName: 'apt-get and conda install'
   - script: |
       .ci/env/apt.sh dpcpp

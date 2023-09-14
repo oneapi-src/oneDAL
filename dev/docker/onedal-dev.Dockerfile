@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014 Intel Corporation
+# Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,3 +40,13 @@ RUN .ci/env/bazelisk.sh
 
 # Installing openBLAS dependency
 RUN .ci/env/openblas.sh
+
+ARG config
+RUN \
+if [[ "${config}" == "build_make" ]] ; \
+then \
+    .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env; \
+    .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c; \
+else \
+    echo Welcome to oneDAL development, sources located in ${workdirectory} ; \
+fi
