@@ -24,7 +24,7 @@ WORKDIR ${workdirectory}
 
 #Env setup
 RUN apt-get update && \
-      apt-get -y install sudo wget gnupg
+      apt-get -y install sudo wget gnupg git
 
 # Installing environment for base development dependencies
 RUN .ci/env/apt.sh dev-base
