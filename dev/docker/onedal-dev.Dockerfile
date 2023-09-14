@@ -24,7 +24,7 @@ WORKDIR ${workdirectory}
 
 #Env setup
 RUN apt-get update && \
-      apt-get -y install sudo wget gnupg git
+      apt-get -y install sudo wget gnupg git make
 
 # Install miniconda
 ENV CONDA_DIR /opt/conda
@@ -50,8 +50,9 @@ RUN .ci/env/bazelisk.sh
 RUN .ci/env/openblas.sh
 
 ARG config
+
 RUN \
-if [[ "${config}" == "build_make" ]] ; \
+if [ "${config}" == "build_make" ] ; \
 then \
     .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env; \
     .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c; \
