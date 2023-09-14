@@ -114,8 +114,8 @@ public:
             AUTOLOCK(_mtEngine);
             if (nFeaturesPerNode() * nFeaturesPerNode() < 2 * nFeat)
             {
-                RNGs<int, cpu>().uniformWithoutReplacement(nFeaturesPerNode(), featureSample, featureSample + nFeaturesPerNode(), _engine.getState(),
-                                                           0, nFeat);
+                RNGsInst<int, cpu>().uniformWithoutReplacement(nFeaturesPerNode(), featureSample, featureSample + nFeaturesPerNode(),
+                                                               _engine.getState(), 0, nFeat);
             }
             else
             {

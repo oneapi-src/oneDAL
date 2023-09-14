@@ -56,9 +56,9 @@ static void applyBetaImpl(const algorithmFPType * x, const algorithmFPType * bet
     size_t nBetaPerClass = nCols + 1;
     DAAL_INT ldb         = (DAAL_INT)nBetaPerClass;
     if (bThreaded)
-        Blas<algorithmFPType, cpu>::xgemm(&trans, &notrans, &m, &n, &k, &one, beta + 1, &ldb, x, &k, &zero, xb, &m);
+        BlasInst<algorithmFPType, cpu>::xgemm(&trans, &notrans, &m, &n, &k, &one, beta + 1, &ldb, x, &k, &zero, xb, &m);
     else
-        Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &m, &n, &k, &one, beta + 1, &ldb, x, &k, &zero, xb, &m);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &m, &n, &k, &one, beta + 1, &ldb, x, &k, &zero, xb, &m);
     if (bIntercept)
     {
         PRAGMA_IVDEP
@@ -87,7 +87,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
 
-    const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
+    const algorithmFPType expThreshold = daal::internal::MathInst<algorithmFPType, cpu>::vExpThreshold();
     if (softmaxSums != nullptr)
     {
         services::internal::service_memset_seq<algorithmFPType, cpu>(softmaxSums, 0.0, nCols);
@@ -113,7 +113,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
             if (pRes[i] < expThreshold) pRes[i] = expThreshold;
         }
     }
-    daal::internal::Math<algorithmFPType, cpu>::vExp(nRows * nCols, res, res);
+    daal::internal::MathInst<algorithmFPType, cpu>::vExp(nRows * nCols, res, res);
     if (softmaxSums != nullptr && yLocal != nullptr)
     {
         for (size_t iRow = 0; iRow < nRows; ++iRow)
@@ -242,7 +242,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
                 {
                     prox[i * nBetaPerClass + j] = b[i * nBetaPerClass + j] + parameter->penaltyL1;
                 }
-                if (daal::internal::Math<algorithmFPType, cpu>::sFabs(b[i * nBetaPerClass + j]) <= parameter->penaltyL1)
+                if (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(b[i * nBetaPerClass + j]) <= parameter->penaltyL1)
                 {
                     prox[i * nBetaPerClass + j] = 0;
                 }
@@ -312,7 +312,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         algorithmFPType alpha_scaled = algorithmFPType(parameter->penaltyL2) / algorithmFPType(n);
         algorithmFPType lipschitz    = 0.25 * (globalMaxNorm + algorithmFPType(parameter->interceptFlag)) + alpha_scaled;
-        algorithmFPType displacement = daal::internal::Math<algorithmFPType, cpu>::sMin(2 * parameter->penaltyL2, lipschitz);
+        algorithmFPType displacement = daal::internal::MathInst<algorithmFPType, cpu>::sMin(2 * parameter->penaltyL2, lipschitz);
         c                            = 2 * lipschitz + displacement;
     }
 
@@ -385,7 +385,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
                 algorithmFPType * const logP = tlsLogP.local();
                 DAAL_CHECK_THR(logP, services::ErrorMemoryAllocationFailed);
-                daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsToProcess * nClasses, fPtrLocal, logP);
+                daal::internal::MathInst<algorithmFPType, cpu>::vLog(nRowsToProcess * nClasses, fPtrLocal, logP);
 
                 algorithmFPType localValue(0);
                 for (size_t i = 0; i < nRowsToProcess; ++i)
@@ -422,8 +422,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
                 DAAL_ASSERT((m + 1) <= services::internal::MaxVal<DAAL_INT>::get());
                 const DAAL_INT ldc = m + 1;
 
-                daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &m, &n, &k, &one, xLocal, &lda, fPtrLocal, &ldb, &zero, g + 1,
-                                                                   &ldc);
+                daal::internal::BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &m, &n, &k, &one, xLocal, &lda, fPtrLocal, &ldb, &zero,
+                                                                       g + 1, &ldc);
 
                 if (interceptFlag)
                 {

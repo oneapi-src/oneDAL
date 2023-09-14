@@ -24,6 +24,7 @@
 #include "src/threading/threading.h"
 #include "src/externals/service_spblas.h"
 #include "src/externals/service_blas.h"
+#include "src/externals/service_math.h"
 
 namespace daal
 {
@@ -96,11 +97,11 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
     }
     if (par->kernelType == KernelType::sigmoid)
     {
-        daal::internal::Math<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
+        daal::internal::MathInst<algorithmFPType, cpu>::vTanh(nVectors1, dataR, dataR);
     }
     if (par->kernelType == KernelType::polynomial)
     {
-        daal::internal::Math<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
+        daal::internal::MathInst<algorithmFPType, cpu>::vPowx(nVectors1, dataR, par->degree, dataR);
     }
 
     return services::Status();
@@ -133,7 +134,7 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
         DAAL_CHECK_BLOCK_STATUS(mtR);
         algorithmFPType * dataR = mtR.get();
 
-        SpBlas<algorithmFPType, cpu>::xsyrk_a_at(dataA1, colIndicesA1, rowOffsetsA1, nVectors1, a1->getNumberOfColumns(), dataR, nVectors2);
+        SpBlasInst<algorithmFPType, cpu>::xsyrk_a_at(dataA1, colIndicesA1, rowOffsetsA1, nVectors1, a1->getNumberOfColumns(), dataR, nVectors2);
 
         if (k != one || b != zero)
         {
@@ -151,7 +152,7 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                 }
                 if (par->kernelType == KernelType::sigmoid)
                 {
-                    daal::internal::Math<algorithmFPType, cpu>::vTanh(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
+                    daal::internal::MathInst<algorithmFPType, cpu>::vTanh(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
                 }
             });
         }
@@ -207,8 +208,8 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                 algorithmFPType * const dataR = mtRRows.get();
 
                 const size_t ldc = nVectors2;
-                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
-                                                         nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
+                SpBlasInst<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
+                                                             nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
 
                 if (k != one || b != zero)
                 {
@@ -225,8 +226,8 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                         }
                         if (par->kernelType == KernelType::sigmoid)
                         {
-                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * ldc + startRow2,
-                                                                              dataR + i * ldc + startRow2);
+                            daal::internal::MathInst<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * ldc + startRow2,
+                                                                                  dataR + i * ldc + startRow2);
                         }
                     }
                 }
@@ -236,8 +237,8 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                 const size_t ldc                = blockSize;
                 algorithmFPType * const mklBuff = tlsMklBuff.local();
 
-                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
-                                                         nRowsInBlock1, nFeatures, mklBuff, ldc);
+                SpBlasInst<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
+                                                             nRowsInBlock1, nFeatures, mklBuff, ldc);
 
                 if (k != one || b != zero)
                 {
@@ -254,7 +255,7 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                         }
                         if (par->kernelType == KernelType::sigmoid)
                         {
-                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock1, mklBuff + i * ldc, mklBuff + i * ldc);
+                            daal::internal::MathInst<algorithmFPType, cpu>::vTanh(nRowsInBlock1, mklBuff + i * ldc, mklBuff + i * ldc);
                         }
                     }
                 }

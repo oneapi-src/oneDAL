@@ -145,8 +145,8 @@ inline void computeVariance(const size_t nObservations, const size_t nFeatures, 
 {
     for (size_t j = 0; j < nFeatures; j++)
     {
-        variance[j] = daal::internal::Math<algorithmFPType, cpu>::sSqrt((ssq[j] - 2 * mean[j] * sums[j] + nObservations * mean[j] * mean[j])
-                                                                        / (nObservations - 1));
+        variance[j] = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt((ssq[j] - 2 * mean[j] * sums[j] + nObservations * mean[j] * mean[j])
+                                                                            / (nObservations - 1));
     }
 }
 

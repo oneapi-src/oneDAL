@@ -78,7 +78,7 @@ bool isGreater(algorithmFPType val1, algorithmFPType val2)
 template <CpuType cpu>
 void shuffle(void * state, size_t n, IndexType * dst)
 {
-    RNGs<int, cpu> rng;
+    RNGsInst<int, cpu> rng;
     int idx[2];
 
     for (size_t i = 0; i < n; ++i)
@@ -91,7 +91,7 @@ void shuffle(void * state, size_t n, IndexType * dst)
 template <CpuType cpu>
 void shuffle(void * state, size_t n, IndexType * dst, int * auxBuf)
 {
-    RNGs<int, cpu> rng;
+    RNGsInst<int, cpu> rng;
 
     rng.uniform(n, auxBuf, state, 0, n);
 

@@ -17,3 +17,5 @@
 #pragma once
 
 #include "oneapi/dal/algo/covariance/compute.hpp"
+#include "oneapi/dal/algo/covariance/partial_compute.hpp"
+#include "oneapi/dal/algo/covariance/finalize_compute.hpp"

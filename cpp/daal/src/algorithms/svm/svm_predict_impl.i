@@ -237,13 +237,13 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
         const algorithmFPType * const svCoeff = mtSVCoeff.get();
 
-        Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+        BlasInst<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
 
         WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(mtR);
         algorithmFPType * const distanceBlock = mtR.get();
         service_memset_seq<algorithmFPType, cpu>(distanceBlock, bias, nVectors);
-        Blas<algorithmFPType, cpu>::xxaxpy(&n, &alpha, distanceSV, &incX, distanceBlock, &incY);
+        BlasInst<algorithmFPType, cpu>::xxaxpy(&n, &alpha, distanceSV, &incX, distanceBlock, &incY);
 
         return st;
     }
@@ -301,7 +301,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                 const algorithmFPType * const svCoeff = mtSVCoeff.get();
                 algorithmFPType * const distanceSV    = &distanceLocal[iBlockSV * nRowsPerBlock];
 
-                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
+                BlasInst<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
             });
 
             WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, startRow, nRowsPerBlockReal);
@@ -314,7 +314,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             DAAL_INT incX(1);
             for (size_t iBlockSV = 0; iBlockSV < nBlocksSV; ++iBlockSV)
             {
-                Blas<algorithmFPType, cpu>::xxaxpy(&n, &alpha, &distanceLocal[iBlockSV * nRowsPerBlock], &incX, distanceBlock, &incY);
+                BlasInst<algorithmFPType, cpu>::xxaxpy(&n, &alpha, &distanceLocal[iBlockSV * nRowsPerBlock], &incX, distanceBlock, &incY);
             }
         });
 

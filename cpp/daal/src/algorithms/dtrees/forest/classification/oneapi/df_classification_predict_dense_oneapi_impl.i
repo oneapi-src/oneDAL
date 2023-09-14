@@ -202,7 +202,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
 
     auto & context = services::internal::getDefaultContext();
 
-    TArray<const dtrees::internal::DecisionTreeTable *, sse2> _aTree;
+    TArray<const dtrees::internal::DecisionTreeTable *, DAAL_BASE_CPU> _aTree;
 
     const auto nTrees = pModel->size();
 
@@ -239,9 +239,9 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, maxTreeSize, nTrees);
     const size_t treeBlockSize = maxTreeSize * nTrees;
 
-    TArray<int32_t, sse2> tFI(treeBlockSize);
-    TArray<int32_t, sse2> tLC(treeBlockSize);
-    TArray<algorithmFPType, sse2> tFV(treeBlockSize);
+    TArray<int32_t, DAAL_BASE_CPU> tFI(treeBlockSize);
+    TArray<int32_t, DAAL_BASE_CPU> tLC(treeBlockSize);
+    TArray<algorithmFPType, DAAL_BASE_CPU> tFV(treeBlockSize);
 
     bool weighted  = false;
     auto ftrIdxArr = context.allocate(TypeIds::id<int>(), treeBlockSize, status);
@@ -261,7 +261,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     DAAL_CHECK_STATUS_VAR(status);
 
     UniversalBuffer probasArr;
-    TArray<algorithmFPType, sse2> probasArrHost(treeBlockSize * _nClasses);
+    TArray<algorithmFPType, DAAL_BASE_CPU> probasArrHost(treeBlockSize * _nClasses);
     DAAL_CHECK_MALLOC(probasArrHost.get());
 
     if (_votingMethod == VotingMethod::weighted && pModel->getProbas(0))

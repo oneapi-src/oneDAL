@@ -77,9 +77,9 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::compute()
     {
         DAAL_CHECK_STATUS(s, covs->computeSigmaInverse(iterCounter))
         algorithmFPType * sqrtInvDetSigma = covs->getLogSqrtInvDetSigma();
-        Math<algorithmFPType, cpu>::vLog(nComponents, sqrtInvDetSigma, covs->getLogSqrtInvDetSigma());
+        MathInst<algorithmFPType, cpu>::vLog(nComponents, sqrtInvDetSigma, covs->getLogSqrtInvDetSigma());
 
-        Math<algorithmFPType, cpu>::vLog(nComponents, alpha, logAlpha); // inplace: same memory as alpha
+        MathInst<algorithmFPType, cpu>::vLog(nComponents, alpha, logAlpha); // inplace: same memory as alpha
 
         logLikelyhood = 0;
 
@@ -287,7 +287,7 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepE(const size_t nVectorsInCu
         maxInRow[i] = 0; // same memory as t.rowSum, set to zero before computing row sum
     }
 
-    Math<algorithmFPType, cpu>::vExp(nVectorsInCurrentBlock * nComponents, t.p, t.p);
+    MathInst<algorithmFPType, cpu>::vExp(nVectorsInCurrentBlock * nComponents, t.p, t.p);
 
     for (size_t k = 0; k < nComponents; k++)
     {
@@ -331,7 +331,7 @@ algorithmFPType EMKernelTask<algorithmFPType, method, cpu>::computePartialLogLik
                                                                                         Task<algorithmFPType, cpu> & t)
 {
     algorithmFPType * logRowSumInv = t.rowSumInv;
-    Math<algorithmFPType, cpu>::vLog(nVectorsInCurrentBlock, t.rowSumInv, logRowSumInv);
+    MathInst<algorithmFPType, cpu>::vLog(nVectorsInCurrentBlock, t.rowSumInv, logRowSumInv);
 
     algorithmFPType loglikPartial = t.partLogLikelyhood;
     PRAGMA_IVDEP
@@ -430,7 +430,7 @@ EMKernelTask<algorithmFPType, method, cpu>::EMKernelTask(NumericTable & dataTabl
       nComponents(par.nComponents)
 {
     algorithmFPType pi      = 3.1415926535897932384626433;
-    logLikelyhoodCorrection = 0.5 * nVectors * nFeatures * Math<algorithmFPType, cpu>::sLog(2 * pi);
+    logLikelyhoodCorrection = 0.5 * nVectors * nFeatures * MathInst<algorithmFPType, cpu>::sLog(2 * pi);
 
     nBlocks = nVectors / blockSizeDefault;
     nBlocks += (nBlocks * blockSizeDefault != nVectors);
@@ -595,7 +595,7 @@ ErrorPtr GmmModelFull<algorithmFPType, cpu>::regularizeCovarianceMatrix(algorith
     }
 
     DAAL_INT p = nFeatures;
-    Lapack<algorithmFPType, cpu>::xxsyevd(&jobz, &uplo, &p, cov, &p, eigenvalues, work, &lwork, iwork, &liwork, &info);
+    LapackInst<algorithmFPType, cpu>::xxsyevd(&jobz, &uplo, &p, cov, &p, eigenvalues, work, &lwork, iwork, &liwork, &info);
     if (info != 0)
     {
         return Error::create(info < 0 ? ErrorIncorrectInternalFunctionParameter : ErrorEMIllConditionedCovarianceMatrix);
@@ -654,7 +654,7 @@ ErrorPtr GmmModelFull<algorithmFPType, cpu>::regularizeCovarianceMatrix(algorith
 template <typename algorithmFPType, CpuType cpu>
 Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
 {
-    typedef Lapack<algorithmFPType, cpu> lapack;
+    typedef LapackInst<algorithmFPType, cpu> lapack;
 
     algorithmFPType ** invSigma = sigma; //one place for both arrays
 

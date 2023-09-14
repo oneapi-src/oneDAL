@@ -69,14 +69,19 @@ Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, a
                                                             algorithmFPType * resultArray)
 {
     auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
-    return compute(a, b, *engineImpl, n, resultArray);
+
+    if (engineImpl)
+    {
+        return compute(a, b, *engineImpl, n, resultArray);
+    }
+    return services::Status(services::ErrorIncorrectEngineParameter);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 Status UniformKernel<algorithmFPType, method, cpu>::compute(algorithmFPType a, algorithmFPType b, engines::internal::BatchBaseImpl & engine, size_t n,
                                                             algorithmFPType * resultArray)
 {
-    daal::internal::RNGs<algorithmFPType, cpu> rng;
+    daal::internal::RNGsInst<algorithmFPType, cpu> rng;
     DAAL_CHECK(!rng.uniform(n, resultArray, engine.getState(), a, b), ErrorIncorrectErrorcodeFromGenerator);
     return Status();
 }

@@ -66,9 +66,12 @@ public:
     MSG(algorithm_is_not_implemented_for_this_device);
     MSG(feature_index_is_out_of_range);
     MSG(incompatible_array_reinterpret_cast_types);
+    MSG(integral_type_conversion_overflow);
+    MSG(integral_type_conversion_underflow);
     MSG(invalid_data_block_size);
     MSG(invalid_column_indices_block_size);
     MSG(method_not_implemented);
+    MSG(negative_integral_value_conversion_to_unsigned);
     MSG(only_homogen_table_is_supported);
     MSG(overflow_found_in_multiplication_of_two_values);
     MSG(overflow_found_in_sum_of_two_values);
@@ -91,6 +94,7 @@ public:
     MSG(this_result_is_not_enabled_via_result_options);
     MSG(spmd_error_holder_message);
     MSG(spmd_coworker_failure);
+    MSG(unexpected_dataset_type);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -129,6 +133,7 @@ public:
     MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);
     MSG(object_does_not_provide_read_access_to_csr);
+    MSG(pull_column_interface_is_not_implemented);
 
     /* Ranges */
     MSG(invalid_range_of_rows);

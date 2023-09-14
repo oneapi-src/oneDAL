@@ -156,8 +156,8 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     DataCollectionPtr collection = input->get(partialModels);
     size_t n                     = collection->size();
-    TArray<NumericTable *, sse2> partialxtx(n);
-    TArray<NumericTable *, sse2> partialxty(n);
+    TArray<NumericTable *, DAAL_BASE_CPU> partialxtx(n);
+    TArray<NumericTable *, DAAL_BASE_CPU> partialxty(n);
     for (size_t i = 0; i < n; i++)
     {
         ridge_regression::ModelNormEq * m = static_cast<ridge_regression::ModelNormEq *>((*collection)[i].get());

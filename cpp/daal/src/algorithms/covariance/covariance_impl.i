@@ -99,10 +99,12 @@ struct tls_data_t
 
         if (!(object->crossProduct))
         {
+            delete object;
             return nullptr;
         }
         if (!(object->sums) && !isNormalized)
         {
+            delete object;
             return nullptr;
         }
 
@@ -142,7 +144,8 @@ inline size_t getBlockSize<avx512>(size_t nrows)
 /********************* updateDenseCrossProductAndSums ********************************************/
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatures, size_t nVectors, NumericTable * dataTable,
-                                                algorithmFPType * crossProduct, algorithmFPType * sums, algorithmFPType * nObservations)
+                                                algorithmFPType * crossProduct, algorithmFPType * sums, algorithmFPType * nObservations,
+                                                const Hyperparameter * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateDenseCrossProductAndSums);
     if (((isNormalized) || ((!isNormalized) && ((method == defaultDense) || (method == sumDense)))))
@@ -151,8 +154,13 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         algorithmFPType nVectorsInv = 1.0 / (double)(nVectors);
 
         /* Split rows by blocks */
-        size_t numRowsInBlock = getBlockSize<cpu>(nVectors);
-        size_t numBlocks      = nVectors / numRowsInBlock;
+        std::int64_t numRowsInBlock = getBlockSize<cpu>(nVectors);
+        if (hyperparameter)
+        {
+            services::Status status = hyperparameter->find(denseUpdateStepBlockSize, numRowsInBlock);
+            DAAL_CHECK_STATUS_VAR(status);
+        }
+        size_t numBlocks = nVectors / numRowsInBlock;
         if (numBlocks * numRowsInBlock < nVectors)
         {
             numBlocks++;
@@ -169,6 +177,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             }
             return tlsData;
         });
+        DAAL_CHECK_SAFE_STATUS();
 
         /* Threaded loop with syrk seq calls */
         daal::static_threader_for(numBlocks, [&](int iBlock, size_t tid) {
@@ -196,8 +205,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(gemmData);
-                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, (DAAL_INT *)&nFeatures_local, (DAAL_INT *)&nRows, &alpha, dataBlock_local,
-                                                   (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
+                BlasInst<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, (DAAL_INT *)&nFeatures_local, (DAAL_INT *)&nRows, &alpha, dataBlock_local,
+                                                       (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
             }
 
             if (!isNormalized && (method == defaultDense))
@@ -277,8 +286,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         DEFINE_TABLE_BLOCK(ReadRows, dataBlock, dataTable);
         algorithmFPType * dataBlockPtr = const_cast<algorithmFPType *>(dataBlock.get());
 
-        int errcode =
-            Statistics<algorithmFPType, cpu>::xcp(dataBlockPtr, (__int64)nFeatures, (__int64)nVectors, nObservations, sums, crossProduct, mklMethod);
+        int errcode = StatisticsInst<algorithmFPType, cpu>::xcp(dataBlockPtr, (__int64)nFeatures, (__int64)nVectors, nObservations, sums,
+                                                                crossProduct, mklMethod);
         DAAL_CHECK(errcode == 0, services::ErrorCovarianceInternal);
     }
 
@@ -290,12 +299,12 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors, algorithmFPType * dataBlock, size_t * colIndices,
                                               size_t * rowOffsets, algorithmFPType * crossProduct, algorithmFPType * sums,
-                                              algorithmFPType * nObservations)
+                                              algorithmFPType * nObservations, const Hyperparameter * hyperparameter)
 {
     char transa = 'T';
-    SpBlas<algorithmFPType, cpu>::xcsrmultd(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, (DAAL_INT *)&nFeatures, dataBlock,
-                                            (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, dataBlock, (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets,
-                                            crossProduct, (DAAL_INT *)&nFeatures);
+    SpBlasInst<algorithmFPType, cpu>::xcsrmultd(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, (DAAL_INT *)&nFeatures, dataBlock,
+                                                (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, dataBlock, (DAAL_INT *)colIndices,
+                                                (DAAL_INT *)rowOffsets, crossProduct, (DAAL_INT *)&nFeatures);
 
     if (method != sumCSR)
     {
@@ -316,8 +325,8 @@ services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors,
         matdescra[2] = (char)0;
         matdescra[4] = (char)0;
         matdescra[5] = (char)0;
-        SpBlas<algorithmFPType, cpu>::xcsrmv(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, &one, matdescra, dataBlock,
-                                             (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, (DAAL_INT *)rowOffsets + 1, ones, &one, sums);
+        SpBlasInst<algorithmFPType, cpu>::xcsrmv(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, &one, matdescra, dataBlock,
+                                                 (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, (DAAL_INT *)rowOffsets + 1, ones, &one, sums);
     }
 
     nObservations[0] += (algorithmFPType)nVectors;
@@ -328,7 +337,7 @@ services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors,
 template <typename algorithmFPType, CpuType cpu>
 void mergeCrossProductAndSums(size_t nFeatures, const algorithmFPType * partialCrossProduct, const algorithmFPType * partialSums,
                               const algorithmFPType * partialNObservations, algorithmFPType * crossProduct, algorithmFPType * sums,
-                              algorithmFPType * nObservations)
+                              algorithmFPType * nObservations, const Hyperparameter * hyperparameter)
 {
     /* Merge cross-products */
     algorithmFPType partialNObsValue = partialNObservations[0];
@@ -383,7 +392,7 @@ void mergeCrossProductAndSums(size_t nFeatures, const algorithmFPType * partialC
 /*********************** finalizeCovariance ******************************************************/
 template <typename algorithmFPType, CpuType cpu>
 services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservations, algorithmFPType * crossProduct, algorithmFPType * sums,
-                                    algorithmFPType * cov, algorithmFPType * mean, const Parameter * parameter)
+                                    algorithmFPType * cov, algorithmFPType * mean, const Parameter * parameter, const Hyperparameter * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalizeCovariance);
 
@@ -409,7 +418,7 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
         algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
         for (size_t i = 0; i < nFeatures; i++)
         {
-            diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(crossProduct[i * nFeatures + i]);
+            diagInvSqrts[i] = 1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(crossProduct[i * nFeatures + i]);
         }
 
         for (size_t i = 0; i < nFeatures; i++)
@@ -447,7 +456,8 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status finalizeCovariance(NumericTable * nObservationsTable, NumericTable * crossProductTable, NumericTable * sumTable,
-                                    NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter)
+                                    NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter,
+                                    const Hyperparameter * hyperparameter)
 {
     const size_t nFeatures = covTable->getNumberOfColumns();
 
@@ -463,7 +473,7 @@ services::Status finalizeCovariance(NumericTable * nObservationsTable, NumericTa
     algorithmFPType * crossProduct  = const_cast<algorithmFPType *>(crossProductBlock.get());
     algorithmFPType * nObservations = const_cast<algorithmFPType *>(nObservationsBlock.get());
 
-    return finalizeCovariance<algorithmFPType, cpu>(nFeatures, *nObservations, crossProduct, sums, cov, mean, parameter);
+    return finalizeCovariance<algorithmFPType, cpu>(nFeatures, *nObservations, crossProduct, sums, cov, mean, parameter, hyperparameter);
 }
 
 } // namespace internal

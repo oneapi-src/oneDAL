@@ -199,7 +199,7 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
             DAAL_CHECK_STATUS(s, (IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm(workValue, nRows, pointNorm, _blockSize, _threadStart)));
             DAAL_CHECK_STATUS(s, (IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm(gradient, nRows, gradientNorm, _blockSize, _threadStart)));
             const algorithmFPType gradientThreshold =
-                parameter->accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(algorithmFPType(1.0), pointNorm);
+                parameter->accuracyThreshold * daal::internal::MathInst<algorithmFPType, cpu>::sMax(algorithmFPType(1.0), pointNorm);
             if (gradientNorm <= gradientThreshold)
             {
                 DAAL_ASSERT((epoch - startIteration) <= services::internal::MaxVal<int>::get())
@@ -231,7 +231,7 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
                 {
                     accumulatedG[j] += gradient[j] * gradient[j];
                     const algorithmFPType invAccumGrad =
-                        algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(accumulatedG[j] + degenerateCasesThreshold);
+                        algorithmFPType(1.0) / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(accumulatedG[j] + degenerateCasesThreshold);
                     workValue[j] = workValue[j] - learningRate * gradient[j] * invAccumGrad;
                 }
             },

@@ -174,8 +174,15 @@ sycl::event train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::rando
                     split_smp_t sp_hlp;
                     split_info_t bs;
 
-                    // slm pointers declaration
+// slm pointers declaration
+#if __SYCL_COMPILER_VERSION >= 20230828
+                    byte_t* local_byte_buf_ptr =
+                        local_byte_buf.template get_multi_ptr<sycl::access::decorated::yes>()
+                            .get_raw();
+#else
                     byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+#endif
+
                     hist_type_t* local_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
                     Float* local_buf_float_ptr =
@@ -478,8 +485,15 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     split_smp_t sp_hlp;
                     split_info<Float, Index, Task> bs;
 
-                    // slm pointers declaration
+// slm pointers declaration
+#if __SYCL_COMPILER_VERSION >= 20230828
+                    byte_t* local_byte_buf_ptr =
+                        local_byte_buf.template get_multi_ptr<sycl::access::decorated::yes>()
+                            .get_raw();
+#else
                     byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+#endif
+
                     hist_type_t* local_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr, local_hist_buf_size);
                     Float* local_buf_float_ptr =
@@ -791,8 +805,14 @@ train_splitter_sp_opt_impl<Float, Bin, Index, Task, sbg_size>::best_split_single
                     split_smp_t sp_hlp;
                     split_info<Float, Index, Task> bs;
 
-                    // slm pointers declaration
+// slm pointers declaration
+#if __SYCL_COMPILER_VERSION >= 20230828
+                    byte_t* local_byte_buf_ptr =
+                        local_byte_buf.template get_multi_ptr<sycl::access::decorated::yes>()
+                            .get_raw();
+#else
                     byte_t* local_byte_buf_ptr = local_byte_buf.get_pointer().get();
+#endif
 
                     hist_type_t* local_bs_hist_buf_ptr =
                         get_buf_ptr<hist_type_t>(&local_byte_buf_ptr,

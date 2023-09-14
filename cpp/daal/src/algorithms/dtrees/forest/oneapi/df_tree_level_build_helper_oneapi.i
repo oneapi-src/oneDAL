@@ -593,7 +593,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::doLevelPartition(c
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-    swap<sse2>(treeOrder, treeOrderBuf);
+    swap<DAAL_BASE_CPU>(treeOrder, treeOrderBuf);
 
     return status;
 }

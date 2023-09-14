@@ -24,8 +24,8 @@
 #ifndef __SERVICE_SERVICE_H__
 #define __SERVICE_SERVICE_H__
 
-#include "src/externals/service_service_mkl.h"
 #include "services/daal_memory.h"
+#include "src/externals/config.h"
 
 namespace daal
 {
@@ -34,7 +34,7 @@ namespace internal
 /*
 // Template functions definition
 */
-template <class _impl = mkl::MklService>
+template <class _impl>
 struct Service
 {
     static void * serv_malloc(size_t size, size_t alignment) { return _impl::serv_malloc(size, alignment); }
@@ -61,6 +61,8 @@ struct Service
 
     static int serv_set_memory_limit(int type, size_t limit) { return _impl::serv_set_memory_limit(type, limit); }
 
+    static size_t serv_strnlen_s(const char * src, size_t slen) { return _impl::serv_strnlen_s(src, slen); }
+
     static int serv_strncpy_s(char * dest, size_t dmax, const char * src, size_t slen) { return _impl::serv_strncpy_s(dest, dmax, src, slen); }
 
     static int serv_strncat_s(char * dest, size_t dmax, const char * src, size_t slen) { return _impl::serv_strncat_s(dest, dmax, src, slen); }
@@ -76,6 +78,14 @@ struct Service
     static int serv_double_to_string(char * buffer, size_t n, double value) { return _impl::serv_double_to_string(buffer, n, value); }
 };
 
+} // namespace internal
+} // namespace daal
+
+namespace daal
+{
+namespace internal
+{
+using ServiceInst = Service<ServiceBackend>;
 } // namespace internal
 } // namespace daal
 

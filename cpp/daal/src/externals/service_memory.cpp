@@ -26,7 +26,7 @@
 
 void * daal::services::daal_malloc(size_t size, size_t alignment)
 {
-    return daal::internal::Service<>::serv_malloc(size, alignment);
+    return daal::internal::ServiceInst::serv_malloc(size, alignment);
 }
 
 void * daal::services::daal_calloc(size_t size, size_t alignment)
@@ -49,12 +49,12 @@ void * daal::services::daal_calloc(size_t size, size_t alignment)
 
 void daal::services::daal_free(void * ptr)
 {
-    daal::internal::Service<>::serv_free(ptr);
+    daal::internal::ServiceInst::serv_free(ptr);
 }
 
 void daal::services::daal_memmove_s(void * dest, size_t destSize, const void * src, size_t smax)
 {
-    daal::internal::Service<>::serv_memmove_s(dest, destSize, src, smax);
+    daal::internal::ServiceInst::serv_memmove_s(dest, destSize, src, smax);
 }
 
 namespace daal
@@ -63,7 +63,7 @@ namespace services
 {
 void daal_free_buffers()
 {
-    daal::internal::Service<>::serv_free_buffers();
+    daal::internal::ServiceInst::serv_free_buffers();
 }
 } // namespace services
 } // namespace daal
@@ -88,11 +88,11 @@ void daal::services::daal_memcpy_s(void * dest, size_t destSize, const void * sr
     char * srcChar = (char *)src;
     for (size_t i = 0; i < nBlocks; i++)
     {
-        daal::internal::Service<>::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE);
+        daal::internal::ServiceInst::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE);
     }
     if (sizeOfLastBlock != 0)
     {
-        daal::internal::Service<>::serv_memcpy_s(&dstChar[nBlocks * BLOCKSIZE], sizeOfLastBlock, &srcChar[nBlocks * BLOCKSIZE], sizeOfLastBlock);
+        daal::internal::ServiceInst::serv_memcpy_s(&dstChar[nBlocks * BLOCKSIZE], sizeOfLastBlock, &srcChar[nBlocks * BLOCKSIZE], sizeOfLastBlock);
     }
 }
 
@@ -117,12 +117,12 @@ int daal::services::internal::daal_memcpy_s(void * dest, size_t destSize, const 
     char * srcChar = (char *)src;
     for (size_t i = 0; i < nBlocks; i++)
     {
-        result |= daal::internal::Service<>::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE);
+        result |= daal::internal::ServiceInst::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE);
     }
     if (sizeOfLastBlock != 0)
     {
-        result |=
-            daal::internal::Service<>::serv_memcpy_s(&dstChar[nBlocks * BLOCKSIZE], sizeOfLastBlock, &srcChar[nBlocks * BLOCKSIZE], sizeOfLastBlock);
+        result |= daal::internal::ServiceInst::serv_memcpy_s(&dstChar[nBlocks * BLOCKSIZE], sizeOfLastBlock, &srcChar[nBlocks * BLOCKSIZE],
+                                                             sizeOfLastBlock);
     }
     return result;
 }

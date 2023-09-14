@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/detail/homogen_utils.hpp"
 
 namespace oneapi::dal::detail {

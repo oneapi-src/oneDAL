@@ -50,7 +50,7 @@ ModelInternal::ModelInternal(const NumericTablePtr & beta, const linear_model::P
 Status ModelInternal::initialize()
 {
     const size_t nRows = _beta->getNumberOfRows();
-    daal::internal::WriteOnlyRows<float, sse2> betaRows(*_beta, 0, nRows);
+    daal::internal::WriteOnlyRows<float, DAAL_BASE_CPU> betaRows(*_beta, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(betaRows);
     float * betaArray     = betaRows.get();
     const size_t betaSize = _beta->getNumberOfColumns() * nRows;
@@ -89,7 +89,7 @@ NumericTablePtr ModelInternal::getBeta()
 Status ModelInternal::setToZero(NumericTable & table)
 {
     const size_t nRows = table.getNumberOfRows();
-    daal::internal::WriteOnlyRows<float, sse2> tableRows(table, 0, nRows);
+    daal::internal::WriteOnlyRows<float, DAAL_BASE_CPU> tableRows(table, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(tableRows);
     float * tableArray = tableRows.get();
 

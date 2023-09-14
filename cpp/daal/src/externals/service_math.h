@@ -25,7 +25,8 @@
 #define __SERVICE_MATH_H__
 
 #include "src/services/service_defines.h"
-#include "src/externals/service_math_mkl.h"
+
+#include "src/externals/config.h"
 
 namespace daal
 {
@@ -34,7 +35,7 @@ namespace internal
 /*
 // Template functions definition
 */
-template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl = mkl::MklMath>
+template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl>
 struct Math
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
@@ -92,6 +93,15 @@ struct Math
     static void vCdfNormInv(SizeType n, const fpType * in, fpType * out) { _impl<fpType, cpu>::vCdfNormInv(n, in, out); }
 };
 
+} // namespace internal
+} // namespace daal
+
+namespace daal
+{
+namespace internal
+{
+template <typename fpType, CpuType cpu>
+using MathInst = Math<fpType, cpu, MathBackend>;
 } // namespace internal
 } // namespace daal
 

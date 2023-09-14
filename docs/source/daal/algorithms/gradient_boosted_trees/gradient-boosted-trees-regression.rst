@@ -89,14 +89,6 @@ Examples
 
     - :cpp_example:`gbt_reg_traversed_model_builder.cpp <gradient_boosted_trees/gbt_reg_traversed_model_builder.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    - :java_example:`GbtRegTraversedModelBuilder.java <gbt/GbtRegTraversedModelBuilder.java>`
-
   .. tab:: Python*
 
     - :daal4py_example:`gbt_reg_traversed_model_builder.py`
@@ -175,16 +167,6 @@ Examples
     Batch Processing:
 
     - :cpp_example:`gbt_reg_dense_batch.cpp <gradient_boosted_trees/gbt_reg_dense_batch.cpp>`
-
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`GbtRegDenseBatch.java <gbt/GbtRegDenseBatch.java>`
 
   .. tab:: Python* with DPC++ support
 

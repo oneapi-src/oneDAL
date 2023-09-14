@@ -93,15 +93,15 @@ DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::I
         DAAL_CHECK_STATUS(s, get(partialSumSquares)->assign((algorithmFPType)0.0))
         DAAL_CHECK_STATUS(s, get(partialSumSquaresCentered)->assign((algorithmFPType)0.0))
 
-        ReadRows<algorithmFPType, sse2> dataBlock(input->get(data).get(), 0, 1);
+        ReadRows<algorithmFPType, DAAL_BASE_CPU> dataBlock(input->get(data).get(), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(dataBlock)
         const algorithmFPType * firstRow = dataBlock.get();
 
-        WriteOnlyRows<algorithmFPType, sse2> partialMinimumBlock(get(partialMinimum).get(), 0, 1);
+        WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> partialMinimumBlock(get(partialMinimum).get(), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(partialMinimumBlock)
         algorithmFPType * partialMinimumArray = partialMinimumBlock.get();
 
-        WriteOnlyRows<algorithmFPType, sse2> partialMaximumBlock(get(partialMaximum).get(), 0, 1);
+        WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> partialMaximumBlock(get(partialMaximum).get(), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(partialMaximumBlock)
         algorithmFPType * partialMaximumArray = partialMaximumBlock.get();
 

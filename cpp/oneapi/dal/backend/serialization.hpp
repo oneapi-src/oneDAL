@@ -160,6 +160,7 @@ public:
     ID(2020000000, empty_table_id);
     ID(2030000000, homogen_table_id);
     ID(2040000000, csr_table_id);
+    ID(2050000000, heterogen_table_id);
 
     // Algorithms - SVM
     ID(3010000000, svm_classification_model_impl_id);

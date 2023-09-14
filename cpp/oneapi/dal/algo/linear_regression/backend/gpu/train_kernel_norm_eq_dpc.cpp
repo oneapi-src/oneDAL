@@ -37,15 +37,10 @@ using dal::backend::context_gpu;
 namespace be = dal::backend;
 namespace pr = be::primitives;
 
-template <typename Float>
-std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
-    constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
-}
-
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
+                                          const detail::train_parameters<Task>& params,
                                           const table& data,
                                           const table& resp) {
     using dal::detail::check_mul_overflow;
@@ -73,7 +68,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(queue, betas_size, alloc);
 
-    const auto b_count = propose_block_size<Float>(queue, feature_count, response_count);
+    const std::int64_t b_count = params.get_gpu_macro_block();
     const be::uniform_blocking blocking(sample_count, b_count);
 
     const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
@@ -168,16 +163,18 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
+                                const detail::train_parameters<Task>& params,
                                 const train_input<Task>& input) {
-    return call_dal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
+    return call_dal_kernel<Float, Task>(ctx, desc, params, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>
 struct train_kernel_gpu<Float, method::norm_eq, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
+                                  const detail::train_parameters<Task>& params,
                                   const train_input<Task>& input) const {
-        return train<Float, Task>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, params, input);
     }
 };
 

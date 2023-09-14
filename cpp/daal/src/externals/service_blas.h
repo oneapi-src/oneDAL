@@ -26,9 +26,10 @@
 
 #include "services/daal_defines.h"
 #include "src/externals/service_memory.h"
-#include "src/externals/service_blas_mkl.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/data_management/service_numeric_table.h"
+
+#include "src/externals/config.h"
 
 namespace daal
 {
@@ -97,7 +98,7 @@ inline void Helper<double, avx512>::copy(double * dsc, const double * src, const
 /*
 // Template functions definition
 */
-template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl = mkl::MklBlas>
+template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl>
 struct Blas
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
@@ -282,6 +283,15 @@ struct Blas
     } /* xgemm_blocked */
 };
 
+} // namespace internal
+} // namespace daal
+
+namespace daal
+{
+namespace internal
+{
+template <typename fpType, CpuType cpu>
+using BlasInst = Blas<fpType, cpu, BlasBackend>;
 } // namespace internal
 } // namespace daal
 

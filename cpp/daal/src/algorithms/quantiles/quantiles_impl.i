@@ -60,7 +60,7 @@ services::Status QuantilesKernel<method, algorithmFPType, cpu>::compute(const Nu
     DAAL_CHECK_BLOCK_STATUS(quantilesBlock)
     algorithmFPType * quantiles = quantilesBlock.get();
 
-    int errorcode = Statistics<algorithmFPType, cpu>::xQuantiles(data, nFeatures, nVectors, nQuantileOrders, quantileOrders, quantiles);
+    int errorcode = StatisticsInst<algorithmFPType, cpu>::xQuantiles(data, nFeatures, nVectors, nQuantileOrders, quantileOrders, quantiles);
 
     if (errorcode)
     {

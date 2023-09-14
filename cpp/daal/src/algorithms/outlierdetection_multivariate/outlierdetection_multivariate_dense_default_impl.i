@@ -72,7 +72,7 @@ inline void OutlierDetectionKernel<algorithmFPType, method, cpu>::mahalanobisDis
         }
     }
 
-    Blas<algorithmFPType, cpu>::xsymm(&side, &uplo, &dim, &n, &one, invScatter, &dim, dataCen, &dim, &zero, dataCenInvScatter, &dim);
+    BlasInst<algorithmFPType, cpu>::xsymm(&side, &uplo, &dim, &n, &one, invScatter, &dim, dataCen, &dim, &zero, dataCenInvScatter, &dim);
 
     dataCenPtr                             = dataCen;
     algorithmFPType * dataCenInvScatterPtr = dataCenInvScatter;
@@ -111,10 +111,10 @@ inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInter
     DAAL_INT dim = (DAAL_INT)nFeatures;
     char uplo    = 'U';
     DAAL_INT info;
-    Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &dim, invScatter, &dim, &info);
+    LapackInst<algorithmFPType, cpu>::xpotrf(&uplo, &dim, invScatter, &dim, &info);
     DAAL_CHECK(info == 0, ErrorOutlierDetectionInternal);
 
-    Lapack<algorithmFPType, cpu>::xpotri(&uplo, &dim, invScatter, &dim, &info);
+    LapackInst<algorithmFPType, cpu>::xpotri(&uplo, &dim, invScatter, &dim, &info);
     DAAL_CHECK(info == 0, ErrorOutlierDetectionInternal);
 
     size_t nBlocks = nVectors / blockSize;
@@ -144,7 +144,7 @@ inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInter
 
         for (size_t i = 0; i < nRowsInBlock; i++)
         {
-            if (Math<algorithmFPType, cpu>::sSqrt(weight[i]) > thresholdValue)
+            if (MathInst<algorithmFPType, cpu>::sSqrt(weight[i]) > thresholdValue)
             {
                 weight[i] = zero;
             }

@@ -28,7 +28,7 @@
 #include "src/externals/service_memory.h"
 #include "src/externals/service_blas.h"
 
-#include "src/externals/service_stat_mkl.h"
+#include "src/externals/config.h"
 
 namespace daal
 {
@@ -37,7 +37,7 @@ namespace internal
 /*
 // Template functions definition
 */
-template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl = mkl::MklStatistics>
+template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl>
 struct Statistics
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
@@ -146,16 +146,25 @@ struct Statistics
         fpType beta  = 0.0;
         DAAL_INT n   = nRows;
         DAAL_INT p   = nCols;
-        Blas<fpType, cpu>::xxgemm(&transa, &transb, &p, &p, &n, &alpha, dataWeightedBuffer, &n, data, &n, &beta, weightedCP, &p);
+        BlasInst<fpType, cpu>::xxgemm(&transa, &transb, &p, &p, &n, &alpha, dataWeightedBuffer, &n, data, &n, &beta, weightedCP, &p);
 
         // calculate covariance as COV = cp - W_all * mean(T) * mean
         alpha = -sum;
         beta  = 1.0;
         n     = 1;
-        Blas<fpType, cpu>::xxgemm(&transa, &transb, &p, &p, &n, &alpha, weightedSum, &n, weightedSum, &n, &beta, weightedCP, &p);
+        BlasInst<fpType, cpu>::xxgemm(&transa, &transb, &p, &p, &n, &alpha, weightedSum, &n, weightedSum, &n, &beta, weightedCP, &p);
     }
 };
 
+} // namespace internal
+} // namespace daal
+
+namespace daal
+{
+namespace internal
+{
+template <typename fpType, CpuType cpu>
+using StatisticsInst = Statistics<fpType, cpu, StatisticsBackend>;
 } // namespace internal
 } // namespace daal
 

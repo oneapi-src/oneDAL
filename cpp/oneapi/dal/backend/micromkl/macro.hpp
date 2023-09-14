@@ -20,11 +20,18 @@
 #error "This header cannot be included outside of micromkl module"
 #endif
 
-#define STRINGIFY(x)                     #x
-#define EXPAND(...)                      __VA_ARGS__
+#define STRINGIFY(x) #x
+#define EXPAND(...)  __VA_ARGS__
+
+#ifdef ONEDAL_REF
+#define FUNC_NAME(prefix, name)          name
+#define FUNC_NAME_CPU(cpu, prefix, name) name
+#else
 #define FUNC_NAME(prefix, name)          prefix##_##name
 #define FUNC_NAME_CPU(cpu, prefix, name) prefix##_##cpu##_##name
-#define DISPATCH_ID_NAME(cpu)            oneapi::dal::backend::cpu_dispatch_##cpu
+#endif
+
+#define DISPATCH_ID_NAME(cpu) oneapi::dal::backend::cpu_dispatch_##cpu
 
 #define FUNC_CPU_DECL(cpu, prefix, name, argdecl) \
     extern "C" void FUNC_NAME_CPU(cpu, prefix, name) argdecl;
@@ -61,6 +68,18 @@
     FUNC_SSE42(prefix, name, argdecl, argcall)  \
     FUNC_SSE2(prefix, name, argdecl, argcall)
 
+#ifdef ONEDAL_REF
+#define FUNC_DECL(prefix, floatabr, name, argdecl, argcall) \
+    FUNC(prefix, floatabr##name##_, argdecl, argcall)
+
+#define FUNC_CALL(prefix, floatabr, name, cargcall) floatabr##name##_<Cpu> cargcall;
+#else
+#define FUNC_DECL(prefix, floatabr, name, argdecl, argcall) \
+    FUNC(prefix, floatabr##name, argdecl, argcall)
+
+#define FUNC_CALL(prefix, floatabr, name, cargcall) prefix##_##floatabr##name<Cpu> cargcall;
+#endif
+
 #define INSTANTIATE_CPU(cpu, name, Float, argdecl) \
     template void name<DISPATCH_ID_NAME(cpu), Float> argdecl(Float);
 
@@ -91,8 +110,8 @@
     INSTANTIATE_SSE2(name, Float, argdecl)
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \
-    FUNC(prefix, s##name, fargdecl(float), fargcall)                        \
-    FUNC(prefix, d##name, fargdecl(double), fargcall)                       \
+    FUNC_DECL(prefix, s, name, fargdecl(float), fargcall)                   \
+    FUNC_DECL(prefix, d, name, fargdecl(double), fargcall)                  \
                                                                             \
     namespace oneapi::dal::backend::micromkl {                              \
                                                                             \
@@ -100,10 +119,10 @@
     void name cargdecl(Float) {                                             \
         static_assert(sizeof(std::int64_t) == sizeof(DAAL_INT));            \
         if constexpr (std::is_same_v<Float, float>) {                       \
-            prefix##_s##name<Cpu> cargcall;                                 \
+            FUNC_CALL(prefix, s, name, cargcall)                            \
         }                                                                   \
         else {                                                              \
-            prefix##_d##name<Cpu> cargcall;                                 \
+            FUNC_CALL(prefix, d, name, cargcall)                            \
         }                                                                   \
     }                                                                       \
                                                                             \

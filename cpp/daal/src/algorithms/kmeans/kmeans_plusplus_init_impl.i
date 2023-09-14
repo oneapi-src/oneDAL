@@ -77,7 +77,8 @@ public:
         algorithmFPType beta  = 0.0;
         DAAL_INT ldaty        = nCenters;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, pCenters, &lda, _ntDataBD.get(), &ldy, &beta, gemmResult, &ldaty);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, pCenters, &lda, _ntDataBD.get(), &ldy, &beta, gemmResult,
+                                               &ldaty);
     }
 
     algorithmFPType getRowSumSq(size_t iRow, const algorithmFPType * cen)
@@ -121,8 +122,8 @@ public:
         const size_t * colIdx         = _ntDataBD.cols();
         const size_t * rowIdx         = _ntDataBD.rows();
 
-        SpBlas<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, pData, (const DAAL_INT *)colIdx, (const DAAL_INT *)rowIdx,
-                                              pCenters, &_p, &beta, gemmResult, &_n);
+        SpBlasInst<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, pData, (const DAAL_INT *)colIdx,
+                                                  (const DAAL_INT *)rowIdx, pCenters, &_p, &beta, gemmResult, &_n);
     }
 
     algorithmFPType getRowSumSq(size_t iRow, const algorithmFPType * cen)

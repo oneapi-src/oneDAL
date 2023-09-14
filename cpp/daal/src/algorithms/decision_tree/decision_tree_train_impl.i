@@ -735,7 +735,7 @@ public:
         });
 
         SafeStatus safeStat;
-        typedef daal::internal::Math<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
+        typedef daal::internal::MathInst<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
         typedef daal::services::internal::EpsilonVal<typename SplitCriterion::ValueType> SplitCriterionEpsilon;
         const typename SplitCriterion::ValueType epsilon = SplitCriterionEpsilon::get();
 
@@ -1028,8 +1028,8 @@ protected:
             DAAL_CHECK_MALLOC(newNodes)
             result = daal::services::internal::daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType), _nodes, _nodeCount * sizeof(TreeNodeType));
             if (result) status = services::Status(services::ErrorMemoryCopyFailedInternal);
-            swap<cpu>(_nodes, newNodes);
-            swap<cpu>(_nodeCapacity, newCapacity);
+            services::internal::swap<cpu>(_nodes, newNodes);
+            services::internal::swap<cpu>(_nodeCapacity, newCapacity);
             daal_free(newNodes);
             newNodes = nullptr;
         }
@@ -1095,7 +1095,7 @@ protected:
     {
         typedef data_management::BlockDescriptor<IndependentVariableType> IndependentVariableBD;
         typedef data_management::BlockDescriptor<DependentVariableType> DependentVariableBD;
-        typedef daal::internal::Math<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
+        typedef daal::internal::MathInst<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
         typedef daal::services::internal::EpsilonVal<typename SplitCriterion::ValueType> SplitCriterionEpsilon;
 
         DAAL_ASSERT(depthLimit != 0);
@@ -1794,7 +1794,7 @@ protected:
                              typename SplitCriterion::ValueType & winnerSplitCriterionValue, size_t & winnerPointsAtLeft,
                              typename SplitCriterion::DataStatistics & winnerDataStatistics, services::Status & status)
     {
-        typedef daal::internal::Math<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
+        typedef daal::internal::MathInst<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
         typedef daal::services::internal::EpsilonVal<typename SplitCriterion::ValueType> SplitCriterionEpsilon;
         typedef typename SplitCriterion::DataStatistics DataStatistics;
 
@@ -1930,7 +1930,7 @@ protected:
                            typename SplitCriterion::ValueType & winnerSplitCriterionValue, size_t & winnerPointsAtLeft,
                            typename SplitCriterion::DataStatistics & winnerDataStatistics, services::Status & status)
     {
-        typedef daal::internal::Math<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
+        typedef daal::internal::MathInst<typename SplitCriterion::ValueType, cpu> SplitCriterionMath;
         typedef daal::services::internal::EpsilonVal<typename SplitCriterion::ValueType> SplitCriterionEpsilon;
         typedef typename SplitCriterion::DataStatistics DataStatistics;
 

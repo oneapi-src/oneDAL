@@ -901,7 +901,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
             const Index* node_tree_order_ptr = &tree_order_ptr[row_offset];
 
             hist_type_t* local_buf_ptr = nullptr;
+#if __SYCL_COMPILER_VERSION >= 20230828
+            local_buf_ptr =
+                local_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+#else
             local_buf_ptr = local_buf.get_pointer().get();
+#endif
             if (use_private_mem_buf) {
                 compute_hist_for_node<Float, Index, true>(item,
                                                           ind_start,
@@ -976,9 +981,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
             const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
             const Index* node_tree_order_ptr = &tree_order_ptr[row_offset];
-
-            Float* local_buf_ptr = local_buf.get_pointer().get();
-
+#if __SYCL_COMPILER_VERSION >= 20230828
+            Float* local_buf_ptr =
+                local_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+#else
+Float* local_buf_ptr = local_buf.get_pointer().get();
+#endif
             Float sum = Float(0);
             for (Index i = local_id; i < row_count; i += local_size) {
                 sum += response_ptr[node_tree_order_ptr[i]];
@@ -1052,9 +1060,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
             const Index* node_tree_order_ptr = &tree_order_ptr[row_offset];
 
             const Float mean = sum_list_ptr[node_id] / global_row_count;
-
-            Float* local_buf_ptr = local_buf.get_pointer().get();
-
+#if __SYCL_COMPILER_VERSION >= 20230828
+            Float* local_buf_ptr =
+                local_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+#else
+Float* local_buf_ptr = local_buf.get_pointer().get();
+#endif
             Float sum2cent = Float(0);
             for (Index i = local_id; i < row_count; i += local_size) {
                 sum2cent += (response_ptr[node_tree_order_ptr[i]] - mean) *
@@ -2185,9 +2196,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
             const Index bin_id = item.get_global_id()[0];
             const Index local_id = item.get_local_id()[1];
             const Index local_size = item.get_local_range()[1];
-
+#if __SYCL_COMPILER_VERSION >= 20230828
+            hist_type_t* buf_ptr =
+                buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+#else
             hist_type_t* buf_ptr = buf.get_pointer().get();
-
+#endif
             for (Index prop = 0; prop < hist_prop_count; ++prop) {
                 buf_ptr[local_id * hist_prop_count + prop] = 0;
             }
@@ -2264,9 +2278,11 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
             const Index bin_id = item.get_global_id()[0];
             const Index local_id = item.get_local_id()[1];
             const Index local_size = item.get_local_range()[1];
-
+#if __SYCL_COMPILER_VERSION >= 20230828
+            Float* buf_ptr = buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+#else
             Float* buf_ptr = buf.get_pointer().get();
-
+#endif
             for (Index prop = 0; prop < hist_prop_count; ++prop) {
                 buf_ptr[local_id * hist_prop_count + prop] = 0;
             }

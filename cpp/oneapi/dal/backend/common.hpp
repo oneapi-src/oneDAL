@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 #ifdef ONEDAL_DATA_PARALLEL
 #include <sycl/sycl.hpp>
 #endif
@@ -53,6 +55,25 @@ template <typename Type>
 inline const Type* cend(const dal::array<Type>& arr) {
     return cbegin(arr) + arr.get_count();
 }
+
+namespace impl {
+
+template <typename Type, bool is_integral>
+struct make_signed_map {
+    using type = Type;
+    static_assert(!std::is_integral_v<Type>);
+};
+
+template <typename Type>
+struct make_signed_map<Type, true> {
+    using type = std::make_signed_t<Type>;
+    static_assert(std::is_integral_v<Type>);
+};
+
+} // namespace impl
+
+template <typename T, bool is_integral = std::is_integral_v<T>>
+using make_signed_t = typename impl::make_signed_map<T, is_integral>::type;
 
 template <std::int64_t axis_count>
 using ndindex = std::array<std::int64_t, axis_count>;
@@ -133,7 +154,7 @@ inline constexpr Integer down_pow2(Integer x) {
         power++;
     }
     ONEDAL_ASSERT(power < get_magnitude_bit_count<Integer>());
-    return 1 << power;
+    return Integer(1) << power;
 }
 
 /// Finds the smallest power of 2 number not smaller than `x`.
@@ -194,6 +215,48 @@ private:
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
+
+namespace impl {
+
+template <typename Type>
+struct preferred_vector_desc {
+    using type = sycl::info::device::preferred_vector_width_float;
+};
+
+template <>
+struct preferred_vector_desc<char> {
+    using type = sycl::info::device::preferred_vector_width_char;
+};
+
+template <>
+struct preferred_vector_desc<short> {
+    using type = sycl::info::device::preferred_vector_width_short;
+};
+
+template <>
+struct preferred_vector_desc<int> {
+    using type = sycl::info::device::preferred_vector_width_int;
+};
+
+template <>
+struct preferred_vector_desc<long> {
+    using type = sycl::info::device::preferred_vector_width_long;
+};
+
+template <>
+struct preferred_vector_desc<float> {
+    using type = sycl::info::device::preferred_vector_width_float;
+};
+
+template <>
+struct preferred_vector_desc<double> {
+    using type = sycl::info::device::preferred_vector_width_double;
+};
+
+} // namespace impl
+
+template <typename Type, typename T = make_signed_t<Type>>
+using preferred_vector_desc_t = typename impl::preferred_vector_desc<T>::type;
 
 using event_vector = std::vector<sycl::event>;
 

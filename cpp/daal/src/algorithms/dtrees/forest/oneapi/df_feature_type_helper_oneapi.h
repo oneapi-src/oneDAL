@@ -122,7 +122,7 @@ protected:
 protected:
     services::internal::sycl::UniversalBuffer _fullData;
     services::internal::sycl::UniversalBuffer _binOffsets;
-    daal::internal::TArray<FeatureEntry, sse2> _entries;
+    daal::internal::TArray<FeatureEntry, DAAL_BASE_CPU> _entries;
     size_t _nRows;
     size_t _nCols;
     IndexType _totalBins;

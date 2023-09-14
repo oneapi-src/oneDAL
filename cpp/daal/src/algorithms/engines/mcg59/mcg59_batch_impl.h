@@ -106,7 +106,7 @@ public:
 protected:
     BatchImpl(const BatchImpl<cpu, algorithmFPType, method> & other) : super1(other), super2(other), baseRng(other.baseRng) {}
 
-    daal::internal::BaseRNGs<cpu> baseRng;
+    daal::internal::BaseRNGsInst<cpu> baseRng;
 };
 
 } // namespace internal

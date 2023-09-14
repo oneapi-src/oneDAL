@@ -58,6 +58,15 @@ struct MklService
 
     static int serv_set_memory_limit(int type, size_t limit) { return fpk_serv_set_memory_limit(type, limit); }
 
+    // Added for interface compatibility - not expected to be called
+    static size_t serv_strnlen_s(const char * src, size_t slen)
+    {
+        size_t i = 0;
+        for (; i < slen && src[i] != '\0'; ++i)
+            ;
+        return i;
+    }
+
     static int serv_strncpy_s(char * dest, size_t dmax, const char * src, size_t slen) { return fpk_serv_strncpy_s(dest, dmax, src, slen); }
 
     static int serv_strncat_s(char * dest, size_t dmax, const char * src, size_t slen) { return fpk_serv_strncat_s(dest, dmax, src, slen); }

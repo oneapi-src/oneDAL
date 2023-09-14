@@ -45,6 +45,12 @@ micromkl_dpc_repo(
     sha256 = "1bd9e3ef850d95d1ee00e0f04943c8ed2490175fca6a7b331cab91a124ab301e",
 )
 
+load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
+openblas_repo(
+    name = "openblas",
+    root_env_var = "OPENBLASROOT",
+)
+
 load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")
 tbb_repo(
     name = "tbb",
@@ -105,7 +111,7 @@ mkl_repo(
 load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")
 onedal_repo(
     name = "onedal_release",
-    root_env_var = "DAALROOT",
+    root_env_var = "DALROOT",
 )
 
 http_archive(
@@ -117,8 +123,8 @@ http_archive(
 
 http_archive(
     name = "fmt",
-    url = "https://github.com/fmtlib/fmt/archive/9.1.0.tar.gz",
-    sha256 = "5dea48d1fcddc3ec571ce2058e13910a0d4a6bab4cc09a809d8b1dd1c88ae6f2",
-    strip_prefix = "fmt-9.1.0",
+    url = "https://github.com/fmtlib/fmt/archive/10.1.1.tar.gz",
+    sha256 = "78b8c0a72b1c35e4443a7e308df52498252d1cefc2b08c9a97bc9ee6cfe61f8b",
+    strip_prefix = "fmt-10.1.1",
     build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
 )

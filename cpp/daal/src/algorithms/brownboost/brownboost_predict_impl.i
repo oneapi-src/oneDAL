@@ -116,14 +116,14 @@ services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(
     const algorithmFPType zero  = (algorithmFPType)0.0;
     if (error != zero)
     {
-        algorithmFPType sqrtC    = daal::internal::Math<algorithmFPType, cpu>::sErfInv(algorithmFPType(1.0) - error);
+        algorithmFPType sqrtC    = daal::internal::MathInst<algorithmFPType, cpu>::sErfInv(algorithmFPType(1.0) - error);
         algorithmFPType invSqrtC = algorithmFPType(1.0) / sqrtC;
         for (size_t j = 0; j < nVectors; j++)
         {
             r[j] *= invSqrtC;
         }
     }
-    daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, r, r);
+    daal::internal::MathInst<algorithmFPType, cpu>::vErf(nVectors, r, r);
     return s;
 }
 

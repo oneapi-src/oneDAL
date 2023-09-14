@@ -126,7 +126,7 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::computeVariance()
     DAAL_CHECK_BLOCK_STATUS(block)
     const algorithmFPType * dataArray = block.get();
 
-    DAAL_CHECK((Statistics<algorithmFPType, cpu>::x2c_mom(dataArray, nFeatures, nVectors, varianceArray, __DAAL_VSL_SS_METHOD_FAST)) == 0,
+    DAAL_CHECK((StatisticsInst<algorithmFPType, cpu>::x2c_mom(dataArray, nFeatures, nVectors, varianceArray, __DAAL_VSL_SS_METHOD_FAST)) == 0,
                ErrorVarianceComputation)
     return Status();
 }

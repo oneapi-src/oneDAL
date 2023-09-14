@@ -276,11 +276,11 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType * x,
     NumericTablePtr ntNewGradient;
     NumericTablePtr ntNewValue;
 
-    while (daal::internal::Math<algorithmFPType, cpu>::sFabs(stepLength) > minStepLength)
+    while (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(stepLength) > minStepLength)
     {
         // need update x = x + dn*stepLength, where dn = [hessian^(-1)]*gradient
         DAAL_INT nCasted = static_cast<DAAL_INT>(n);
-        Blas<algorithmFPType, cpu>::xxaxpy(&nCasted, &stepLength, dn, &one, x, &one);
+        BlasInst<algorithmFPType, cpu>::xxaxpy(&nCasted, &stepLength, dn, &one, x, &one);
 
         DAAL_CHECK_STATUS(s, gradientFunction->computeNoThrow());
 
@@ -294,13 +294,13 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType * x,
         // need to retern initial x (argument)
 
         const algorithmFPType dnScaleFactor = -stepLength;
-        Blas<algorithmFPType, cpu>::xxaxpy(&nCasted, &dnScaleFactor, dn, &one, x, &one);
+        BlasInst<algorithmFPType, cpu>::xxaxpy(&nCasted, &dnScaleFactor, dn, &one, x, &one);
 
         //Wolfe conditions
         if (fvNew.get()[0] - oldFv <= c1 * stepLength * term1)
         {
             algorithmFPType fgNewXdn = dotProduct<algorithmFPType, cpu>(n, fgNew.get(), dn);
-            if (daal::internal::Math<algorithmFPType, cpu>::sFabs(fgNewXdn) <= c2 * daal::internal::Math<algorithmFPType, cpu>::sFabs(term1))
+            if (daal::internal::MathInst<algorithmFPType, cpu>::sFabs(fgNewXdn) <= c2 * daal::internal::MathInst<algorithmFPType, cpu>::sFabs(term1))
             {
                 break;
             }
@@ -385,7 +385,7 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration, size_t
     /* Check accuracy */
     if (dotProduct<algorithmFPType, cpu>(this->argumentSize, gradient, gradient)
         < accuracyThreshold
-              * daal::internal::Math<algorithmFPType, cpu>::sMax(one, dotProduct<algorithmFPType, cpu>(this->argumentSize, argument, argument)))
+              * daal::internal::MathInst<algorithmFPType, cpu>::sMax(one, dotProduct<algorithmFPType, cpu>(this->argumentSize, argument, argument)))
     {
         mtGradient.release();
         bContinue = false;
@@ -574,7 +574,7 @@ void LBFGSTask<algorithmFPType, cpu>::computeCorrectionPairImpl(size_t correctio
     }
     else
     {
-        Blas<algorithmFPType, cpu>::xgemv(&trans, &n, &n, &one, const_cast<algorithmFPType *>(hessian), &n, s, &ione, &zero, y, &ione);
+        BlasInst<algorithmFPType, cpu>::xgemv(&trans, &n, &n, &one, const_cast<algorithmFPType *>(hessian), &n, s, &ione, &zero, y, &ione);
     }
     rho[correctionIndex] = dotProduct<algorithmFPType, cpu>(this->argumentSize, s, y);
     if (rho[correctionIndex] != 0.0) // threshold

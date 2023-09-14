@@ -37,6 +37,9 @@ while [[ $# -gt 0 ]]; do
         --build_system)
         build_system="$2"
         ;;
+        --backend)
+        backend="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -53,6 +56,7 @@ OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 full_arch=intel64
 build_system=${build_system:-cmake}
+backend=${backend:-mkl}
 
 if [ "${OS}" == "lnx" ]; then
     source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -100,20 +104,6 @@ fi
 interface=${interface:-daal/cpp}
 cd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}"
 
-if [ "${interface}" == "daal/java" ]; then
-    bash launcher.sh
-    err=$?
-    if [ ${err} -ne 0 ]; then
-        echo -e "$(date +'%H:%M:%S') EXAMPLES FAILED\t\t with errno ${err}"
-        TESTING_RETURN=${err}
-        continue
-    else
-        echo -e "$(date +'%H:%M:%S') EXAMPLES PASSED\t\t"
-    fi
-
-    exit ${TESTING_RETURN}
-fi
-
 for link_mode in ${link_modes}; do
     if [ "${link_mode}" == "static" ]; then
         lib_ext="a"
@@ -150,14 +140,19 @@ for link_mode in ${link_modes}; do
             mkdir Build
         fi
 
-        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb
+        ref_backend="OFF"
+        if [ "${backend}" == "ref" ]; then
+            ref_backend="ON"
+        fi
+
+        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb -DREF_BACKEND=${ref_backend}
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
             TESTING_RETURN=${err}
             continue
         fi
-        make -C Build
+        make ${make_op} -C Build
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"

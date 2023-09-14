@@ -41,7 +41,7 @@
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
-#endif         // __INTEL_COMPILER
+#endif         // DAAL_INTEL_CPP_COMPILER
 
 namespace daal
 {

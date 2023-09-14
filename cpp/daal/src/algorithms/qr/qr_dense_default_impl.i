@@ -59,7 +59,7 @@ namespace internal
 template <typename algorithmFPType, CpuType cpu>
 Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
 {
-    typedef Lapack<algorithmFPType, cpu> lapack;
+    typedef LapackInst<algorithmFPType, cpu> lapack;
 
     // .. Local arrays
     // .. Memory allocation block
@@ -109,7 +109,7 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
 template <typename algorithmFPType, CpuType cpu>
 Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
 {
-    typedef Lapack<algorithmFPType, cpu> lapack;
+    typedef LapackInst<algorithmFPType, cpu> lapack;
 
     // .. Local arrays
     // .. Memory allocation block
@@ -163,7 +163,7 @@ void compute_gemm_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    BlasInst<algorithmFPType, cpu>::xgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -175,7 +175,7 @@ void compute_gemm_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, D
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    BlasInst<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 }
 
 } // namespace internal

@@ -107,7 +107,7 @@ public:
             daal_free(normPtr);
             normPtr = nullptr;
         });
-        res = daal::internal::Math<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
+        res = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
         return safeStat.detach();
     }
 
@@ -123,7 +123,7 @@ public:
             {
                 res += vec[j] * vec[j];
             }
-            res = daal::internal::Math<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
+            res = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
             return services::Status();
         }
         daal::tls<algorithmFPType *> normTls([=]() -> algorithmFPType * {
@@ -153,7 +153,7 @@ public:
             daal_free(normPtr);
             normPtr = nullptr;
         });
-        res = daal::internal::Math<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
+        res = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
         return safeStat.detach();
     }
 
@@ -213,7 +213,7 @@ public:
     }
 
 protected:
-    typedef daal::internal::RNGs<int, cpu> RNGsType;
+    typedef daal::internal::RNGsInst<int, cpu> RNGsType;
     const int * _predefined;
     size_t _size;
     TArray<int, cpu> _values;

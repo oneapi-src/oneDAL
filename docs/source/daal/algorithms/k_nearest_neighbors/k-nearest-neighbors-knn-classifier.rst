@@ -319,17 +319,6 @@ Examples
     - :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
     - :cpp_example:`bf_knn_dense_batch.cpp <k_nearest_neighbors/bf_knn_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`KDTreeKNNDenseBatch.java <knn_classification/KDTreeKNNDenseBatch.java>`
-    - :java_example:`BFKNNDenseBatch.java <knn_classification/BFKNNDenseBatch.java>`
-
   .. tab:: Python* with DPC++ support
 
     Batch Processing:

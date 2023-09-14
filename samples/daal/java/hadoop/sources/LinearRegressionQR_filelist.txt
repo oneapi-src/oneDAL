@@ -1,4 +1,0 @@
-LinearRegressionQR_1
-LinearRegressionQR_2
-LinearRegressionQR_3
-LinearRegressionQR_4

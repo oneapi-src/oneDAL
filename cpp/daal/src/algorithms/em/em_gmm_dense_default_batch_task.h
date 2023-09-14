@@ -116,7 +116,7 @@ public:
     using GmmModel<algorithmFPType, cpu>::logSqrtInvDetSigma;
     using GmmModel<algorithmFPType, cpu>::covRegularizer;
     using GmmModel<algorithmFPType, cpu>::EIGENVALUE_THRESHOLD;
-    typedef Blas<algorithmFPType, cpu> blas;
+    typedef BlasInst<algorithmFPType, cpu> blas;
 
     GmmModelFull(size_t _nFeatures, size_t _nComponents) : GmmModel<algorithmFPType, cpu>(_nFeatures, _nComponents) {}
     size_t getOneCovSize() { return nFeatures * nFeatures; }
@@ -139,7 +139,8 @@ public:
                                     algorithmFPType * sumOfWeights, algorithmFPType * partialMean, algorithmFPType * partialCovs,
                                     algorithmFPType * w_x_buf)
     {
-        Statistics<algorithmFPType, cpu>::xxcp_weight_byrows(weights, data, nElements, nFeatures, w_x_buf, *sumOfWeights, partialMean, partialCovs);
+        StatisticsInst<algorithmFPType, cpu>::xxcp_weight_byrows(weights, data, nElements, nFeatures, w_x_buf, *sumOfWeights, partialMean,
+                                                                 partialCovs);
         return 0;
     }
 
@@ -252,7 +253,7 @@ public:
                 invSigma[k][j] = 1.0 / sigma[k][j];
             }
             determ             = infToBigValue<cpu>(determ);
-            sqrtInvDetSigma[k] = 1.0 / Math<algorithmFPType, cpu>::sSqrt(determ);
+            sqrtInvDetSigma[k] = 1.0 / MathInst<algorithmFPType, cpu>::sSqrt(determ);
         }
         return Status();
     }
@@ -262,8 +263,8 @@ public:
                                     algorithmFPType * w_x_buf)
     {
         __int64 matCompMethod = __DAAL_VSL_SS_METHOD_FAST;
-        int errcode = Statistics<algorithmFPType, cpu>::xxvar_weight(data, nFeatures, nElements, weights, sumOfWeights, partialMean, partialCovs,
-                                                                     matCompMethod);
+        int errcode = StatisticsInst<algorithmFPType, cpu>::xxvar_weight(data, nFeatures, nElements, weights, sumOfWeights, partialMean, partialCovs,
+                                                                         matCompMethod);
         return errcode;
     }
 

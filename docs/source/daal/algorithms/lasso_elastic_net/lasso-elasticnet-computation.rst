@@ -249,13 +249,9 @@ Examples
 
      C++: :cpp_example:`lasso_reg_dense_batch.cpp <lasso_regression/lasso_reg_dense_batch.cpp>`
 
-     Java*: :java_example:`LassoRegDenseBatch.java <lasso_regression/LassoRegDenseBatch.java>`
-
   .. group-tab:: Elastic Net
 
      C++: :cpp_example:`elastic_net_dense_batch.cpp <elastic_net/elastic_net_dense_batch.cpp>`
-
-     Java*: :java_example:`ElasticNetDenseBatch.java <elastic_net/ElasticNetDenseBatch.java>`
 
 .. Python*: lasso_regression_batch.py
 .. Python*: elastic_net_batch.py

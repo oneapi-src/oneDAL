@@ -25,6 +25,7 @@
 #define __SERVICE_STAT_MKL_H__
 
 #include "vmlvsl.h"
+#include "src/externals/service_memory.h"
 #include "src/externals/service_stat_rng_mkl.h"
 
 #if defined(_WIN64) || defined(__x86_64__)

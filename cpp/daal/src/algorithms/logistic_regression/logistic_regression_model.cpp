@@ -68,7 +68,7 @@ services::Status ModelImpl::reset(bool interceptFlag)
 {
     _interceptFlag     = interceptFlag;
     const size_t nRows = _beta->getNumberOfRows();
-    daal::internal::WriteOnlyRows<float, sse2> rows(*_beta, 0, nRows);
+    daal::internal::WriteOnlyRows<float, DAAL_BASE_CPU> rows(*_beta, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(rows);
     float * ar         = rows.get();
     const size_t nCols = _beta->getNumberOfColumns();

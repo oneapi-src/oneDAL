@@ -21,8 +21,8 @@ BUILD   =       $(shell date +'%Y%m%d')
 STATUS  =       P
 BUILDREV ?=     work
 
-MAJORBINARY = 1
-MINORBINARY = 1
+MAJORBINARY = 2
+MINORBINARY = 0
 
 #-------------------------------------------------------------------------------
 # Declarations

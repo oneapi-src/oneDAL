@@ -65,8 +65,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
     algorithmFPType one  = 1.0;
     algorithmFPType zero = 0.0;
 
-    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numFeatures, &one, beta + 1,
-                                       (DAAL_INT *)&numBetas, dataBlock, (DAAL_INT *)&numFeatures, &zero, responseBlock, (DAAL_INT *)&numResponses);
+    BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numFeatures, &one,
+                                           beta + 1, (DAAL_INT *)&numBetas, dataBlock, (DAAL_INT *)&numFeatures, &zero, responseBlock,
+                                           (DAAL_INT *)&numResponses);
 
     if (findBeta0)
     {
@@ -74,7 +75,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         DAAL_INT iZero = 0;
         for (size_t j = 0; j < numResponses; ++j)
         {
-            Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &iZero, responseBlock + j, (DAAL_INT *)&numResponses);
+            BlasInst<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &iZero, responseBlock + j,
+                                                   (DAAL_INT *)&numResponses);
         }
     }
     return st;
@@ -106,9 +108,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
             ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRows);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
             const algorithmFPType * data = xBlock.get();
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock, &one,
-                                               beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one, responseBlock,
-                                               (DAAL_INT *)&numResponses);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock,
+                                                   &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one,
+                                                   responseBlock, (DAAL_INT *)&numResponses);
         }
         else
         {
@@ -120,9 +122,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
                 DAAL_CHECK_BLOCK_STATUS(xBlock);
                 services::internal::tmemcpy<algorithmFPType, cpu>(tlsLocal + i * blockSizeRows, xBlock.get(), numRows);
             }
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock, &one,
-                                               beta + 1 + startColumn, (DAAL_INT *)&numBetas, tlsLocal, (DAAL_INT *)&numBlockSizeColumns, &one,
-                                               responseBlock, (DAAL_INT *)&numResponses);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock,
+                                                   &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, tlsLocal, (DAAL_INT *)&numBlockSizeColumns,
+                                                   &one, responseBlock, (DAAL_INT *)&numResponses);
         }
     }
     if (findBeta0)
@@ -130,7 +132,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         const DAAL_INT zero = 0;
         for (size_t j = 0; j < numResponses; ++j)
         {
-            Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &zero, responseBlock + j, (DAAL_INT *)&numResponses);
+            BlasInst<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &zero, responseBlock + j,
+                                                   (DAAL_INT *)&numResponses);
         }
     }
     return st;
@@ -151,8 +154,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute_impl
     if (dataTable->getDataLayout() & NumericTableIface::soa)
     {
         SOANumericTable * soaDataPtr = dynamic_cast<SOANumericTable *>(dataTable);
-        isHomogeneous                = soaDataPtr->isHomogeneousFloatOrDouble();
-        auto f                       = (*(soaDataPtr->getDictionary()))[0];
+        DAAL_CHECK(soaDataPtr, services::ErrorNullNumericTable);
+        isHomogeneous = soaDataPtr->isHomogeneousFloatOrDouble();
+        auto f        = (*(soaDataPtr->getDictionary()))[0];
         isHomogeneous &= data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
 
         for (size_t i = 1; i < numFeatures && isHomogeneous; ++i)

@@ -24,12 +24,8 @@
 #ifndef __SERVICE_SPBLAS_H__
 #define __SERVICE_SPBLAS_H__
 
-#include "services/daal_defines.h"
-#include "src/externals/service_memory.h"
-#include "src/externals/service_math.h"
+#include "src/externals/config.h"
 #include "src/services/service_arrays.h"
-
-#include "src/externals/service_spblas_mkl.h"
 
 typedef unsigned int uint32_t;
 
@@ -40,7 +36,7 @@ namespace internal
 /*
 // Template functions definition
 */
-template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl = mkl::MklSpBlas>
+template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl>
 struct SpBlas
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
@@ -323,6 +319,15 @@ public:
     }
 };
 
+} // namespace internal
+} // namespace daal
+
+namespace daal
+{
+namespace internal
+{
+template <typename fpType, CpuType cpu>
+using SpBlasInst = SpBlas<fpType, cpu, SpBlasBackend>;
 } // namespace internal
 } // namespace daal
 

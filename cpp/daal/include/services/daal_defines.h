@@ -491,11 +491,28 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
         }                                                                                         \
     }
 
+#define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(type, op1, op2)                                       \
+    {                                                                                                                 \
+        if (!(0 == (op1)) && !(0 == (op2)))                                                                           \
+        {                                                                                                             \
+            volatile type r = (op1) * (op2);                                                                          \
+            r /= (op1);                                                                                               \
+            if (!(r == (op2))) services::throwIfPossible(services::Status(services::ErrorBufferSizeIntegerOverflow)); \
+        }                                                                                                             \
+    }
+
 #define DAAL_OVERFLOW_CHECK_BY_ADDING(type, op1, op2)                                         \
     {                                                                                         \
         volatile type r = (op1) + (op2);                                                      \
         r -= (op1);                                                                           \
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
+    }
+
+#define DAAL_OVERFLOW_CHECK_BY_ADDING_THROW_IF_POSSIBLE(type, op1, op2)                                           \
+    {                                                                                                             \
+        volatile type r = (op1) + (op2);                                                                          \
+        r -= (op1);                                                                                               \
+        if (!(r == (op2))) services::throwIfPossible(services::Status(services::ErrorBufferSizeIntegerOverflow)); \
     }
 
 #define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statVal, returnObj) \

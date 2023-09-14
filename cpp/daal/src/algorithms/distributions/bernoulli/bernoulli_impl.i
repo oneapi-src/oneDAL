@@ -149,7 +149,6 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::compute(algorithmFPType p,
     {
         return computeFPType(resultTable, p, engine);
     }
-    return Status();
 }
 
 } // namespace internal

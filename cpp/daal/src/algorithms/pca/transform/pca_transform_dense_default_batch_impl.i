@@ -59,8 +59,8 @@ void TransformKernel<algorithmFPType, method, cpu>::computeTransformedBlock(DAAL
     algorithmFPType one  = 1.0;
     algorithmFPType zero = 0.0;
 
-    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numComponents, numRows, numFeatures, &one, eigenvectors, numFeatures, dataBlock, numFeatures,
-                                       &zero, resultBlock, numComponents);
+    BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numComponents, numRows, numFeatures, &one, eigenvectors, numFeatures, dataBlock,
+                                           numFeatures, &zero, resultBlock, numComponents);
 
 } /* void TransformKernel<algorithmFPType, defaultDense, cpu>::computeTransformedBlock */
 
@@ -83,7 +83,7 @@ services::Status ComputeInvSigmas(NumericTable * pVariances, TArray<algorithmFPT
         for (size_t varianceId = 0; varianceId < numFeatures; ++varianceId)
         {
             pInvSigmas[varianceId] = pRawVariances[varianceId] ?
-                                         algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(pRawVariances[varianceId]) :
+                                         algorithmFPType(1.0) / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(pRawVariances[varianceId]) :
                                          algorithmFPType(0.0);
         }
     }
@@ -105,10 +105,6 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
     const algorithmFPType * pBasis = basis.get();
 
     size_t numRowsInBlock = _numRowsInBlock;
-    if (numRowsInBlock < 1)
-    {
-        numRowsInBlock = 1;
-    }
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;

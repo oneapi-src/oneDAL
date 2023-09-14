@@ -109,10 +109,17 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
         {
             const decision_forest::classification::training::Parameter * algParameter3 =
                 dynamic_cast<const decision_forest::classification::training::Parameter *>(par);
-            const size_t nClasses = algParameter3->nClasses;
-            const auto nObs       = algInput->get(classifier::training::data)->getNumberOfRows();
-            DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagErrorDecisionFunction).get(), outOfBagErrorDecisionFunctionStr(), 0,
-                                                                    0, nClasses, nObs));
+            if (algParameter3 != NULL)
+            {
+                const size_t nClasses = algParameter3->nClasses;
+                const auto nObs       = algInput->get(classifier::training::data)->getNumberOfRows();
+                DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagErrorDecisionFunction).get(), outOfBagErrorDecisionFunctionStr(),
+                                                                        0, 0, nClasses, nObs));
+            }
+            else
+            {
+                s = s ? s : services::Status(services::ErrorNullParameterNotSupported);
+            }
         }
         if (algParameter2->varImportance != decision_forest::training::none)
         {

@@ -32,9 +32,9 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 #define __GLUE__(a, b) a##b
 
 #ifdef _DEBUG
-    #define _DLL_SUFFIX(name) __GLUE__(name, "d.1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, "d.2.dll")
 #else
-    #define _DLL_SUFFIX(name) __GLUE__(name, ".1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, ".2.dll")
 #endif
 
 #define DAAL_LOAD_DLL(name) _daal_load_win_dynamic_lib(name)
@@ -58,7 +58,7 @@ static void load_daal_thr_dll(void)
         daal_thr_dll_handle = load_onedal_thread_dll();
         if (daal_thr_dll_handle == NULL)
         {
-            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
             exit(1);
         }
         break;
@@ -71,7 +71,7 @@ static void load_daal_thr_dll(void)
             return;
         }
 
-        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.1.dll.\n");
+        printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
         exit(1);
     }
     }
@@ -107,6 +107,7 @@ typedef void (*_daal_threader_for_int32ptr_t)(const int *, const int *, const vo
 typedef void (*_daal_threader_for_simple_t)(int, int, const void *, daal::functype);
 typedef void (*_daal_static_threader_for_t)(size_t, const void *, daal::functype_static);
 typedef void (*_daal_threader_for_blocked_t)(int, int, const void *, daal::functype2);
+typedef void (*_daal_threader_for_blocked_size_t)(size_t, size_t, const void *, daal::functype_blocked_size);
 typedef int (*_daal_threader_get_max_threads_t)(void);
 typedef int (*_daal_threader_get_current_thread_index_t)(void);
 typedef void (*_daal_threader_for_break_t)(int, int, const void *, daal::functype_break);
@@ -172,6 +173,7 @@ static _daal_threader_for_int64_t _daal_threader_for_int64_ptr                  
 static _daal_threader_for_int32ptr_t _daal_threader_for_int32ptr_ptr                         = NULL;
 static _daal_static_threader_for_t _daal_static_threader_for_ptr                             = NULL;
 static _daal_threader_for_blocked_t _daal_threader_for_blocked_ptr                           = NULL;
+static _daal_threader_for_blocked_size_t _daal_threader_for_blocked_size_ptr                 = NULL;
 static _daal_threader_for_t _daal_threader_for_optional_ptr                                  = NULL;
 static _daal_threader_get_max_threads_t _daal_threader_get_max_threads_ptr                   = NULL;
 static _daal_threader_get_current_thread_index_t _daal_threader_get_current_thread_index_ptr = NULL;
@@ -355,6 +357,16 @@ DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const vo
         _daal_threader_for_blocked_ptr = (_daal_threader_for_blocked_t)load_daal_thr_func("_daal_threader_for_blocked");
     }
     _daal_threader_for_blocked_ptr(n, threads_request, a, func);
+}
+
+DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const void * a, daal::functype_blocked_size func)
+{
+    load_daal_thr_dll();
+    if (_daal_threader_for_blocked_size_ptr == NULL)
+    {
+        _daal_threader_for_blocked_size_ptr = (_daal_threader_for_blocked_size_t)load_daal_thr_func("_daal_threader_for_blocked_size");
+    }
+    _daal_threader_for_blocked_size_ptr(n, block, a, func);
 }
 
 DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func)

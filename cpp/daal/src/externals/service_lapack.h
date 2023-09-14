@@ -27,9 +27,10 @@
 #include "services/daal_defines.h"
 #include "src/externals/service_dispatch.h"
 #include "src/externals/service_memory.h"
-#include "src/externals/service_lapack_mkl.h"
 
-#define DAAL_CALL_LAPACK_CPU_FUNC(cpuId, fpType, funcName, ...) Lapack<fpType, cpuId>::funcName(__VA_ARGS__)
+#include "src/externals/config.h"
+
+#define DAAL_CALL_LAPACK_CPU_FUNC(cpuId, fpType, funcName, ...) LapackInst<fpType, cpuId>::funcName(__VA_ARGS__)
 
 #define DAAL_DISPATCH_LAPACK_BY_CPU(...) DAAL_EXPAND(DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CALL_LAPACK_CPU_FUNC, __VA_ARGS__))
 
@@ -40,7 +41,7 @@ namespace internal
 /*
 // Template functions definition
 */
-template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl = mkl::MklLapack>
+template <typename fpType, CpuType cpu, template <typename, CpuType> class _impl>
 struct Lapack
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
@@ -205,10 +206,13 @@ struct Lapack
     }
 };
 
+template <typename fpType, CpuType cpu>
+using LapackInst = Lapack<fpType, cpu, LapackBackend>;
+
 template <typename fpType>
 struct LapackAutoDispatch
 {
-    typedef typename Lapack<fpType, CpuType::sse2>::SizeType SizeType;
+    typedef typename LapackInst<fpType, DAAL_BASE_CPU>::SizeType SizeType;
 
     static void xgetrf(SizeType * m, SizeType * n, fpType * a, SizeType * lda, SizeType * ipiv, SizeType * info)
     {

@@ -114,16 +114,6 @@ Examples
 
     - :cpp_example:`cos_dist_dense_batch.cpp <distance/cos_dist_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`CosDistDenseBatch.java <distance/CosDistDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

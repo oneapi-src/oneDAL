@@ -78,7 +78,7 @@ services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(N
     const algorithmFPType * data = dataBlock.get();
     algorithmFPType * weight     = resultBlock.get();
 
-    Statistics<algorithmFPType, cpu>::xoutlierdetection(data, (__int64)nFeatures, (__int64)nVectors, nBaconParams, baconParams, weight);
+    StatisticsInst<algorithmFPType, cpu>::xoutlierdetection(data, (__int64)nFeatures, (__int64)nVectors, nBaconParams, baconParams, weight);
 
     return Status();
 }

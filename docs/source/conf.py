@@ -82,7 +82,6 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
 
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', None),
-    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', None),
     'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', None),
     'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', None),
     'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sklearnex/%s', None),
@@ -319,8 +318,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'sparse_indexing::zero_based'),
     ('cpp:identifier', 'sparse_indexing::one_based'),
     # array
-    ('cpp:identifier', 'array'),
     ('cpp:identifier', 'T'),
+    ('cpp:identifier', 'array'),
+    ('cpp:identifier', 'impl_t'),
     ('cpp:identifier', 'array<T>'),
     ('cpp:identifier', 'array<Y>'),
     ('cpp:identifier', 'has_mutable_data'),

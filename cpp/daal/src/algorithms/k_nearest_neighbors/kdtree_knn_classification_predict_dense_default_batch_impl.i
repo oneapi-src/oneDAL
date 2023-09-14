@@ -127,7 +127,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     typedef Heap<Neighbors, cpu> MaxHeap;
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
-    typedef daal::internal::Math<algorithmFpType, cpu> Math;
+    typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
 
     size_t k;
     size_t nClasses;
@@ -437,7 +437,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     VoteWeights voteWeights, const NumericTable * modelIndices, data_management::BlockDescriptor<int> & indices,
     data_management::BlockDescriptor<algorithmFpType> & distances, size_t index, const size_t nClasses)
 {
-    typedef daal::internal::Math<algorithmFpType, cpu> Math;
+    typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
 
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();

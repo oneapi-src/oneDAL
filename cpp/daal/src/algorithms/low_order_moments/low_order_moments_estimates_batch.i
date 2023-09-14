@@ -453,7 +453,7 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
 
         /* Final loop for std deviations and variations */
 #if (defined _STDEV_ENABLE_ || defined _VART_ENABLE_)
-        daal::internal::Math<algorithmFPType, cpu>::vSqrt(_cd.nFeatures, &_varc[0], &_stdev[0]);
+        daal::internal::MathInst<algorithmFPType, cpu>::vSqrt(_cd.nFeatures, &_varc[0], &_stdev[0]);
 #endif /* #if (defined _STDEV_ENABLE_ || defined _VART_ENABLE_) */
 
 #if (defined _VART_ENABLE_ || defined _SORM_ENABLE_)

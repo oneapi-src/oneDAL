@@ -258,7 +258,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
     PRAGMA_VECTOR_ALWAYS
     for (size_t j = 0; j < nFeatures; j++)
     {
-        if (inv_sigma_total[j]) inv_sigma_total[j] = algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(inv_sigma_total[j]);
+        if (inv_sigma_total[j]) inv_sigma_total[j] = algorithmFPType(1.0) / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(inv_sigma_total[j]);
     }
 
     /* Final normalization threaded loop */

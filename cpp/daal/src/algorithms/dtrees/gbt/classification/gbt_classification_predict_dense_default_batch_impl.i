@@ -98,7 +98,7 @@ public:
             daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
                 const size_t startRow  = iBlock * blockSize;
                 const size_t finishRow = (((iBlock + 1) == nBlocks) ? nRows : (iBlock + 1) * blockSize);
-                daal::internal::Math<algorithmFPType, cpu>::vExp(finishRow - startRow, res + startRow, expVal + startRow);
+                daal::internal::MathInst<algorithmFPType, cpu>::vExp(finishRow - startRow, res + startRow, expVal + startRow);
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
@@ -129,7 +129,7 @@ public:
             daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
                 const size_t startRow  = iBlock * blockSize;
                 const size_t finishRow = (((iBlock + 1) == nBlocks) ? nRows : (iBlock + 1) * blockSize);
-                daal::internal::Math<algorithmFPType, cpu>::vExp(finishRow - startRow, expVal + startRow, expVal + startRow);
+                daal::internal::MathInst<algorithmFPType, cpu>::vExp(finishRow - startRow, expVal + startRow, expVal + startRow);
                 for (size_t iRow = startRow; iRow < finishRow; ++iRow)
                 {
                     prob_pred[2 * iRow + 1] = expVal[iRow] / (algorithmFPType(1.) + expVal[iRow]);

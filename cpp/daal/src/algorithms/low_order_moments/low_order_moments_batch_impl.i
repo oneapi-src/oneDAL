@@ -68,7 +68,7 @@ services::Status LowOrderMomentsBatchKernel<algorithmFPType, method, cpu>::compu
     const bool isOnline = false;
 
     /* Compute standard deviation */
-    daal::internal::Math<algorithmFPType, cpu>::vSqrt(task.nFeatures, task.resultArray[(int)variance], task.resultArray[(int)standardDeviation]);
+    daal::internal::MathInst<algorithmFPType, cpu>::vSqrt(task.nFeatures, task.resultArray[(int)variance], task.resultArray[(int)standardDeviation]);
 
     s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu>(task.nFeatures, task.nVectors, task.dataBlock, task.resultArray[(int)minimum],
                                                            task.resultArray[(int)maximum], task.resultArray[(int)sumSquares], isOnline);

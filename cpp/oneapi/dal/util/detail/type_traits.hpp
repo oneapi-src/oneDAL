@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
@@ -46,4 +48,5 @@ namespace v1 {
     ONEDAL_HAS_METHOD_TRAIT(return_value, method_name, params, method_name)
 
 } // namespace v1
+
 } // namespace oneapi::dal::detail

@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
 
 #else /* USM is not supported */
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     std::cout << "USM extensions are not available, make sure "
               << "the compiler and runtime support USM" << std::endl;
     return 0;

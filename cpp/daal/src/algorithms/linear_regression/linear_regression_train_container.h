@@ -277,8 +277,8 @@ Status DistributedContainer<step2Master, algorithmFPType, method, cpu>::compute(
     Status s;
     if (method == training::normEqDense)
     {
-        TArray<NumericTable *, sse2> partialxtx(n);
-        TArray<NumericTable *, sse2> partialxty(n);
+        TArray<NumericTable *, DAAL_BASE_CPU> partialxtx(n);
+        TArray<NumericTable *, DAAL_BASE_CPU> partialxty(n);
         for (size_t i = 0; i < n; i++)
         {
             linear_regression::ModelNormEq * m = static_cast<linear_regression::ModelNormEq *>((*collection)[i].get());
@@ -293,8 +293,8 @@ Status DistributedContainer<step2Master, algorithmFPType, method, cpu>::compute(
     }
     else
     {
-        TArray<NumericTable *, sse2> partialr(n);
-        TArray<NumericTable *, sse2> partialqty(n);
+        TArray<NumericTable *, DAAL_BASE_CPU> partialr(n);
+        TArray<NumericTable *, DAAL_BASE_CPU> partialqty(n);
         for (size_t i = 0; i < n; i++)
         {
             linear_regression::ModelQR * m = static_cast<linear_regression::ModelQR *>((*collection)[i].get());

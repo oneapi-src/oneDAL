@@ -146,7 +146,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlo
         }
     }
 
-    Math<algorithmFPType, cpu>::vLog(nRowsInCurrentBlock * nClasses, p_block, pLog); // inplace
+    MathInst<algorithmFPType, cpu>::vLog(nRowsInCurrentBlock * nClasses, p_block, pLog); // inplace
 
     service_memset<algorithmFPType, cpu>(pSumLog, 0.0, nRowsInCurrentBlock);
 

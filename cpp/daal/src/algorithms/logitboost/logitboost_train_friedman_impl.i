@@ -205,13 +205,13 @@ services::Status UpdateFPNew(size_t nc, size_t n, algorithmFPType * F, algorithm
         /* Update probabilities
            Step 2.c) of the Algorithm 6 from [1] */
         const bool useFullBuffer = size * nc <= n;
-        if (useFullBuffer) daal::internal::Math<algorithmFPType, cpu>::vExp(nc * size, F + start * nc, buffer);
+        if (useFullBuffer) daal::internal::MathInst<algorithmFPType, cpu>::vExp(nc * size, F + start * nc, buffer);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < size; i++)
         {
             const size_t offset = useFullBuffer ? i * nc : 0;
-            if (!useFullBuffer) daal::internal::Math<algorithmFPType, cpu>::vExp(nc, F + (i + start) * nc, buffer);
+            if (!useFullBuffer) daal::internal::MathInst<algorithmFPType, cpu>::vExp(nc, F + (i + start) * nc, buffer);
 
             algorithmFPType s = 0.0;
 
@@ -284,7 +284,7 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     {
         P[i] = inv_nc;
     }
-    algorithmFPType logL   = -algorithmFPType(n) * daal::internal::Math<algorithmFPType, cpu>::sLog(inv_nc);
+    algorithmFPType logL   = -algorithmFPType(n) * daal::internal::MathInst<algorithmFPType, cpu>::sLog(inv_nc);
     algorithmFPType accCur = daal::services::internal::MaxVal<algorithmFPType>::get();
 
     for (size_t i = 0; i < n * nc; i++)

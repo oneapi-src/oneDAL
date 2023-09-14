@@ -68,7 +68,7 @@ struct internal_dispatcher {
     template <typename CPU>
     void operator()(CPU cpu) {
         using uniform_type = daal::internal::
-            RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>;
+            RNGsInst<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>;
         uniform_functor<uniform_type, M, Args...> f;
         std::apply(f, args_);
     }

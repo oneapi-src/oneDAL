@@ -110,8 +110,8 @@ Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const N
             {
                 s |= Status(ErrorMemoryCopyFailedInternal);
             }
+            DAAL_CHECK_STATUS(s, changeMinusOneToZero(yArray, yZeroOne, nVectors));
         }
-        DAAL_CHECK_STATUS(s, changeMinusOneToZero(yArray, yZeroOne, nVectors));
         yTable = yTableZeroOne.get();
     }
 

@@ -108,11 +108,11 @@ Status CholeskyKernel<algorithmFPType, method, cpu>::performCholesky(NumericTabl
 
     if (isFull<algorithmFPType, cpu>(rLayout))
     {
-        Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &dims, pL, &dims, &info);
+        LapackInst<algorithmFPType, cpu>::xpotrf(&uplo, &dims, pL, &dims, &info);
     }
     else if (rLayout == NumericTableIface::lowerPackedTriangularMatrix)
     {
-        Lapack<algorithmFPType, cpu>::xpptrf(&uplo, &dims, pL, &info);
+        LapackInst<algorithmFPType, cpu>::xpptrf(&uplo, &dims, pL, &info);
     }
     else
     {

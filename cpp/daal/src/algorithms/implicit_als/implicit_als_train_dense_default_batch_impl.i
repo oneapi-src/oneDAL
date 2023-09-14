@@ -52,7 +52,8 @@ void ImplicitALSTrainKernelCommon<algorithmFPType, cpu>::computeXtX(size_t * nRo
     char trans            = 'N';
     algorithmFPType alpha = 1.0;
 
-    Blas<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)nCols, (DAAL_INT *)nRows, &alpha, x, (DAAL_INT *)ldx, beta, xtx, (DAAL_INT *)ldxtx);
+    BlasInst<algorithmFPType, cpu>::xsyrk(&uplo, &trans, (DAAL_INT *)nCols, (DAAL_INT *)nRows, &alpha, x, (DAAL_INT *)ldx, beta, xtx,
+                                          (DAAL_INT *)ldxtx);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -62,11 +63,11 @@ void ImplicitALSTrainKernelBase<algorithmFPType, cpu>::updateSystem(size_t nCols
     /* SYR parameters */
     const char uplo     = 'U';
     const DAAL_INT iOne = 1;
-    Blas<algorithmFPType, cpu>::xxsyr(&uplo, (DAAL_INT *)&nCols, coeff, x, &iOne, a, (DAAL_INT *)&nCols);
+    BlasInst<algorithmFPType, cpu>::xxsyr(&uplo, (DAAL_INT *)&nCols, coeff, x, &iOne, a, (DAAL_INT *)&nCols);
 
     if (*coeff > 0.0)
     {
-        Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nCols, c, x, &iOne, b, &iOne);
+        BlasInst<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nCols, c, x, &iOne, b, &iOne);
     }
 }
 

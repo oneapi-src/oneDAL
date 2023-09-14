@@ -140,7 +140,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 {
     Status status;
 
-    typedef daal::internal::Math<algorithmFpType, cpu> Math;
+    typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
     const size_t xRowCount    = x->getNumberOfRows();
@@ -180,7 +180,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 {
     Status status;
 
-    typedef daal::internal::Math<algorithmFpType, cpu> Math;
+    typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
     const auto maxThreads      = threader_get_threads_number();
@@ -444,7 +444,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     else
     {
         auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(engine);
-        daal::internal::RNGs<size_t, cpu> rng;
+        daal::internal::RNGsInst<size_t, cpu> rng;
         rng.uniform(elementCount, sampleIndexes, engineImpl->getState(), start, end);
 
         data_management::BlockDescriptor<algorithmFpType> columnBD;
@@ -512,7 +512,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     {
         auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
-        daal::internal::RNGs<size_t, cpu> rng;
+        daal::internal::RNGsInst<size_t, cpu> rng;
         size_t pos;
         data_management::BlockDescriptor<algorithmFpType> sampleBD;
         size_t i = 0;
@@ -914,7 +914,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 {
     Status status;
 
-    typedef daal::internal::Math<algorithmFpType, cpu> Math;
+    typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
     typedef IndexValuePair<algorithmFpType, cpu> IdxValue;
 
@@ -1359,7 +1359,13 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     }
 
     auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(engine);
-    daal::internal::RNGs<size_t, cpu> rng;
+    if (!engineImpl)
+    {
+        status = services::ErrorIncorrectEngineParameter;
+        return 0;
+    }
+
+    daal::internal::RNGsInst<size_t, cpu> rng;
     size_t pos;
     for (i = 0; i < sampleCount - 1; ++i)
     {

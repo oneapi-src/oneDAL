@@ -98,7 +98,7 @@ void UpdateP(size_t nc, size_t n, algorithmFPType * F, algorithmFPType * P, algo
 {
     for (size_t i = 0; i < n; i++)
     {
-        daal::internal::Math<algorithmFPType, cpu>::vExp(nc, F + i * nc, Fbuf);
+        daal::internal::MathInst<algorithmFPType, cpu>::vExp(nc, F + i * nc, Fbuf);
         algorithmFPType s = 0.0;
 
         for (size_t j = 0; j < nc; j++)

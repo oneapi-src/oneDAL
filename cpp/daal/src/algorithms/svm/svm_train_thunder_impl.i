@@ -567,7 +567,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
             else
             {
                 const size_t kernelSrartRow = (startRowGrad < nVectors) ? startRowGrad : startRowGrad - nVectors;
-                Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nRowsInBlockGrad, &deltaalphai, kernelBlockI + kernelSrartRow, &incX, gradi, &incY);
+                BlasInst<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nRowsInBlockGrad, &deltaalphai, kernelBlockI + kernelSrartRow, &incX, gradi,
+                                                       &incY);
             }
         }
     });
@@ -579,7 +580,8 @@ template <typename algorithmFPType, CpuType cpu>
 bool SVMTrainImpl<thunder, algorithmFPType, cpu>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
                                                                      const algorithmFPType accuracyThreshold, size_t & sameLocalDiff)
 {
-    sameLocalDiff = internal::Math<algorithmFPType, cpu>::sFabs(diff - diffPrev) < accuracyThreshold * accuracyThresholdInner ? sameLocalDiff + 1 : 0;
+    sameLocalDiff =
+        internal::MathInst<algorithmFPType, cpu>::sFabs(diff - diffPrev) < accuracyThreshold * accuracyThresholdInner ? sameLocalDiff + 1 : 0;
     if (sameLocalDiff > nNoChanges || diff < accuracyThreshold)
     {
         return true;

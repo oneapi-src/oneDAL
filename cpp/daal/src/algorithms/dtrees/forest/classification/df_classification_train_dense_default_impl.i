@@ -952,8 +952,11 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::finalizeBestSplit(const IndexTy
     bestSplit.iStart = 0;
     DAAL_ASSERT(iRowSplitVal >= 0);
     if (idxNext == this->_aResponse.size() - 1) iNext = iRowSplitVal;
-    bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
-    if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    if (iNext >= 0 && iRowSplitVal >= 0)
+    {
+        bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
+        if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1001,7 +1004,7 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const In
     size_t mid;
     size_t l   = minidx;
     size_t idx = maxidx;
-    RNGs<algorithmFPType, cpu> rng;
+    RNGsInst<algorithmFPType, cpu> rng;
     rng.uniform(1, &fidx, this->engineImpl->getState(), minval, maxval); //find random index between minidx and maxidx
 
     while (l < idx)
@@ -1055,7 +1058,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitByHistDefault(int 
     if (split.featureUnordered)
     {
         //find random index between minidx and maxidx
-        RNGs<size_t, cpu> rng;
+        RNGsInst<size_t, cpu> rng;
         rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx);
 
         //iterate idx down for FinalizeBestSplit (since it splits leftward)
@@ -1223,7 +1226,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     //randomly select a histogram split index
     if (split.featureUnordered)
     {
-        RNGs<size_t, cpu> rng;
+        RNGsInst<size_t, cpu> rng;
         rng.uniform(1, &idx, this->engineImpl->getState(), minidx, maxidx);
     }
     else
@@ -1358,7 +1361,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
     size_t i;
 
     //select random split index
-    RNGs<algorithmFPType, cpu> rng;
+    RNGsInst<algorithmFPType, cpu> rng;
     rng.uniform(1, &idx, this->engineImpl->getState(), featureVal[0],
                 featureVal[n - 1]); //this strategy follows sklearn's implementation
 
@@ -1488,7 +1491,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
 
     first = min;
 
-    RNGs<algorithmFPType, cpu> rng;
+    RNGsInst<algorithmFPType, cpu> rng;
     rng.uniform(1, &idx, this->engineImpl->getState(), min, max); //this strategy follows sklearn's implementation
 
     for (size_t i = 1; i < n; ++i)
@@ -1678,7 +1681,7 @@ public:
     {
         if (!this->_nFeaturesPerNode)
         {
-            size_t nF(daal::internal::Math<algorithmFPType, cpu>::sSqrt(x->getNumberOfColumns()));
+            size_t nF(daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(x->getNumberOfColumns()));
             const_cast<size_t &>(this->_nFeaturesPerNode) = nF;
         }
     }

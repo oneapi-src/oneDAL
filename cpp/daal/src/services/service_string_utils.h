@@ -50,7 +50,7 @@ void toStringBuffer<double>(double value, char * buffer)
 template <>
 void toStringBuffer<String>(String value, char * buffer)
 {
-    daal::internal::Service<>::serv_strncpy_s(buffer, DAAL_MAX_STRING_SIZE, value.c_str(), DAAL_MAX_STRING_SIZE - value.length());
+    daal::internal::ServiceInst::serv_strncpy_s(buffer, DAAL_MAX_STRING_SIZE, value.c_str(), DAAL_MAX_STRING_SIZE - value.length());
 }
 
 } // namespace internal

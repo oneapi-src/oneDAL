@@ -234,9 +234,12 @@ public:
         }
 
         size_t minSize = newCapacity < _size ? newCapacity : _size;
-        for (size_t i = 0; i < minSize; i++)
+        if (_array)
         {
-            newArray[i] = _array[i];
+            for (size_t i = 0; i < minSize; i++)
+            {
+                newArray[i] = _array[i];
+            }
         }
 
         for (size_t i = 0; i < _capacity; i++)

@@ -74,7 +74,7 @@ Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Paramet
     algorithmFPType a     = parameter->a;
     algorithmFPType sigma = parameter->sigma;
 
-    daal::internal::RNGs<algorithmFPType, cpu> rng;
+    daal::internal::RNGsInst<algorithmFPType, cpu> rng;
     DAAL_CHECK(!rng.gaussian(n, resultArray, engine.getState(), a, sigma), ErrorIncorrectErrorcodeFromGenerator);
     return Status();
 }

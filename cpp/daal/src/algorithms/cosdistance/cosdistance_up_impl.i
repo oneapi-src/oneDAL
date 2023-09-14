@@ -65,7 +65,7 @@ services::Status cosDistanceUpperPacked(const NumericTable * xTable, NumericTabl
         DAAL_INT m = blockSize1, k = p, nn = blockSize1;
         DAAL_INT lda = k, ldb = p, ldc = m;
 
-        Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
+        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
 
         /* compute inverse of sqrt of gemm result and save for use in computation off-diagonal blocks */
         PRAGMA_VECTOR_ALWAYS
@@ -73,7 +73,7 @@ services::Status cosDistanceUpperPacked(const NumericTable * xTable, NumericTabl
         {
             if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
             {
-                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
+                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
             }
         }
 
@@ -166,7 +166,7 @@ services::Status cosDistanceUpperPacked(const NumericTable * xTable, NumericTabl
             DAAL_INT lda = k, ldb = p, ldc = m;
 
             /* compute the distance between k1 and k2 blocks of rows in the input dataset */
-            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x2, &lda, x1, &ldb, &beta, buf, &ldc);
+            BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x2, &lda, x1, &ldb, &beta, buf, &ldc);
 
             for (size_t i = 0; i < blockSize1; i++)
             {

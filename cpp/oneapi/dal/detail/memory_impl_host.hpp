@@ -61,14 +61,18 @@ inline void fill(const default_host_policy& policy, T* dest, std::int64_t count,
     ONEDAL_ASSERT(dest != nullptr);
     ONEDAL_ASSERT(count > 0);
 
-    for (std::int64_t i = 0; i < count; i++) {
-        dest[i] = value;
+    for (std::int64_t i = 0l; i < count; ++i) {
+        ::new (dest + i) T{ value };
     }
 }
 
 template <typename T>
 class host_allocator {
 public:
+    host_allocator() {}
+    host_allocator(const host_policy& policy) {}
+    host_allocator(const default_host_policy& policy) {}
+
     T* allocate(std::int64_t n) const {
         return malloc<T>(default_host_policy{}, n);
     }

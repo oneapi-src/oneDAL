@@ -85,7 +85,7 @@ public:
 
     static const size_t _cNumNodesHint = 512; //number of nodes as a hint for allocator to grow by
     TreeType::Allocator _allocator;
-    TArray<TreeType, sse2> _tree_list;
+    TArray<TreeType, DAAL_BASE_CPU> _tree_list;
 };
 
 template <typename algorithmFPType>

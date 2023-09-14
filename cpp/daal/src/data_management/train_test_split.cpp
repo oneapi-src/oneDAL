@@ -28,7 +28,6 @@
 #include "data_management/features/defines.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/externals/service_rng.h"
-#include "src/externals/service_rng_mkl.h"
 
 namespace daal
 {
@@ -68,7 +67,7 @@ template <daal::CpuType cpu>
 services::Status generateRandomNumbers(const int * rngState, unsigned int * randomNumbers, const size_t nSkip, const size_t n)
 {
     // initialize baseRNG
-    daal::internal::mkl::BaseRNG<cpu> baseRng(0, VSL_BRNG_MT19937);
+    daal::internal::BaseRNGsInst<cpu> baseRng(0, __DAAL_BRNG_MT19937);
     // check that it has correct size
     DAAL_CHECK(baseRng.getStateSize() / 4 == MT19937_SIZE, daal::services::ErrorEngineNotSupported);
     daal::services::internal::TArray<unsigned int, cpu> baseRngStateArr(baseRng.getStateSize() / 4);
@@ -79,7 +78,7 @@ services::Status generateRandomNumbers(const int * rngState, unsigned int * rand
     services::internal::daal_memcpy_s(baseRngState + MT19937_NUMBERS_OFFSET, MT19937_NUMBERS * sizeof(unsigned int), rngState,
                                       MT19937_NUMBERS * sizeof(unsigned int));
     baseRng.loadState(baseRngState);
-    daal::internal::RNGs<unsigned int, cpu> rng;
+    daal::internal::RNGsInst<unsigned int, cpu> rng;
 
     if (nSkip != 0) baseRng.skipAhead(nSkip);
 
@@ -158,7 +157,7 @@ template <typename IdxType>
 DAAL_EXPORT void generateShuffledIndices(const NumericTablePtr & idxTable, const NumericTablePtr & rngStateTable)
 {
     DAAL_SAFE_CPU_CALL((generateShuffledIndicesDispImpl<IdxType>(idxTable, rngStateTable)),
-                       (generateShuffledIndicesImpl<IdxType, daal::CpuType::sse2>(idxTable, rngStateTable)));
+                       (generateShuffledIndicesImpl<IdxType, DAAL_BASE_CPU>(idxTable, rngStateTable)));
 }
 
 template DAAL_EXPORT void generateShuffledIndices<int>(const NumericTablePtr & idxTable, const NumericTablePtr & rngStateTable);
@@ -364,7 +363,7 @@ DAAL_EXPORT void trainTestSplit(const NumericTablePtr & inputTable, const Numeri
                                 const NumericTablePtr & trainIdxTable, const NumericTablePtr & testIdxTable)
 {
     DAAL_SAFE_CPU_CALL((trainTestSplitDispImpl<IdxType>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)),
-                       (trainTestSplitImpl<IdxType, daal::CpuType::sse2>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)));
+                       (trainTestSplitImpl<IdxType, DAAL_BASE_CPU>(inputTable, trainTable, testTable, trainIdxTable, testIdxTable)));
 }
 
 template DAAL_EXPORT void trainTestSplit<int>(const NumericTablePtr & inputTable, const NumericTablePtr & trainTable,

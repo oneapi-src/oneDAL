@@ -15,9 +15,56 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/mkl/blas.hpp"
-
 #include <type_traits>
+
+#ifdef ONEDAL_REF
+#if (defined(DAAL_REF) && (INTPTR_MAX == INT64_MAX))
+using GEMM_INT = std::int64_t;
+#else
+using GEMM_INT = std::int32_t;
+#endif
+
+extern "C" {
+extern void sgemm_(const char *,
+                   const char *,
+                   const GEMM_INT *,
+                   const GEMM_INT *,
+                   const GEMM_INT *,
+                   const float *,
+                   const float *,
+                   const GEMM_INT *,
+                   const float *,
+                   const GEMM_INT *,
+                   const float *,
+                   const float *,
+                   const GEMM_INT *);
+extern void dgemm_(const char *,
+                   const char *,
+                   const GEMM_INT *,
+                   const GEMM_INT *,
+                   const GEMM_INT *,
+                   const double *,
+                   const double *,
+                   const GEMM_INT *,
+                   const double *,
+                   const GEMM_INT *,
+                   const double *,
+                   const double *,
+                   const GEMM_INT *);
+}
+
+#define SGEMM(...) sgemm_(__VA_ARGS__)
+#define DGEMM(...) dgemm_(__VA_ARGS__)
+
+#else
 #include <mkl_blas.h>
+
+#define SGEMM(...) sgemm(__VA_ARGS__)
+#define DGEMM(...) dgemm(__VA_ARGS__)
+
+using GEMM_INT = MKL_INT;
+
+#endif
 
 namespace oneapi::dal::test::engine::mkl {
 
@@ -30,17 +77,17 @@ template <typename Float>
 void gemm(GEMM_PARAMETERS_C(Float)) {
     const char ta = transa ? 'T' : 'N';
     const char tb = transb ? 'T' : 'N';
-    const MKL_INT _m = static_cast<MKL_INT>(m);
-    const MKL_INT _n = static_cast<MKL_INT>(n);
-    const MKL_INT _k = static_cast<MKL_INT>(k);
-    const MKL_INT _lda = static_cast<MKL_INT>(lda);
-    const MKL_INT _ldb = static_cast<MKL_INT>(ldb);
-    const MKL_INT _ldc = static_cast<MKL_INT>(ldc);
+    const GEMM_INT _m = static_cast<GEMM_INT>(m);
+    const GEMM_INT _n = static_cast<GEMM_INT>(n);
+    const GEMM_INT _k = static_cast<GEMM_INT>(k);
+    const GEMM_INT _lda = static_cast<GEMM_INT>(lda);
+    const GEMM_INT _ldb = static_cast<GEMM_INT>(ldb);
+    const GEMM_INT _ldc = static_cast<GEMM_INT>(ldc);
     if constexpr (std::is_same_v<Float, float>) {
-        sgemm(&ta, &tb, &_m, &_n, &_k, &alpha, a, &_lda, b, &_ldb, &beta, c, &_ldc);
+        SGEMM(&ta, &tb, &_m, &_n, &_k, &alpha, a, &_lda, b, &_ldb, &beta, c, &_ldc);
     }
     else {
-        dgemm(&ta, &tb, &_m, &_n, &_k, &alpha, a, &_lda, b, &_ldb, &beta, c, &_ldc);
+        DGEMM(&ta, &tb, &_m, &_n, &_k, &alpha, a, &_lda, b, &_ldb, &beta, c, &_ldc);
     }
 }
 

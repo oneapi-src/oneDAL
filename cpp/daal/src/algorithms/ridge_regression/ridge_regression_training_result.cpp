@@ -77,6 +77,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
        Both classes have multiple inheritance with InputIface as a second base class.
        That's why we use dynamic_cast here. */
     const InputIface * in = dynamic_cast<const InputIface *>(input);
+    DAAL_CHECK(in, services::ErrorNullInput);
 
     size_t nBeta      = in->getNumberOfFeatures() + 1;
     size_t nResponses = in->getNumberOfDependentVariables();
