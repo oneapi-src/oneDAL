@@ -26,6 +26,14 @@ WORKDIR ${workdirectory}
 RUN apt-get update && \
       apt-get -y install sudo wget gnupg git
 
+# Install miniconda
+ENV CONDA_DIR /opt/conda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /opt/conda
+
+# Put conda in path so we can use conda activate
+ENV PATH=$CONDA_DIR/bin:$PATH
+
 # Installing environment for base development dependencies
 RUN .ci/env/apt.sh dev-base
 
