@@ -23,8 +23,8 @@ See the differences in CPU and GPU support below.
 
 GPU-Supported Targets
 *********************
-oneDAL targets support for Intel GPUs only, while technically it should be feasible
-to run on other HW platforms assuming SYCL runtime availability for platform.
+OneDAL is designed to work with Intel(R) GPUs specifically, but it could potentially 
+run on other hardware platforms if a SYCL runtime is available.
 
 .. tabularcolumns::  |\Y{0.5}|\Y{0.5}|
 
