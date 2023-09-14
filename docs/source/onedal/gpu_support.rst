@@ -41,13 +41,13 @@ run on other hardware platforms if a SYCL runtime is available.
      - 
    * - :ref:`alg_pca`
      - 
-   * - :ref: Logistic Regression
+   * - Logistic Regression
      - 
-   * - :ref: Linear Regression
+   * - Linear Regression
      - 
    * - :ref:`alg_df`
      - 
-   * - :ref: Extra Trees 
+   * - Extra Trees 
      - 
    * - :ref:`alg_knn`
      - 
