@@ -232,13 +232,13 @@ Graph analytics terms
     Component
         A :capterm:`connected<Connected graph>` :capterm:`subgraph<Subgraph>` :math:`H` of graph :math:`G` such that no subgraph
         of :math:`G` that properly contains :math:`H` is connected [Gross2014]_.
-    
+
     Connected graph
         A :capterm:`graph` is connected if there is a :capterm:`walk` between every pair of its vertices [Gross2014]_.
 
     Edge index
         The index :math:`i` of an edge :math:`e_i` in an edge set :math:`E=\{e_1, e_2,  ..., e_m\}`
-        of :capterm:`graph` :math:`G`. Can be an integer value.         
+        of :capterm:`graph` :math:`G`. Can be an integer value.
 
     Directed graph
         A :capterm:`graph` where each edge is an ordered pair :math:`(u, v)`
@@ -249,23 +249,23 @@ Graph analytics terms
         An object :math:`G=(V;E)` that consists of two sets, :math:`V` and :math:`E`,
         where :math:`V` is a finite nonempty set, :math:`E` is a finite set that may
         be empty, and the elements of :math:`E` are two-element subsets of :math:`V`.
-        :math:`V` is called a set of vertices, :math:`E` is called a set of edges [Gross2014]_. 
+        :math:`V` is called a set of vertices, :math:`E` is called a set of edges [Gross2014]_.
 
     Subgraph
-        A graph :math:`H = (V'; E')` is called a subgraph of graph :math:`G = (V; E)` if 
-        :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contains all the endpoints of all the 
+        A graph :math:`H = (V'; E')` is called a subgraph of graph :math:`G = (V; E)` if
+        :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contains all the endpoints of all the
         edges in :math:`E'` [Gross2014]_.
 
     Induced subgraph on the edge set
-        Each subset :math:`E' \subseteq E` defines a unique :capterm:`subgraph <Subgraph>` :math:`H' = (V'; E')` of graph 
+        Each subset :math:`E' \subseteq E` defines a unique :capterm:`subgraph <Subgraph>` :math:`H' = (V'; E')` of graph
         :math:`G = (V; E)`, where :math:`V'` consists of only those vertices that are the endpoints of the
         edges in :math:`E'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the
         edge set :math:`E'` [Gross2014]_.
 
     Induced subgraph on the vertex set
         Each subset :math:`V' \subseteq V` defines a unique :capterm:`subgraph <Subgraph>`
-        :math:`H = (V'; E')` of graph :math:`G = (V; E)`, where :math:`E'` consists of those edges 
-        whose endpoints are in :math:`V'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the vertex 
+        :math:`H = (V'; E')` of graph :math:`G = (V; E)`, where :math:`E'` consists of those edges
+        whose endpoints are in :math:`V'`. The subgraph :math:`H` is called an induced subgraph of :math:`G` on the vertex
         set :math:`V'` [Gross2014]_.
 
     Self-loop
@@ -282,10 +282,10 @@ Graph analytics terms
 
     Vertex index
         The index :math:`i` of a vertex :math:`v_i` in a vertex set :math:`V=\{v_1, v_2,  ..., v_n\}`
-        of :capterm:`graph` :math:`G`. Can be an integer value. 
+        of :capterm:`graph` :math:`G`. Can be an integer value.
 
     Walk
-        An alternating sequence of vertices and edges such that for each edge, 
+        An alternating sequence of vertices and edges such that for each edge,
         one endpoint precedes and the other succeeds that edge in the sequence [Gross2014]_.
 
     Weight
@@ -319,7 +319,7 @@ Graph analytics terms
     Contiguous data
         Data that are stored as one contiguous memory block. One of the
         characteristics of a :capterm:`data format`.
-    
+
     CSR data
         A Compressed Sparse Row (CSR) data is the sparse matrix representation.
         Data with values of a single :capterm:`data type` and the same set of
@@ -361,8 +361,8 @@ Graph analytics terms
         **Examples:** ``int32_t``, ``float``, ``double``
 
     Dataset
-        A collection of data in a specific data format. 
-        
+        A collection of data in a specific data format.
+
         **Examples:** a collection of observations, a :capterm:`graph`
 
     Flat data
@@ -487,7 +487,7 @@ Distributed computational mode terms
 .. glossary::
     :sorted:
 
-    SPMD 
+    SPMD
         Single Program, Multiple Data (SPMD) is a technique employed to achieve parallelism.
         In SPMD model, multiple autonomous processors simultaneously execute the same program at independent points.
 
@@ -497,6 +497,6 @@ Distributed computational mode terms
 
     Communicator backend
         A particular library providing collective operations.
-        
+
         **Examples:** oneCCL, oneMPI
 

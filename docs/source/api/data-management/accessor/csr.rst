@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -17,17 +17,27 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
-.. _api_accessors:
+.. _api_csr_accessor:
 
-=========
-Accessors
-=========
+===============
+Compressed Sparse Rows (CSR) accessor
+===============
 
-The requirements for accessors and accessor types are defined in
-:ref:`Developer Guide: Accessors <dm_accessors>`.
+The ``csr_accessor`` class provides a read-only access to the rows of the
+:txtref:`csr_table` as data arrays in :capterm:`CSR <CSR data>` storage format.
 
-.. toctree::
+-------------
+Usage example
+-------------
 
-   accessor/column.rst
-   accessor/csr.rst
-   accessor/row.rst
+.. include:: ../../../includes/data-management/csr-accessor-usage-example.rst
+
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal`` namespace and be available via inclusion of the
+``oneapi/dal/table/csr_accessor.hpp`` header file.
+
+.. onedal_class:: oneapi::dal::csr_accessor
