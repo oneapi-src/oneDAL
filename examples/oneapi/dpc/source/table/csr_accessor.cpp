@@ -70,24 +70,6 @@ void run(sycl::queue &q) {
     // the pulled rows will have one-based indicies by default
     const auto [block_data, block_column_indices, block_row_offsets] = acc.pull(q, { 1, 3 });
 
-    // allocate SYCL shared memory for storing data, column indices and row offsets arrays
-    std::unique_ptr<float[]> block_data_host(new float[block_data.get_count()]);
-    std::unique_ptr<std::int64_t[]> block_column_indices_host(
-        new std::int64_t[block_column_indices.get_count()]);
-    std::unique_ptr<std::int64_t[]> block_row_offsets_host(
-        new std::int64_t[block_row_offsets.get_count()]);
-
-    // copy data, column indices and row offsets arrays from host to SYCL shared memory
-    data_event = q.memcpy(block_data_host.get(),
-                          block_data.get_data(),
-                          sizeof(float) * block_data.get_count());
-    column_indices_event = q.memcpy(block_column_indices_host.get(),
-                                    block_column_indices.get_data(),
-                                    sizeof(std::int64_t) * block_column_indices.get_count());
-    row_offsets_event = q.memcpy(block_row_offsets_host.get(),
-                                 block_row_offsets.get_data(),
-                                 sizeof(std::int64_t) * block_row_offsets.get_count());
-
     std::cout << "Print the original sparse data table as 3 arrays in CSR storage format:"
               << std::endl;
     std::cout << "Values of the table:" << std::endl;
@@ -104,24 +86,22 @@ void run(sycl::queue &q) {
     }
     std::cout << std::endl;
 
-    sycl::event::wait({ data_event, column_indices_event, row_offsets_event });
-
     std::cout << std::endl << "Print 2 rows from CSR table as dense float arrays" << std::endl;
     std::cout << "Values in the second and third rows of the table as dense float array:"
               << std::endl;
     for (std::int64_t i = 0; i < block_data.get_count(); i++) {
-        std::cout << block_data_host[i] << ", ";
+        std::cout << block_data[i] << ", ";
     }
     std::cout << std::endl
               << "Column indices of the data in the second and third rows from CSR table:"
               << std::endl;
     for (std::int64_t i = 0; i < block_column_indices.get_count(); i++) {
-        std::cout << block_column_indices_host[i] << ", ";
+        std::cout << block_column_indices[i] << ", ";
     }
     std::cout << std::endl
               << "Row offsets of the second and third rows from CSR table:" << std::endl;
     for (std::int64_t i = 0; i < block_row_offsets.get_count(); i++) {
-        std::cout << block_row_offsets_host[i] << ", ";
+        std::cout << block_row_offsets[i] << ", ";
     }
     std::cout << std::endl;
 }
