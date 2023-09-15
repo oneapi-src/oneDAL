@@ -294,9 +294,23 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     required_mem_size_for_one_tree += sizeof(Index) * ctx.selected_row_total_count_ * 2;
 
     // The number of nodes for one tree
-    // std::uint64_t one_tree_node_count = std::pow(2, ctx.max_tree_depth_ + 1) - 1;
     // Max node_count in tree = last level
-    std::uint64_t max_node_count_per_tree = std::pow(2, ctx.max_tree_depth_ - 1);
+    // If depth is set to zero or less than 2, then it is limited by row_count or set to 2
+    // TODO: replace this block with std::log2() and std::exp2(),
+    // when the compiler is ready for use it.
+    std::int64_t data_tree_depth = ctx.max_tree_depth_;
+    if (data_tree_depth == 0) {
+        std::int64_t row_count = ctx.row_count_;
+        while (row_count > 1) { // std::log2(row_count)
+            row_count = row_count >> 1;
+            data_tree_depth++;
+        }
+        data_tree_depth = std::max<std::int64_t>(2, data_tree_depth);
+    }
+    std::uint64_t max_node_count_per_tree = 1; // std::exp2(data_tree_depth - 2);
+    for (std::int32_t i = 0; i < data_tree_depth - 2; ++i) {
+        max_node_count_per_tree *= 2;
+    }
     // node_lists for one tree
     required_mem_size_for_one_tree +=
         sizeof(Index) * impl_const_t::node_prop_count_ * max_node_count_per_tree;
