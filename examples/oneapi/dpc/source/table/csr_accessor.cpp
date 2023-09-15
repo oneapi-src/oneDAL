@@ -45,9 +45,11 @@ void run(sycl::queue &q) {
     auto row_offsets = sycl::malloc_shared<std::int64_t>(row_count + 1, q);
 
     // copy data, column indices and row offsets arrays from host to SYCL shared memory
-    q.memcpy(data, data_host, sizeof(float) * element_count).wait();
-    q.memcpy(column_indices, column_indices_host, sizeof(std::int64_t) * element_count).wait();
-    q.memcpy(row_offsets, row_offsets_host, sizeof(std::int64_t) * (row_count + 1)).wait();
+    auto data_event = q.memcpy(data, data_host, sizeof(float) * element_count);
+    auto column_indices_event =
+        q.memcpy(column_indices, column_indices_host, sizeof(std::int64_t) * element_count);
+    auto row_offsets_event =
+        q.memcpy(row_offsets, row_offsets_host, sizeof(std::int64_t) * (row_count + 1));
 
     // create sparse table in CSR format from arrays of data, column indices and row offsets
     // that are allocated in SYCL shared memory
@@ -59,34 +61,32 @@ void run(sycl::queue &q) {
                                  column_count,
                                  dal::detail::make_default_delete<const float>(q),
                                  dal::detail::make_default_delete<const std::int64_t>(q),
-                                 dal::detail::make_default_delete<const std::int64_t>(q) };
+                                 dal::detail::make_default_delete<const std::int64_t>(q),
+                                 dal::sparse_indexing::one_based,
+                                 { data_event, column_indices_event, row_offsets_event } };
     dal::csr_accessor<const float> acc{ table };
 
-    // pull 2 rows, starting from row number 1, from the sparse table;
+    // pull second and third rows of the sparse table;
     // the pulled rows will have one-based indicies by default
-    const auto [subtable_data, subtable_column_indices, subtable_row_offsets] =
-        acc.pull(q, { 1, 3 });
+    const auto [block_data, block_column_indices, block_row_offsets] = acc.pull(q, { 1, 3 });
 
     // allocate SYCL shared memory for storing data, column indices and row offsets arrays
-    std::unique_ptr<float[]> subtable_data_host(new float[subtable_data.get_count()]);
-    std::unique_ptr<std::int64_t[]> subtable_column_indices_host(
-        new std::int64_t[subtable_column_indices.get_count()]);
-    std::unique_ptr<std::int64_t[]> subtable_row_offsets_host(
-        new std::int64_t[subtable_row_offsets.get_count()]);
+    std::unique_ptr<float[]> block_data_host(new float[block_data.get_count()]);
+    std::unique_ptr<std::int64_t[]> block_column_indices_host(
+        new std::int64_t[block_column_indices.get_count()]);
+    std::unique_ptr<std::int64_t[]> block_row_offsets_host(
+        new std::int64_t[block_row_offsets.get_count()]);
 
     // copy data, column indices and row offsets arrays from host to SYCL shared memory
-    q.memcpy(subtable_data_host.get(),
-             subtable_data.get_data(),
-             sizeof(float) * subtable_data.get_count())
-        .wait();
-    q.memcpy(subtable_column_indices_host.get(),
-             subtable_column_indices.get_data(),
-             sizeof(std::int64_t) * subtable_column_indices.get_count())
-        .wait();
-    q.memcpy(subtable_row_offsets_host.get(),
-             subtable_row_offsets.get_data(),
-             sizeof(std::int64_t) * subtable_row_offsets.get_count())
-        .wait();
+    data_event = q.memcpy(block_data_host.get(),
+                          block_data.get_data(),
+                          sizeof(float) * block_data.get_count());
+    column_indices_event = q.memcpy(block_column_indices_host.get(),
+                                    block_column_indices.get_data(),
+                                    sizeof(std::int64_t) * block_column_indices.get_count());
+    row_offsets_event = q.memcpy(block_row_offsets_host.get(),
+                                 block_row_offsets.get_data(),
+                                 sizeof(std::int64_t) * block_row_offsets.get_count());
 
     std::cout << "Print the original sparse data table as 3 arrays in CSR storage format:"
               << std::endl;
@@ -104,18 +104,24 @@ void run(sycl::queue &q) {
     }
     std::cout << std::endl;
 
+    sycl::event::wait({ data_event, column_indices_event, row_offsets_event });
+
     std::cout << std::endl << "Print 2 rows from CSR table as dense float arrays" << std::endl;
-    std::cout << "Values in 2 rows as dense float array:" << std::endl;
-    for (std::int64_t i = 0; i < subtable_data.get_count(); i++) {
-        std::cout << subtable_data_host[i] << ", ";
+    std::cout << "Values in the second and third rows of the table as dense float array:"
+              << std::endl;
+    for (std::int64_t i = 0; i < block_data.get_count(); i++) {
+        std::cout << block_data_host[i] << ", ";
     }
-    std::cout << std::endl << "Column indices in 2 rows from CSR table:" << std::endl;
-    for (std::int64_t i = 0; i < subtable_column_indices.get_count(); i++) {
-        std::cout << subtable_column_indices_host[i] << ", ";
+    std::cout << std::endl
+              << "Column indices of the data in the second and third rows from CSR table:"
+              << std::endl;
+    for (std::int64_t i = 0; i < block_column_indices.get_count(); i++) {
+        std::cout << block_column_indices_host[i] << ", ";
     }
-    std::cout << std::endl << "Row offsets in 2 rows from CSR table:" << std::endl;
-    for (std::int64_t i = 0; i < subtable_row_offsets.get_count(); i++) {
-        std::cout << subtable_row_offsets_host[i] << ", ";
+    std::cout << std::endl
+              << "Row offsets of the second and third rows from CSR table:" << std::endl;
+    for (std::int64_t i = 0; i < block_row_offsets.get_count(); i++) {
+        std::cout << block_row_offsets_host[i] << ", ";
     }
     std::cout << std::endl;
 }
