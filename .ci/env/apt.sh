@@ -51,7 +51,7 @@ function install_dev-base {
 }
 
 function install_dev-base-conda {
-    conda env create -f environment.yml
+    conda env create -f .ci/env/environment.yml
 }
 
 if [ "${component}" == "dpcpp" ]; then
