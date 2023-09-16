@@ -197,9 +197,9 @@ jobs:
       # Commit ID is added to a cache key. Caches are immutable by design,
       # so we always need to change a key to upload the last version
       # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
-      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | "$(Build.SourceVersion)"'
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1" | "$(Build.SourceVersion)"'
       restoreKeys: |
-        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
+        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1"
       path: $(BAZEL_CACHE_DIR)
     displayName: 'bazel-cache'
 
