@@ -49,13 +49,13 @@ RUN .ci/env/bazelisk.sh
 # Installing openBLAS dependency
 RUN .ci/env/openblas.sh
 
-ARG config
+# Installing MKL dependency
+RUN ./dev/download_micromkl.sh
 
+# Installing TBB dependency
+RUN ./dev/download_tbb.sh
+
+# Temporary testing
 RUN \
-if [ "${config}" = "build_make" ] ; \
-then \
     .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env; \
-    .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c; \
-else \
-    echo Welcome to oneDAL development, sources located in ${workdirectory} ; \
-fi
+    .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c;
