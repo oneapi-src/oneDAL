@@ -24,7 +24,7 @@ WORKDIR ${workdirectory}
 
 #Env setup
 RUN apt-get update && \
-      apt-get -y install sudo wget gnupg git make
+      apt-get -y install sudo wget gnupg git make python3-setuptools doxygen
 
 # Install miniconda
 ENV CONDA_DIR /opt/conda
@@ -55,7 +55,5 @@ RUN ./dev/download_micromkl.sh
 # Installing TBB dependency
 RUN ./dev/download_tbb.sh
 
-# Temporary testing
-RUN \
-    .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env; \
-    .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c;
+# Installing doc build dependency
+RUN pip3 install -r docs/requirements.txt
