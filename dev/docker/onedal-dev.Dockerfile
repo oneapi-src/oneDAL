@@ -56,4 +56,4 @@ RUN ./dev/download_micromkl.sh
 RUN ./dev/download_tbb.sh
 
 # Installing doc build dependency
-RUN pip3 install -r docs/requirements.txt
+#RUN pip3 install -r docs/requirements.txt
