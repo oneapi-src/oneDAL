@@ -51,7 +51,7 @@ function install_dev-base {
 }
 
 function install_dev-base-conda {
-    conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0
+    conda env create -f environment.yml
 }
 
 if [ "${component}" == "dpcpp" ]; then
