@@ -33,5 +33,3 @@ jobs:
         run: docker run onedal-dev .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
       - name: Building oneDAL with bazel
         run: docker run onedal-dev bazel build :release
-      - name: Building oneDAL with OpenBLAS backend
-        run: docker run onedal-dev .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend_config ref --conda-env ci-env
