@@ -44,7 +44,9 @@ RUN .ci/env/apt.sh dpcpp
 RUN .ci/env/apt.sh clang-format
 
 # Installing environment for bazel
-RUN .ci/env/bazelisk.sh
+RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && \
+    chmod 755 bazelisk-linux-amd64 && \
+    mv bazelisk-linux-amd64 /usr/bin/bazel
 
 # Installing openBLAS dependency
 RUN .ci/env/openblas.sh
