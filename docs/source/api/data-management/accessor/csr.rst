@@ -27,7 +27,7 @@ The ``csr_accessor`` class provides read-only access to the rows of the
 :txtref:`csr_table` as data arrays in :capterm:`CSR <CSR data>` storage format.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/data-management/csr-accessor-usage-example.rst

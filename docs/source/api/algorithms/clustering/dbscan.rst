@@ -84,7 +84,7 @@ Operation
       | :expr:`!input.weights.has_data || input.weights.row_count == input.data.row_count && input.weights.column_count == 1`
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/clustering/dbscan-usage-examples.rst
