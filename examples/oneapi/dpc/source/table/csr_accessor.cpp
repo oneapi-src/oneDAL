@@ -39,7 +39,7 @@ void run(sycl::queue &q) {
     const std::int64_t column_indices_host[] = { 1, 2, 4, 3, 2, 4, 2 };
     const std::int64_t row_offsets_host[] = { 1, 4, 5, 7, 8 };
 
-    // allocate SYCL shared memory for storing data, column indices and row offsets arrays
+    // allocate SYCL shared memory for storing data, column indices, and row offset arrays
     auto data = sycl::malloc_shared<float>(element_count, q);
     auto column_indices = sycl::malloc_shared<std::int64_t>(element_count, q);
     auto row_offsets = sycl::malloc_shared<std::int64_t>(row_count + 1, q);
