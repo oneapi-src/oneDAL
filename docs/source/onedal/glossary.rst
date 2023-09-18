@@ -253,7 +253,7 @@ Graph analytics terms
 
     Subgraph
         A graph :math:`H = (V'; E')` is called a subgraph of graph :math:`G = (V; E)` if
-        :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contains all the endpoints of all the
+        :math:`V' \subseteq V; E' \subseteq E` and :math:`V'` contain all endpoints of all the
         edges in :math:`E'` [Gross2014]_.
 
     Induced subgraph on the edge set

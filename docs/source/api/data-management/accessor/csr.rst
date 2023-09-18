@@ -20,10 +20,10 @@
 .. _api_csr_accessor:
 
 =====================================
-Compressed Sparse Rows (CSR) accessor
+Compressed Sparse Rows (CSR) Accessor
 =====================================
 
-The ``csr_accessor`` class provides a read-only access to the rows of the
+The ``csr_accessor`` class provides read-only access to the rows of the
 :txtref:`csr_table` as data arrays in :capterm:`CSR <CSR data>` storage format.
 
 -------------
@@ -33,11 +33,11 @@ Usage example
 .. include:: ../../../includes/data-management/csr-accessor-usage-example.rst
 
 ---------------------
-Programming interface
+Programming Interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal`` namespace and be available via inclusion of the
+``oneapi::dal`` namespace and available via the inclusion of the
 ``oneapi/dal/table/csr_accessor.hpp`` header file.
 
 .. onedal_class:: oneapi::dal::csr_accessor

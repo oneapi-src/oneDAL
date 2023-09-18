@@ -20,10 +20,10 @@
 .. _api_column_accessor:
 
 ===============
-Column accessor
+Column Accessor
 ===============
 
-The ``column_accessor`` class provides a read-only access to the column values
+The ``column_accessor`` class provides read-only access to the column values
 of the :txtref:`table` as :capterm:`contiguous <contiguous data>`
 :capterm:`homogeneous <homogeneous data>` array.
 
@@ -34,11 +34,11 @@ Usage example
 .. include:: ../../../includes/data-management/column-accessor-usage-example.rst
 
 ---------------------
-Programming interface
+Programming Interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal`` namespace and be available via inclusion of the
+``oneapi::dal`` namespace and available via the inclusion of the
 ``oneapi/dal/table/column_accessor.hpp`` header file.
 
 .. onedal_class:: oneapi::dal::column_accessor
