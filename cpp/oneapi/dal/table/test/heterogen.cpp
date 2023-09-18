@@ -33,7 +33,7 @@ inline Type* end(const dal::array<Type>& arr) {
     return begin(arr) + arr.get_count();
 }
 
-/*TEST("can construct empty table") {
+TEST("can construct empty table") {
     heterogen_table t;
 
     REQUIRE(t.has_data() == false);
@@ -230,7 +230,7 @@ TEST("Can get row slice on host - 2") {
         const auto gtr = row + col;
         REQUIRE(res[i] == gtr);
     }
-}*/
+}
 
 #ifdef ONEDAL_DATA_PARALLEL
 

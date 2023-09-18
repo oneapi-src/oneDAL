@@ -126,7 +126,6 @@ sycl::event copy_convert(sycl::queue& queue,
     auto inp_strides_device = array<std::int64_t>::empty(queue, row_count, device);
     /* Copying to device */ detail::copy(inp_strides_device, inp_strides_host);
     
-
     const auto out_strides_host = //
         extract_by_indices(unique_indices_ptr, out_strides, row_count);
     auto out_strides_device = array<std::int64_t>::empty(queue, row_count, device);

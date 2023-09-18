@@ -50,8 +50,6 @@ sycl::event copy_convert_impl(sycl::queue& queue,
                               const shape_t& shape,
                               const std::vector<sycl::event>& deps) {
 
-    std::cout << "I'm doing work in DPC++!: " << __PRETTY_FUNCTION__ << std::endl;
-
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
 
