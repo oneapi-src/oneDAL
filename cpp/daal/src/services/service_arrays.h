@@ -157,7 +157,7 @@ private:
         }
         else
         {
-            _data = (size) ? Allocator::allocate(size) : nullptr;
+            _data = Allocator::allocate(size);
         }
 
         if (_data && size)

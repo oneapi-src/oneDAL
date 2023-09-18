@@ -3,16 +3,17 @@
     "config:base",
     ":preserveSemverRanges"
   ],
-  "packageRules": [
-    {
+  "pip_requirements": {
     "fileMatch": [
       "(^|/)docs/requirements.txt$"
-    ],
-    "matchUpdateTypes": ["minor", "patch"],
+    ]
+  },
+  "packageRules": [
+    {
     "groupName": "Doc packages",
+    "matchUpdateTypes": ["patch", "minor"],
     "schedule": ["before 2am on monday"],
-    "matchCurrentVersion": "!/^0/",
-    "automerge": true
+    "matchFileNames": ["docs/requirements.txt"]
     }
   ]
 }
