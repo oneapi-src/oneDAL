@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
+#include <iostream>
 #include "oneapi/dal/array.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
@@ -49,6 +49,9 @@ sycl::event copy_convert_impl(sycl::queue& queue,
                               const std::int64_t* out_strides,
                               const shape_t& shape,
                               const std::vector<sycl::event>& deps) {
+
+    std::cout << "I'm doing work in DPC++!" << std::endl;
+
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
 
