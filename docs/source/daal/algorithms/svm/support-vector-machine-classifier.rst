@@ -260,12 +260,6 @@ Examples
     - :cpp_example:`svm_two_class_thunder_dense_batch.cpp <svm/svm_two_class_thunder_dense_batch.cpp>`
     - :cpp_example:`svm_two_class_thunder_csr_batch.cpp <svm/svm_two_class_thunder_csr_batch.cpp>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`svm_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

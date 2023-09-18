@@ -84,16 +84,6 @@ Examples
     -  :cpp_example:`cov_dense_batch.cpp <covariance/cov_dense_batch.cpp>`
     -  :cpp_example:`cov_csr_batch.cpp <covariance/cov_csr_batch.cpp>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`covariance_batch.py`
-
-    Online Processing:
-
-    - :daal4py_sycl_example:`covariance_streaming.py`
-
   .. tab:: Python*
 
     Batch Processing:

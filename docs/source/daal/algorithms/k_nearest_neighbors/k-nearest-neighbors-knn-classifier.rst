@@ -319,12 +319,6 @@ Examples
     - :cpp_example:`kdtree_knn_dense_batch.cpp <k_nearest_neighbors/kdtree_knn_dense_batch.cpp>`
     - :cpp_example:`bf_knn_dense_batch.cpp <k_nearest_neighbors/bf_knn_dense_batch.cpp>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`bf_knn_classification_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:
