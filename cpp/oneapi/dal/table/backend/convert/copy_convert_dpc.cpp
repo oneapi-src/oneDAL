@@ -105,10 +105,14 @@ sycl::event copy_convert(sycl::queue& queue,
                          const std::int64_t* out_strides,
                          const shape_t& shape,
                          const std::vector<sycl::event>& deps) {
-    sycl::event::wait_and_throw(deps);
-    const detail::data_parallel_policy policy{ queue };
     auto hpolicy = detail::host_policy::get_default();
+    const detail::data_parallel_policy dpolicy{ queue };
+
+    sycl::event::wait_and_throw(deps);
     const auto [row_count, col_count] = shape;
+
+    //constexpr auto host = sycl::usm::alloc::host;
+    constexpr auto device = sycl::usm::alloc::device;
 
     const dal::array<std::int64_t> unique_indices = //
         find_sets_of_unique_pairs(inp_types, out_types, row_count);
@@ -117,21 +121,26 @@ sycl::event copy_convert(sycl::queue& queue,
     const dal::array<std::int64_t> chunk_offsets = //
         find_unique_chunk_offsets(unique_indices, inp_types, out_types);
 
-    const dal::array<std::int64_t> inp_strides_host = //
+    const auto inp_strides_host = //
         extract_by_indices(unique_indices_ptr, inp_strides, row_count);
-    auto inp_strides_device = detail::copy(policy, inp_strides_host);
+    auto inp_strides_device = array<std::int64_t>::empty(queue, row_count, device);
+    /* Copying to device */ detail::copy(inp_strides_device, inp_strides_host);
+    
 
-    const dal::array<std::int64_t> out_strides_host = //
+    const auto out_strides_host = //
         extract_by_indices(unique_indices_ptr, out_strides, row_count);
-    auto out_strides_device = detail::copy(policy, out_strides_host);
+    auto out_strides_device = array<std::int64_t>::empty(queue, row_count, device);
+    /* Copying to device */ detail::copy(out_strides_device, out_strides_host);
 
-    const dal::array<const dal::byte_t*> inp_pointers_host = //
+    const auto inp_pointers_host = //
         extract_by_indices(unique_indices_ptr, inp_pointers, row_count);
-    auto inp_pointers_device = detail::copy(policy, inp_pointers_host);
+    auto inp_pointers_device = array<const dal::byte_t*>::empty(queue, row_count, device);
+    /* Copying to device */ detail::copy(inp_pointers_device, inp_pointers_host);
 
-    const dal::array<dal::byte_t*> out_pointers_host = //
+    const auto out_pointers_host = //
         extract_by_indices(unique_indices_ptr, out_pointers, row_count);
-    auto out_pointers_device = detail::copy(policy, out_pointers_host);
+    auto out_pointers_device = array<dal::byte_t*>::empty(queue, row_count, device);
+    /* Copying to device */ detail::copy(out_pointers_device, out_pointers_host);
 
     std::int64_t first = 0l;
     sycl::event last_event{};

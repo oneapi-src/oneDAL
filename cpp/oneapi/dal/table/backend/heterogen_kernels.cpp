@@ -235,7 +235,6 @@ struct heterogen_dispatcher<detail::host_policy> {
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
 
-        //const auto row_size = get_row_size(meta, data);
         const auto block = propose_row_block_size(meta, data);
         const auto block_size = compute_full_block_size(block, meta, data);
 
@@ -380,7 +379,6 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
 
-        //const auto row_size = get_row_size(meta, data);
         const auto block = propose_row_block_size(meta, data);
         const auto block_size = compute_full_block_size(block, meta, data);
 
@@ -442,9 +440,11 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                                       outp_strs,
                                       transpose(curr_shape),
                                       { last_event });
+
+            sycl::event::wait_and_throw({ last_event });
         }
 
-        last_event.wait_and_throw();
+        sycl::event::wait_and_throw({ last_event });
 
         block_data.reset(result, result.get_mutable_data(), result.get_count());
     }
