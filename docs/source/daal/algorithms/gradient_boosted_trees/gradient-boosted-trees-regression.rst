@@ -168,12 +168,6 @@ Examples
 
     - :cpp_example:`gbt_reg_dense_batch.cpp <gradient_boosted_trees/gbt_reg_dense_batch.cpp>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`gradient_boosted_regression_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

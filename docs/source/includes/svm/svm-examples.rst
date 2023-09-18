@@ -32,9 +32,3 @@
     - :ref:`cpp_svm_multi_class_thunder_dense_batch.cpp`
     - :ref:`cpp_svm_nu_cls_thunder_dense_batch.cpp`
     - :ref:`cpp_svm_nu_reg_thunder_dense_batch.cpp`
-
-  .. group-tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`svm_batch.py`
