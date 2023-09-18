@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-#include <iostream>
+
 #include "oneapi/dal/table/common.hpp"
 
 #include "oneapi/dal/table/backend/common_kernels.hpp"
