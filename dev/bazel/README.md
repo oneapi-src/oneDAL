@@ -16,7 +16,7 @@
 *******************************************************************************/-->
 # Bazel Guide
 ## Install Bazel on Linux
-1. Use bazelisk
+1. Use Bazelisk
    ```sh
    wget -O bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64
    ```

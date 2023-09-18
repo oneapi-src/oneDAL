@@ -31,7 +31,7 @@ ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 
-# Put conda in path so we can use conda activate
+# Put conda in path to use conda activate
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Installing environment for base development dependencies
@@ -54,8 +54,6 @@ RUN .ci/env/openblas.sh
 # Installing MKL dependency
 RUN ./dev/download_micromkl.sh
 
-# Installing TBB dependency
+# Installing oneTBB dependency
 RUN ./dev/download_tbb.sh
 
-# Installing doc build dependency
-#RUN pip3 install -r docs/requirements.txt
