@@ -102,7 +102,7 @@ COPTS := -std=c++17 \
          -fsycl-device-code-split=per_kernel \
          -I./source \
          -I$(MPI_PATH)/include \
-         -I$(CCL_PATH)/include/cpu_gpu_dpcpp/oneapi \
+         -I$(CCL_PATH)/include/oneapi \
          -I"$(DALROOT)/include"
 
 LIBS := $(ONEDAL_LIBS) \
