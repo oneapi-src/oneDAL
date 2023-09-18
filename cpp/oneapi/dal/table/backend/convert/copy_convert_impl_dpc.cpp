@@ -49,7 +49,6 @@ sycl::event copy_convert_impl(sycl::queue& queue,
                               const std::int64_t* out_strides,
                               const shape_t& shape,
                               const std::vector<sycl::event>& deps) {
-
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
 
