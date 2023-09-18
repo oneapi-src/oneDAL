@@ -12,39 +12,30 @@ namespace internal
 {
 
 // extend our decision path with a fraction of one and zero extensions
-void treeShapExtendPath(PathElement * uniquePath, size_t uniqueDepth, float zeroFraction, float oneFraction, FeatureIndexType featureIndex)
+void extendPath(PathElement * uniquePath, size_t uniqueDepth, float zeroFraction, float oneFraction, int featureIndex)
 {
     uniquePath[uniqueDepth].featureIndex  = featureIndex;
     uniquePath[uniqueDepth].zeroFraction  = zeroFraction;
     uniquePath[uniqueDepth].oneFraction   = oneFraction;
     uniquePath[uniqueDepth].partialWeight = (uniqueDepth == 0 ? 1.0f : 0.0f);
 
+    const float constant = 1.0f / static_cast<float>(uniqueDepth + 1);
     for (int i = uniqueDepth - 1; i >= 0; i--)
     {
-        uniquePath[i + 1].partialWeight += oneFraction * uniquePath[i].partialWeight * (i + 1) / static_cast<float>(uniqueDepth + 1);
-        uniquePath[i].partialWeight = zeroFraction * uniquePath[i].partialWeight * (uniqueDepth - i) / static_cast<float>(uniqueDepth + 1);
+        uniquePath[i + 1].partialWeight += oneFraction * uniquePath[i].partialWeight * (i + 1) * constant;
+        uniquePath[i].partialWeight = zeroFraction * uniquePath[i].partialWeight * (uniqueDepth - i) * constant;
     }
 }
 
 // undo a previous extension of the decision path
-void treeShapUnwindPath(PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex)
+void unwindPath(PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex)
 {
-    printf("treeShapUnwindPath: Going through path elements\n");
-    printf("uniquePath  = %p\n", uniquePath);
-    printf("uniqueDepth = %lu\n", uniqueDepth);
-    printf("pathIndex   = %lu\n", pathIndex);
-    printf("---- start\n");
-    printf("%p\n", uniquePath + pathIndex);
-
     const float oneFraction  = uniquePath[pathIndex].oneFraction;
     const float zeroFraction = uniquePath[pathIndex].zeroFraction;
-
-    printf("%p\n", uniquePath + uniqueDepth);
-    float nextOnePortion = uniquePath[uniqueDepth].partialWeight;
+    float nextOnePortion     = uniquePath[uniqueDepth].partialWeight;
 
     for (int i = uniqueDepth - 1; i >= 0; --i)
     {
-        printf("%p\n", uniquePath + i);
         if (oneFraction != 0)
         {
             const float tmp             = uniquePath[i].partialWeight;
@@ -59,7 +50,6 @@ void treeShapUnwindPath(PathElement * uniquePath, size_t uniqueDepth, size_t pat
 
     for (size_t i = pathIndex; i < uniqueDepth; ++i)
     {
-        printf("%p <- %p\n", uniquePath + i, uniquePath + i + 1);
         uniquePath[i].featureIndex = uniquePath[i + 1].featureIndex;
         uniquePath[i].zeroFraction = uniquePath[i + 1].zeroFraction;
         uniquePath[i].oneFraction  = uniquePath[i + 1].oneFraction;
@@ -67,19 +57,11 @@ void treeShapUnwindPath(PathElement * uniquePath, size_t uniqueDepth, size_t pat
 }
 
 // determine what the total permutation weight would be if we unwound a previous extension in the decision path
-float treeShapUnwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex)
+float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex)
 {
-    printf("treeShapUnwoundPathSum: Going through path elements\n");
-    printf("uniquePath  = %p\n", uniquePath);
-    printf("uniqueDepth = %lu\n", uniqueDepth);
-    printf("pathIndex   = %lu\n", pathIndex);
-    printf("---- start\n");
-    printf("%p\n", uniquePath + pathIndex);
-
     const float oneFraction  = uniquePath[pathIndex].oneFraction;
     const float zeroFraction = uniquePath[pathIndex].zeroFraction;
 
-    printf("%p\n", uniquePath + uniqueDepth);
     float nextOnePortion = uniquePath[uniqueDepth].partialWeight;
     float total          = 0;
     // if (oneFraction != 0)
@@ -109,8 +91,6 @@ float treeShapUnwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth,
 
     for (int i = uniqueDepth - 1; i >= 0; --i)
     {
-        printf("%p\n", uniquePath + i);
-
         if (oneFraction != 0)
         {
             const float tmp = nextOnePortion * (uniqueDepth + 1) / static_cast<float>((i + 1) * oneFraction);
