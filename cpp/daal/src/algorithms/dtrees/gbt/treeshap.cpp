@@ -10,6 +10,8 @@ namespace treeshap
 {
 namespace internal
 {
+namespace v0
+{
 
 // extend our decision path with a fraction of one and zero extensions
 void extendPath(PathElement * uniquePath, size_t uniqueDepth, float zeroFraction, float oneFraction, int featureIndex)
@@ -110,6 +112,97 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
     return total;
 }
 
+} // namespace v0
+
+namespace v1
+{
+void extendPath(PathElement * uniquePath, float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights, float zeroFraction,
+                float oneFraction, int featureIndex)
+{
+    uniquePath[uniqueDepth].featureIndex = featureIndex;
+    uniquePath[uniqueDepth].zeroFraction = zeroFraction;
+    uniquePath[uniqueDepth].oneFraction  = oneFraction;
+    if (oneFraction != 0)
+    {
+        // extend partialWeights iff the feature of the last split satisfies the threshold
+        partialWeights[uniqueDepthPartialWeights] = (uniqueDepthPartialWeights == 0 ? 1.0f : 0.0f);
+        for (int i = uniqueDepthPartialWeights - 1; i >= 0; i--)
+        {
+            partialWeights[i + 1] += partialWeights[i] * (i + 1) / static_cast<float>(uniqueDepth + 1);
+            partialWeights[i] *= zeroFraction * (uniqueDepth - i) / static_cast<float>(uniqueDepth + 1);
+        }
+    }
+    else
+    {
+        for (int i = uniqueDepthPartialWeights - 1; i >= 0; i--)
+        {
+            partialWeights[i] *= (uniqueDepth - i) / static_cast<float>(uniqueDepth + 1);
+        }
+    }
+}
+
+void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights, unsigned pathIndex)
+{
+    const float oneFraction  = uniquePath[pathIndex].oneFraction;
+    const float zeroFraction = uniquePath[pathIndex].zeroFraction;
+    float nextOnePortion     = partialWeights[uniqueDepthPartialWeights];
+
+    if (oneFraction != 0)
+    {
+        // shrink partialWeights iff the feature satisfies the threshold
+        for (int i = uniqueDepthPartialWeights - 1; i >= 0; --i)
+        {
+            const float tmp   = partialWeights[i];
+            partialWeights[i] = nextOnePortion * (uniqueDepth + 1) / static_cast<float>(i + 1);
+            nextOnePortion    = tmp - partialWeights[i] * zeroFraction * (uniqueDepth - i) / static_cast<float>(uniqueDepth + 1);
+        }
+    }
+    else
+    {
+        for (int i = uniqueDepthPartialWeights; i >= 0; --i)
+        {
+            partialWeights[i] *= (uniqueDepth + 1) / static_cast<float>(uniqueDepth - i);
+        }
+    }
+
+    for (unsigned i = pathIndex; i < uniqueDepth; ++i)
+    {
+        uniquePath[i].featureIndex = uniquePath[i + 1].featureIndex;
+        uniquePath[i].zeroFraction = uniquePath[i + 1].zeroFraction;
+        uniquePath[i].oneFraction  = uniquePath[i + 1].oneFraction;
+    }
+}
+
+// determine what the total permuation weight would be if
+// we unwound a previous extension in the decision path (for feature satisfying the threshold)
+float unwoundPathSum(const PathElement * uniquePath, const float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights,
+                     unsigned pathIndex)
+{
+    float total              = 0;
+    const float zeroFraction = uniquePath[pathIndex].zeroFraction;
+    float nextOnePortion     = partialWeights[uniqueDepthPartialWeights];
+    for (int i = uniqueDepthPartialWeights - 1; i >= 0; --i)
+    {
+        const float tmp = nextOnePortion / static_cast<float>(i + 1);
+        total += tmp;
+        nextOnePortion = partialWeights[i] - tmp * zeroFraction * (uniqueDepth - i);
+    }
+    return total * (uniqueDepth + 1);
+}
+
+float unwoundPathSumZero(const float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights)
+{
+    float total = 0;
+    if (uniqueDepth > uniqueDepthPartialWeights)
+    {
+        for (int i = uniqueDepthPartialWeights; i >= 0; --i)
+        {
+            total += partialWeights[i] / static_cast<float>(uniqueDepth - i);
+        }
+    }
+    return total * (uniqueDepth + 1);
+}
+} // namespace v1
 } // namespace internal
 } // namespace treeshap
 } // namespace gbt

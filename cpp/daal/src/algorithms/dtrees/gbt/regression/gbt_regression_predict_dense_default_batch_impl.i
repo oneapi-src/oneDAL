@@ -37,8 +37,6 @@
 #include "src/externals/service_memory.h"
 #include "src/threading/threading.h"
 
-#include <vector> // TODO: remove
-
 using namespace daal::internal;
 using namespace daal::services::internal;
 
@@ -345,15 +343,9 @@ void PredictRegressionTask<algorithmFPType, cpu>::predictContributions(size_t iT
             // regression model builder tree 0 contains only the base_score and must be skipped
             if (currentTreeIndex == 0) continue;
 
-            // prepare memory for unique path data
-            const int depth = _aTree[currentTreeIndex]->getMaxLvl() + 2;
-            std::vector<gbt::treeshap::PathElement> uniquePathData((depth * (depth + 1)) / 2);
-            std::fill(uniquePathData.begin(), uniquePathData.end(), gbt::treeshap::PathElement());
-
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
-            const void * endAddr                               = static_cast<void *>(&(*uniquePathData.end()));
-            gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, nColumnsData, &_featHelper,
-                                                                                          uniquePathData.data(), condition, conditionFeature);
+            gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper, condition,
+                                                                                          conditionFeature);
         }
 
         if (condition == 0)
@@ -395,7 +387,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
     // Allocate buffer for 3 matrices for algorithmFPType of size (nRowsData, nColumnsData)
     const size_t elementsInMatrix = nRowsData * nColumnsPhi;
     const size_t bufferSize       = 3 * sizeof(algorithmFPType) * elementsInMatrix;
-    algorithmFPType * buffer      = static_cast<algorithmFPType *>(daal_malloc(bufferSize));
+    algorithmFPType * buffer      = static_cast<algorithmFPType *>(daal_calloc(bufferSize));
     if (!buffer)
     {
         st.add(ErrorMemoryAllocationFailed);
@@ -407,10 +399,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
     algorithmFPType * contribsOff  = buffer + 1 * elementsInMatrix;
     algorithmFPType * contribsOn   = buffer + 2 * elementsInMatrix;
 
-    // Initialize nominal buffer
-    service_memset_seq<algorithmFPType, cpu>(contribsDiag, algorithmFPType(0), elementsInMatrix);
-
-    // Copy nominal values (for bias term) to the condition == 0 buffer
+    // Copy nominal values (for bias term) to the condition = 0 buffer
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nRowsData; ++i)
@@ -429,20 +418,20 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
 
         for (size_t j = 0; j < nRowsData; ++j)
         {
-            const unsigned o_offset = j * interactionMatrixSize + i * nColumnsPhi;
-            const unsigned c_offset = j * nColumnsPhi;
-            res[o_offset + i]       = 0;
+            const unsigned dataRowOffset = j * interactionMatrixSize + i * nColumnsPhi;
+            const unsigned columnOffset  = j * nColumnsPhi;
+            res[dataRowOffset + i]       = 0;
             for (size_t k = 0; k < nColumnsPhi; ++k)
             {
                 // fill in the diagonal with additive effects, and off-diagonal with the interactions
                 if (k == i)
                 {
-                    res[o_offset + i] += contribsDiag[c_offset + k];
+                    res[dataRowOffset + i] += contribsDiag[columnOffset + k];
                 }
                 else
                 {
-                    res[o_offset + k] = (contribsOn[c_offset + k] - contribsOff[c_offset + k]) / 2.0f;
-                    res[o_offset + i] -= res[o_offset + k];
+                    res[dataRowOffset + k] = (contribsOn[columnOffset + k] - contribsOff[columnOffset + k]) / 2.0f;
+                    res[dataRowOffset + i] -= res[dataRowOffset + k];
                 }
             }
         }
@@ -504,13 +493,12 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 DAAL_CHECK_BLOCK_STATUS_THR(resRow);
 
                 // nominal values are required to calculate the correct bias term
-                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_malloc(nRowsToProcess * sizeof(algorithmFPType)));
+                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_calloc(nRowsToProcess * sizeof(algorithmFPType)));
                 if (!nominal)
                 {
                     safeStat.add(ErrorMemoryAllocationFailed);
                     return;
                 }
-                service_memset_seq<algorithmFPType, cpu>(nominal, algorithmFPType(0), nRowsToProcess);
                 predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim, 1);
 
                 // TODO: support tree weights

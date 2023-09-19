@@ -33,6 +33,7 @@
 #define __TREESHAP_H__
 
 #include "services/daal_defines.h"
+#include "services/error_handling.h"
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 #include "stdint.h"
@@ -53,7 +54,7 @@ using FeatureTypes = algorithms::dtrees::internal::FeatureTypes;
 // the partialWeight of the i'th path element is the permutation weight of paths with i-1 ones in them
 struct PathElement
 {
-    int featureIndex                 = 0xaaaaaaaa;
+    int featureIndex                 = 0;
     float zeroFraction               = 0;
     float oneFraction                = 0;
     float partialWeight              = 0;
@@ -63,36 +64,33 @@ struct PathElement
 
 namespace internal
 {
+namespace v0
+{
 
 void extendPath(PathElement * uniquePath, size_t uniqueDepth, float zeroFraction, float oneFraction, int featureIndex);
 void unwindPath(PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex);
 float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex);
 
-/** Extension of
+/** Recursive treeShap function
  * \param nodeIndex the index of the current node in the tree, counted from 1
  * \param depth how deep are we in the tree
  * \param uniqueDepth how many unique features are above the current node in the tree
+ * \param parentUniquePath a vector of statistics about our current path through the tree
  * \param parentZeroFraction what fraction of the parent path weight is coming as 0 (integrated)
  * \param parentOneFraction what fraction of the parent path weight is coming as 1 (fixed)
  * \param parentFeatureIndex what feature the parent node used to split
  * \param conditionFraction what fraction of the current weight matches our conditioning feature
  */
 template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, size_t nFeatures,
-              FeatureTypes * featureHelper, size_t nodeIndex, size_t depth, size_t uniqueDepth, PathElement * parentUniquePath,
-              float parentZeroFraction, float parentOneFraction, int parentFeatureIndex, int condition, FeatureIndexType conditionFeature,
-              float conditionFraction)
+inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, FeatureTypes * featureHelper,
+                     size_t nodeIndex, size_t depth, size_t uniqueDepth, PathElement * parentUniquePath, float parentZeroFraction,
+                     float parentOneFraction, int parentFeatureIndex, int condition, FeatureIndexType conditionFeature, float conditionFraction)
 {
     DAAL_ASSERT(parentUniquePath);
 
     // stop if we have no weight coming down to us
     if (conditionFraction < FLT_EPSILON) return;
 
-    const size_t nNodes = tree->getNumberOfNodes();
-    // splitValues contain
-    //   - the feature value that is used for the split for internal nodes
-    //   - the tree prediction for leaf nodes
-    // we are accounting for the fact that nodeIndex is counted from 1 (not from 0) as required by helper functions
     const gbt::prediction::internal::ModelFPType * const splitValues     = tree->getSplitPoints() - 1;
     const gbt::prediction::internal::FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
     const gbt::prediction::internal::ModelFPType * const nodeCoverValues = tree->getNodeCoverValues() - 1;
@@ -100,8 +98,8 @@ void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType
 
     PathElement * uniquePath = parentUniquePath + uniqueDepth + 1;
     const size_t nBytes      = (uniqueDepth + 1) * sizeof(PathElement);
-    const int copy_status    = daal::services::internal::daal_memcpy_s(uniquePath, nBytes, parentUniquePath, nBytes);
-    DAAL_ASSERT(copy_status == 0);
+    const int copyStatus     = daal::services::internal::daal_memcpy_s(uniquePath, nBytes, parentUniquePath, nBytes);
+    DAAL_ASSERT(copyStatus == 0);
 
     if (condition == 0 || conditionFeature != static_cast<FeatureIndexType>(parentFeatureIndex))
     {
@@ -178,13 +176,270 @@ void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType
         uniqueDepth -= 1;
     }
 
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, nFeatures, featureHelper, hotIndex, depth + 1, uniqueDepth + 1,
-                                                                   uniquePath, hotZeroFraction * incomingZeroFraction, incomingOneFraction,
-                                                                   splitIndex, condition, conditionFeature, hotConditionFraction);
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, nFeatures, featureHelper, coldIndex, depth + 1, uniqueDepth + 1,
-                                                                   uniquePath, coldZeroFraction * incomingZeroFraction, 0, splitIndex, condition,
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, hotIndex, depth + 1, uniqueDepth + 1, uniquePath,
+                                                                   hotZeroFraction * incomingZeroFraction, incomingOneFraction, splitIndex, condition,
+                                                                   conditionFeature, hotConditionFraction);
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, coldIndex, depth + 1, uniqueDepth + 1, uniquePath,
+                                                                   coldZeroFraction * incomingZeroFraction, 0, splitIndex, condition,
                                                                    conditionFeature, coldConditionFraction);
 }
+
+/**
+ * \brief Version 0, i.e. the original TreeSHAP algorithm to compute feature attributions for a single tree
+ * \param tree current tree
+ * \param x dense data matrix
+ * \param phi dense output matrix of feature attributions
+ * \param featureHelper pointer to a FeatureTypes object (required to traverse tree)
+ * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
+ * \param conditionFeature the index of the feature to fix
+ */
+template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+                                 FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
+{
+    services::Status st;
+    const int depth              = tree->getMaxLvl() + 2;
+    const size_t bufferSize      = sizeof(PathElement) * ((depth * (depth + 1)) / 2);
+    PathElement * uniquePathData = static_cast<PathElement *>(daal_calloc(bufferSize));
+    if (!uniquePathData)
+    {
+        st.add(ErrorMemoryAllocationFailed);
+        return st;
+    }
+
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, uniquePathData, 1, 1, -1, condition,
+                                                                   conditionFeature, 1);
+
+    daal_free(uniquePathData);
+
+    return st;
+}
+
+} // namespace v0
+
+namespace v1
+{
+
+void extendPath(PathElement * uniquePath, float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights, float zeroFraction,
+                float oneFraction, int featureIndex);
+void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights, unsigned pathIndex);
+float unwoundPathSum(const PathElement * uniquePath, const float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights,
+                     unsigned pathIndex);
+float unwoundPathSumZero(const float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights);
+
+/**
+ * Recursive Fast TreeSHAP version 1
+ * Important: nodeIndex is counted from 0 here!
+*/
+template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, FeatureTypes * featureHelper,
+                     size_t nodeIndex, size_t depth, size_t uniqueDepth, size_t uniqueDepthPartialWeights, PathElement * parentUniquePath,
+                     float * parentPartialWeights, algorithmFPType partialWeightsResidual, float parentZeroFraction, float parentOneFraction,
+                     int parentFeatureIndex, int condition, FeatureIndexType conditionFeature, float conditionFraction)
+{
+    // stop if we have no weight coming down to us
+    if (conditionFraction < FLT_EPSILON) return;
+
+    const size_t numOutputs                                              = 1; // TODO: support multi-output models
+    const gbt::prediction::internal::ModelFPType * const splitValues     = tree->getSplitPoints() - 1;
+    const int * const defaultLeft                                        = tree->getDefaultLeftForSplit() - 1;
+    const gbt::prediction::internal::FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
+    const gbt::prediction::internal::ModelFPType * const nodeCoverValues = tree->getNodeCoverValues() - 1;
+
+    // extend the unique path
+    PathElement * uniquePath = parentUniquePath + uniqueDepth + 1;
+    size_t nBytes            = (uniqueDepth + 1) * sizeof(PathElement);
+    int copyStatus           = daal::services::internal::daal_memcpy_s(uniquePath, nBytes, parentUniquePath, nBytes);
+    DAAL_ASSERT(copyStatus == 0);
+    // extend partialWeights
+    float * partialWeights = parentPartialWeights + uniqueDepthPartialWeights + 1;
+    nBytes                 = (uniqueDepthPartialWeights + 1) * sizeof(float);
+    copyStatus             = daal::services::internal::daal_memcpy_s(partialWeights, nBytes, parentPartialWeights, nBytes);
+    DAAL_ASSERT(copyStatus == 0);
+
+    if (condition == 0 || conditionFeature != static_cast<unsigned>(parentFeatureIndex))
+    {
+        extendPath(uniquePath, partialWeights, uniqueDepth, uniqueDepthPartialWeights, parentZeroFraction, parentOneFraction, parentFeatureIndex);
+        // update partialWeightsResidual if the feature of the last split does not satisfy the threshold
+        if (parentOneFraction != 1)
+        {
+            partialWeightsResidual *= parentZeroFraction;
+            uniqueDepthPartialWeights -= 1;
+        }
+    }
+
+    const bool isLeaf = gbt::internal::ModelImpl::nodeIsLeaf(nodeIndex, *tree, depth);
+
+    if (isLeaf)
+    {
+        // +1 to account for -1 in splitValues array
+        const unsigned valuesOffset = nodeIndex * numOutputs;
+        unsigned valuesNonZeroInd   = 0;
+        unsigned valuesNonZeroCount = 0;
+        for (unsigned j = 0; j < numOutputs; ++j)
+        {
+            if (splitValues[valuesOffset + j] != 0)
+            {
+                valuesNonZeroInd = j;
+                valuesNonZeroCount++;
+            }
+        }
+        // pre-calculate wZero for all features not satisfying the thresholds
+        const algorithmFPType wZero     = unwoundPathSumZero(partialWeights, uniqueDepth, uniqueDepthPartialWeights);
+        const algorithmFPType scaleZero = -wZero * partialWeightsResidual * conditionFraction;
+        algorithmFPType scale;
+        for (unsigned i = 1; i <= uniqueDepth; ++i)
+        {
+            const PathElement & el   = uniquePath[i];
+            const unsigned phiOffset = el.featureIndex * numOutputs;
+            // update contributions to SHAP values for features satisfying the thresholds and not satisfying the thresholds separately
+            if (el.oneFraction != 0)
+            {
+                const algorithmFPType w = unwoundPathSum(uniquePath, partialWeights, uniqueDepth, uniqueDepthPartialWeights, i);
+                scale                   = w * partialWeightsResidual * (1 - el.zeroFraction) * conditionFraction;
+            }
+            else
+            {
+                scale = scaleZero;
+            }
+            if (valuesNonZeroCount == 1)
+            {
+                phi[phiOffset + valuesNonZeroInd] += scale * splitValues[valuesOffset + valuesNonZeroInd];
+            }
+            else
+            {
+                for (unsigned j = 0; j < numOutputs; ++j)
+                {
+                    phi[phiOffset + j] += scale * splitValues[valuesOffset + j];
+                }
+            }
+        }
+
+        return;
+    }
+
+    const unsigned splitIndex = fIndexes[nodeIndex];
+    gbt::prediction::internal::PredictDispatcher<hasUnorderedFeatures, hasAnyMissing> dispatcher;
+    FeatureIndexType hotIndex        = updateIndex(nodeIndex, x[splitIndex], splitValues, defaultLeft, *featureHelper, splitIndex, dispatcher);
+    const FeatureIndexType coldIndex = 2 * nodeIndex + (hotIndex == (2 * nodeIndex));
+
+    const algorithmFPType w                = nodeCoverValues[nodeIndex];
+    const algorithmFPType hotZeroFraction  = nodeCoverValues[hotIndex] / w;
+    const algorithmFPType coldZeroFraction = nodeCoverValues[coldIndex] / w;
+    algorithmFPType incomingZeroFraction   = 1;
+    algorithmFPType incomingOneFraction    = 1;
+
+    // see if we have already split on this feature,
+    // if so we undo that split so we can redo it for this node
+    unsigned pathIndex = 0;
+    for (; pathIndex <= uniqueDepth; ++pathIndex)
+    {
+        if (static_cast<unsigned>(uniquePath[pathIndex].featureIndex) == splitIndex) break;
+    }
+    if (pathIndex != uniqueDepth + 1)
+    {
+        incomingZeroFraction = uniquePath[pathIndex].zeroFraction;
+        incomingOneFraction  = uniquePath[pathIndex].oneFraction;
+        unwindPath(uniquePath, partialWeights, uniqueDepth, uniqueDepthPartialWeights, pathIndex);
+        uniqueDepth -= 1;
+        // update partialWeightsResidual iff the duplicated feature does not satisfy the threshold
+        if (incomingOneFraction != 0.)
+        {
+            uniqueDepthPartialWeights -= 1;
+        }
+        else
+        {
+            partialWeightsResidual /= incomingZeroFraction;
+        }
+    }
+
+    // divide up the conditionFraction among the recursive calls
+    algorithmFPType hotConditionFraction  = conditionFraction;
+    algorithmFPType coldConditionFraction = conditionFraction;
+    if (condition > 0 && splitIndex == conditionFeature)
+    {
+        coldConditionFraction = 0;
+        uniqueDepth -= 1;
+        uniqueDepthPartialWeights -= 1;
+    }
+    else if (condition < 0 && splitIndex == conditionFeature)
+    {
+        hotConditionFraction *= hotZeroFraction;
+        coldConditionFraction *= coldZeroFraction;
+        uniqueDepth -= 1;
+        uniqueDepthPartialWeights -= 1;
+    }
+
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, hotIndex, depth + 1, uniqueDepth + 1,
+                                                                   uniqueDepthPartialWeights + 1, uniquePath, partialWeights, partialWeightsResidual,
+                                                                   hotZeroFraction * incomingZeroFraction, incomingOneFraction, splitIndex, condition,
+                                                                   conditionFeature, hotConditionFraction);
+
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
+        tree, x, phi, featureHelper, coldIndex, depth + 1, uniqueDepth + 1, uniqueDepthPartialWeights + 1, uniquePath, partialWeights,
+        partialWeightsResidual, coldZeroFraction * incomingZeroFraction, 0, splitIndex, condition, conditionFeature, coldConditionFraction);
+}
+
+/**
+ * \brief Version 1, i.e. first Fast TreeSHAP algorithm
+ * \param tree current tree
+ * \param x dense data matrix
+ * \param phi dense output matrix of feature attributions
+ * \param featureHelper pointer to a FeatureTypes object (required to traverse tree)
+ * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
+ * \param conditionFeature the index of the feature to fix
+ */
+template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+                                 FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
+{
+    services::Status st;
+
+    // pre-allocate space for the unique path data and partialWeights
+    const int depth              = tree->getMaxLvl() + 2;
+    const size_t nElements       = (depth * (depth + 1)) / 2;
+    PathElement * uniquePathData = static_cast<PathElement *>(daal_calloc(sizeof(PathElement) * nElements));
+    if (!uniquePathData)
+    {
+        st.add(ErrorMemoryAllocationFailed);
+        return st;
+    }
+    float * partialWeights = static_cast<float *>(daal_calloc(sizeof(float) * nElements));
+    if (!partialWeights)
+    {
+        st.add(ErrorMemoryAllocationFailed);
+        return st;
+    }
+
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, 0, uniquePathData, partialWeights, 1, 1, 1,
+                                                                   -1, condition, conditionFeature, 1);
+
+    daal_free(uniquePathData);
+    daal_free(partialWeights);
+
+    return st;
+}
+} // namespace v1
+
+namespace v2
+{
+/**
+ * \brief Version 2, i.e. second Fast TreeSHAP algorithm
+ * \param tree current tree
+ * \param x dense data matrix
+ * \param phi dense output matrix of feature attributions
+ * \param featureHelper pointer to a FeatureTypes object (required to traverse tree)
+ * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
+ * \param conditionFeature the index of the feature to fix
+ */
+template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+                                 FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
+{
+    services::Status st;
+    return st;
+}
+} // namespace v2
 } // namespace internal
 
 /**
@@ -192,22 +447,40 @@ void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType
  * \param tree current tree
  * \param x dense data matrix
  * \param phi dense output matrix of feature attributions
- * \param nFeatures number features, i.e. length of feat and phi vectors
  * \param featureHelper pointer to a FeatureTypes object (required to traverse tree)
- * \param parentUniquePath a vector of statistics about our current path through the tree
  * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
  * \param conditionFeature the index of the feature to fix
  */
 template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, size_t nFeatures,
-              FeatureTypes * featureHelper, PathElement * parentUniquePath, int condition, FeatureIndexType conditionFeature)
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+                                 FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
 {
     DAAL_ASSERT(x);
     DAAL_ASSERT(phi);
     DAAL_ASSERT(featureHelper);
 
-    treeshap::internal::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, nFeatures, featureHelper, 1, 0, 0,
-                                                                                       parentUniquePath, 1, 1, -1, condition, conditionFeature, 1);
+    uint8_t shapVersion = 0;
+    char * val          = getenv("SHAP_VERSION");
+    if (val)
+    {
+        shapVersion = atoi(val);
+    }
+
+    switch (shapVersion)
+    {
+    case 0:
+        return treeshap::internal::v0::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
+                                                                                                      conditionFeature);
+    case 1:
+        return treeshap::internal::v1::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
+                                                                                                      conditionFeature);
+    case 2:
+        return treeshap::internal::v2::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
+                                                                                                      conditionFeature);
+    default:
+        return treeshap::internal::v0::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
+                                                                                                      conditionFeature);
+    }
 }
 } // namespace treeshap
 } // namespace gbt
