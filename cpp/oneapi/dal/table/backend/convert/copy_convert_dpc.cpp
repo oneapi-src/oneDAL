@@ -111,7 +111,6 @@ sycl::event copy_convert(sycl::queue& queue,
     sycl::event::wait_and_throw(deps);
     const auto [row_count, col_count] = shape;
 
-    //constexpr auto host = sycl::usm::alloc::host;
     constexpr auto device = sycl::usm::alloc::device;
 
     const dal::array<std::int64_t> unique_indices = //
