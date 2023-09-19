@@ -100,7 +100,7 @@ public:
  *
  * \par References
  *      - \ref interface1::Model "Model" class
- *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
+ *      - \ref classifier::prediction::result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method pmethod = defaultDense,
           training::Method tmethod = training::oneAgainstOne>
