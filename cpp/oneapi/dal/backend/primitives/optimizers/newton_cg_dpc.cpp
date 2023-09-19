@@ -55,6 +55,7 @@ sycl::event newton_cg(sycl::queue& queue,
         if (update_norm < tol) {
             break;
         }
+
         auto update_event_vec = f.update_x(x, true, last_iter_deps);
         auto gradient = f.get_gradient();
 
@@ -94,7 +95,6 @@ sycl::event newton_cg(sycl::queue& queue,
         }
 
         if (desc < 0) {
-            // failed to find a descent direction with cg-solver after 10 atempts
             return last_event;
         }
 
