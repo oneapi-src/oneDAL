@@ -28,7 +28,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 1>& parameters,
                                   const ndview<Float, 2>& data,
                                   ndview<Float, 1>& probabilities,
-                                  const bool fit_intercept = true,
+                                  bool fit_intercept = true,
                                   const event_vector& deps = {});
 
 template <typename Float>
@@ -36,7 +36,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             const ndview<std::int32_t, 1>& labels,
                             const ndview<Float, 1>& probabilities,
                             ndview<Float, 1>& out,
-                            const bool fit_intercept = true,
+                            bool fit_intercept = true,
                             const event_vector& deps = {});
 
 template <typename Float>
@@ -46,7 +46,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      const ndview<Float, 1>& probabilities,
                                      ndview<Float, 1>& out,
                                      ndview<Float, 1>& out_derivative,
-                                     const bool fit_intercept = true,
+                                     bool fit_intercept = true,
                                      const event_vector& deps = {});
 
 template <typename Float>
@@ -55,7 +55,7 @@ sycl::event compute_derivative(sycl::queue& q,
                                const ndview<std::int32_t, 1>& labels,
                                const ndview<Float, 1>& probabilities,
                                ndview<Float, 1>& out_derivative,
-                               const bool fit_intercept = true,
+                               bool fit_intercept = true,
                                const event_vector& deps = {});
 
 template <typename Float>
@@ -151,7 +151,7 @@ public:
 
 private:
     sycl::queue q_;
-    table& data_;
+    table data_;
     ndview<std::int32_t, 1> labels_;
     const std::int64_t n_;
     const std::int64_t p_;

@@ -124,7 +124,7 @@ public:
                                               out_hessian,
                                               L1,
                                               L2,
-                                              true,
+                                              /*fit_intercept=*/true,
                                               { fill_event });
             hess_event.wait_and_throw();
         };

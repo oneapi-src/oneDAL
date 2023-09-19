@@ -28,7 +28,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   const ndview<Float, 1>& parameters,
                                   const ndview<Float, 2>& data,
                                   ndview<Float, 1>& probabilities,
-                                  const bool fit_intercept,
+                                  bool fit_intercept,
                                   const event_vector& deps) {
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
@@ -36,15 +36,11 @@ sycl::event compute_probabilities(sycl::queue& q,
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(parameters.has_data());
     ONEDAL_ASSERT(probabilities.has_mutable_data());
-
-    //ONEDAL_ASSERT(false);
     ONEDAL_ASSERT(parameters.get_dimension(0) == fit_intercept ? p + 1 : p);
     ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
 
     auto fill_event = fill<Float>(q, probabilities, Float(1), {});
     using oneapi::dal::backend::operator+;
-
-    //auto param_arr = ndarray<Float, 1>::wrap(parameters.get_data(), 1);
 
     Float w0 =
         fit_intercept ? parameters.get_slice(0, 1).to_host(q, deps).at(0) : 0; // Poor perfomance
@@ -55,7 +51,7 @@ sycl::event compute_probabilities(sycl::queue& q,
 
     const Float bottom = sizeof(Float) == 4 ? 1e-7 : 1e-15;
     const Float top = Float(1.0) - bottom;
-    // Log Loss is undefined fot p = 0 and p = 1 so probabilities are clipped into [eps, 1 - eps]
+    // Log Loss is undefined for p = 0 and p = 1 so probabilities are clipped into [eps, 1 - eps]
 
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(event);
@@ -77,7 +73,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             const ndview<std::int32_t, 1>& labels,
                             const ndview<Float, 1>& probabilities,
                             ndview<Float, 1>& out,
-                            const bool fit_intercept,
+                            bool fit_intercept,
                             const event_vector& deps) {
     const std::int64_t n = labels.get_dimension(0);
     ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
@@ -114,7 +110,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      const ndview<Float, 1>& probabilities,
                                      ndview<Float, 1>& out,
                                      ndview<Float, 1>& out_derivative,
-                                     const bool fit_intercept,
+                                     bool fit_intercept,
                                      const event_vector& deps) {
     // out, out_derivative should be filled with zeros
 
@@ -197,7 +193,7 @@ sycl::event compute_derivative(sycl::queue& q,
                                const ndview<std::int32_t, 1>& labels,
                                const ndview<Float, 1>& probabilities,
                                ndview<Float, 1>& out_derivative,
-                               const bool fit_intercept,
+                               bool fit_intercept,
                                const event_vector& deps) {
     // out_derivative should be filled with zeros
 
@@ -369,7 +365,7 @@ sycl::event compute_hessian(sycl::queue& q,
                             ndview<Float, 2>& out_hessian,
                             const Float L1,
                             const Float L2,
-                            const bool fit_intercept,
+                            bool fit_intercept,
                             const event_vector& deps) {
     const int64_t n = data.get_dimension(0);
     const int64_t p = data.get_dimension(1);
@@ -504,13 +500,10 @@ sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndvie
 
     Float v0 = vec.at_device(q_, 0, deps);
 
-    auto data_nd = table2ndarray<Float>(
-        q_,
-        data_,
-        sycl::usm::alloc::device); // Substitue this line with batch multiplication
+    // TODO: Add batch matrix-vector multiplication
+    auto data_nd = table2ndarray<Float>(q_, data_, sycl::usm::alloc::device);
 
     sycl::event event_xv = gemv(q_, data_nd, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
-    ;
     event_xv.wait_and_throw(); // Without this line gemv does not work correctly
 
     auto tmp_host = buffer_.to_host(q_);
@@ -549,10 +542,8 @@ sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const nd
 
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
-    auto data_nd = table2ndarray<Float>(
-        q_,
-        data_,
-        sycl::usm::alloc::device); // Substitue this line with batch multiplication
+    // TODO: Add batch matrix-vector multiplication
+    auto data_nd = table2ndarray<Float>(q_, data_, sycl::usm::alloc::device);
 
     sycl::event event_xv = gemv(q_, data_nd, vec, buffer_, Float(1), Float(0), deps);
     event_xv.wait_and_throw(); // Without this line gemv does not work correctly
@@ -625,7 +616,6 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
     event_vector last_iter_e = { fill_event };
 
     ndview<Float, 1> grad_ndview = gradient_;
-
     ndview<Float, 1> grad_batch = buffer_.slice(1, dimension_);
     ndview<Float, 1> loss_batch = buffer_.slice(0, 1);
 
@@ -657,7 +647,7 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
                                                          fit_intercept_,
                                                          { fill_buffer_e, prob_e });
 
-        compute_e.wait_and_throw();
+        //compute_e.wait_and_throw();
 
         sycl::event update_grad_e =
             element_wise(q_, sycl::plus<>(), grad_ndview, grad_batch, grad_ndview, { compute_e });
@@ -672,9 +662,9 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
             last_iter_e = last_iter_e + hess_e;
         }
 
-        wait_or_pass(last_iter_e).wait_and_throw(); // DELETE IT !!!
-
-        // ensure that while event is running in the background data is not overwritten !!!
+        // TODO: Delete this wait_and_throw
+        // ensure that while event is running in the background data is not overwritten
+        wait_or_pass(last_iter_e).wait_and_throw();
     }
 
     if (L2_ > 0) {
@@ -685,7 +675,7 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
         Float regularization_factor = L2_;
 
         auto regularization_e = q_.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ fill_loss_e });
+            cgh.depends_on(last_iter_e + fill_loss_e);
             const auto range = make_range_1d(p_);
             const std::int64_t st_id = fit_intercept_;
             auto sum_reduction = sycl::reduction(loss_ptr, sycl::plus<>());
@@ -703,52 +693,6 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
 
     return last_iter_e;
 }
-
-/*
-template<typename Float>
-sycl::event big_mul(sycl::queue& q,
-                    const table& A,
-                    bool transpose = false,
-                    const ndview<Float, 1>& vec,
-                    ndview<Float, 1>& out,
-                    Float alpha,
-                    Float beta,
-                    const event_vector& deps) {
-    std::int64_t n = A.get_row_count();
-    std::int64_t p = A.get_column_count();
-    sycl::event bias_event = element_wise(q, out, );
-
-    const auto mul_kernel = [=](const Float val, const Float coef) -> Float {
-        return val * coef;
-    };
-    auto bias_event = element_wise(q, mul_kernel, out, beta, out, deps); 
-
-    const uniform_blocking blocking(n_, get_block_size(n, p));
-
-
-    if (!transpose) {
-        ONEDAL_ASSERT(p == vec.get_dimension(0));
-        ONEDAL_ASSERT(n == out.get_dimension(0));
-
-        for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
-            const auto first = blocking.get_block_start_index(b);
-            const auto last = blocking.get_block_end_index(b);
-            const std::int64_t cursize = last - first;
-
-            const auto A_rows =
-                row_accessor<const Float>(A).pull(q, { first, last }, sycl::usm::alloc::device);
-            const auto A_batch = ndarray<Float, 2>::wrap(A_rows, { cursize, p });
-            gemv();
-        }
-        
-
-    } else {
-        ONEDAL_ASSERT(n == vec.get_dimension(0));
-        ONEDAL_ASSERT(p == out.get_dimension(0));
-
-    }
-}
-*/
 
 template <typename Float>
 Float LogLossFunction<Float>::get_value() {
@@ -769,13 +713,13 @@ BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
                                                   const ndview<F, 1>&,               \
                                                   const ndview<F, 2>&,               \
                                                   ndview<F, 1>&,                     \
-                                                  const bool,                        \
+                                                  bool,                              \
                                                   const event_vector&);              \
     template sycl::event compute_logloss<F>(sycl::queue&,                            \
                                             const ndview<std::int32_t, 1>&,          \
                                             const ndview<F, 1>&,                     \
                                             ndview<F, 1>&,                           \
-                                            const bool,                              \
+                                            bool,                                    \
                                             const event_vector&);                    \
     template sycl::event compute_logloss_with_der<F>(sycl::queue&,                   \
                                                      const ndview<F, 2>&,            \
@@ -783,14 +727,14 @@ BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
                                                      const ndview<F, 1>&,            \
                                                      ndview<F, 1>&,                  \
                                                      ndview<F, 1>&,                  \
-                                                     const bool,                     \
+                                                     bool,                           \
                                                      const event_vector&);           \
     template sycl::event compute_derivative<F>(sycl::queue&,                         \
                                                const ndview<F, 2>&,                  \
                                                const ndview<std::int32_t, 1>&,       \
                                                const ndview<F, 1>&,                  \
                                                ndview<F, 1>&,                        \
-                                               const bool,                           \
+                                               bool,                                 \
                                                const event_vector&);                 \
     template sycl::event add_regularization_loss<F>(sycl::queue&,                    \
                                                     const ndview<F, 1>&,             \
@@ -821,7 +765,7 @@ BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
                                             ndview<F, 2>&,                           \
                                             const F,                                 \
                                             const F,                                 \
-                                            const bool,                              \
+                                            bool,                                    \
                                             const event_vector&);                    \
     template sycl::event compute_raw_hessian<F>(sycl::queue&,                        \
                                                 const ndview<F, 1>&,                 \
