@@ -106,7 +106,6 @@ sycl::event copy_convert(sycl::queue& queue,
                          const shape_t& shape,
                          const std::vector<sycl::event>& deps) {
     auto hpolicy = detail::host_policy::get_default();
-    const detail::data_parallel_policy dpolicy{ queue };
 
     sycl::event::wait_and_throw(deps);
     const auto [row_count, col_count] = shape;
