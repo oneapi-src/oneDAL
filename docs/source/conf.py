@@ -318,7 +318,10 @@ nitpick_ignore = [
     ('cpp:identifier', 'sparse_indexing::one_based'),
     # array
     ('cpp:identifier', 'T'),
+    ('cpp:identifier', 'I'),
     ('cpp:identifier', 'array'),
+    ('cpp:identifier', 'array_d'),
+    ('cpp:identifier', 'array_i'),
     ('cpp:identifier', 'impl_t'),
     ('cpp:identifier', 'array<T>'),
     ('cpp:identifier', 'array<Y>'),
