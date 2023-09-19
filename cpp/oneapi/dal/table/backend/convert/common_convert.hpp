@@ -35,6 +35,8 @@ dal::array<std::int64_t> compute_output_offsets(data_type output_type,
                                                 const shape_t& input_shape,
                                                 const shape_t& output_strides);
 
+std::int64_t align_offset(std::int64_t base, std::int64_t align);
+
 dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
                                                const data_type* input_types);
 
