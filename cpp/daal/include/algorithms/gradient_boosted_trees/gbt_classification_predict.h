@@ -97,7 +97,7 @@ public:
  * \par References
  *      - \ref interface1::Model "Model" class
  *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
- *      - \ref classifier::prediction::result "classifier::prediction::Result" class
+ *      - \ref classifier::prediction::interface2::Result "classifier::prediction::Result" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
