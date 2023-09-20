@@ -29,11 +29,33 @@ template <typename Task>
 class compute_result_impl;
 
 template <typename Task>
+struct compute_parameters_impl;
+
+template <typename Task>
 class partial_compute_result_impl;
+
+template <typename Task = task::by_default>
+class compute_parameters : public base {
+public:
+    explicit compute_parameters();
+    compute_parameters(compute_parameters&&) = default;
+    compute_parameters(const compute_parameters&) = default;
+
+    std::int64_t get_cpu_macro_block() const;
+    auto& set_cpu_macro_block(std::int64_t val) {
+        set_cpu_macro_block_impl(val);
+        return *this;
+    }
+
+private:
+    void set_cpu_macro_block_impl(std::int64_t val);
+    dal::detail::pimpl<compute_parameters_impl<Task>> impl_;
+};
 } // namespace v1
 
 using v1::compute_input_impl;
 using v1::compute_result_impl;
+using v1::compute_parameters;
 using v1::partial_compute_result_impl;
 
 } // namespace detail

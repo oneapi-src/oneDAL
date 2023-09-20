@@ -38,16 +38,18 @@ using descriptor_t = detail::descriptor_base<task_t>;
 template <typename Float>
 static result_t compute(const bk::context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::compute_parameters<Task>& params,
                         const input_t& input) {
-    return compute_kernel_dense_impl<Float>(ctx)(desc, input);
+    return compute_kernel_dense_impl<Float>(ctx)(desc, params, input);
 }
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method_t, task_t> {
     result_t operator()(const bk::context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::compute_parameters<Task>& params,
                         const input_t& input) const {
-        return compute<Float>(ctx, desc, input);
+        return compute<Float>(ctx, desc, params, input);
     }
 };
 

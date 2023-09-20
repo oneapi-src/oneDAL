@@ -36,8 +36,23 @@ using daal_covariance_kernel_t = daal_covariance::internal::
     CovarianceDenseBatchKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
 template <typename Float, typename Task>
+static auto convert_parameters(const detail::compute_parameters<Task>& params) {
+    using daal_covariance::internal::Hyperparameter;
+    using daal_covariance::internal::HyperparameterId;
+
+    const std::int64_t block = params.get_cpu_macro_block();
+
+    Hyperparameter daal_hyperparameter;
+    auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
+}
+
+template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const descriptor_t& desc,
+                                             const detail::compute_parameters<Task>& params,
                                              const table& data) {
     bool is_mean_computed = false;
 
@@ -46,18 +61,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
-    daal_covariance::internal::Hyperparameter daal_hyperparameter;
-    /// the logic of block size calculation is copied from DAAL,
-    /// to be changed to passing the values from the performance model
-    std::int64_t blockSize = 140;
-    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
-        const std::int64_t row_count = data.get_row_count();
-        if (5000 < row_count && row_count <= 50000) {
-            blockSize = 1024;
-        }
-    }
-    interop::status_to_exception(
-        daal_hyperparameter.set(daal_covariance::internal::denseUpdateStepBlockSize, blockSize));
+    const auto hp = convert_parameters<Float>(params);
 
     dal::detail::check_mul_overflow(component_count, component_count);
 
@@ -79,7 +83,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                        daal_cov_matrix.get(),
                                                                        daal_means.get(),
                                                                        &daal_parameter,
-                                                                       &daal_hyperparameter));
+                                                                       &hp));
         is_mean_computed = true;
         result.set_cov_matrix(
             homogen_table::wrap(arr_cov_matrix, component_count, component_count));
@@ -98,7 +102,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                        daal_cor_matrix.get(),
                                                                        daal_means.get(),
                                                                        &daal_parameter,
-                                                                       &daal_hyperparameter));
+                                                                       &hp));
         is_mean_computed = true;
         result.set_cor_matrix(
             homogen_table::wrap(arr_cor_matrix, component_count, component_count));
@@ -115,7 +119,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                            daal_cov_matrix.get(),
                                                                            daal_means.get(),
                                                                            &daal_parameter,
-                                                                           &daal_hyperparameter));
+                                                                           &hp));
         }
         result.set_means(homogen_table::wrap(arr_means, 1, component_count));
     }
@@ -125,16 +129,18 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 template <typename Float, typename Task>
 static compute_result<Task> compute(const context_cpu& ctx,
                                     const descriptor_t& desc,
+                                    const detail::compute_parameters<Task>& params,
                                     const compute_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
+    return call_daal_kernel<Float, Task>(ctx, desc, params, input.get_data());
 }
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method::by_default, task::compute> {
     compute_result<task::compute> operator()(const context_cpu& ctx,
                                              const descriptor_t& desc,
+                                             const detail::compute_parameters<Task>& params,
                                              const compute_input<task::compute>& input) const {
-        return compute<Float, task::compute>(ctx, desc, input);
+        return compute<Float, task::compute>(ctx, desc, params, input);
     }
 };
 

@@ -53,7 +53,7 @@ class Algorithm : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0), _hpar(0) {}
+    Algorithm() : _ac(0), _hpar(0), _par(0), _in(0), _pres(0), _res(0) {}
 
     virtual ~Algorithm()
     {
@@ -111,11 +111,11 @@ protected:
 
     AlgorithmContainerImpl<mode> * _ac;
 
+    const Hyperparameter * _hpar;
+    Parameter * _par;
     Input * _in;
     PartialResult * _pres;
     Result * _res;
-    Parameter * _par;
-    const Hyperparameter * _hpar;
 
 private:
     Algorithm(const Algorithm &);
@@ -133,7 +133,7 @@ class Algorithm<batch> : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _par(0), _in(0), _res(0), _hpar(0) {}
+    Algorithm() : _ac(0), _hpar(0), _par(0), _in(0), _res(0) {}
 
     virtual ~Algorithm()
     {

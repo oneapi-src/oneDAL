@@ -26,6 +26,13 @@ template <typename Context, typename Float, typename Method, typename Task, type
 struct compute_ops_dispatcher {
     compute_result<Task> operator()(const Context&,
                                     const descriptor_base<Task>&,
+                                    const compute_parameters<Task>&,
+                                    const compute_input<Task>&) const;
+    compute_parameters<Task> select_parameters(const Context&,
+                                               const descriptor_base<Task>&,
+                                               const compute_input<Task>&) const;
+    compute_result<Task> operator()(const Context&,
+                                    const descriptor_base<Task>&,
                                     const compute_input<Task>&) const;
 };
 
@@ -36,6 +43,7 @@ struct compute_ops {
     using task_t = typename Descriptor::task_t;
     using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;
+    using param_t = compute_parameters<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
@@ -74,12 +82,30 @@ struct compute_ops {
     }
 
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+    auto select_parameters(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+        check_preconditions(desc, input);
+        return compute_ops_dispatcher<Context, float_t, method_t, task_t>{}.select_parameters(
+            ctx,
+            desc,
+            input);
+    }
+
+    template <typename Context>
+    auto operator()(const Context& ctx,
+                    const Descriptor& desc,
+                    const param_t& params,
+                    const input_t& input) const {
         check_preconditions(desc, input);
         const auto result =
-            compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
+            compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, params, input);
         check_postconditions(desc, input, result);
         return result;
+    }
+
+    template <typename Context>
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+        const auto params = select_parameters(ctx, desc, input);
+        return this->operator()(ctx, desc, params, input);
     }
 };
 
