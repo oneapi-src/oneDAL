@@ -26,7 +26,7 @@
 
 #include "oneapi/dal/algo/covariance/parameters/gpu/compute_parameters.hpp"
 
-namespace oneapi::dal::linear_regression::parameters {
+namespace oneapi::dal::covariance::parameters {
 
 using dal::backend::context_gpu;
 /*
@@ -59,4 +59,4 @@ struct compute_parameters_gpu<Float, method::norm_eq, Task> {
 template struct ONEDAL_EXPORT compute_parameters_gpu<float, method::dense, task::covariance>;
 template struct ONEDAL_EXPORT compute_parameters_gpu<double, method::dense, task::covariance>;
 
-} // namespace oneapi::dal::linear_regression::parameters
+} // namespace oneapi::dal::covariance::parameters
