@@ -97,10 +97,10 @@ endif
 # Check if it's 2024+ version
 ifeq ($(wildcard $(CCL_PATH)/include/oneapi/.*),)
     # If version 2024+ does not exist, use previous version
-    CCL_INCLUDE_PATH = -I$(CCL_PATH)/include/cpu_gpu_dpcpp/oneapi
+    CCL_INCLUDE_PATH = $(CCL_PATH)/include/cpu_gpu_dpcpp/oneapi
 else
     # If version 2024+ exists, use it
-    CCL_INCLUDE_PATH = -I$(CCL_PATH)/include/oneapi
+    CCL_INCLUDE_PATH = $(CCL_PATH)/include/oneapi
 endif
 
 COPTS := -std=c++17 \
