@@ -161,37 +161,37 @@ protected:
     }
 
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
-    inline void predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res, int condition,
-                                     FeatureIndexType conditionFeature, const DimType & dim);
+    inline services::Status predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res,
+                                                 int condition, FeatureIndexType conditionFeature, const DimType & dim);
 
     template <bool hasAnyMissing>
-    inline void predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res, int condition,
-                                     FeatureIndexType conditionFeature, const DimType & dim)
+    inline services::Status predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res,
+                                                 int condition, FeatureIndexType conditionFeature, const DimType & dim)
     {
         if (_featHelper.hasUnorderedFeatures())
         {
-            predictContributions<true, hasAnyMissing>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
+            return predictContributions<true, hasAnyMissing>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
         }
         else
         {
-            predictContributions<false, hasAnyMissing>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
+            return predictContributions<false, hasAnyMissing>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
         }
     }
 
     // TODO: Add vectorBlockSize templates, similar to predict
     // template <size_t vectorBlockSize>
-    inline void predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res, int condition,
-                                     FeatureIndexType conditionFeature, const DimType & dim)
+    inline services::Status predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res,
+                                                 int condition, FeatureIndexType conditionFeature, const DimType & dim)
     {
         const size_t nColumnsData = dim.nCols;
         const bool hasAnyMissing  = checkForMissing(x, nTrees, nRowsData, nColumnsData);
         if (hasAnyMissing)
         {
-            predictContributions<true>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
+            return predictContributions<true>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
         }
         else
         {
-            predictContributions<false>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
+            return predictContributions<false>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
         }
     }
 
@@ -320,19 +320,35 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::reg
  * \param[in] nRowsData number of rows to process
  * \param[in] x pointer to the start of observation data
  * \param[out] res pointer to the start of memory where results are written to
+ * \param[in] condition condition the feature to on (1) off (-1) or unconditioned (0)
+ * \param[in] conditionFeature index of feature that should be conditioned
  * \param[in] dim DimType helper
 */
 template <typename algorithmFPType, CpuType cpu>
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
-void PredictRegressionTask<algorithmFPType, cpu>::predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x,
-                                                                       algorithmFPType * res, int condition, FeatureIndexType conditionFeature,
-                                                                       const DimType & dim)
+services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributions(size_t iTree, size_t nTrees, size_t nRowsData,
+                                                                                   const algorithmFPType * x, algorithmFPType * res, int condition,
+                                                                                   FeatureIndexType conditionFeature, const DimType & dim)
 {
     // TODO: Make use of vectorBlockSize, similar to predictByTreesVector
+    Status st;
 
     const size_t nColumnsData  = dim.nCols;
     const size_t nColumnsPhi   = nColumnsData + 1;
     const size_t biasTermIndex = nColumnsPhi - 1;
+
+    // some model details (populated only for Fast TreeSHAP v2)
+    gbt::treeshap::ModelDetails<algorithmFPType> modelDetails(_aTree.get(), iTree, nTrees);
+    if (modelDetails.requiresPrecompute)
+    {
+        for (size_t currentTreeIndex = iTree; currentTreeIndex < iTree + nTrees; ++currentTreeIndex)
+        {
+            // regression model builder tree 0 contains only the base_score and must be skipped
+            if (currentTreeIndex == 0) continue;
+            const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
+            gbt::treeshap::computeCombinationSum(currentTree, currentTreeIndex, modelDetails);
+        }
+    }
 
     for (size_t iRow = 0; iRow < nRowsData; ++iRow)
     {
@@ -344,8 +360,8 @@ void PredictRegressionTask<algorithmFPType, cpu>::predictContributions(size_t iT
             if (currentTreeIndex == 0) continue;
 
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
-            gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper, condition,
-                                                                                          conditionFeature);
+            st |= gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper, condition,
+                                                                                                conditionFeature, modelDetails);
         }
 
         if (condition == 0)
@@ -357,6 +373,8 @@ void PredictRegressionTask<algorithmFPType, cpu>::predictContributions(size_t iT
             }
         }
     }
+
+    return st;
 }
 
 /**
@@ -484,7 +502,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRow.get(), dim, resultNColumns);
 
                 // TODO: support tree weights
-                predictContributions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRow.get(), 0, 0, dim);
+                safeStat |= predictContributions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRow.get(), 0, 0, dim);
             }
             else if (predShapInteractions)
             {

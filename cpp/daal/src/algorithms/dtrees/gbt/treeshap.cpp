@@ -8,8 +8,19 @@ namespace gbt
 {
 namespace treeshap
 {
+
+uint8_t getRequestedAlgorithmVersion()
+{
+    char * val = getenv("SHAP_VERSION");
+    if (val)
+    {
+        return atoi(val);
+    }
+    return 0;
+}
 namespace internal
 {
+
 namespace v0
 {
 
@@ -203,6 +214,9 @@ float unwoundPathSumZero(const float * partialWeights, unsigned uniqueDepth, uns
     return total * (uniqueDepth + 1);
 }
 } // namespace v1
+
+namespace v2
+{}
 } // namespace internal
 } // namespace treeshap
 } // namespace gbt
