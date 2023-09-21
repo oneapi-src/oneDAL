@@ -109,7 +109,8 @@ public:
     LogLossHessianProduct(sycl::queue& q,
                           table& data,
                           Float L2 = Float(0),
-                          bool fit_intercept = true);
+                          bool fit_intercept = true,
+                          std::int64_t bsz = -1);
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
                            const event_vector& deps) final;
@@ -131,6 +132,7 @@ private:
     ndarray<Float, 1> buffer_;
     const std::int64_t n_;
     const std::int64_t p_;
+    const std::int64_t bsz_;
 };
 
 template <typename Float>
@@ -140,7 +142,8 @@ public:
                     table& data,
                     ndview<std::int32_t, 1>& labels,
                     Float L2 = 0.0,
-                    bool fit_intercept = true);
+                    bool fit_intercept = true,
+                    std::int64_t bsz = -1);
     Float get_value() final;
     ndview<Float, 1>& get_gradient() final;
     BaseMatrixOperator<Float>& get_hessian_product() final;

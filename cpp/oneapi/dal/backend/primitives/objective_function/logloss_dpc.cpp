@@ -466,13 +466,15 @@ template <typename Float>
 LogLossHessianProduct<Float>::LogLossHessianProduct(sycl::queue& q,
                                                     table& data,
                                                     Float L2,
-                                                    bool fit_intercept)
+                                                    bool fit_intercept,
+                                                    std::int64_t bsz)
         : q_(q),
           data_(data),
           L2_(L2),
           fit_intercept_(fit_intercept),
           n_(data.get_row_count()),
-          p_(data.get_column_count()) {
+          p_(data.get_column_count()),
+          bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
     raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
     buffer_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
 }
@@ -587,7 +589,8 @@ LogLossFunction<Float>::LogLossFunction(sycl::queue q,
                                         table& data,
                                         ndview<std::int32_t, 1>& labels,
                                         Float L2,
-                                        bool fit_intercept)
+                                        bool fit_intercept,
+                                        std::int64_t bsz)
         : q_(q),
           data_(data),
           labels_(labels),
@@ -595,8 +598,8 @@ LogLossFunction<Float>::LogLossFunction(sycl::queue q,
           p_(data.get_column_count()),
           L2_(L2),
           fit_intercept_(fit_intercept),
-          bsz_(get_block_size(n_, p_)),
-          hessp_(q, data, L2, fit_intercept),
+          bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz),
+          hessp_(q, data, L2, fit_intercept, bsz_),
           dimension_(fit_intercept ? p_ + 1 : p_) {
     ONEDAL_ASSERT(labels.get_dimension(0) == n_);
     probabilities_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
@@ -641,13 +644,11 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
         sycl::event compute_e = compute_logloss_with_der(q_,
                                                          data_batch,
                                                          labels_batch,
-                                                         probabilities_,
+                                                         prob_batch,
                                                          loss_batch,
                                                          grad_batch,
                                                          fit_intercept_,
                                                          { fill_buffer_e, prob_e });
-
-        //compute_e.wait_and_throw();
 
         sycl::event update_grad_e =
             element_wise(q_, sycl::plus<>(), grad_ndview, grad_batch, grad_ndview, { compute_e });
