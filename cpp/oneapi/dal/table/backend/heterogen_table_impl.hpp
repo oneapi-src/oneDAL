@@ -68,11 +68,19 @@ public:
     }
 
     void serialize(detail::output_archive& ar) const override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+        ar(this->meta_);
+        const auto col_count = this->get_column_count();
+        for (std::int64_t col = 0l; col < col_count; ++col) {
+            ar(this->get_column(col));
+        }
     }
 
     void deserialize(detail::input_archive& ar) override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+        ar(this->meta_);
+        const auto col_count = this->get_column_count();
+        for (std::int64_t col = 0l; col < col_count; ++col) {
+            ar(this->get_column(col));
+        }
     }
 
     // virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;

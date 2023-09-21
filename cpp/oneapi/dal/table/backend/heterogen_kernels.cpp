@@ -306,8 +306,14 @@ struct heterogen_dispatcher<detail::host_policy> {
                             std::int64_t column,
                             const range& rows_range,
                             alloc_kind requested_alloc_kind) {
-        using msg = dal::detail::error_messages;
-        throw dal::unimplemented(msg::pull_column_interface_is_not_implemented());
+        /*const auto col_count = get_column_count(meta, data);
+        const auto row_count = get_row_count(col_count, meta, data);
+        const auto [first, last] = rows_range.normalize_range(row_count);
+
+        ONEDAL_ASSERT(first < last);
+        const auto copy_count = last - first;
+
+        auto result = */
     }
 };
 
