@@ -86,8 +86,8 @@ to each cluster.
    c_j^{(t + 1)} = \frac{1}{|S_j^{(t)}|} \sum_{x \in S_j^{(t)}} x, \quad 1 \leq j \leq k.
 
 If any of :math:`S_j^{(t)}` are empty, start the empty clusters handling procedure.
-In this case, you can set the value of :math:`c_j^{(t+1)}` as the farthest point from 
-the previously calculated centroids for each empty cluster. This procedure makes sure 
+In this case, you can set the value of :math:`c_j^{(t+1)}` as the farthest point from
+the previously calculated centroids for each empty cluster. This procedure makes sure
 that the number of clusters remains the same.
 
 .. math::
@@ -135,7 +135,7 @@ Distributed mode
 The algorithm supports distributed execution in SPMD mode (only on GPU).
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/clustering/kmeans-usage-examples.rst

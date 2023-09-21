@@ -20,25 +20,25 @@
 .. _api_row_accessor:
 
 ============
-Row accessor
+Row Accessor
 ============
 
-The ``row_accessor`` class provides a read-only access to the rows of the
+The ``row_accessor`` class provides read-only access to the rows of the
 :txtref:`table` as :capterm:`contiguous <contiguous data>` :capterm:`homogeneous
 <homogeneous data>` array.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/data-management/row-accessor-usage-example.rst
 
 ---------------------
-Programming interface
+Programming Interface
 ---------------------
 
 All types and functions in this section are declared in the
-``oneapi::dal`` namespace and be available via inclusion of the
+``oneapi::dal`` namespace and available via the inclusion of the
 ``oneapi/dal/table/row_accessor.hpp`` header file.
 
 .. onedal_class:: oneapi::dal::row_accessor

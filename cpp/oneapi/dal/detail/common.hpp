@@ -196,6 +196,42 @@ inline constexpr std::int64_t get_data_type_size(data_type t) {
     }
 }
 
+inline constexpr std::int64_t get_data_type_align(data_type t) {
+    if (t == data_type::int8) {
+        return alignof(std::int8_t);
+    }
+    else if (t == data_type::int16) {
+        return alignof(std::int16_t);
+    }
+    else if (t == data_type::int32) {
+        return alignof(std::int32_t);
+    }
+    else if (t == data_type::int64) {
+        return alignof(std::int64_t);
+    }
+    else if (t == data_type::uint8) {
+        return alignof(std::uint8_t);
+    }
+    else if (t == data_type::uint16) {
+        return alignof(std::uint16_t);
+    }
+    else if (t == data_type::uint32) {
+        return alignof(std::uint32_t);
+    }
+    else if (t == data_type::uint64) {
+        return alignof(std::uint64_t);
+    }
+    else if (t == data_type::float32) {
+        return alignof(float);
+    }
+    else if (t == data_type::float64) {
+        return alignof(double);
+    }
+    else {
+        throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
+    }
+}
+
 template <typename T>
 inline constexpr data_type make_data_type_impl() {
     static_assert(is_one_of_v<T,
@@ -403,6 +439,7 @@ using v1::cast_impl;
 using v1::make_private;
 using v1::make_data_type;
 using v1::get_data_type_size;
+using v1::get_data_type_align;
 using v1::is_floating_point;
 using v2::check_sum_overflow;
 using v2::check_mul_overflow;
