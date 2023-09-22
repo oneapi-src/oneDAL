@@ -54,7 +54,7 @@ auto compute_all_metrics(sycl::queue& q,
     auto result_variation_ptr = result_variation.get_mutable_data();
     auto result_stddev_ptr = result_stddev.get_mutable_data();
 
-    auto nobs_ptr = nobs.get_mutable_data();
+    auto nobs_ptr = nobs.get_data();
 
     auto sums_data = sums.get_data();
     auto sums2_data = sums2.get_data();
