@@ -134,12 +134,6 @@ Examples
       - :cpp_example:`pca_cor_csr_distr.cpp <pca/pca_cor_csr_distr.cpp>`
       - :cpp_example:`pca_svd_dense_distr.cpp <pca/pca_svd_dense_distr.cpp>`
 
-   .. tab:: Python* with DPC++ support
-
-      Batch Processing:
-
-      - :daal4py_sycl_example:`pca_batch.py`
-
    .. tab:: Python*
 
       Batch Processing:

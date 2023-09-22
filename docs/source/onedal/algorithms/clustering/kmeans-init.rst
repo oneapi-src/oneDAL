@@ -81,7 +81,7 @@ Programming Interface
 Refer to :ref:`API Reference: K-Means initialization <api_kmeans_init>`.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/clustering/kmeans-init-usage-examples.rst

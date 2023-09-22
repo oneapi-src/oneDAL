@@ -19,6 +19,7 @@
 #include "oneapi/dal/array.hpp"
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
+#include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
 namespace oneapi::dal::backend {
 

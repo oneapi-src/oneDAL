@@ -168,11 +168,14 @@ inline Float init_step(const dal::preview::detail::topology<IndexType>& t,
     ONEDAL_ASSERT(ld.m > 0);
 
     Float modularity = 0;
-    for (std::int64_t c = 0; c < community_count; c++) {
-        modularity += static_cast<Float>(0.5) / static_cast<Float>(ld.m) *
-                      (static_cast<Float>(ld.local_self_loops[c]) * static_cast<Float>(2) -
-                       resolution * static_cast<Float>(ld.k_c[c]) * static_cast<Float>(ld.k_c[c]) /
-                           (static_cast<Float>(2) * static_cast<Float>(ld.m)));
+    if (ld.m > 0) {
+        for (std::int64_t c = 0; c < community_count; c++) {
+            modularity +=
+                static_cast<Float>(0.5) / static_cast<Float>(ld.m) *
+                (static_cast<Float>(ld.local_self_loops[c]) * static_cast<Float>(2) -
+                 resolution * static_cast<Float>(ld.k_c[c]) * static_cast<Float>(ld.k_c[c]) /
+                     (static_cast<Float>(2) * static_cast<Float>(ld.m)));
+        }
     }
     return modularity;
 }
