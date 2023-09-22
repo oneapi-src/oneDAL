@@ -29,7 +29,7 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 
 template <typename TestType>
-class row_partitioning_test : public te::policy_fixture {
+class row_partitioning_test : public te::float_algo_fixture<TestType> {
 public:
     using float_t = TestType;
 
