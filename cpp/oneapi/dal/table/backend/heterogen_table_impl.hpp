@@ -69,22 +69,28 @@ public:
 
     void serialize(detail::output_archive& ar) const override {
         ar(this->meta_);
-        const auto col_count = this->get_column_count();
+        const std::int64_t col_count = get_column_count();
         for (std::int64_t col = 0l; col < col_count; ++col) {
-            ar(this->get_column(col));
+            const auto& raw = get_column(col);
+            raw.serialize_impl(ar);
         }
     }
 
     void deserialize(detail::input_archive& ar) override {
         ar(this->meta_);
-        const auto col_count = this->get_column_count();
+        const std::int64_t col_count = get_column_count();
         for (std::int64_t col = 0l; col < col_count; ++col) {
-            ar(this->get_column(col));
+            auto dt = get_metadata().get_data_type(col);
+            detail::chunked_array_base raw;
+            raw.deserialize_impl(dt, ar);
+
+            set_column(col, dt, std::move(raw));
         }
     }
 
     // virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;
     void set_column(std::int64_t column, data_type dt, detail::chunked_array_base arr) override {
+        ONEDAL_ASSERT(dt == get_metadata().get_data_type(column));
         ONEDAL_ASSERT(column < get_column_count());
         auto* const ptr = data_.get_mutable_data();
         *(ptr + column) = std::move(arr);
