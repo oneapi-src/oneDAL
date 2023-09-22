@@ -270,14 +270,6 @@ Examples
     -  :cpp_example:`log_reg_dense_batch.cpp <logistic_regression/log_reg_dense_batch.cpp>`
     -  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
 
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`log_reg_dense_batch.py`
-    - :daal4py_sycl_example:`log_reg_binary_dense_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

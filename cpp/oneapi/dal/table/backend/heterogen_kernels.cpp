@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <memory>
+#include <cstddef>
 #include <numeric>
 
 #include "oneapi/dal/array.hpp"
@@ -112,6 +114,19 @@ std::int64_t propose_row_block_size(const Meta& meta, const Data& data) {
     return std::max<std::int64_t>(1l, initial);
 }
 
+template <typename Meta, typename Data>
+std::int64_t compute_full_block_size(std::int64_t block, const Meta& meta, const Data& data) {
+    constexpr std::int64_t align = sizeof(std::max_align_t);
+
+    const auto row_size = get_row_size(meta, data);
+    const auto col_count = get_column_count(meta, data);
+
+    const auto base_size = detail::check_mul_overflow(block, row_size);
+    const auto align_size = detail::check_mul_overflow(align, col_count);
+
+    return detail::check_mul_overflow(base_size, align_size);
+}
+
 heterogen_data heterogen_row_slice(const range& rows_range,
                                    const table_metadata& meta,
                                    const heterogen_data& data) {
@@ -148,24 +163,37 @@ sliced_buffer slice_buffer(const shape_t& buff_shape,
                            const array<data_type>& data_types) {
     const auto [row_count, col_count] = buff_shape;
 
+    auto* const first_ptr = buff.get_mutable_data();
+    auto* const last_ptr = first_ptr + buff.get_count();
     const auto* const data_types_ptr = data_types.get_data();
 
     const dal::array<dal::byte_t> empty{};
     auto result = sliced_buffer::full(col_count, empty);
     auto* const result_ptr = result.get_mutable_data();
 
-    std::int64_t first = 0l;
+    dal::byte_t* curr_ptr = first_ptr;
     for (std::int64_t c = 0l; c < col_count; ++c) {
         const data_type dtype = data_types_ptr[c];
         const auto dsize = detail::get_data_type_size(dtype);
-        const auto csize = detail::check_mul_overflow(dsize, row_count);
+        const auto dalign = detail::get_data_type_align(dtype);
+        const auto curr_size = detail::check_mul_overflow(dsize, row_count);
 
-        const auto last = detail::check_sum_overflow(first, csize);
+        {
+            void* tmp_ptr = reinterpret_cast<void*>(curr_ptr);
+            std::size_t space = std::distance(curr_ptr, last_ptr);
+            [[maybe_unused]] auto* slc_ptr = std::align(dalign, dsize, tmp_ptr, space);
+            ONEDAL_ASSERT(static_cast<std::size_t>(curr_size) <= space);
+            ONEDAL_ASSERT(slc_ptr != nullptr);
 
-        result_ptr[c] = buff.get_slice(first, last);
+            curr_ptr = reinterpret_cast<dal::byte_t*>(tmp_ptr);
+        }
 
-        first = last;
+        result_ptr[c].reset(buff, curr_ptr, curr_size);
+
+        curr_ptr += curr_size;
     }
+
+    ONEDAL_ASSERT(0l < std::distance(curr_ptr, last_ptr));
 
     return result;
 }
@@ -207,9 +235,8 @@ struct heterogen_dispatcher<detail::host_policy> {
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
 
-        const auto row_size = get_row_size(meta, data);
         const auto block = propose_row_block_size(meta, data);
-        const auto block_size = detail::check_mul_overflow(block, row_size);
+        const auto block_size = compute_full_block_size(block, meta, data);
 
         const auto& data_types = meta.get_data_types();
         auto buff = array<dal::byte_t>::empty(block_size);
@@ -352,9 +379,8 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
 
-        const auto row_size = get_row_size(meta, data);
-        const auto block = propose_row_block_size(queue, meta, data);
-        const auto block_size = detail::check_mul_overflow(block, row_size);
+        const auto block = propose_row_block_size(meta, data);
+        const auto block_size = compute_full_block_size(block, meta, data);
 
         const auto& data_types = meta.get_data_types();
         auto buff_shape = std::make_pair(block, col_count);
@@ -414,9 +440,11 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                                       outp_strs,
                                       transpose(curr_shape),
                                       { last_event });
+
+            sycl::event::wait_and_throw({ last_event });
         }
 
-        last_event.wait_and_throw();
+        sycl::event::wait_and_throw({ last_event });
 
         block_data.reset(result, result.get_mutable_data(), result.get_count());
     }

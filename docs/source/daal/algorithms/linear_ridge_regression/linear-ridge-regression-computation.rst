@@ -451,12 +451,6 @@ Examples
     - :cpp_example:`lin_reg_qr_dense_distr.cpp <linear_regression/>`
     - :cpp_example:`ridge_reg_norm_eq_dense_distr.cpp <ridge_regression/>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`linear_regression_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

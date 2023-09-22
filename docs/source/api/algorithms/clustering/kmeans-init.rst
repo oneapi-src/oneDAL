@@ -88,7 +88,7 @@ Operation
 
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/clustering/kmeans-init-usage-examples.rst

@@ -19,7 +19,7 @@
 .. _api_graph_service:
 
 ==============
-Graph Service 
+Graph Service
 ==============
 
 .. _graph_service_programming_interface:
@@ -48,8 +48,8 @@ Related types
 
 Aliases is a way to access :txtref:`graph <api_graph_template_type>` types using shorter notation.
 
-.. list-table:: 
-   :widths: 40 60 
+.. list-table::
+   :widths: 40 60
    :header-rows: 1
 
    * - Alias
@@ -71,7 +71,7 @@ Aliases is a way to access :txtref:`graph <api_graph_template_type>` types using
    * - ``vertex_edge_size_type<G>``
      - ``graph_traits<G>::vertex_edge_size_type``
    * - ``vertex_outward_edge_size_type<G>``
-     - ``graph_traits<G>::vertex_outward_edge_size_type`` 
+     - ``graph_traits<G>::vertex_outward_edge_size_type``
    * - ``vertex_edge_iterator_type<G>``
      - ``graph_traits<G>::vertex_edge_iterator_type``
    * - ``const_vertex_edge_iterator_type<G>``
@@ -81,7 +81,7 @@ Aliases is a way to access :txtref:`graph <api_graph_template_type>` types using
    * - ``const_vertex_edge_range_type<G>``
      - ``graph_traits<G>::const_vertex_edge_range_type``
    * - ``const_vertex_outward_edge_range_type<G>``
-     - ``graph_traits<G>::const_vertex_outward_edge_range_type``    
+     - ``graph_traits<G>::const_vertex_outward_edge_range_type``
 
 
 Graph service functions
@@ -94,11 +94,11 @@ Any service function has the following pattern:
   template <typename Graph>
   return_type<Graph> get_[graph_element](const Graph& g, ...);
 
- 
 
-.. _api_get_vertex_count: 
 
-.. onedal_func:: oneapi::dal::preview::get_vertex_count 
+.. _api_get_vertex_count:
+
+.. onedal_func:: oneapi::dal::preview::get_vertex_count
 
 .. _api_get_edge_count:
 
@@ -126,7 +126,7 @@ Any service function has the following pattern:
 
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. code-block:: cpp
@@ -149,9 +149,9 @@ supported for the specified :txtref:`graph <api_graphs>` types.
    :widths: 35 65
 
    * - Service function
-     - Valid :txtref:`graph concepts <graph_concepts>` 
+     - Valid :txtref:`graph concepts <graph_concepts>`
    * - ``get_vertex_count``
-     - :capterm:`undirected graph`, :capterm:`directed graph` 
+     - :capterm:`undirected graph`, :capterm:`directed graph`
    * - ``get_edge_count``
      - :capterm:`undirected graph`, :capterm:`directed graph`
    * - ``get_vertex_degree``
@@ -163,7 +163,7 @@ supported for the specified :txtref:`graph <api_graphs>` types.
    * - ``get_vertex_outward_neighbors``
      - :capterm:`directed graph`
    * - ``get_edge_value``
-     - :capterm:`undirected graph`, :capterm:`directed graph` 
+     - :capterm:`undirected graph`, :capterm:`directed graph`
 
 .. toctree::
 

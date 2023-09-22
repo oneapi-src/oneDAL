@@ -154,7 +154,7 @@ inline constexpr Integer down_pow2(Integer x) {
         power++;
     }
     ONEDAL_ASSERT(power < get_magnitude_bit_count<Integer>());
-    return 1 << power;
+    return Integer(1) << power;
 }
 
 /// Finds the smallest power of 2 number not smaller than `x`.

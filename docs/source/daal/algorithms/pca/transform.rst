@@ -133,12 +133,6 @@ Examples
 
     - :cpp_example:`pca_transform_dense_batch.cpp <pca_transform/pca_transform_dense_batch.cpp>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`pca_transform_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

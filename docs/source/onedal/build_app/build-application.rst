@@ -39,34 +39,29 @@ Applications on Linux* OS
 
         -I<install dir>/dal/latest/include
 
-   - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
+   - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| linking method:
 
      .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
      .. list-table:: |short_name| libraries for Linux
-          :widths: 15 25 25
+          :widths: 15 25
           :header-rows: 1
           :align: left
           :class: longtable
 
-          * -
-            - Single-threaded (non-threaded)
-            - Multi-threaded (internally threaded)
           * - Static linking
             -
               | libonedal_core.a,
               | libonedal_dpc.a,
-            -
-              | libonedal_core.a,
-              | libonedal_dpc.a,
+              | libonedal_parameters.a,
+              | libonedal_parameters_dpc.a,
               | libonedal_thread.a
           * - Dynamic linking
             -
               | libonedal_core.so,
               | libonedal_dpc.so,
-            -
-              | libonedal_core.so,
-              | libonedal_dpc.so,
+              | libonedal_parameters.so,
+              | libonedal_parameters_dpc.so,
               | libonedal_thread.so
 
    - Add an additional |short_name| library:
@@ -110,49 +105,42 @@ Applications on Windows* OS
        :align: center
        :alt: In Linker configuration properties, choose Input.
 
-#. Add the appropriate libraries to your project based on |short_name| threading mode and linking method:
+#. Add the appropriate libraries to your project based on |short_name| linking method:
 
    .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
    .. list-table:: |short_name| libraries for Windows
-      :widths: 15 25 25
+      :widths: 15 25
       :header-rows: 1
       :align: left
       :class: longtable
 
-      * -
-        - Single-threaded (non-threaded)
-        - Multi-threaded (internally threaded)
       * - Static linking
-        -
+        - 
           | onedal_core.lib,
-        -
           | onedal_core.lib,
           | onedal_thread.lib
       * - Dynamic linking
-        - onedal_core_dll.lib
-        - onedal_core_dll.lib
+        - 
+          | onedal_core_dll.lib
+          | onedal_core_dll.lib
 
    You may also add debug versions of the libraries based on the threading mode and linking method:
 
    .. tabularcolumns::  |\Y{0.2}|\Y{0.4}|\Y{0.4}|
 
    .. list-table:: |short_name| debug libraries for Windows
-      :widths: 15 25 25
+      :widths: 15 25
       :header-rows: 1
       :align: left
       :class: longtable
 
-      * -
-        - Single-threaded (non-threaded)
-        - Multi-threaded (internally threaded)
       * - Static linking
         -
           | onedal_cored.lib,
           | onedald.lib,
           | onedal_dpcd.lib,
           | onedal_sycld.lib,
-        -
           | onedal_cored.lib,
           | onedald.lib,
           | onedal_dpcd.lib,
@@ -166,7 +154,6 @@ Applications on Windows* OS
           | onedald.2.dll,
           | onedal_cored.2.dll,
           | onedal_dpcd.2.dll,
-        -
           | onedal_cored_dll.lib (onedal_cored_dll.2.lib),
           | onedald_dll.lib (onedald_dll.2.lib),
           | onedal_dpcd_dll.lib (onedal_dpcd_dll.2.lib),
@@ -178,34 +165,18 @@ Applications on Windows* OS
 Examples
 ********
 
-Dynamic linking, Multi-threaded |short_name|:
+Dynamic linking short_name| with the GPU target:
 
    * Linux* OS:
    
    .. code-block:: text
 
      icpx -fsycl my_first_dal_program.cpp -Wl,
-     --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     --start-group -L<install dir>/dal/latest/lib -lonedal_core -lonedal_dpc -lonedal_parameters_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/ -ltbb -ltbbmalloc <install dir>/dal/latest/lib/libonedal_sycl.a -Wl,--end-group
 
    * Windows* OS:
    
    .. code-block:: text
 
      icx-cl -fsycl my_first_dal_program.cpp -Wl,
-     --start-group -L<install dir>/dal/latest/lib/intel64 -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/intel64/gcc4.8 -ltbb -ltbbmalloc <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
-
-Static linking, Single-threaded |short_name|:
-
-   * Linux* OS:
-   
-   .. code-block:: text
-
-     icpx -fsycl my_first_dal_program.cpp -Wl,
-     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
-     
-   * Windows* OS:
-   
-   .. code-block:: text
-
-     icx-cl -fsycl my_first_dal_program.cpp -Wl,
-     --start-group <install dir>/dal/latest/lib/intel64/libonedal_core.a <install dir>/dal/latest/lib/intel64/libonedal_dpc.a -lpthread -ldl -lOpenCL <install dir>/dal/latest/lib/intel64/libonedal_sycl.a -Wl,--end-group
+     --start-group -L<install dir>/dal/latest/lib/ -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/ -ltbb -ltbbmalloc <install dir>/dal/latest/lib/libonedal_sycl.a -Wl,--end-group

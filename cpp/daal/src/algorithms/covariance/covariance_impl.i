@@ -99,10 +99,12 @@ struct tls_data_t
 
         if (!(object->crossProduct))
         {
+            delete object;
             return nullptr;
         }
         if (!(object->sums) && !isNormalized)
         {
+            delete object;
             return nullptr;
         }
 
@@ -175,6 +177,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             }
             return tlsData;
         });
+        DAAL_CHECK_SAFE_STATUS();
 
         /* Threaded loop with syrk seq calls */
         daal::static_threader_for(numBlocks, [&](int iBlock, size_t tid) {
