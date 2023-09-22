@@ -284,6 +284,14 @@ partial_compute_input<Task>::partial_compute_input(const partial_compute_result<
 }
 
 template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const partial_compute_result<Task>& prev,
+                                                   const table& data,
+                                                   const table& weights)
+        : compute_input<Task>(data, weights) {
+    this->prev_ = prev;
+}
+
+template <typename Task>
 const table& partial_compute_result<Task>::get_nobs() const {
     return impl_->nobs;
 }

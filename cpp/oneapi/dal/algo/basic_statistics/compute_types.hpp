@@ -303,6 +303,10 @@ public:
 
     partial_compute_input(const partial_compute_result<Task>& prev, const table& data);
 
+    partial_compute_input(const partial_compute_result<Task>& prev,
+                          const table& data,
+                          const table& weights);
+
     const table& get_data() const {
         return compute_input<Task>::get_data();
     }

@@ -45,43 +45,9 @@ template <typename Float, daal::CpuType Cpu>
 using daal_lom_online_kernel_t =
     daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
 
-template <typename Method>
-constexpr daal_lom::Method get_daal_method() {
-    return daal_lom::defaultDense;
-}
-
-template <typename Float>
-std::int64_t propose_block_size(std::int64_t row_count, std::int64_t col_count) {
-    using idx_t = std::int64_t;
-    ONEDAL_ASSERT(row_count > 0);
-    ONEDAL_ASSERT(col_count > 0);
-    constexpr idx_t max_block_mem_size = 16 * 1024 * 1024;
-    const idx_t block_of_rows_size = max_block_mem_size / (col_count * sizeof(Float));
-    return std::max<idx_t>(std::min<idx_t>(row_count, idx_t(1024l)), block_of_rows_size);
-}
-
-template <typename Float>
-array<Float> copy_immutable(const array<Float>&& inp) {
-    if (inp.has_mutable_data()) {
-        return inp;
-    }
-    else {
-        const auto count = inp.get_count();
-        auto res = array<Float>::empty(count);
-        bk::copy(res.get_mutable_data(), inp.get_data(), count);
-        return res;
-    }
-}
-
 template <typename Float, typename Result, typename Input, typename Parameter>
 void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
     const auto status = result.template allocate<Float>(input, params, method);
-    interop::status_to_exception(status);
-}
-
-template <typename Float, typename Result, typename Input, typename Parameter>
-void initialize_result(Result& result, const Input* input, const Parameter* params, int method) {
-    const auto status = result.template initialize<Float>(input, params, method);
     interop::status_to_exception(status);
 }
 
@@ -95,7 +61,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
 
     auto column_numbers = input.get_partial_min().get_column_count();
     const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
-    auto row_count = nobs[0];
+    const std::int64_t row_count = nobs[0];
 
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());

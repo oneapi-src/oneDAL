@@ -103,6 +103,32 @@ auto update_partial_results(sycl::queue& q,
                            result_sums2cent,
                            update_event);
 }
+//Investigate after fixing no weights
+template <typename Float>
+auto apply_weights(sycl::queue& q,
+                   const table data,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   const table weights,
+                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(apply_weights, q);
+    auto data_to_compute = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
+    if (weights.has_data()) {
+        auto weights_nd = pr::table2ndarray_1d<Float>(q, weights, sycl::usm::alloc::device);
+        auto weights_ptr = weights_nd.get_mutable_data();
+        auto data_to_compute_ptr = data_to_compute.get_mutable_data();
+        auto update_event = q.submit([&](sycl::handler& cgh) {
+            const auto range = sycl::range<2>(row_count, column_count);
+
+            cgh.depends_on(deps);
+            cgh.parallel_for(range, [=](sycl::item<2> id) {
+                data_to_compute_ptr[id[0] * column_count + id[1]] *= weights_ptr[id[0]];
+            });
+        });
+    }
+
+    return data_to_compute;
+}
 
 //TODO:: optimize
 template <typename Float>
@@ -114,7 +140,6 @@ auto init_computation(sycl::queue& q,
                       const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(init_partial_results, q);
 
-    auto copy_data = data;
     auto component_count = column_count;
     auto current_nobs_ptr = nobs.get_data();
     auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
@@ -197,6 +222,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
     auto& q = ctx.get_queue();
 
     const auto data = input.get_data();
+    const auto weights = input.get_data();
     auto result = partial_compute_result();
     const auto input_ = input.get_prev();
     const std::int64_t row_count = data.get_row_count();
@@ -208,7 +234,8 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
     const bool has_nobs_data = input_.get_nobs().has_data();
-
+    //auto data_to_compute = apply_weights<Float>(q, data, row_count, column_count, weights);
+    auto data_to_compute = data_nd;
     if (has_nobs_data) {
         const auto sums_nd =
             pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
@@ -231,7 +258,8 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               partial_sums2,
               partial_sums2cent,
               partial_nobs,
-              update_event] = init_computation(q, data_nd, nobs_nd, column_count, row_count);
+              update_event] =
+            init_computation(q, data_to_compute, nobs_nd, column_count, row_count);
         auto [result_min, result_max, result_sums, result_sums2, result_sums2cent, second_event] =
             update_partial_results(q,
                                    min_nd,
@@ -269,7 +297,8 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               result_sums2,
               result_sums2cent,
               result_nobs,
-              update_event] = init_computation(q, data_nd, init_nobs, column_count, row_count);
+              update_event] =
+            init_computation(q, data_to_compute, init_nobs, column_count, row_count);
         result.set_partial_min(
             (homogen_table::wrap(result_min.flatten(q, { update_event }), 1, column_count)));
         result.set_partial_max(

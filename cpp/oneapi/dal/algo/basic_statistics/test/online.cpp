@@ -43,7 +43,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
                            te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
 
     std::shared_ptr<te::dataframe> weights;
-    const bool use_weights = GENERATE(1);
+    const bool use_weights = GENERATE(0, 1);
 
     if (use_weights) {
         const auto row_count = data.get_row_count();
