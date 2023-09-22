@@ -132,7 +132,7 @@ Operation
       | :expr:`result.transformed_data.column_count == desc.component_count`
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/decomposition/pca-usage-examples.rst

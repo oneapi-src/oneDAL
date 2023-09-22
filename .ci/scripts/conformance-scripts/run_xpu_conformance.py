@@ -25,7 +25,7 @@ import os
 
 try:
     import daal4py
-except:
+except Exception:
     raise Exception('daal4py is not installed')
 
 

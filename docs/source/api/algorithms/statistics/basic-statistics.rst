@@ -79,7 +79,7 @@ Operation
       | :expr:`input.data.is_empty == false`
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/statistics/basic-statistics-usage-examples.rst

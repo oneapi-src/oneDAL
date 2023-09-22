@@ -28,7 +28,7 @@ of the :txtref:`table` as :capterm:`contiguous <contiguous data>`
 :capterm:`homogeneous <homogeneous data>` array.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/data-management/column-accessor-usage-example.rst

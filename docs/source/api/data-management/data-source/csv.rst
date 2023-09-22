@@ -130,7 +130,7 @@ template parameter for :cpp:expr:`read` operation with CSV data source.
                    reading from the data source.
    :tparam DataSource: CSV data source :cpp:expr:`csv::data_source`.
 
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/data-management/csv-data-source-usage-example.rst
