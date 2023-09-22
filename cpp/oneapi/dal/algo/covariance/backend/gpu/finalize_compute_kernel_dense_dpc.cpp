@@ -112,10 +112,11 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
 
     sycl::event event;
 
-    const auto nobs_host = pr::table2ndarray<Float>(q, input.get_nobs());
+    const auto nobs_host = pr::table2ndarray<Float>(q, input.get_partial_n_rows());
     auto rows_count_global = nobs_host.get_data()[0];
 
-    const auto sums = pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
+    const auto sums =
+        pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
     const auto xtx =
         pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
 
