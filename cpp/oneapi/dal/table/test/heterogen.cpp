@@ -378,6 +378,64 @@ TEST("Can get row slice from heterogen to shared") {
     }
 }
 
+TEST("Can get column slice from heterogen to shared") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    constexpr auto host = sycl::usm::alloc::host;
+    constexpr auto device = sycl::usm::alloc::device;
+    constexpr auto shared = sycl::usm::alloc::shared;
+
+    constexpr std::int64_t count = 777;
+
+    auto arr0 = array<float>::empty(q, count, shared);
+    std::iota(begin(arr0), end(arr0), float(0));
+    chunked_array<float> chunked0(arr0);
+
+    auto arr1 = array<std::int8_t>::empty(q, count, shared);
+    std::iota(begin(arr1), end(arr1), std::int8_t(0));
+    chunked_array<std::int8_t> chunked1(arr1);
+
+    auto arr2 = array<std::uint16_t>::empty(q, count, host);
+    std::iota(begin(arr2), end(arr2), std::uint16_t(0));
+    chunked_array<std::uint16_t> chunked2(arr2);
+
+    auto arr3 = array<std::int32_t>::empty(q, count, host);
+    std::iota(begin(arr3), end(arr3), std::int32_t(0l));
+    auto arr4 = array<std::int32_t>::empty(q, count, device);
+    /* Copying to device */ detail::copy(arr4, arr3);
+    chunked_array<std::int32_t> chunked3(arr4);
+
+    auto table = heterogen_table::wrap( //
+        chunked0,
+        chunked1,
+        chunked2,
+        chunked3);
+
+    column_accessor<const float> accessor{ table };
+
+    auto check_column = [&](auto c, auto f, auto l, const auto& arr) {
+        const std::int64_t range = l - f;
+        REQUIRE(range == arr.get_count());
+
+        const auto* const arr_ptr = arr.get_data();
+        for (std::int64_t i = 0l; i < range; ++i) {
+            const auto gtr = float(f + i);
+            const auto val = arr_ptr[i];
+            CAPTURE(i, f, c, gtr, val);
+            REQUIRE(gtr == val);
+        }
+    };
+
+    for (std::int64_t col = 0l; col < table.get_column_count(); ++col) {
+        const std::int64_t first = 2 * col, last = count - 2 * col; 
+        auto tmp = accessor.pull(q, col, { first, last }, device);
+        auto res = array<float>::empty(tmp.get_count());
+        /* Copying to host */ detail::copy(res, tmp);
+        check_column(col, first, last, res);
+    }
+}
+
 #endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::test
