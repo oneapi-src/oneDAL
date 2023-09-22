@@ -37,7 +37,7 @@ using input_t = partial_compute_input<task_t>;
 using result_t = partial_compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
-//TODO:: optimize+provide partial_compute_input insetead of a lot of arrays.
+//TODO:: optimize
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 1>& min,
@@ -72,8 +72,8 @@ auto update_partial_results(sycl::queue& q,
     auto current_max_ptr = current_max.get_mutable_data();
     auto current_sums_ptr = current_sums.get_mutable_data();
     auto current_sums2_ptr = current_sums2.get_mutable_data();
-    auto nobs_ptr = nobs.get_mutable_data();
 
+    auto nobs_ptr = nobs.get_data();
     auto min_data = min.get_data();
     auto max_data = max.get_data();
     auto sums_data = sums.get_data();
@@ -103,7 +103,7 @@ auto update_partial_results(sycl::queue& q,
                            result_sums2cent,
                            update_event);
 }
-//TODO:return event+results
+
 template <typename Float>
 auto apply_weights(sycl::queue& q,
                    const pr::ndview<Float, 2>& data,

@@ -45,12 +45,6 @@ template <typename Float, daal::CpuType Cpu>
 using daal_lom_online_kernel_t =
     daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
 
-template <typename Float, typename Result, typename Input, typename Parameter>
-void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
-    const auto status = result.template allocate<Float>(input, params, method);
-    interop::status_to_exception(status);
-}
-
 template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel_finalize_compute(
     const context_cpu& ctx,

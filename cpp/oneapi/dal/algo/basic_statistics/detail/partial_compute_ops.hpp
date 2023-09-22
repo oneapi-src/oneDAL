@@ -40,9 +40,19 @@ struct partial_compute_ops {
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
-
+        const auto& data = input.get_data();
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
+        }
+        const auto& weights = input.get_weights();
+        if (weights.has_data()) {
+            const auto r_count = weights.get_row_count();
+            if (r_count != data.get_row_count())
+                throw domain_error(msg::weight_dimension_doesnt_match_data_dimension());
+
+            const auto c_count = weights.get_column_count();
+            if (c_count != std::int64_t(1))
+                throw domain_error(msg::weights_column_count_ne_1());
         }
     }
 
@@ -52,14 +62,21 @@ struct partial_compute_ops {
         ONEDAL_ASSERT(result.get_nobs().has_data());
         ONEDAL_ASSERT(result.get_nobs().get_column_count() == 1);
         ONEDAL_ASSERT(result.get_nobs().get_row_count() == 1);
-        // ONEDAL_ASSERT(result.get_crossproduct().has_data());
-        // ONEDAL_ASSERT(result.get_crossproduct().get_column_count() ==
-        //               input.get_data().get_column_count());
-        // ONEDAL_ASSERT(result.get_crossproduct().get_row_count() ==
-        //               input.get_data().get_column_count());
-        // ONEDAL_ASSERT(result.get_sums().has_data());
-        // ONEDAL_ASSERT(result.get_sums().get_column_count() == input.get_data().get_column_count());
-        // ONEDAL_ASSERT(result.get_sums().get_row_count() == 1);
+        ONEDAL_ASSERT(result.get_partial_max().has_data());
+        ONEDAL_ASSERT(result.get_partial_min().has_data());
+        ONEDAL_ASSERT(result.get_partial_sum().has_data());
+        ONEDAL_ASSERT(result.get_partial_sum_squares().has_data());
+        ONEDAL_ASSERT(result.get_partial_sum_squares_centered().has_data());
+        ONEDAL_ASSERT(result.get_partial_min().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_partial_max().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_partial_sum().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_partial_sum_squares().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_partial_sum_squares_centered().get_column_count() ==
+                      input.get_data().get_column_count());
     }
 
     template <typename Context>

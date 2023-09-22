@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
-//TODO:add checks for pre and postconditions
+
 namespace oneapi::dal::basic_statistics::detail {
 namespace v1 {
 
@@ -42,36 +42,24 @@ struct finalize_compute_ops {
         ONEDAL_ASSERT(input.get_nobs().has_data());
         ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
         ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
-        // ONEDAL_ASSERT(input.get_crossproduct().has_data());
-        // ONEDAL_ASSERT(input.get_sums().has_data());
+        ONEDAL_ASSERT(input.get_partial_max().has_data());
+        ONEDAL_ASSERT(input.get_partial_min().has_data());
+        ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        ONEDAL_ASSERT(input.get_partial_sum_squares().has_data());
+        ONEDAL_ASSERT(input.get_partial_sum_squares_centered().has_data());
     }
 
-    // void check_postconditions(const Descriptor& params,
-    //                           const input_t& input,
-    //                           const result_t& result) const {
-    //     if (result.get_result_options().test(result_options::means)) {
-    //         ONEDAL_ASSERT(result.get_means().has_data());
-    //         ONEDAL_ASSERT(result.get_means().get_column_count() ==
-    //                       input.get_crossproduct().get_column_count());
-    //         ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
-    //     }
+    void check_postconditions(const Descriptor& params,
+                              const input_t& input,
+                              const result_t& result) const {
+        if (result.get_result_options().test(result_options::min)) {
+            ONEDAL_ASSERT(result.get_min().has_data());
+        }
 
-    //     if (result.get_result_options().test(result_options::cov_matrix)) {
-    //         ONEDAL_ASSERT(result.get_cov_matrix().has_data());
-    //         ONEDAL_ASSERT(result.get_cov_matrix().get_column_count() ==
-    //                       input.get_crossproduct().get_column_count());
-    //         ONEDAL_ASSERT(result.get_cov_matrix().get_row_count() ==
-    //                       input.get_crossproduct().get_column_count());
-    //     }
-
-    //     if (result.get_result_options().test(result_options::cor_matrix)) {
-    //         ONEDAL_ASSERT(result.get_cor_matrix().has_data());
-    //         ONEDAL_ASSERT(result.get_cor_matrix().get_column_count() ==
-    //                       input.get_crossproduct().get_column_count());
-    //         ONEDAL_ASSERT(result.get_cor_matrix().get_row_count() ==
-    //                       input.get_crossproduct().get_column_count());
-    //     }
-    // }
+        if (result.get_result_options().test(result_options::max)) {
+            ONEDAL_ASSERT(result.get_max().has_data());
+        }
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx,
@@ -80,7 +68,7 @@ struct finalize_compute_ops {
         check_preconditions(desc, input);
         const auto result =
             finalize_compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
-        //check_postconditions(desc, input, result);
+        check_postconditions(desc, input, result);
         return result;
     }
 };

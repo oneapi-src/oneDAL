@@ -84,7 +84,6 @@ auto compute_all_metrics(sycl::queue& q,
                            update_event);
 }
 
-//TODO: add checks
 template <typename Float, typename Task>
 static compute_result<Task> finalize_compute(const context_gpu& ctx,
                                              const descriptor_t& desc,

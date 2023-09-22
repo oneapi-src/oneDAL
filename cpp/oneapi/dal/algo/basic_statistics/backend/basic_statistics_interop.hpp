@@ -100,4 +100,29 @@ inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_re
     return res;
 }
 
+template <typename Float>
+array<Float> copy_immutable(const array<Float>&& inp) {
+    if (inp.has_mutable_data()) {
+        return inp;
+    }
+    else {
+        const auto count = inp.get_count();
+        auto res = array<Float>::empty(count);
+        bk::copy(res.get_mutable_data(), inp.get_data(), count);
+        return res;
+    }
+}
+
+template <typename Float, typename Result, typename Input, typename Parameter>
+void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
+    const auto status = result.template allocate<Float>(input, params, method);
+    interop::status_to_exception(status);
+}
+
+template <typename Float, typename Result, typename Input, typename Parameter>
+void initialize_result(Result& result, const Input* input, const Parameter* params, int method) {
+    const auto status = result.template initialize<Float>(input, params, method);
+    interop::status_to_exception(status);
+}
+
 } // namespace oneapi::dal::basic_statistics::backend
