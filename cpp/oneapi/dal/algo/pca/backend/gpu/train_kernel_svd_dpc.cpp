@@ -15,17 +15,40 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
-
+#include "oneapi/dal/algo/pca/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/train_kernel_svd_impl.hpp"
+#include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 namespace oneapi::dal::pca::backend {
+
+namespace bk = dal::backend;
+namespace pr = oneapi::dal::backend::primitives;
+using alloc = sycl::usm::alloc;
+using dal::backend::context_gpu;
+using model_t = model<task::dim_reduction>;
+using input_t = train_input<task::dim_reduction>;
+using result_t = train_result<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task::dim_reduction>;
+
+template <typename Float>
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    return train_kernel_svd_impl<Float>(ctx)(desc, input);
+}
 
 template <typename Float>
 struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
-    train_result<task::dim_reduction> operator()(
-        const dal::backend::context_gpu& ctx,
-        const detail::descriptor_base<task::dim_reduction>& params,
-        const train_input<task::dim_reduction>& input) const {
-        throw unimplemented(
-            dal::detail::error_messages::pca_svd_based_method_is_not_implemented_for_gpu());
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float>(ctx, desc, input);
     }
 };
 

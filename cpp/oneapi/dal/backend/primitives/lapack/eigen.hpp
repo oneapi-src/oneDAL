@@ -17,34 +17,29 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-/// Do not use this.
 template <typename Float>
-void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w);
+sycl::event sym_eigvals_impl(sycl::queue& q,
+                             Float* a,
+                             std::int64_t n,
+                             std::int64_t lda,
+                             Float* w,
+                             const event_vector& deps = {});
 
-/// Do not use this.
 template <typename Float>
-void flip_eigvals_impl(Float* a,
-                       Float* w,
-                       std::int64_t n,
-                       std::int64_t lda,
-                       std::int64_t w_count,
-                       Float* a_flipped,
-                       std::int64_t lda_flipped,
-                       Float* w_flipped);
-
-/// Do not use this.
-template <typename Cpu, typename Float>
-void flip_eigvals_impl_cpu(Float* a,
-                           Float* w,
-                           std::int64_t n,
-                           std::int64_t lda,
-                           std::int64_t w_count,
-                           Float* a_flipped,
-                           std::int64_t lda_flipped,
-                           Float* w_flipped);
+sycl::event flip_eigvals_impl(sycl::queue& queue,
+                              Float* a,
+                              Float* w,
+                              std::int64_t n,
+                              std::int64_t lda,
+                              std::int64_t w_count,
+                              Float* a_flipped,
+                              std::int64_t lda_flipped,
+                              Float* w_flipped,
+                              const event_vector& deps = {});
 
 /// Computes eigenvectors and eigenvalues in-place.
 ///
@@ -57,14 +52,17 @@ void flip_eigvals_impl_cpu(Float* a,
 ///                                 The eigenvalues are written in ascending order. $i$-th eigenvalue
 ///                                 corrensponds to $i$-th eigenvector.
 template <typename Float, ndorder order>
-inline void sym_eigvals(ndview<Float, 2, order>& data_or_eigvecs, ndview<Float, 1>& eigvals) {
+inline void sym_eigvals(sycl::queue& queue,
+                        ndview<Float, 2, order>& data_or_eigvecs,
+                        ndview<Float, 1>& eigvals) {
     ONEDAL_ASSERT(data_or_eigvecs.get_dimension(0) == data_or_eigvecs.get_dimension(1),
                   "Input matrix must be square");
     ONEDAL_ASSERT(eigvals.get_dimension(0) >= data_or_eigvecs.get_dimension(0));
     ONEDAL_ASSERT(data_or_eigvecs.has_mutable_data());
     ONEDAL_ASSERT(eigvals.has_mutable_data());
 
-    sym_eigvals_impl(data_or_eigvecs.get_mutable_data(),
+    sym_eigvals_impl(queue,
+                     data_or_eigvecs.get_mutable_data(),
                      data_or_eigvecs.get_dimension(0),
                      data_or_eigvecs.get_leading_stride(),
                      eigvals.get_mutable_data());
@@ -73,10 +71,12 @@ inline void sym_eigvals(ndview<Float, 2, order>& data_or_eigvecs, ndview<Float, 
 /// Computes eigenvectors and eigenvalues in-place. Eigenvectors and eigenvalues are written in
 /// descending order determined by eigenvalues. For more details, see `sym_eigvals`.
 template <typename Float, ndorder order>
-inline void sym_eigvals_descending(ndview<Float, 2, order>& data_or_eigvecs,
+inline void sym_eigvals_descending(sycl::queue& queue,
+                                   ndview<Float, 2, order>& data_or_eigvecs,
                                    ndview<Float, 1>& eigvals) {
-    sym_eigvals(data_or_eigvecs, eigvals);
-    flip_eigvals_impl(data_or_eigvecs.get_mutable_data(),
+    sym_eigvals(queue, data_or_eigvecs, eigvals);
+    flip_eigvals_impl(queue,
+                      data_or_eigvecs.get_mutable_data(),
                       eigvals.get_mutable_data(),
                       data_or_eigvecs.get_dimension(0),
                       data_or_eigvecs.get_leading_stride(),
@@ -103,13 +103,15 @@ inline void sym_eigvals_descending(ndview<Float, 2, order>& data_or_eigvecs,
 ///                                    eigenvalues. The eigenvalues are written in ascending order.
 ///                                    $i$-th eigenvalue corrensponds to $i$-th eigenvector.
 template <typename Float, ndorder order>
-inline void sym_eigvals_descending(ndview<Float, 2, order>& data_or_scratchpad,
+inline void sym_eigvals_descending(sycl::queue& queue,
+                                   ndview<Float, 2, order>& data_or_scratchpad,
                                    std::int64_t eigval_count,
                                    ndview<Float, 2, order>& eigvecs,
                                    ndview<Float, 1>& eigvals) {
     auto eigvals_full = ndarray<Float, 1>::empty(data_or_scratchpad.get_dimension(0));
-    sym_eigvals(data_or_scratchpad, eigvals_full);
-    flip_eigvals_impl(data_or_scratchpad.get_mutable_data(),
+    sym_eigvals(queue, data_or_scratchpad, eigvals_full);
+    flip_eigvals_impl(queue,
+                      data_or_scratchpad.get_mutable_data(),
                       eigvals_full.get_mutable_data(),
                       data_or_scratchpad.get_dimension(0),
                       data_or_scratchpad.get_leading_stride(),

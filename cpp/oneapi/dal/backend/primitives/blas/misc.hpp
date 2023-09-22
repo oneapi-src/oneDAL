@@ -44,4 +44,26 @@ inline constexpr mkl::uplo ident_uplo(mkl::uplo order) {
     return (order == upper) ? upper : lower;
 }
 
+inline constexpr mkl::job ident_job(mkl::job order) {
+    constexpr auto novec = mkl::job::novec;
+    constexpr auto vec = mkl::job::vec;
+    return (order == novec) ? novec : vec;
+}
+
+inline constexpr mkl::jobsvd ident_jobsvd(mkl::jobsvd order) {
+    constexpr auto vectors = mkl::jobsvd::vectors;
+    constexpr auto somevec = mkl::jobsvd::somevec;
+    constexpr auto vectorsina = mkl::jobsvd::vectorsina;
+    constexpr auto novec = mkl::jobsvd::novec;
+
+    if (order == vectors)
+        return vectors;
+    else if (order == somevec)
+        return somevec;
+    else if (order == vectorsina)
+        return vectorsina;
+    else
+        return novec;
+}
+
 } // namespace oneapi::dal::backend::primitives

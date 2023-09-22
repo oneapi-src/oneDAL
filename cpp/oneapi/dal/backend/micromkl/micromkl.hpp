@@ -1,36 +1,36 @@
-/*******************************************************************************
-* Copyright 2021 Intel Corporation
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+// /*******************************************************************************
+// * Copyright 2021 Intel Corporation
+// *
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+// *
+// *     http://www.apache.org/licenses/LICENSE-2.0
+// *
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// *******************************************************************************/
 
-#pragma once
+// #pragma once
 
-#include "oneapi/dal/common.hpp"
+// #include "oneapi/dal/common.hpp"
 
-namespace oneapi::dal::backend::micromkl {
+// namespace oneapi::dal::backend::micromkl {
 
-template <typename Cpu, typename Float>
-void syevd(char jobz,
-           char uplo,
-           std::int64_t n,
-           Float* a,
-           std::int64_t lda,
-           Float* w,
-           Float* work,
-           std::int64_t lwork,
-           std::int64_t* iwork,
-           std::int64_t liwork,
-           std::int64_t& info);
+// template <typename Cpu, typename Float>
+// void syevd(char jobz,
+//            char uplo,
+//            std::int64_t n,
+//            Float* a,
+//            std::int64_t lda,
+//            Float* w,
+//            Float* work,
+//            std::int64_t lwork,
+//            std::int64_t* iwork,
+//            std::int64_t liwork,
+//            std::int64_t& info);
 
-} // namespace oneapi::dal::backend::micromkl
+// } // namespace oneapi::dal::backend::micromkl

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,25 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
-#include "oneapi/dal/backend/primitives/lapack/solve.hpp"
-#include "oneapi/dal/backend/primitives/lapack/gesvd.hpp"
-#include "oneapi/dal/backend/primitives/lapack/syevd.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/blas/misc.hpp"
+
+namespace oneapi::dal::backend::primitives {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+namespace mkl = oneapi::fpk;
+
+template <mkl::job jobz, mkl::uplo ul, typename Float>
+sycl::event syevd(sycl::queue& queue,
+                  std::int64_t n,
+                  Float* a,
+                  std::int64_t lda,
+                  Float* w,
+                  Float* scratchpad,
+                  std::int64_t scratchpad_size,
+                  const event_vector& deps = {});
+
+#endif
+
+} // namespace oneapi::dal::backend::primitives
