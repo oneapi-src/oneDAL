@@ -199,7 +199,7 @@ TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
                      "Random heterogen table - host",
                      "[empty][heterogen][device]",
                      heterogen_types) {
-    const std::int64_t column_count = GENERATE(1, 10, 101, 1001);
+    const std::int64_t column_count = GENERATE(1, 10, 101, 1'001);
     const std::int64_t row_count = GENERATE(1, 11, 101, 1'001, 10'001);
     const heterogen_table original = this->get_device_backed_table(row_count, column_count);
 

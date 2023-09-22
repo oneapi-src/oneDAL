@@ -21,6 +21,8 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 
+#include "oneapi/dal/backend/dispatcher.hpp"
+
 #include "oneapi/dal/detail/debug.hpp"
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/threading.hpp"
@@ -295,7 +297,7 @@ struct heterogen_dispatcher<detail::host_policy> {
                          transpose(curr_shape));
         }
 
-        block_data.reset(result, result.get_mutable_data(), result.get_count());
+        block_data = std::move(result);
     }
 
     template <typename Type>
@@ -306,14 +308,50 @@ struct heterogen_dispatcher<detail::host_policy> {
                             std::int64_t column,
                             const range& rows_range,
                             alloc_kind requested_alloc_kind) {
-        /*const auto col_count = get_column_count(meta, data);
+        const auto col_count = get_column_count(meta, data);
+        ONEDAL_ASSERT((0l <= column) && (column < col_count));
+
         const auto row_count = get_row_count(col_count, meta, data);
         const auto [first, last] = rows_range.normalize_range(row_count);
 
         ONEDAL_ASSERT(first < last);
-        const auto copy_count = last - first;
+        const std::int64_t copy_count = last - first;
 
-        auto result = */
+        const auto col_dtype = meta.get_data_type(column);
+        const auto dsize = detail::get_data_type_size(col_dtype);
+        constexpr auto out_dtype = detail::make_data_type<Type>();
+
+        auto last_byte = detail::check_mul_overflow(last, dsize);
+        auto first_byte = detail::check_mul_overflow(first, dsize);
+
+        const auto& original = *(data.get_data() + column);
+        auto slice = original.get_slice_impl(first_byte, last_byte);
+
+        if (col_dtype == out_dtype) {
+            block_data.reset(copy_count);
+            detail::copy(block_data, slice);
+        }
+        else {
+            backend::dispatch_by_data_type(col_dtype, [&](auto type) {
+                using type_t = std::decay_t<decltype(type)>;
+                auto res = dal::array<Type>::empty(copy_count);
+                auto tmp = dal::array<type_t>::empty(copy_count);
+
+                detail::copy(tmp, slice);
+
+                constexpr std::int64_t stride = 1l;
+                const auto* const raw_inp_ptrs = tmp.get_data();
+                auto* const raw_out_ptrs = res.get_mutable_data();
+
+                auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
+                auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
+
+                backend::copy_convert(policy, &inp_ptrs, &col_dtype, &stride, 
+                            &out_ptrs, &out_dtype, &stride, {1, copy_count});
+
+                block_data = std::move(res);
+            });
+        }
     }
 };
 
@@ -463,8 +501,53 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                             std::int64_t column,
                             const range& rows_range,
                             alloc_kind requested_alloc_kind) {
-        using msg = dal::detail::error_messages;
-        throw dal::unimplemented(msg::pull_column_interface_is_not_implemented());
+        const auto col_count = get_column_count(meta, data);
+        ONEDAL_ASSERT((0l <= column) && (column < col_count));
+
+        const auto row_count = get_row_count(col_count, meta, data);
+        const auto [first, last] = rows_range.normalize_range(row_count);
+
+        ONEDAL_ASSERT(first < last);
+        const std::int64_t copy_count = last - first;
+
+        const auto col_dtype = meta.get_data_type(column);
+        const auto dsize = detail::get_data_type_size(col_dtype);
+        constexpr auto out_dtype = detail::make_data_type<Type>();
+
+        auto last_byte = detail::check_mul_overflow(last, dsize);
+        auto first_byte = detail::check_mul_overflow(first, dsize);
+
+        const auto& original = *(data.get_data() + column);
+        auto slice = original.get_slice_impl(first_byte, last_byte);
+
+        sycl::queue& queue = policy.get_queue();
+        const auto alloc = alloc_kind_to_sycl(requested_alloc_kind);
+
+        if (col_dtype == out_dtype) {
+            block_data.reset(queue, copy_count, alloc);
+            detail::copy(block_data, slice);
+        }
+        else {
+            backend::dispatch_by_data_type(col_dtype, [&](auto type) {
+                using type_t = std::decay_t<decltype(type)>;
+                auto res = dal::array<Type>::empty(queue, copy_count, alloc);
+                auto tmp = dal::array<type_t>::empty(queue, copy_count, alloc);
+
+                detail::copy(tmp, slice);
+
+                constexpr std::int64_t stride = 1l;
+                const auto* const raw_inp_ptrs = tmp.get_data();
+                auto* const raw_out_ptrs = res.get_mutable_data();
+
+                auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
+                auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
+
+                backend::copy_convert(policy, &inp_ptrs, &col_dtype, &stride, 
+                            &out_ptrs, &out_dtype, &stride, {1, copy_count});
+
+                block_data = std::move(res);
+            });
+        }
     }
 };
 
