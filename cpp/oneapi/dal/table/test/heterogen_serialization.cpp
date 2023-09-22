@@ -31,12 +31,11 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 using heterogen_types =
-    std::tuple<std::tuple<std::uint8_t,  std::int16_t, std::uint32_t, std::uint64_t>,
+    std::tuple<std::tuple<std::uint8_t, std::int16_t, std::uint32_t, std::uint64_t>,
                std::tuple<std::uint64_t, std::int32_t, std::uint16_t, std::uint8_t>,
-               std::tuple<float,         std::int32_t, float>,
-               std::tuple<std::int64_t,  std::int8_t>,
+               std::tuple<float, std::int32_t, float>,
+               std::tuple<std::int64_t, std::int8_t>,
                std::tuple<float>>;
-
 
 class base_heterogen_table_serialization_test : public te::policy_fixture {
 public:
@@ -84,16 +83,17 @@ public:
         check_empty_base_table(deserialized);
     }
 
-    void compare_tables(const heterogen_table& original, const heterogen_table& deserialized) override {
+    void compare_tables(const heterogen_table& original,
+                        const heterogen_table& deserialized) override {
         check_empty_heterogen_table(deserialized);
     }
 
     void check_empty_base_table(const table& deserialized) {
+        REQUIRE(deserialized.has_data() == false);
         REQUIRE(deserialized.get_row_count() == 0);
         REQUIRE(deserialized.get_column_count() == 0);
-        REQUIRE(deserialized.has_data() == false);
-        REQUIRE(deserialized.get_data_layout() == data_layout::unknown);
         REQUIRE(deserialized.get_metadata().get_feature_count() == 0);
+        REQUIRE(deserialized.get_data_layout() == data_layout::column_major);
     }
 
     void check_empty_heterogen_table(const heterogen_table& deserialized) {
@@ -121,10 +121,12 @@ public:
         auto table = heterogen_table::empty(meta);
 
         std::int64_t col = 0l;
-        detail::apply([&](const auto& type) -> void {
-            const auto column = generate(type, col);
-            table.set_column(col++, column);
-        }, Types{}...);
+        detail::apply(
+            [&](const auto& type) -> void {
+                const auto column = generate(type, col);
+                table.set_column(col++, column);
+            },
+            Types{}...);
         REQUIRE(col == column_count);
 
         return table;
@@ -132,10 +134,10 @@ public:
 
     template <typename T>
     chunked_array<T> generate_random_host(std::int64_t count, int seed) {
-        auto random = la::generate_uniform_matrix<T>({count, 1l}, 0, 10, seed);
+        auto random = la::generate_uniform_matrix<T>({ count, 1l }, 0, 10, seed);
         return chunked_array<T>(random.get_array());
     }
-    
+
     heterogen_table get_host_backed_table(std::int64_t row_count, int seed = 7777) {
         auto generate = [row_count, seed, this](auto type, std::int64_t col) {
             const std::int64_t sd = seed + col;
@@ -147,8 +149,8 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    chunked_array<T> generate_random_device(std::int64_t count, int seed){
-        auto random = la::generate_uniform_matrix<T>({count, 1l}, 0, 10, seed);
+    chunked_array<T> generate_random_device(std::int64_t count, int seed) {
+        auto random = la::generate_uniform_matrix<T>({ count, 1l }, 0, 10, seed);
         auto random_device = random.to_device(this->get_queue()).get_array();
         return chunked_array<T>(random_device);
     }
@@ -167,13 +169,15 @@ public:
         te::check_if_tables_equal<float>(deserialized, original);
     }
 
-    void compare_tables(const heterogen_table& original, const heterogen_table& deserialized) override {
+    void compare_tables(const heterogen_table& original,
+                        const heterogen_table& deserialized) override {
         te::check_if_tables_equal<float>(deserialized, original);
     }
 };
 
 TEST_CASE_METHOD(empty_heterogen_table_serialization_test,
-                 "Empty heterogen table", "[empty][heterogen]") {
+                 "Empty heterogen table",
+                 "[empty][heterogen]") {
     const heterogen_table empty_table;
 
     this->check_table_serialization(empty_table);

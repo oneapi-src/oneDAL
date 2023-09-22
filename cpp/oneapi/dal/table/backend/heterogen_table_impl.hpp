@@ -30,6 +30,8 @@ namespace oneapi::dal::backend {
 
 class heterogen_table_impl : public detail::heterogen_table_template<heterogen_table_impl>,
                              public ONEDAL_SERIALIZABLE(heterogen_table_id) {
+    using data_t = dal::array<detail::chunked_array_base>;
+
 public:
     heterogen_table_impl() {}
 
@@ -77,7 +79,12 @@ public:
     }
 
     void deserialize(detail::input_archive& ar) override {
-        ar(this->meta_);
+        {
+            table_metadata deserialized_meta;
+            /*Temporary*/ ar(deserialized_meta);
+            reset_with_metadata(deserialized_meta);
+        }
+
         const std::int64_t col_count = get_column_count();
         for (std::int64_t col = 0l; col < col_count; ++col) {
             auto dt = get_metadata().get_data_type(col);
@@ -132,6 +139,20 @@ public:
         return true;
     }
 
+    void reset_with_metadata(const table_metadata& meta) {
+        const auto col_count = meta.get_feature_count();
+        if (std::int64_t{ 0l } < col_count) {
+            const detail::chunked_array_base empty;
+            auto new_data = data_t::full(col_count, empty);
+            auto raw_ptr = new_data.get_mutable_data();
+            data_.reset(new_data, raw_ptr, col_count);
+        }
+        else {
+            data_.reset();
+        }
+        meta_ = meta;
+    }
+
     template <typename T>
     void pull_rows_template(const detail::default_host_policy& policy,
                             array<T>& block,
@@ -170,7 +191,7 @@ public:
 
 private:
     table_metadata meta_;
-    dal::array<detail::chunked_array_base> data_;
+    data_t data_;
 };
 
 } // namespace oneapi::dal::backend
