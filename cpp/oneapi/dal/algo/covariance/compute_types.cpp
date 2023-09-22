@@ -150,7 +150,7 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
 }
 
 template <typename Task>
-const table& partial_compute_result<Task>::get_nobs() const {
+const table& partial_compute_result<Task>::get_partial_n_rows() const {
     return impl_->nobs;
 }
 
@@ -159,26 +159,26 @@ partial_compute_result<Task>::partial_compute_result()
         : impl_(new partial_compute_result_impl<Task>()) {}
 
 template <typename Task>
-void partial_compute_result<Task>::set_nobs_impl(const table& value) {
+void partial_compute_result<Task>::set_partial_n_rows_impl(const table& value) {
     impl_->nobs = value;
 }
 
 template <typename Task>
-const table& partial_compute_result<Task>::get_crossproduct() const {
+const table& partial_compute_result<Task>::get_partial_crossproduct() const {
     return impl_->crossproduct;
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_crossproduct_impl(const table& value) {
+void partial_compute_result<Task>::set_partial_crossproduct_impl(const table& value) {
     impl_->crossproduct = value;
 }
 template <typename Task>
-const table& partial_compute_result<Task>::get_sums() const {
+const table& partial_compute_result<Task>::get_partial_sum() const {
     return impl_->sums;
 }
 
 template <typename Task>
-void partial_compute_result<Task>::set_sums_impl(const table& value) {
+void partial_compute_result<Task>::set_partial_sum_impl(const table& value) {
     impl_->sums = value;
 }
 
