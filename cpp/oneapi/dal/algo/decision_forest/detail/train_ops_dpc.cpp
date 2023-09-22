@@ -33,17 +33,6 @@ struct train_ops_dispatcher<Policy, Float, Task, Method> {
             KERNEL_UNIVERSAL_SPMD_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(policy, desc, input);
     }
-    train_result<Task> operator()(
-        const Policy& policy,
-        const descriptor_base<Task>& desc,
-        const oneapi::dal::decision_forest::v1::train_input<Task>& input) const {
-        return this->operator()(
-            policy,
-            desc,
-            oneapi::dal::decision_forest::v2::train_input<Task>(input.get_data(),
-                                                                input.get_responses(),
-                                                                table{}));
-    }
 };
 
 #define INSTANTIATE(F, T, M)                                              \

@@ -63,9 +63,6 @@ public:
     virtual void traverseBF(size_t iTree, classifier::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
     virtual void clear() DAAL_C11_OVERRIDE { ImplType::clear(); }
 
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
-
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 

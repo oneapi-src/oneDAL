@@ -44,8 +44,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 {
     const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
     services::Status st;
-    const multi_class_classifier::interface1::ParameterBase * algParameter1 =
-        dynamic_cast<const multi_class_classifier::interface1::ParameterBase *>(parameter);
+    const multi_class_classifier::interface2::ParameterBase * algParameter1 =
+        dynamic_cast<const multi_class_classifier::interface2::ParameterBase *>(parameter);
     if (algParameter1)
     {
         multi_class_classifier::ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter1, &st);
