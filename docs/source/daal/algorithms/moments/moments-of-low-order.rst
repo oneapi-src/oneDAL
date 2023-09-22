@@ -104,37 +104,6 @@ Examples
     -  :cpp_example:`low_order_moms_dense_distr.cpp <moments/low_order_moms_dense_distr.cpp>`
     -  :cpp_example:`low_order_moms_csr_distr.cpp <moments/low_order_moms_csr_distr.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    -  :java_example:`LowOrderMomsDenseBatch.java <moments/LowOrderMomsDenseBatch.java>`
-    -  :java_example:`LowOrderMomsCSRBatch.java <moments/LowOrderMomsCSRBatch.java>`
-
-    Online Processing:
-
-    -  :java_example:`LowOrderMomsDenseOnline.java <moments/LowOrderMomsDenseOnline.java>`
-    -  :java_example:`LowOrderMomsCSROnline.java <moments/LowOrderMomsCSROnline.java>`
-
-    Distributed Processing:
-
-    -  :java_example:`LowOrderMomsDenseDistr.java <moments/LowOrderMomsDenseDistr.java>`
-    -  :java_example:`LowOrderMomsCSRDistr.java <moments/LowOrderMomsCSRDistr.java>`
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`low_order_moms_dense_batch.py`
-
-    Online Processing:
-
-    - :daal4py_sycl_example:`low_order_moms_streaming.py`
-
   .. tab:: Python*
 
     Batch Processing:

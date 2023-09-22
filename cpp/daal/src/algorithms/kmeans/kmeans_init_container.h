@@ -319,7 +319,7 @@ services::Status DistributedContainer<step5Master, algorithmFPType, method, cpu>
     NumericTable * ntWeights                               = pPartRes->get(weights).get();
     data_management::MemoryBlock * pRngState               = dynamic_cast<data_management::MemoryBlock *>(input->get(inputOfStep5FromStep3).get());
     Result * pRes                                          = static_cast<Result *>(_res);
-    DAAL_CHECK(rngState, services::ErrorNullPtr);
+    DAAL_CHECK(pRngState, services::ErrorNullPtr);
     __DAAL_CALL_KERNEL(env, internal::KMeansInitStep5MasterKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, par,
                        ntCandidates, ntWeights, pRngState, pRes->get(centroids).get(), *par->engine);
 }

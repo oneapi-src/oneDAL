@@ -163,16 +163,6 @@ Examples
 
     - :cpp_example:`dt_reg_dense_batch.cpp <decision_tree/dt_reg_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`DtRegDenseBatch.java <decision_tree/DtRegDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

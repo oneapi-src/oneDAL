@@ -44,8 +44,4 @@ Examples
 
 C++: :cpp_example:`datasource/datastructures_merged.cpp`
 
-.. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-Java*: :java_example:`datasource/DataStructuresMerged.java`
-
 .. Python*:datastructures_merged.py

@@ -505,34 +505,6 @@ To mark API in |short_name| as deprecated, do the following:
 
       To mark enums and their elements as deprecated, you only need to put the appropriate documentation tag in a doc comment.
 
-
-  .. tab:: Java
-
-    1.  Mark deprecated code with ``@Deprecated`` annotation before:
-
-      .. code-block:: java
-
-          @Deprecated
-          public class A               // Deprecated class
-          {
-              @Deprecated
-              public A() {}            // Deprecated class constructor
-
-              @Deprecated
-              public void func() {}    // Deprecated function in class
-
-              @Deprecated
-              public int classMember;  // Deprecated class member
-          };
-
-
-    2.  Add special tag to documentation comment:
-
-      - Use ``@DAAL_DEPRECATED`` when you remove something from API.
-      - Use ``@DAAL_DEPRECATED_USE{ newFunction }`` when you introduce a new function to use instead of a deprecated one and want to reference it.
-
-      These tags add standard phrases about deprecation. They are defined in our doxygen configurations.
-
 Notes
 -----
 

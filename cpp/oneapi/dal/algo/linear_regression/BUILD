@@ -5,20 +5,29 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "linear_regression",
+    name = "core",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/backend/primitives:blas",
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
-        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/backend:model_impl",
     ],
-    extra_deps = [
-        "@onedal//cpp/daal:core",
-        "@onedal//cpp/daal/src/algorithms/linear_model:kernel",
-        "@onedal//cpp/daal/src/algorithms/linear_regression:kernel",
+)
+
+dal_module(
+    name = "parameters",
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/parameters",
     ],
+)
+
+dal_module(
+    name = "linear_regression",
+    dal_deps = [
+        ":core",
+        ":parameters",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/detail",
+        "@onedal//cpp/oneapi/dal/algo/linear_regression/backend",
+    ]
 )
 
 dal_test_suite(

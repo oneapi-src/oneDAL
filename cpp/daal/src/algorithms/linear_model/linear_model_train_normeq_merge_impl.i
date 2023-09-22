@@ -22,6 +22,8 @@
 */
 
 #include "src/algorithms/linear_model/linear_model_train_normeq_kernel.h"
+#include "src/algorithms/linear_model/linear_model_hyperparameter_impl.h"
+
 #include "src/threading/threading.h"
 
 namespace daal
@@ -74,6 +76,13 @@ Status MergeKernel<algorithmFPType, cpu>::merge(const NumericTable & partialTabl
 template <typename algorithmFPType, CpuType cpu>
 Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtxTable,
                                                   NumericTable & xtyTable)
+{
+    return MergeKernel<algorithmFPType, cpu>::compute(n, partialxtx, partialxty, xtxTable, xtyTable, nullptr);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtxTable,
+                                                  NumericTable & xtyTable, const HyperparameterType * hyperparameter)
 {
     const size_t nBetas     = xtxTable.getNumberOfRows();
     const size_t nResponses = xtyTable.getNumberOfRows();

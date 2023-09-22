@@ -58,7 +58,6 @@ if [ "${OS}" == "lnx" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
-    java_os_name="linux"
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
             with_gpu="true"
@@ -72,7 +71,6 @@ elif [ "${OS}" == "mac" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
-    java_os_name="darwin"
     with_gpu="false"
 else
     echo "Error not supported OS: ${OS}"
@@ -100,9 +98,6 @@ else
     echo "Not supported backend env"
 fi
 $(pwd)/dev/download_tbb.sh
-echo "Set Java PATH and CPATH from JAVA_HOME=${JAVA_HOME}"
-export PATH=$JAVA_HOME/bin:$PATH
-export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/${java_os_name}:$CPATH
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \

@@ -118,14 +118,6 @@ Examples
 
     - :cpp_example:`log_reg_model_builder.cpp <logistic_regression/log_reg_model_builder.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    - :java_example:`LogRegModelBuilder.java <logistic_regression/LogRegModelBuilder.java>`
-
   .. tab:: Python*
 
     - :daal4py_example:`log_reg_model_builder.py`
@@ -277,24 +269,6 @@ Examples
 
     -  :cpp_example:`log_reg_dense_batch.cpp <logistic_regression/log_reg_dense_batch.cpp>`
     -  :cpp_example:`log_reg_binary_dense_batch.cpp <logistic_regression/log_reg_binary_dense_batch.cpp>`
-
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    -  :java_example:`LogRegDenseBatch.java <logistic_regression/LogRegDenseBatch.java>`
-    -  :java_example:`LogRegBinaryDenseBatch.java <logistic_regression/LogRegBinaryDenseBatch.java>`
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`log_reg_dense_batch.py`
-    - :daal4py_sycl_example:`log_reg_binary_dense_batch.py`
 
   .. tab:: Python*
 

@@ -64,19 +64,26 @@ DAAL_PATH = $(DALROOT)/lib/intel64
 ifndef TBBROOT
     TBBROOT = ./../../../../../tbb/latest
 endif
-TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
+ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+    TBB_PATH = $(TBBROOT)/lib
+else
+    TBB_PATH = $(TBBROOT)/lib/intel64/gcc4.8
+endif
+
 MPI_PATH = $(I_MPI_ROOT)
 
 ifeq ($(RES_EXT),so)
-    ONEDAL_LIBS := -lonedal_dpc \
-                   -lonedal_core \
-                   -lonedal_thread \
+    ONEDAL_LIBS := -lonedal_dpc                              \
+                   -lonedal_core                             \
+                   -lonedal_thread                           \
+                   -lonedal_parameters_dpc                   \
                    "$(DAAL_PATH)"/libonedal_sycl.a
 else
-    ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
-                   "$(DAAL_PATH)"/libonedal_core.a \
-                   "$(DAAL_PATH)"/libonedal_thread.a \
-                   "$(DAAL_PATH)"/libonedal_sycl.a
+    ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a            \
+                   "$(DAAL_PATH)"/libonedal_core.a           \
+                   "$(DAAL_PATH)"/libonedal_thread.a         \
+                   "$(DAAL_PATH)"/libonedal_sycl.a           \
+                   "$(DAAL_PATH)"/libonedal_parameters_dpc.a
 endif
 
 COPTS := -std=c++17 \

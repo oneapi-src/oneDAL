@@ -27,9 +27,3 @@
     Batch Processing:
 
     - :ref:`cpp_dbscan_brute_force_batch.cpp`
-
-  .. group-tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`dbscan_batch.py`

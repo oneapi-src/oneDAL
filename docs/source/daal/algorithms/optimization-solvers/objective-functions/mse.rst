@@ -198,11 +198,3 @@ Examples
   .. tab:: C++ (CPU)
 
     - :cpp_example:`mse_dense_batch.cpp <optimization_solvers/mse_dense_batch.cpp>`
-
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    - :java_example:`MSEDenseBatch.java <optimization_solvers/MSEDenseBatch.java>`

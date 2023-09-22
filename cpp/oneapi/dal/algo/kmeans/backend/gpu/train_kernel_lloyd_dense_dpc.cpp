@@ -51,7 +51,6 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
                                                    const descriptor_t& params,
                                                    const train_input<task::clustering>& input) {
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
 
     const auto data = input.get_data();
 

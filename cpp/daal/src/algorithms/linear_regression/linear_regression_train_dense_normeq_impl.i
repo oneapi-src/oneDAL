@@ -25,7 +25,10 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_IMPL_I__
 #define __LINEAR_REGRESSION_TRAIN_DENSE_NORMEQ_IMPL_I__
 
+#include "src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h"
 #include "src/algorithms/linear_regression/linear_regression_train_kernel.h"
+
+#include "services/daal_defines.h"
 
 namespace daal
 {
@@ -43,16 +46,35 @@ template <typename algorithmFPType, CpuType cpu>
 Status BatchKernel<algorithmFPType, training::normEqDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx,
                                                                          NumericTable & xty, NumericTable & beta, bool interceptFlag) const
 {
-    Status st = UpdateKernelType::compute(x, y, xtx, xty, true, interceptFlag);
-    if (st) st = FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>());
-    return st;
+    return this->compute(x, y, xtx, xty, beta, interceptFlag, nullptr);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status BatchKernel<algorithmFPType, training::normEqDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx,
+                                                                         NumericTable & xty, NumericTable & beta, bool interceptFlag,
+                                                                         const HyperparameterType * hyperparameter) const
+{
+    services::SharedPtr<linear_model::internal::Hyperparameter> lmHyperparameter;
+    DAAL_CHECK_STATUS_VAR(linear_regression::internal::convert(hyperparameter, lmHyperparameter));
+    DAAL_CHECK_STATUS_VAR(UpdateKernelType::compute(x, y, xtx, xty, true, interceptFlag, lmHyperparameter.get()));
+    return FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>(), lmHyperparameter.get());
 }
 
 template <typename algorithmFPType, CpuType cpu>
 Status OnlineKernel<algorithmFPType, training::normEqDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx,
                                                                           NumericTable & xty, bool interceptFlag) const
 {
-    return UpdateKernelType::compute(x, y, xtx, xty, false, interceptFlag);
+    return this->compute(x, y, xtx, xty, interceptFlag, nullptr);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status OnlineKernel<algorithmFPType, training::normEqDense, cpu>::compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx,
+                                                                          NumericTable & xty, bool interceptFlag,
+                                                                          const HyperparameterType * hyperparameter) const
+{
+    services::SharedPtr<linear_model::internal::Hyperparameter> lmHyperparameter;
+    DAAL_CHECK_STATUS_VAR(linear_regression::internal::convert(hyperparameter, lmHyperparameter));
+    return UpdateKernelType::compute(x, y, xtx, xty, false, interceptFlag, lmHyperparameter.get());
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -60,7 +82,19 @@ Status OnlineKernel<algorithmFPType, training::normEqDense, cpu>::finalizeComput
                                                                                   NumericTable & xtxFinal, NumericTable & xtyFinal,
                                                                                   NumericTable & beta, bool interceptFlag) const
 {
-    return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>());
+    return this->finalizeCompute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, nullptr);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status OnlineKernel<algorithmFPType, training::normEqDense, cpu>::finalizeCompute(const NumericTable & xtx, const NumericTable & xty,
+                                                                                  NumericTable & xtxFinal, NumericTable & xtyFinal,
+                                                                                  NumericTable & beta, bool interceptFlag,
+                                                                                  const HyperparameterType * hyperparameter) const
+{
+    services::SharedPtr<linear_model::internal::Hyperparameter> lmHyperparameter;
+    DAAL_CHECK_STATUS_VAR(linear_regression::internal::convert(hyperparameter, lmHyperparameter));
+    return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, KernelHelper<algorithmFPType, cpu>(),
+                                       lmHyperparameter.get());
 }
 
 } // namespace internal

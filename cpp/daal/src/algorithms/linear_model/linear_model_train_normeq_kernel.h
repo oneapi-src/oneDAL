@@ -28,6 +28,8 @@
 #include "data_management/data/numeric_table.h"
 #include "src/data_management/service_numeric_table.h"
 
+#include "src/algorithms/linear_model/linear_model_hyperparameter_impl.h"
+
 namespace daal
 {
 namespace algorithms
@@ -44,6 +46,8 @@ using namespace daal::services;
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services::internal;
+
+using namespace daal::algorithms::linear_model::internal;
 
 /**
  * Abstract class that defines interface for the helper function that computes the regression coefficients.
@@ -79,6 +83,8 @@ class FinalizeKernel
     typedef ReadRows<algorithmFPType, cpu> ReadRowsType;
 
 public:
+    typedef linear_model::internal::Hyperparameter HyperparameterType;
+
     /**
      * Computes regression coefficients by solving the symmetric system of linear equations
      *      - X' - matrix of size N x P' that contains input data set of size N x P
@@ -99,6 +105,8 @@ public:
      */
     static Status compute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
                           bool interceptFlag, const KernelHelperIface<algorithmFPType, cpu> & helper);
+    static Status compute(const NumericTable & xtx, const NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                          bool interceptFlag, const KernelHelperIface<algorithmFPType, cpu> & helper, const HyperparameterType * hyperparameter);
 
     static Status copyDataToTable(const algorithmFPType * data, size_t dataSizeInBytes, NumericTable & table);
 
@@ -181,6 +189,8 @@ class UpdateKernel
     typedef ThreadingTask<algorithmFPType, cpu> ThreadingTaskType;
 
 public:
+    typedef linear_model::internal::Hyperparameter HyperparameterType;
+
     /**
      * Updates normal equations model with the new block of data
      * \param[in]  x        Input data set of size N x P
@@ -195,6 +205,8 @@ public:
      */
     static Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, bool initializeResult,
                           bool interceptFlag);
+    static Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, bool initializeResult,
+                          bool interceptFlag, const HyperparameterType * hyperparameter);
 };
 
 /**
@@ -207,16 +219,20 @@ class MergeKernel
     typedef ReadRows<algorithmFPType, cpu> ReadRowsType;
 
 public:
+    typedef linear_model::internal::Hyperparameter HyperparameterType;
+
     /**
      * Merges an array of partial results into one partial result
      * \param[in] n          Number of partial resuts in the input array
      * \param[in] partialxtx Array of n numeric tables of size P x P
-     * \param[in] partialxtx Array of n numeric tables of size Ny x P
+     * \param[in] partialxty Array of n numeric tables of size Ny x P
      * \param[out] xtx       Numeric table of size P x P
      * \param[out] xty       Numeric table of size Ny x P
      * \return Status of the computations
      */
     static Status compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtx, NumericTable & xty);
+    static Status compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtx, NumericTable & xty,
+                          const HyperparameterType * hyperparameter);
 
 protected:
     /**

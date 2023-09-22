@@ -71,20 +71,20 @@ public:
         services::internal::sycl::ExecutionContextIface & context = services::internal::getDefaultContext();
         services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();
         if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
-        _cntr->setArguments(this->_in, this->_pres, this->_par);
+        _cntr->setArguments(this->_in, this->_pres, this->_par, this->_hpar);
         return _cntr->compute();
     }
 
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE
     {
-        _cntr->setArguments(this->_in, this->_pres, this->_par);
+        _cntr->setArguments(this->_in, this->_pres, this->_par, this->_hpar);
         _cntr->setResult(this->_res);
         return _cntr->finalizeCompute();
     }
 
     virtual services::Status setupCompute() DAAL_C11_OVERRIDE
     {
-        _cntr->setArguments(this->_in, this->_pres, this->_par);
+        _cntr->setArguments(this->_in, this->_pres, this->_par, this->_hpar);
         _cntr->setResult(this->_res);
         return _cntr->setupCompute();
     }
