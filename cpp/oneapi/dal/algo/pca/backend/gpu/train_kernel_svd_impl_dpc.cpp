@@ -66,19 +66,17 @@ template <typename Float>
 auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     const std::int64_t column_count = data.get_dimension(1);
     const std::int64_t row_count = data.get_dimension(0);
-    std::cout << "here" << std::endl;
+
     auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
     auto S = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
     auto V_T = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
-    std::cout << "here1" << std::endl;
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
-    std::int64_t lda = row_count;
-    std::int64_t ldu = row_count;
-    std::int64_t ldvt = column_count;
-    std::cout << "here2" << std::endl;
+    std::int64_t lda = column_count;
+    std::int64_t ldu = column_count;
+    std::int64_t ldvt = row_count;
     const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
                                                                            mkl::jobsvd::vectors,
                                                                            mkl::jobsvd::vectors,
@@ -87,11 +85,9 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
                                                                            lda,
                                                                            ldu,
                                                                            ldvt);
-    std::cout << "here3" << std::endl;
     auto scratchpad =
         pr::ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
     auto scratchpad_ptr = scratchpad.get_mutable_data();
-    std::cout << "here4" << std::endl;
     auto event = mkl::lapack::gesvd(queue,
                                     mkl::jobsvd::vectors,
                                     mkl::jobsvd::vectors,
@@ -107,7 +103,6 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
                                     scratchpad_ptr,
                                     scratchpad_size,
                                     {});
-    std::cout << "here5" << std::endl;
     return std::make_tuple(U, S, V_T);
 }
 
@@ -122,7 +117,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
-    const std::int64_t row_count = data.get_row_count();
+    //const std::int64_t row_count = data.get_row_count();
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     //sycl::event mean_center_event;
     // {
@@ -153,7 +148,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(U.flatten(q_), row_count, row_count));
+                homogen_table::wrap(U.flatten(q_), column_count, column_count));
             result.set_model(model);
         }
     }
