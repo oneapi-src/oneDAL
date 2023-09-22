@@ -135,8 +135,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      partitioning_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
-    std::int64_t rows = 1;
-    std::int64_t cols = 17;
+    constexpr std::int64_t rows = 1;
+    constexpr std::int64_t cols = 17;
     std::int64_t pivot_index = 0;
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
@@ -152,8 +152,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      partitioning_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
-    std::int64_t rows = 2;
-    std::int64_t cols = 17;
+    constexpr std::int64_t rows = 2;
+    constexpr std::int64_t cols = 17;
     std::int64_t pivot_index = 0;
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
@@ -169,8 +169,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      partitioning_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
-    std::int64_t rows = 17;
-    std::int64_t cols = 37;
+    constexpr std::int64_t rows = 17;
+    constexpr std::int64_t cols = 37;
     std::int64_t pivot_index = 0;
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
@@ -186,8 +186,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      partitioning_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
-    std::int64_t rows = 1;
-    std::int64_t cols = 37;
+    constexpr std::int64_t rows = 1;
+    constexpr std::int64_t cols = 37;
     std::int64_t start = 1;
     std::int64_t end = 18;
     std::int64_t pivot_index = start;
@@ -205,8 +205,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      partitioning_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
-    std::int64_t rows = 1;
-    std::int64_t cols = 35;
+    constexpr std::int64_t rows = 1;
+    constexpr std::int64_t cols = 35;
     std::int64_t start = 26;
     std::int64_t pivot_index = start;
 
@@ -223,8 +223,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      partitioning_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = TestType;
-    std::int64_t rows = 17;
-    std::int64_t cols = 37;
+    constexpr std::int64_t rows = 17;
+    constexpr std::int64_t cols = 37;
     std::int64_t start = 1;
     std::int64_t end = 19;
     std::int64_t pivot_index = start;
