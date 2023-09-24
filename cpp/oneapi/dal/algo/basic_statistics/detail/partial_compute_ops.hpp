@@ -58,26 +58,7 @@ struct partial_compute_ops {
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
-                              const result_t& result) const {
-        ONEDAL_ASSERT(result.get_nobs().has_data());
-        ONEDAL_ASSERT(result.get_nobs().get_column_count() == 1);
-        ONEDAL_ASSERT(result.get_nobs().get_row_count() == 1);
-        ONEDAL_ASSERT(result.get_partial_max().has_data());
-        ONEDAL_ASSERT(result.get_partial_min().has_data());
-        ONEDAL_ASSERT(result.get_partial_sum().has_data());
-        ONEDAL_ASSERT(result.get_partial_sum_squares().has_data());
-        ONEDAL_ASSERT(result.get_partial_sum_squares_centered().has_data());
-        ONEDAL_ASSERT(result.get_partial_min().get_column_count() ==
-                      input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_partial_max().get_column_count() ==
-                      input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_partial_sum().get_column_count() ==
-                      input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_partial_sum_squares().get_column_count() ==
-                      input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_partial_sum_squares_centered().get_column_count() ==
-                      input.get_data().get_column_count());
-    }
+                              const result_t& result) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx,

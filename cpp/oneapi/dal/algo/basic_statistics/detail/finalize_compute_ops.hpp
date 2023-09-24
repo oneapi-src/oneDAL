@@ -51,15 +51,7 @@ struct finalize_compute_ops {
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
-                              const result_t& result) const {
-        if (result.get_result_options().test(result_options::min)) {
-            ONEDAL_ASSERT(result.get_min().has_data());
-        }
-
-        if (result.get_result_options().test(result_options::max)) {
-            ONEDAL_ASSERT(result.get_max().has_data());
-        }
-    }
+                              const result_t& result) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx,

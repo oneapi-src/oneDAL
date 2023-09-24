@@ -51,8 +51,7 @@ constexpr daal_lom::Method get_daal_method() {
 }
 
 template <typename Float, typename Task>
-inline auto get_partial_result(const descriptor_t& desc,
-                               daal_lom::PartialResult daal_partial_result) {
+inline auto get_partial_result(daal_lom::PartialResult daal_partial_result) {
     auto result = partial_compute_result();
 
     result.set_nobs(interop::convert_from_daal_homogen_table<Float>(
@@ -143,7 +142,7 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
                                                                        &daal_parameter,
                                                                        is_online));
 
-        auto result = get_partial_result<Float, task_t>(desc, daal_partial);
+        auto result = get_partial_result<Float, task_t>(daal_partial);
 
         return result;
     }
@@ -158,7 +157,7 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
                                                                        &daal_parameter,
                                                                        is_online));
 
-        auto result = get_partial_result<Float, task_t>(desc, daal_partial);
+        auto result = get_partial_result<Float, task_t>(daal_partial);
         return result;
     }
 }
@@ -215,7 +214,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                                                        &daal_parameter,
                                                                        is_online));
 
-        auto result = get_partial_result<Float, task_t>(desc, daal_partial);
+        auto result = get_partial_result<Float, task_t>(daal_partial);
 
         return result;
     }
@@ -230,7 +229,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                                                        &daal_parameter,
                                                                        is_online));
 
-        auto result = get_partial_result<Float, task_t>(desc, daal_partial);
+        auto result = get_partial_result<Float, task_t>(daal_partial);
         return result;
     }
 }
