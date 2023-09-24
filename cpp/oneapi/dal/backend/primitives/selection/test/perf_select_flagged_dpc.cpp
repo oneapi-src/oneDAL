@@ -143,7 +143,7 @@ public:
 };
 
 template <typename TestType>
-class select_flagged_index_test : public te::policy_fixture {
+class select_flagged_index_test : public te::float_algo_fixture<TestType> {
 public:
     using Data = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
