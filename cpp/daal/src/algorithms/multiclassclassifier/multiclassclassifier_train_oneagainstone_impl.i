@@ -302,6 +302,7 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::com
     if (xTable->getDataLayout() == NumericTableIface::csrArray)
     {
         CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable));
+        DAAL_CHECK(csrIface, ErrorEmptyCSRNumericTable);
         ReadRowsCSR<algorithmFPType, cpu> _mtX(*csrIface, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(_mtX);
         const size_t * rowOffsets = _mtX.rows();

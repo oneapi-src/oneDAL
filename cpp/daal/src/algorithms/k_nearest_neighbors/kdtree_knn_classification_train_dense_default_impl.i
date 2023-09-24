@@ -1359,6 +1359,12 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     }
 
     auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(engine);
+    if (!engineImpl)
+    {
+        status = services::ErrorIncorrectEngineParameter;
+        return 0;
+    }
+
     daal::internal::RNGsInst<size_t, cpu> rng;
     size_t pos;
     for (i = 0; i < sampleCount - 1; ++i)

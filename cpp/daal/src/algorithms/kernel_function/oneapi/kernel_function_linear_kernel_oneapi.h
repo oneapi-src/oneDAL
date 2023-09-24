@@ -65,7 +65,6 @@ public:
         case matrixMatrix: return computeInternalMatrixMatrix(ntLeft, ntRight, result, par);
         default: return services::ErrorIncorrectParameter;
         }
-        return services::Status();
     }
 
 protected:
@@ -88,7 +87,6 @@ public:
         case matrixMatrix: return computeInternalMatrixMatrix(ntLeft, ntRight, result, par);
         default: return services::ErrorIncorrectParameter;
         }
-        return services::Status();
     }
 
 protected:

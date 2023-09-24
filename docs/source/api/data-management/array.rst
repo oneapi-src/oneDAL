@@ -55,7 +55,7 @@ All the ``array`` class methods can be divided into several groups:
 .. onedal_class:: oneapi::dal::array
 
 -------------
-Usage example
+Usage Example
 -------------
 
 The following listing provides a brief introduction to the array API and an example of basic

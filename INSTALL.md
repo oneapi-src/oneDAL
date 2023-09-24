@@ -20,7 +20,6 @@
 Required Software:
 * C/C++ Compiler
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
-* Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2](http://msys2.github.io) (Windows\* only)
 * `make` and `dos2unix` tools; install these packages using MSYS2 on Windows\* as follows:
@@ -52,30 +51,15 @@ For details, see [System Requirements for oneDAL](https://www.intel.com/content/
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
-    - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Linux\*)**:
+    - **Intel(R) oneAPI DPC++/C++ Compiler 2023.2 (Linux\*)**:
 
             source /opt/intel/oneapi/compiler/latest/env/vars.sh
 
-    - **Intel(R) oneAPI DPC++/C++ Compiler 2022.2 (Windows\*)**:
+    - **Intel(R) oneAPI DPC++/C++ Compiler 2023.2 (Windows\*)**:
 
             call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
-4. Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-Set the environment variables for one of the supported Java\* compilers. For example:
-
-    - **Windows\***:
-
-            set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
-            set PATH=%JAVA_HOME%\bin;%PATH%
-            set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
-
-    - **Linux\***:
-
-            export JAVA_HOME=/usr/jdk/jdk1.6.0_02
-            export PATH=$JAVA_HOME/bin:$PATH
-            export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
-
-5. Download and set an environment for micromkl libs:
+4. Download and set an environment for micromkl libs:
 
     - **Windows\***:
 
@@ -85,7 +69,7 @@ Set the environment variables for one of the supported Java\* compilers. For exa
 
             ./dev/download_micromkl.sh
 
-6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
+5. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
     Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
     Set the environment variables for for Intel(R) TBB. For example:
@@ -102,9 +86,9 @@ Set the environment variables for one of the supported Java\* compilers. For exa
 
             ./dev/download_tbb.sh
 
-7. Download and install Python (version 3.7 or higher).
+6. Download and install Python (version 3.7 or higher).
 
-8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
+7. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
     - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 

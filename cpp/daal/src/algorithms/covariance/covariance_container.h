@@ -28,6 +28,7 @@
 #include "algorithms/covariance/covariance_batch.h"
 #include "algorithms/covariance/covariance_online.h"
 #include "algorithms/covariance/covariance_distributed.h"
+#include "src/algorithms/covariance/covariance_hyperparameter_impl.h"
 #include "src/algorithms/covariance/covariance_kernel.h"
 #include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
@@ -81,11 +82,12 @@
         NumericTable * covTable  = result->get(covariance).get();                                                                              \
         NumericTable * meanTable = result->get(mean).get();                                                                                    \
                                                                                                                                                \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                               \
-        daal::services::Environment::env & env = *_env;                                                                                        \
+        Parameter * parameter                           = static_cast<Parameter *>(_par);                                                      \
+        const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);                                \
+        daal::services::Environment::env & env          = *_env;                                                                               \
                                                                                                                                                \
         __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, dataTable, covTable, meanTable, \
-                           parameter);                                                                                                         \
+                           parameter, hyperparameter);                                                                                         \
     }
 
 #undef __DAAL_COVARIANCE_BATCH_CONTAINER_COMPUTE_ONEAPI
@@ -166,11 +168,12 @@
         NumericTable * crossProductTable = partialResult->get(crossProduct).get();                                                   \
         NumericTable * sumTable          = partialResult->get(sum).get();                                                            \
                                                                                                                                      \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                     \
-        daal::services::Environment::env & env = *_env;                                                                              \
+        Parameter * parameter                           = static_cast<Parameter *>(_par);                                            \
+        const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);                      \
+        daal::services::Environment::env & env          = *_env;                                                                     \
                                                                                                                                      \
         __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, dataTable, nObsTable, \
-                           crossProductTable, sumTable, parameter);                                                                  \
+                           crossProductTable, sumTable, parameter, hyperparameter);                                                  \
     }
 
 #undef __DAAL_COVARIANCE_ONLINE_CONTAINER_COMPUTE_ONEAPI
@@ -220,11 +223,12 @@
         NumericTable * covTable  = result->get(covariance).get();                                                                                    \
         NumericTable * meanTable = result->get(mean).get();                                                                                          \
                                                                                                                                                      \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                     \
-        daal::services::Environment::env & env = *_env;                                                                                              \
+        Parameter * parameter                           = static_cast<Parameter *>(_par);                                                            \
+        const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);                                      \
+        daal::services::Environment::env & env          = *_env;                                                                                     \
                                                                                                                                                      \
         __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable, crossProductTable, \
-                           sumTable, covTable, meanTable, parameter);                                                                                \
+                           sumTable, covTable, meanTable, parameter, hyperparameter);                                                                \
     }
 
 #undef __DAAL_COVARIANCE_ONLINE_CONTAINER_FINALIZECOMPUTE_ONEAPI
@@ -299,17 +303,18 @@
     template <typename algorithmFPType, CpuType cpu>                                                                                                 \
     services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::compute()                                               \
     {                                                                                                                                                \
-        PartialResult * partialResult          = static_cast<PartialResult *>(_pres);                                                                \
-        DistributedInput<step2Master> * input  = static_cast<DistributedInput<step2Master> *>(_in);                                                  \
-        DataCollection * collection            = input->get(partialResults).get();                                                                   \
-        NumericTable * nObsTable               = partialResult->get(nObservations).get();                                                            \
-        NumericTable * crossProductTable       = partialResult->get(crossProduct).get();                                                             \
-        NumericTable * sumTable                = partialResult->get(sum).get();                                                                      \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                     \
-        daal::services::Environment::env & env = *_env;                                                                                              \
+        PartialResult * partialResult                   = static_cast<PartialResult *>(_pres);                                                       \
+        DistributedInput<step2Master> * input           = static_cast<DistributedInput<step2Master> *>(_in);                                         \
+        DataCollection * collection                     = input->get(partialResults).get();                                                          \
+        NumericTable * nObsTable                        = partialResult->get(nObservations).get();                                                   \
+        NumericTable * crossProductTable                = partialResult->get(crossProduct).get();                                                    \
+        NumericTable * sumTable                         = partialResult->get(sum).get();                                                             \
+        Parameter * parameter                           = static_cast<Parameter *>(_par);                                                            \
+        const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);                                      \
+        daal::services::Environment::env & env          = *_env;                                                                                     \
                                                                                                                                                      \
         __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, \
-                           nObsTable, crossProductTable, sumTable, parameter);                                                                       \
+                           nObsTable, crossProductTable, sumTable, parameter, hyperparameter);                                                       \
                                                                                                                                                      \
         collection->clear();                                                                                                                         \
     }
@@ -354,18 +359,19 @@
     template <typename algorithmFPType, CpuType cpu>                                                                                             \
     services::Status DistributedContainer<step2Master, algorithmFPType, ComputeMethod, cpu>::finalizeCompute()                                   \
     {                                                                                                                                            \
-        Result * result                        = static_cast<Result *>(_res);                                                                    \
-        PartialResult * partialResult          = static_cast<PartialResult *>(_pres);                                                            \
-        NumericTable * nObsTable               = partialResult->get(nObservations).get();                                                        \
-        NumericTable * crossProductTable       = partialResult->get(crossProduct).get();                                                         \
-        NumericTable * sumTable                = partialResult->get(sum).get();                                                                  \
-        NumericTable * covTable                = result->get(covariance).get();                                                                  \
-        NumericTable * meanTable               = result->get(mean).get();                                                                        \
-        Parameter * parameter                  = static_cast<Parameter *>(_par);                                                                 \
-        daal::services::Environment::env & env = *_env;                                                                                          \
+        Result * result                                 = static_cast<Result *>(_res);                                                           \
+        PartialResult * partialResult                   = static_cast<PartialResult *>(_pres);                                                   \
+        NumericTable * nObsTable                        = partialResult->get(nObservations).get();                                               \
+        NumericTable * crossProductTable                = partialResult->get(crossProduct).get();                                                \
+        NumericTable * sumTable                         = partialResult->get(sum).get();                                                         \
+        NumericTable * covTable                         = result->get(covariance).get();                                                         \
+        NumericTable * meanTable                        = result->get(mean).get();                                                               \
+        Parameter * parameter                           = static_cast<Parameter *>(_par);                                                        \
+        const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);                                  \
+        daal::services::Environment::env & env          = *_env;                                                                                 \
                                                                                                                                                  \
         __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, \
-                           nObsTable, crossProductTable, sumTable, covTable, meanTable, parameter);                                              \
+                           nObsTable, crossProductTable, sumTable, covTable, meanTable, parameter, hyperparameter);                              \
     }
 
 #undef __DAAL_COVARIANCE_DISTR_CONTAINER_FINALIZECOMPUTE_ONEAPI

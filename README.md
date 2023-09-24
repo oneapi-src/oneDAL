@@ -33,7 +33,7 @@ There are different ways for you to build high-performance data science applicat
 - Use oneDAL C++ interfaces with or without SYCL support ([learn more](https://oneapi-src.github.io/oneDAL/#oneapi-vs-daal-interfaces))
 - Use [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/) to accelerate existing scikit-learn code without changing it
 - Use [daal4py](https://github.com/intel/scikit-learn-intelex/tree/master/daal4py), a standalone package with Python API for oneDAL
-Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
+Deprecation Notice: The Java interfaces are removed from the oneDAL library.
 
 
 ## Installation
@@ -58,8 +58,6 @@ Python Examples:
 
 - [MPI](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mpi)
 - [MySQL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mysql)
-Deprecation Notice: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases. This includes Scala, Spark and Hadoop samples
-
 
 </details>
 

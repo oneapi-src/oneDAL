@@ -23,7 +23,7 @@ from utils import make_report
 
 try:
     import sklearnex
-except:
+except Exception:
     raise Exception('sklearnex is not installed')
 
 algs_filename = "algorithms.txt"

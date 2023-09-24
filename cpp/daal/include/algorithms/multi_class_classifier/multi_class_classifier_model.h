@@ -58,32 +58,6 @@ enum ResultToComputeId
 /**
  * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
-namespace interface1
-{
-/**
- * @ingroup multi_class_classifier
- * @{
- */
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PARAMETERBASE"></a>
- * \brief Parameters of the multi-class classifier algorithm   \DAAL_DEPRECATED
- *
- * \snippet multi_class_classifier/multi_class_classifier_model.h ParameterBase source code
- */
-/* [interface1::ParameterBase source code] */
-struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interface1::Parameter
-{
-    ParameterBase(size_t nClasses) : daal::algorithms::classifier::interface1::Parameter(nClasses), training(), prediction() {}
-    services::SharedPtr<algorithms::classifier::training::interface1::Batch> training;     /*!< Two-class classifier training stage */
-    services::SharedPtr<algorithms::classifier::prediction::interface1::Batch> prediction; /*!< Two-class classifier prediction stage */
-};
-/* [interface1::ParameterBase source code] */
-
-} // namespace interface1
-
-/**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
 namespace interface2
 {
 /**
@@ -145,14 +119,6 @@ public:
      * \param[in] par       Parameters of the multi-class classifier algorithm
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures, const interface1::ParameterBase * par);
-
-    /**
-     * Constructs multi-class classifier model
-     * \param[in] nFeatures Number of features in the dataset
-     * \param[in] par       Parameters of the multi-class classifier algorithm
-     * \DAAL_DEPRECATED_USE{ Model::create }
-     */
     Model(size_t nFeatures, const interface2::ParameterBase * par);
 
     /**
@@ -160,15 +126,6 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     Model();
-
-    /**
-     * Constructs multi-class classifier model
-     * \param[in] nFeatures Number of features in the dataset
-     * \param[in] par       Parameters of the multi-class classifier algorithm
-     * \param[out] stat     Status of the model construction
-     * \return Multi-class classifier model
-     */
-    static services::SharedPtr<Model> create(size_t nFeatures, const interface1::ParameterBase * par, services::Status * stat = NULL);
 
     /**
      * Constructs multi-class classifier model
@@ -225,7 +182,6 @@ protected:
     data_management::DataCollectionPtr _models; /* Collection of two-class classifiers associated with the model */
     classifier::ModelPtr * _modelsArray;
 
-    DAAL_DEPRECATED Model(size_t nFeatures, const interface1::ParameterBase * par, services::Status & st); /* \DAAL_DEPRECATED */
     Model(size_t nFeatures, const interface2::ParameterBase * par, services::Status & st);
 
     template <typename Archive, bool onDeserialize>

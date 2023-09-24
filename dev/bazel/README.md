@@ -188,12 +188,12 @@ The most used Bazel commands are `build`, `test` and `run`.
   Possible values:
   - `dev` _(default)_ Automatically determines the set of object files need to
     be linked to the particular test.
-  - `release_static` Links tests against static libraries found in `$DAALROOT`.
-  - `release_dynamic` Links tests against dynamic libraries found in `$DAALROOT`.
+  - `release_static` Links tests against static libraries found in `$DALROOT`.
+  - `release_dynamic` Links tests against dynamic libraries found in `$DALROOT`.
 
    Example:
    ```sh
-   export DAALROOT=`pwd`/__release_lnx/daal/latest
+   export DALROOT=`pwd`/__release_lnx/daal/latest
    bazel test --test_link_mode=release_dynamic //cpp/oneapi/dal:tests
    ```
 
@@ -343,9 +343,9 @@ dal_test_suite(
 ```
 
 ### Run tests for the existing oneDAL build
-1. Set `DAALROOT` env var:
+1. Set `DALROOT` env var:
    ```sh
-   export DAALROOT=`pwd`/__release_lnx/daal/latest
+   export DALROOT=`pwd`/__release_lnx/daal/latest
    ```
 
 2. Run Bazel:

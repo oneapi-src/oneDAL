@@ -1,4 +1,0 @@
-PcaCorCSR_1.csv
-PcaCorCSR_2.csv
-PcaCorCSR_3.csv
-PcaCorCSR_4.csv

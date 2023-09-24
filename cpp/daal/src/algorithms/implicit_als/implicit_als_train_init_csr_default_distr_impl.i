@@ -301,11 +301,14 @@ services::Status ImplicitALSInitDistrStep2Kernel<algorithmFPType, fastCSR, cpu>:
     size_t nRows                   = dataTable->getNumberOfRows();
     size_t nCols                   = dataTable->getNumberOfColumns();
     CSRNumericTable * csrDataTable = dynamic_cast<CSRNumericTable *>(dataTable);
+    DAAL_CHECK(csrDataTable, ErrorEmptyCSRNumericTable);
 
     size_t nValues = 0;
     for (size_t i = 0; i < nParts; i++)
     {
-        nValues += dynamic_cast<CSRNumericTable *>(dataParts[i])->getDataSize();
+        CSRNumericTable * dataPartPtr = dynamic_cast<CSRNumericTable *>(dataParts[i]);
+        DAAL_CHECK(dataPartPtr, ErrorEmptyCSRNumericTable);
+        nValues += dataPartPtr->getDataSize();
     }
     Status s;
     DAAL_CHECK_STATUS(s, csrDataTable->allocateDataMemory(nValues));

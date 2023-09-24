@@ -27,9 +27,3 @@
     Batch Processing:
 
     - :ref:`cpp_kmeans_lloyd_dense_batch.cpp`
-
-  .. group-tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`kmeans_batch.py`

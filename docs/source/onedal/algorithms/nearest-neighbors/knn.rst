@@ -209,7 +209,7 @@ Distributed mode
 The algorithm supports distributed execution in SPMD mode (only on GPU).
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/nearest-neighbors/knn-usage-examples.rst

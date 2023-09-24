@@ -105,7 +105,7 @@ public:
 
         ONEDAL_ASSERT(offsets.back() == std::int64_t{ acc });
         ONEDAL_ASSERT(std::is_sorted(offsets.cbegin(), offsets.cend()));
-        ONEDAL_ASSERT(iter == detail::integral_cast<std::int64_t>(new_size));
+        ONEDAL_ASSERT(iter == integral_cast_debug<std::int64_t>(new_size));
 
         return acc;
     }
@@ -160,7 +160,7 @@ std::int64_t chunked_array_base::get_size_in_bytes() const {
 
     const auto accessor = impl_->immutable_access();
     const auto raw_size = accessor.get_offsets().back();
-    const auto casted_size = detail::integral_cast<std::int64_t>(raw_size);
+    const auto casted_size = detail::integral_cast_debug<std::int64_t>(raw_size);
 
 #ifdef ONEDAL_ENABLE_ASSERT
     std::int64_t size_acc = zero;
@@ -270,13 +270,13 @@ bool chunked_array_base::is_contiguous() const {
 
 std::int64_t chunked_array_base::get_chunk_count() const noexcept {
     const std::size_t res = impl_->immutable_access().get_chunks().size();
-    return detail::integral_cast<std::int64_t>(res);
+    return detail::integral_cast_debug<std::int64_t>(res);
 }
 
 const array_impl<byte_t>& chunked_array_base::get_chunk_impl(std::int64_t i) const {
     const auto cbegin = impl_->immutable_access().get_chunks().cbegin();
     using diff_t = typename decltype(cbegin)::difference_type;
-    const auto element = detail::integral_cast<diff_t>(i);
+    const auto element = detail::integral_cast_debug<diff_t>(i);
 
     return *std::next(cbegin, element);
 }
@@ -286,7 +286,7 @@ array_impl<byte_t>& chunked_array_base::get_mut_chunk_impl(std::int64_t i) const
     const auto begin = accessor.get_chunks().begin();
 
     using diff_t = typename decltype(begin)::difference_type;
-    const auto element = detail::integral_cast<diff_t>(i);
+    const auto element = detail::integral_cast_debug<diff_t>(i);
 
     return *std::next(begin, element);
 }
@@ -296,7 +296,7 @@ void chunked_array_base::set_chunk_impl(std::int64_t i, array_impl_t array) {
     const auto begin = accessor.get_chunks().begin();
 
     using diff_t = typename decltype(begin)::difference_type;
-    const auto position = detail::integral_cast<diff_t>(i);
+    const auto position = detail::integral_cast_debug<diff_t>(i);
 
 #ifdef ONEDAL_ENABLE_ASSERT
     const auto* const ptr_check = array.get_data();

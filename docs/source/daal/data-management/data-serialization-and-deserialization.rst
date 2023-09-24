@@ -49,8 +49,3 @@ Examples
 
 C++: :cpp_example:`serialization/serialization.cpp`
 
-Java: 
- .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-- :java_example:`serialization/SerializationExample.java`
-
