@@ -343,8 +343,8 @@ struct heterogen_dispatcher<detail::host_policy> {
                 const auto* const raw_inp_ptrs = tmp.get_data();
                 auto* const raw_out_ptrs = res.get_mutable_data();
 
+                auto out_ptrs = reinterpret_cast<dal::byte_t*>(raw_out_ptrs);
                 auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
-                auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
 
                 backend::copy_convert_one(policy,
                                           inp_ptrs,
@@ -547,8 +547,8 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                 auto* const raw_out_ptrs = res.get_mutable_data();
                 auto event = queue.fill(raw_out_ptrs, zero, copy_count);
 
+                auto out_ptrs = reinterpret_cast<dal::byte_t*>(raw_out_ptrs);
                 auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
-                auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
 
                 backend::copy_convert_one(policy,
                                           inp_ptrs,
