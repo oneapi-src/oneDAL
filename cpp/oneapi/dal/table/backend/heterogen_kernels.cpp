@@ -346,9 +346,6 @@ struct heterogen_dispatcher<detail::host_policy> {
                 auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
                 auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
 
-                //backend::copy_convert(policy, &inp_ptrs, &col_dtype, &stride,
-                //            &out_ptrs, &out_dtype, &stride, {1, copy_count});
-
                 backend::copy_convert_one(policy,
                                           inp_ptrs,
                                           col_dtype,
