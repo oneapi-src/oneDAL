@@ -115,12 +115,22 @@ struct ModelDetails
         maxCombinations = static_cast<int>(1 << maxDepth);
 
         // allocate combinationSum buffer for Fast TreeSHAP v2.2
-        combinationSum = static_cast<algorithmFPType *>(daal_calloc(sizeof(algorithmFPType) * maxLeafs * maxCombinations * nTreesToUse));
+        const size_t nCombinationSum = maxLeafs * maxCombinations * nTreesToUse;
+        combinationSum               = static_cast<algorithmFPType *>(daal_malloc(sizeof(algorithmFPType) * nCombinationSum));
         DAAL_ASSERT(combinationSum);
+        for (size_t i = 0; i < nCombinationSum; ++i)
+        {
+            combinationSum[i] = 0.0;
+        }
 
         // allocate duplicatedNode buffer for Fast TreeSHAP v2.2
-        duplicatedNode = static_cast<int *>(daal_calloc(sizeof(int) * maxNodes * nTreesToUse));
+        const size_t nDuplicatedNode = maxNodes * nTreesToUse;
+        duplicatedNode               = static_cast<int *>(daal_malloc(sizeof(int) * nDuplicatedNode));
         DAAL_ASSERT(duplicatedNode);
+        for (size_t i = 0; i < nDuplicatedNode; ++i)
+        {
+            duplicatedNode[i] = 0;
+        }
     }
     ~ModelDetails()
     {
@@ -275,9 +285,14 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
 {
     services::Status st;
     const int depth              = tree->getMaxLvl() + 2;
-    const size_t bufferSize      = sizeof(PathElement) * ((depth * (depth + 1)) / 2);
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_calloc(bufferSize));
+    const size_t nUniquePath     = ((depth * (depth + 1)) / 2);
+    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nUniquePath));
     DAAL_CHECK_MALLOC(uniquePathData)
+    PathElement init;
+    for (size_t i = 0; i < nUniquePath; ++i)
+    {
+        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
+    }
 
     treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, uniquePathData, 1, 1, -1, condition,
                                                                    conditionFeature, 1);
@@ -468,11 +483,20 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
     // pre-allocate space for the unique path data and pWeights
     const int depth              = tree->getMaxLvl() + 2;
     const size_t nElements       = (depth * (depth + 1)) / 2;
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_calloc(sizeof(PathElement) * nElements));
+    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nElements));
     DAAL_CHECK_MALLOC(uniquePathData)
+    PathElement init;
+    for (size_t i = 0; i < nElements; ++i)
+    {
+        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
+    }
 
-    float * pWeights = static_cast<float *>(daal_calloc(sizeof(float) * nElements));
+    float * pWeights = static_cast<float *>(daal_malloc(sizeof(float) * nElements));
     DAAL_CHECK_MALLOC(pWeights)
+    for (size_t i = 0; i < nElements; ++i)
+    {
+        pWeights[i] = 0.0f;
+    }
 
     treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, 0, uniquePathData, pWeights, 1, 1, 1, -1,
                                                                    condition, conditionFeature, 1);
@@ -488,9 +512,9 @@ namespace v2
 {
 template <typename algorithmFPType>
 inline void computeCombinationSum(const gbt::internal::GbtDecisionTree * tree, algorithmFPType * combinationSum, int * duplicatedNode,
-                                  unsigned nodeIndex, unsigned depth, unsigned uniqueDepth, int * parentUniqueDepthPWeights,
+                                  size_t maxDepth, unsigned nodeIndex, unsigned depth, unsigned uniqueDepth, int * parentUniqueDepthPWeights,
                                   PathElement * parentUniquePath, float * parentPWeights, float parentZeroFraction, int parentFeatureIndex,
-                                  int * leafCount, size_t maxDepth)
+                                  int * leafCount)
 {
     const gbt::prediction::internal::FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
     const gbt::prediction::internal::ModelFPType * const nodeCoverValues = tree->getNodeCoverValues() - 1;
@@ -527,8 +551,6 @@ inline void computeCombinationSum(const gbt::internal::GbtDecisionTree * tree, a
         DAAL_ASSERT(copyStatus == 0);
         copyStatus = daal::services::internal::daal_memcpy_s(uniqueDepthPWeights + l, nBytes, parentUniqueDepthPWeights, nBytes);
         DAAL_ASSERT(copyStatus == 0);
-        std::copy(parentUniqueDepthPWeights, parentUniqueDepthPWeights + l, uniqueDepthPWeights);
-        std::copy(parentUniqueDepthPWeights, parentUniqueDepthPWeights + l, uniqueDepthPWeights + l);
 
         pWeights   = parentPWeights + l * (maxDepth + 1);
         nBytes     = l * (maxDepth + 1) * sizeof(float);
@@ -636,11 +658,12 @@ inline void computeCombinationSum(const gbt::internal::GbtDecisionTree * tree, a
         ++(uniqueDepthPWeights[t]);
     }
 
-    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, leftIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights,
-                                           uniquePath, pWeights, incomingZeroFraction * leftZeroFraction, splitIndex, leafCount, maxDepth);
+    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, maxDepth, leftIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights,
+                                           uniquePath, pWeights, incomingZeroFraction * leftZeroFraction, splitIndex, leafCount);
 
-    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, rightIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights,
-                                           uniquePath, pWeights, incomingZeroFraction * rightZeroFraction, splitIndex, leafCount, maxDepth);
+    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, maxDepth, rightIndex, depth + 1, uniqueDepth + 1,
+                                           uniqueDepthPWeights, uniquePath, pWeights, incomingZeroFraction * rightZeroFraction, splitIndex,
+                                           leafCount);
 }
 
 template <typename algorithmFPType>
@@ -649,75 +672,51 @@ inline services::Status computeCombinationSum(const gbt::internal::GbtDecisionTr
 {
     services::Status st;
 
-    // const size_t maxDepth             = tree->getMaxLvl();
-    // const size_t maxCombinations      = 1 << maxDepth;
-    // const size_t nuniqueDepthPWeights = 2 * maxCombinations;
-    // const size_t nPWeights            = 2 * maxCombinations * (maxDepth + 1);
-    // const size_t nUniquePath          = (maxDepth + 1) * (maxDepth + 2) / 2;
+    const size_t maxCombinations      = 1 << maxDepth;
+    const size_t nUniqueDepthPWeights = 2 * maxCombinations;
+    const size_t nPWeights            = 2 * maxCombinations * (maxDepth + 1);
+    const size_t nUniquePath          = (maxDepth + 1) * (maxDepth + 2) / 2;
 
-    // for (unsigned maxNode = 0; maxNode < tree->getNumberOfNodes(); ++maxNode)
-    // {
-    // // Pre-allocate space for the unique path data, pWeights and uniqueDepthPWeights
-    // int * uniqueDepthPWeights = static_cast<int *>(daal_malloc(sizeof(int) * nuniqueDepthPWeights));
-    // DAAL_CHECK_MALLOC(uniqueDepthPWeights)
-    // for (size_t i = 0; i < nuniqueDepthPWeights; ++i)
-    // {
-    //     uniqueDepthPWeights[i] = 0;
-    // }
-    // printf("Allocated uniqueDepthPWeights @ %p\n", uniqueDepthPWeights);
+    // Pre-allocate space for the unique path data, pWeights and uniqueDepthPWeights
+    int * uniqueDepthPWeights = static_cast<int *>(daal_malloc(sizeof(int) * nUniqueDepthPWeights));
+    DAAL_CHECK_MALLOC(uniqueDepthPWeights)
+    for (size_t i = 0; i < nUniqueDepthPWeights; ++i)
+    {
+        uniqueDepthPWeights[i] = 0;
+    }
 
-    // float * pWeights = static_cast<float *>(daal_malloc(sizeof(float) * nPWeights));
-    // DAAL_CHECK_MALLOC(pWeights)
-    // for (size_t i = 0; i < nPWeights; ++i)
-    // {
-    //     pWeights[i] = 0.0f;
-    // }
-    // printf("Allocated pWeights            @ %p\n", pWeights);
+    float * pWeights = static_cast<float *>(daal_malloc(sizeof(float) * nPWeights));
+    DAAL_CHECK_MALLOC(pWeights)
+    for (size_t i = 0; i < nPWeights; ++i)
+    {
+        pWeights[i] = 0.0f;
+    }
 
-    // PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nUniquePath));
-    // DAAL_CHECK_MALLOC(uniquePathData)
-    // PathElement init;
-    // for (size_t i = 0; i < nUniquePath; ++i)
-    // {
-    //     DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
-    // }
-    // printf("Allocated uniquePathData            @ %p\n", uniquePathData);
-    // int leafCount = 0;
+    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nUniquePath));
+    DAAL_CHECK_MALLOC(uniquePathData)
+    PathElement init;
+    for (size_t i = 0; i < nUniquePath; ++i)
+    {
+        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
+    }
 
-    const unsigned maxCombinations = static_cast<int>(1 << maxDepth);
-    int * uniqueDepthPWeights      = new int[2 * maxCombinations];
-    float * pWeights               = new float[2 * maxCombinations * (maxDepth + 1)];
-    PathElement * uniquePathData   = new PathElement[(maxDepth + 1) * (maxDepth + 2) / 2];
-    int * leafCount                = new int[1];
-    leafCount[0]                   = 0;
+    int leafCount = 0;
 
-    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, 1, 0, 0, uniqueDepthPWeights, uniquePathData, pWeights, 1, -1,
-                                           leafCount, maxDepth);
+    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, maxDepth, 1, 0, 0, uniqueDepthPWeights, uniquePathData, pWeights, 1,
+                                           -1, &leafCount);
 
-    delete[] uniqueDepthPWeights;
-    delete[] pWeights;
-    delete[] uniquePathData;
-    delete[] leafCount;
-
-    // printf("Free uniquePathData            @ %p", uniquePathData);
-    // daal_free(uniquePathData);
-    // printf("...success\n");
-    // printf("Free pWeights            @ %p", pWeights);
-    // daal_free(pWeights);
-    // printf("...success\n");
-    // printf("Free uniqueDepthPWeights @ %p", uniqueDepthPWeights);
-    // daal_free(uniqueDepthPWeights);
-    // printf("...success\n");
-    // }
+    daal_free(uniquePathData);
+    daal_free(pWeights);
+    daal_free(uniqueDepthPWeights);
 
     return st;
 }
 
 template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, FeatureTypes * featureHelper,
-                     size_t nodeIndex, size_t depth, size_t uniqueDepth, size_t uniqueDepthPWeights, PathElement * parentUniquePath,
-                     float * parentPWeights, algorithmFPType pWeightsResidual, float parentZeroFraction, float parentOneFraction,
-                     int parentFeatureIndex, int condition, FeatureIndexType conditionFeature, float conditionFraction)
+inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * combinationSum, const int * duplicatedNode,
+                     const int maxDepth, const algorithmFPType * x, algorithmFPType * phi, unsigned nodeIndex, unsigned uniqueDepth,
+                     PathElement * parentUniquePath, float pWeightsResidual, float parentZeroFraction, float parentOneFraction,
+                     int parentFeatureIndex, int * leaf_count)
 {}
 
 /**
@@ -735,13 +734,26 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
                                  const ModelDetails<algorithmFPType> & modelDetails)
 {
     services::Status st;
-    const int depth              = tree->getMaxLvl() + 2;
-    const size_t nElements       = (depth * (depth + 1)) / 2;
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_calloc(sizeof(PathElement) * nElements));
+
+    // // update the reference value with the expected value of the tree's predictions
+    // for (unsigned j = 0; j < tree.num_outputs; ++j)
+    // {
+    //     phi[data.M * tree.num_outputs + j] += tree.values[j];
+    // }
+
+    const int depth              = tree->getMaxLvl();
+    const size_t nElements       = (depth + 1) * (depth + 2) / 2;
+    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nElements));
     DAAL_CHECK_MALLOC(uniquePathData)
+    PathElement init;
+    for (size_t i = 0; i < nElements; ++i)
+    {
+        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
+    }
     int leafCount = 0;
 
-    // treeShap(tree, combinationSum, duplicatedNode, data.X, data.X_missing, out_contribs, 0, 0, uniquePathData, 1, 1, 1, -1, leafCount);
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, modelDetails.combinationSum, modelDetails.duplicatedNode,
+                                                                   modelDetails.maxDepth, x, phi, 0, 0, uniquePathData, 1, 1, 1, -1, &leafCount);
 
     daal_free(uniquePathData);
     return st;
