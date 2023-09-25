@@ -23,7 +23,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include <iostream>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include <daal/src/algorithms/low_order_moments/moments_online.h>
@@ -52,11 +52,11 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const partial_compute_result<Task>& input) {
     const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
-
+    std::cout << "Note 9" << std::endl;
     auto column_numbers = input.get_partial_min().get_column_count();
     const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
     const std::int64_t row_count = nobs[0];
-
+    std::cout << "Note 10" << std::endl;
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
@@ -65,7 +65,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares());
     auto daal_partial_sum_squares_centered =
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
-
+    std::cout << "Note 11" << std::endl;
     auto daal_result = daal_lom::Result();
 
     auto daal_input = daal_lom::Input();
@@ -74,14 +74,14 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
     daal_input.set(daal_lom::InputId::data, daal_input_);
     alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
-
+    std::cout << "Note 12" << std::endl;
     daal_result.set(daal_lom::ResultId::maximum, daal_partial_max);
     daal_result.set(daal_lom::ResultId::minimum, daal_partial_min);
 
     daal_result.set(daal_lom::ResultId::sum, daal_partial_sums);
     daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sum_squares);
     daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sum_squares_centered);
-
+    std::cout << "Note 13" << std::endl;
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
             ctx,
@@ -95,10 +95,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
             daal_result.get(daal_lom::ResultId::standardDeviation).get(),
             daal_result.get(daal_lom::ResultId::variation).get(),
             &daal_parameter));
-
+    std::cout << "Note 14" << std::endl;
     auto result =
         get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
-
+    std::cout << "Note 15" << std::endl;
     return result;
 }
 
