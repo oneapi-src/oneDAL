@@ -69,10 +69,14 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_result = daal_lom::Result();
 
     auto daal_input = daal_lom::Input();
+    std::cout << "Note 11.1" << std::endl;
     auto arr_input = array<Float>::zeros(row_count * column_numbers);
+    std::cout << "Note 11.2" << std::endl;
     auto daal_input_ =
         interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
+    std::cout << "Note 11.3" << std::endl;
     daal_input.set(daal_lom::InputId::data, daal_input_);
+    std::cout << "Note 11.4" << std::endl;
     alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
     std::cout << "Note 12" << std::endl;
     daal_result.set(daal_lom::ResultId::maximum, daal_partial_max);

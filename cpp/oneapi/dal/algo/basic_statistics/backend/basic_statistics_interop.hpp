@@ -19,7 +19,7 @@
 #include "oneapi/dal/algo/basic_statistics/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include <iostream>
 #include <daal/include/algorithms/moments/low_order_moments_types.h>
 
 namespace oneapi::dal::basic_statistics::backend {
@@ -115,7 +115,9 @@ array<Float> copy_immutable(const array<Float>&& inp) {
 
 template <typename Float, typename Result, typename Input, typename Parameter>
 void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
+    std::cout<<"alloc 1"<<std::endl;
     const auto status = result.template allocate<Float>(input, params, method);
+    std::cout<<"alloc 2"<<std::endl;
     interop::status_to_exception(status);
 }
 
