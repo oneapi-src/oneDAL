@@ -92,11 +92,6 @@ double descriptor_base<Task>::get_l2_coef() const {
     return impl_->l2_coef;
 }
 
-template <typename Task>
-double descriptor_base<Task>::get_l2_coef() const {
-    return impl_->l2_coef;
-}
-
 // template <typename Task>
 // std::int64_t descriptor_base<Task>::get_class_count() const {
 //     return impl_->class_count;
@@ -161,7 +156,7 @@ model<Task>& model<Task>::set_packed_coefficients(const table& t) {
 
 template class ONEDAL_EXPORT model<task::classification>;
 
-ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::classification>)
+// ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::classification>)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression

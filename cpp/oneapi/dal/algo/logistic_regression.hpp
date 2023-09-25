@@ -16,6 +16,5 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/optimizers/cg_solver.hpp"
-#include "oneapi/dal/backend/primitives/optimizers/newton_cg.hpp"
-#include "oneapi/dal/backend/primitives/optimizers/line_search.hpp"
+//#include "oneapi/dal/algo/logistic_regression/infer.hpp"
+#include "oneapi/dal/algo/logistic_regression/train.hpp"

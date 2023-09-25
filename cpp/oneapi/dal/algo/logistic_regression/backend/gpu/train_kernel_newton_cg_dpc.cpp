@@ -28,7 +28,9 @@
 #include "oneapi/dal/algo/logistic_regression/train_types.hpp"
 #include "oneapi/dal/algo/logistic_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/logistic_regression/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/gpu/update_kernel.hpp"
+// #include "oneapi/dal/algo/logistic_regression/backend/gpu/update_kernel.hpp"
+#include "oneapi/dal/backend/primitives/objective_function.hpp"
+#include "oneapi/dal/backend/primitives/optimizers.hpp"
 
 namespace oneapi::dal::logistic_regression::backend {
 
@@ -50,115 +52,81 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto& queue = ctx.get_queue();
 
-    ONEDAL_PROFILER_TASK(logloss_train_kernel, queue);
-    /*
-    constexpr auto uplo = pr::mkl::uplo::upper;
-    constexpr auto alloc = sycl::usm::alloc::device;
-
-    row_accessor<const Float> x_accessor(data);
-    row_accessor<const Float> y_accessor(resp);
-
+    ONEDAL_PROFILER_TASK(log_reg_train_kernel, queue);
+    
     const auto sample_count = data.get_row_count();
     const auto feature_count = data.get_column_count();
-    const auto response_count = resp.get_column_count();
+    //const auto response_count = resp.get_column_count();
     ONEDAL_ASSERT(sample_count == resp.get_row_count());
-    const bool beta = desc.get_compute_intercept();
-    const std::int64_t ext_feature_count = feature_count + beta;
+    
 
-    const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
-    auto betas_arr = array<Float>::zeros(queue, betas_size, alloc);
+    const auto responses_nd = pr::table2ndarray_1d<std::int32_t>(queue, resp, sycl::usm::alloc::device);
 
-    const std::int64_t b_count = params.get_gpu_macro_block();
-    const be::uniform_blocking blocking(sample_count, b_count);
+    const std::int64_t bsize = params.get_gpu_macro_block();
 
-    const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
-    const pr::ndshape<2> betas_shape{ response_count, feature_count + 1 };
-    const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
+    const be::uniform_blocking blocking(sample_count, bsize);
 
-    auto [xty, fill_xty_event] =
-        pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
-    auto [xtx, fill_xtx_event] =
-        pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
-    sycl::event last_xty_event = fill_xty_event, last_xtx_event = fill_xtx_event;
+    double L2 = desc.get_l2_coef();
+    bool fit_intercept = desc.get_compute_intercept();
 
-    array<Float> old_x_arr{}, old_y_arr{};
-    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
-        const auto last = blocking.get_block_end_index(b);
-        const auto first = blocking.get_block_start_index(b);
+    pr::LogLossFunction<Float> loss_func = pr::LogLossFunction(queue, data, responses_nd, Float(L2), fit_intercept, bsize);
 
-        ONEDAL_ASSERT(first < last);
-        const std::int64_t length = last - first;
+    Float tol = 1.0e-5; // desc.get_tol();
+    std::int64_t maxiter = 100; // desc.get_maxiter();
 
-        auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
-        auto x = pr::ndview<Float, 2>::wrap(x_arr.get_data(), { length, feature_count });
+    std::int64_t dim = fit_intercept ? feature_count : feature_count + 1; 
 
-        auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
-        auto y = pr::ndview<Float, 2>::wrap(y_arr.get_data(), { length, response_count });
+    auto [x, fill_event] = pr::ndarray<Float, 1>::zeros(queue, {dim}, sycl::usm::alloc::device);
 
-        last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
-        last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
+    sycl::event train_event = pr::newton_cg<Float>(queue, loss_func, x, tol, maxiter, {fill_event});
 
-        // We keep the latest slice of data up to date because of pimpl -
-        // it virtually extend lifetime of pulled arrays
-        old_x_arr = std::move(x_arr), old_y_arr = std::move(y_arr);
-    }
+    train_event.wait_and_throw();
 
-    const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
 
-    auto& comm = ctx.get_communicator();
-    if (comm.get_rank_count() > 1) {
-        sycl::event::wait_and_throw(solve_deps);
-        {
-            ONEDAL_PROFILER_TASK(xtx_allreduce);
-            auto xtx_arr = dal::array<Float>::wrap(queue, xtx.get_mutable_data(), xtx.get_count());
-            comm.allreduce(xtx_arr).wait();
-        }
-        {
-            ONEDAL_PROFILER_TASK(xty_allreduce);
-            auto xty_arr = dal::array<Float>::wrap(queue, xty.get_mutable_data(), xty.get_count());
-            comm.allreduce(xty_arr).wait();
-        }
-    }
+    auto x_arr = array<Float>::zeros(queue, dim, sycl::usm::alloc::device);
+    auto dst_1 = pr::ndview<Float, 1>::wrap_mutable(x_arr, {dim});
 
-    auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
-    auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);
-    auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
-    sycl::event::wait_and_throw({ solve_event });
+    pr::copy(queue, dst_1, x).wait_and_throw();
 
-    auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
+    auto all_coefs = homogen_table::wrap(x_arr, 1, dim);
 
-    const auto model_impl = std::make_shared<model_impl_t>(betas);
+    const auto model_impl = std::make_shared<model_impl_t>(all_coefs);
     const auto model = dal::detail::make_private<model_t>(model_impl);
 
     const auto options = desc.get_result_options();
     auto result = train_result<Task>().set_model(model).set_result_options(options);
 
+
     if (options.test(result_options::intercept)) {
-        auto arr = array<Float>::zeros(queue, response_count, alloc);
-        auto dst = pr::ndview<Float, 2>::wrap_mutable(arr, { 1l, response_count });
-        const auto src = nxty.get_col_slice(0l, 1l).t();
+        ONEDAL_ASSERT(fit_intercept);
 
-        pr::copy(queue, dst, src).wait_and_throw();
+        auto arr = array<Float>::zeros(queue, 1, sycl::usm::alloc::device);
+        auto dst = pr::ndview<Float, 1>::wrap_mutable(arr, {1});
 
-        auto intercept = homogen_table::wrap(arr, 1l, response_count);
-        result.set_intercept(intercept);
+        // auto arr = pr::ndarray<Float, 1>::zeros(queue, {1}, sycl::usm::alloc::device);
+        auto intercept_coef = x.slice(0, 1);
+        pr::copy(queue, dst, intercept_coef).wait_and_throw();
+        
+        auto intercept_table = homogen_table::wrap(arr, 1, 1);
+        result.set_intercept(intercept_table);
     }
 
     if (options.test(result_options::coefficients)) {
-        const auto size = check_mul_overflow(response_count, feature_count);
+        pr::ndview<Float, 1> coefs;
+        array<Float> arr = array<Float>::zeros(queue, feature_count, sycl::usm::alloc::device);
+        auto dst = pr::ndview<Float, 1>::wrap_mutable(arr, {feature_count});
 
-        auto arr = array<Float>::zeros(queue, size, alloc);
-        const auto src = nxty.get_col_slice(1l, feature_count + 1);
-        auto dst = pr::ndview<Float, 2>::wrap_mutable(arr, { response_count, feature_count });
-
-        pr::copy(queue, dst, src).wait_and_throw();
-
-        auto coefficients = homogen_table::wrap(arr, response_count, feature_count);
-        result.set_coefficients(coefficients);
+        if (fit_intercept) {
+            coefs = x.slice(1, feature_count);
+        } else {
+            coefs = x.slice(0, feature_count);
+        }
+        pr::copy(queue, dst, coefs).wait_and_throw();
+        auto coefs_table = homogen_table::wrap(arr, 1, feature_count);
+        result.set_coefficients(coefs_table);
     }
 
     return result;
-    */
 }
 
 template <typename Float, typename Task>
@@ -170,7 +138,7 @@ static train_result<Task> train(const context_gpu& ctx,
 }
 
 template <typename Float, typename Task>
-struct train_kernel_gpu<Float, method::norm_eq, Task> {
+struct train_kernel_gpu<Float, method::newton_cg, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const detail::train_parameters<Task>& params,

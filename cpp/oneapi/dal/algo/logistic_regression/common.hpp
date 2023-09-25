@@ -120,7 +120,7 @@ public:
 protected:
     void set_compute_intercept_impl(bool compute_intercept);
     //void set_l1_coef_impl(bool l1_coef);
-    void set_l2_coef_impl(bool l2_coef);
+    void set_l2_coef_impl(double l2_coef);
     //void set_class_count_impl(std::int64_t class_count);
     void set_result_options_impl(const result_option_id& value);
 
@@ -147,9 +147,9 @@ namespace v1 {
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
-///                     be :expr:`method::norm_eq`.
+///                     be :expr:`method::newton_cg`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
-///                     be :expr:`task::regression`.
+///                     be :expr:`task::classification`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>
@@ -183,6 +183,7 @@ public:
     double get_l2_coef() const {
         return base_t::get_l2_coef();
     }
+
 
     // double get_class_count() const {
     //     return base_t::get_class_count();

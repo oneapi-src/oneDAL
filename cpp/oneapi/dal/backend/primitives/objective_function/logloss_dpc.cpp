@@ -580,7 +580,7 @@ sycl::event LogLossHessianProduct<Float>::operator()(const ndview<Float, 1>& vec
 template <typename Float>
 LogLossFunction<Float>::LogLossFunction(sycl::queue q,
                                         const table& data,
-                                        ndview<std::int32_t, 1>& labels,
+                                        const ndview<std::int32_t, 1>& labels,
                                         Float L2,
                                         bool fit_intercept,
                                         std::int64_t bsz)

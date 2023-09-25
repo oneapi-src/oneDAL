@@ -140,7 +140,7 @@ class LogLossFunction : public BaseFunction<Float> {
 public:
     LogLossFunction(sycl::queue queue,
                     const table& data,
-                    ndview<std::int32_t, 1>& labels,
+                    const ndview<std::int32_t, 1>& labels,
                     Float L2 = 0.0,
                     bool fit_intercept = true,
                     std::int64_t bsz = -1);
@@ -155,7 +155,7 @@ public:
 private:
     sycl::queue q_;
     const table data_;
-    ndview<std::int32_t, 1> labels_;
+    const ndview<std::int32_t, 1> labels_;
     const std::int64_t n_;
     const std::int64_t p_;
     Float L2_;
