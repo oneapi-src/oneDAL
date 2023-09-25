@@ -56,10 +56,10 @@ namespace interface1
  *      - \ref interface1::Model "Model" class
  *      - Result class
  */
-class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
+class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
-    typedef classifier::training::interface1::Batch super;
+    typedef classifier::training::Batch super;
 
     typedef super::InputType InputType;
     typedef super::ParameterType ParameterType;
@@ -73,7 +73,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : classifier::training::interface1::Batch(other) {}
+    Batch(const Batch & other) : classifier::training::Batch(other) {}
 
     virtual ~Batch() {}
 
