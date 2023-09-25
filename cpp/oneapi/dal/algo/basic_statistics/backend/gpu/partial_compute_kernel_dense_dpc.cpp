@@ -95,7 +95,7 @@ auto update_partial_results(sycl::queue& q,
                 result_sums2_ptr[id] - result_sums_ptr[id] * result_sums_ptr[id] / nobs_ptr[0];
         });
     });
-
+    update_event.wait_and_throw();
     return std::make_tuple(result_min,
                            result_max,
                            result_sums,
@@ -166,6 +166,7 @@ auto init_computation(sycl::queue& q,
             result_nobs_ptr[0] = current_nobs_ptr[0] + row_count;
         });
     });
+    init_event.wait_and_throw();
     auto reduce_event_min =
         pr::reduce_by_columns(q, data, result_min, pr::min<Float>{}, pr::identity<Float>{}, deps);
     reduce_event_min.wait_and_throw();
@@ -218,7 +219,7 @@ auto init(sycl::queue& q,
             result_nobs_ptr[0] = row_count;
         });
     });
-
+    init_event.wait_and_throw();
     return std::make_tuple(result_nobs, init_event);
 }
 

@@ -62,10 +62,8 @@ inline auto get_partial_result(daal_lom::PartialResult daal_partial_result) {
         daal_partial_result.get(daal_lom::PartialResultId::partialMaximum)));
     result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(
         daal_partial_result.get(daal_lom::PartialResultId::partialSum)));
-
     result.set_partial_sum_squares(interop::convert_from_daal_homogen_table<Float>(
         daal_partial_result.get(daal_lom::PartialResultId::partialSumSquares)));
-
     result.set_partial_sum_squares_centered(interop::convert_from_daal_homogen_table<Float>(
         daal_partial_result.get(daal_lom::PartialResultId::partialSumSquaresCentered)));
 

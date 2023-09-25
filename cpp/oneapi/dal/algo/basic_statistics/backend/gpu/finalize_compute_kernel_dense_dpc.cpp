@@ -75,7 +75,7 @@ auto compute_all_metrics(sycl::queue& q,
             result_variation_ptr[id] = result_stddev_ptr[id] / result_means_ptr[id];
         });
     });
-
+    update_event.wait_and_throw();
     return std::make_tuple(result_means,
                            result_variance,
                            result_raw_moment,
