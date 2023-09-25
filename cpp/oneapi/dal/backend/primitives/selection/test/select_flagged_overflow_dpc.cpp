@@ -71,7 +71,8 @@ private:
 };
 
 template <typename TestType>
-class select_flagged_index_overflow_test : public te::float_algo_fixture<TestType> {
+class select_flagged_index_overflow_test
+        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Data = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
