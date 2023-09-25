@@ -28,7 +28,8 @@ namespace la = te::linalg;
 namespace de = dal::detail;
 
 template <typename TestType>
-class select_flagged_overflow_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+class select_flagged_overflow_test
+        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
