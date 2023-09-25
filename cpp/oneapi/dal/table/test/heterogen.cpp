@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/detail/debug.hpp"
+
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 
@@ -67,7 +69,7 @@ TEST("Can create table from chunked arrays") {
         chunked2,
         chunked1,
         chunked2);
-    //
+
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 4l);
@@ -104,7 +106,7 @@ TEST("Can create table from different chunked arrays") {
         chunked1,
         chunked2,
         chunked1);
-    //
+
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 3l);
@@ -194,7 +196,7 @@ TEST("Can get row slice on host - 1") {
 }
 
 TEST("Can get row slice on host - 2") {
-    constexpr std::int64_t count = 4'097l;
+    const std::int64_t count = GENERATE(777, 1027, 1029, 7777);
 
     std::vector<std::uint64_t> column0(count);
     std::iota(column0.begin(), column0.end(), 0ul);
@@ -236,7 +238,7 @@ TEST("Can get row slice on host - 2") {
 }
 
 TEST("Can get column slice on host") {
-    constexpr std::int64_t count = 6'78l;
+    const std::int64_t count = GENERATE(201, 678, 999);
 
     std::vector<float> column0(count);
     std::iota(column0.begin(), column0.end(), 0);
@@ -275,7 +277,7 @@ TEST("Can get column slice on host") {
     };
 
     for (std::int64_t col = 0l; col < table.get_column_count(); ++col) {
-        const auto first = 3 * col, last = count - 4 * col; 
+        const auto first = 3 * col, last = count - 4 * col;
         auto res = accessor.pull(col, { first, last });
         check_column(col, first, last, res);
     }
@@ -386,15 +388,15 @@ TEST("Can get column slice from heterogen to shared") {
     constexpr auto device = sycl::usm::alloc::device;
     constexpr auto shared = sycl::usm::alloc::shared;
 
-    constexpr std::int64_t count = 777;
+    const std::int64_t count = GENERATE(77, 177, 777);
 
     auto arr0 = array<float>::empty(q, count, shared);
     std::iota(begin(arr0), end(arr0), float(0));
     chunked_array<float> chunked0(arr0);
 
-    auto arr1 = array<std::int8_t>::empty(q, count, shared);
-    std::iota(begin(arr1), end(arr1), std::int8_t(0));
-    chunked_array<std::int8_t> chunked1(arr1);
+    auto arr1 = array<std::int16_t>::empty(q, count, shared);
+    std::iota(begin(arr1), end(arr1), std::int16_t(0));
+    chunked_array<std::int16_t> chunked1(arr1);
 
     auto arr2 = array<std::uint16_t>::empty(q, count, host);
     std::iota(begin(arr2), end(arr2), std::uint16_t(0));
@@ -428,10 +430,11 @@ TEST("Can get column slice from heterogen to shared") {
     };
 
     for (std::int64_t col = 0l; col < table.get_column_count(); ++col) {
-        const std::int64_t first = 2 * col, last = count - 2 * col; 
+        const std::int64_t first = 2 * col, last = count - 2 * col;
         auto tmp = accessor.pull(q, col, { first, last }, device);
-        auto res = array<float>::empty(tmp.get_count());
+        auto res = array<float>::zeros(tmp.get_count());
         /* Copying to host */ detail::copy(res, tmp);
+
         check_column(col, first, last, res);
     }
 }

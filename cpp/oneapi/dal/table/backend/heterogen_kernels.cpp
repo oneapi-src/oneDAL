@@ -346,8 +346,17 @@ struct heterogen_dispatcher<detail::host_policy> {
                 auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
                 auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
 
-                backend::copy_convert(policy, &inp_ptrs, &col_dtype, &stride, 
-                            &out_ptrs, &out_dtype, &stride, {1, copy_count});
+                //backend::copy_convert(policy, &inp_ptrs, &col_dtype, &stride,
+                //            &out_ptrs, &out_dtype, &stride, {1, copy_count});
+
+                backend::copy_convert_one(policy,
+                                          inp_ptrs,
+                                          col_dtype,
+                                          stride,
+                                          out_ptrs,
+                                          out_dtype,
+                                          stride,
+                                          copy_count);
 
                 block_data = std::move(res);
             });
@@ -529,6 +538,7 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
         }
         else {
             backend::dispatch_by_data_type(col_dtype, [&](auto type) {
+                constexpr Type zero = 0;
                 using type_t = std::decay_t<decltype(type)>;
                 auto res = dal::array<Type>::empty(queue, copy_count, alloc);
                 auto tmp = dal::array<type_t>::empty(queue, copy_count, alloc);
@@ -538,12 +548,21 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                 constexpr std::int64_t stride = 1l;
                 const auto* const raw_inp_ptrs = tmp.get_data();
                 auto* const raw_out_ptrs = res.get_mutable_data();
+                auto event = queue.fill(raw_out_ptrs, zero, copy_count);
 
                 auto inp_ptrs = reinterpret_cast<const dal::byte_t*>(raw_inp_ptrs);
                 auto out_ptrs = reinterpret_cast<dal::byte_t* const>(raw_out_ptrs);
 
-                backend::copy_convert(policy, &inp_ptrs, &col_dtype, &stride, 
-                            &out_ptrs, &out_dtype, &stride, {1, copy_count});
+                backend::copy_convert_one(policy,
+                                          inp_ptrs,
+                                          col_dtype,
+                                          stride,
+                                          out_ptrs,
+                                          out_dtype,
+                                          stride,
+                                          copy_count,
+                                          { event })
+                    .wait_and_throw();
 
                 block_data = std::move(res);
             });
