@@ -28,7 +28,7 @@ namespace la = te::linalg;
 namespace de = dal::detail;
 
 template <typename TestType>
-class select_flagged_test : public te::float_algo_fixture<TestType> {
+class select_flagged_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
@@ -250,4 +250,5 @@ TEMPLATE_LIST_TEST_M(select_flagged_index_test,
 
     this->check_select(val, mask);
 }
+
 } // namespace oneapi::dal::backend::primitives::test
