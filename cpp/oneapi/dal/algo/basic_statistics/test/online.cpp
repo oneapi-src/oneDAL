@@ -23,12 +23,12 @@ namespace la = te::linalg;
 namespace bs = oneapi::dal::basic_statistics;
 
 template <typename TestType>
-class basic_statistics_batch_test
-        : public basic_statistics_test<TestType, basic_statistics_batch_test<TestType>> {};
+class basic_statistics_online_test
+        : public basic_statistics_test<TestType, basic_statistics_online_test<TestType>> {};
 
-TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
+TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
                      "basic_statistics common flow",
-                     "[basic_statistics][integration][batch]",
+                     "[basic_statistics][integration][online]",
                      basic_statistics_types) {
     SKIP_IF(this->not_float64_friendly());
     const te::dataframe data =
