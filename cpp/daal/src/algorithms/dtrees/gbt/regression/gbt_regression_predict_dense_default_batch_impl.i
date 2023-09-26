@@ -360,8 +360,8 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
             if (currentTreeIndex == 0) continue;
 
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
-            st |= gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper, condition,
-                                                                                                conditionFeature, modelDetails);
+            st |= gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
+                currentTree, currentTreeIndex, currentX, phi, &_featHelper, condition, conditionFeature, modelDetails);
         }
 
         if (condition == 0)
