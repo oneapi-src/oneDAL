@@ -46,10 +46,11 @@ struct infer_ops {
         }
 
         if (desc.get_component_count() > 0) {
-            if (input.get_model().get_eigenvectors().get_row_count() !=
-                desc.get_component_count()) {
-                throw invalid_argument(msg::input_model_eigenvectors_rc_neq_desc_component_count());
-            }
+            //TODO: restore after adding select data by component count
+            // if (input.get_model().get_eigenvectors().get_row_count() !=
+            //     desc.get_component_count()) {
+            //     //throw invalid_argument(msg::input_model_eigenvectors_rc_neq_desc_component_count());
+            // }
         }
         else {
             if (input.get_model().get_eigenvectors().get_row_count() !=

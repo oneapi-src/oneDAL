@@ -37,7 +37,7 @@ void run(sycl::queue& q) {
     using method_t = dal::pca::method::svd;
     using task_t = dal::pca::task::dim_reduction;
     using descriptor_t = dal::pca::descriptor<float_t, method_t, task_t>;
-    const auto pca_desc = descriptor_t().set_component_count(5).set_deterministic(true);
+    const auto pca_desc = descriptor_t().set_component_count(2).set_deterministic(true);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
