@@ -42,7 +42,7 @@ dal_test_suite(
         "test/heterogen.cpp",
         "test/homogen.cpp",
         "test/common_serialization.cpp",
-        #"test/heterogen_serialization.cpp",
+        "test/heterogen_serialization.cpp",
         "test/homogen_serialization.cpp",
         "test/csr_accessor.cpp",
         "test/csr.cpp",
