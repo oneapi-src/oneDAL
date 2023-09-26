@@ -66,7 +66,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_partial_sum_squares_centered =
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
     std::cout << "Note 11" << std::endl;
-    auto daal_result = daal_lom::Result();
+    //auto daal_result = daal_lom::Result();
 
     auto daal_input = daal_lom::Input();
     std::cout << "Note 11.1" << std::endl;
@@ -77,14 +77,29 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     std::cout << "Note 11.3" << std::endl;
     daal_input.set(daal_lom::InputId::data, daal_input_);
     std::cout << "Note 11.4" << std::endl;
-    alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
-    std::cout << "Note 12" << std::endl;
-    daal_result.set(daal_lom::ResultId::maximum, daal_partial_max);
-    daal_result.set(daal_lom::ResultId::minimum, daal_partial_min);
+    //alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
+    // std::cout << "Note 12" << std::endl;
+    // daal_result.set(daal_lom::ResultId::maximum, daal_partial_max);
+    // daal_result.set(daal_lom::ResultId::minimum, daal_partial_min);
 
-    daal_result.set(daal_lom::ResultId::sum, daal_partial_sums);
-    daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sum_squares);
-    daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sum_squares_centered);
+    // daal_result.set(daal_lom::ResultId::sum, daal_partial_sums);
+    // daal_result.set(daal_lom::ResultId::sumSquares, daal_partial_sum_squares);
+    // daal_result.set(daal_lom::ResultId::sumSquaresCentered, daal_partial_sum_squares_centered);
+    auto arr_means = array<Float>::zeros(column_numbers);
+    auto arr_rawt = array<Float>::zeros(column_numbers);
+    auto arr_variance = array<Float>::zeros(column_numbers);
+    auto arr_stdev = array<Float>::zeros(column_numbers);
+    auto arr_variation = array<Float>::zeros(column_numbers);
+
+    // Convert the arrays to DAAL homogen tables.
+    auto daal_means = interop::convert_to_daal_homogen_table<Float>(arr_means, 1, column_numbers);
+    auto daal_rawt = interop::convert_to_daal_homogen_table<Float>(arr_rawt, 1, column_numbers);
+    auto daal_variance =
+        interop::convert_to_daal_homogen_table<Float>(arr_variance, 1, column_numbers);
+    auto daal_stdev = interop::convert_to_daal_homogen_table<Float>(arr_stdev, 1, column_numbers);
+    auto daal_variation =
+        interop::convert_to_daal_homogen_table<Float>(arr_variation, 1, column_numbers);
+
     std::cout << "Note 13" << std::endl;
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
@@ -93,17 +108,51 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
             daal_partial_sums.get(),
             daal_partial_sum_squares.get(),
             daal_partial_sum_squares_centered.get(),
-            daal_result.get(daal_lom::ResultId::mean).get(),
-            daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
-            daal_result.get(daal_lom::ResultId::variance).get(),
-            daal_result.get(daal_lom::ResultId::standardDeviation).get(),
-            daal_result.get(daal_lom::ResultId::variation).get(),
+            daal_means.get(),
+            daal_rawt.get(),
+            daal_variance.get(),
+            daal_stdev.get(),
+            daal_variation.get(),
             &daal_parameter));
-    std::cout << "Note 14" << std::endl;
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+
+    compute_result<Task> res;
+    const auto res_op = desc.get_result_options();
+    res.set_result_options(desc.get_result_options());
+
+    if (res_op.test(result_options::min)) {
+        res.set_min(interop::convert_from_daal_homogen_table<Float>(daal_partial_min));
+    }
+    if (res_op.test(result_options::max)) {
+        res.set_max(interop::convert_from_daal_homogen_table<Float>(daal_partial_max));
+    }
+    if (res_op.test(result_options::sum)) {
+        res.set_sum(interop::convert_from_daal_homogen_table<Float>(daal_partial_sums));
+    }
+    if (res_op.test(result_options::sum_squares)) {
+        res.set_sum_squares(
+            interop::convert_from_daal_homogen_table<Float>(daal_partial_sum_squares));
+    }
+    if (res_op.test(result_options::sum_squares_centered)) {
+        res.set_sum_squares_centered(
+            interop::convert_from_daal_homogen_table<Float>(daal_partial_sum_squares_centered));
+    }
+    if (res_op.test(result_options::mean)) {
+        res.set_mean(interop::convert_from_daal_homogen_table<Float>(daal_means));
+    }
+    if (res_op.test(result_options::second_order_raw_moment)) {
+        res.set_second_order_raw_moment(interop::convert_from_daal_homogen_table<Float>(daal_rawt));
+    }
+    if (res_op.test(result_options::variance)) {
+        res.set_variance(interop::convert_from_daal_homogen_table<Float>(daal_variance));
+    }
+    if (res_op.test(result_options::standard_deviation)) {
+        res.set_standard_deviation(interop::convert_from_daal_homogen_table<Float>(daal_stdev));
+    }
+    if (res_op.test(result_options::variation)) {
+        res.set_variation(interop::convert_from_daal_homogen_table<Float>(daal_variation));
+    }
     std::cout << "Note 15" << std::endl;
-    return result;
+    return res;
 }
 
 template <typename Float, typename Task>
