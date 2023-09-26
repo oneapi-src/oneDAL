@@ -39,7 +39,6 @@ static sycl::event gesvd_wrapper(sycl::queue& queue,
                                  std::int64_t scratchpad_size,
                                  const event_vector& deps) {
     ONEDAL_ASSERT(lda >= n);
-    std::cout << "here" << std::endl;
     return mkl::lapack::gesvd(queue,
                               mkl::jobsvd::vectors,
                               mkl::jobsvd::vectors,

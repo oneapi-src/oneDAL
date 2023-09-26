@@ -41,6 +41,7 @@ using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
+//TODO::call wrapper instead of direct call of mkl
 template <typename Float>
 auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     const std::int64_t row_count = data.get_dimension(0);

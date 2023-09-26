@@ -41,8 +41,6 @@ void run(sycl::queue& q) {
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
-    std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
-
     std::cout << "Singular Values:\n" << result_train.get_eigenvalues() << std::endl;
 
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
