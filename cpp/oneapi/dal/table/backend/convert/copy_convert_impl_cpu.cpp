@@ -28,6 +28,7 @@
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
+#include "oneapi/dal/table/backend/convert/copy_convert_impl.hpp"
 
 namespace oneapi::dal::backend {
 
