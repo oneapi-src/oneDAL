@@ -30,7 +30,7 @@ For details, see [System Requirements for oneDAL](https://www.intel.com/content/
 
 ## Docker Development Environment 
 
-[Docker file](https://github.com/oneapi-src/oneDAL/tree/master/dev) with the oneDAL development environment
+[Docker file](https://github.com/oneapi-src/oneDAL/tree/master/dev/docker) with the oneDAL development environment
 is available as an alternative to the manual setup. 
 
 ## Installation Steps

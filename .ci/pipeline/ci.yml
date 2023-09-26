@@ -185,9 +185,9 @@ jobs:
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
+      # sourcing done to set bazel version value from script
       source .ci/env/bazelisk.sh
       echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}"
-    #sourcing done to set bazel version value from script
     displayName: 'install-bazel'
   - script: |
       .ci/scripts/describe_system.sh
@@ -381,7 +381,7 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge python=3.9
+      conda create -n ci-env -q -y -c conda-forge python=3.10
       source /usr/local/miniconda/etc/profile.d/conda.sh
       conda activate ci-env
       pip install -q cpufeature
