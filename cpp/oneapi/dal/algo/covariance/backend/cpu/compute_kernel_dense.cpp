@@ -27,6 +27,7 @@ namespace oneapi::dal::covariance::backend {
 
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::compute>;
+using parameters_t = detail::compute_parameters<task::compute>;
 
 namespace daal_covariance = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
@@ -51,7 +52,7 @@ static auto convert_parameters(const detail::compute_parameters<Task>& params) {
 
 template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                             const descriptor_t& desc,
+                                             const detail::descriptor_base<Task>& desc,
                                              const detail::compute_parameters<Task>& params,
                                              const table& data) {
     bool is_mean_computed = false;
@@ -61,7 +62,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
-    const auto hp = convert_parameters<Float>(params);
+    const auto hp = convert_parameters<Float, Task>(params);
 
     dal::detail::check_mul_overflow(component_count, component_count);
 
@@ -128,7 +129,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float, typename Task>
 static compute_result<Task> compute(const context_cpu& ctx,
-                                    const descriptor_t& desc,
+                                    const detail::descriptor_base<Task>& desc,
                                     const detail::compute_parameters<Task>& params,
                                     const compute_input<Task>& input) {
     return call_daal_kernel<Float, Task>(ctx, desc, params, input.get_data());
@@ -138,7 +139,7 @@ template <typename Float>
 struct compute_kernel_cpu<Float, method::by_default, task::compute> {
     compute_result<task::compute> operator()(const context_cpu& ctx,
                                              const descriptor_t& desc,
-                                             const detail::compute_parameters<Task>& params,
+                                             const parameters_t& params,
                                              const compute_input<task::compute>& input) const {
         return compute<Float, task::compute>(ctx, desc, params, input);
     }

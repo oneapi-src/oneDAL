@@ -29,34 +29,18 @@
 namespace oneapi::dal::covariance::parameters {
 
 using dal::backend::context_gpu;
-/*
-template <typename Float>
-std::int64_t propose_block_size(const sycl::queue& q) {
-    return 0l;
-}
-*/
+
 template <typename Float, typename Task>
-struct compute_parameters_gpu<Float, method::norm_eq, Task> {
+struct compute_parameters_gpu<Float, method::dense, Task> {
     using params_t = detail::compute_parameters<Task>;
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const compute_input<Task>& input) const {
-        const auto& queue = ctx.get_queue();
-
-        /* const auto& x_train = input.get_data();
-        const auto& y_train = input.get_responses();
-
-        const auto f_count = x_train.get_column_count();
-        const auto r_count = y_train.get_column_count();
-
-        const auto block = propose_block_size<Float>(queue, f_count, r_count);
-
-        return params_t{}.set_gpu_macro_block(block); */
         return params_t{};
     }
 };
 
-template struct ONEDAL_EXPORT compute_parameters_gpu<float, method::dense, task::covariance>;
-template struct ONEDAL_EXPORT compute_parameters_gpu<double, method::dense, task::covariance>;
+template struct ONEDAL_EXPORT compute_parameters_gpu<float, method::dense, task::compute>;
+template struct ONEDAL_EXPORT compute_parameters_gpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::covariance::parameters

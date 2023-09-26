@@ -47,7 +47,7 @@ struct compute_parameters_cpu<Float, method::dense, Task> {
     using params_t = detail::compute_parameters<Task>;
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
-                        const train_input<Task>& input) const {
+                        const compute_input<Task>& input) const {
         const auto& x = input.get_data();
 
         const auto row_count = x.get_row_count();
@@ -58,7 +58,7 @@ struct compute_parameters_cpu<Float, method::dense, Task> {
     }
 };
 
-template struct ONEDAL_EXPORT compute_parameters_cpu<float, method::dense, task::covariance>;
-template struct ONEDAL_EXPORT compute_parameters_cpu<double, method::dense, task::covariance>;
+template struct ONEDAL_EXPORT compute_parameters_cpu<float, method::dense, task::compute>;
+template struct ONEDAL_EXPORT compute_parameters_cpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::covariance::parameters
