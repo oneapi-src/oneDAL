@@ -115,9 +115,9 @@ array<Float> copy_immutable(const array<Float>&& inp) {
 
 template <typename Float, typename Result, typename Input, typename Parameter>
 void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
-    std::cout<<"alloc 1"<<std::endl;
+    std::cout << "alloc 1" << std::endl;
     const auto status = result.template allocate<Float>(input, params, method);
-    std::cout<<"alloc 2"<<std::endl;
+    std::cout << "alloc 2" << std::endl;
     interop::status_to_exception(status);
 }
 

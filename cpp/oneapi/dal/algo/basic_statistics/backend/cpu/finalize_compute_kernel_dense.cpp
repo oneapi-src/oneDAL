@@ -70,7 +70,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
 
     auto daal_input = daal_lom::Input();
     std::cout << "Note 11.1" << std::endl;
-    auto arr_input = array<Float>::zeros(row_count * column_numbers);
+    auto arr_input = array<Float>::empty(row_count * column_numbers);
     std::cout << "Note 11.2" << std::endl;
     auto daal_input_ =
         interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
