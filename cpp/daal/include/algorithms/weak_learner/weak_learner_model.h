@@ -50,7 +50,7 @@ namespace interface1
  * \snippet weak_learner/weak_learner_model.h Parameter source code
  */
 /* [Parameter source code] */
-class Parameter : public classifier::interface1::Parameter
+class Parameter : public classifier::interface2::Parameter
 {
 public:
     Parameter() {}

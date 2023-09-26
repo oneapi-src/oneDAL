@@ -25,6 +25,7 @@
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
 #include "oneapi/dal/table/backend/convert/common_convert.hpp"
+#include "oneapi/dal/table/backend/convert/copy_convert_impl.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -74,6 +75,24 @@ void copy_convert(const detail::host_policy& policy,
                         out_types.get_data(),
                         out_strides.get_data(),
                         shape);
+}
+
+void copy_convert_one(const detail::host_policy& policy,
+                      const dal::byte_t* const inp_pointer,
+                      data_type inp_type,
+                      std::int64_t inp_stride,
+                      dal::byte_t* const out_pointer,
+                      data_type out_type,
+                      std::int64_t out_stride,
+                      std::int64_t count) {
+    copy_convert(policy,
+                 &inp_pointer,
+                 &inp_type,
+                 &inp_stride,
+                 &out_pointer,
+                 &out_type,
+                 &out_stride,
+                 { 1l, count });
 }
 
 void copy_convert(const detail::host_policy& policy,

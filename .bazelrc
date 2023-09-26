@@ -27,12 +27,6 @@ test --test_env=FI_PROVIDER_PATH
 # This variable is used to determine location of datasets for testing
 test --test_env=DAAL_DATASETS
 
-# These variables enable float64 emulation on platforms
-# that do not support it on hardware level
-test --test_env=OverrideDefaultFP64Settings \
-     --test_env=IGC_ForceDPEmulation \
-     --test_env=IGC_EnableDPEmulation
-
 # Flag for setting the test timeout to 15 minutes
 test --test_timeout=900
 

@@ -49,17 +49,18 @@ struct partial_compute_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_nobs().has_data());
-        ONEDAL_ASSERT(result.get_nobs().get_column_count() == 1);
-        ONEDAL_ASSERT(result.get_nobs().get_row_count() == 1);
-        ONEDAL_ASSERT(result.get_crossproduct().has_data());
-        ONEDAL_ASSERT(result.get_crossproduct().get_column_count() ==
+        ONEDAL_ASSERT(result.get_partial_n_rows().has_data());
+        ONEDAL_ASSERT(result.get_partial_n_rows().get_column_count() == 1);
+        ONEDAL_ASSERT(result.get_partial_n_rows().get_row_count() == 1);
+        ONEDAL_ASSERT(result.get_partial_crossproduct().has_data());
+        ONEDAL_ASSERT(result.get_partial_crossproduct().get_column_count() ==
                       input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_crossproduct().get_row_count() ==
+        ONEDAL_ASSERT(result.get_partial_crossproduct().get_row_count() ==
                       input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_sums().has_data());
-        ONEDAL_ASSERT(result.get_sums().get_column_count() == input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_sums().get_row_count() == 1);
+        ONEDAL_ASSERT(result.get_partial_sum().has_data());
+        ONEDAL_ASSERT(result.get_partial_sum().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_partial_sum().get_row_count() == 1);
     }
 
     template <typename Context>

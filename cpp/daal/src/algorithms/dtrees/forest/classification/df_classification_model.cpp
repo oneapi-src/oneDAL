@@ -89,32 +89,6 @@ bool visitLeaf(const size_t iRowInTable, const size_t level, tree_utils::classif
     return visitor.onLeafNode(descLeaf);
 }
 
-template <>
-bool visitSplit(size_t iRowInTable, size_t level, tree_utils::interface1::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode,
-                const double * imp, const int * nodeSamplesCount, tree_utils::classification::interface1::TreeNodeVisitor & visitor)
-{
-    const DecisionTreeNode & n = aNode[iRowInTable];
-    if (imp) descSplit.impurity = imp[iRowInTable];
-    if (nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descSplit.featureIndex = n.featureIndex;
-    descSplit.featureValue = n.featureValue();
-    descSplit.level        = level;
-    return visitor.onSplitNode(descSplit);
-}
-
-template <>
-bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::interface1::LeafNodeDescriptor & descLeaf,
-               const DecisionTreeNode * aNode, const double * imp, const int * nodeSamplesCount,
-               daal::algorithms::tree_utils::classification::interface1::TreeNodeVisitor & visitor)
-{
-    const DecisionTreeNode & n = aNode[iRowInTable];
-    if (imp) descLeaf.impurity = imp[iRowInTable];
-    if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descLeaf.level = level;
-    descLeaf.label = n.leftIndexOrClass;
-    return visitor.onLeafNode(descLeaf);
-}
-
 } // namespace internal
 } // namespace dtrees
 
@@ -227,57 +201,6 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVi
         auto onLeafNodeFunc = [&descLeaf, &aNode, &imp, &nodeSamplesCount, &visitor, &modelProb, &nClasses](const size_t iRowInTable,
                                                                                                             const size_t level) -> bool {
             return visitLeaf(iRowInTable, level, descLeaf, aNode, imp, nodeSamplesCount, visitor, modelProb, nClasses);
-        };
-
-        aCur.push_back(0);
-        traverseNodesBF(0, aCur, aNext, aNode, onSplitNodeFunc, onLeafNodeFunc);
-    }
-}
-
-void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const
-{
-    if (iTree >= size()) return;
-    const DecisionTreeTable & t    = *at(iTree);
-    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
-    const double * imp             = getImpVals(iTree);
-    const int * nodeSamplesCount   = getNodeSampleCount(iTree);
-    if (aNode)
-    {
-        tree_utils::SplitNodeDescriptor descSplit;
-        tree_utils::classification::interface1::LeafNodeDescriptor descLeaf;
-
-        auto onSplitNodeFunc = [&descSplit, &aNode, &imp, &nodeSamplesCount, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitSplit(iRowInTable, level, descSplit, aNode, imp, nodeSamplesCount, visitor);
-        };
-
-        auto onLeafNodeFunc = [&descLeaf, &aNode, &imp, &nodeSamplesCount, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitLeaf(iRowInTable, level, descLeaf, aNode, imp, nodeSamplesCount, visitor);
-        };
-
-        traverseNodeDF(0, 0, aNode, onSplitNodeFunc, onLeafNodeFunc);
-    }
-}
-
-void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const
-{
-    if (iTree >= size()) return;
-    const DecisionTreeTable & t    = *at(iTree);
-    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
-    const double * imp             = getImpVals(iTree);
-    const int * nodeSamplesCount   = getNodeSampleCount(iTree);
-    NodeIdxArray aCur;  //nodes of current layer
-    NodeIdxArray aNext; //nodes of next layer
-    if (aNode)
-    {
-        tree_utils::SplitNodeDescriptor descSplit;
-        tree_utils::classification::interface1::LeafNodeDescriptor descLeaf;
-
-        auto onSplitNodeFunc = [&descSplit, &aNode, &imp, &nodeSamplesCount, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitSplit(iRowInTable, level, descSplit, aNode, imp, nodeSamplesCount, visitor);
-        };
-
-        auto onLeafNodeFunc = [&descLeaf, &aNode, &imp, &nodeSamplesCount, &visitor](size_t iRowInTable, size_t level) -> bool {
-            return visitLeaf(iRowInTable, level, descLeaf, aNode, imp, nodeSamplesCount, visitor);
         };
 
         aCur.push_back(0);

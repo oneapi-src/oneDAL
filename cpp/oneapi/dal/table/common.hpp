@@ -73,10 +73,6 @@ private:
     void serialize(detail::output_archive& ar) const;
     void deserialize(detail::input_archive& ar);
 
-    /// Maintained for backward compatibility
-    table_metadata(const dal::v1::array<data_type>& dtypes,
-                   const dal::v1::array<feature_type>& ftypes);
-
     detail::pimpl<detail::table_metadata_impl> impl_;
 };
 

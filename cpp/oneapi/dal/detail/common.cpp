@@ -18,42 +18,6 @@
 #include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::detail {
-namespace v1 {
-
-template <typename Data>
-void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
-    v2::integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
-}
-
-template <typename Data>
-void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
-    v2::integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
-}
-
-template <typename Data>
-bool integer_overflow_ops<Data>::is_safe_sum(const Data& first,
-                                             const Data& second,
-                                             Data& sum_result) {
-    return v2::integer_overflow_ops<Data>{}.is_safe_sum(first, second, sum_result);
-}
-
-template <typename Data>
-bool integer_overflow_ops<Data>::is_safe_mul(const Data& first,
-                                             const Data& second,
-                                             Data& mul_result) {
-    return v2::integer_overflow_ops<Data>{}.is_safe_mul(first, second, mul_result);
-}
-
-template struct ONEDAL_EXPORT integer_overflow_ops<std::int8_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::int16_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::int32_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::int64_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::uint8_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::uint16_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::uint32_t>;
-template struct ONEDAL_EXPORT integer_overflow_ops<std::uint64_t>;
-
-} // namespace v1
 
 namespace v2 {
 
