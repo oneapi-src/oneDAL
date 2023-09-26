@@ -15,14 +15,14 @@
 * limitations under the License.
 *******************************************************************************/-->
 
-# Docker dev environemnt
-## How to use
-This is simple docker dev environment intended for oneDAL development and build process.
-It does include dependencies for building all oneDAL components through both make and bazel
+# Docker Development Environment
+## How To Use
+There is a simple docker dev environment for the oneDAL development and build process.
+It includes dependencies for building all oneDAL components with ``make`` and ``bazel``
 
-Note: docker setup assumes that it's executed from oneDAL checkouted repo and copy repo files inside container
+Note: The docker setup assumes that it is executed from the oneDAL repo and copies repo files inside the container
 
-Just run:
+For that, run:
    ```sh
    docker run -it onedal-dev /bin/bash
    ```
