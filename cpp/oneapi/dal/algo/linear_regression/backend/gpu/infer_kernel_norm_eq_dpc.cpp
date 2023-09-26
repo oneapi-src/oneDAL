@@ -93,7 +93,6 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     using dal::detail::check_mul_overflow;
 
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
     ONEDAL_PROFILER_TASK(linreg_infer_kernel, queue);
 
     constexpr auto alloc = sycl::usm::alloc::device;

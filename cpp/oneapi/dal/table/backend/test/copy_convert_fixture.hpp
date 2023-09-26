@@ -48,6 +48,11 @@ constexpr auto get_col_size(const std::tuple<Types...>*) {
     return (sizeof(Types) + ...);
 }
 
+template <typename... Types>
+constexpr auto get_col_aligns(const std::tuple<Types...>*) {
+    return (alignof(Types) + ...);
+}
+
 template <typename Param>
 class copy_convert_fixture : public te::policy_fixture {
 public:
@@ -57,6 +62,7 @@ public:
     constexpr static inline const sources_t* dummy_ptr = nullptr;
     constexpr static inline auto data_types = make_types_array(dummy_ptr);
     constexpr static inline std::int64_t col_size = get_col_size(dummy_ptr);
+    constexpr static inline std::int64_t col_aligns = get_col_aligns(dummy_ptr);
     constexpr static inline std::int64_t row_count = std::tuple_size_v<sources_t>;
     constexpr static inline auto result_type = detail::make_data_type<result_t>();
 
@@ -85,8 +91,8 @@ public:
         std::mt19937_64 generator(seed);
         std::uniform_int_distribution<int> dist(0, 127);
 
-        const auto inp_size = col_size * col_count;
         const auto gtr_size = row_count * col_count;
+        const auto inp_size = col_size * col_count + col_aligns;
 
         inp = dal::array<dal::byte_t>::empty(inp_size);
         gtr = dal::array<result_t>::empty(gtr_size);
@@ -95,7 +101,9 @@ public:
         for (std::int64_t row = 0l; row < row_count; ++row) {
             const data_type dtype = data_types.at(row);
             const auto type_size = detail::get_data_type_size(dtype);
+            const auto type_align = detail::get_data_type_align(dtype);
 
+            inp_offset = align_offset(inp_offset, type_align);
             auto* inp_raw = inp.get_mutable_data() + inp_offset;
             auto* gtr_ptr = gtr.get_mutable_data() + gtr_offset;
 
@@ -113,7 +121,6 @@ public:
             gtr_offset += col_count;
         }
 
-        REQUIRE(inp_offset == inp_size);
         REQUIRE(gtr_offset == gtr_size);
 #ifdef ONEDAL_DATA_PARALLEL
         auto dev_policy = get_device_policy();

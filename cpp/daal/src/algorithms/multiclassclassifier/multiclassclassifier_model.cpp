@@ -39,16 +39,6 @@ Model::Model(size_t nFeatures, const ParameterBase * par)
     : _modelsArray(nullptr), _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)), _nFeatures(nFeatures)
 {}
 
-Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase * par)
-    : _modelsArray(nullptr), _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)), _nFeatures(nFeatures)
-{}
-
-Model::Model(size_t nFeatures, const interface1::ParameterBase * par, services::Status & st) : _modelsArray(nullptr), _nFeatures(nFeatures)
-{
-    _models.reset(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2));
-    if (!_models) st.add(services::ErrorMemoryAllocationFailed);
-}
-
 Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase * par, services::Status & st)
     : _modelsArray(nullptr), _nFeatures(nFeatures)
 {
@@ -57,11 +47,6 @@ Model::Model(size_t nFeatures, const multi_class_classifier::interface2::Paramet
 }
 
 Model::Model() : _nFeatures(0), _models(new data_management::DataCollection()), _modelsArray(nullptr) {}
-
-ModelPtr Model::create(size_t nFeatures, const interface1::ParameterBase * par, services::Status * stat)
-{
-    DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
-}
 
 ModelPtr Model::create(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase * par, services::Status * stat)
 {

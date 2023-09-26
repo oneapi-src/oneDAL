@@ -102,8 +102,8 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
                                              const partial_compute_result<Task>& input) {
     auto& q = ctx.get_queue();
 
-    const std::int64_t column_count = input.get_crossproduct().get_column_count();
-    const std::int64_t component_count = input.get_crossproduct().get_column_count();
+    const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    const std::int64_t component_count = input.get_partial_crossproduct().get_column_count();
 
     dal::detail::check_mul_overflow(column_count, column_count);
     dal::detail::check_mul_overflow(component_count, column_count);
@@ -112,12 +112,13 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
 
     sycl::event event;
 
-    const auto nobs_host = pr::table2ndarray<Float>(q, input.get_nobs());
+    const auto nobs_host = pr::table2ndarray<Float>(q, input.get_partial_n_rows());
     auto rows_count_global = nobs_host.get_data()[0];
 
-    const auto sums = pr::table2ndarray_1d<Float>(q, input.get_sums(), sycl::usm::alloc::device);
+    const auto sums =
+        pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
     const auto xtx =
-        pr::table2ndarray<Float>(q, input.get_crossproduct(), sycl::usm::alloc::device);
+        pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums);

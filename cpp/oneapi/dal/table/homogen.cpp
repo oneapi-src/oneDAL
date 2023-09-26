@@ -48,19 +48,6 @@ void homogen_table::init_impl(const Policy& policy,
         new backend::homogen_table_impl{ row_count, column_count, data, dtype, layout });
 }
 
-// This method is needed for compatibility with the oneDAL 2021.1.
-// This should be removed in 2022.1.
-template <typename Policy>
-void homogen_table::init_impl(const Policy& policy,
-                              std::int64_t row_count,
-                              std::int64_t column_count,
-                              const dal::v1::array<byte_t>& data,
-                              const data_type& dtype,
-                              data_layout layout) {
-    table::init_impl(
-        new backend::homogen_table_impl{ row_count, column_count, data.v2(), dtype, layout });
-}
-
 const void* homogen_table::get_data() const {
     const auto& impl = detail::cast_impl<const detail::homogen_table_iface>(*this);
     return impl.get_data().get_data();
@@ -75,11 +62,9 @@ const void* homogen_table::get_data() const {
                                                          data_layout);
 
 INSTANTIATE(detail::default_host_policy, dal::array)
-INSTANTIATE(detail::default_host_policy, dal::v1::array)
 
 #ifdef ONEDAL_DATA_PARALLEL
 INSTANTIATE(detail::data_parallel_policy, dal::array)
-INSTANTIATE(detail::data_parallel_policy, dal::v1::array)
 #endif
 
 } // namespace v1

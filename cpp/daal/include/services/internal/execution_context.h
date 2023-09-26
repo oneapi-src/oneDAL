@@ -127,10 +127,12 @@ public:
      *  are performed on the device associated with the queue
      *  \param[in] deviceQueue SYCL* queue object to the device that is selected to perform computations
      */
-    SyclExecutionContext(const ::sycl::queue & deviceQueue) : ExecutionContext(createContext(deviceQueue), !deviceQueue.get_device().is_cpu()) {}
+    SyclExecutionContext(const ::sycl::queue & deviceQueue, const bool fromPython = false)
+        : ExecutionContext(createContext(deviceQueue, fromPython), !deviceQueue.get_device().is_cpu())
+    {}
 
 private:
-    static daal::services::internal::sycl::ExecutionContextIface * createContext(const ::sycl::queue & queue)
+    static daal::services::internal::sycl::ExecutionContextIface * createContext(const ::sycl::queue & queue, const bool fromPython = false)
     {
         /* XXX: Workaround to fix performance on CPU: SYCL* runtime loads one
                 thread with active spin-lock that waits for submissions in a queue.
@@ -144,7 +146,14 @@ private:
         }
         else
         {
-            return new daal::services::internal::sycl::SyclExecutionContextImpl(queue);
+            try
+            {
+                return new daal::services::internal::sycl::SyclExecutionContextImpl(queue, fromPython);
+            }
+            catch (const std::runtime_error & e)
+            {
+                throw e;
+            }
         }
     }
 };

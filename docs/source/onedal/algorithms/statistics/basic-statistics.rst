@@ -33,8 +33,8 @@ Mathematical formulation
 Computing
 ---------
 
-Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors 
-:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`, 
+Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors
+:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`,
 the problem is to compute the following sample characteristics for each feature in the data set:
 
 .. list-table::
@@ -84,7 +84,7 @@ Distributed mode
 The algorithm supports distributed execution in SPMD mode (only on GPU).
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/statistics/basic-statistics-usage-examples.rst

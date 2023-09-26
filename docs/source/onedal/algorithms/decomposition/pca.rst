@@ -34,8 +34,8 @@ Mathematical formulation
 Training
 --------
 Given a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension
-:math:`p`, the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the 
-training date set. The eigenvectors can be grouped into the :math:`r \times p` 
+:math:`p`, the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the
+training date set. The eigenvectors can be grouped into the :math:`r \times p`
 matrix :math:`T` that contains one eigenvector in each row.
 
 The principal components can be computed with any of the following two methods:
@@ -49,14 +49,14 @@ Training method: *Covariance*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The PCA algorithm can be trained using either the covariance or the correlation matrix.
-The choice of covariance matrix or correlation matrix is application-dependent. 
-More specifically, if scaling of the features is important for a problem, 
+The choice of covariance matrix or correlation matrix is application-dependent.
+More specifically, if scaling of the features is important for a problem,
 which is often the case, using the correlation matrix to compute principal components is more appropriate.
-By default, oneDAL uses the correlation matrix to compute the principal components. It is possible 
+By default, oneDAL uses the correlation matrix to compute the principal components. It is possible
 to use the covariance matrix by passing "precomputed" as method and feeding a covariance matrix as input
 to the PCA algorithm. To compute the covariance matrix, the :ref:`Covariance <alg_covariance>` algorithm can be used.
 
-The eigenvector associated with the :math:`k`-th largest eigenvalue of the covariance (or correlation) matrix 
+The eigenvector associated with the :math:`k`-th largest eigenvalue of the covariance (or correlation) matrix
 is also the :math:`k`-th principal component of the training data set. Based on this,
 the principal components can be computed in three steps:
 
@@ -78,8 +78,8 @@ Corelation matrix can be computed from covariance matrix in the following way:
 The eigenvalues :math:`\lambda_k` and eigenvectors :math:`\upsilon_k` can be computed by an arbitrary
 method such as [Ping14]_.
 
-In the final step, the eigenvalues (:math:`\lambda_k`) are sorted in descending order 
-to determine the order of the principal components. Each principal component is 
+In the final step, the eigenvalues (:math:`\lambda_k`) are sorted in descending order
+to determine the order of the principal components. Each principal component is
 stored as a row of the final resulting matrix, :math:`T = \{ \upsilon_{1}, \cdots, \upsilon_{r} \}`, where :math:`\upsilon_{i}` is the :math:`i`-th principal component of dimension :math:`p`.
 Additionally, the means and variances of the input dataset are returned.
 
@@ -138,8 +138,8 @@ signum function,
 
 Inference
 ---------
-Given the inference data set :math:`X^{'} = \{ x^{'}_1, \ldots, x^{'}_m \}` with :math:`m` feature vectors of dimension :math:`p`, 
-and the :math:`r \times p` transformation matrix :math:`T` produced at the training stage, 
+Given the inference data set :math:`X^{'} = \{ x^{'}_1, \ldots, x^{'}_m \}` with :math:`m` feature vectors of dimension :math:`p`,
+and the :math:`r \times p` transformation matrix :math:`T` produced at the training stage,
 the problem is to transform :math:`X^{'}` to the :math:`m \times r` matrix :math:`X^{''} = \{ x^{''}_1, \ldots, x^{''}_m \}`, where :math:`x^{''}_{i}` is an
 :math:`r`-dimensional transformed observation.
 
@@ -173,7 +173,7 @@ Distributed mode
 The algorithm supports distributed execution in SMPD mode (only on GPU).
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/decomposition/pca-usage-examples.rst
