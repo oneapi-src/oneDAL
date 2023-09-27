@@ -32,15 +32,16 @@ using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
+//TODO: fix naming+potential performance improvements+if depends by result option
 template <typename Float>
-auto compute_finalize_metrics(sycl::queue& q,
-                              const pr::ndview<Float, 1>& sums,
-                              const pr::ndview<Float, 1>& sums2,
-                              const pr::ndview<Float, 1>& sums2cent,
-                              const pr::ndview<Float, 1>& nobs,
-                              std::size_t column_count,
-                              const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_finalize_metrics, q);
+auto compute_all_metrics(sycl::queue& q,
+                         const pr::ndview<Float, 1>& sums,
+                         const pr::ndview<Float, 1>& sums2,
+                         const pr::ndview<Float, 1>& sums2cent,
+                         const pr::ndview<Float, 1>& nobs,
+                         std::size_t column_count,
+                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_all_metrics, q);
     auto result_means = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
     auto result_variance = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
     auto result_raw_moment = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
@@ -54,10 +55,10 @@ auto compute_finalize_metrics(sycl::queue& q,
     auto result_stddev_ptr = result_stddev.get_mutable_data();
 
     auto nobs_ptr = nobs.get_data();
+
     auto sums_data = sums.get_data();
     auto sums2_data = sums2.get_data();
     auto sums2cent_data = sums2cent.get_data();
-
     const Float inv_n = Float(1.0 / double(nobs_ptr[0]));
     auto update_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(column_count);
@@ -96,28 +97,15 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     const auto res_op = desc.get_result_options();
     res.set_result_options(desc.get_result_options());
 
-    const auto nobs_nd = pr::table2ndarray_1d<Float>(q_, input.get_nobs());
     const auto sums_nd =
         pr::table2ndarray_1d<Float>(q_, input.get_partial_sum(), sycl::usm::alloc::device);
+    const auto nobs_nd = pr::table2ndarray_1d<Float>(q_, input.get_nobs());
 
     const auto sums2_nd =
         pr::table2ndarray_1d<Float>(q_, input.get_partial_sum_squares(), sycl::usm::alloc::device);
     const auto sums2cent_nd = pr::table2ndarray_1d<Float>(q_,
                                                           input.get_partial_sum_squares_centered(),
                                                           sycl::usm::alloc::device);
-
-    auto [result_means,
-          result_variance,
-          result_raw_moment,
-          result_variation,
-          result_stddev,
-          update_event] = compute_finalize_metrics<Float>(q_,
-                                                          sums_nd,
-                                                          sums2_nd,
-                                                          sums2cent_nd,
-                                                          nobs_nd,
-                                                          column_count,
-                                                          {});
     if (res_op.test(result_options::min)) {
         ONEDAL_ASSERT(input.get_partial_min().get_column_count() == column_count);
         res.set_min(input.get_partial_min());
@@ -139,6 +127,14 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
         ONEDAL_ASSERT(input.get_partial_sum_squares_centered().get_column_count() == column_count);
         res.set_sum_squares_centered(input.get_partial_sum_squares_centered());
     }
+
+    auto [result_means,
+          result_variance,
+          result_raw_moment,
+          result_variation,
+          result_stddev,
+          update_event] =
+        compute_all_metrics<Float>(q_, sums_nd, sums2_nd, sums2cent_nd, nobs_nd, column_count, {});
     if (res_op.test(result_options::mean)) {
         ONEDAL_ASSERT(result_means.get_dimension(0) == column_count);
         res.set_mean(homogen_table::wrap(result_means.flatten(q_, { event }), 1, column_count));

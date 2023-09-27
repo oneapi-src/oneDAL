@@ -105,12 +105,13 @@ auto partial_computation(sycl::queue& q,
                                update_event);
     }
     else {
+        const auto sums_nd =
+            pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
         const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_nobs());
+
         const auto min_nd =
             pr::table2ndarray_1d<Float>(q, input_.get_partial_min(), sycl::usm::alloc::device);
         const auto max_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_max());
-        const auto sums_nd =
-            pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
 
         const auto sums2_nd = pr::table2ndarray_1d<Float>(q,
                                                           input_.get_partial_sum_squares(),
@@ -119,19 +120,18 @@ auto partial_computation(sycl::queue& q,
             pr::table2ndarray_1d<Float>(q,
                                         input_.get_partial_sum_squares_centered(),
                                         sycl::usm::alloc::device);
-
-        auto prev_nobs = nobs_nd.get_mutable_data();
-        auto prev_min_ptr = min_nd.get_mutable_data();
-        auto prev_max_ptr = max_nd.get_mutable_data();
-        auto prev_sums_ptr = sums_nd.get_mutable_data();
-        auto prev_sums2_ptr = sums2_nd.get_mutable_data();
+        auto current_nobs = nobs_nd.get_mutable_data();
+        auto current_min_ptr = min_nd.get_mutable_data();
+        auto current_max_ptr = max_nd.get_mutable_data();
+        auto current_sums_ptr = sums_nd.get_mutable_data();
+        auto current_sums2_ptr = sums2_nd.get_mutable_data();
         auto result_sums2cent_ptr = result_sums2cent.get_mutable_data();
         auto init_event = q.submit([&](sycl::handler& cgh) {
             const auto range = sycl::range<1>(1);
 
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::item<1> id) {
-                result_nobs_ptr[0] += prev_nobs[0];
+                result_nobs_ptr[0] += current_nobs[0];
             });
         });
         auto merge_event = q.submit([&](sycl::handler& cgh) {
@@ -139,12 +139,12 @@ auto partial_computation(sycl::queue& q,
 
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::item<1> id) {
-                result_min_ptr[id] = sycl::fmin(prev_min_ptr[id], result_min_ptr[id]);
-                result_max_ptr[id] = sycl::fmax(prev_max_ptr[id], result_max_ptr[id]);
+                result_min_ptr[id] = sycl::fmin(current_min_ptr[id], result_min_ptr[id]);
+                result_max_ptr[id] = sycl::fmax(current_max_ptr[id], result_max_ptr[id]);
 
-                result_sums_ptr[id] = prev_sums_ptr[id] + result_sums_ptr[id];
+                result_sums_ptr[id] = current_sums_ptr[id] + result_sums_ptr[id];
 
-                result_sums2_ptr[id] = prev_sums2_ptr[id] + result_sums2_ptr[id];
+                result_sums2_ptr[id] = current_sums2_ptr[id] + result_sums2_ptr[id];
 
                 result_sums2cent_ptr[id] = result_sums2_ptr[id] - result_sums_ptr[id] *
                                                                       result_sums_ptr[id] /
