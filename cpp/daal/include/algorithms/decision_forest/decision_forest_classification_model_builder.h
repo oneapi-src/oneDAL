@@ -107,9 +107,12 @@ public:
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] classLabel      Class label to be predicted
+    *  \param[in] defaultLeft     Behaviour in case of missing values
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const double cover)
+    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const int defaultLeft,
+                       const double cover)
     {
         NodeId resId;
         _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, cover, resId);
@@ -123,6 +126,7 @@ public:
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] proba           Array with probability values for each class
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
     NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba, const double cover)
@@ -140,13 +144,15 @@ public:
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] featureIndex    Feature index for splitting
     *  \param[in] featureValue    Feature value for splitting
+    *  \param[in] defaultLeft     Behaviour in case of missing values
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
     NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex, const double featureValue,
-                        const double cover)
+                        const int defaultLeft, const double cover)
     {
         NodeId resId;
-        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, cover, resId);
+        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
         services::throwIfPossible(_status);
         return resId;
     }
@@ -190,7 +196,7 @@ protected:
     services::Status addLeafNodeByProbaInternal(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba,
                                                 const double cover, NodeId & res);
     services::Status addSplitNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
-                                          const double featureValue, const double cover, const int defaultLeft, NodeId & res);
+                                          const double featureValue, const int defaultLeft, const double cover, NodeId & res);
 
 private:
     size_t _nClasses;

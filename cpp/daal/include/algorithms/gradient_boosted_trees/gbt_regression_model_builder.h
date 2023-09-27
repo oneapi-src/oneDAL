@@ -125,14 +125,14 @@ public:
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] featureIndex    Feature index for splitting
     *  \param[in] featureValue    Feature value for splitting
-    *  \param[in] cover           Cover of the node (sum_hess)
     *  \param[in] defaultLeft     Behaviour in case of missing values
+    *  \param[in] cover           Cover of the node (sum_hess)
     *  \return Node identifier
     */
-    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, double cover, int defaultLeft = 0)
+    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft, double cover)
     {
         NodeId resId;
-        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, cover, resId, defaultLeft);
+        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
         services::throwIfPossible(_status);
         return resId;
     }
@@ -160,8 +160,8 @@ protected:
     services::Status initialize(size_t nFeatures, size_t nIterations);
     services::Status createTreeInternal(size_t nNodes, TreeId & resId);
     services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, double cover, NodeId & res);
-    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, double cover,
-                                          int defaultLeft, NodeId & res);
+    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft,
+                                          double cover, NodeId & res);
     services::Status convertModelInternal();
 };
 /** @} */

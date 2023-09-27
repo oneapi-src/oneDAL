@@ -134,7 +134,7 @@ services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parent
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, cover, defaultLeft, res);
+                                                                    featureValue, defaultLeft, cover, res);
 }
 
 } // namespace interface1

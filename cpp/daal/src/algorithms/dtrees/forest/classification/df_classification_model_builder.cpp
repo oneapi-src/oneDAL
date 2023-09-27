@@ -117,12 +117,12 @@ services::Status ModelBuilder::addLeafNodeByProbaInternal(const TreeId treeId, c
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
-                                                    const double featureValue, const double cover, const int defaultLeft, NodeId & res)
+                                                    const double featureValue, const int defaultLeft, const double cover, NodeId & res)
 {
     decision_forest::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<decision_forest::classification::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, cover, defaultLeft, res);
+                                                                    featureValue, defaultLeft, cover, res);
 }
 
 } // namespace interface2
