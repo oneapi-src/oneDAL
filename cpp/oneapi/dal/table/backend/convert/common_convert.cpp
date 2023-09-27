@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <cstddef>
 #include <type_traits>
 
 #include "oneapi/dal/array.hpp"
@@ -72,6 +73,17 @@ dal::array<std::int64_t> compute_output_offsets(data_type output_type,
     return offsets;
 }
 
+std::int64_t align_offset(std::int64_t base, std::int64_t align) {
+    using detail::check_sum_overflow;
+    const std::int64_t residue = base % align;
+    const std::int64_t diff = align - residue;
+    const std::int64_t potential = check_sum_overflow(base, diff);
+    const std::int64_t res = residue ? potential : base;
+    ONEDAL_ASSERT(res % align == std::int64_t{ 0l });
+    ONEDAL_ASSERT(res - base < align);
+    return res;
+}
+
 dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
                                                const data_type* input_types) {
     ONEDAL_ASSERT(input_types != nullptr);
@@ -82,10 +94,13 @@ dal::array<std::int64_t> compute_input_offsets(const shape_t& input_shape,
 
     std::int64_t offset = 0l;
     for (std::int64_t row = 0l; row < row_count; ++row) {
-        offsets_ptr[row] = offset;
-
         const data_type dtype = input_types[row];
         ONEDAL_ASSERT(is_known_data_type(dtype));
+
+        auto raw_align = detail::get_data_type_align(dtype);
+
+        offset = align_offset(offset, raw_align);
+        offsets_ptr[row] = std::int64_t{ offset };
 
         auto raw_size = detail::get_data_type_size(dtype);
         auto row_size = detail::check_mul_overflow(raw_size, col_count);

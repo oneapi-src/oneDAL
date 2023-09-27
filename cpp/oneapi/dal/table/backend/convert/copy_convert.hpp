@@ -19,6 +19,7 @@
 #include "oneapi/dal/array.hpp"
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
+#include "oneapi/dal/table/backend/convert/common_convert.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -38,6 +39,15 @@ void copy_convert(const detail::host_policy& policy,
                   const dal::array<data_type>& out_types,
                   const dal::array<std::int64_t>& out_strides,
                   const shape_t& shape);
+
+void copy_convert_one(const detail::host_policy& policy,
+                      const dal::byte_t* const inp_pointer,
+                      data_type inp_type,
+                      std::int64_t inp_stride,
+                      dal::byte_t* const out_pointer,
+                      data_type out_type,
+                      std::int64_t out_stride,
+                      std::int64_t count);
 
 void copy_convert(const detail::host_policy& policy,
                   const dal::byte_t* const* inp_pointers,
@@ -79,6 +89,16 @@ sycl::event copy_convert(const detail::data_parallel_policy& policy,
                          const shape_t& shape,
                          const std::vector<sycl::event>& deps = {});
 
+sycl::event copy_convert_one(const detail::data_parallel_policy& policy,
+                             const dal::byte_t* const inp_pointer,
+                             data_type inp_type,
+                             std::int64_t inp_stride,
+                             dal::byte_t* const out_pointer,
+                             data_type out_type,
+                             std::int64_t out_stride,
+                             std::int64_t count,
+                             const std::vector<sycl::event>& deps = {});
+
 sycl::event copy_convert(const detail::data_parallel_policy& policy,
                          const dal::byte_t* const* inp_pointers,
                          const data_type* inp_types,
@@ -108,6 +128,15 @@ sycl::event copy_convert(sycl::queue& queue,
                          const std::int64_t* out_strides,
                          const shape_t& shape,
                          const std::vector<sycl::event>& deps = {});
+
+template <typename InpType, typename OutType>
+sycl::event copy_convert_impl(sycl::queue& queue,
+                              const InpType* const* inp_pointers,
+                              const std::int64_t* inp_strides,
+                              OutType* const* out_pointers,
+                              const std::int64_t* out_strides,
+                              const shape_t& shape,
+                              const std::vector<sycl::event>& deps = {});
 
 #endif
 

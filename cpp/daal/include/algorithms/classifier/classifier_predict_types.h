@@ -159,66 +159,6 @@ public:
 protected:
     services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
 };
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__PREDICTION__RESULT"></a>
- * \brief Provides methods to access prediction results obtained with the compute() method
- *        of the classifier prediction algorithm in the batch processing mode   \DAAL_DEPRECATED
- */
-class DAAL_EXPORT Result : public daal::algorithms::Result
-{
-public:
-    DECLARE_SERIALIZABLE_CAST(Result)
-    Result();
-
-    /**
-     * Returns the prediction result of the classification algorithm
-     * \param[in] id   Identifier of the prediction result, \ref ResultId
-     * \return         Prediction result that corresponds to the given identifier
-     */
-    DAAL_DEPRECATED data_management::NumericTablePtr get(ResultId id) const;
-
-    /**
-     * Sets the prediction result of the classification algorithm
-     * \param[in] id    Identifier of the prediction result, \ref ResultId
-     * \param[in] value Pointer to the prediction result
-     */
-    DAAL_DEPRECATED void set(ResultId id, const data_management::NumericTablePtr & value);
-
-    /**
-     * Allocates memory for storing prediction results of the classification algorithm
-     * \tparam  algorithmFPType     Data type for storing prediction results
-     * \param[in] input     Pointer to the input objects of the classification algorithm
-     * \param[in] parameter Pointer to the parameters of the classification algorithm
-     * \param[in] method    Computation method
-     */
-    template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                          const int method);
-
-    /**
-     * Checks the correctness of the Result object
-     * \param[in] input     Pointer to the the input object
-     * \param[in] parameter Pointer to the algorithm parameters
-     * \param[in] method    Computation method
-     * \DAAL_DEPRECATED
-     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-protected:
-    using daal::algorithms::Result::check;
-
-    Result(size_t n);
-    services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
-
-    /** \private */
-    template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
-    {
-        return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
-    }
-};
-typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface1
 
 /**

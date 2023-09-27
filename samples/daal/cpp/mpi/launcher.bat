@@ -74,7 +74,7 @@ if "%compiler%"=="intel" (
     set LFLAGS=-Qdiag-disable:10441 %LFLAGS%
 )
 if "%compiler%"=="icx" (
-    set mpicompile=mpiicx
+    set mpicompile=mpicc -cc=icx
 )
 
 setlocal enabledelayedexpansion enableextensions

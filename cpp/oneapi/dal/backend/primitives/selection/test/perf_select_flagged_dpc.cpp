@@ -28,7 +28,7 @@ namespace la = te::linalg;
 namespace de = dal::detail;
 
 template <typename TestType>
-class select_flagged_test : public te::policy_fixture {
+class select_flagged_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
@@ -143,7 +143,7 @@ public:
 };
 
 template <typename TestType>
-class select_flagged_index_test : public te::policy_fixture {
+class select_flagged_index_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Data = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
@@ -272,7 +272,7 @@ using select_flagged_index_types = COMBINE_TYPES((std::int32_t, std::uint32_t),
 
 SELECT_FLAGGED_BENCH("bench for select flagged") {
     SKIP_IF(this->get_policy().is_cpu());
-
+    SKIP_IF(this->not_float64_friendly());
     auto [val_vec_, mask_vec_] = this->allocate_vector_of_arrays(512, 32000);
     auto [val_vec, mask_vec] = this->init_vector_of_arrays(val_vec_, mask_vec_, -25., 25.);
 
@@ -281,7 +281,7 @@ SELECT_FLAGGED_BENCH("bench for select flagged") {
 
 SELECT_FLAGGED_INDEX_BENCH("bench for select flagged index") {
     SKIP_IF(this->get_policy().is_cpu());
-
+    SKIP_IF(this->not_float64_friendly());
     auto [val_vec_, mask_vec_] = this->allocate_vector_of_arrays(512, 32000);
     auto [val_vec, mask_vec] = this->init_vector_of_arrays(val_vec_, mask_vec_);
 
