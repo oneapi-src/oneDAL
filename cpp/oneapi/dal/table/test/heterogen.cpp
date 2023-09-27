@@ -16,8 +16,11 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
+
 #include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/column_accessor.hpp"
+
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::test {
@@ -64,7 +67,7 @@ TEST("Can create table from chunked arrays") {
         chunked2,
         chunked1,
         chunked2);
-    //
+
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 4l);
@@ -101,7 +104,7 @@ TEST("Can create table from different chunked arrays") {
         chunked1,
         chunked2,
         chunked1);
-    //
+
     REQUIRE(table.has_data() == true);
     REQUIRE(table.get_row_count() == 5l);
     REQUIRE(table.get_column_count() == 3l);
@@ -191,7 +194,7 @@ TEST("Can get row slice on host - 1") {
 }
 
 TEST("Can get row slice on host - 2") {
-    constexpr std::int64_t count = 4'097l;
+    const std::int64_t count = GENERATE(777, 1027, 1029, 7777);
 
     std::vector<std::uint64_t> column0(count);
     std::iota(column0.begin(), column0.end(), 0ul);
@@ -229,6 +232,52 @@ TEST("Can get row slice on host - 2") {
         const auto col = i % 5l;
         const auto gtr = row + col;
         REQUIRE(res[i] == gtr);
+    }
+}
+
+TEST("Can get column slice on host") {
+    const std::int64_t count = GENERATE(201, 678, 999);
+
+    std::vector<float> column0(count);
+    std::iota(column0.begin(), column0.end(), 0);
+    auto arr0 = array<float>::wrap(column0.data(), count);
+
+    std::vector<double> column1(count);
+    std::iota(column1.begin(), column1.end(), 0);
+    auto arr1 = array<double>::wrap(column1.data(), count);
+
+    std::vector<std::int64_t> column2(count);
+    std::iota(column2.begin(), column2.end(), 0);
+    auto arr2 = array<std::int64_t>::wrap(column2.data(), count);
+
+    std::vector<std::uint16_t> column3(count);
+    std::iota(column3.begin(), column3.end(), 0);
+    auto arr3 = array<std::uint16_t>::wrap(column3.data(), count);
+
+    auto table = heterogen_table::wrap(chunked_array<float>(arr0),
+                                       chunked_array<double>(arr1),
+                                       chunked_array<std::int64_t>(arr2),
+                                       chunked_array<std::int16_t>(arr3));
+
+    column_accessor<const float> accessor{ table };
+
+    auto check_column = [&](auto c, auto f, auto l, const auto& arr) {
+        const std::int64_t range = l - f;
+        REQUIRE(range == arr.get_count());
+
+        const auto* const arr_ptr = arr.get_data();
+        for (std::int64_t i = 0l; i < range; ++i) {
+            const auto gtr = float(f + i);
+            const auto val = arr_ptr[i];
+            CAPTURE(i, f, c, gtr, val);
+            REQUIRE(gtr == val);
+        }
+    };
+
+    for (std::int64_t col = 0l; col < table.get_column_count(); ++col) {
+        const auto first = 3 * col, last = count - 4 * col;
+        auto res = accessor.pull(col, { first, last });
+        check_column(col, first, last, res);
     }
 }
 
@@ -326,6 +375,65 @@ TEST("Can get row slice from heterogen to shared") {
         const std::int64_t val = i / 4l + 1l;
         CAPTURE(i, val, res[i]);
         REQUIRE(res[i] == float(val));
+    }
+}
+
+TEST("Can get column slice from heterogen to shared") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    constexpr auto host = sycl::usm::alloc::host;
+    constexpr auto device = sycl::usm::alloc::device;
+    constexpr auto shared = sycl::usm::alloc::shared;
+
+    const std::int64_t count = GENERATE(77, 177, 777);
+
+    auto arr0 = array<float>::empty(q, count, shared);
+    std::iota(begin(arr0), end(arr0), float(0));
+    chunked_array<float> chunked0(arr0);
+
+    auto arr1 = array<std::int16_t>::empty(q, count, shared);
+    std::iota(begin(arr1), end(arr1), std::int16_t(0));
+    chunked_array<std::int16_t> chunked1(arr1);
+
+    auto arr2 = array<std::uint16_t>::empty(q, count, host);
+    std::iota(begin(arr2), end(arr2), std::uint16_t(0));
+    chunked_array<std::uint16_t> chunked2(arr2);
+
+    auto arr3 = array<std::int32_t>::empty(q, count, host);
+    std::iota(begin(arr3), end(arr3), std::int32_t(0l));
+    auto arr4 = array<std::int32_t>::empty(q, count, device);
+    /* Copying to device */ detail::copy(arr4, arr3);
+    chunked_array<std::int32_t> chunked3(arr4);
+
+    auto table = heterogen_table::wrap( //
+        chunked0,
+        chunked1,
+        chunked2,
+        chunked3);
+
+    column_accessor<const float> accessor{ table };
+
+    auto check_column = [&](auto c, auto f, auto l, const auto& arr) {
+        const std::int64_t range = l - f;
+        REQUIRE(range == arr.get_count());
+
+        const auto* const arr_ptr = arr.get_data();
+        for (std::int64_t i = 0l; i < range; ++i) {
+            const auto gtr = float(f + i);
+            const auto val = arr_ptr[i];
+            CAPTURE(i, f, c, gtr, val);
+            REQUIRE(gtr == val);
+        }
+    };
+
+    for (std::int64_t col = 0l; col < table.get_column_count(); ++col) {
+        const std::int64_t first = 2 * col, last = count - 2 * col;
+        auto tmp = accessor.pull(q, col, { first, last }, device);
+        auto res = array<float>::zeros(tmp.get_count());
+        /* Copying to host */ detail::copy(res, tmp);
+
+        check_column(col, first, last, res);
     }
 }
 
