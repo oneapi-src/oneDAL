@@ -109,7 +109,7 @@ public:
 
     descriptor_base();
 
-    descriptor_base(bool compute_intercept);
+    descriptor_base(bool compute_intercept, double l2_coef);
 
     bool get_compute_intercept() const;
     //double get_l1_coef() const;
@@ -166,10 +166,10 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept) : base_t(compute_intercept) {}
+    explicit descriptor(bool compute_intercept = true, double l2_coef = 0.0) : base_t(compute_intercept, l2_coef) {}
 
     /// Creates a new instance of the class with default parameters
-    explicit descriptor() : base_t(true) {}
+    //explicit descriptor() : base_t(true) {}
 
     /// Defines should intercept be taken into consideration.
     bool get_compute_intercept() const {

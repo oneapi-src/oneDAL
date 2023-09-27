@@ -27,12 +27,16 @@ dal_module(
         ":parameters",
         "@onedal//cpp/oneapi/dal/algo/logistic_regression/detail",
         "@onedal//cpp/oneapi/dal/algo/logistic_regression/backend",
+        "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
+        "@onedal//cpp/oneapi/dal/backend/primitives:optimizers",
+
     ]
 )
 
 dal_test_suite(
     name = "interface_tests",
     framework = "catch2",
+    compile_as = [ "dpc++" ],
     hdrs = glob([
         "test/*.hpp",
     ], exclude=[
@@ -47,6 +51,7 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":logistic_regression",
+        "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
 )
 

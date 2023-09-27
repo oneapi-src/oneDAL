@@ -72,9 +72,10 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 }
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base(bool compute_intercept)
+descriptor_base<Task>::descriptor_base(bool compute_intercept, double l2_coef)
         : impl_(new descriptor_impl<Task>{}) {
     impl_->compute_intercept = compute_intercept;
+    impl_->l2_coef = l2_coef;
 }
 
 template <typename Task>
