@@ -65,6 +65,7 @@ dal_public_includes(
         ":optional",
         "@onedal//cpp/oneapi/dal/detail/mpi",
         "@onedal//cpp/oneapi/dal/detail/ccl",
+        "@onedal//cpp/oneapi/dal/algo:parameters",
     ],
 )
 
@@ -77,6 +78,15 @@ dal_static_lib(
     ],
 )
 
+dal_static_lib(
+    name = "static_parameters",
+    lib_name = "onedal_parameters",
+    dal_deps = [
+        ":static",
+        "@onedal//cpp/oneapi/dal/algo:parameters",
+    ],
+)
+
 dal_dynamic_lib(
     name = "dynamic",
     lib_name = "onedal",
@@ -86,11 +96,22 @@ dal_dynamic_lib(
     ],
 )
 
+dal_dynamic_lib(
+    name = "dynamic_parameters",
+    lib_name = "onedal_parameters",
+    dal_deps = [
+        ":dynamic",
+        "@onedal//cpp/oneapi/dal/algo:parameters",
+    ],
+)
+
 filegroup(
     name = "all_static",
     srcs = [
         ":static",
         ":static_dpc",
+        ":static_parameters",
+        ":static_parameters_dpc",
     ],
 )
 
@@ -99,6 +120,8 @@ filegroup(
     srcs = [
         ":dynamic",
         ":dynamic_dpc",
+        ":dynamic_parameters",
+        ":dynamic_parameters_dpc",
     ],
 )
 

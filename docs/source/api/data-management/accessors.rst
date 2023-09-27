@@ -29,4 +29,5 @@ The requirements for accessors and accessor types are defined in
 .. toctree::
 
    accessor/column.rst
+   accessor/csr.rst
    accessor/row.rst

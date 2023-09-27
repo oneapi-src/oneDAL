@@ -79,7 +79,6 @@ Status checkImpl(const decision_forest::training::interface2::Parameter & prm)
         if (prm.varImportance == MDA_Raw || prm.varImportance == MDA_Scaled) s.add(Error::create(ErrorDFBootstrapVarImportanceIncompatible));
         if (prm.resultsToCompute & computeOutOfBagError) s.add(Error::create(ErrorDFBootstrapOOBIncompatible));
     }
-    DAAL_CHECK_EX((prm.maxBins >= 0), ErrorIncorrectParameter, ParameterName, maxBinsStr());
     DAAL_CHECK_EX((prm.minBinSize >= 1), ErrorIncorrectParameter, ParameterName, minBinSizeStr());
     return s;
 }

@@ -60,7 +60,8 @@ enum ErrorDetailID
     ActualValue               = 18, /*!< Detail about actual value */
     Sycl                      = 19, /*!< Detail about Sycl */
     OpenCL                    = 20, /*!< Detail about actual OpenCL */
-    LevelZero                 = 21  /*!< Detail about actual LevelZero */
+    LevelZero                 = 21, /*!< Detail about actual LevelZero */
+    Key                       = 22  /*!< Detail about key */
 };
 
 /**
@@ -140,6 +141,8 @@ enum ErrorID
     ErrorCloneMethodFailed                            = -78, /*!< Cloning of algorithm failed */
     ErrorDataTypeNotSupported                         = -79, /*!< Data type not supported */
     ErrorBufferSizeIntegerOverflow                    = -80, /*!< Integer oveflow is occured during buffer size calculation */
+    ErrorHyperparameterNotFound                       = -81, /*!< Cannot find a hyperparameter with a given id */
+    ErrorHyperparameterCanNotBeSet                    = -82, /*!< Cannot set a hyperparameter with a specified id */
 
     // Environment errors: -2000..-2999
     ErrorCpuNotSupported          = -2000, /*!< CPU not supported */

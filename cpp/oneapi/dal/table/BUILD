@@ -28,8 +28,7 @@ dal_test_suite(
         "detail/test/homogen_utils.cpp",
         "detail/test/metadata_utils.cpp",
         "backend/test/copy_convert_cpp.cpp",
-        # TODO: Fix before code freeze
-        #"backend/test/copy_convert_gpu.cpp",
+        "backend/test/copy_convert_gpu.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",
@@ -40,11 +39,10 @@ dal_test_suite(
     name = "catch2_tests",
     srcs = [
         "test/row_accessor.cpp",
-        # TODO: Fix before code freeze
-        #"test/heterogen.cpp",
+        "test/heterogen.cpp",
         "test/homogen.cpp",
         "test/common_serialization.cpp",
-        #"test/heterogen_serialization.cpp",
+        "test/heterogen_serialization.cpp",
         "test/homogen_serialization.cpp",
         "test/csr_accessor.cpp",
         "test/csr.cpp",

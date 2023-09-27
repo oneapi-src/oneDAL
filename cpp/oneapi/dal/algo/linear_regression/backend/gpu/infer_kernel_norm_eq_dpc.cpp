@@ -93,7 +93,6 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     using dal::detail::check_mul_overflow;
 
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
     ONEDAL_PROFILER_TASK(linreg_infer_kernel, queue);
 
     constexpr auto alloc = sycl::usm::alloc::device;
@@ -133,7 +132,11 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
         auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
         auto x_sub = pr::ndarray<Float, 2>::wrap(x_arr, { length, feature_count });
 
-        auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
+        sycl::event gemm_event;
+        {
+            gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
+            gemm_event.wait_and_throw();
+        }
         last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
     }
 

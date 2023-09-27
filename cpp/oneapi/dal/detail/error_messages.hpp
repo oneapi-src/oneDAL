@@ -94,6 +94,7 @@ public:
     MSG(this_result_is_not_enabled_via_result_options);
     MSG(spmd_error_holder_message);
     MSG(spmd_coworker_failure);
+    MSG(unexpected_dataset_type);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);

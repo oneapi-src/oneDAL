@@ -189,14 +189,6 @@ Examples
 
     - :cpp_example:`logitboost_dense_batch.cpp <boosting/logitboost_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-    .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-      
-    Batch Processing:
-
-    - :java_example:`LogitBoostDenseBatch.java <boosting/logitboost/LogitBoostDenseBatch.java>`
-
   .. tab:: Python*
 
     Batch Processing:

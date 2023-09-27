@@ -133,22 +133,6 @@ Examples
 
     - :cpp_example:`pca_transform_dense_batch.cpp <pca_transform/pca_transform_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`PCATransformDenseBatch.java <pca_transform/PCATransformDenseBatch.java>`
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`pca_transform_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

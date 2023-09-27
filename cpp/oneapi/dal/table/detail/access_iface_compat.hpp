@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/array_compat.hpp"
+#include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -39,9 +39,9 @@ struct column_values_block {
 
 template <typename Policy, template <typename> typename Allocator>
 struct access_iface {
-    using array_f32 = dal::v1::array<float>;
-    using array_f64 = dal::v1::array<double>;
-    using array_i32 = dal::v1::array<std::int32_t>;
+    using array_f32 = dal::array<float>;
+    using array_f64 = dal::array<double>;
+    using array_i32 = dal::array<std::int32_t>;
 
     using alloc_f32 = Allocator<float>;
     using alloc_f64 = Allocator<double>;
@@ -82,11 +82,6 @@ using access_iface_dpc = access_iface<data_parallel_policy, data_parallel_alloca
 class access_provider_iface {
 public:
     virtual ~access_provider_iface() {}
-
-    virtual access_iface_host& get_access_iface_host() const = 0;
-#ifdef ONEDAL_DATA_PARALLEL
-    virtual access_iface_dpc& get_access_iface_dpc() const = 0;
-#endif
 };
 
 } // namespace v1

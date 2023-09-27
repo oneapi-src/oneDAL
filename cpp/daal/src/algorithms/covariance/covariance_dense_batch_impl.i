@@ -39,7 +39,8 @@ namespace internal
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * covTable,
-                                                                                   NumericTable * meanTable, const Parameter * parameter)
+                                                                                   NumericTable * meanTable, const Parameter * parameter,
+                                                                                   const Hyperparameter * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
 
@@ -64,10 +65,10 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums,
-                                                                           &nObservations);
+                                                                           &nObservations, hyperparameter);
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter);
+    status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter, hyperparameter);
 
     return status;
 }

@@ -41,7 +41,7 @@
 
       auto shared_data = sycl::malloc_shared<float>(row_count * column_count, queue);
       auto event = queue.memcpy(shared_data, host_data, sizeof(float) * row_count * column_count);
-      auto t = dal::homogen_table::wrap(queue, data, row_count, column_count, { event });
+      auto t = dal::homogen_table::wrap(queue, shared_data, row_count, column_count, { event });
 
       // Accessing whole elements in a first column
       dal::column_accessor<const float> acc { t };

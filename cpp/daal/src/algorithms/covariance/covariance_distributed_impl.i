@@ -39,7 +39,8 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::compute(DataCollection * partialResultsCollection,
                                                                                     NumericTable * nObservationsTable,
                                                                                     NumericTable * crossProductTable, NumericTable * sumTable,
-                                                                                    const Parameter * parameter)
+                                                                                    const Parameter * parameter,
+                                                                                    const Hyperparameter * hyperparameter)
 {
     const size_t collectionSize = partialResultsCollection->size();
     const size_t nFeatures      = crossProductTable->getNumberOfColumns();
@@ -69,7 +70,7 @@ services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::comp
         DEFINE_TABLE_BLOCK(ReadRows, partialNObservationsBlock, partialNObservationsTable);
 
         mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProductBlock.get(), partialSumsBlock.get(),
-                                                       partialNObservationsBlock.get(), crossProduct, sums, nObservations);
+                                                       partialNObservationsBlock.get(), crossProduct, sums, nObservations, hyperparameter);
     }
 
     return services::Status();
@@ -79,9 +80,10 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDistributedKernel<algorithmFPType, method, cpu>::finalizeCompute(NumericTable * nObservationsTable,
                                                                                             NumericTable * crossProductTable, NumericTable * sumTable,
                                                                                             NumericTable * covTable, NumericTable * meanTable,
-                                                                                            const Parameter * parameter)
+                                                                                            const Parameter * parameter,
+                                                                                            const Hyperparameter * hyperparameter)
 {
-    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter);
+    return finalizeCovariance<algorithmFPType, cpu>(nObservationsTable, crossProductTable, sumTable, covTable, meanTable, parameter, hyperparameter);
 }
 
 } // namespace internal
