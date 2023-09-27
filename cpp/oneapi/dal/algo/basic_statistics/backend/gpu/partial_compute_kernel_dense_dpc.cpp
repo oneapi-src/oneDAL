@@ -66,9 +66,10 @@ auto partial_computation(sycl::queue& q,
     auto result_sums2cent = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
 
     auto data_ptr = data.get_data();
-    auto weights_nd = pr::table2ndarray_1d<Float>(q, weights, sycl::usm::alloc::device);
-    auto weights_ptr = weights_nd.get_data();
-
+    auto weights_nd = weights_enabling
+                          ? pr::table2ndarray_1d<Float>(q, weights, sycl::usm::alloc::device)
+                          : pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
+    auto weights_ptr = weights_enabling ? weights_nd.get_data() : nullptr;
     const Float global_max = de::limits<Float>::max();
 
     auto update_event = q.submit([&](sycl::handler& cgh) {
@@ -120,11 +121,11 @@ auto partial_computation(sycl::queue& q,
                                         input_.get_partial_sum_squares_centered(),
                                         sycl::usm::alloc::device);
 
-        auto prev_nobs = nobs_nd.get_mutable_data();
-        auto prev_min_ptr = min_nd.get_mutable_data();
-        auto prev_max_ptr = max_nd.get_mutable_data();
-        auto prev_sums_ptr = sums_nd.get_mutable_data();
-        auto prev_sums2_ptr = sums2_nd.get_mutable_data();
+        auto prev_nobs = nobs_nd.get_data();
+        auto prev_min_ptr = min_nd.get_data();
+        auto prev_max_ptr = max_nd.get_data();
+        auto prev_sums_ptr = sums_nd.get_data();
+        auto prev_sums2_ptr = sums2_nd.get_data();
         auto result_sums2cent_ptr = result_sums2cent.get_mutable_data();
         auto init_event = q.submit([&](sycl::handler& cgh) {
             const auto range = sycl::range<1>(1);
