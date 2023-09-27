@@ -27,8 +27,6 @@ dal_module(
         ":parameters",
         "@onedal//cpp/oneapi/dal/algo/logistic_regression/detail",
         "@onedal//cpp/oneapi/dal/algo/logistic_regression/backend",
-        "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
-        "@onedal//cpp/oneapi/dal/backend/primitives:optimizers",
 
     ]
 )
