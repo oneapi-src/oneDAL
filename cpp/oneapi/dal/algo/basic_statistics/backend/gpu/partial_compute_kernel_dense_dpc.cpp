@@ -25,7 +25,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {
-
+namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 
@@ -105,42 +105,13 @@ auto update_partial_results(sycl::queue& q,
 }
 
 template <typename Float>
-auto apply_weights(sycl::queue& q,
-                   const pr::ndview<Float, 2>& data,
-                   std::int64_t row_count,
-                   std::int64_t column_count,
-                   const pr::ndview<Float, 1>& weights,
-                   const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(apply_weights, q);
-    auto data_to_compute =
-        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
-
-    auto weights_ptr = weights.get_data();
-
-    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
-
-    auto input_data = data.get_data();
-
-    auto update_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<2>(row_count, column_count);
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            data_to_compute_ptr[id[0] * column_count + id[1]] =
-                input_data[id[0] * column_count + id[1]] * weights_ptr[id[0]];
-        });
-    });
-    update_event.wait_and_throw();
-    return data_to_compute;
-}
-
-//TODO:: optimize, create a task realted to investigation bug in reduce_by_columns_function
-template <typename Float>
 auto init_computation(sycl::queue& q,
                       const pr::ndview<Float, 2>& data,
+                      const table weights,
                       const pr::ndview<Float, 1>& nobs,
                       std::int64_t column_count,
                       std::int64_t row_count,
+                      bool weights_enabling,
                       const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(init_partial_results, q);
 
@@ -149,56 +120,48 @@ auto init_computation(sycl::queue& q,
     auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
     auto result_nobs_ptr = result_nobs.get_mutable_data();
     auto result_max = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
-
+    auto result_max_ptr = result_max.get_mutable_data();
     auto result_min = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
-
+    auto result_min_ptr = result_min.get_mutable_data();
     auto result_sums = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
-
+    auto result_sums_ptr = result_sums.get_mutable_data();
     auto result_sums2 = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
-
+    auto result_sums2_ptr = result_sums2.get_mutable_data();
     auto result_sums2cent = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
-
-    auto init_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range(1);
+    auto weights_nd = pr::table2ndarray_1d<Float>(q, weights, sycl::usm::alloc::device);
+    auto data_ptr = data.get_data();
+    auto weights_ptr = weights_nd.get_data();
+    auto update_event = q.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range(column_count);
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
-            result_nobs_ptr[0] = current_nobs_ptr[0] + row_count;
+            if (id == 0) {
+                result_nobs_ptr[0] = current_nobs_ptr[0] + row_count;
+            }
+            result_sums_ptr[id] = 0;
+            result_sums2_ptr[id] = 0;
+            for (std::int64_t row = 0; row < row_count; row++) {
+                Float val = data_ptr[id + row * column_count];
+                if (weights_enabling) {
+                    val *= weights_ptr[row];
+                }
+
+                result_max_ptr[id] = sycl::max<Float>(result_max_ptr[id], val);
+                result_min_ptr[id] = sycl::min<Float>(result_min_ptr[id], val);
+                result_sums_ptr[id] += val;
+                result_sums2_ptr[id] += val * val;
+            }
         });
     });
-    init_event.wait_and_throw();
-    auto reduce_event_min =
-        pr::reduce_by_columns(q, data, result_min, pr::min<Float>{}, pr::identity<Float>{}, deps);
-    reduce_event_min.wait_and_throw();
-    auto reduce_event_max = pr::reduce_by_columns(q,
-                                                  data,
-                                                  result_max,
-                                                  pr::max<Float>{},
-                                                  pr::identity<Float>{},
-                                                  { reduce_event_min });
-    reduce_event_max.wait_and_throw();
-    auto reduce_event_sums = pr::reduce_by_columns(q,
-                                                   data,
-                                                   result_sums,
-                                                   pr::sum<Float>{},
-                                                   pr::identity<Float>{},
-                                                   { reduce_event_min });
-    reduce_event_sums.wait_and_throw();
-    auto reduce_event_sumssquares = pr::reduce_by_columns(q,
-                                                          data,
-                                                          result_sums2,
-                                                          pr::sum<Float>{},
-                                                          pr::square<Float>{},
-                                                          { reduce_event_min });
-    reduce_event_sumssquares.wait_and_throw();
-
+    update_event.wait_and_throw();
     return std::make_tuple(result_min,
                            result_max,
                            result_sums,
                            result_sums2,
                            result_sums2cent,
                            result_nobs,
-                           reduce_event_sumssquares);
+                           update_event);
 }
 
 template <typename Float>
@@ -241,11 +204,8 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
     dal::detail::check_mul_overflow(column_count, column_count);
     dal::detail::check_mul_overflow(component_count, column_count);
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
+
     auto data_to_compute = data_nd;
-    if (weights_enabling) {
-        auto weights_nd = pr::table2ndarray_1d<Float>(q, weights, sycl::usm::alloc::device);
-        data_to_compute = apply_weights(q, data_nd, row_count, column_count, weights_nd);
-    }
 
     const bool has_nobs_data = input_.get_nobs().has_data();
 
@@ -271,8 +231,13 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               partial_sums2,
               partial_sums2cent,
               partial_nobs,
-              update_event] =
-            init_computation(q, data_to_compute, nobs_nd, column_count, row_count);
+              update_event] = init_computation(q,
+                                               data_to_compute,
+                                               weights,
+                                               nobs_nd,
+                                               column_count,
+                                               row_count,
+                                               weights_enabling);
         auto [result_min, result_max, result_sums, result_sums2, result_sums2cent, second_event] =
             update_partial_results(q,
                                    min_nd,
@@ -310,8 +275,13 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               result_sums2,
               result_sums2cent,
               result_nobs,
-              update_event] =
-            init_computation(q, data_to_compute, init_nobs, column_count, row_count);
+              update_event] = init_computation(q,
+                                               data_to_compute,
+                                               weights,
+                                               init_nobs,
+                                               column_count,
+                                               row_count,
+                                               weights_enabling);
         result.set_partial_min(
             (homogen_table::wrap(result_min.flatten(q, { update_event }), 1, column_count)));
         result.set_partial_max(
