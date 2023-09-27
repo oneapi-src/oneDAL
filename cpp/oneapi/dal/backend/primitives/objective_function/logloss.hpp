@@ -107,7 +107,7 @@ template <typename Float>
 class LogLossHessianProduct : public BaseMatrixOperator<Float> {
 public:
     LogLossHessianProduct(sycl::queue& q,
-                          table& data,
+                          const table& data,
                           Float L2 = Float(0),
                           bool fit_intercept = true,
                           std::int64_t bsz = -1);
@@ -125,7 +125,7 @@ private:
                                               const event_vector& deps);
 
     sycl::queue q_;
-    table& data_;
+    const table data_;
     Float L2_;
     bool fit_intercept_;
     ndarray<Float, 1> raw_hessian_;
@@ -139,7 +139,7 @@ template <typename Float>
 class LogLossFunction : public BaseFunction<Float> {
 public:
     LogLossFunction(sycl::queue queue,
-                    table& data,
+                    const table& data,
                     ndview<std::int32_t, 1>& labels,
                     Float L2 = 0.0,
                     bool fit_intercept = true,
@@ -154,7 +154,7 @@ public:
 
 private:
     sycl::queue q_;
-    table data_;
+    const table data_;
     ndview<std::int32_t, 1> labels_;
     const std::int64_t n_;
     const std::int64_t p_;

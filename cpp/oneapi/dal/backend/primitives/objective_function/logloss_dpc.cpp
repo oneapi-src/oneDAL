@@ -464,7 +464,7 @@ std::int64_t get_block_size(std::int64_t n, std::int64_t p) {
 
 template <typename Float>
 LogLossHessianProduct<Float>::LogLossHessianProduct(sycl::queue& q,
-                                                    table& data,
+                                                    const table& data,
                                                     Float L2,
                                                     bool fit_intercept,
                                                     std::int64_t bsz)
@@ -586,7 +586,7 @@ sycl::event LogLossHessianProduct<Float>::operator()(const ndview<Float, 1>& vec
 
 template <typename Float>
 LogLossFunction<Float>::LogLossFunction(sycl::queue q,
-                                        table& data,
+                                        const table& data,
                                         ndview<std::int32_t, 1>& labels,
                                         Float L2,
                                         bool fit_intercept,
