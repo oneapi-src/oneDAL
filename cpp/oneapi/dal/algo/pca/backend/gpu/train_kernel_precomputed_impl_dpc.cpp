@@ -63,7 +63,6 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(corr.get_dimension(0) > 0);
