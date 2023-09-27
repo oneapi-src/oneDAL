@@ -24,5 +24,3 @@ bazel-*
 # CMake directories and cache
 CMakeFiles
 CMakeCache.txt
-
-docs/doxygen/daal/doxygen
