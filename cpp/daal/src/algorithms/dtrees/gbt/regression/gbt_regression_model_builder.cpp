@@ -72,7 +72,7 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, TreeId & resId)
 }
 
 services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, double cover, NodeId & res)
-{ 
+{
     gbt::regression::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addLeafNodeInternal<double>(modelImplRef._serializationData, treeId, parentId, position, response,
@@ -80,12 +80,12 @@ services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentI
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue,
-                                                    double cover, NodeId & res, int defaultLeft)
+                                                    double cover, int defaultLeft, NodeId & res)
 {
     gbt::regression::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, cover, res, defaultLeft);
+                                                                    featureValue, cover, defaultLeft, res);
 }
 
 } // namespace interface1

@@ -161,7 +161,7 @@ protected:
     services::Status createTreeInternal(size_t nNodes, TreeId & resId);
     services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, double cover, NodeId & res);
     services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, double cover,
-                                          NodeId & res, int defaultLeft);
+                                          int defaultLeft, NodeId & res);
     services::Status convertModelInternal();
 };
 /** @} */

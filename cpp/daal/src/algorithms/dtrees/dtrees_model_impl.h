@@ -346,7 +346,7 @@ void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel, doubl
 void setNode(DecisionTreeNode & node, int featureIndex, double response, double cover);
 
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
-                                      size_t featureIndex, double featureValue, double cover, size_t & res, int defaultLeft = 0);
+                                      size_t featureIndex, double featureValue, double cover, int defaultLeft, size_t & res);
 
 void setProbabilities(const size_t treeId, const size_t nodeId, const size_t response, const data_management::DataCollectionPtr probTbl,
                       const double * const prob);

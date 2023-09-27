@@ -337,19 +337,6 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
     const size_t nColumnsPhi   = nColumnsData + 1;
     const size_t biasTermIndex = nColumnsPhi - 1;
 
-    // some model details (populated only for Fast TreeSHAP v2)
-    gbt::treeshap::ModelDetails<algorithmFPType> modelDetails(_aTree.get(), iTree, nTrees);
-    if (modelDetails.requiresPrecompute)
-    {
-        for (size_t currentTreeIndex = iTree; currentTreeIndex < iTree + nTrees; ++currentTreeIndex)
-        {
-            // regression model builder tree 0 contains only the base_score and must be skipped
-            if (currentTreeIndex == 0) continue;
-            const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
-            gbt::treeshap::computeCombinationSum(currentTree, currentTreeIndex, modelDetails);
-        }
-    }
-
     for (size_t iRow = 0; iRow < nRowsData; ++iRow)
     {
         const algorithmFPType * currentX = x + (iRow * nColumnsData);
@@ -360,8 +347,8 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
             if (currentTreeIndex == 0) continue;
 
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
-            st |= gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
-                currentTree, currentTreeIndex, currentX, phi, &_featHelper, condition, conditionFeature, modelDetails);
+            st |= gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper, condition,
+                                                                                                conditionFeature);
         }
 
         if (condition == 0)

@@ -215,8 +215,6 @@ float unwoundPathSumZero(const float * partialWeights, unsigned uniqueDepth, uns
 }
 } // namespace v1
 
-namespace v2
-{}
 } // namespace internal
 } // namespace treeshap
 } // namespace gbt

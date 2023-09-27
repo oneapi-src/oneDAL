@@ -70,83 +70,6 @@ struct PathElement
     PathElement(const PathElement &) = default;
 };
 
-/**
- * Model details required for TreeSHAP algorithms
-*/
-template <typename algorithmFPType>
-struct ModelDetails
-{
-    size_t maxDepth                  = 0;
-    size_t maxLeafs                  = 0;
-    size_t maxNodes                  = 0;
-    size_t maxCombinations           = 0;
-    size_t nTreesToUse               = 0;
-    bool requiresPrecompute          = false;
-    algorithmFPType * combinationSum = nullptr;
-    int * duplicatedNode             = nullptr;
-    ModelDetails()                   = default;
-    ModelDetails(const gbt::internal::GbtDecisionTree ** trees, size_t firstTreeIndex, size_t nTrees)
-    {
-        const uint8_t shapVersion = getRequestedAlgorithmVersion();
-        requiresPrecompute        = shapVersion == 2;
-        if (!requiresPrecompute)
-        {
-            // only Fast TreeSHAP v2.2 requires what we do here
-            return;
-        }
-
-        nTreesToUse = nTrees;
-        for (size_t i = firstTreeIndex; i < firstTreeIndex + nTreesToUse; ++i)
-        {
-            const gbt::internal::GbtDecisionTree * tree = trees[i];
-            const size_t nNodes                         = tree->getNumberOfNodes();
-            const size_t tDepth                         = tree->getMaxLvl();
-            // this is over-estimating number of leafs, but that's okay because
-            // we're only reserving memory
-            // TODO: Add nLeafs to the tree structure
-            //       (allocating space for the theoretical max is wasting space for sparse trees)
-            const size_t nLeafs = static_cast<size_t>(1 << tDepth);
-
-            maxDepth = maxDepth > tDepth ? maxDepth : tDepth;
-            maxLeafs = maxLeafs > nLeafs ? maxLeafs : nLeafs;
-            maxNodes = maxNodes > nNodes ? maxNodes : nNodes;
-        }
-
-        maxCombinations = static_cast<int>(1 << maxDepth);
-
-        // allocate combinationSum buffer for Fast TreeSHAP v2.2
-        const size_t nCombinationSum = maxLeafs * maxCombinations * nTreesToUse;
-        combinationSum               = static_cast<algorithmFPType *>(daal_malloc(sizeof(algorithmFPType) * nCombinationSum));
-        DAAL_ASSERT(combinationSum);
-        for (size_t i = 0; i < nCombinationSum; ++i)
-        {
-            combinationSum[i] = 0.0;
-        }
-
-        // allocate duplicatedNode buffer for Fast TreeSHAP v2.2
-        const size_t nDuplicatedNode = maxNodes * nTreesToUse;
-        duplicatedNode               = static_cast<int *>(daal_malloc(sizeof(int) * nDuplicatedNode));
-        DAAL_ASSERT(duplicatedNode);
-        for (size_t i = 0; i < nDuplicatedNode; ++i)
-        {
-            duplicatedNode[i] = -1;
-        }
-    }
-    ~ModelDetails()
-    {
-        if (combinationSum)
-        {
-            daal_free(combinationSum);
-            combinationSum = nullptr;
-        }
-        if (duplicatedNode)
-        {
-            daal_free(duplicatedNode);
-            duplicatedNode = nullptr;
-        }
-    }
-};
-
 namespace internal
 {
 
@@ -430,7 +353,7 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
         incomingZeroFraction = uniquePath[pathIndex].zeroFraction;
         incomingOneFraction  = uniquePath[pathIndex].oneFraction;
         unwindPath(uniquePath, pWeights, uniqueDepth, uniqueDepthPWeights, pathIndex);
-        uniqueDepth -= 1;
+        --uniqueDepth;
         // update pWeightsResidual iff the duplicated feature does not satisfy the threshold
         if (incomingOneFraction != 0.)
         {
@@ -448,15 +371,15 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
     if (condition > 0 && splitIndex == conditionFeature)
     {
         coldConditionFraction = 0;
-        uniqueDepth -= 1;
-        uniqueDepthPWeights -= 1;
+        --uniqueDepth;
+        --uniqueDepthPWeights;
     }
     else if (condition < 0 && splitIndex == conditionFeature)
     {
         hotConditionFraction *= hotZeroFraction;
         coldConditionFraction *= coldZeroFraction;
-        uniqueDepth -= 1;
-        uniqueDepthPWeights -= 1;
+        --uniqueDepth;
+        --uniqueDepthPWeights;
     }
 
     treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
@@ -511,402 +434,7 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
 }
 } // namespace v1
 
-namespace v2
-{
-template <typename algorithmFPType>
-inline void computeCombinationSum(const gbt::internal::GbtDecisionTree * tree, algorithmFPType * combinationSum, int * duplicatedNode,
-                                  size_t maxDepth, unsigned nodeIndex, unsigned depth, unsigned uniqueDepth, int * parentUniqueDepthPWeights,
-                                  PathElement * parentUniquePath, float * parentPWeights, float parentZeroFraction, int parentFeatureIndex,
-                                  int & leafCount)
-{
-    // extend the unique path
-    PathElement * uniquePath = parentUniquePath + uniqueDepth;
-    size_t nBytes            = uniqueDepth * sizeof(PathElement);
-    int copyStatus           = daal::services::internal::daal_memcpy_s(uniquePath, nBytes, parentUniquePath, nBytes);
-    DAAL_ASSERT(copyStatus == 0);
-
-    uniquePath[uniqueDepth].featureIndex = parentFeatureIndex;
-    uniquePath[uniqueDepth].zeroFraction = parentZeroFraction;
-
-    unsigned l;
-    int * uniqueDepthPWeights;
-    float * pWeights;
-    float * tPWeights;
-
-    // extend pWeights and update uniqueDepthPWeights
-    if (uniqueDepth == 0)
-    {
-        l                      = 1;
-        uniqueDepthPWeights    = parentUniqueDepthPWeights;
-        uniqueDepthPWeights[0] = 0;
-        pWeights               = parentPWeights;
-        pWeights[0]            = 1.0f;
-    }
-    else
-    {
-        l                   = static_cast<int>(1 << (uniqueDepth - 1));
-        uniqueDepthPWeights = parentUniqueDepthPWeights + l;
-        nBytes              = l * sizeof(int);
-        copyStatus          = daal::services::internal::daal_memcpy_s(uniqueDepthPWeights, nBytes, parentUniqueDepthPWeights, nBytes);
-        DAAL_ASSERT(copyStatus == 0);
-        copyStatus = daal::services::internal::daal_memcpy_s(uniqueDepthPWeights + l, nBytes, parentUniqueDepthPWeights, nBytes);
-        DAAL_ASSERT(copyStatus == 0);
-
-        pWeights   = parentPWeights + l * (maxDepth + 1);
-        nBytes     = l * (maxDepth + 1) * sizeof(float);
-        copyStatus = daal::services::internal::daal_memcpy_s(pWeights, nBytes, parentPWeights, nBytes);
-        DAAL_ASSERT(copyStatus == 0);
-        copyStatus = daal::services::internal::daal_memcpy_s(pWeights + l * (maxDepth + 1), nBytes, parentPWeights, nBytes);
-        DAAL_ASSERT(copyStatus == 0);
-
-        for (unsigned t = 0; t < l; t++)
-        {
-            tPWeights = pWeights + t * (maxDepth + 1);
-            for (int i = uniqueDepthPWeights[t] - 1; i >= 0; i--)
-            {
-                tPWeights[i] *= (uniqueDepth - i) / static_cast<algorithmFPType>(uniqueDepth + 1);
-            }
-            uniqueDepthPWeights[t] -= 1;
-        }
-        for (unsigned t = l; t < 2 * l; t++)
-        {
-            tPWeights                         = pWeights + t * (maxDepth + 1);
-            tPWeights[uniqueDepthPWeights[t]] = 0.0f;
-            for (int i = uniqueDepthPWeights[t] - 1; i >= 0; i--)
-            {
-                tPWeights[i + 1] += tPWeights[i] * (i + 1) / static_cast<algorithmFPType>(uniqueDepth + 1);
-                tPWeights[i] *= parentZeroFraction * (uniqueDepth - i) / static_cast<algorithmFPType>(uniqueDepth + 1);
-            }
-        }
-    }
-
-    const bool isLeaf = gbt::internal::ModelImpl::nodeIsLeaf(nodeIndex, *tree, depth);
-    if (isLeaf)
-    {
-        // calculate one row of combinationSum for the current path
-        algorithmFPType * leafCombinationSum = combinationSum + leafCount * static_cast<int>(1 << maxDepth);
-        for (unsigned t = 0; t < 2 * l - 1; t++)
-        {
-            leafCombinationSum[t] = 0;
-            tPWeights             = pWeights + t * (maxDepth + 1);
-            for (int i = uniqueDepthPWeights[t]; i >= 0; i--)
-            {
-                float value = tPWeights[i] / static_cast<algorithmFPType>(uniqueDepth - i);
-                leafCombinationSum[t] += value;
-            }
-            leafCombinationSum[t] *= (uniqueDepth + 1);
-        }
-        ++leafCount;
-
-        return;
-    }
-
-    const gbt::prediction::internal::ModelFPType * const nodeCoverValues = tree->getNodeCoverValues() - 1;
-    const gbt::prediction::internal::FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
-    const FeatureIndexType splitIndex                                    = fIndexes[nodeIndex];
-    const unsigned leftIndex                                             = 2 * nodeIndex;
-    const unsigned rightIndex                                            = 2 * nodeIndex + 1;
-    const algorithmFPType w                                              = nodeCoverValues[nodeIndex];
-    const algorithmFPType leftZeroFraction                               = nodeCoverValues[leftIndex] / w;
-    const algorithmFPType rightZeroFraction                              = nodeCoverValues[rightIndex] / w;
-    algorithmFPType incomingZeroFraction                                 = 1;
-
-    // see if we have already split on this feature,
-    // if so we undo that split so we can redo it for this node
-    unsigned pathIndex = 0;
-    for (; pathIndex <= uniqueDepth; ++pathIndex)
-    {
-        if (static_cast<unsigned>(uniquePath[pathIndex].featureIndex) == splitIndex) break;
-    }
-    if (pathIndex != uniqueDepth + 1)
-    {
-        duplicatedNode[nodeIndex] = pathIndex; // record node index of duplicated feature
-        incomingZeroFraction      = uniquePath[pathIndex].zeroFraction;
-
-        // shrink pWeights and uniquePath, and update uniqueDepthPWeights, given the duplicated feature
-        unsigned p = static_cast<int>(1 << (pathIndex - 1));
-        unsigned t = 0;
-        float * kPWeights;
-        for (unsigned j = 0; j < 2 * l; j += 2 * p)
-        {
-            for (unsigned k = j; k < j + p; k++)
-            {
-                tPWeights = pWeights + t * (maxDepth + 1);
-                kPWeights = pWeights + k * (maxDepth + 1);
-                for (int i = uniqueDepthPWeights[k]; i >= 0; i--)
-                {
-                    tPWeights[i] = kPWeights[i] * (uniqueDepth + 1) / static_cast<algorithmFPType>(uniqueDepth - i);
-                }
-                uniqueDepthPWeights[t] = uniqueDepthPWeights[k];
-                t += 1;
-            }
-        }
-        for (unsigned i = pathIndex; i < uniqueDepth; ++i)
-        {
-            uniquePath[i].featureIndex = uniquePath[i + 1].featureIndex;
-            uniquePath[i].zeroFraction = uniquePath[i + 1].zeroFraction;
-        }
-        uniqueDepth -= 1;
-    }
-    else
-    {
-        duplicatedNode[nodeIndex] = -1;
-    }
-
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for (unsigned t = 0; t < 2 * l; ++t)
-    {
-        ++(uniqueDepthPWeights[t]);
-    }
-
-    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, maxDepth, leftIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights,
-                                           uniquePath, pWeights, incomingZeroFraction * leftZeroFraction, splitIndex, leafCount);
-
-    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, maxDepth, rightIndex, depth + 1, uniqueDepth + 1,
-                                           uniqueDepthPWeights, uniquePath, pWeights, incomingZeroFraction * rightZeroFraction, splitIndex,
-                                           leafCount);
-}
-
-template <typename algorithmFPType>
-inline services::Status computeCombinationSum(const gbt::internal::GbtDecisionTree * tree, algorithmFPType * combinationSum, int * duplicatedNode,
-                                              size_t maxDepth)
-{
-    services::Status st;
-
-    const size_t maxCombinations      = 1 << maxDepth;
-    const size_t nUniqueDepthPWeights = 2 * maxCombinations;
-    const size_t nPWeights            = 2 * maxCombinations * (maxDepth + 1);
-    const size_t nUniquePath          = (maxDepth + 1) * (maxDepth + 2) / 2;
-
-    // Pre-allocate space for the unique path data, pWeights and uniqueDepthPWeights
-    int * uniqueDepthPWeights = static_cast<int *>(daal_malloc(sizeof(int) * nUniqueDepthPWeights));
-    DAAL_CHECK_MALLOC(uniqueDepthPWeights)
-    for (size_t i = 0; i < nUniqueDepthPWeights; ++i)
-    {
-        uniqueDepthPWeights[i] = 0;
-    }
-
-    float * pWeights = static_cast<float *>(daal_malloc(sizeof(float) * nPWeights));
-    DAAL_CHECK_MALLOC(pWeights)
-    for (size_t i = 0; i < nPWeights; ++i)
-    {
-        pWeights[i] = 0.0f;
-    }
-
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nUniquePath));
-    DAAL_CHECK_MALLOC(uniquePathData)
-    PathElement init;
-    for (size_t i = 0; i < nUniquePath; ++i)
-    {
-        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
-    }
-
-    int leafCount = 0;
-
-    computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode, maxDepth, 1, 0, 0, uniqueDepthPWeights, uniquePathData, pWeights, 1,
-                                           -1, leafCount);
-
-    daal_free(uniquePathData);
-    daal_free(pWeights);
-    daal_free(uniqueDepthPWeights);
-
-    return st;
-}
-
-/**
- * Recursive part of Fast TreeSHAP v2
-*/
-template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * combinationSum, const int * duplicatedNode,
-                     const int maxDepth, const algorithmFPType * x, algorithmFPType * phi, unsigned nodeIndex, size_t depth, unsigned uniqueDepth,
-                     PathElement * parentUniquePath, float pWeightsResidual, float parentZeroFraction, float parentOneFraction,
-                     int parentFeatureIndex, int & leafCount)
-{
-    // TODO: Add support for multi-class output
-    const size_t numOutputs = 1;
-
-    const gbt::prediction::internal::ModelFPType * const splitValues     = tree->getSplitPoints() - 1;
-    const gbt::prediction::internal::FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
-    const gbt::prediction::internal::ModelFPType * const nodeCoverValues = tree->getNodeCoverValues() - 1;
-    const int * const defaultLeft                                        = tree->getDefaultLeftForSplit() - 1;
-
-    // extend the unique path
-    PathElement * uniquePath = parentUniquePath + uniqueDepth;
-    const size_t nBytes      = uniqueDepth * sizeof(PathElement);
-    const int copyStatus     = daal::services::internal::daal_memcpy_s(uniquePath, nBytes, parentUniquePath, nBytes);
-    DAAL_ASSERT(copyStatus == 0);
-
-    uniquePath[uniqueDepth].featureIndex = parentFeatureIndex;
-    uniquePath[uniqueDepth].zeroFraction = parentZeroFraction;
-    uniquePath[uniqueDepth].oneFraction  = parentOneFraction;
-    // update pWeightsResidual if the feature of the last split does not satisfy the threshold
-    if (parentOneFraction != 1)
-    {
-        pWeightsResidual *= parentZeroFraction;
-    }
-
-    const bool isLeaf = gbt::internal::ModelImpl::nodeIsLeaf(nodeIndex, *tree, depth);
-    // leaf node
-    if (isLeaf)
-    {
-        const algorithmFPType * leafCombinationSum = combinationSum + leafCount * (1 << maxDepth);
-        // use combinationSumInd to search in the row of combinationSum corresponding to the current path
-        unsigned combinationSumInd = 0;
-        for (unsigned i = 1; i <= uniqueDepth; ++i)
-        {
-            if (uniquePath[i].oneFraction != 0)
-            {
-                combinationSumInd += 1 << (i - 1);
-            }
-        }
-        // update contributions to SHAP values for features satisfying the thresholds and not satisfying the thresholds separately
-        const unsigned valuesOffset = nodeIndex * numOutputs;
-        unsigned valuesNonZeroInd   = 0;
-        unsigned valuesNonZeroCount = 0;
-        for (unsigned j = 0; j < numOutputs; ++j)
-        {
-            if (splitValues[valuesOffset + j] != 0)
-            {
-                valuesNonZeroInd = j;
-                valuesNonZeroCount++;
-            }
-        }
-        const algorithmFPType scaleZero = -leafCombinationSum[combinationSumInd] * pWeightsResidual;
-        for (unsigned i = 1; i <= uniqueDepth; ++i)
-        {
-            const PathElement & el   = uniquePath[i];
-            const unsigned phiOffset = el.featureIndex * numOutputs;
-            const algorithmFPType scale =
-                (el.oneFraction != 0) ? leafCombinationSum[combinationSumInd - (1 << (i - 1))] * pWeightsResidual * (1 - el.zeroFraction) : scaleZero;
-            if (valuesNonZeroCount == 1)
-            {
-                phi[phiOffset + valuesNonZeroInd] += scale * splitValues[valuesOffset + valuesNonZeroInd];
-            }
-            else
-            {
-                for (unsigned j = 0; j < numOutputs; ++j)
-                {
-                    phi[phiOffset + j] += scale * splitValues[valuesOffset + j];
-                }
-            }
-        }
-        ++leafCount;
-
-        return;
-    }
-
-    const unsigned leftIndex                = 2 * nodeIndex;
-    const unsigned rightIndex               = 2 * nodeIndex + 1;
-    const algorithmFPType w                 = nodeCoverValues[nodeIndex];
-    const algorithmFPType leftZeroFraction  = nodeCoverValues[leftIndex] / w;
-    const algorithmFPType rightZeroFraction = nodeCoverValues[rightIndex] / w;
-    algorithmFPType incomingZeroFraction    = 1;
-    algorithmFPType incomingOneFraction     = 1;
-
-    // see if we have already split on this feature,
-    // if so we undo that split so we can redo it for this node
-    const int pathIndex = duplicatedNode[nodeIndex];
-    if (pathIndex >= 0)
-    {
-        incomingZeroFraction = uniquePath[pathIndex].zeroFraction;
-        incomingOneFraction  = uniquePath[pathIndex].oneFraction;
-
-        for (unsigned i = pathIndex; i < uniqueDepth; ++i)
-        {
-            uniquePath[i].featureIndex = uniquePath[i + 1].featureIndex;
-            uniquePath[i].zeroFraction = uniquePath[i + 1].zeroFraction;
-            uniquePath[i].oneFraction  = uniquePath[i + 1].oneFraction;
-        }
-        --uniqueDepth;
-        // update pWeightsResidual iff the duplicated feature does not satisfy the threshold
-        if (incomingOneFraction != 1.)
-        {
-            pWeightsResidual /= incomingZeroFraction;
-        }
-    }
-
-    const FeatureIndexType splitIndex = fIndexes[nodeIndex];
-    bool isLeftSplit                  = x[splitIndex] <= splitValues[nodeIndex];
-
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
-        tree, combinationSum, duplicatedNode, maxDepth, x, phi, leftIndex, depth + 1, uniqueDepth + 1, uniquePath, pWeightsResidual,
-        leftZeroFraction * incomingZeroFraction, incomingOneFraction * isLeftSplit, splitIndex, leafCount);
-
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
-        tree, combinationSum, duplicatedNode, maxDepth, x, phi, rightIndex, depth + 1, uniqueDepth + 1, uniquePath, pWeightsResidual,
-        rightZeroFraction * incomingZeroFraction, incomingOneFraction * (!isLeftSplit), splitIndex, leafCount);
-}
-
-/**
- * \brief Version 2, i.e. second Fast TreeSHAP algorithm
- * \param tree current tree
- * \param treeIndex index of current tree
- * \param x dense data matrix
- * \param phi dense output matrix of feature attributions
- * \param featureHelper pointer to a FeatureTypes object (required to traverse tree)
- * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
- * \param conditionFeature the index of the feature to fix
- */
-template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, size_t treeIndex, const algorithmFPType * x, algorithmFPType * phi,
-                                 const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature,
-                                 const ModelDetails<algorithmFPType> & modelDetails)
-{
-    services::Status st;
-
-    // // update the reference value with the expected value of the tree's predictions
-    // for (unsigned j = 0; j < tree.numOutputs; ++j)
-    // {
-    //     phi[data.M * tree.numOutputs + j] += tree.values[j];
-    // }
-
-    const int depth              = tree->getMaxLvl();
-    const size_t nElements       = (depth + 1) * (depth + 2) / 2;
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nElements));
-    DAAL_CHECK_MALLOC(uniquePathData)
-    PathElement init;
-    for (size_t i = 0; i < nElements; ++i)
-    {
-        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
-    }
-    int leafCount = 0;
-
-    algorithmFPType * combinationSum = modelDetails.combinationSum + treeIndex * modelDetails.maxLeafs * modelDetails.maxCombinations;
-    int * duplicatedNode             = modelDetails.duplicatedNode + treeIndex * modelDetails.maxNodes;
-    // hand over duplicatedNode - 1 because we use 1-based node indexing
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, combinationSum, duplicatedNode - 1, modelDetails.maxDepth, x, phi, 1, 0, 0,
-                                                                   uniquePathData, 1, 1, 1, -1, leafCount);
-
-    daal_free(uniquePathData);
-    return st;
-}
-} // namespace v2
 } // namespace internal
-
-/**
- * \brief Return the combination sum, required for Fast TreeSHAP v2
-*/
-template <typename algorithmFPType>
-services::Status computeCombinationSum(const gbt::internal::GbtDecisionTree * tree, const size_t treeIndex,
-                                       const ModelDetails<algorithmFPType> & modelDetails)
-{
-    if (!modelDetails.requiresPrecompute)
-    {
-        // nothing to be done
-        return services::Status();
-    }
-    if (!modelDetails.combinationSum || !modelDetails.duplicatedNode)
-    {
-        // buffer wasn't properly allocated
-        return services::Status(ErrorMemoryAllocationFailed);
-    }
-
-    algorithmFPType * combinationSum = modelDetails.combinationSum + treeIndex * modelDetails.maxLeafs * modelDetails.maxCombinations;
-    int * duplicatedNode             = modelDetails.duplicatedNode + treeIndex * modelDetails.maxNodes;
-    // hand over duplicatedNode - 1 because we use 1-based node indexing
-    return treeshap::internal::v2::computeCombinationSum<algorithmFPType>(tree, combinationSum, duplicatedNode - 1, modelDetails.maxDepth);
-}
 
 /**
  * \brief Recursive function that computes the feature attributions for a single tree.
@@ -918,9 +446,8 @@ services::Status computeCombinationSum(const gbt::internal::GbtDecisionTree * tr
  * \param conditionFeature the index of the feature to fix
  */
 template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, size_t treeIndex, const algorithmFPType * x, algorithmFPType * phi,
-                                 const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature,
-                                 const ModelDetails<algorithmFPType> & modelDetails)
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+                                 const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
 {
     DAAL_ASSERT(x);
     DAAL_ASSERT(phi);
@@ -936,9 +463,6 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, si
     case 1:
         return treeshap::internal::v1::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
                                                                                                       conditionFeature);
-    case 2:
-        return treeshap::internal::v2::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, treeIndex, x, phi, featureHelper,
-                                                                                                      condition, conditionFeature, modelDetails);
     default: return services::Status(ErrorMethodNotImplemented);
     }
 }

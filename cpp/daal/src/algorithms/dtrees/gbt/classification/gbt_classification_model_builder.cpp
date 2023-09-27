@@ -120,23 +120,21 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t clasLabe
     }
 }
 
-services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId & res)
+services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, double cover, NodeId & res)
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
-    const double cover = 0.0; // TODO: Add cover
     return daal::algorithms::dtrees::internal::addLeafNodeInternal<double>(modelImplRef._serializationData, treeId, parentId, position, response,
                                                                            cover, res);
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue,
-                                                    NodeId & res, int defaultLeft)
+                                                    int defaultLeft, const double cover, NodeId & res)
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
-    const double cover = 0.0; // TODO: Add cover
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, cover, res, defaultLeft);
+                                                                    featureValue, cover, defaultLeft, res);
 }
 
 } // namespace interface1
