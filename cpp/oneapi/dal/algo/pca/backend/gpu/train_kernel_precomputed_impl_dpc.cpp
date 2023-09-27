@@ -80,7 +80,6 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 template <typename Float>
 result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& desc,
                                                           const input_t& input) {
-
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
     ONEDAL_ASSERT(data.get_column_count() > 0);
