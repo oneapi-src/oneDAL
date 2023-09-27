@@ -183,10 +183,12 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
     const bool has_nobs_data = input_.get_nobs().has_data();
 
     if (has_nobs_data) {
+        std::cout << "Note 2" << std::endl;
         auto daal_partial_max =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_max());
         auto daal_partial_min =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_min());
+        std::cout << "Note 3" << std::endl;
         auto daal_partial_sums =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum());
         auto daal_partial_sum_squares =
@@ -194,12 +196,15 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
         auto daal_partial_sum_squares_centered =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum_squares_centered());
         auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_nobs());
+        std::cout << "Note 4" << std::endl;
         daal_partial.set(daal_lom::PartialResultId::nObservations, daal_nobs);
+        std::cout << "Note 5" << std::endl;
         daal_partial.set(daal_lom::PartialResultId::partialMaximum, daal_partial_max);
         daal_partial.set(daal_lom::PartialResultId::partialMinimum, daal_partial_min);
         daal_partial.set(daal_lom::PartialResultId::partialSum, daal_partial_sums);
         daal_partial.set(daal_lom::PartialResultId::partialSumSquaresCentered,
                          daal_partial_sum_squares_centered);
+        std::cout << "Note 6" << std::endl;
         daal_partial.set(daal_lom::PartialResultId::partialSumSquares, daal_partial_sum_squares);
 
         interop::status_to_exception(
@@ -208,12 +213,15 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                                                        &daal_partial,
                                                                        &daal_parameter,
                                                                        is_online));
+        std::cout << "Note 7" << std::endl;
         auto result = get_partial_result<Float, task_t>(daal_partial);
+        std::cout << "Note 8" << std::endl;
         return result;
     }
     else {
         alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
         initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
+        std::cout << "Note 1" << std::endl;
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
                                                                        daal_data.get(),

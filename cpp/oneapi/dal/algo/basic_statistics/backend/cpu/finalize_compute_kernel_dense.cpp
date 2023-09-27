@@ -52,9 +52,11 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const partial_compute_result<Task>& input) {
     const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
+    std::cout << "Note 9" << std::endl;
     auto column_numbers = input.get_partial_min().get_column_count();
     const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
     const std::int64_t row_count = nobs[0];
+    std::cout << "Note 10" << std::endl;
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
@@ -63,19 +65,20 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares());
     auto daal_partial_sum_squares_centered =
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
+    std::cout << "Note 11" << std::endl;
     //auto daal_result = daal_lom::Result();
 
     auto daal_input = daal_lom::Input();
-
+    std::cout << "Note 11.1" << std::endl;
     auto arr_input = array<Float>::empty(row_count * column_numbers);
-
+    std::cout << "Note 11.2" << std::endl;
     auto daal_input_ =
         interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
-
+    std::cout << "Note 11.3" << std::endl;
     daal_input.set(daal_lom::InputId::data, daal_input_);
-
+    std::cout << "Note 11.4" << std::endl;
     //alloc_result<Float>(daal_result, &daal_input, &daal_parameter, result_ids);
-
+    // std::cout << "Note 12" << std::endl;
     // daal_result.set(daal_lom::ResultId::maximum, daal_partial_max);
     // daal_result.set(daal_lom::ResultId::minimum, daal_partial_min);
 
@@ -97,6 +100,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_variation =
         interop::convert_to_daal_homogen_table<Float>(arr_variation, 1, column_numbers);
 
+    std::cout << "Note 13" << std::endl;
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
             ctx,
@@ -147,7 +151,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     if (res_op.test(result_options::variation)) {
         res.set_variation(interop::convert_from_daal_homogen_table<Float>(daal_variation));
     }
-
+    std::cout << "Note 15" << std::endl;
     return res;
 }
 
