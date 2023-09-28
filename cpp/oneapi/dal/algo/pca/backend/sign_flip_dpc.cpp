@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,24 +56,31 @@ ONEDAL_FORCEINLINE void sign_flip_vector(Float* x, std::int64_t count) {
     }
 }
 
-template <typename Cpu, typename Float>
-void sign_flip_impl(Float* eigvecs, std::int64_t row_count, std::int64_t column_count) {
+template <typename Float>
+void sign_flip_impl(sycl::queue& queue,
+                    Float* eigvecs,
+                    std::int64_t row_count,
+                    std::int64_t column_count) {
     ONEDAL_ASSERT(eigvecs);
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(column_count > 0);
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, row_count, column_count);
 
-    for (std::int64_t i = 0; i < row_count; i++) {
-        sign_flip_vector(eigvecs + i * column_count, column_count);
-    }
+    auto update_event = queue.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range<1>(row_count);
+        cgh.parallel_for(range, [=](sycl::item<1> id) {
+            sign_flip_vector(eigvecs + id * column_count, column_count);
+        });
+    });
 }
 
-#define INSTANTIATE(Cpu, Float)                                      \
-    template void sign_flip_impl<Cpu, Float>(Float * eigvecs,        \
-                                             std::int64_t row_count, \
-                                             std::int64_t column_count);
+#define INSTANTIATE(Float)                                      \
+    template void sign_flip_impl<Float>(sycl::queue & queue,    \
+                                        Float * eigvecs,        \
+                                        std::int64_t row_count, \
+                                        std::int64_t column_count);
 
-INSTANTIATE(__CPU_TAG__, float)
-INSTANTIATE(__CPU_TAG__, double)
+INSTANTIATE(float)
+INSTANTIATE(double)
 
 } // namespace oneapi::dal::pca::backend

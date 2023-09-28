@@ -144,8 +144,7 @@ auto compute_eigenvectors(sycl::queue& q,
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
 
-    auto host_corr = corr;
-    pr::sym_eigvals_descending(q, host_corr, component_count, eigvecs, eigvals);
+    pr::sym_eigvals_descending(q, corr, component_count, eigvecs, eigvals);
 
     return std::make_tuple(eigvecs, eigvals);
 }
@@ -209,7 +208,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         }
 
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            sign_flip(q_, eigvecs);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(

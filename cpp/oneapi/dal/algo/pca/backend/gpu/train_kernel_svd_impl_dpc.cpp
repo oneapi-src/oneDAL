@@ -116,9 +116,9 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, row_count));
         }
         //TODO: fix bug with sign flip function(move computations on gpu)
-        // if (desc.get_deterministic()) {
-        //     sign_flip(U);
-        // }
+        if (desc.get_deterministic()) {
+            sign_flip(q_, U);
+        }
 
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
