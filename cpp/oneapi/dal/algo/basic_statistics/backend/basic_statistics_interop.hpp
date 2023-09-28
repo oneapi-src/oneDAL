@@ -19,7 +19,7 @@
 #include "oneapi/dal/algo/basic_statistics/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include <iostream>
+
 #include <daal/include/algorithms/moments/low_order_moments_types.h>
 
 namespace oneapi::dal::basic_statistics::backend {
