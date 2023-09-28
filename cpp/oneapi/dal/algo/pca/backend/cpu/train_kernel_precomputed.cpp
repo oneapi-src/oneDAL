@@ -79,6 +79,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         *daal_means,
         *daal_variances));
 
+    if (desc.get_result_options().test(result_options::vars)) {
+        result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
+    }
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         const auto mdl = model_t{}.set_eigenvectors(
             homogen_table::wrap(arr_eigvec, component_count, column_count));
