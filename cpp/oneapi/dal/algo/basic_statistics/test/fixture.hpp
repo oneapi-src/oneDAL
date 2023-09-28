@@ -110,10 +110,9 @@ public:
         const auto data_table_id = this->get_homogen_table_id();
 
         table weights, data = data_fr.get_table(this->get_policy(), data_table_id);
-        auto partial_result = dal::basic_statistics::partial_compute_result();
+        dal::basic_statistics::partial_compute_result<> partial_result;
 
         auto input_table = split_table_by_rows<double>(data, nBlocks);
-        bs::compute_result<> compute_result;
         if (use_weights) {
             weights = weights_fr->get_table(this->get_policy(), data_table_id);
             auto weights_table = split_table_by_rows<double>(weights, nBlocks);
@@ -123,16 +122,18 @@ public:
                                                        input_table[i],
                                                        weights_table[i]);
             }
-            compute_result = this->finalize_compute(bs_desc, partial_result);
+            auto compute_result = this->finalize_compute(bs_desc, partial_result);
+            check_compute_result(compute_mode, data, weights, compute_result);
+            check_for_exception_for_non_requested_results(compute_mode, compute_result);
         }
         else {
             for (std::int64_t i = 0; i < nBlocks; ++i) {
                 partial_result = this->partial_compute(bs_desc, partial_result, input_table[i]);
             }
-            compute_result = this->finalize_compute(bs_desc, partial_result);
+            auto compute_result = this->finalize_compute(bs_desc, partial_result);
+            check_compute_result(compute_mode, data, weights, compute_result);
+            check_for_exception_for_non_requested_results(compute_mode, compute_result);
         }
-        check_compute_result(compute_mode, data, weights, compute_result);
-        check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
     void check_compute_result(bs::result_option_id compute_mode,
