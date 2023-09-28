@@ -28,6 +28,11 @@ Required Software:
 
 For details, see [System Requirements for oneDAL](https://www.intel.com/content/www/us/en/developer/articles/system-requirements/system-requirements-for-oneapi-data-analytics-library.html).
 
+## Docker Development Environment 
+
+[Docker file](https://github.com/oneapi-src/oneDAL/tree/master/dev/docker) with the oneDAL development environment
+is available as an alternative to the manual setup. 
+
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 

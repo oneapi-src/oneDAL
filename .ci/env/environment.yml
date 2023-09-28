@@ -1,0 +1,7 @@
+name: ci-env
+channels:
+  - conda-forge
+  - intel
+  - defaults
+dependencies:
+  - impi-devel=2021.10.0
