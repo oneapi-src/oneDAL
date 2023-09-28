@@ -107,12 +107,10 @@ public:
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] classLabel      Class label to be predicted
-    *  \param[in] defaultLeft     Behaviour in case of missing values
     *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const int defaultLeft,
-                       const double cover)
+    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const double cover)
     {
         NodeId resId;
         _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, cover, resId);
