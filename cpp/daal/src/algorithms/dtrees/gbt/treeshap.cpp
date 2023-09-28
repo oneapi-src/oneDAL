@@ -1,3 +1,19 @@
+/*******************************************************************************
+* Copyright 2023 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
 #include "src/algorithms/dtrees/gbt/treeshap.h"
 
 namespace daal
@@ -9,14 +25,14 @@ namespace gbt
 namespace treeshap
 {
 
-uint8_t getRequestedAlgorithmVersion()
+uint8_t getRequestedAlgorithmVersion(uint8_t fallback)
 {
     char * val = getenv("SHAP_VERSION");
     if (val)
     {
         return atoi(val);
     }
-    return 0;
+    return fallback;
 }
 namespace internal
 {
@@ -77,30 +93,6 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
 
     float nextOnePortion = uniquePath[uniqueDepth].partialWeight;
     float total          = 0;
-    // if (oneFraction != 0)
-    // {
-    //     float nextOnePortion = uniquePath[uniqueDepth].partialWeight;
-    //     for (int i = uniqueDepth - 1; i >= 0; --i)
-    //     {
-    //         const float tmp = nextOnePortion * (uniqueDepth + 1) / static_cast<float>((i + 1) * oneFraction);
-    //         total += tmp;
-    //         nextOnePortion = uniquePath[i].partialWeight - tmp * zeroFraction * ((uniqueDepth - i) / static_cast<float>(uniqueDepth + 1));
-    //     }
-    // }
-    // else if (zeroFraction != 0)
-    // {
-    //     for (int i = uniqueDepth - 1; i >= 0; --i)
-    //     {
-    //         total += uniquePath[i].partialWeight * (uniqueDepth + 1) / ((uniqueDepth - i) * zeroFraction);
-    //     }
-    // }
-    // else
-    // {
-    //     for (int i = uniqueDepth - 1; i >= 0; --i)
-    //     {
-    //         DAAL_ASSERT(uniquePath[i].partialWeight == 0);
-    //     }
-    // }
 
     for (int i = uniqueDepth - 1; i >= 0; --i)
     {

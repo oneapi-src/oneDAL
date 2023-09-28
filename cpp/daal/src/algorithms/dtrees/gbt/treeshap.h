@@ -53,9 +53,9 @@ using FeatureTypes = algorithms::dtrees::internal::FeatureTypes;
 /**
  * Determine the requested version of the TreeSHAP algorithm set in the
  * environment variable SHAP_VERSION.
- * Defaults to 0 if SHAP_VERSION is not set.
+ * Returns fallback if SHAP_VERSION is not set.
 */
-uint8_t getRequestedAlgorithmVersion();
+uint8_t getRequestedAlgorithmVersion(uint8_t fallback);
 
 /**
  * Decision Path context
@@ -250,7 +250,7 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
     // stop if we have no weight coming down to us
     if (conditionFraction < FLT_EPSILON) return;
 
-    const size_t numOutputs                                              = 1; // TODO: support multi-output models
+    const size_t numOutputs                                              = 1; // currently only support single-output models
     const gbt::prediction::internal::ModelFPType * const splitValues     = tree->getSplitPoints() - 1;
     const int * const defaultLeft                                        = tree->getDefaultLeftForSplit() - 1;
     const gbt::prediction::internal::FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
@@ -453,7 +453,7 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
     DAAL_ASSERT(phi);
     DAAL_ASSERT(featureHelper);
 
-    uint8_t shapVersion = getRequestedAlgorithmVersion();
+    uint8_t shapVersion = getRequestedAlgorithmVersion(1);
 
     switch (shapVersion)
     {
