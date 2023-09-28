@@ -216,6 +216,8 @@ bool buildTree(size_t treeId,
                bool &isRoot,
                ModelBuilder &builder,
                const ParentPlace &parentPlace) {
+    const int dummyDefaultLeft = 0; // default behaviour for missing values
+    const double dummyCoverValue = 1.0f; // ignoring cover here, should be extracted from input node
     if (node->left != NULL && node->right != NULL) {
         if (isRoot) {
             ModelBuilder::NodeId parent = builder.addSplitNode(treeId,
@@ -233,7 +235,9 @@ bool buildTree(size_t treeId,
                                                                parentPlace.parentId,
                                                                parentPlace.place,
                                                                node->featureIndex,
-                                                               node->featureValue);
+                                                               node->featureValue,
+                                                               dummyDefaultLeft,
+                                                               dummyCoverValue);
 
             buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent, 0));
             buildTree(treeId, node->right, isRoot, builder, ParentPlace(parent, 1));
@@ -241,11 +245,15 @@ bool buildTree(size_t treeId,
     }
     else {
         if (isRoot) {
-            builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->response);
+            builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->response, dummyCoverValue);
             isRoot = false;
         }
         else {
-            builder.addLeafNode(treeId, parentPlace.parentId, parentPlace.place, node->response);
+            builder.addLeafNode(treeId,
+                                parentPlace.parentId,
+                                parentPlace.place,
+                                node->response,
+                                dummyCoverValue);
         }
     }
 

@@ -64,23 +64,31 @@ decision_forest::classification::ModelPtr buildModel() {
     ModelBuilder modelBuilder(nClasses, nTrees);
     ModelBuilder::TreeId tree1 = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root1 =
-        modelBuilder.addSplitNode(tree1, ModelBuilder::noParent, 0, 0, 0.174108);
-    /* ModelBuilder::NodeId child12 = */ modelBuilder.addLeafNode(tree1, root1, 1, 4);
+        modelBuilder.addSplitNode(tree1, ModelBuilder::noParent, 0, 0, 0.174108, 0, 1.0);
+    /* ModelBuilder::NodeId child12 = */ modelBuilder.addLeafNode(tree1, root1, 1, 4, 0.5);
     double proba11[] = { 0.8, 0.1, 0.0, 0.1, 0.0 };
-    /* ModelBuilder::NodeId child11 = */ modelBuilder.addLeafNodeByProba(tree1, root1, 0, proba11);
+    /* ModelBuilder::NodeId child11 = */ modelBuilder.addLeafNodeByProba(tree1,
+                                                                         root1,
+                                                                         0,
+                                                                         proba11,
+                                                                         0.5);
 
     ModelBuilder::TreeId tree2 = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root2 =
-        modelBuilder.addSplitNode(tree2, ModelBuilder::noParent, 0, 1, 0.571184);
-    /* ModelBuilder::NodeId child22 = */ modelBuilder.addLeafNode(tree2, root2, 1, 4);
-    /* ModelBuilder::NodeId child21 = */ modelBuilder.addLeafNode(tree2, root2, 0, 2);
+        modelBuilder.addSplitNode(tree2, ModelBuilder::noParent, 0, 1, 0.571184, 0, 1.0);
+    /* ModelBuilder::NodeId child22 = */ modelBuilder.addLeafNode(tree2, root2, 1, 4, 0.5);
+    /* ModelBuilder::NodeId child21 = */ modelBuilder.addLeafNode(tree2, root2, 0, 2, 0.5);
 
     ModelBuilder::TreeId tree3 = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root3 =
-        modelBuilder.addSplitNode(tree3, ModelBuilder::noParent, 0, 0, 0.303995);
+        modelBuilder.addSplitNode(tree3, ModelBuilder::noParent, 0, 0, 0.303995, 0, 1.0);
     double proba32[] = { 0.05, 0.1, 0.0, 0.1, 0.75 };
-    /* ModelBuilder::NodeId child32 = */ modelBuilder.addLeafNodeByProba(tree3, root3, 1, proba32);
-    /* ModelBuilder::NodeId child31 = */ modelBuilder.addLeafNode(tree3, root3, 0, 2);
+    /* ModelBuilder::NodeId child32 = */ modelBuilder.addLeafNodeByProba(tree3,
+                                                                         root3,
+                                                                         1,
+                                                                         proba32,
+                                                                         0.5);
+    /* ModelBuilder::NodeId child31 = */ modelBuilder.addLeafNode(tree3, root3, 0, 2, 0.5);
     modelBuilder.setNFeatures(nFeatures);
     return modelBuilder.getModel();
 }

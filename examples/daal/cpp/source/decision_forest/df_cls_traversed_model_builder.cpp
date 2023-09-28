@@ -138,13 +138,17 @@ bool buildTree(size_t treeId,
                bool &isRoot,
                ModelBuilder &builder,
                std::map<Node *, ParentPlace> &parentMap) {
+    const int dummyDefaultLeft = 0; // default behaviour for missing values
+    const double dummyCoverValue = 1.0f; // ignoring cover here, should be extracted from input node
     if (node->left != NULL && node->right != NULL) {
         if (isRoot) {
             ModelBuilder::NodeId parent = builder.addSplitNode(treeId,
                                                                ModelBuilder::noParent,
                                                                0,
                                                                node->featureIndex,
-                                                               node->featureValue);
+                                                               node->featureValue,
+                                                               dummyDefaultLeft,
+                                                               dummyCoverValue);
 
             parentMap[node->left] = ParentPlace(parent, 0);
             ;
@@ -158,7 +162,9 @@ bool buildTree(size_t treeId,
                                                                p.parentId,
                                                                p.place,
                                                                node->featureIndex,
-                                                               node->featureValue);
+                                                               node->featureValue,
+                                                               dummyDefaultLeft,
+                                                               dummyCoverValue);
 
             parentMap[node->left] = ParentPlace(parent, 0);
             ;
@@ -168,12 +174,16 @@ bool buildTree(size_t treeId,
     }
     else {
         if (isRoot) {
-            builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->classLabel);
+            builder.addLeafNode(treeId,
+                                ModelBuilder::noParent,
+                                0,
+                                node->classLabel,
+                                dummyCoverValue);
             isRoot = false;
         }
         else {
             ParentPlace p = parentMap[node];
-            builder.addLeafNode(treeId, p.parentId, p.place, node->classLabel);
+            builder.addLeafNode(treeId, p.parentId, p.place, node->classLabel, dummyCoverValue);
         }
         return true;
     }
