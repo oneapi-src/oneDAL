@@ -58,12 +58,11 @@ auto compute_variances(sycl::queue& q,
 }
 
 template <typename Float>
-auto compute_eigenvectors(sycl::queue& q,
-                          pr::ndarray<Float, 2>&& corr,
-                          std::int64_t component_count,
-                          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors);
-    ONEDAL_ASSERT(corr.has_mutable_data());
+auto compute_eigenvectors_on_host(sycl::queue& q,
+                                  pr::ndarray<Float, 2>&& corr,
+                                  std::int64_t component_count,
+                                  const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(corr.get_dimension(0) > 0);
