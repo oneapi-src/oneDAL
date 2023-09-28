@@ -69,16 +69,18 @@ enum class cpu_extension : uint64_t {
 
 struct ONEDAL_EXPORT threading_policy {
     bool thread_pinning;
+    int max_concurrency;
     int max_threads_per_core;
 
-    threading_policy(bool thread_pinning_ = false, int max_threads_per_core_ = 0)
+    threading_policy(bool thread_pinning_ = false, int max_concurrency_ = 0, int max_threads_per_core_ = 0)
             : thread_pinning(thread_pinning_),
+              max_concurrency(max_concurrency_),
               max_threads_per_core(max_threads_per_core_) {}
 };
 
 class ONEDAL_EXPORT host_policy : public base {
 public:
-    host_policy(bool thread_pinning = false, int max_threads_per_core = 0);
+    host_policy();
 
     static const host_policy& get_default() {
         const static host_policy instance;
@@ -86,29 +88,16 @@ public:
     }
 
     cpu_extension get_enabled_cpu_extensions() const noexcept;
-    bool get_thread_pinning() const noexcept;
-    int get_max_threads_per_core() const noexcept;
     threading_policy get_threading_policy() const noexcept;
+    void set_threading_policy(const threading_policy& policy) noexcept;
 
     auto& set_enabled_cpu_extensions(const cpu_extension& extensions) {
         set_enabled_cpu_extensions_impl(extensions);
         return *this;
     }
 
-    auto& set_thread_pinning(const bool& thread_pinning) {
-        set_thread_pinning_impl(thread_pinning);
-        return *this;
-    }
-
-    auto& set_max_threads_per_core(const int& max_threads_per_core) {
-        set_max_threads_per_core_impl(max_threads_per_core);
-        return *this;
-    }
-
 private:
     void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
-    void set_thread_pinning_impl(const bool& thread_pinning) noexcept;
-    void set_max_threads_per_core_impl(const int& max_threads_per_core) noexcept;
 
     pimpl<host_policy_impl> impl_;
 };
@@ -137,6 +126,9 @@ public:
     sycl::queue& get_queue() const noexcept {
         return queue_;
     }
+
+    threading_policy get_threading_policy() const noexcept;
+    void set_threading_policy(const threading_policy& policy) noexcept;
 
 private:
     void init_impl(const sycl::queue& queue);

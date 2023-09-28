@@ -78,6 +78,12 @@ public:
         global_init();
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    explicit context_cpu(const detail::data_parallel_policy& policy)
+            : cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()),
+              threading_policy_(policy.get_threading_policy()) {}
+#endif
+
     explicit context_cpu(const detail::spmd_host_policy& policy)
             : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
               cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()),
@@ -199,7 +205,7 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
         return dispatch_by_device(
             policy,
             [&]() {
-                return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
+                return CpuKernel{}(context_cpu{ policy }, std::forward<Args>(args)...);
             },
             [&]() -> cpu_kernel_return_t<CpuKernel, Args...> {
                 // We have to specify return type for this lambda as compiler cannot
@@ -232,7 +238,7 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
         return dispatch_by_device(
             policy,
             [&]() {
-                return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
+                return CpuKernel{}(context_cpu{ policy }, std::forward<Args>(args)...);
             },
             [&]() {
                 return GpuKernel{}(context_gpu{ policy }, std::forward<Args>(args)...);
@@ -261,7 +267,7 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
         return dispatch_by_device(
             policy,
             [&]() {
-                return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
+                return CpuKernel{}(context_cpu{ policy }, std::forward<Args>(args)...);
             },
             [&]() {
                 return GpuKernel{}(context_gpu{ policy }, std::forward<Args>(args)...);

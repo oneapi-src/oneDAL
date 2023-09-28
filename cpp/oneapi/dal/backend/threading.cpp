@@ -55,7 +55,7 @@ tbb::task_arena* task_executor::create_task_arena(
     const oneapi::dal::detail::threading_policy& policy) {
     if (policy.max_threads_per_core) {
         static tbb::task_arena task_arena{ tbb::task_arena::constraints{}.set_max_threads_per_core(
-            policy.max_threads_per_core) };
+            policy.max_threads_per_core).set_max_concurrency(policy.max_concurrency) };
         if (policy.thread_pinning) {
             using daal::services::internal::thread_pinner_t;
             thread_pinner_t* thread_pinner_ptr =
