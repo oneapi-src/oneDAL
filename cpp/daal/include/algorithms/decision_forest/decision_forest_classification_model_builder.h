@@ -119,6 +119,14 @@ public:
     }
 
     /**
+    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    */
+    DAAL_DEPRECATED NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel)
+    {
+        return addLeafNode(treeId, parentId, position, classLabel, 0);
+    }
+
+    /**
     *  Create Leaf node and add it to certain tree
     *  \param[in] treeId          Tree to which new node is added
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
@@ -133,6 +141,14 @@ public:
         _status |= addLeafNodeByProbaInternal(treeId, parentId, position, proba, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    */
+    DAAL_DEPRECATED NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba)
+    {
+        return addLeafNodeByProba(treeId, parentId, position, proba, 0);
     }
 
     /**
@@ -153,6 +169,15 @@ public:
         _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+     * \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+     */
+    DAAL_DEPRECATED NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
+                                        const double featureValue)
+    {
+        return addSplitNode(treeId, parentId, position, featureIndex, featureValue, 0, 0);
     }
 
     void setNFeatures(size_t nFeatures)

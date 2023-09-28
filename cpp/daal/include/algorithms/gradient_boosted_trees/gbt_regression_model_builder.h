@@ -119,6 +119,14 @@ public:
     }
 
     /**
+    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    */
+    DAAL_DEPRECATED NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response)
+    {
+        return addLeafNode(treeId, parentId, position, response, 0);
+    }
+
+    /**
     *  Create Split node and add it to certain tree
     *  \param[in] treeId          Tree to which new node is added
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
@@ -135,6 +143,14 @@ public:
         _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    */
+    DAAL_DEPRECATED NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue)
+    {
+        return addSplitNode(treeId, parentId, position, featureIndex, featureValue, 0, 0);
     }
 
     /**
