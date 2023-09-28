@@ -28,9 +28,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
     - script: |
-        sudo apt-get update && sudo apt-get install -y clang-format-14
-        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
-        sudo update-alternatives --set clang-format /usr/bin/clang-format-14
+        .ci/env/apt.sh clang-format
       displayName: 'apt-get'
     - script: |
         .ci/scripts/clang-format.sh
@@ -46,8 +44,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.10.0 openjdk=17.0.3
+      .ci/env/apt.sh dev-base
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -95,8 +92,7 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix tree
-      conda create -n ci-env -q -y -c intel -c conda-forge impi-devel=2021.8.0 openjdk=17.0.3
+      .ci/env/apt.sh dev-base
     displayName: 'apt-get and conda install'
   - script: |
       .ci/scripts/describe_system.sh
@@ -136,11 +132,10 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - script: |
-      sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib dos2unix
-      conda create -n ci-env -q -y -c conda-forge -c intel impi-devel=2021.10.0 openjdk=17.0.3
+      .ci/env/apt.sh dev-base
     displayName: 'apt-get and conda install'
   - script: |
-      bash .ci/scripts/install_dpcpp.sh
+      .ci/env/apt.sh dpcpp
     displayName: 'dpcpp installation'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
@@ -190,27 +185,21 @@ jobs:
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
-      # Download Bazelisk
-      export SHA256="168851e70cf5f95c0e215e7f3aaca5132ffc3c8dd8f585a4157b0be2b53cfe32 bazelisk-linux-amd64"
-      wget https://github.com/bazelbuild/bazelisk/releases/download/v1.16.0/bazelisk-linux-amd64
-      echo ${SHA256} | sha256sum --check
-      # "Install" bazelisk
-      chmod +x bazelisk-linux-amd64
-      mv bazelisk-linux-amd64 ${BAZEL_VERSION}
-
-    displayName: 'install-deps'
+      # sourcing done to set bazel version value from script
+      source .ci/env/bazelisk.sh
+      echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}"
+    displayName: 'install-bazel'
   - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
-
   - task: Cache@2
     inputs:
       # Commit ID is added to a cache key. Caches are immutable by design,
       # so we always need to change a key to upload the last version
       # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
-      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | "$(Build.SourceVersion)"'
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1" | "$(Build.SourceVersion)"'
       restoreKeys: |
-        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
+        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1"
       path: $(BAZEL_CACHE_DIR)
     displayName: 'bazel-cache'
 
@@ -227,13 +216,13 @@ jobs:
       echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
       # Display oneDAL build configuration
-      $(BAZEL_VERSION) build @config//:dump
+      bazel build @config//:dump
       echo
       cat bazel-bin/external/config/config.json
       echo
     displayName: 'bazel-configure'
   - script: |
-      $(BAZEL_VERSION) build :release
+      bazel build :release
     displayName: 'release'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -241,27 +230,27 @@ jobs:
       targetPath: '$(Build.Repository.LocalPath)/bazel-bin/release'
     displayName: 'Upload build artifacts'
   - script: |
-      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
+      bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=dev \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
       export DALROOT=`pwd`/bazel-bin/release/daal/latest
-      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
+      bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
       export DALROOT=`pwd`/bazel-bin/release/daal/latest
-      $(BAZEL_VERSION) test //examples/oneapi/cpp:all \
+      bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-dynamic'
 
   - script: |
-      $(BAZEL_VERSION) test //cpp/oneapi/dal:tests \
+      bazel test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
                  --test_thread_mode=par
@@ -310,7 +299,7 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: sudo apt-get update && sudo apt-get install -y git gcc-multilib g++-multilib
+  - script: .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
       .ci/scripts/describe_system.sh
@@ -392,7 +381,7 @@ jobs:
   steps:
   - script: |
       brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge python=3.9 openjdk=17.0.3
+      conda create -n ci-env -q -y -c conda-forge python=3.10
       source /usr/local/miniconda/etc/profile.d/conda.sh
       conda activate ci-env
       pip install -q cpufeature
