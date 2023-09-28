@@ -95,7 +95,6 @@ auto update_partial_results(sycl::queue& q,
                 result_sums2_ptr[id] - result_sums_ptr[id] * result_sums_ptr[id] / nobs_ptr[0];
         });
     });
-    update_event.wait_and_throw();
     return std::make_tuple(result_min,
                            result_max,
                            result_sums,
@@ -121,7 +120,7 @@ auto apply_weights(sycl::queue& q,
 
     auto input_data = data.get_data();
 
-    auto update_event = q.submit([&](sycl::handler& cgh) {
+    auto apply_weights_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<2>(row_count, column_count);
 
         cgh.depends_on(deps);
@@ -130,11 +129,11 @@ auto apply_weights(sycl::queue& q,
                 input_data[id[0] * column_count + id[1]] * weights_ptr[id[0]];
         });
     });
-    update_event.wait_and_throw();
-    return data_to_compute;
+
+    return std::make_tuple(data_to_compute, apply_weights_event);
 }
 
-//TODO:: optimize, create a task realted to investigation bug in reduce_by_columns_function
+//TODO:: create a task realted to investigation bug in reduce_by_columns_function
 template <typename Float>
 auto init_computation(sycl::queue& q,
                       const pr::ndview<Float, 2>& data,
@@ -158,7 +157,7 @@ auto init_computation(sycl::queue& q,
 
     auto result_sums2cent = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
 
-    auto init_event = q.submit([&](sycl::handler& cgh) {
+    auto nobs_update_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range(1);
 
         cgh.depends_on(deps);
@@ -166,9 +165,12 @@ auto init_computation(sycl::queue& q,
             result_nobs_ptr[0] = current_nobs_ptr[0] + row_count;
         });
     });
-    init_event.wait_and_throw();
-    auto reduce_event_min =
-        pr::reduce_by_columns(q, data, result_min, pr::min<Float>{}, pr::identity<Float>{}, deps);
+    auto reduce_event_min = pr::reduce_by_columns(q,
+                                                  data,
+                                                  result_min,
+                                                  pr::min<Float>{},
+                                                  pr::identity<Float>{},
+                                                  { nobs_update_event });
     reduce_event_min.wait_and_throw();
     auto reduce_event_max = pr::reduce_by_columns(q,
                                                   data,
@@ -201,28 +203,6 @@ auto init_computation(sycl::queue& q,
                            reduce_event_sumssquares);
 }
 
-template <typename Float>
-auto init(sycl::queue& q,
-          const std::int64_t row_count,
-          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(init_partial_results, q);
-
-    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
-
-    auto result_nobs_ptr = result_nobs.get_mutable_data();
-
-    auto init_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<1>(1);
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<1> id) {
-            result_nobs_ptr[0] = row_count;
-        });
-    });
-    init_event.wait_and_throw();
-    return std::make_tuple(result_nobs, init_event);
-}
-
 //TODO: add checks
 template <typename Float, typename Task>
 static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
@@ -244,10 +224,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
     auto data_to_compute = data_nd;
-
+    sycl::event apply_weights_event;
     if (weights_enabling) {
         auto weights_nd = pr::table2ndarray_1d<Float>(q, weights, sycl::usm::alloc::device);
-        data_to_compute = apply_weights(q, data_nd, row_count, column_count, weights_nd);
+        std::tie(data_to_compute, apply_weights_event) =
+            apply_weights(q, data_nd, row_count, column_count, weights_nd);
     }
 
     const bool has_nobs_data = input_.get_nobs().has_data();
@@ -274,37 +255,50 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               partial_sums2,
               partial_sums2cent,
               partial_nobs,
-              update_event] =
-            init_computation(q, data_to_compute, nobs_nd, column_count, row_count);
-        update_event.wait_and_throw();
-        auto [result_min, result_max, result_sums, result_sums2, result_sums2cent, second_event] =
-            update_partial_results(q,
-                                   min_nd,
-                                   partial_min,
-                                   max_nd,
-                                   partial_max,
-                                   sums_nd,
-                                   partial_sums,
-                                   sums2_nd,
-                                   partial_sums2,
-                                   sums2cent_nd,
-                                   partial_sums2cent,
-                                   column_count,
-                                   row_count,
-                                   partial_nobs);
-        second_event.wait_and_throw();
-        result.set_partial_min(
-            (homogen_table::wrap(result_min.flatten(q, { second_event }), 1, column_count)));
-        result.set_partial_max(
-            (homogen_table::wrap(result_max.flatten(q, { second_event }), 1, column_count)));
+              init_computation_event] = init_computation(q,
+                                                         data_to_compute,
+                                                         nobs_nd,
+                                                         column_count,
+                                                         row_count,
+                                                         { apply_weights_event });
 
-        result.set_partial_sum(
-            (homogen_table::wrap(result_sums.flatten(q, { second_event }), 1, column_count)));
+        auto [result_min,
+              result_max,
+              result_sums,
+              result_sums2,
+              result_sums2cent,
+              merge_results_event] = update_partial_results(q,
+                                                            min_nd,
+                                                            partial_min,
+                                                            max_nd,
+                                                            partial_max,
+                                                            sums_nd,
+                                                            partial_sums,
+                                                            sums2_nd,
+                                                            partial_sums2,
+                                                            sums2cent_nd,
+                                                            partial_sums2cent,
+                                                            column_count,
+                                                            row_count,
+                                                            partial_nobs,
+                                                            { init_computation_event });
+        result.set_partial_min(
+            (homogen_table::wrap(result_min.flatten(q, { merge_results_event }), 1, column_count)));
+        result.set_partial_max(
+            (homogen_table::wrap(result_max.flatten(q, { merge_results_event }), 1, column_count)));
+
+        result.set_partial_sum((
+            homogen_table::wrap(result_sums.flatten(q, { merge_results_event }), 1, column_count)));
         result.set_partial_sum_squares(
-            (homogen_table::wrap(result_sums2.flatten(q, { second_event }), 1, column_count)));
+            (homogen_table::wrap(result_sums2.flatten(q, { merge_results_event }),
+                                 1,
+                                 column_count)));
         result.set_partial_sum_squares_centered(
-            (homogen_table::wrap(result_sums2cent.flatten(q, { second_event }), 1, column_count)));
-        result.set_nobs((homogen_table::wrap(partial_nobs.flatten(q, { second_event }), 1, 1)));
+            (homogen_table::wrap(result_sums2cent.flatten(q, { merge_results_event }),
+                                 1,
+                                 column_count)));
+        result.set_nobs(
+            (homogen_table::wrap(partial_nobs.flatten(q, { merge_results_event }), 1, 1)));
     }
     else {
         auto init_nobs = pr::ndarray<Float, 1>::empty(q, 1);
@@ -315,20 +309,35 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               result_sums2,
               result_sums2cent,
               result_nobs,
-              update_event] =
-            init_computation(q, data_to_compute, init_nobs, column_count, row_count);
-        update_event.wait_and_throw();
+              init_computation_event] = init_computation(q,
+                                                         data_to_compute,
+                                                         init_nobs,
+                                                         column_count,
+                                                         row_count,
+                                                         { apply_weights_event });
+
         result.set_partial_min(
-            (homogen_table::wrap(result_min.flatten(q, { update_event }), 1, column_count)));
+            (homogen_table::wrap(result_min.flatten(q, { init_computation_event }),
+                                 1,
+                                 column_count)));
         result.set_partial_max(
-            (homogen_table::wrap(result_max.flatten(q, { update_event }), 1, column_count)));
+            (homogen_table::wrap(result_max.flatten(q, { init_computation_event }),
+                                 1,
+                                 column_count)));
         result.set_partial_sum(
-            (homogen_table::wrap(result_sums.flatten(q, { update_event }), 1, column_count)));
+            (homogen_table::wrap(result_sums.flatten(q, { init_computation_event }),
+                                 1,
+                                 column_count)));
         result.set_partial_sum_squares(
-            (homogen_table::wrap(result_sums2.flatten(q, { update_event }), 1, column_count)));
+            (homogen_table::wrap(result_sums2.flatten(q, { init_computation_event }),
+                                 1,
+                                 column_count)));
         result.set_partial_sum_squares_centered(
-            (homogen_table::wrap(result_sums2cent.flatten(q, { update_event }), 1, column_count)));
-        result.set_nobs((homogen_table::wrap(result_nobs.flatten(q, { update_event }), 1, 1)));
+            (homogen_table::wrap(result_sums2cent.flatten(q, { init_computation_event }),
+                                 1,
+                                 column_count)));
+        result.set_nobs(
+            (homogen_table::wrap(result_nobs.flatten(q, { init_computation_event }), 1, 1)));
     }
 
     return result;
