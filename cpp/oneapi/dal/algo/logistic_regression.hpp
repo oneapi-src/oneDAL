@@ -16,5 +16,5 @@
 
 #pragma once
 
-//#include "oneapi/dal/algo/logistic_regression/infer.hpp"
+#include "oneapi/dal/algo/logistic_regression/infer.hpp"
 #include "oneapi/dal/algo/logistic_regression/train.hpp"
