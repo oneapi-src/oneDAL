@@ -54,8 +54,8 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
     auto column_numbers = input.get_partial_min().get_column_count();
-    const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
-    const std::int64_t row_count = nobs[0];
+    // const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
+    //const std::int64_t row_count = nobs[0];
 
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
@@ -65,15 +65,6 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares());
     auto daal_partial_sum_squares_centered =
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
-
-    auto daal_input = daal_lom::Input();
-
-    auto arr_input = array<Float>::empty(row_count * column_numbers);
-
-    auto daal_input_ =
-        interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
-
-    daal_input.set(daal_lom::InputId::data, daal_input_);
 
     auto arr_means = array<Float>::zeros(column_numbers);
     auto arr_rawt = array<Float>::zeros(column_numbers);
