@@ -26,9 +26,7 @@ struct train_kernel_cpu {
     train_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const detail::train_parameters<Task>& params,
-                                  const train_input<Task>& input) const {
-        throw std::runtime_error("Not Implemented");
-    }
+                                  const train_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::logistic_regression::backend

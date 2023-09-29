@@ -44,9 +44,10 @@ public:
     double l1_coef = 0.0;
     double l2_coef = 0.0;
     bool compute_intercept = true;
-    std::int64_t class_count = 2;
-    double tol = 1e-4;
     std::int32_t max_iter = 100;
+    double tol = 1e-4;
+
+    std::int64_t class_count = 2;
 
     result_option_id result_options = get_default_result_options<Task>();
 };
@@ -72,10 +73,12 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 }
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base(bool compute_intercept, double l2_coef)
+descriptor_base<Task>::descriptor_base(bool compute_intercept, double l2_coef, std::int32_t max_iter, double tol)
         : impl_(new descriptor_impl<Task>{}) {
     impl_->compute_intercept = compute_intercept;
     impl_->l2_coef = l2_coef;
+    impl_->tol = tol;
+    impl_->max_iter = max_iter;
 }
 
 template <typename Task>
@@ -92,6 +95,17 @@ template <typename Task>
 double descriptor_base<Task>::get_l2_coef() const {
     return impl_->l2_coef;
 }
+
+template <typename Task>
+double descriptor_base<Task>::get_tol() const {
+    return impl_->tol;
+}
+
+template <typename Task>
+std::int32_t descriptor_base<Task>::get_max_iter() const {
+    return impl_->max_iter;
+}
+
 
 // template <typename Task>
 // std::int64_t descriptor_base<Task>::get_class_count() const {
@@ -111,6 +125,16 @@ void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
 template <typename Task>
 void descriptor_base<Task>::set_l2_coef_impl(double l2_coef) {
     impl_->l2_coef = l2_coef;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_tol_impl(double tol) {
+    impl_->tol = tol;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_max_iter_impl(std::int32_t max_iter) {
+    impl_->max_iter = max_iter;
 }
 
 // template <typename Task>

@@ -26,7 +26,7 @@ struct train_kernel_gpu {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const detail::train_parameters<Task>& params,
-                                  const train_input<Task>& input);
+                                  const train_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::logistic_regression::backend

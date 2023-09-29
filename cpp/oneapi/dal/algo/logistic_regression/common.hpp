@@ -109,11 +109,13 @@ public:
 
     descriptor_base();
 
-    descriptor_base(bool compute_intercept, double l2_coef);
+    descriptor_base(bool compute_intercept, double l2_coef, std::int32_t max_iter, double tol);
 
     bool get_compute_intercept() const;
     //double get_l1_coef() const;
     double get_l2_coef() const;
+    double get_tol() const;
+    std::int32_t get_max_iter() const;
     //std::int64_t get_class_count() const;
     result_option_id get_result_options() const;
 
@@ -121,6 +123,8 @@ protected:
     void set_compute_intercept_impl(bool compute_intercept);
     //void set_l1_coef_impl(bool l1_coef);
     void set_l2_coef_impl(double l2_coef);
+    void set_tol_impl(double tol);
+    void set_max_iter_impl(std::int32_t max_iter);
     //void set_class_count_impl(std::int64_t class_count);
     void set_result_options_impl(const result_option_id& value);
 
@@ -166,7 +170,7 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept = true, double l2_coef = 0.0) : base_t(compute_intercept, l2_coef) {}
+    explicit descriptor(bool compute_intercept = true, double l2_coef = 0.0, std::int32_t maxiter = 100, double tol = 1.0e-4) : base_t(compute_intercept, l2_coef, maxiter, tol) {}
 
     /// Creates a new instance of the class with default parameters
     //explicit descriptor() : base_t(true) {}
@@ -184,6 +188,13 @@ public:
         return base_t::get_l2_coef();
     }
 
+    double get_tol() const {
+        return base_t::get_tol();
+    }
+
+    std::int32_t get_max_iter() const {
+        return base_t::get_max_iter();
+    }
 
     // double get_class_count() const {
     //     return base_t::get_class_count();
@@ -201,6 +212,17 @@ public:
 
     auto& set_l2_coef(bool l2_coef) const {
         base_t::set_l2_coef_impl(l2_coef);
+        return *this;
+    }
+
+
+    auto& set_tol(double tol) const {
+        base_t::set_tol_impl(tol);
+        return *this;
+    }
+
+    auto& set_max_iter(std::int32_t maxiter) const {
+        base_t::set_max_iter_impl(maxiter);
         return *this;
     }
 

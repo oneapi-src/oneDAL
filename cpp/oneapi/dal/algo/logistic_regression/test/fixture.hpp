@@ -75,8 +75,8 @@ public:
 
     void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
-            this->n_ = 1000; // GENERATE(100, 200, 1000, 10000);
-            this->p_ = 10; //GENERATE(10, 20, 30);
+            this->n_ = GENERATE(100, 200, 1000); //, 10000, 50000);
+            this->p_ = GENERATE(10, 20); //, 30, 50);
         }
         else {
             this->n_ = n;
@@ -84,87 +84,128 @@ public:
         }
     }
 
-    void gen_input(std::int64_t seed = 2007) {
+    float_t predict_proba(float_t* ptr, float_t* params_ptr, float_t intercept) {
+        float_t val = 0;
+        for (std::int64_t j = 0; j < p_; ++j) {
+            val += *(ptr + j) * *(params_ptr + j);
+        }
+        val += intercept;
+        return float_t(1) / (1 + std::exp(-val));
+    }
+
+
+    void gen_input(bool fit_intercept = true, double L2 = 0.0, std::int64_t seed = 2007) {
+
         this->get_impl()->gen_dimensions();
 
-        std::int64_t dim = fit_intercept_ ? p_ + 1 : p_;
-        std::int64_t st_ind = fit_intercept_;
+        this->fit_intercept_ = fit_intercept;
+        this->L2_ = L2;
 
-        X_host_ =
-            pr::ndarray<float_t, 2>::empty(this->get_queue(), { n_, p_ }, sycl::usm::alloc::host);
-        //auto y_prob =
-        //    ndarray<float_t, 1>::empty(this->get_queue(), { n_ + 1 }, sycl::usm::alloc::host);
-        y_host_ = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(),
-                                                      { n_ + 1 },
-                                                      sycl::usm::alloc::host);
-        params_host_ =
-            pr::ndarray<float_t, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::host);
+        std::int64_t dim = fit_intercept_ ? p_ + 1 : p_;
+
+        X_host_ = array<float_t>::zeros(n_ * p_);
+        auto* x_ptr = X_host_.get_mutable_data();
+        
+        y_host_ = array<std::int32_t>::zeros(n_);
+        auto* y_ptr = y_host_.get_mutable_data();
+        
+        params_host_ = array<float_t>::zeros(dim);
+        auto* params_ptr = params_host_.get_mutable_data();
+
         pr::rng<float_t> rn_gen;
-        pr::engine eng(2007 + n_);
+        pr::engine eng(2007 + n_ + p_);
         rn_gen.uniform(n_ * p_, X_host_.get_mutable_data(), eng.get_state(), -10.0, 10.0);
-        rn_gen.uniform(p_ + 1, params_host_.get_mutable_data(), eng.get_state(), -5.0, 5.0);
+        rn_gen.uniform(dim, params_host_.get_mutable_data(), eng.get_state(), -3.0, 3.0);
+        
+        // std::cout << "Real parameters" << std::endl;
+        // for (int i = 0; i < dim; ++i) {
+        //     std::cout << *(params_ptr + i) << " ";
+        // }
+        // std::cout << std::endl;
+        
         for (std::int64_t i = 0; i < n_; ++i) {
-            float_t val = 0;
-            for (std::int64_t j = 0; j < p_; ++j) {
-                val += X_host_.at(i, j) * params_host_.at(j + st_ind);
-            }
-            if (fit_intercept_) {
-                val += params_host_.at(0);
-            }
-            val = float_t(1) / (1 + std::exp(-val));
-            // y_prob.at(i) = val;
+            float_t val = predict_proba(x_ptr + i * p_, params_ptr + (std::int64_t)fit_intercept_, fit_intercept_ ? *params_ptr : 0);
+            // float_t val = 0;
+            // for (std::int64_t j = 0; j < p_; ++j) {
+            //     val += *(x_ptr + i * p_ + j) * *(params_ptr + j + st_ind);
+            // }
+            // if (fit_intercept_) {
+            //     val += *params_ptr;
+            // }
+            // val = float_t(1) / (1 + std::exp(-val));
             if (val < 0.5) {
-                y_host_.at(i) = 0;
+                *(y_ptr + i) = 0;
             }
             else {
-                y_host_.at(i) = 1;
+                *(y_ptr + i) = 1;
             }
         }
     }
 
     void run_test() {
-        auto y_gpu = y_host_.to_device(this->get_queue());
-        auto X_gpu = X_host_.to_device(this->get_queue());
 
-        table data = homogen_table::wrap<float_t>(X_gpu.get_mutable_data(), n_, p_);
-        table labels = homogen_table::wrap<std::int32_t>(y_gpu.get_mutable_data(), n_, 1);
+        std::cout << "Test n = " << n_ << " p = " << p_ << " " << fit_intercept_ << std::endl;
+
+        std::int64_t train_size = n_ * 0.7;
+        std::int64_t test_size = n_ - train_size;
+
+        table X_train = homogen_table::wrap<float_t>(X_host_.get_mutable_data(), train_size, p_);
+        table y_train = homogen_table::wrap<std::int32_t>(y_host_.get_mutable_data(), train_size, 1);
 
         const auto desc = this->get_descriptor();
-        const auto train_res = this->train(desc, data, labels);
+        const auto train_res = this->train(desc, X_train, y_train);
         table intercept;
-        pr::ndarray<float_t, 1> bias_host;
+        array<float_t> bias_host;
         if (fit_intercept_) {
             intercept = train_res.get_intercept();
-            bias_host = pr::table2ndarray_1d<float_t>(this->get_queue(),
-                                                      intercept,
-                                                      sycl::usm::alloc::device)
-                            .to_host(this->get_queue());
-            std::cout << bias_host.at(0) << " ";
+            bias_host = row_accessor<const float_t>(intercept).pull({ 0, -1 });
+            //std::cout << *(bias_host.get_mutable_data()) << " ";
         }
         table coefs = train_res.get_coefficients();
-        auto coefs_host =
-            pr::table2ndarray_1d<float_t>(this->get_queue(), coefs, sycl::usm::alloc::device)
-                .to_host(this->get_queue());
+        auto coefs_host = row_accessor<const float_t>(coefs).pull({ 0, -1 });
+        
 
         for (int i = 0; i < p_; ++i) {
-            std::cout << coefs_host.at(i) << " ";
+            std::cout << *(coefs_host.get_mutable_data() + i) << " ";
         }
         std::cout << std::endl;
+
+
+        std::int64_t train_acc = 0;
+        std::int64_t test_acc = 0;
+
+        for (std::int64_t i = 0; i < n_; ++i) {
+            float_t val = predict_proba(X_host_.get_mutable_data() + i * p_, coefs_host.get_mutable_data(), fit_intercept_ ? *bias_host.get_mutable_data() : 0);
+            std::int32_t resp = 0;
+            if (val >= 0.5) {
+                resp = 1;
+            } 
+            if (resp == *(y_host_.get_mutable_data() + i)) {
+                if (i < train_size) {
+                    train_acc += 1;
+                } else {
+                    test_acc += 1;
+                }
+            }
+        }
+
+        std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc << " out of " << train_size << ")" << std::endl; 
+        std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc << " out of " << test_size << ")" << std::endl; 
     }
 
 protected:
     bool fit_intercept_ = true;
     double L2_ = 0.0;
-    std::int64_t n_;
-    std::int64_t p_;
-    pr::ndarray<float_t, 2> X_host_;
-    pr::ndarray<float_t, 1> params_host_;
-    pr::ndarray<std::int32_t, 1> y_host_;
-    pr::ndarray<std::int32_t, 1> resp_;
+    std::int64_t n_ = 0;
+    std::int64_t p_ = 0;
+    array<float_t> X_host_;
+    array<float_t> params_host_;
+    array<std::int32_t> y_host_;
+    array<std::int32_t> resp_;
     // table x_test_;
 };
 
-using lr_types = COMBINE_TYPES((float, double),
+using lr_types = COMBINE_TYPES((double),
                                (logistic_regression::method::newton_cg),
                                (logistic_regression::task::classification));
 

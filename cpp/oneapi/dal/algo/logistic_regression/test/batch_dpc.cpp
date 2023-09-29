@@ -36,8 +36,16 @@ public:
 
 TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LR common flow", "[lr][batch]", lr_types) {
     SKIP_IF(this->not_float64_friendly());
+    //SKIP_IF(this->get_policy().is_cpu());
+    this->gen_input(true, 2.0);
 
-    this->gen_input();
+    this->run_test();
+}
+
+TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LR common flow - no fit intercept", "[lr][batch]", lr_types) {
+    SKIP_IF(this->not_float64_friendly());
+    //SKIP_IF(this->get_policy().is_cpu());
+    this->gen_input(false, 2.0);
 
     this->run_test();
 }
