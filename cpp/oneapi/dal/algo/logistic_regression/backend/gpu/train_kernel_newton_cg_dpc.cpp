@@ -52,11 +52,12 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
 
     ONEDAL_PROFILER_TASK(log_reg_train_kernel, queue);
-    
+
     const auto sample_count = data.get_row_count();
     const auto feature_count = data.get_column_count();
     ONEDAL_ASSERT(sample_count == resp.get_row_count());
-    const auto responses_nd = pr::table2ndarray_1d<std::int32_t>(queue, resp, sycl::usm::alloc::device);
+    const auto responses_nd =
+        pr::table2ndarray_1d<std::int32_t>(queue, resp, sycl::usm::alloc::device);
 
     const std::int64_t bsize = params.get_gpu_macro_block();
 
@@ -65,17 +66,18 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     Float tol = desc.get_tol();
     std::int64_t maxiter = desc.get_max_iter();
 
-    pr::LogLossFunction<Float> loss_func = pr::LogLossFunction(queue, data, responses_nd, L2, fit_intercept, bsize);
+    pr::LogLossFunction<Float> loss_func =
+        pr::LogLossFunction(queue, data, responses_nd, L2, fit_intercept, bsize);
 
-    std::int64_t dim = fit_intercept ? feature_count + 1 : feature_count; 
-
-    auto [x, fill_event] = pr::ndarray<Float, 1>::zeros(queue, {feature_count + 1}, sycl::usm::alloc::device);
+    auto [x, fill_event] =
+        pr::ndarray<Float, 1>::zeros(queue, { feature_count + 1 }, sycl::usm::alloc::device);
 
     pr::ndview<Float, 1> x_suf;
 
     x_suf = fit_intercept ? x : x.slice(1, feature_count);
 
-    sycl::event train_event = pr::newton_cg<Float>(queue, loss_func, x_suf, tol, maxiter, {fill_event});
+    sycl::event train_event =
+        pr::newton_cg<Float>(queue, loss_func, x_suf, tol, maxiter, { fill_event });
 
     train_event.wait_and_throw();
 
@@ -94,7 +96,6 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto options = desc.get_result_options();
     auto result = train_result<Task>().set_model(model).set_result_options(options);
 
-
     if (options.test(result_options::intercept)) {
         ONEDAL_ASSERT(fit_intercept);
         table intercept_table = homogen_table::wrap(x.slice(0, 1).flatten(queue, {}), 1, 1);
@@ -102,7 +103,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     }
 
     if (options.test(result_options::coefficients)) {
-        auto coefs_table = homogen_table::wrap(x.slice(1, feature_count).flatten(queue, {}), 1, feature_count);
+        auto coefs_table =
+            homogen_table::wrap(x.slice(1, feature_count).flatten(queue, {}), 1, feature_count);
         result.set_coefficients(coefs_table);
     }
 

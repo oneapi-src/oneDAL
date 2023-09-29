@@ -40,7 +40,7 @@ template <typename Task>
 class descriptor_impl : public base {
 public:
     explicit descriptor_impl() = default;
-    
+
     double l1_coef = 0.0;
     double l2_coef = 0.0;
     bool compute_intercept = true;
@@ -73,7 +73,10 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 }
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base(bool compute_intercept, double l2_coef, std::int32_t max_iter, double tol)
+descriptor_base<Task>::descriptor_base(bool compute_intercept,
+                                       double l2_coef,
+                                       std::int32_t max_iter,
+                                       double tol)
         : impl_(new descriptor_impl<Task>{}) {
     impl_->compute_intercept = compute_intercept;
     impl_->l2_coef = l2_coef;
@@ -105,7 +108,6 @@ template <typename Task>
 std::int32_t descriptor_base<Task>::get_max_iter() const {
     return impl_->max_iter;
 }
-
 
 // template <typename Task>
 // std::int64_t descriptor_base<Task>::get_class_count() const {
@@ -156,7 +158,6 @@ model<Task>::model() : impl_{ std::make_shared<detail::model_impl<Task>>() } {}
 
 template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_{ impl } {}
-
 
 template <typename Task>
 const table& model<Task>::get_packed_coefficients() const {

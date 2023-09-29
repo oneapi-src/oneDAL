@@ -170,7 +170,11 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept = true, double l2_coef = 0.0, std::int32_t maxiter = 100, double tol = 1.0e-4) : base_t(compute_intercept, l2_coef, maxiter, tol) {}
+    explicit descriptor(bool compute_intercept = true,
+                        double l2_coef = 0.0,
+                        std::int32_t maxiter = 100,
+                        double tol = 1.0e-4)
+            : base_t(compute_intercept, l2_coef, maxiter, tol) {}
 
     /// Creates a new instance of the class with default parameters
     //explicit descriptor() : base_t(true) {}
@@ -214,7 +218,6 @@ public:
         base_t::set_l2_coef_impl(l2_coef);
         return *this;
     }
-
 
     auto& set_tol(double tol) const {
         base_t::set_tol_impl(tol);

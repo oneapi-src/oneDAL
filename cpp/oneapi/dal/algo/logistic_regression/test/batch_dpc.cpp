@@ -42,7 +42,10 @@ TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LR common flow", "[lr][batch]", lr_typ
     this->run_test();
 }
 
-TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LR common flow - no fit intercept", "[lr][batch]", lr_types) {
+TEMPLATE_LIST_TEST_M(log_reg_batch_test,
+                     "LR common flow - no fit intercept",
+                     "[lr][batch]",
+                     lr_types) {
     SKIP_IF(this->not_float64_friendly());
     //SKIP_IF(this->get_policy().is_cpu());
     this->gen_input(false, 2.0);

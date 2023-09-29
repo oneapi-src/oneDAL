@@ -25,7 +25,7 @@
 #include "oneapi/dal/algo/logistic_regression/train.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-// #include "oneapi/dal/algo/logistic_regression/infer.hpp"
+#include "oneapi/dal/algo/logistic_regression/infer.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -93,9 +93,7 @@ public:
         return float_t(1) / (1 + std::exp(-val));
     }
 
-
     void gen_input(bool fit_intercept = true, double L2 = 0.0, std::int64_t seed = 2007) {
-
         this->get_impl()->gen_dimensions();
 
         this->fit_intercept_ = fit_intercept;
@@ -105,10 +103,10 @@ public:
 
         X_host_ = array<float_t>::zeros(n_ * p_);
         auto* x_ptr = X_host_.get_mutable_data();
-        
+
         y_host_ = array<std::int32_t>::zeros(n_);
         auto* y_ptr = y_host_.get_mutable_data();
-        
+
         params_host_ = array<float_t>::zeros(dim);
         auto* params_ptr = params_host_.get_mutable_data();
 
@@ -116,15 +114,17 @@ public:
         pr::engine eng(2007 + n_ + p_);
         rn_gen.uniform(n_ * p_, X_host_.get_mutable_data(), eng.get_state(), -10.0, 10.0);
         rn_gen.uniform(dim, params_host_.get_mutable_data(), eng.get_state(), -3.0, 3.0);
-        
+
         // std::cout << "Real parameters" << std::endl;
         // for (int i = 0; i < dim; ++i) {
         //     std::cout << *(params_ptr + i) << " ";
         // }
         // std::cout << std::endl;
-        
+
         for (std::int64_t i = 0; i < n_; ++i) {
-            float_t val = predict_proba(x_ptr + i * p_, params_ptr + (std::int64_t)fit_intercept_, fit_intercept_ ? *params_ptr : 0);
+            float_t val = predict_proba(x_ptr + i * p_,
+                                        params_ptr + (std::int64_t)fit_intercept_,
+                                        fit_intercept_ ? *params_ptr : 0);
             // float_t val = 0;
             // for (std::int64_t j = 0; j < p_; ++j) {
             //     val += *(x_ptr + i * p_ + j) * *(params_ptr + j + st_ind);
@@ -143,14 +143,17 @@ public:
     }
 
     void run_test() {
-
         std::cout << "Test n = " << n_ << " p = " << p_ << " " << fit_intercept_ << std::endl;
 
         std::int64_t train_size = n_ * 0.7;
         std::int64_t test_size = n_ - train_size;
 
         table X_train = homogen_table::wrap<float_t>(X_host_.get_mutable_data(), train_size, p_);
-        table y_train = homogen_table::wrap<std::int32_t>(y_host_.get_mutable_data(), train_size, 1);
+        table X_test = homogen_table::wrap<float_t>(X_host_.get_mutable_data() + train_size * p_,
+                                                    test_size,
+                                                    p_);
+        table y_train =
+            homogen_table::wrap<std::int32_t>(y_host_.get_mutable_data(), train_size, 1);
 
         const auto desc = this->get_descriptor();
         const auto train_res = this->train(desc, X_train, y_train);
@@ -163,34 +166,53 @@ public:
         }
         table coefs = train_res.get_coefficients();
         auto coefs_host = row_accessor<const float_t>(coefs).pull({ 0, -1 });
-        
 
         for (int i = 0; i < p_; ++i) {
             std::cout << *(coefs_host.get_mutable_data() + i) << " ";
         }
         std::cout << std::endl;
 
-
         std::int64_t train_acc = 0;
         std::int64_t test_acc = 0;
 
         for (std::int64_t i = 0; i < n_; ++i) {
-            float_t val = predict_proba(X_host_.get_mutable_data() + i * p_, coefs_host.get_mutable_data(), fit_intercept_ ? *bias_host.get_mutable_data() : 0);
+            float_t val = predict_proba(X_host_.get_mutable_data() + i * p_,
+                                        coefs_host.get_mutable_data(),
+                                        fit_intercept_ ? *bias_host.get_mutable_data() : 0);
             std::int32_t resp = 0;
             if (val >= 0.5) {
                 resp = 1;
-            } 
+            }
             if (resp == *(y_host_.get_mutable_data() + i)) {
                 if (i < train_size) {
                     train_acc += 1;
-                } else {
+                }
+                else {
                     test_acc += 1;
                 }
             }
         }
 
-        std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc << " out of " << train_size << ")" << std::endl; 
-        std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc << " out of " << test_size << ")" << std::endl; 
+        std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc
+                  << " out of " << train_size << ")" << std::endl;
+        std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc
+                  << " out of " << test_size << ")" << std::endl;
+
+        const auto infer_res = this->infer(desc, X_test, train_res.get_model());
+
+        table resp_table = infer_res.get_responses();
+        auto resp_host = row_accessor<const float_t>(resp_table).pull({ 0, -1 });
+
+        std::int64_t acc_algo = 0;
+        for (std::int64_t i = 0; i < test_size; ++i) {
+            if (*(resp_host.get_mutable_data() + i) ==
+                *(y_host_.get_mutable_data() + train_size + i)) {
+                acc_algo++;
+            }
+        }
+
+        std::cout << "Accuracy on test(algo): " << float_t(acc_algo) / test_size << " (" << acc_algo
+                  << " out of " << test_size << ")" << std::endl;
     }
 
 protected:
