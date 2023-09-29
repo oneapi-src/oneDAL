@@ -120,7 +120,6 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         res.set_second_order_raw_moment(interop::convert_from_daal_homogen_table<Float>(daal_rawt));
     }
     if (res_op.test(result_options::variance)) {
-        std::cout << "here" << std::endl;
         res.set_variance(interop::convert_from_daal_homogen_table<Float>(daal_variance));
     }
     if (res_op.test(result_options::standard_deviation)) {
