@@ -25,7 +25,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
-
+#include <iostream>
 #include <daal/src/algorithms/low_order_moments/moments_online.h>
 #include <daal/src/algorithms/low_order_moments/low_order_moments_kernel.h>
 
@@ -50,12 +50,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_compute_result<Task>& input) {
-    const auto result_ids = get_daal_estimates_to_compute(desc);
+    const auto result_ids = daal_lom::estimatesAll;
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
     auto column_numbers = input.get_partial_min().get_column_count();
-    // const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
-    //const std::int64_t row_count = nobs[0];
 
     auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
@@ -66,11 +64,11 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_partial_sum_squares_centered =
         interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
 
-    auto arr_means = array<Float>::zeros(column_numbers);
-    auto arr_rawt = array<Float>::zeros(column_numbers);
-    auto arr_variance = array<Float>::zeros(column_numbers);
-    auto arr_stdev = array<Float>::zeros(column_numbers);
-    auto arr_variation = array<Float>::zeros(column_numbers);
+    auto arr_means = array<Float>::empty(column_numbers);
+    auto arr_rawt = array<Float>::empty(column_numbers);
+    auto arr_variance = array<Float>::empty(column_numbers);
+    auto arr_stdev = array<Float>::empty(column_numbers);
+    auto arr_variation = array<Float>::empty(column_numbers);
 
     auto daal_means = interop::convert_to_daal_homogen_table<Float>(arr_means, 1, column_numbers);
     auto daal_rawt = interop::convert_to_daal_homogen_table<Float>(arr_rawt, 1, column_numbers);
@@ -122,6 +120,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         res.set_second_order_raw_moment(interop::convert_from_daal_homogen_table<Float>(daal_rawt));
     }
     if (res_op.test(result_options::variance)) {
+        std::cout<<"here"<<std::endl;
         res.set_variance(interop::convert_from_daal_homogen_table<Float>(daal_variance));
     }
     if (res_op.test(result_options::standard_deviation)) {
