@@ -89,9 +89,9 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_variation =
         interop::convert_to_daal_homogen_table<Float>(arr_variation, 1, column_numbers);
     {
-        interop::status_to_exception(
-            interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
-                ctx,
+        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+            return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
                 daal_partial_obs.get(),
                 daal_partial_sums.get(),
                 daal_partial_sum_squares.get(),
@@ -101,7 +101,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
                 daal_variance.get(),
                 daal_stdev.get(),
                 daal_variation.get(),
-                &daal_parameter));
+                &daal_parameter);
+        });
+
+        interop::status_to_exception(status);
     }
     compute_result<Task> res;
     const auto res_op = desc.get_result_options();
