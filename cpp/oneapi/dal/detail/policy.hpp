@@ -112,9 +112,15 @@ private:
     pimpl<host_policy_impl> impl_;
 };
 
-class ONEDAL_EXPORT default_host_policy : public host_policy {
+class ONEDAL_EXPORT default_host_policy : private host_policy {
 public:
     default_host_policy() : host_policy{ host_policy::get_default() } {}
+    threading_policy get_threading_policy() const noexcept {
+        return host_policy::get_threading_policy();
+    }
+    cpu_extension get_enabled_cpu_extensions() const noexcept {
+        return host_policy::get_enabled_cpu_extensions();
+    }
 };
 
 template <>
