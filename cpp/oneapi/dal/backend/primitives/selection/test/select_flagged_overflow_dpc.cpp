@@ -28,7 +28,8 @@ namespace la = te::linalg;
 namespace de = dal::detail;
 
 template <typename TestType>
-class select_flagged_overflow_test : public te::policy_fixture {
+class select_flagged_overflow_test
+        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
@@ -70,7 +71,8 @@ private:
 };
 
 template <typename TestType>
-class select_flagged_index_overflow_test : public te::policy_fixture {
+class select_flagged_index_overflow_test
+        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Data = std::tuple_element_t<0, TestType>;
     using Flag = std::tuple_element_t<1, TestType>;
@@ -128,11 +130,15 @@ using select_flagged_index_types = COMBINE_TYPES((std::int32_t, std::uint32_t),
                          select_flagged_index_types)
 
 SELECT_FLAGGED_OVERFLOW_TEST("select_flagged throws if element_count exceeds uint32") {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
     auto [val, mask] = this->allocate_dummy_arrays(this->get_value_to_overflow());
     REQUIRE_THROWS_AS(this->check_select(val, mask), domain_error);
 }
 
 SELECT_FLAGGED_INDEX_OVERFLOW_TEST("select_flagged_index throws if element_count exceeds uint32") {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
     auto [val, mask] = this->allocate_dummy_arrays(this->get_value_to_overflow());
     REQUIRE_THROWS_AS(this->check_select(val, mask), domain_error);
 }

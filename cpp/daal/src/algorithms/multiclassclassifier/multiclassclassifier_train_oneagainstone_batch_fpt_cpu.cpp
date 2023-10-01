@@ -37,7 +37,7 @@ namespace training
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, oneAgainstOne, DAAL_CPU>;
-}
+} // namespace interface2
 namespace internal
 {
 template class DAAL_EXPORT MultiClassClassifierTrainKernel<oneAgainstOne, DAAL_FPTYPE, DAAL_CPU>;

@@ -52,30 +52,6 @@ using detail::v1::train_result_impl;
 namespace v1 {
 
 template <typename Task>
-train_input<Task>::train_input(const table& data, const table& responses)
-        : impl_(new train_input_impl<Task>(data, responses, table{})) {}
-
-template <typename Task>
-const table& train_input<Task>::get_data() const {
-    return impl_->data;
-}
-
-template <typename Task>
-const table& train_input<Task>::get_responses() const {
-    return impl_->responses;
-}
-
-template <typename Task>
-void train_input<Task>::set_data_impl(const table& value) {
-    impl_->data = value;
-}
-
-template <typename Task>
-void train_input<Task>::set_responses_impl(const table& value) {
-    impl_->responses = value;
-}
-
-template <typename Task>
 train_result<Task>::train_result() : impl_(new train_result_impl<Task>{}) {}
 
 template <typename Task>
@@ -157,9 +133,6 @@ template <typename Task>
 void train_result<Task>::set_var_importance_impl(const table& value) {
     impl_->variable_importance = value;
 }
-
-template class ONEDAL_EXPORT train_input<task::classification>;
-template class ONEDAL_EXPORT train_input<task::regression>;
 template class ONEDAL_EXPORT train_result<task::classification>;
 template class ONEDAL_EXPORT train_result<task::regression>;
 

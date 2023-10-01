@@ -39,11 +39,11 @@ struct finalize_compute_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        ONEDAL_ASSERT(input.get_nobs().has_data());
-        ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
-        ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
-        ONEDAL_ASSERT(input.get_crossproduct().has_data());
-        ONEDAL_ASSERT(input.get_sums().has_data());
+        ONEDAL_ASSERT(input.get_partial_n_rows().has_data());
+        ONEDAL_ASSERT(input.get_partial_n_rows().get_column_count() == 1);
+        ONEDAL_ASSERT(input.get_partial_n_rows().get_row_count() == 1);
+        ONEDAL_ASSERT(input.get_partial_crossproduct().has_data());
+        ONEDAL_ASSERT(input.get_partial_sum().has_data());
     }
 
     void check_postconditions(const Descriptor& params,
@@ -52,24 +52,24 @@ struct finalize_compute_ops {
         if (result.get_result_options().test(result_options::means)) {
             ONEDAL_ASSERT(result.get_means().has_data());
             ONEDAL_ASSERT(result.get_means().get_column_count() ==
-                          input.get_crossproduct().get_column_count());
+                          input.get_partial_crossproduct().get_column_count());
             ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
         }
 
         if (result.get_result_options().test(result_options::cov_matrix)) {
             ONEDAL_ASSERT(result.get_cov_matrix().has_data());
             ONEDAL_ASSERT(result.get_cov_matrix().get_column_count() ==
-                          input.get_crossproduct().get_column_count());
+                          input.get_partial_crossproduct().get_column_count());
             ONEDAL_ASSERT(result.get_cov_matrix().get_row_count() ==
-                          input.get_crossproduct().get_column_count());
+                          input.get_partial_crossproduct().get_column_count());
         }
 
         if (result.get_result_options().test(result_options::cor_matrix)) {
             ONEDAL_ASSERT(result.get_cor_matrix().has_data());
             ONEDAL_ASSERT(result.get_cor_matrix().get_column_count() ==
-                          input.get_crossproduct().get_column_count());
+                          input.get_partial_crossproduct().get_column_count());
             ONEDAL_ASSERT(result.get_cor_matrix().get_row_count() ==
-                          input.get_crossproduct().get_column_count());
+                          input.get_partial_crossproduct().get_column_count());
         }
     }
 

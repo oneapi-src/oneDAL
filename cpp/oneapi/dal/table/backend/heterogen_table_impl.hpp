@@ -30,6 +30,8 @@ namespace oneapi::dal::backend {
 
 class heterogen_table_impl : public detail::heterogen_table_template<heterogen_table_impl>,
                              public ONEDAL_SERIALIZABLE(heterogen_table_id) {
+    using data_t = dal::array<detail::chunked_array_base>;
+
 public:
     heterogen_table_impl() {}
 
@@ -68,15 +70,34 @@ public:
     }
 
     void serialize(detail::output_archive& ar) const override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+        ar(this->meta_);
+        const std::int64_t col_count = get_column_count();
+        for (std::int64_t col = 0l; col < col_count; ++col) {
+            const auto& raw = get_column(col);
+            raw.serialize_impl(ar);
+        }
     }
 
     void deserialize(detail::input_archive& ar) override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+        {
+            table_metadata deserialized_meta;
+            /*Temporary*/ ar(deserialized_meta);
+            reset_with_metadata(deserialized_meta);
+        }
+
+        const std::int64_t col_count = get_column_count();
+        for (std::int64_t col = 0l; col < col_count; ++col) {
+            auto dt = get_metadata().get_data_type(col);
+            detail::chunked_array_base raw;
+            raw.deserialize_impl(dt, ar);
+
+            set_column(col, dt, std::move(raw));
+        }
     }
 
     // virtual void set_column(std::int64_t, data_type, detail::chunked_array_base) = 0;
     void set_column(std::int64_t column, data_type dt, detail::chunked_array_base arr) override {
+        ONEDAL_ASSERT(dt == get_metadata().get_data_type(column));
         ONEDAL_ASSERT(column < get_column_count());
         auto* const ptr = data_.get_mutable_data();
         *(ptr + column) = std::move(arr);
@@ -118,14 +139,19 @@ public:
         return true;
     }
 
-    detail::access_iface_host& get_access_iface_host() const override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+    void reset_with_metadata(const table_metadata& meta) {
+        const auto col_count = meta.get_feature_count();
+        if (std::int64_t{ 0l } < col_count) {
+            const detail::chunked_array_base empty;
+            auto new_data = data_t::full(col_count, empty);
+            auto raw_ptr = new_data.get_mutable_data();
+            data_.reset(new_data, raw_ptr, col_count);
+        }
+        else {
+            data_.reset();
+        }
+        meta_ = meta;
     }
-#ifdef ONEDAL_DATA_PARALLEL
-    detail::access_iface_dpc& get_access_iface_dpc() const override {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
-    }
-#endif
 
     template <typename T>
     void pull_rows_template(const detail::default_host_policy& policy,
@@ -165,7 +191,7 @@ public:
 
 private:
     table_metadata meta_;
-    dal::array<detail::chunked_array_base> data_;
+    data_t data_;
 };
 
 } // namespace oneapi::dal::backend
