@@ -72,14 +72,17 @@ struct ONEDAL_EXPORT threading_policy {
     int max_concurrency;
     int max_threads_per_core;
 
-    threading_policy(bool thread_pinning_ = false, int max_concurrency_ = 0, int max_threads_per_core_ = 0)
+    threading_policy(bool thread_pinning_ = false,
+                     int max_concurrency_ = 0,
+                     int max_threads_per_core_ = 0)
             : thread_pinning(thread_pinning_),
               max_concurrency(max_concurrency_),
               max_threads_per_core(max_threads_per_core_) {}
 };
 
 class ONEDAL_EXPORT host_policy : public base {
-friend pimpl_accessor;
+    friend pimpl_accessor;
+
 public:
     host_policy();
     host_policy(pimpl<host_policy_impl> impl) {
