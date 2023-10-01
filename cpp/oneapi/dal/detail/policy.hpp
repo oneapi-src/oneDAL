@@ -79,13 +79,20 @@ struct ONEDAL_EXPORT threading_policy {
 };
 
 class ONEDAL_EXPORT host_policy : public base {
+friend pimpl_accessor;
 public:
     host_policy();
-
-    static const host_policy& get_default() {
-        const static host_policy instance;
-        return instance;
+    host_policy(pimpl<host_policy_impl> impl) {
+        impl_ = std::move(impl);
     }
+    host_policy(const host_policy&) = default;
+    host_policy(host_policy&&) = default;
+
+    static host_policy get_default() {
+        return host_policy(make_default_impl());
+    }
+
+    static pimpl<host_policy_impl> make_default_impl();
 
     cpu_extension get_enabled_cpu_extensions() const noexcept;
     threading_policy get_threading_policy() const noexcept;

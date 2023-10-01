@@ -32,6 +32,12 @@ public:
 
 host_policy::host_policy() : impl_(new host_policy_impl()) {}
 
+const auto default_impl = std::make_shared<host_policy_impl>();
+
+auto host_policy::make_default_impl() -> std::shared_ptr<host_policy_impl> {
+    return default_impl;
+}
+
 void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
     impl_->cpu_extensions_mask = extensions;
 }
