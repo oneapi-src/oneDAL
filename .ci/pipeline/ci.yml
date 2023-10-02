@@ -232,32 +232,28 @@ jobs:
   - script: |
       bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=dev \
-                 --test_thread_mode=par \
-                 --test_output=all
+                 --test_thread_mode=par
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
       export DALROOT=`pwd`/bazel-bin/release/daal/latest
       bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
-                 --test_thread_mode=par \
-                 --test_output=all
+                 --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
       export DALROOT=`pwd`/bazel-bin/release/daal/latest
       bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
-                 --test_thread_mode=par \
-                 --test_output=all
+                 --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-dynamic'
 
   - script: |
       bazel test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
-                 --test_thread_mode=par \
-                 --test_output=all
+                 --test_thread_mode=par
     displayName: 'cpp-tests-thread-dev'
 
   - script: |
