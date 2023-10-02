@@ -45,11 +45,6 @@ template <typename Float, daal::CpuType Cpu>
 using daal_lom_online_kernel_t =
     daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
 
-template <typename Method>
-constexpr daal_lom::Method get_daal_method() {
-    return daal_lom::defaultDense;
-}
-
 template <typename Float, typename Task>
 inline auto get_partial_result(daal_lom::PartialResult daal_partial_result) {
     auto result = partial_compute_result();
@@ -90,7 +85,7 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
     const auto input_ = input.get_prev();
     row_accessor<const Float> data_accessor(data);
     row_accessor<const Float> weights_accessor(weights);
-    const auto result_ids = get_daal_estimates_to_compute(desc);
+    const auto result_ids = daal_lom::estimatesAll;
     const auto daal_parameter = daal_lom::Parameter(result_ids);
     auto weights_arr = weights_accessor.pull();
     auto gen_data_block = data_accessor.pull();
@@ -103,10 +98,10 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
 
         apply_weights(ctx, weights_ndarr, data_ndarr);
     }
-    const auto onedal_data =
-        homogen_table::wrap(data_arr, data.get_row_count(), data.get_column_count());
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(onedal_data);
+    const auto daal_data = interop::convert_to_daal_homogen_table<Float>(data_arr,
+                                                                         data.get_row_count(),
+                                                                         data.get_column_count());
 
     daal_input.set(daal_lom::InputId::data, daal_data);
     {
@@ -176,7 +171,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
 
     const auto input_ = input.get_prev();
 
-    const auto result_ids = get_daal_estimates_to_compute(desc);
+    const auto result_ids = daal_lom::estimatesAll;
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);

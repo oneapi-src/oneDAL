@@ -16,7 +16,6 @@
 
 #include <algorithm>
 
-#include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/finalize_compute_kernel.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
 
@@ -40,6 +39,7 @@ using descriptor_t = detail::descriptor_base<task_t>;
 
 namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
+namespace bk = dal::backend;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_lom_online_kernel_t =
@@ -54,8 +54,6 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
     auto column_numbers = input.get_partial_min().get_column_count();
-    const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
-    const std::int64_t row_count = nobs[0];
 
     auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::copy_to_daal_homogen_table<Float>(input.get_partial_min());
@@ -65,15 +63,6 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum_squares());
     auto daal_partial_sum_squares_centered =
         interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum_squares_centered());
-
-    auto daal_input = daal_lom::Input();
-
-    auto arr_input = array<Float>::empty(row_count * column_numbers);
-
-    auto daal_input_ =
-        interop::convert_to_daal_homogen_table<Float>(arr_input, row_count, column_numbers);
-
-    daal_input.set(daal_lom::InputId::data, daal_input_);
 
     auto arr_means = array<Float>::zeros(column_numbers);
     auto arr_rawt = array<Float>::zeros(column_numbers);

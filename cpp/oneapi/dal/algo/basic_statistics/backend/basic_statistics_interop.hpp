@@ -26,6 +26,7 @@ namespace oneapi::dal::basic_statistics::backend {
 
 namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
+namespace bk = dal::backend;
 
 using task_t = task::compute;
 using descriptor_t = detail::descriptor_base<task_t>;
