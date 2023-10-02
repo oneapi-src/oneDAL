@@ -293,18 +293,18 @@ public:
             const table ref = homogen_table::wrap(ref_max.get_array(), 1l, column_count);
             check_if_close(result.get_max(), ref, "Max");
         }
-        // if (compute_mode.test(result_options::sum)) {
-        //     const table ref = homogen_table::wrap(ref_sum.get_array(), 1l, column_count);
-        //     check_if_close(result.get_sum(), ref, "Sum");
-        // }
-        // if (compute_mode.test(result_options::sum_squares)) {
-        //     const table ref = homogen_table::wrap(ref_sum2.get_array(), 1l, column_count);
-        //     check_if_close(result.get_sum_squares(), ref, "Sum squares");
-        // }
-        // if (compute_mode.test(result_options::sum_squares_centered)) {
-        //     const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
-        //     check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
-        // }
+        if (compute_mode.test(result_options::sum)) {
+            const table ref = homogen_table::wrap(ref_sum.get_array(), 1l, column_count);
+            check_if_close(result.get_sum(), ref, "Sum");
+        }
+        if (compute_mode.test(result_options::sum_squares)) {
+            const table ref = homogen_table::wrap(ref_sum2.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares(), ref, "Sum squares");
+        }
+        if (compute_mode.test(result_options::sum_squares_centered)) {
+            const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
+        }
         // if (compute_mode.test(result_options::mean)) {
         //     const table ref = homogen_table::wrap(ref_mean.get_array(), 1l, column_count);
         //     check_if_close(result.get_mean(), ref, "Mean");
