@@ -9,6 +9,8 @@ dal_module(
     auto=True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo/covariance:core",
+        "@onedal//cpp/oneapi/dal/algo/covariance/backend/cpu",
+        "@onedal//cpp/oneapi/dal/algo/covariance/backend/gpu",
         "@onedal//cpp/oneapi/dal/algo/covariance/parameters",
     ]
 )
