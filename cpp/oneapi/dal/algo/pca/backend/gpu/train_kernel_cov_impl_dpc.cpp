@@ -144,7 +144,8 @@ auto compute_eigenvectors(sycl::queue& q,
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
 
-    pr::sym_eigvals_descending(q, corr, component_count, eigvecs, eigvals);
+    auto host_corr = corr.to_host(q, deps);
+    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
 
     return std::make_tuple(eigvecs, eigvals);
 }
@@ -206,13 +207,15 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }
-
+        auto eigvecs_device = eigvecs.to_device(q_);
         if (desc.get_deterministic()) {
-            sign_flip(q_, eigvecs);
+            sign_flip(q_, eigvecs_device);
         }
+        auto eigvecs_host = eigvecs_device.to_host(q_);
+
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+                homogen_table::wrap(eigvecs_host.flatten(), component_count, column_count));
             result.set_model(model);
         }
     }
