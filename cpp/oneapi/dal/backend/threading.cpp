@@ -53,35 +53,24 @@ private:
 
 tbb::task_arena* task_executor::create_task_arena(
     const oneapi::dal::detail::threading_policy& policy) {
+    auto constraints = tbb::task_arena::constraints();
     if (policy.max_threads_per_core) {
-        static tbb::task_arena task_arena{ tbb::task_arena::constraints{}
-                                               .set_max_threads_per_core(
-                                                   policy.max_threads_per_core)
-                                               .set_max_concurrency(policy.max_concurrency) };
-        if (policy.thread_pinning) {
-            using daal::services::internal::thread_pinner_t;
-            thread_pinner_t* thread_pinner_ptr =
-                daal::services::internal::getThreadPinnerFromTaskArena(true,
-                                                                       read_topology,
-                                                                       delete_topology,
-                                                                       task_arena);
-            return thread_pinner_ptr->get_task_arena();
-        }
-        return &task_arena;
+        constraints.set_max_threads_per_core(policy.max_threads_per_core);
     }
-    else {
-        static tbb::task_arena task_arena{};
-        if (policy.thread_pinning) {
-            using daal::services::internal::thread_pinner_t;
-            thread_pinner_t* thread_pinner_ptr =
-                daal::services::internal::getThreadPinnerFromTaskArena(true,
-                                                                       read_topology,
-                                                                       delete_topology,
-                                                                       task_arena);
-            return thread_pinner_ptr->get_task_arena();
-        }
-        return &task_arena;
+    if (policy.max_concurrency) {
+        constraints.set_max_concurrency(policy.max_concurrency);
     }
+    static tbb::task_arena task_arena{ constraints };
+    if (policy.thread_pinning) {
+        using daal::services::internal::thread_pinner_t;
+        thread_pinner_t* thread_pinner_ptr =
+            daal::services::internal::getThreadPinnerFromTaskArena(true,
+                                                                   read_topology,
+                                                                   delete_topology,
+                                                                   task_arena);
+        return thread_pinner_ptr->get_task_arena();
+    }
+    return &task_arena;
 }
 
 } // namespace oneapi::dal::backend
