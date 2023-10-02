@@ -131,13 +131,12 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
 
         daal_partial.set(daal_lom::PartialResultId::partialSumSquares, daal_partial_sum_squares);
         {
-            const auto status =
+            interop::status_to_exception(
                 interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
                                                                            daal_data.get(),
                                                                            &daal_partial,
                                                                            &daal_parameter,
-                                                                           is_online);
-            interop::status_to_exception(status);
+                                                                           is_online));
         }
         auto result = get_partial_result<Float, task_t>(daal_partial);
 
@@ -145,13 +144,12 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
     }
     else {
         {
-            const auto status =
+            interop::status_to_exception(
                 interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
                                                                            daal_data.get(),
                                                                            &daal_partial,
                                                                            &daal_parameter,
-                                                                           is_online);
-            interop::status_to_exception(status);
+                                                                           is_online));
         }
         auto result = get_partial_result<Float, task_t>(daal_partial);
         return result;
@@ -212,18 +210,16 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                                                        &daal_parameter,
                                                                        is_online));
         auto result = get_partial_result<Float, task_t>(daal_partial);
-
         return result;
     }
     else {
         {
-            const auto status =
+            interop::status_to_exception(
                 interop::call_daal_kernel<Float, daal_lom_online_kernel_t>(ctx,
                                                                            daal_data.get(),
                                                                            &daal_partial,
                                                                            &daal_parameter,
-                                                                           is_online);
-            interop::status_to_exception(status);
+                                                                           is_online));
         }
         auto result = get_partial_result<Float, task_t>(daal_partial);
         return result;

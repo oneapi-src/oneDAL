@@ -50,10 +50,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_compute_result<Task>& input) {
-    const auto result_ids = get_daal_estimates_to_compute(desc);
+    const auto result_ids = daal_lom::estimatesAll;
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
-    auto column_numbers = input.get_partial_min().get_column_count();
+    auto column_count = input.get_partial_min().get_column_count();
 
     auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_nobs());
     auto daal_partial_min = interop::copy_to_daal_homogen_table<Float>(input.get_partial_min());
@@ -64,19 +64,12 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_partial_sum_squares_centered =
         interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum_squares_centered());
 
-    auto arr_means = array<Float>::zeros(column_numbers);
-    auto arr_rawt = array<Float>::zeros(column_numbers);
-    auto arr_variance = array<Float>::zeros(column_numbers);
-    auto arr_stdev = array<Float>::zeros(column_numbers);
-    auto arr_variation = array<Float>::zeros(column_numbers);
+    auto daal_means = interop::allocate_daal_homogen_table<Float>(1, column_count);
+    auto daal_rawt = interop::allocate_daal_homogen_table<Float>(1, column_count);
 
-    auto daal_means = interop::convert_to_daal_homogen_table<Float>(arr_means, 1, column_numbers);
-    auto daal_rawt = interop::convert_to_daal_homogen_table<Float>(arr_rawt, 1, column_numbers);
-    auto daal_variance =
-        interop::convert_to_daal_homogen_table<Float>(arr_variance, 1, column_numbers);
-    auto daal_stdev = interop::convert_to_daal_homogen_table<Float>(arr_stdev, 1, column_numbers);
-    auto daal_variation =
-        interop::convert_to_daal_homogen_table<Float>(arr_variation, 1, column_numbers);
+    auto daal_variance = interop::allocate_daal_homogen_table<Float>(1, column_count);
+    auto daal_stdev = interop::allocate_daal_homogen_table<Float>(1, column_count);
+    auto daal_variation = interop::allocate_daal_homogen_table<Float>(1, column_count);
     {
         interop::status_to_exception(
             interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
