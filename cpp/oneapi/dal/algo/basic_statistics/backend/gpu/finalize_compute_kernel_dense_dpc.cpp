@@ -17,7 +17,9 @@
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/finalize_compute_kernel.hpp"
 
 #include "oneapi/dal/backend/primitives/reduction.hpp"
-
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/util/common.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {
@@ -32,7 +34,6 @@ using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-//TODO: fix naming+potential performance improvements+if depends by result option
 template <typename Float>
 auto compute_all_metrics(sycl::queue& q,
                          const pr::ndview<Float, 1>& sums,
@@ -99,7 +100,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
 
     const auto sums_nd =
         pr::table2ndarray_1d<Float>(q_, input.get_partial_sum(), sycl::usm::alloc::device);
-    const auto nobs_nd = pr::table2ndarray_1d<Float>(q_, input.get_nobs());
+    const auto nobs_nd = pr::table2ndarray_1d<Float>(q_, input.get_partial_n_rows());
 
     const auto sums2_nd =
         pr::table2ndarray_1d<Float>(q_, input.get_partial_sum_squares(), sycl::usm::alloc::device);

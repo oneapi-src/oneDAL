@@ -228,10 +228,10 @@ public:
 
     /// The nobs value.
     /// @remark default = table{}
-    const table& get_nobs() const;
+    const table& get_partial_n_rows() const;
 
-    auto& set_nobs(const table& value) {
-        set_nobs_impl(value);
+    auto& set_partial_n_rows(const table& value) {
+        set_partial_n_rows_impl(value);
         return *this;
     }
 
@@ -281,7 +281,7 @@ public:
     }
 
 protected:
-    void set_nobs_impl(const table&);
+    void set_partial_n_rows_impl(const table&);
     void set_partial_min_impl(const table&);
     void set_partial_max_impl(const table&);
     void set_partial_sum_impl(const table&);

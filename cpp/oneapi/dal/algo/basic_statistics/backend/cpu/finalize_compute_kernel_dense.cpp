@@ -55,7 +55,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
 
     auto column_count = input.get_partial_min().get_column_count();
 
-    auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_nobs());
+    auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_partial_n_rows());
     auto daal_partial_min = interop::copy_to_daal_homogen_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::copy_to_daal_homogen_table<Float>(input.get_partial_max());
     auto daal_partial_sums = interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum());

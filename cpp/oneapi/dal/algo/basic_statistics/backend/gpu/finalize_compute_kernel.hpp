@@ -17,11 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
-//TODO: check headers issue
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/util/common.hpp"
-#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {
 

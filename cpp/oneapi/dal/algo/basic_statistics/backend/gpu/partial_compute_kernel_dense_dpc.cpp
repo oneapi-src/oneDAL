@@ -21,7 +21,8 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/memory.hpp"
-
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {
@@ -231,12 +232,12 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
             apply_weights(q, data_nd, row_count, column_count, weights_nd);
     }
 
-    const bool has_nobs_data = input_.get_nobs().has_data();
+    const bool has_nobs_data = input_.get_partial_n_rows().has_data();
 
     if (has_nobs_data) {
         const auto sums_nd =
             pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
-        const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_nobs());
+        const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_n_rows());
 
         const auto min_nd =
             pr::table2ndarray_1d<Float>(q, input_.get_partial_min(), sycl::usm::alloc::device);
@@ -297,7 +298,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
             (homogen_table::wrap(result_sums2cent.flatten(q, { merge_results_event }),
                                  1,
                                  column_count)));
-        result.set_nobs(
+        result.set_partial_n_rows(
             (homogen_table::wrap(partial_nobs.flatten(q, { merge_results_event }), 1, 1)));
     }
     else {
@@ -336,7 +337,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
             (homogen_table::wrap(result_sums2cent.flatten(q, { init_computation_event }),
                                  1,
                                  column_count)));
-        result.set_nobs(
+        result.set_partial_n_rows(
             (homogen_table::wrap(result_nobs.flatten(q, { init_computation_event }), 1, 1)));
     }
 

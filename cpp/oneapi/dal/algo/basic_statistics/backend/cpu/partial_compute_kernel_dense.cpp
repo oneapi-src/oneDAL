@@ -49,7 +49,7 @@ template <typename Float, typename Task>
 inline auto get_partial_result(daal_lom::PartialResult daal_partial_result) {
     auto result = partial_compute_result();
 
-    result.set_nobs(interop::convert_from_daal_homogen_table<Float>(
+    result.set_partial_n_rows(interop::convert_from_daal_homogen_table<Float>(
         daal_partial_result.get(daal_lom::PartialResultId::nObservations)));
     result.set_partial_min(interop::convert_from_daal_homogen_table<Float>(
         daal_partial_result.get(daal_lom::PartialResultId::partialMinimum)));
@@ -108,7 +108,7 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
         alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
         initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
     }
-    const bool has_nobs_data = input_.get_nobs().has_data();
+    const bool has_nobs_data = input_.get_partial_n_rows().has_data();
     if (has_nobs_data) {
         auto daal_partial_max =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_max());
@@ -120,7 +120,7 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum_squares());
         auto daal_partial_sum_squares_centered =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum_squares_centered());
-        auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_nobs());
+        auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
         daal_partial.set(daal_lom::PartialResultId::nObservations, daal_nobs);
 
         daal_partial.set(daal_lom::PartialResultId::partialMaximum, daal_partial_max);
@@ -175,7 +175,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     daal_input.set(daal_lom::InputId::data, daal_data);
-    const bool has_nobs_data = input_.get_nobs().has_data();
+    const bool has_nobs_data = input_.get_partial_n_rows().has_data();
     {
         alloc_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
         initialize_result<Float>(daal_partial, &daal_input, &daal_parameter, result_ids);
@@ -191,7 +191,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum_squares());
         auto daal_partial_sum_squares_centered =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum_squares_centered());
-        auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_nobs());
+        auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
 
         daal_partial.set(daal_lom::PartialResultId::nObservations, daal_nobs);
 
