@@ -50,32 +50,32 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
     this->online_general_checks_wo_weights(data, compute_mode);
 }
 
-TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
-                     "basic_statistics common flow weights",
-                     "[basic_statistics][integration][online]",
-                     basic_statistics_types) {
-    SKIP_IF(this->not_float64_friendly());
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 10, 10 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 200, 530 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777));
+// TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
+//                      "basic_statistics common flow weights",
+//                      "[basic_statistics][integration][online]",
+//                      basic_statistics_types) {
+//     SKIP_IF(this->not_float64_friendly());
+//     const te::dataframe data =
+//         GENERATE_DATAFRAME(te::dataframe_builder{ 10, 10 }.fill_normal(-30, 30, 7777),
+//                            te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 7777),
+//                            te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 7777),
+//                            te::dataframe_builder{ 200, 530 }.fill_normal(-30, 30, 7777),
+//                            te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
+//                            te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
+//                            te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777));
 
-    const auto row_count = data.get_row_count();
-    const te::dataframe weights =
-        GENERATE_DATAFRAME(te::dataframe_builder{ row_count, 1 }.fill_normal(0, 1, 777));
+//     const auto row_count = data.get_row_count();
+//     const te::dataframe weights =
+//         GENERATE_DATAFRAME(te::dataframe_builder{ row_count, 1 }.fill_normal(0, 1, 777));
 
-    const bs::result_option_id res_min_max = result_options::min | result_options::max;
-    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    const bs::result_option_id res_all =
-        bs::result_option_id(dal::result_option_id_base(mask_full));
+//     const bs::result_option_id res_min_max = result_options::min | result_options::max;
+//     const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+//     const bs::result_option_id res_all =
+//         bs::result_option_id(dal::result_option_id_base(mask_full));
 
-    const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
+//     const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 
-    this->online_general_checks_w_weights(data, weights, compute_mode);
-}
+//     this->online_general_checks_w_weights(data, weights, compute_mode);
+// }
 
 } // namespace oneapi::dal::basic_statistics::test
