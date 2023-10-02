@@ -57,14 +57,14 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const auto nobs = oneapi::dal::row_accessor<const double>(input.get_nobs()).pull().get_data();
     const std::int64_t row_count = nobs[0];
 
-    auto daal_partial_obs = interop::convert_to_daal_table<Float>(input.get_nobs());
-    auto daal_partial_min = interop::convert_to_daal_table<Float>(input.get_partial_min());
-    auto daal_partial_max = interop::convert_to_daal_table<Float>(input.get_partial_max());
-    auto daal_partial_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
+    auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_nobs());
+    auto daal_partial_min = interop::copy_to_daal_homogen_table<Float>(input.get_partial_min());
+    auto daal_partial_max = interop::copy_to_daal_homogen_table<Float>(input.get_partial_max());
+    auto daal_partial_sums = interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum());
     auto daal_partial_sum_squares =
-        interop::convert_to_daal_table<Float>(input.get_partial_sum_squares());
+        interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum_squares());
     auto daal_partial_sum_squares_centered =
-        interop::convert_to_daal_table<Float>(input.get_partial_sum_squares_centered());
+        interop::copy_to_daal_homogen_table<Float>(input.get_partial_sum_squares_centered());
 
     auto daal_input = daal_lom::Input();
 
