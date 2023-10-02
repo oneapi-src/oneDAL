@@ -168,6 +168,7 @@ public:
     }
 
     services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
+    void setDisableHT(bool disableHT);
 
 private:
     Environment();
@@ -181,6 +182,7 @@ private:
     env _env;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
+    bool _disableHT;
 };
 } // namespace interface1
 

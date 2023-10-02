@@ -26,7 +26,9 @@ public:
 
         // Call to `getCpuId` changes global settings, in particular,
         // changes default number of threads in the threading layer
-        Environment::getInstance()->getCpuId();
+        auto instance = Environment::getInstance();
+        instance->setDisableHT(false);
+        instance->getCpuId();
     }
 };
 
