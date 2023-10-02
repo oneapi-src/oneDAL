@@ -76,7 +76,7 @@ auto compute_all_metrics(sycl::queue& q,
             result_variation_ptr[id] = result_stddev_ptr[id] / result_means_ptr[id];
         });
     });
-    update_event.wait_and_throw();
+
     return std::make_tuple(result_means,
                            result_variance,
                            result_raw_moment,
@@ -94,7 +94,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
 
     auto column_count = input.get_partial_sum_squares().get_column_count();
     ONEDAL_ASSERT(column_count > 0);
-    sycl::event event;
+
     const auto res_op = desc.get_result_options();
     res.set_result_options(desc.get_result_options());
 
@@ -138,27 +138,28 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
         compute_all_metrics<Float>(q_, sums_nd, sums2_nd, sums2cent_nd, nobs_nd, column_count, {});
     if (res_op.test(result_options::mean)) {
         ONEDAL_ASSERT(result_means.get_dimension(0) == column_count);
-        res.set_mean(homogen_table::wrap(result_means.flatten(q_, { event }), 1, column_count));
+        res.set_mean(
+            homogen_table::wrap(result_means.flatten(q_, { update_event }), 1, column_count));
     }
     if (res_op.test(result_options::second_order_raw_moment)) {
         ONEDAL_ASSERT(result_raw_moment.get_dimension(0) == column_count);
         res.set_second_order_raw_moment(
-            homogen_table::wrap(result_raw_moment.flatten(q_, { event }), 1, column_count));
+            homogen_table::wrap(result_raw_moment.flatten(q_, { update_event }), 1, column_count));
     }
     if (res_op.test(result_options::variance)) {
         ONEDAL_ASSERT(result_variance.get_dimension(0) == column_count);
         res.set_variance(
-            homogen_table::wrap(result_variance.flatten(q_, { event }), 1, column_count));
+            homogen_table::wrap(result_variance.flatten(q_, { update_event }), 1, column_count));
     }
     if (res_op.test(result_options::standard_deviation)) {
         ONEDAL_ASSERT(result_stddev.get_dimension(0) == column_count);
         res.set_standard_deviation(
-            homogen_table::wrap(result_stddev.flatten(q_, { event }), 1, column_count));
+            homogen_table::wrap(result_stddev.flatten(q_, { update_event }), 1, column_count));
     }
     if (res_op.test(result_options::variation)) {
         ONEDAL_ASSERT(result_variation.get_dimension(0) == column_count);
         res.set_variation(
-            homogen_table::wrap(result_variation.flatten(q_, { event }), 1, column_count));
+            homogen_table::wrap(result_variation.flatten(q_, { update_event }), 1, column_count));
     }
     return res;
 }

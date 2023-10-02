@@ -38,7 +38,6 @@ using input_t = partial_compute_input<task_t>;
 using result_t = partial_compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
-//TODO:: optimize
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 1>& min,
@@ -134,7 +133,6 @@ auto apply_weights(sycl::queue& q,
     return std::make_tuple(data_to_compute, apply_weights_event);
 }
 
-//TODO:: create a task realted to investigation bug in reduce_by_columns_function
 template <typename Float>
 auto init_computation(sycl::queue& q,
                       const pr::ndview<Float, 2>& data,
@@ -204,7 +202,6 @@ auto init_computation(sycl::queue& q,
                            reduce_event_sumssquares);
 }
 
-//TODO: add checks
 template <typename Float, typename Task>
 static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                                     const descriptor_t& desc,
