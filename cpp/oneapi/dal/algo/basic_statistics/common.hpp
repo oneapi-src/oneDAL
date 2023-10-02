@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/util/result_option_id.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::basic_statistics {
 

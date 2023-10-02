@@ -78,7 +78,6 @@ auto compute_crossproduct(sycl::queue& q,
 
 template <typename Float>
 auto init(sycl::queue& q,
-
           const std::int64_t row_count,
           const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(init_partial_results, q);
@@ -202,10 +201,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
             homogen_table::wrap(result_nobs.flatten(q, { update_event }), 1, 1));
     }
     else {
-        auto [result_nobs, init_event] = init<Float>(q,
-
-                                                     row_count,
-                                                     { crossproduct_event });
+        auto [result_nobs, init_event] = init<Float>(q, row_count, { crossproduct_event });
 
         result.set_partial_sum(
             homogen_table::wrap(sums.flatten(q, { init_event }), 1, column_count));
