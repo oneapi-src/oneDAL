@@ -42,8 +42,7 @@ sycl::event compute_probabilities(sycl::queue& q,
     auto fill_event = fill<Float>(q, probabilities, Float(1), {});
     using oneapi::dal::backend::operator+;
 
-    Float w0 =
-        fit_intercept ? parameters.get_slice(0, 1).to_host(q, deps).at(0) : 0; // Poor perfomance
+    Float w0 = fit_intercept ? parameters.get_slice(0, 1).at_device(q, 0l) : 0; // Poor perfomance
     ndview<Float, 1> param_suf = fit_intercept ? parameters.get_slice(1, p + 1) : parameters;
 
     auto event = gemv(q, data, param_suf, probabilities, Float(1), w0, { fill_event });
@@ -181,10 +180,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
 
     auto out_der_suffix = fit_intercept ? out_derivative.get_slice(1, p + 1) : out_derivative;
 
-    auto der_event =
-        gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event, derw0_event });
-
-    return der_event;
+    return gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event, derw0_event });
 }
 
 template <typename Float>
@@ -283,13 +279,12 @@ sycl::event add_regularization_loss(sycl::queue& q,
             sum += L1 * sycl::abs(param) + L2 * param * param;
         });
     });
-    auto add_event = q.submit([&](sycl::handler& cgh) {
+    return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ reg_event });
         cgh.single_task([=] {
-            out_ptr[0] += reg_ptr[0];
+            *out_ptr += *reg_ptr;
         });
     });
-    return add_event;
 }
 
 template <typename Float>
@@ -324,14 +319,12 @@ sycl::event add_regularization_gradient_loss(sycl::queue& q,
         });
     });
 
-    auto add_event = q.submit([&](sycl::handler& cgh) {
+    return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ reg_event });
         cgh.single_task([=] {
-            out_ptr[0] += reg_ptr[0];
+            *out_ptr += *reg_ptr;
         });
     });
-
-    return add_event;
 }
 
 template <typename Float>

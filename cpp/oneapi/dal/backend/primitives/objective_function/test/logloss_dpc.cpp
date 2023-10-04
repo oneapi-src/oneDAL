@@ -228,7 +228,7 @@ public:
         der_reg_event.wait_and_throw();
         auto out_derivative_host2 = out_derivative2.to_host(this->get_queue());
 
-        for (auto i = 0; i < dim; ++i) {
+        for (std::int64_t i = 0; i < dim; ++i) {
             REQUIRE(abs(out_derivative_host.at(i) - out_derivative_host2.at(i)) < atol);
         }
         auto [out_hessian, out_hess_e] = ndarray<float_t, 2>::zeros(this->get_queue(),
@@ -285,8 +285,8 @@ public:
             auto grad_func = functor.get_gradient();
             auto grad_func_host = grad_func.to_host(this->get_queue());
 
-            int dim = fit_intercept ? p + 1 : p;
-            for (int i = 0; i < dim; ++i) {
+            std::int64_t dim = fit_intercept ? p + 1 : p;
+            for (std::int64_t i = 0; i < dim; ++i) {
                 check_val(out_derivative_host.at(i), grad_func_host.at(i), rtol, atol);
             }
             BaseMatrixOperator<float_t>& hessp = functor.get_hessian_product();
@@ -380,7 +380,7 @@ public:
                 double prob = probabilities.at(i);
                 val += (prob - labels.at(i)) * x1;
             }
-            val += j > 0 || !fit_intercept ? L2 * 2 * params.at(j) : 0;
+            val += (!fit_intercept || 0 < j) ? L2 * 2 * params.at(j) : 0;
             out_der.at(j) = val;
         }
     }
