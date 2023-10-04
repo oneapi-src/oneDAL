@@ -1,0 +1,35 @@
+name: docker-validation Nightly
+
+on:
+  schedule:
+    - cron: "0 23 * * *"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .github/workflows/docker-validation-nightly.yml
+      - dev/docker/onedal-dev.Dockerfile
+      - .ci/env
+      - .ci/scripts
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/docker-validation-nightly.yml
+      - dev/docker/onedal-dev.Dockerfile
+      - .ci/env
+      - .ci/scripts
+
+jobs:
+  validate:
+    name: Docker validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      - name: Build docker image
+        run: docker build . --file dev/docker/onedal-dev.Dockerfile --tag onedal-dev:latest
+      - name: Building oneDAL
+        run: docker run onedal-dev .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
+      - name: Building oneDAL with bazel
+        run: docker run onedal-dev bazel build :release
