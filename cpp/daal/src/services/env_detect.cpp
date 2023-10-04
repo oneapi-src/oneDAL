@@ -119,7 +119,6 @@ DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
-    _disableHT           = true;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
@@ -129,21 +128,6 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-    if (_disableHT)
-    {
-        /* if HT enabled - set _numThreads to physical cores num */
-        if (daal::internal::ServiceInst::serv_get_ht())
-        {
-            /* Number of cores = number of cpu packages * number of cores per cpu package */
-            int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
-
-            /*  Re-set number of threads if ncores is valid and different to _numThreads */
-            if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
-            {
-                daal::services::Environment::setNumberOfThreads(ncores);
-            }
-        }
-    }
     isInit = true;
 }
 
@@ -191,9 +175,4 @@ DAAL_EXPORT void daal::services::Environment::enableThreadPinning(const bool ena
     }
 #endif
     return;
-}
-
-DAAL_EXPORT void daal::services::Environment::setDisableHT(bool disableHT)
-{
-    _disableHT = disableHT;
 }
