@@ -327,7 +327,6 @@ services::Status ModelImpl::convertDecisionTreesToGbtTrees(data_management::Data
     DAAL_CHECK_MALLOC(newTrees)
     for (size_t i = 0; i < size; ++i)
     {
-        *(DecisionTreeTable *)(*(serializationData))[i].get();
         const DecisionTreeTable & tree = *(DecisionTreeTable *)(*(serializationData))[i].get();
         GbtDecisionTree * newTree      = allocateGbtTree(tree);
         decisionTreeToGbtTree(tree, *newTree);
