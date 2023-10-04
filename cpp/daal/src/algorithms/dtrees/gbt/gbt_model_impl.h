@@ -46,10 +46,7 @@ typedef services::Collection<size_t> NodeIdxArray;
 
 static inline size_t getNumberOfNodesByLvls(const size_t nLvls)
 {
-    size_t nNodes = 2; // nNodes = pow(2, nLvl+1) - 1
-    for (size_t i = 0; i < nLvls; ++i) nNodes *= 2;
-    nNodes--;
-    return nNodes;
+    return (1 << (nLvls + 1)) - 1;
 }
 
 template <typename T>
