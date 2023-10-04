@@ -36,7 +36,7 @@ CSV data source requires input file name to be set in the constructor, while the
 other parameters of the constructor such as delimiter and read options rely on
 default values.
 
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/data-management/csv-data-source-usage-example.rst

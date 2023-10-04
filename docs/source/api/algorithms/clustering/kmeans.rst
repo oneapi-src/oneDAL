@@ -136,7 +136,7 @@ Operation
 
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/clustering/kmeans-usage-examples.rst

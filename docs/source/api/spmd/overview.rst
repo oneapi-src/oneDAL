@@ -45,7 +45,7 @@ header file from specified backend.
    and ``mpi``.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 The following listings provide a brief introduction on how to create a particular communicator.

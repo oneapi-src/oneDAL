@@ -28,6 +28,7 @@
 
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
+#include "oneapi/dal/table/backend/convert/copy_convert_impl.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -185,6 +186,9 @@ void copy_convert(const detail::host_policy& policy,
 
                 auto* out_ptr = reinterpret_cast<output_t*>(out_raw_ptr);
                 const auto* inp_ptr = reinterpret_cast<const input_t*>(inp_raw_ptr);
+
+                ONEDAL_ASSERT(reinterpret_cast<std::uintptr_t>(inp_ptr) % alignof(input_t) == 0ul);
+                ONEDAL_ASSERT(reinterpret_cast<std::uintptr_t>(out_ptr) % alignof(output_t) == 0ul);
 
                 copy_convert<CpuType>(policy, inp_ptr, inp_str, out_ptr, out_str, col_count);
             },

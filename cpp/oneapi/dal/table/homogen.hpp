@@ -272,16 +272,6 @@ private:
                    const dal::array<byte_t>& data,
                    const data_type& dtype,
                    data_layout layout);
-
-    // This method is needed for compatibility with the oneDAL 2021.1.
-    // This should be removed in 2022.1.
-    template <typename Policy>
-    void init_impl(const Policy& policy,
-                   std::int64_t row_count,
-                   std::int64_t column_count,
-                   const dal::v1::array<byte_t>& data,
-                   const data_type& dtype,
-                   data_layout layout);
 };
 
 } // namespace v1

@@ -94,6 +94,15 @@ else
                    "$(DAAL_PATH)"/libonedal_parameters_dpc.a
 endif
 
+# Check if it's 2024+ version
+ifeq ($(wildcard $(CCL_PATH)/include/oneapi/.*),)
+    # If version 2024+ does not exist, use previous version
+    CCL_INCLUDE_PATH = $(CCL_PATH)/include/cpu_gpu_dpcpp/oneapi
+else
+    # If version 2024+ exists, use it
+    CCL_INCLUDE_PATH = $(CCL_PATH)/include/oneapi
+endif
+
 COPTS := -std=c++17 \
          -pedantic \
          -Wall \
@@ -102,7 +111,7 @@ COPTS := -std=c++17 \
          -fsycl-device-code-split=per_kernel \
          -I./source \
          -I$(MPI_PATH)/include \
-         -I$(CCL_PATH)/include/cpu_gpu_dpcpp/oneapi \
+         -I$(CCL_INCLUDE_PATH) \
          -I"$(DALROOT)/include"
 
 LIBS := $(ONEDAL_LIBS) \

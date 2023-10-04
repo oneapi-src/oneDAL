@@ -39,7 +39,7 @@ template <typename Float, typename Task>
 static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
                                                       const descriptor_t& desc,
                                                       const partial_compute_result<Task>& input) {
-    const std::int64_t component_count = input.get_crossproduct().get_column_count();
+    const std::int64_t component_count = input.get_partial_crossproduct().get_column_count();
 
     bool is_mean_computed = false;
 
@@ -51,9 +51,10 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
     auto arr_means = array<Float>::empty(component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
 
-    auto daal_crossproduct = interop::convert_to_daal_table<Float>(input.get_crossproduct());
-    auto daal_sums = interop::convert_to_daal_table<Float>(input.get_sums());
-    const auto daal_nobs_matrix = interop::convert_to_daal_table<Float>(input.get_nobs());
+    auto daal_crossproduct =
+        interop::convert_to_daal_table<Float>(input.get_partial_crossproduct());
+    auto daal_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
+    const auto daal_nobs_matrix = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 

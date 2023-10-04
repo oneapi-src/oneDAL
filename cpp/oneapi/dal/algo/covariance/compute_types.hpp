@@ -161,35 +161,35 @@ public:
 
     /// The nobs value.
     /// @remark default = table{}
-    const table& get_nobs() const;
+    const table& get_partial_n_rows() const;
 
-    auto& set_nobs(const table& value) {
-        set_nobs_impl(value);
+    auto& set_partial_n_rows(const table& value) {
+        set_partial_n_rows_impl(value);
         return *this;
     }
 
     /// The crossproduct matrix.
     /// @remark default = table{}
-    const table& get_crossproduct() const;
+    const table& get_partial_crossproduct() const;
 
-    auto& set_crossproduct(const table& value) {
-        set_crossproduct_impl(value);
+    auto& set_partial_crossproduct(const table& value) {
+        set_partial_crossproduct_impl(value);
         return *this;
     }
 
     /// Sums.
     /// @remark default = table{}
-    const table& get_sums() const;
+    const table& get_partial_sum() const;
 
-    auto& set_sums(const table& value) {
-        set_sums_impl(value);
+    auto& set_partial_sum(const table& value) {
+        set_partial_sum_impl(value);
         return *this;
     }
 
 protected:
-    void set_nobs_impl(const table&);
-    void set_crossproduct_impl(const table&);
-    void set_sums_impl(const table&);
+    void set_partial_n_rows_impl(const table&);
+    void set_partial_crossproduct_impl(const table&);
+    void set_partial_sum_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::partial_compute_result_impl<Task>> impl_;
