@@ -128,32 +128,21 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 /*This functionality has been moved to oneDAL side*/
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
-    if (externalThreadingControl)
+    if (!isInit && !externalThreadingControl)
     {
-        if (!isInit)
+        /* if HT enabled - set _numThreads to physical cores num */
+        if (daal::internal::ServiceInst::serv_get_ht())
         {
-            daal::services::Environment::setNumberOfThreads(_daal_threader_get_max_threads());
-            isInit = true;
-        }
-    }
-    else
-    {
-        if (!isInit)
-        {
-            /* if HT enabled - set _numThreads to physical cores num */
-            if (daal::internal::ServiceInst::serv_get_ht())
-            {
-                /* Number of cores = number of cpu packages * number of cores per cpu package */
-                int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
+            /* Number of cores = number of cpu packages * number of cores per cpu package */
+            int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
 
-                /*  Re-set number of threads if ncores is valid and different to _numThreads */
-                if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
-                {
-                    daal::services::Environment::setNumberOfThreads(ncores);
-                }
+            /*  Re-set number of threads if ncores is valid and different to _numThreads */
+            if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
+            {
+                daal::services::Environment::setNumberOfThreads(ncores);
             }
-            isInit = true;
         }
+        isInit = true;
     }
 }
 
@@ -206,4 +195,8 @@ DAAL_EXPORT void daal::services::Environment::modifyExternalThreadingControl(boo
 {
     externalThreadingControl = assumeExternalControl;
     isInit                   = false;
+    if (externalThreadingControl)
+    {
+        daal::services::Environment::setNumberOfThreads(_daal_threader_get_max_threads());
+    }
 }

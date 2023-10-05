@@ -27,12 +27,15 @@ public:
         // Call to `getCpuId` changes global settings, in particular,
         // changes default number of threads in the threading layer
         Environment::getInstance()->getCpuId();
-        Environment::getInstance()->modifyExternalThreadingControl();
     }
 };
 
 void context_cpu::global_init() {
+    using daal::services::Environment;
+
     [[maybe_unused]] static volatile global_context_cpu_init init;
+
+    Environment::getInstance()->modifyExternalThreadingControl();
 }
 
 inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
