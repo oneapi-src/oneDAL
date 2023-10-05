@@ -27,6 +27,7 @@ public:
         // Call to `getCpuId` changes global settings, in particular,
         // changes default number of threads in the threading layer
         Environment::getInstance()->getCpuId();
+        Environment::getInstance()->modifyExternalThreadingControl();
     }
 };
 

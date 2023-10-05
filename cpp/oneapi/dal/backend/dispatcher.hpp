@@ -24,6 +24,8 @@
 #include "oneapi/dal/backend/dispatcher_cpu.hpp"
 #include "oneapi/dal/backend/threading.hpp"
 
+#include <daal/src/services/service_defines.h>
+
 #define KERNEL_SPEC(spec, ...) ::oneapi::dal::backend::kernel_spec<spec, __VA_ARGS__>
 
 #define KERNEL_SINGLE_NODE_CPU(...) \
@@ -81,7 +83,9 @@ public:
 #ifdef ONEDAL_DATA_PARALLEL
     explicit context_cpu(const detail::data_parallel_policy& policy)
             : cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()),
-              threading_policy_(policy.get_threading_policy()) {}
+              threading_policy_(policy.get_threading_policy()) {
+        global_init();
+    }
 #endif
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
@@ -95,6 +99,12 @@ public:
             : communicator_provider<spmd::device_memory_access::none>(comm),
               cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()),
               threading_policy_(detail::host_policy::get_default().get_threading_policy()) {}
+
+    ~context_cpu() {
+        using daal::services::Environment;
+
+        Environment::getInstance()->modifyExternalThreadingControl(false);
+    }
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
