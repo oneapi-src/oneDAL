@@ -186,7 +186,6 @@ private:
 
     env _env;
     void * _globalControl;
-    bool _externalThreadingControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
