@@ -81,7 +81,7 @@ public:
     heterogen_table& set_column(std::int64_t column, array<T> arr) {
         const auto as_chunked = chunked_array<T>{ std::move(arr) };
         const auto dt = this->get_metadata().get_data_type(column);
-        this->set_column(column, dt, std::move(as_chunked));
+        this->set_column_impl(column, dt, std::move(as_chunked));
         return *this;
     }
 

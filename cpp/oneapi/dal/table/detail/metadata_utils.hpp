@@ -111,10 +111,28 @@ inline table_metadata make_default_metadata_from_arrays() {
     return make_default_metadata_from_arrays_impl(reinterpret_cast<const type_seq_t*>(0ul));
 }
 
+inline bool is_homogen_metadata(const table_metadata& meta) {
+    const auto f_count = meta.get_feature_count();
+    if (std::int64_t{ 0l } < f_count) {
+        const auto first_dtype = meta.get_data_type(0l);
+        const auto first_ftype = meta.get_feature_type(0l);
+        for (std::int64_t col = 1l; col < f_count; ++col) {
+            const auto is_same_dtype = first_dtype == meta.get_data_type(col);
+            const auto is_same_ftype = first_ftype == meta.get_feature_type(col);
+            if ((!is_same_dtype) || (!is_same_ftype)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 } // namespace v1
 
 using v1::find_array_dtypes;
 using v1::find_array_ftypes;
+
+using v1::is_homogen_metadata;
 
 using v1::make_default_metadata;
 using v1::make_default_metadata_from_arrays;
