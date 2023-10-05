@@ -47,7 +47,6 @@ namespace internal
 {
 using gbt::internal::ModelFPType;
 using gbt::internal::FeatureIndexType;
-// typedef gbt::internal::FeatureIndexType FeatureIndexType;
 
 template <bool hasUnorderedFeatures, bool hasAnyMissing>
 struct PredictDispatcher
