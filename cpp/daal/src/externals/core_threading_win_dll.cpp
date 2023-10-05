@@ -1100,19 +1100,6 @@ CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_scsrmm, (CSRMM_ARGS(float)),
 CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_dcsrmm, (CSRMM_ARGS(double)),
                         (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntre, b, ldb, beta, c, ldc));
 
-typedef int IppStatus;
-typedef unsigned char Ipp8u;
-typedef unsigned short Ipp16u;
-typedef unsigned int Ipp32u;
-typedef signed short Ipp16s;
-typedef signed int Ipp32s;
-typedef float Ipp32f;
-typedef double Ipp64f;
-
-/* Used in Intel oneDAL via SS */
-CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f * pSrcDst, Ipp64f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
-CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f * pSrcDst, Ipp32f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
-
 #define CALL_VOID_FUNC_FROM_DLL_ALONE(fn_dpref, fn_name, argdecl, argcall)                               \
     typedef void(*##fn_dpref##fn_name##_t)##argdecl;                                                     \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
