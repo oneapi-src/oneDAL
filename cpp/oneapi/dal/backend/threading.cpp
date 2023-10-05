@@ -21,6 +21,8 @@
 
 namespace oneapi::dal::backend {
 
+#if !defined(DAAL_THREAD_PINNING_DISABLED)
+
 struct task_daal : public daal::services::internal::thread_pinner_task_t {
     task_daal(task& f) : task_oneapi(f) {}
     void operator()() final {
@@ -51,6 +53,8 @@ private:
     std::shared_ptr<daal::services::internal::thread_pinner_t> daal_thread_pinner;
 };
 
+#endif
+
 tbb::task_arena* task_executor::create_task_arena(
     const oneapi::dal::detail::threading_policy& policy) {
     auto constraints = tbb::task_arena::constraints();
@@ -61,6 +65,7 @@ tbb::task_arena* task_executor::create_task_arena(
         constraints.set_max_concurrency(policy.max_concurrency);
     }
     static tbb::task_arena task_arena{ constraints };
+#if !defined(DAAL_THREAD_PINNING_DISABLED)
     if (policy.thread_pinning) {
         using daal::services::internal::thread_pinner_t;
         thread_pinner_t* thread_pinner_ptr =
@@ -70,6 +75,7 @@ tbb::task_arena* task_executor::create_task_arena(
                                                                    task_arena);
         return thread_pinner_ptr->get_task_arena();
     }
+#endif
     return &task_arena;
 }
 

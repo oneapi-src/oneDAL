@@ -23,8 +23,6 @@ namespace oneapi::dal::backend {
 
 using detail::threading_policy;
 
-class thread_pinner_impl;
-
 struct task {
     virtual void operator()() = 0;
 };
@@ -61,6 +59,10 @@ private:
     F&& functor_;
 };
 
+#if !defined(DAAL_THREAD_PINNING_DISABLED)
+
+class thread_pinner_impl;
+
 class thread_pinner {
     friend detail::pimpl_accessor;
 
@@ -90,10 +92,14 @@ private:
     detail::pimpl<thread_pinner_impl> impl_;
 };
 
+#endif
+
 class task_executor {
     threading_policy policy_;
     tbb::task_arena* task_arena_;
+#if !defined(DAAL_THREAD_PINNING_DISABLED)
     thread_pinner* thread_pinner_;
+#endif
     tbb::task_arena* create_task_arena(const threading_policy& policy);
 
 public:
@@ -107,6 +113,7 @@ public:
 
 template <typename F>
 auto task_executor::execute(F&& f) -> decltype(f()) {
+#if !defined(DAAL_THREAD_PINNING_DISABLED)
     if (this->policy_.thread_pinning) {
         using result_t = decltype(f());
         if constexpr (std::is_same_v<result_t, void>) {
@@ -121,9 +128,8 @@ auto task_executor::execute(F&& f) -> decltype(f()) {
             return result;
         }
     }
-    else {
-        return this->task_arena_->execute(f);
-    }
+#endif
+    return this->task_arena_->execute(f);
 }
 
 } // namespace oneapi::dal::backend

@@ -110,14 +110,6 @@ public:
         return cpu_extensions_;
     }
 
-    bool get_thread_pinning() const {
-        return threading_policy_.thread_pinning;
-    }
-
-    int get_max_threads_per_core() const {
-        return threading_policy_.max_threads_per_core;
-    }
-
     threading_policy get_threading_policy() const {
         return threading_policy_;
     }

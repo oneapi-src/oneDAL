@@ -67,6 +67,16 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 };
 
+#ifdef DAAL_THREAD_PINNING_DISABLED
+struct ONEDAL_EXPORT threading_policy {
+    int max_concurrency;
+    int max_threads_per_core;
+
+    threading_policy(int max_concurrency_ = 0, int max_threads_per_core_ = 0)
+            : max_concurrency(max_concurrency_),
+              max_threads_per_core(max_threads_per_core_) {}
+};
+#else
 struct ONEDAL_EXPORT threading_policy {
     bool thread_pinning;
     int max_concurrency;
@@ -79,6 +89,7 @@ struct ONEDAL_EXPORT threading_policy {
               max_concurrency(max_concurrency_),
               max_threads_per_core(max_threads_per_core_) {}
 };
+#endif
 
 class ONEDAL_EXPORT host_policy : public base {
     friend pimpl_accessor;
