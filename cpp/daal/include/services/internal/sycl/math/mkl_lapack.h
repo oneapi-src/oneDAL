@@ -45,7 +45,7 @@ namespace interface1
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLPOTRF"></a>
- *  \brief Adapter for MKL POTRF routine
+ *  \brief Adapter for Intel(R) MKL POTRF routine
  */
 template <typename algorithmFPType>
 struct MKLPotrf
@@ -98,7 +98,7 @@ private:
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLPOTRS></a>
- *  \brief Adapter for MKL POTRS routine
+ *  \brief Adapter for Intel(R) MKL POTRS routine
  */
 template <typename algorithmFPType>
 struct MKLPotrs
