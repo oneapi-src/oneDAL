@@ -34,7 +34,7 @@ sycl::event newton_cg(sycl::queue& queue,
                       const event_vector& deps) {
     std::int64_t n = x.get_dimension(0);
 
-    const auto kernel_minus = [=](const Float& val, Float*) -> Float {
+    const auto kernel_minus = [=](const Float val, Float) -> Float {
         return -val;
     };
     auto buffer = ndarray<Float, 1>::empty(queue, { 4 * n + 1 }, sycl::usm::alloc::device);
@@ -63,7 +63,7 @@ sycl::event newton_cg(sycl::queue& queue,
         Float tol_k = std::min<Float>(sqrt(grad_norm), 0.5);
 
         auto prepare_grad_event =
-            element_wise(queue, kernel_minus, gradient, nullptr, gradient, update_event_vec);
+            element_wise(queue, kernel_minus, gradient, Float(0), gradient, update_event_vec);
 
         auto copy_event = copy(queue, direction, gradient, { prepare_grad_event });
 

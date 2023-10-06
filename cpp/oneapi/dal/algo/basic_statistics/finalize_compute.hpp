@@ -16,6 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/newton_cg/cg_solver.hpp"
-#include "oneapi/dal/backend/primitives/newton_cg/newton_cg.hpp"
-#include "oneapi/dal/backend/primitives/newton_cg/line_search.hpp"
+#include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/algo/basic_statistics/detail/finalize_compute_ops.hpp"
+#include "oneapi/dal/finalize_compute.hpp"
+
+namespace oneapi::dal::detail {
+namespace v1 {
+
+template <typename Descriptor>
+struct finalize_compute_ops<Descriptor, dal::basic_statistics::detail::descriptor_tag>
+        : dal::basic_statistics::detail::finalize_compute_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail

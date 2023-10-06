@@ -17,3 +17,5 @@
 #pragma once
 
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
+#include "oneapi/dal/algo/basic_statistics/partial_compute.hpp"
+#include "oneapi/dal/algo/basic_statistics/finalize_compute.hpp"

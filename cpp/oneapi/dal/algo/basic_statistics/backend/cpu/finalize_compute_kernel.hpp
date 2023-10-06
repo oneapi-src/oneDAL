@@ -16,6 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/newton_cg/cg_solver.hpp"
-#include "oneapi/dal/backend/primitives/newton_cg/newton_cg.hpp"
-#include "oneapi/dal/backend/primitives/newton_cg/line_search.hpp"
+#include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+
+namespace oneapi::dal::basic_statistics::backend {
+
+template <typename Float, typename Method, typename Task>
+struct finalize_compute_kernel_cpu {
+    compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                    const detail::descriptor_base<Task>& params,
+                                    const partial_compute_result<Task>& input) const;
+};
+
+} // namespace oneapi::dal::basic_statistics::backend

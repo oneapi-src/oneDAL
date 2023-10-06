@@ -53,8 +53,8 @@ jobs:
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c
-    displayName: 'make oneapi_c'
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c
+    displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
@@ -101,8 +101,8 @@ jobs:
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend_config ref --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target oneapi_c --backend_config ref
-    displayName: 'make oneapi_c'
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c --backend_config ref
+    displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) OpenBLAS build'
@@ -395,8 +395,8 @@ jobs:
       .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 avx2" --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler clang --target oneapi_c --optimizations "sse2 avx2"
-    displayName: 'make oneapi_c'
+      .ci/scripts/build.sh --compiler clang --target onedal_c --optimizations "sse2 avx2"
+    displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
@@ -443,8 +443,8 @@ jobs:
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |
-      .\.ci\scripts\build.bat oneapi_c vc avx2
-    displayName: 'make oneapi_c'
+      .\.ci\scripts\build.bat onedal_c vc avx2
+    displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
