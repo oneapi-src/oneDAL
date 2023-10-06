@@ -130,7 +130,7 @@ namespace daal
 {
 /**
 * <a name="DAAL-ENUM-COMPUTEMODE"></a>
-* Computation modes of Intel(R) oneAPI Data Analytics Library (oneDAL) algorithms 
+* Computation modes of Intel(R) oneAPI Data Analytics Library (oneDAL) algorithms
 */
 enum ComputeMode
 {
