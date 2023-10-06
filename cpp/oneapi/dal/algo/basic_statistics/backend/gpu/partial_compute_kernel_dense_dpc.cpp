@@ -135,6 +135,7 @@ auto apply_weights(sycl::queue& q,
 
 template <typename Float>
 auto init_computation(sycl::queue& q,
+                      const descriptor_t& desc,
                       const pr::ndview<Float, 2>& data,
                       const pr::ndview<Float, 1>& nobs,
                       std::int64_t column_count,
@@ -147,6 +148,8 @@ auto init_computation(sycl::queue& q,
     auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
     auto result_nobs_ptr = result_nobs.get_mutable_data();
     auto result_max = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
+
+    const auto res_mean_varc = result_options::mean | result_options::variance;
 
     auto result_min = pr::ndarray<Float, 1>::empty(q, component_count, alloc::device);
 
@@ -164,42 +167,52 @@ auto init_computation(sycl::queue& q,
             result_nobs_ptr[0] = current_nobs_ptr[0] + row_count;
         });
     });
-    auto reduce_event_min = pr::reduce_by_columns(q,
-                                                  data,
-                                                  result_min,
-                                                  pr::min<Float>{},
-                                                  pr::identity<Float>{},
-                                                  { nobs_update_event });
-    reduce_event_min.wait_and_throw();
-    auto reduce_event_max = pr::reduce_by_columns(q,
-                                                  data,
-                                                  result_max,
-                                                  pr::max<Float>{},
-                                                  pr::identity<Float>{},
-                                                  { reduce_event_min });
-    reduce_event_max.wait_and_throw();
-    auto reduce_event_sums = pr::reduce_by_columns(q,
-                                                   data,
-                                                   result_sums,
-                                                   pr::sum<Float>{},
-                                                   pr::identity<Float>{},
-                                                   { reduce_event_min });
-    reduce_event_sums.wait_and_throw();
-    auto reduce_event_sumssquares = pr::reduce_by_columns(q,
-                                                          data,
-                                                          result_sums2,
-                                                          pr::sum<Float>{},
-                                                          pr::square<Float>{},
-                                                          { reduce_event_min });
-    reduce_event_sumssquares.wait_and_throw();
-
+    const auto res_op = desc.get_result_options();
+    if (res_op.test(result_options::min)) {
+        auto reduce_event_min = pr::reduce_by_columns(q,
+                                                      data,
+                                                      result_min,
+                                                      pr::min<Float>{},
+                                                      pr::identity<Float>{},
+                                                      { nobs_update_event });
+        reduce_event_min.wait_and_throw();
+    }
+    if (res_op.test(result_options::max)) {
+        auto reduce_event_max = pr::reduce_by_columns(q,
+                                                      data,
+                                                      result_max,
+                                                      pr::max<Float>{},
+                                                      pr::identity<Float>{},
+                                                      { nobs_update_event });
+        reduce_event_max.wait_and_throw();
+    }
+    if (res_op.test(result_options::sum) || res_op.test(result_options::sum_squares_centered) ||
+        res_op.test(res_mean_varc)) {
+        auto reduce_event_sums = pr::reduce_by_columns(q,
+                                                       data,
+                                                       result_sums,
+                                                       pr::sum<Float>{},
+                                                       pr::identity<Float>{},
+                                                       { nobs_update_event });
+        reduce_event_sums.wait_and_throw();
+    }
+    if (res_op.test(result_options::sum_squares) ||
+        res_op.test(result_options::sum_squares_centered) || res_op.test(res_mean_varc)) {
+        auto reduce_event_sumssquares = pr::reduce_by_columns(q,
+                                                              data,
+                                                              result_sums2,
+                                                              pr::sum<Float>{},
+                                                              pr::square<Float>{},
+                                                              { nobs_update_event });
+        reduce_event_sumssquares.wait_and_throw();
+    }
     return std::make_tuple(result_min,
                            result_max,
                            result_sums,
                            result_sums2,
                            result_sums2cent,
                            result_nobs,
-                           reduce_event_sumssquares);
+                           nobs_update_event);
 }
 
 template <typename Float, typename Task>
@@ -230,7 +243,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
     }
 
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
-
+    const auto res_op = desc.get_result_options();
     if (has_nobs_data) {
         const auto sums_nd =
             pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
@@ -254,6 +267,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               partial_sums2cent,
               partial_nobs,
               init_computation_event] = init_computation(q,
+                                                         desc,
                                                          data_to_compute,
                                                          nobs_nd,
                                                          column_count,
@@ -280,11 +294,18 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                                             row_count,
                                                             partial_nobs,
                                                             { init_computation_event });
-        result.set_partial_min(
-            (homogen_table::wrap(result_min.flatten(q, { merge_results_event }), 1, column_count)));
-        result.set_partial_max(
-            (homogen_table::wrap(result_max.flatten(q, { merge_results_event }), 1, column_count)));
-
+        if (res_op.test(result_options::min)) {
+            result.set_partial_min(
+                (homogen_table::wrap(result_min.flatten(q, { merge_results_event }),
+                                     1,
+                                     column_count)));
+        }
+        if (res_op.test(result_options::min)) {
+            result.set_partial_max(
+                (homogen_table::wrap(result_max.flatten(q, { merge_results_event }),
+                                     1,
+                                     column_count)));
+        }
         result.set_partial_sum((
             homogen_table::wrap(result_sums.flatten(q, { merge_results_event }), 1, column_count)));
         result.set_partial_sum_squares(
@@ -308,20 +329,24 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
               result_sums2cent,
               result_nobs,
               init_computation_event] = init_computation(q,
+                                                         desc,
                                                          data_to_compute,
                                                          init_nobs,
                                                          column_count,
                                                          row_count,
                                                          { apply_weights_event });
-
-        result.set_partial_min(
-            (homogen_table::wrap(result_min.flatten(q, { init_computation_event }),
-                                 1,
-                                 column_count)));
-        result.set_partial_max(
-            (homogen_table::wrap(result_max.flatten(q, { init_computation_event }),
-                                 1,
-                                 column_count)));
+        if (res_op.test(result_options::min)) {
+            result.set_partial_min(
+                (homogen_table::wrap(result_min.flatten(q, { init_computation_event }),
+                                     1,
+                                     column_count)));
+        }
+        if (res_op.test(result_options::max)) {
+            result.set_partial_max(
+                (homogen_table::wrap(result_max.flatten(q, { init_computation_event }),
+                                     1,
+                                     column_count)));
+        }
         result.set_partial_sum(
             (homogen_table::wrap(result_sums.flatten(q, { init_computation_event }),
                                  1,

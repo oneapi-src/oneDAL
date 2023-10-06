@@ -50,11 +50,23 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_compute_result<Task>& input) {
-    const auto result_ids = daal_lom::estimatesAll;
+    const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
-    auto column_count = input.get_partial_min().get_column_count();
+    const auto res_min_max = result_options::min | result_options::max;
+    const auto res_mean_varc = result_options::mean | result_options::variance;
+    std::int64_t column_count;
 
+    const auto res_op = desc.get_result_options();
+
+    if (res_op.test(res_mean_varc)) {
+        column_count = input.get_partial_sum().get_column_count();
+    }
+    if (res_op.test(res_min_max)) {
+        column_count = input.get_partial_sum().get_column_count();
+    }
+
+    auto daal_partial = daal_lom::PartialResult();
     auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_partial_n_rows());
     auto daal_partial_min = interop::copy_to_daal_homogen_table<Float>(input.get_partial_min());
     auto daal_partial_max = interop::copy_to_daal_homogen_table<Float>(input.get_partial_max());
@@ -66,11 +78,10 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
 
     auto daal_means = interop::allocate_daal_homogen_table<Float>(1, column_count);
     auto daal_rawt = interop::allocate_daal_homogen_table<Float>(1, column_count);
-
     auto daal_variance = interop::allocate_daal_homogen_table<Float>(1, column_count);
     auto daal_stdev = interop::allocate_daal_homogen_table<Float>(1, column_count);
     auto daal_variation = interop::allocate_daal_homogen_table<Float>(1, column_count);
-    {
+    if (res_op.test(res_mean_varc)) {
         interop::status_to_exception(
             interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
                 ctx,
@@ -85,11 +96,8 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
                 daal_variation.get(),
                 &daal_parameter));
     }
-
     compute_result<Task> res;
-    const auto res_op = desc.get_result_options();
     res.set_result_options(desc.get_result_options());
-
     if (res_op.test(result_options::min)) {
         res.set_min(interop::convert_from_daal_homogen_table<Float>(daal_partial_min));
     }
