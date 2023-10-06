@@ -229,7 +229,7 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
 
-        // Intel MPI requires buffers to be not aliased
+        // Intel(R) MPI requires buffers to be not aliased
         // However, communicator interface allows aliased buffers
         // TODO: Implement correct aliasing check
         if (send_buf != recv_buf) {

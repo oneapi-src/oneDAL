@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Data types for error handling in Intel(R) oneDAL.
+//  Data types for error handling in Intel(R) oneAPI Data Analytics Library (oneDAL).
 //--
 */
 
