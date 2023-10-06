@@ -44,11 +44,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     data_keeper<Float> keeper(ctx);
     keeper.init(local_data, local_weights);
     const std::int64_t block_size = keeper.get_block_size();
-    const std::int64_t block_start = keeper.get_block_start();
+    const std::int64_t block_start = 0;
     const std::int64_t block_end = block_start + block_size;
     const std::int64_t row_count = keeper.get_row_count();
-    auto arr_data = keeper.get_data();
-    auto arr_weights = keeper.get_weights();
+    auto arr_data = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
+    auto arr_weights = pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
 
     std::int64_t rank = comm.get_rank();
     std::int64_t rank_count = comm.get_rank_count();
@@ -56,7 +56,6 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const double epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
-    auto dummy_int_array = pr::ndarray<std::int32_t, 1>::empty(queue, 1, sycl::usm::alloc::device);
     auto [arr_cores, cores_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, block_size, 0, sycl::usm::alloc::device);
     auto [arr_responses, responses_event] =
@@ -75,7 +74,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                  epsilon,
                                  min_observations,
                                  block_start,
-                                 block_end)
+                                 block_size)
         .wait_and_throw();
 
     std::int64_t cluster_count = 0;

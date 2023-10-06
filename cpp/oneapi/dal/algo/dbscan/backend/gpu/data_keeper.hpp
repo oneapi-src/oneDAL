@@ -35,15 +35,6 @@ public:
     explicit data_keeper(const bk::context_gpu& ctx)
             : comm_(ctx.get_communicator()),
               queue_(ctx.get_queue()) {}
-    auto get_data() const {
-        return data_;
-    }
-    bool has_weights() const {
-        return weights_.count() > 0;
-    }
-    auto get_weights() const {
-        return weights_;
-    }
     auto get_block_start() const {
         return block_start_;
     }
@@ -64,8 +55,6 @@ public:
         collect_local_row_counts(rank, rank_count);
         compute_rank_offset(rank);
         compute_input_layouts(rank_count);
-        collect_data(local_data);
-        collect_weights(local_weights);
     }
 
 protected:
@@ -113,40 +102,6 @@ protected:
         ONEDAL_ASSERT(total_count_data_ == row_count_ * column_count_);
         ONEDAL_ASSERT(total_count_weights_ == row_count_);
     }
-    void collect_data(const table& local_data) {
-        ONEDAL_ASSERT(local_data.get_row_count() > 0);
-        ONEDAL_ASSERT(row_count_ > 0);
-        ONEDAL_ASSERT(column_count_ > 0);
-        ONEDAL_ASSERT(block_size_ > 0);
-        auto arr_local_data =
-            pr::table2ndarray<Float>(queue_, local_data, sycl::usm::alloc::device);
-        data_ = pr::ndarray<Float, 2>::empty(queue_,
-                                             { row_count_, column_count_ },
-                                             sycl::usm::alloc::device);
-        comm_
-            .allgatherv(arr_local_data.flatten(queue_),
-                        data_.flatten(queue_),
-                        local_data_counts_.get_data(),
-                        displs_data_.get_data())
-            .wait();
-    }
-    void collect_weights(const table& local_weights) {
-        if (local_weights.get_row_count() == block_size_) {
-            ONEDAL_ASSERT(local_weights.get_column_count() == 1);
-            ONEDAL_ASSERT(block_size_ > 0);
-            ONEDAL_ASSERT(row_count_ > 0);
-            auto arr_local_weights =
-                pr::table2ndarray<Float>(queue_, local_weights, sycl::usm::alloc::device);
-            weights_ =
-                pr::ndarray<Float, 2>::empty(queue_, { row_count_, 1 }, sycl::usm::alloc::device);
-            comm_
-                .allgatherv(arr_local_weights.flatten(queue_),
-                            weights_.flatten(queue_),
-                            local_row_counts_.get_data(),
-                            displs_weights_.get_data())
-                .wait();
-        }
-    }
 
 private:
     std::int64_t block_start_ = 0;
@@ -161,8 +116,6 @@ private:
     array<std::int64_t> displs_weights_;
     const bk::communicator<spmd::device_memory_access::usm>& comm_;
     sycl::queue queue_;
-    pr::ndarray<Float, 2> data_;
-    pr::ndarray<Float, 2> weights_;
 };
 
 } // namespace oneapi::dal::dbscan::backend
