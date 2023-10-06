@@ -1,13 +1,11 @@
 package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl",
-    "dal_module",
-    "dal_test_suite",
-)
+load("@onedal//dev/bazel:daal.bzl", "daal_module")
+load("@onedal//dev/bazel:dal.bzl", "dal_test_suite")
 
-dal_module(
+daal_module(
     name = "kernel",
     auto = True,
-    dal_deps = [
+    deps = [
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal:sycl",
         "@onedal//cpp/daal/src/algorithms/regression:kernel",
