@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Utility functions for DAL wrappers over MKL routines.
+//  Utility functions for DAL wrappers over Intel(R) MKL routines.
 //--
 */
 
