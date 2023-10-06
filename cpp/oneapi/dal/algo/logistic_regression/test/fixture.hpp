@@ -54,8 +54,8 @@ public:
 
     using train_input_t = train_input<task_t>;
     using train_result_t = train_result<task_t>;
-    //using test_input_t = infer_input<task_t>;
-    //using test_result_t = infer_result<task_t>;
+    using test_input_t = infer_input<task_t>;
+    using test_result_t = infer_result<task_t>;
 
     te::table_id get_homogen_table_id() const {
         return te::table_id::homogen<float_t>();
@@ -75,8 +75,8 @@ public:
 
     void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
-            this->n_ = GENERATE(100, 200, 1000); //, 10000, 50000);
-            this->p_ = GENERATE(10, 20); //, 30, 50);
+            this->n_ = GENERATE(100, 200, 1000, 10000, 50000);
+            this->p_ = GENERATE(10, 20, 30);
         }
         else {
             this->n_ = n;
@@ -125,14 +125,6 @@ public:
             float_t val = predict_proba(x_ptr + i * p_,
                                         params_ptr + (std::int64_t)fit_intercept_,
                                         fit_intercept_ ? *params_ptr : 0);
-            // float_t val = 0;
-            // for (std::int64_t j = 0; j < p_; ++j) {
-            //     val += *(x_ptr + i * p_ + j) * *(params_ptr + j + st_ind);
-            // }
-            // if (fit_intercept_) {
-            //     val += *params_ptr;
-            // }
-            // val = float_t(1) / (1 + std::exp(-val));
             if (val < 0.5) {
                 *(y_ptr + i) = 0;
             }
@@ -175,6 +167,11 @@ public:
         std::int64_t train_acc = 0;
         std::int64_t test_acc = 0;
 
+        const auto infer_res = this->infer(desc, X_test, train_res.get_model());
+
+        table resp_table = infer_res.get_responses();
+        auto resp_host = row_accessor<const float_t>(resp_table).pull({ 0, -1 });
+
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(X_host_.get_mutable_data() + i * p_,
                                         coefs_host.get_mutable_data(),
@@ -191,18 +188,12 @@ public:
                     test_acc += 1;
                 }
             }
+            if (i >= train_size) {
+                REQUIRE(*(resp_host.get_mutable_data() + i - train_size) == resp);
+            }
         }
 
-        std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc
-                  << " out of " << train_size << ")" << std::endl;
-        std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc
-                  << " out of " << test_size << ")" << std::endl;
-
-        const auto infer_res = this->infer(desc, X_test, train_res.get_model());
-
-        table resp_table = infer_res.get_responses();
-        auto resp_host = row_accessor<const float_t>(resp_table).pull({ 0, -1 });
-
+    
         std::int64_t acc_algo = 0;
         for (std::int64_t i = 0; i < test_size; ++i) {
             if (*(resp_host.get_mutable_data() + i) ==
@@ -211,8 +202,21 @@ public:
             }
         }
 
+        std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc
+                  << " out of " << train_size << ")" << std::endl;
+        std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc
+                  << " out of " << test_size << ")" << std::endl;
+
         std::cout << "Accuracy on test(algo): " << float_t(acc_algo) / test_size << " (" << acc_algo
                   << " out of " << test_size << ")" << std::endl;
+
+        float_t min_train_acc = 0.95;
+        float_t min_test_acc = n_ < 500 ? 0.7 : 0.85;
+
+        REQUIRE(train_size * min_train_acc < train_acc);
+        REQUIRE(test_size * min_test_acc < test_acc);
+        REQUIRE(test_size * min_test_acc < acc_algo);
+        REQUIRE(test_acc == acc_algo);
     }
 
 protected:
