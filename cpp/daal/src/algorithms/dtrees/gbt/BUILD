@@ -14,3 +14,11 @@ daal_module(
         "@onedal//cpp/daal/src/algorithms/dtrees:kernel",
     ],
 )
+
+dal_collect_test_suites(
+    name = "tests",
+    root = "@onedal//cpp/oneapi/dal/algo",
+    modules = [
+        "regression"
+    ],
+)
