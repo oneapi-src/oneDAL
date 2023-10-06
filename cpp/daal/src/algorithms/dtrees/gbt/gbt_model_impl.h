@@ -66,10 +66,9 @@ public:
     using FeatureIndexesForSplitType = HomogenNumericTable<FeatureIndexType>;
     using defaultLeftForSplitType    = HomogenNumericTable<int>;
 
-    GbtDecisionTree(const size_t nNodes, const size_t maxLvl, const size_t sourceNumOfNodes)
+    GbtDecisionTree(const size_t nNodes, const size_t maxLvl)
         : _nNodes(nNodes),
           _maxLvl(maxLvl),
-          _sourceNumOfNodes(sourceNumOfNodes),
           _splitPoints(SplitPointType::create(1, nNodes, NumericTableIface::doAllocate)),
           _featureIndexes(FeatureIndexesForSplitType::create(1, nNodes, NumericTableIface::doAllocate)),
           _nodeCoverValues(NodeCoverType::create(1, nNodes, NumericTableIface::doAllocate)),
@@ -80,7 +79,7 @@ public:
     {}
 
     // for serialization only
-    GbtDecisionTree() : _nNodes(0), _maxLvl(0), _sourceNumOfNodes(0) {}
+    GbtDecisionTree() : _nNodes(0), _maxLvl(0) {}
 
     ModelFPType * getSplitPoints() { return _splitPoints->getArray(); }
 
@@ -202,7 +201,6 @@ protected:
     {
         arch->set(_nNodes);
         arch->set(_maxLvl);
-        arch->set(_sourceNumOfNodes);
 
         arch->setSharedPtrObj(_splitPoints);
         arch->setSharedPtrObj(_featureIndexes);
@@ -215,7 +213,6 @@ protected:
 protected:
     size_t _nNodes;
     FeatureIndexType _maxLvl;
-    size_t _sourceNumOfNodes;
     services::SharedPtr<SplitPointType> _splitPoints;
     services::SharedPtr<FeatureIndexesForSplitType> _featureIndexes;
     services::SharedPtr<NodeCoverType> _nodeCoverValues;
@@ -243,7 +240,7 @@ public:
         getMaxLvl(*super::top(), nLvls, static_cast<size_t>(-1));
         const size_t nNodes = getNumberOfNodesByLvls(nLvls);
 
-        *pTbl        = new GbtDecisionTree(nNodes, nLvls, super::top()->numChildren() + 1);
+        *pTbl        = new GbtDecisionTree(nNodes, nLvls);
         *pTblImp     = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
         *pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
 
@@ -351,7 +348,7 @@ protected:
         getMaxLvl(arr, 0, nLvls, static_cast<size_t>(-1));
         const size_t nNodes = getNumberOfNodesByLvls(nLvls);
 
-        return new GbtDecisionTree(nNodes, nLvls, tree.getNumberOfRows());
+        return new GbtDecisionTree(nNodes, nLvls);
     }
 
     template <typename OnSplitFunctor, typename OnLeafFunctor>
