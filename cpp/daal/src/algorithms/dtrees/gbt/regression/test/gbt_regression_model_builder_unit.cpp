@@ -37,7 +37,7 @@ GbtDecisionTree prepareThreeNodeTree()
 GbtDecisionTree prepareFiveNodeTree()
 {
     // create a tree with 5 nodes
-    //               ROOT (1)        (level 1)
+    //              ROOT (1)        (level 1)
     //              /    \
     //            L (2)  S (3)      (level 2)
     //                   / \

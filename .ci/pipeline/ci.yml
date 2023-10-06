@@ -234,6 +234,10 @@ jobs:
                  --test_link_mode=dev \
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-dev'
+  - script: |
+      bazel test bazel test //cpp/daal/src/algorithms/...:all \
+                            --test_tag_filters=unittest
+    displayName: 'daal-algorithms-unit-tests'
 
   - script: |
       export DALROOT=`pwd`/bazel-bin/release/daal/latest

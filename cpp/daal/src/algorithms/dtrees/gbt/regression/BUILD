@@ -15,6 +15,7 @@ daal_module(
 
 dal_test_suite(
     name = "unit_tests",
+    tags = ["unittest"],
     framework = "catch2",
     compile_as = [ "c++" ],
     private = True,
