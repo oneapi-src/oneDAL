@@ -225,19 +225,38 @@ void ModelImpl::destroy()
     super::destroy();
 }
 
-bool ModelImpl::nodeIsDummyLeaf(size_t idx, const GbtDecisionTree & gbtTree)
+/**
+ * \brief Returns true if a node is a dummy leaf. A dummy leaf contains the same split feature & value as the parent
+ *
+ * \param nodeIndex 1-based index to the node array
+ * \param gbtTree   tree containing nodes
+ * \param lvl       current level in the tree
+ * \return true     if the node is a dummy leaf, false otherwise
+ */
+bool ModelImpl::nodeIsDummyLeaf(size_t nodeIndex, const GbtDecisionTree & gbtTree)
 {
+    const size_t childArrayIndex           = nodeIndex - 1;
     const ModelFPType * splitPoints        = gbtTree.getSplitPoints();
     const FeatureIndexType * splitFeatures = gbtTree.getFeatureIndexesForSplit();
 
-    if (idx)
+    if (childArrayIndex)
     {
-        const size_t parent = getIdxOfParent(idx);
-        return splitPoints[parent] == splitPoints[idx] && splitFeatures[parent] == splitFeatures[idx];
+        // check if child node has same split feature and split value as parent
+        const size_t parent           = getIdxOfParent(nodeIndex);
+        const size_t parentArrayIndex = parent - 1;
+        return splitPoints[parentArrayIndex] == splitPoints[childArrayIndex] && splitFeatures[parentArrayIndex] == splitFeatures[childArrayIndex];
     }
     return false;
 }
 
+/**
+ * \brief Return true if a node is leaf
+ *
+ * \param idx     1-based index to the node array
+ * \param gbtTree tree containing nodes
+ * \param lvl     current level in the tree
+ * \return true   if the node is a leaf, false otherwise
+ */
 bool ModelImpl::nodeIsLeaf(size_t idx, const GbtDecisionTree & gbtTree, const size_t lvl)
 {
     if (lvl == gbtTree.getMaxLvl())
@@ -251,9 +270,15 @@ bool ModelImpl::nodeIsLeaf(size_t idx, const GbtDecisionTree & gbtTree, const si
     return false;
 }
 
-size_t ModelImpl::getIdxOfParent(const size_t sonIdx)
+/**
+ * \brief Return the node index of the provided node's parent
+ *
+ * \param childIdx  1-based node index of the child
+ * \return size_t   1-based node index of the parent
+ */
+size_t ModelImpl::getIdxOfParent(const size_t childIdx)
 {
-    return sonIdx ? (sonIdx - 1) / 2 : 0;
+    return childIdx / 2;
 }
 
 void ModelImpl::decisionTreeToGbtTree(const DecisionTreeTable & tree, GbtDecisionTree & newTree)
@@ -308,8 +333,7 @@ void ModelImpl::decisionTreeToGbtTree(const DecisionTreeTable & tree, GbtDecisio
                 featureIndexes[idxInTable]  = 0;
                 nodeCoverValues[idxInTable] = p->cover;
                 defaultLeft[idxInTable]     = 0;
-                DAAL_ASSERT(featureIndexes[idxInTable] >= 0);
-                splitPoints[idxInTable] = p->featureValueOrResponse;
+                splitPoints[idxInTable]     = p->featureValueOrResponse;
             }
 
             idxInTable++;
