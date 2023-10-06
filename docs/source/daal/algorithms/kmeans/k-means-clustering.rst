@@ -285,13 +285,6 @@ Examples
     - :cpp_example:`kmeans_dense_distr.cpp <kmeans/kmeans_dense_distr.cpp>`
     - :cpp_example:`kmeans_csr_distr.cpp <kmeans/kmeans_csr_distr.cpp>`
 
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`kmeans_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:

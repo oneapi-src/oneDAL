@@ -195,12 +195,17 @@ private:
     ::sycl::queue & _deviceQueue;
 };
 
-class SyclExecutionContextImpl : public Base, public ExecutionContextIface
+class [[deprecated("CPP SYCL interfaces have been removed as of 2024.0 release.")]] SyclExecutionContextImpl : public Base,
+                                                                                                               public ExecutionContextIface
 {
 public:
-    explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue)
+    explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue, const bool fromPython = false)
         : _deviceQueue(deviceQueue), _kernelFactory(_deviceQueue), _kernelScheduler(_deviceQueue)
     {
+        if (!fromPython)
+        {
+            throw std::runtime_error("CPP SYCL interfaces have been removed as of 2024.0 release.");
+        }
         const auto & device          = _deviceQueue.get_device();
         _infoDevice.isCpu            = device.is_cpu();
         _infoDevice.maxWorkGroupSize = device.get_info< ::sycl::info::device::max_work_group_size>();
@@ -243,8 +248,8 @@ public:
         math::PotrfExecutor::run(_deviceQueue, uplo, n, a_buffer, lda, status);
     }
 
-    void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb,
-               Status & status) DAAL_C11_OVERRIDE
+    void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb, Status & status)
+        DAAL_C11_OVERRIDE
     {
         math::PotrsExecutor::run(_deviceQueue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
     }
@@ -264,13 +269,25 @@ public:
         ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcCount, srcOffset, count, status);
     }
 
-    void fill(UniversalBuffer dest, double value, Status & status) DAAL_C11_OVERRIDE { BufferFiller::fill(_deviceQueue, dest, value, status); }
+    void fill(UniversalBuffer dest, double value, Status & status) DAAL_C11_OVERRIDE
+    {
+        BufferFiller::fill(_deviceQueue, dest, value, status);
+    }
 
-    ClKernelFactoryIface & getClKernelFactory() DAAL_C11_OVERRIDE { return _kernelFactory; }
+    ClKernelFactoryIface & getClKernelFactory() DAAL_C11_OVERRIDE
+    {
+        return _kernelFactory;
+    }
 
-    InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
+    InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE
+    {
+        return _infoDevice;
+    }
 
-    const ::sycl::queue & getQueue() const { return _deviceQueue; }
+    const ::sycl::queue & getQueue() const
+    {
+        return _deviceQueue;
+    }
 
 private:
     ::sycl::queue _deviceQueue;

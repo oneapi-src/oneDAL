@@ -154,7 +154,6 @@ template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
-
     std::int64_t row_count = data.get_row_count();
     auto rows_count_global = row_count;
     ONEDAL_ASSERT(data.get_column_count() > 0);
@@ -194,7 +193,8 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
     if (desc.get_result_options().test(result_options::vars)) {
-        auto [vars, vars_event] = compute_variances(q_, cov, { gemm_event });
+        auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
+        vars_event.wait_and_throw();
         result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
     }
     if (desc.get_result_options().test(result_options::eigenvectors |

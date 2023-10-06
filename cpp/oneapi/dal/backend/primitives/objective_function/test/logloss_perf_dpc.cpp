@@ -75,8 +75,12 @@ public:
         auto out_predictions =
             ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::device);
 
-        auto p_event =
-            compute_probabilities(this->get_queue(), params_gpu, data_gpu, out_predictions, {});
+        auto p_event = compute_probabilities(this->get_queue(),
+                                             params_gpu,
+                                             data_gpu,
+                                             out_predictions,
+                                             true,
+                                             {});
         p_event.wait_and_throw();
 
         auto out_logloss =
@@ -84,24 +88,29 @@ public:
 
         auto out_derivative =
             ndarray<float_t, 1>::empty(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
-
         BENCHMARK("Derivative computation") {
             auto fill_event1 = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
             auto fill_event2 = fill<float_t>(this->get_queue(), out_derivative, float_t(0), {});
 
             auto logloss_event_der = compute_logloss_with_der(this->get_queue(),
-                                                              params_gpu,
                                                               data_gpu,
                                                               labels_gpu,
                                                               out_predictions,
                                                               out_logloss,
                                                               out_derivative,
-                                                              L1,
-                                                              L2,
+                                                              true,
                                                               { fill_event1, fill_event2 });
-            logloss_event_der.wait_and_throw();
-        };
+            auto logloss_event_reg = add_regularization_gradient_loss(this->get_queue(),
+                                                                      params_gpu,
+                                                                      out_logloss,
+                                                                      out_derivative,
+                                                                      L1,
+                                                                      L2,
+                                                                      true,
+                                                                      { logloss_event_der });
 
+            logloss_event_reg.wait_and_throw();
+        };
         auto out_hessian = ndarray<float_t, 2>::empty(this->get_queue(),
                                                       { p_ + 1, p_ + 1 },
                                                       sycl::usm::alloc::device);
@@ -109,13 +118,13 @@ public:
         BENCHMARK("Hessian computation") {
             auto fill_event = fill<float_t>(this->get_queue(), out_hessian, float_t(0), {});
             auto hess_event = compute_hessian(this->get_queue(),
-                                              params_gpu,
                                               data_gpu,
                                               labels_gpu,
                                               out_predictions,
                                               out_hessian,
                                               L1,
                                               L2,
+                                              /*fit_intercept=*/true,
                                               { fill_event });
             hess_event.wait_and_throw();
         };

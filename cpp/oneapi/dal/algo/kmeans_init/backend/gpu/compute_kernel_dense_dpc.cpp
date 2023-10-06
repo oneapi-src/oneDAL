@@ -41,7 +41,6 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& params,
                                  const table& data) {
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
 
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = params.get_cluster_count();

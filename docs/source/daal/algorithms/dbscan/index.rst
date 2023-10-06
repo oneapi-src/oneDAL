@@ -88,12 +88,6 @@ Examples
 
    - :cpp_example:`dbscan_dense_distr.cpp <dbscan/dbscan_dense_distr.cpp>`
 
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`dbscan_batch.py`
-
   .. tab:: Python*
 
    Batch Processing:

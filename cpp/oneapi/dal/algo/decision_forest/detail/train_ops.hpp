@@ -27,10 +27,6 @@ struct train_ops_dispatcher {
     train_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
                                   const oneapi::dal::decision_forest::v2::train_input<Task>&) const;
-
-    train_result<Task> operator()(const Context&,
-                                  const descriptor_base<Task>&,
-                                  const oneapi::dal::decision_forest::v1::train_input<Task>&) const;
 };
 
 template <typename Descriptor>

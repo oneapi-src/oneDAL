@@ -83,8 +83,6 @@ private:
     std::int64_t rank_count_;
 };
 
-using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));
-
 TEMPLATE_LIST_TEST_M(basic_statistics_spmd_test,
                      "basic_statistics common flow",
                      "[basic_statistics][integration][spmd]",
