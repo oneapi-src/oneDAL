@@ -53,14 +53,14 @@ public:
         REQUIRE(this->block_ > 0);
         const auto params = this->get_current_parameters();
         if (this->pack_as_struct_) {
-            return te::float_algo_fixture<float_t>::compute(std::forward<Desc>(desc),
-                                                            params,
-                                                            input_t{ std::forward<Args>(args)... });
+            return te::float_algo_fixture<Float>::compute(std::forward<Desc>(desc),
+                                                          params,
+                                                          input_t{ std::forward<Args>(args)... });
         }
         else {
-            return te::float_algo_fixture<float_t>::compute(std::forward<Desc>(desc),
-                                                            params,
-                                                            std::forward<Args>(args)...);
+            return te::float_algo_fixture<Float>::compute(std::forward<Desc>(desc),
+                                                          params,
+                                                          std::forward<Args>(args)...);
         }
     }
 
