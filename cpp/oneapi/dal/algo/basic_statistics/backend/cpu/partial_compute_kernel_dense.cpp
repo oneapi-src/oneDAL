@@ -48,20 +48,19 @@ using daal_lom_online_kernel_t =
 template <typename Float, typename Task>
 inline auto get_partial_result(daal_lom::PartialResult daal_partial_result,
                                const descriptor_t& desc) {
-    const auto res_min_max = result_options::min | result_options::max;
-    auto res_mean_varc = result_options::mean | result_options::variance;
     auto result = partial_compute_result();
     const auto res_op = desc.get_result_options();
-
+    const auto result_ids = get_daal_estimates_to_compute(desc);
     result.set_partial_n_rows(interop::convert_from_daal_homogen_table<Float>(
         daal_partial_result.get(daal_lom::PartialResultId::nObservations)));
-    if (res_op.test(res_min_max)) {
+    if (result_ids == daal_lom::estimatesMinMax || res_op.test(result_options::min) ||
+        res_op.test(result_options::max)) {
         result.set_partial_min(interop::convert_from_daal_homogen_table<Float>(
             daal_partial_result.get(daal_lom::PartialResultId::partialMinimum)));
         result.set_partial_max(interop::convert_from_daal_homogen_table<Float>(
             daal_partial_result.get(daal_lom::PartialResultId::partialMaximum)));
     }
-    if (res_op.test(res_mean_varc)) {
+    if (result_ids == daal_lom::estimatesMeanVariance || result_ids == daal_lom::estimatesAll) {
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(
             daal_partial_result.get(daal_lom::PartialResultId::partialSum)));
         result.set_partial_sum_squares(interop::convert_from_daal_homogen_table<Float>(
@@ -89,8 +88,6 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
     auto daal_input = daal_lom::Input();
     auto daal_partial = daal_lom::PartialResult();
 
-    const auto res_min_max = result_options::min | result_options::max;
-    const auto res_mean_varc = result_options::mean | result_options::variance;
     const auto res_op = desc.get_result_options();
 
     const auto input_ = input.get_prev();
@@ -123,7 +120,8 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
     if (has_nobs_data) {
         auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
         daal_partial.set(daal_lom::PartialResultId::nObservations, daal_nobs);
-        if (res_op.test(res_min_max)) {
+        if (result_ids == daal_lom::estimatesMinMax || res_op.test(result_options::min) ||
+            res_op.test(result_options::max)) {
             auto daal_partial_max =
                 interop::copy_to_daal_homogen_table<Float>(input_.get_partial_max());
             auto daal_partial_min =
@@ -131,7 +129,7 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
             daal_partial.set(daal_lom::PartialResultId::partialMaximum, daal_partial_max);
             daal_partial.set(daal_lom::PartialResultId::partialMinimum, daal_partial_min);
         }
-        if (res_op.test(res_mean_varc)) {
+        if (result_ids == daal_lom::estimatesMeanVariance || result_ids == daal_lom::estimatesAll) {
             auto daal_partial_sums =
                 interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum());
             auto daal_partial_sum_squares =
@@ -190,8 +188,6 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    const auto res_min_max = result_options::min | result_options::max;
-    const auto res_mean_varc = result_options::mean | result_options::variance;
     const auto res_op = desc.get_result_options();
 
     daal_input.set(daal_lom::InputId::data, daal_data);
@@ -203,7 +199,8 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
     if (has_nobs_data) {
         auto daal_nobs = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
         daal_partial.set(daal_lom::PartialResultId::nObservations, daal_nobs);
-        if (res_op.test(res_min_max)) {
+        if (result_ids == daal_lom::estimatesMinMax || res_op.test(result_options::min) ||
+            res_op.test(result_options::max)) {
             auto daal_partial_max =
                 interop::copy_to_daal_homogen_table<Float>(input_.get_partial_max());
             auto daal_partial_min =
@@ -211,7 +208,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
             daal_partial.set(daal_lom::PartialResultId::partialMaximum, daal_partial_max);
             daal_partial.set(daal_lom::PartialResultId::partialMinimum, daal_partial_min);
         }
-        if (res_op.test(res_mean_varc)) {
+        if (result_ids == daal_lom::estimatesMeanVariance || result_ids == daal_lom::estimatesAll) {
             auto daal_partial_sums =
                 interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum());
             auto daal_partial_sum_squares =

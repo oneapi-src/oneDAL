@@ -53,19 +53,17 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     const auto result_ids = get_daal_estimates_to_compute(desc);
     const auto daal_parameter = daal_lom::Parameter(result_ids);
 
-    const auto res_min_max = result_options::min | result_options::max;
-    const auto res_mean_varc = result_options::mean | result_options::variance;
-    std::int64_t column_count = 10;
+    std::int64_t column_count = 0;
 
     const auto res_op = desc.get_result_options();
 
-    if (res_op.test(res_mean_varc)) {
+    if (result_ids == daal_lom::estimatesMeanVariance || result_ids == daal_lom::estimatesAll) {
         column_count = input.get_partial_sum().get_column_count();
     }
-    if (res_op.test(res_min_max)) {
+    if (result_ids == daal_lom::estimatesMinMax) {
         column_count = input.get_partial_min().get_column_count();
     }
-
+    ONEDAL_ASSERT(column_count > 0);
     auto daal_partial = daal_lom::PartialResult();
     auto daal_partial_obs = interop::copy_to_daal_homogen_table<Float>(input.get_partial_n_rows());
     auto daal_partial_min = interop::copy_to_daal_homogen_table<Float>(input.get_partial_min());
@@ -81,7 +79,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
     auto daal_variance = interop::allocate_daal_homogen_table<Float>(1, column_count);
     auto daal_stdev = interop::allocate_daal_homogen_table<Float>(1, column_count);
     auto daal_variation = interop::allocate_daal_homogen_table<Float>(1, column_count);
-    if (res_op.test(res_mean_varc)) {
+    if (result_ids == daal_lom::estimatesMeanVariance || result_ids == daal_lom::estimatesAll) {
         interop::status_to_exception(
             interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
                 ctx,
