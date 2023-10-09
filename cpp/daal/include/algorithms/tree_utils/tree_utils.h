@@ -59,6 +59,7 @@ struct DAAL_EXPORT SplitNodeDescriptor : public NodeDescriptor
 {
     size_t featureIndex; /*!< Feature used for splitting the node */
     double featureValue; /*!< Threshold value at the node */
+    double coverValue;   /*!< Cover (sum_hess) for the node */
 };
 
 /**
