@@ -333,10 +333,33 @@ public:
     static services::Status treeToTable(TreeType & t, gbt::internal::GbtDecisionTree ** pTbl, HomogenNumericTable<double> ** pTblImp,
                                         HomogenNumericTable<int> ** pTblSmplCnt, size_t nFeature);
 
+    /**
+     * \brief Returns true if a node is a dummy leaf. A dummy leaf contains the same split feature & value as the parent
+     *
+     * \param nodeIndex 1-based index to the node array
+     * \param gbtTree   tree containing nodes
+     * \param lvl       current level in the tree
+     * \return true     if the node is a dummy leaf, false otherwise
+     */
     static bool nodeIsDummyLeaf(size_t idx, const GbtDecisionTree & gbtTree);
+
+    /**
+     * \brief Return true if a node is leaf
+     *
+     * \param idx     1-based index to the node array
+     * \param gbtTree tree containing nodes
+     * \param lvl     current level in the tree
+     * \return true   if the node is a leaf, false otherwise
+     */
     static bool nodeIsLeaf(size_t idx, const GbtDecisionTree & gbtTree, const size_t lvl);
 
 protected:
+    /**
+     * \brief Return the node index of the provided node's parent
+     *
+     * \param childIdx  1-based node index of the child
+     * \return size_t   1-based node index of the parent
+     */
     static size_t getIdxOfParent(const size_t sonIdx);
     static void getMaxLvl(const dtrees::internal::DecisionTreeNode * const arr, const size_t idx, size_t & maxLvl, size_t curLvl = 0);
 
@@ -355,14 +378,15 @@ protected:
     static void traverseGbtDF(size_t level, size_t iRowInTable, const GbtDecisionTree & gbtTree, OnSplitFunctor & visitSplit,
                               OnLeafFunctor & visitLeaf)
     {
-        if (!nodeIsLeaf(iRowInTable, gbtTree, level))
+        const size_t oneBasedNodeIndex = iRowInTable + 1;
+        if (!nodeIsLeaf(oneBasedNodeIndex, gbtTree, level))
         {
             if (!visitSplit(iRowInTable, level)) return; //do not continue traversing
 
             traverseGbtDF(level + 1, iRowInTable * 2 + 1, gbtTree, visitSplit, visitLeaf);
             traverseGbtDF(level + 1, iRowInTable * 2 + 2, gbtTree, visitSplit, visitLeaf);
         }
-        else if (!nodeIsDummyLeaf(iRowInTable, gbtTree))
+        else if (!nodeIsDummyLeaf(oneBasedNodeIndex, gbtTree))
         {
             if (!visitLeaf(iRowInTable, level)) return; //do not continue traversing
         }
@@ -376,14 +400,15 @@ protected:
         {
             for (size_t j = 0; j < (level ? 2 : 1); ++j)
             {
-                size_t iRowInTable = aCur[i] + j;
-                if (!nodeIsLeaf(iRowInTable, gbtTree, level))
+                const size_t iRowInTable       = aCur[i] + j;
+                const size_t oneBasedNodeIndex = iRowInTable + 1;
+                if (!nodeIsLeaf(oneBasedNodeIndex, gbtTree, level))
                 {
                     if (!visitSplit(iRowInTable, level)) return; //do not continue traversing
 
                     aNext.push_back(iRowInTable * 2 + 1);
                 }
-                else if (!nodeIsDummyLeaf(iRowInTable, gbtTree))
+                else if (!nodeIsDummyLeaf(oneBasedNodeIndex, gbtTree))
                 {
                     if (!visitLeaf(iRowInTable, level)) return; //do not continue traversing
                 }
