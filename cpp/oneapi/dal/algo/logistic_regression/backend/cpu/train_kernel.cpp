@@ -39,7 +39,7 @@ struct train_kernel_cpu<Float, method::newton_cg, Task> {
     }
 };
 
-template struct train_kernel_cpu<float, method::newton_cg, task::classification>;
-template struct train_kernel_cpu<double, method::newton_cg, task::classification>;
+template struct train_kernel_cpu<float, method::newton_cg, task::binary_classification>;
+template struct train_kernel_cpu<double, method::newton_cg, task::binary_classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend

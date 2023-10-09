@@ -140,7 +140,7 @@ struct infer_kernel_gpu<Float, method::newton_cg, Task> {
     }
 };
 
-template struct infer_kernel_gpu<float, method::newton_cg, task::classification>;
-template struct infer_kernel_gpu<double, method::newton_cg, task::classification>;
+template struct infer_kernel_gpu<float, method::newton_cg, task::binary_classification>;
+template struct infer_kernel_gpu<double, method::newton_cg, task::binary_classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend

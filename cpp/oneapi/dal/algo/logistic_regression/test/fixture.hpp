@@ -193,7 +193,6 @@ public:
             }
         }
 
-    
         std::int64_t acc_algo = 0;
         for (std::int64_t i = 0; i < test_size; ++i) {
             if (*(resp_host.get_mutable_data() + i) ==
@@ -233,6 +232,6 @@ protected:
 
 using lr_types = COMBINE_TYPES((double),
                                (logistic_regression::method::newton_cg),
-                               (logistic_regression::task::classification));
+                               (logistic_regression::task::binary_classification));
 
 } // namespace oneapi::dal::logistic_regression::test

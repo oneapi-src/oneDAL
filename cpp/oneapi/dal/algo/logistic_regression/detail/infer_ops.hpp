@@ -49,6 +49,7 @@ struct infer_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
+        ONEDAL_ASSERT(result.get_responses().get_column_count() == 1);
         ONEDAL_ASSERT(result.get_responses().get_row_count() == input.get_data().get_row_count());
     }
 

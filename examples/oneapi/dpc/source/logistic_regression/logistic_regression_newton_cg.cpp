@@ -18,33 +18,63 @@
 #include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "example_util/utils.hpp"
+#include <chrono>
+#include <iostream>
+#include <time.h>
+#include <unistd.h>
+
+using namespace std::chrono;
 
 namespace dal = oneapi::dal;
 namespace result_options = dal::logistic_regression::result_options;
+
+auto now = std::chrono::steady_clock::now();
+
+float get_time_duration(std::chrono::time_point<std::chrono::steady_clock>& a,
+                        std::chrono::time_point<std::chrono::steady_clock>& b) {
+    return (float)std::chrono::duration_cast<std::chrono::milliseconds>(b - a).count() / 1000;
+}
 
 void run(sycl::queue& q) {
     const auto x_train_filename = get_data_path("df_binary_classification_train_data.csv");
     const auto y_train_filename = get_data_path("df_binary_classification_train_label.csv");
     const auto x_test_filename = get_data_path("df_binary_classification_test_data.csv");
     const auto y_test_filename = get_data_path("df_binary_classification_test_label.csv");
-    const auto params_filename = get_data_path("logreg_params.csv");
+
+    auto tm1 = std::chrono::steady_clock::now();
+    ;
+
+    std::cout << "Loading dataset... ";
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ x_train_filename });
     const auto y_train = dal::read<dal::table>(dal::csv::data_source{ y_train_filename });
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ x_test_filename });
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ y_test_filename });
 
+    auto tm2 = std::chrono::steady_clock::now();
+    std::cout << get_time_duration(tm1, tm2) << " s" << std::endl;
+
+    std::cout << "Fitting model... ";
+
     const auto log_reg_desc = dal::logistic_regression::descriptor<>(true, 2.0).set_result_options(
         result_options::coefficients | result_options::intercept);
 
     const auto train_result = dal::train(q, log_reg_desc, x_train, y_train);
+
+    auto tm3 = std::chrono::steady_clock::now();
+    std::cout << get_time_duration(tm2, tm3) << " s" << std::endl;
 
     std::cout << "Coefficients:\n" << train_result.get_coefficients() << std::endl;
     std::cout << "Intercept:\n" << train_result.get_intercept() << std::endl;
 
     const auto log_reg_model = train_result.get_model();
 
+    std::cout << "Inference... ";
+
     const auto test_result = dal::infer(q, log_reg_desc, x_test, log_reg_model);
+
+    auto tm4 = std::chrono::steady_clock::now();
+    std::cout << get_time_duration(tm3, tm4) << " s" << std::endl;
 
     std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;

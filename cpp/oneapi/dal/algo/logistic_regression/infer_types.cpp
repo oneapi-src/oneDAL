@@ -88,8 +88,8 @@ void infer_result<Task>::set_probabilities_impl(const table& value) {
     impl_->probabilities = value;
 }
 
-template class ONEDAL_EXPORT infer_input<task::classification>;
-template class ONEDAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::binary_classification>;
+template class ONEDAL_EXPORT infer_result<task::binary_classification>;
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression

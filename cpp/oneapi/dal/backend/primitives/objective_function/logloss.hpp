@@ -130,6 +130,7 @@ private:
     bool fit_intercept_;
     ndarray<Float, 1> raw_hessian_;
     ndarray<Float, 1> buffer_;
+    ndarray<Float, 1> tmp_gpu_;
     const std::int64_t n_;
     const std::int64_t p_;
     const std::int64_t bsz_;

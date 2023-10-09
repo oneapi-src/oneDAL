@@ -470,6 +470,7 @@ LogLossHessianProduct<Float>::LogLossHessianProduct(sycl::queue& q,
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
     raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
     buffer_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
+    tmp_gpu_ = ndarray<Float, 1>::empty(q_, { p_ + 1 }, sycl::usm::alloc::device);
 }
 
 template <typename Float>
@@ -481,41 +482,59 @@ template <typename Float>
 sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
                                                                      ndview<Float, 1>& out,
                                                                      const event_vector& deps) {
-    auto* const buffer_ptr = buffer_.get_mutable_data();
-    const auto* const hess_ptr = raw_hessian_.get_data();
-    auto* const out_ptr = out.get_mutable_data();
+    auto* const tmp_ptr = tmp_gpu_.get_mutable_data();
     ONEDAL_ASSERT(vec.get_dimension(0) == p_ + 1);
     ONEDAL_ASSERT(out.get_dimension(0) == p_ + 1);
     auto fill_buffer_event = fill<Float>(q_, buffer_, Float(1), deps);
     auto out_suf = out.get_slice(1, p_ + 1);
+    auto tmp_suf = tmp_gpu_.slice(1, p_);
     auto out_bias = out.get_slice(0, 1);
     auto vec_suf = vec.get_slice(1, p_ + 1);
+    ndview<Float, 1> tmp_ndview = tmp_gpu_;
 
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
     Float v0 = vec.at_device(q_, 0, deps);
 
-    // TODO: Add batch matrix-vector multiplication
-    auto data_nd = table2ndarray<Float>(q_, data_, sycl::usm::alloc::device);
+    const uniform_blocking blocking(n_, bsz_);
 
-    sycl::event event_xv = gemv(q_, data_nd, vec_suf, buffer_, Float(1), v0, { fill_buffer_event });
-    event_xv.wait_and_throw(); // Without this line gemv does not work correctly
+    row_accessor<const Float> data_accessor(data_);
+    event_vector last_iter_deps = { fill_buffer_event, fill_out_event };
 
-    auto tmp_host = buffer_.to_host(q_);
+    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto last = blocking.get_block_end_index(b);
+        const auto first = blocking.get_block_start_index(b);
+        const auto length = last - first;
+        auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
+        auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
+        auto buffer_batch = buffer_.slice(first, length);
+        sycl::event event_xv = gemv(q_, x_nd, vec_suf, buffer_batch, Float(1), v0, last_iter_deps);
+        event_xv.wait_and_throw(); // Without this line gemv does not work correctly
 
-    sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ event_xv, fill_out_event });
-        const auto range = make_range_1d(n_);
-        auto sum_reduction = sycl::reduction(out_ptr, sycl::plus<>());
-        cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
-            buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
-            sum_v0 += buffer_ptr[idx];
+        auto* const buffer_ptr = buffer_batch.get_mutable_data();
+        const auto* const hess_ptr = raw_hessian_.get_data() + first;
+
+        auto fill_tmp_event = fill<Float>(q_, tmp_gpu_, Float(0), last_iter_deps);
+
+        sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ event_xv, fill_tmp_event });
+            const auto range = make_range_1d(length);
+            auto sum_reduction = sycl::reduction(tmp_ptr, sycl::plus<>());
+            cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
+                buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
+                sum_v0 += buffer_ptr[idx];
+            });
         });
-    });
 
-    sycl::event event_xtdxv =
-        gemv(q_, data_nd.t(), buffer_, out_suf, Float(1), Float(0), { event_dxv, fill_out_event });
-    event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+        sycl::event event_xtdxv =
+            gemv(q_, x_nd.t(), buffer_batch, tmp_suf, Float(1), Float(0), { event_dxv });
+        event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+
+        sycl::event update_grad_e =
+            element_wise(q_, sycl::plus<>(), out, tmp_ndview, out, { event_xtdxv });
+
+        last_iter_deps = { update_grad_e };
+    }
 
     const Float regularization_factor = L2_;
 
@@ -524,7 +543,7 @@ sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndvie
     };
 
     auto add_regularization_event =
-        element_wise(q_, kernel_regularization, out_suf, vec_suf, out_suf, { event_xtdxv });
+        element_wise(q_, kernel_regularization, out_suf, vec_suf, out_suf, last_iter_deps);
     return add_regularization_event;
 }
 
@@ -537,21 +556,45 @@ sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const nd
 
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
-    // TODO: Add batch matrix-vector multiplication
-    auto data_nd = table2ndarray<Float>(q_, data_, sycl::usm::alloc::device);
+    const uniform_blocking blocking(n_, bsz_);
 
-    sycl::event event_xv = gemv(q_, data_nd, vec, buffer_, Float(1), Float(0), deps);
-    event_xv.wait_and_throw(); // Without this line gemv does not work correctly
+    ndview<Float, 1> tmp_ndview = tmp_gpu_.slice(0, p_);
 
-    auto& buf_ndview = static_cast<ndview<Float, 1>&>(buffer_);
-    auto& hess_ndview = static_cast<ndview<Float, 1>&>(raw_hessian_);
-    constexpr sycl::multiplies<Float> kernel_mul{};
-    auto event_dxv =
-        element_wise(q_, kernel_mul, buf_ndview, hess_ndview, buf_ndview, { event_xv });
+    row_accessor<const Float> data_accessor(data_);
+    event_vector last_iter_deps = { fill_out_event };
 
-    sycl::event event_xtdxv =
-        gemv(q_, data_nd.t(), buffer_, out, Float(1), Float(0), { event_dxv, fill_out_event });
-    event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+        const auto last = blocking.get_block_end_index(b);
+        const auto first = blocking.get_block_start_index(b);
+        const auto length = last - first;
+        auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
+        auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
+        ndview<Float, 1> buffer_batch = buffer_.slice(first, length);
+        ndview<Float, 1> hess_batch = raw_hessian_.slice(first, length);
+
+        sycl::event event_xv =
+            gemv(q_, x_nd, vec, buffer_batch, Float(1), Float(0), last_iter_deps);
+        event_xv.wait_and_throw(); // Without this line gemv does not work correctly
+
+        constexpr sycl::multiplies<Float> kernel_mul{};
+        auto event_dxv =
+            element_wise(q_, kernel_mul, buffer_batch, hess_batch, buffer_batch, { event_xv });
+
+        auto fill_tmp_event = fill<Float>(q_, tmp_ndview, Float(0), last_iter_deps);
+
+        sycl::event event_xtdxv = gemv(q_,
+                                       x_nd.t(),
+                                       buffer_batch,
+                                       tmp_ndview,
+                                       Float(1),
+                                       Float(0),
+                                       { event_dxv, fill_tmp_event });
+        event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+
+        sycl::event update_grad_e =
+            element_wise(q_, sycl::plus<>(), out, tmp_ndview, out, { event_xtdxv });
+        last_iter_deps = { update_grad_e };
+    }
 
     const Float regularization_factor = L2_;
 
@@ -560,7 +603,7 @@ sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const nd
     };
 
     auto add_regularization_event =
-        element_wise(q_, kernel_regularization, out, vec, out, { event_xtdxv });
+        element_wise(q_, kernel_regularization, out, vec, out, last_iter_deps);
 
     return add_regularization_event;
 }

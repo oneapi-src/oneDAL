@@ -56,7 +56,9 @@ struct train_parameters_gpu<Float, method::newton_cg, Task> {
     }
 };
 
-template struct ONEDAL_EXPORT train_parameters_gpu<float, method::newton_cg, task::classification>;
-template struct ONEDAL_EXPORT train_parameters_gpu<double, method::newton_cg, task::classification>;
+template struct ONEDAL_EXPORT
+    train_parameters_gpu<float, method::newton_cg, task::binary_classification>;
+template struct ONEDAL_EXPORT
+    train_parameters_gpu<double, method::newton_cg, task::binary_classification>;
 
 } // namespace oneapi::dal::logistic_regression::parameters

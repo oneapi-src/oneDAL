@@ -28,13 +28,13 @@ namespace task {
 namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`regression problem <regression>`.
-struct classification {};
+struct binary_classification {};
 
 /// Alias tag-type for regression task.
-using by_default = classification;
+using by_default = binary_classification;
 } // namespace v1
 
-using v1::classification;
+using v1::binary_classification;
 using v1::by_default;
 
 } // namespace task
@@ -98,7 +98,7 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::newton_cg>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = std::is_same_v<Task, task::classification>;
+constexpr bool is_valid_task_v = std::is_same_v<Task, task::binary_classification>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -153,7 +153,7 @@ namespace v1 {
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
 ///                     be :expr:`method::newton_cg`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
-///                     be :expr:`task::classification`.
+///                     be :expr:`task::binary_classification`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>

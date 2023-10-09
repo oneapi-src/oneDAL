@@ -61,10 +61,10 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const std::int64_t bsize = params.get_gpu_macro_block();
 
-    Float L2 = desc.get_l2_coef();
-    bool fit_intercept = desc.get_compute_intercept();
-    Float tol = desc.get_tol();
-    std::int64_t maxiter = desc.get_max_iter();
+    const Float L2 = desc.get_l2_coef();
+    const bool fit_intercept = desc.get_compute_intercept();
+    const Float tol = desc.get_tol();
+    const std::int64_t maxiter = desc.get_max_iter();
 
     pr::LogLossFunction<Float> loss_func =
         pr::LogLossFunction(queue, data, responses_nd, L2, fit_intercept, bsize);
@@ -79,16 +79,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     sycl::event train_event =
         pr::newton_cg<Float>(queue, loss_func, x_suf, tol, maxiter, { fill_event });
 
-    train_event.wait_and_throw();
-
-    // auto x_host = x_suf.to_host(queue);
-    // std::cout << "Output of the primitive" << std::endl;
-    // for (int i = 0; i < dim; ++i) {
-    //     std::cout << x_host.at(i) << " ";
-    // }
-    // std::cout << std::endl;
-
-    auto all_coefs = homogen_table::wrap(x.flatten(queue, {}), 1, feature_count + 1);
+    auto all_coefs = homogen_table::wrap(x.flatten(queue, { train_event }), 1, feature_count + 1);
 
     const auto model_impl = std::make_shared<model_impl_t>(all_coefs);
     const auto model = dal::detail::make_private<model_t>(model_impl);
@@ -98,13 +89,16 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     if (options.test(result_options::intercept)) {
         ONEDAL_ASSERT(fit_intercept);
-        table intercept_table = homogen_table::wrap(x.slice(0, 1).flatten(queue, {}), 1, 1);
+        table intercept_table =
+            homogen_table::wrap(x.slice(0, 1).flatten(queue, { train_event }), 1, 1);
         result.set_intercept(intercept_table);
     }
 
     if (options.test(result_options::coefficients)) {
         auto coefs_table =
-            homogen_table::wrap(x.slice(1, feature_count).flatten(queue, {}), 1, feature_count);
+            homogen_table::wrap(x.slice(1, feature_count).flatten(queue, { train_event }),
+                                1,
+                                feature_count);
         result.set_coefficients(coefs_table);
     }
 
@@ -129,7 +123,7 @@ struct train_kernel_gpu<Float, method::newton_cg, Task> {
     }
 };
 
-template struct train_kernel_gpu<float, method::newton_cg, task::classification>;
-template struct train_kernel_gpu<double, method::newton_cg, task::classification>;
+template struct train_kernel_gpu<float, method::newton_cg, task::binary_classification>;
+template struct train_kernel_gpu<double, method::newton_cg, task::binary_classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend

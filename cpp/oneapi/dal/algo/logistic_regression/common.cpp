@@ -144,7 +144,7 @@ void descriptor_base<Task>::set_max_iter_impl(std::int32_t max_iter) {
 //     impl_->class_count = class_count;
 // }
 
-template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::binary_classification>;
 
 } // namespace v1
 } // namespace detail
@@ -180,9 +180,9 @@ model<Task>& model<Task>::set_packed_coefficients(const table& t) {
 //     dal::detail::deserialize_polymorphic_shared(impl_, ar);
 // }
 
-template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::binary_classification>;
 
-// ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::classification>)
+// ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::binary_classification>)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression

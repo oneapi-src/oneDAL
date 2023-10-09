@@ -48,7 +48,6 @@ struct train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        /*
         using msg = dal::detail::error_messages;
 
         const auto& data = input.get_data();
@@ -63,13 +62,15 @@ struct train_ops {
         if (data.get_row_count() != responses.get_row_count()) {
             throw domain_error(msg::input_data_rc_neq_input_responses_rc());
         }
-        */
+
+        if (responses.get_column_count() != 1) {
+            throw domain_error(msg::input_responses_table_has_wrong_cc_expect_one());
+        }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        /*
         const auto& res = params.get_result_options();
 
         [[maybe_unused]] const std::int64_t f_count = //
@@ -77,13 +78,15 @@ struct train_ops {
         [[maybe_unused]] const std::int64_t r_count = //
             input.get_responses().get_column_count();
 
+        ONEDAL_ASSERT(r_count == 1);
+
         if (res.test(result_options::coefficients)) {
             [[maybe_unused]] const table& coefficients = //
                 result.get_coefficients();
 
             ONEDAL_ASSERT(coefficients.has_data());
-            ONEDAL_ASSERT(coefficients.get_row_count() == f_count);
-            //ONEDAL_ASSERT(coefficients.get_column_count() == f_count);
+            ONEDAL_ASSERT(coefficients.get_row_count() == r_count);
+            ONEDAL_ASSERT(coefficients.get_column_count() == f_count);
         }
 
         if (res.test(result_options::intercept)) {
@@ -91,19 +94,18 @@ struct train_ops {
                 result.get_intercept();
 
             ONEDAL_ASSERT(intercept.has_data());
-            ONEDAL_ASSERT(intercept.get_row_count() == 1);
+            ONEDAL_ASSERT(intercept.get_row_count() == r_count);
             ONEDAL_ASSERT(intercept.get_column_count() == 1);
         }
 
-        // {
-        //     [[maybe_unused]] const table& betas = //
-        //         result.get_packed_coefficients();
+        {
+            [[maybe_unused]] const table& betas = //
+                result.get_packed_coefficients();
 
-        //     ONEDAL_ASSERT(betas.has_data());
-        //     ONEDAL_ASSERT(betas.get_row_count() == r_count);
-        //     ONEDAL_ASSERT(betas.get_column_count() == f_count + 1);
-        // }
-        */
+            ONEDAL_ASSERT(betas.has_data());
+            ONEDAL_ASSERT(betas.get_row_count() == r_count);
+            ONEDAL_ASSERT(betas.get_column_count() == f_count + 1);
+        }
     }
 
     template <typename Context>

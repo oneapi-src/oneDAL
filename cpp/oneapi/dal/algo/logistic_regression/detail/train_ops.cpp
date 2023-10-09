@@ -63,8 +63,8 @@ private:
     template struct ONEDAL_EXPORT train_ops_dispatcher<dal::detail::host_policy, F, M, T>; \
     template struct ONEDAL_EXPORT train_ops_dispatcher<dal::detail::spmd_host_policy, F, M, T>;
 
-INSTANTIATE(float, method::newton_cg, task::classification)
-INSTANTIATE(double, method::newton_cg, task::classification)
+INSTANTIATE(float, method::newton_cg, task::binary_classification)
+INSTANTIATE(double, method::newton_cg, task::binary_classification)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression::detail
