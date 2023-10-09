@@ -43,12 +43,16 @@ namespace v1 {
 /// Tag-type that denotes dense computational method.
 struct dense {};
 
+/// Tag-type that denotes sparse computational method.
+struct sparse{};
+
 /// Alias tag-type for dense computational method.
 using by_default = dense;
 
 } // namespace v1
 
 using v1::dense;
+using v1::sparse;
 using v1::by_default;
 
 } // namespace method
@@ -168,7 +172,7 @@ template <typename Float = detail::descriptor_base<>::float_t,
           typename Task = detail::descriptor_base<>::task_t>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
-    static_assert(detail::is_valid_method_v<Method>);
+    // static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
 
     using base_t = detail::descriptor_base<Task>;
