@@ -84,7 +84,7 @@ struct ONEDAL_EXPORT threading_policy {
 
     threading_policy(bool thread_pinning_ = false,
                      int max_concurrency_ = 0,
-                     int max_threads_per_core_ = 0)
+                     int max_threads_per_core_ = 1)
             : thread_pinning(thread_pinning_),
               max_concurrency(max_concurrency_),
               max_threads_per_core(max_threads_per_core_) {}
