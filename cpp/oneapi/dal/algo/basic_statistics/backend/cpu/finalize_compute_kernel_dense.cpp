@@ -55,7 +55,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
 
     const auto res_min_max = result_options::min | result_options::max;
     const auto res_mean_varc = result_options::mean | result_options::variance;
-    std::int64_t column_count;
+    std::int64_t column_count = 10;
 
     const auto res_op = desc.get_result_options();
 
@@ -63,7 +63,7 @@ static compute_result<Task> call_daal_kernel_finalize_compute(
         column_count = input.get_partial_sum().get_column_count();
     }
     if (res_op.test(res_min_max)) {
-        column_count = input.get_partial_sum().get_column_count();
+        column_count = input.get_partial_min().get_column_count();
     }
 
     auto daal_partial = daal_lom::PartialResult();
