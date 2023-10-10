@@ -26,6 +26,7 @@ namespace oneapi::dal::basic_statistics::backend {
 
 namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
+namespace bk = dal::backend;
 
 using task_t = task::compute;
 using descriptor_t = detail::descriptor_base<task_t>;
@@ -98,6 +99,34 @@ inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_re
     }
 
     return res;
+}
+
+template <typename Float>
+inline array<Float> copy_immutable(const array<Float>&& inp) {
+    if (inp.has_mutable_data()) {
+        return inp;
+    }
+    else {
+        const auto count = inp.get_count();
+        auto res = array<Float>::empty(count);
+        bk::copy(res.get_mutable_data(), inp.get_data(), count);
+        return res;
+    }
+}
+
+template <typename Float, typename Result, typename Input, typename Parameter>
+inline void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
+    const auto status = result.template allocate<Float>(input, params, method);
+    interop::status_to_exception(status);
+}
+
+template <typename Float, typename Result, typename Input, typename Parameter>
+inline void initialize_result(Result& result,
+                              const Input* input,
+                              const Parameter* params,
+                              int method) {
+    const auto status = result.template initialize<Float>(input, params, method);
+    interop::status_to_exception(status);
 }
 
 } // namespace oneapi::dal::basic_statistics::backend

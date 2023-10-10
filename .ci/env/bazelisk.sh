@@ -15,12 +15,13 @@
 # limitations under the License.
 #===============================================================================
 
-wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
-sudo apt-get update
-sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.2.1
-sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
-sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
+# Download Bazelisk
+export SHA256="ce52caa51ef9e509fb6b7e5ad892e5cf10feb0794b0aed4d2f36adb00a1a2779  bazelisk-linux-amd64"
+wget https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64
+echo ${SHA256} | sha256sum --check
+# "Install" bazelisk
+chmod +x bazelisk-linux-amd64
+mkdir -p bazel/bin
+mv bazelisk-linux-amd64 bazel/bin/bazel
+export BAZEL_VERSION=$(./bazel/bin/bazel --version | awk '{print $2}')
+export PATH=$PATH:$(pwd)/bazel/bin

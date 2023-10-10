@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Details of errors in Intel(R) oneDAL.
+//  Details of errors in Intel(R) oneAPI Data Analytics Library (oneDAL).
 //--
 */
 
