@@ -17,15 +17,18 @@
 #pragma once
 
 #include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::basic_statistics::backend {
 
 template <typename Float, typename Method, typename Task>
 struct compute_kernel_cpu {
+    using input_t = std::conditional_t<std::is_same_v<Method, method::dense>, compute_input<Task, table>, compute_input<Task, csr_table>>;
+
     compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                     const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
+                                    const input_t& input) const;
 };
 
 } // namespace oneapi::dal::basic_statistics::backend
