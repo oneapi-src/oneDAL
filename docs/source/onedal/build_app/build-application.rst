@@ -68,7 +68,7 @@ Applications on Linux* OS
 
      .. code-block:: text
 
-        <install dir>/dal/latest/libintel64/libonedal_sycl.a
+        <install dir>/dal/latest/lib/libonedal_sycl.a
 
 .. _app_on_win:
 
