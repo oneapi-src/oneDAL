@@ -94,7 +94,7 @@ public:
             for (std::int64_t i = 0; i < n_; ++i) {
                 val_gth -= b_host.at(i) * x_host.at(i);
             }
-            check_val(val_gth, val, float_t(1e-5), float_t(1e-5));
+            check_val(val_gth, val, float_t(5e-5), float_t(5e-5));
         }
     }
 

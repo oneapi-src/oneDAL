@@ -65,31 +65,6 @@ std::int64_t propose_block_size(std::int64_t row_count, std::int64_t col_count) 
 }
 
 template <typename Float>
-array<Float> copy_immutable(const array<Float>&& inp) {
-    if (inp.has_mutable_data()) {
-        return inp;
-    }
-    else {
-        const auto count = inp.get_count();
-        auto res = array<Float>::empty(count);
-        bk::copy(res.get_mutable_data(), inp.get_data(), count);
-        return res;
-    }
-}
-
-template <typename Float, typename Result, typename Input, typename Parameter>
-void alloc_result(Result& result, const Input* input, const Parameter* params, int method) {
-    const auto status = result.template allocate<Float>(input, params, method);
-    interop::status_to_exception(status);
-}
-
-template <typename Float, typename Result, typename Input, typename Parameter>
-void initialize_result(Result& result, const Input* input, const Parameter* params, int method) {
-    const auto status = result.template initialize<Float>(input, params, method);
-    interop::status_to_exception(status);
-}
-
-template <typename Float>
 result_t call_daal_kernel_with_weights(const context_cpu& ctx,
                                        const descriptor_t& desc,
                                        const table& data,

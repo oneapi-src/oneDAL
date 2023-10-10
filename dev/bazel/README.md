@@ -1,8 +1,24 @@
+<!--
+******************************************************************************
+* Copyright 2023 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/-->
 # Bazel Guide
 ## Install Bazel on Linux
-1. Download Bazel 4.0.0
+1. Download Bazelisk
    ```sh
-   wget -O bazel https://github.com/bazelbuild/bazel/releases/download/4.0.0/bazel-4.0.0-linux-x86_64
+   wget -O bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64
    ```
    > Note: If you are using proxy don't forget to set
    `http_proxy` and `https_proxy` environment variables
@@ -10,8 +26,8 @@
 2. Put it somewhere on **local disk** (use of remote shared
    drives is not recommended) and set executable attributes.
    ```sh
-   mv bazel <my-user-dir-utils>/bin
    chmod +x bazel
+   mv bazel <my-user-dir-utils>/bin
    ```
 
 3. Create Bazel cache directory on **local disk** and
@@ -24,7 +40,7 @@
 4. Add `bazel` to the `$PATH`.
    ```sh
    export PATH=<my-user-dir-on-local-disk>/bin:$PATH
-   bazel --version # Should be "bazel 4.0.0"
+   bazel --version
    ```
 
 ### Compiler choice
@@ -196,10 +212,6 @@ The most used Bazel commands are `build`, `test` and `run`.
    export DALROOT=`pwd`/__release_lnx/daal/latest
    bazel test --test_link_mode=release_dynamic //cpp/oneapi/dal:tests
    ```
-
-- `--test_thread_mode` Specifies threading mode for tests. \
-  Possible values:
-  - `par` _default_ Links against `onedal_thread`.
 
    Example:
    ```sh

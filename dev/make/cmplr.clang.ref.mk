@@ -29,9 +29,9 @@ CORE.SERV.COMPILER.clang = generic
 -DEBC.clang = -g
 
 COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
-                     -DDAAL_REF -Werror -Wreturn-type
+                     -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
 COMPILER.lnx.clang = clang++ -m64 \
-                     -DDAAL_REF -Werror -Wreturn-type
+                     -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
 
 link.dynamic.mac.clang = clang++ -m64
 link.dynamic.lnx.clang = clang++ -m64

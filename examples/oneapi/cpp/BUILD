@@ -67,6 +67,7 @@ dal_example_suite(
 
 dal_algo_example_suite(
     algos = [
+        "basic_statistics",
         "connected_components",
         "covariance",
         "dbscan",
