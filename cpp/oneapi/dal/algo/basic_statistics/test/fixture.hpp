@@ -102,10 +102,10 @@ public:
 
     void online_general_checks(const te::dataframe& data_fr,
                                std::shared_ptr<te::dataframe> weights_fr,
-                               bs::result_option_id compute_mode) {
+                               bs::result_option_id compute_mode,
+                               std::int64_t nBlocks) {
         const auto use_weights = bool(weights_fr);
         CAPTURE(use_weights, compute_mode);
-        const std::int64_t nBlocks = 10;
         const auto bs_desc = get_descriptor(compute_mode);
         const auto data_table_id = this->get_homogen_table_id();
 
