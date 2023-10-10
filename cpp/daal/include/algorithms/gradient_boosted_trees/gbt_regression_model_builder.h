@@ -119,7 +119,7 @@ public:
     }
 
     /**
-    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    *  \DAAL_DEPRECATED
     */
     DAAL_DEPRECATED NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response)
     {
@@ -146,7 +146,7 @@ public:
     }
 
     /**
-    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    *  \DAAL_DEPRECATED
     */
     DAAL_DEPRECATED NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue)
     {

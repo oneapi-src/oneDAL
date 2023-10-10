@@ -119,7 +119,7 @@ public:
     }
 
     /**
-    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    *  \DAAL_DEPRECATED
     */
     DAAL_DEPRECATED NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel)
     {
@@ -144,7 +144,7 @@ public:
     }
 
     /**
-    *  \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+    *  \DAAL_DEPRECATED
     */
     DAAL_DEPRECATED NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba)
     {
@@ -172,7 +172,7 @@ public:
     }
 
     /**
-     * \DAAL_DEPRECATED { will be removed in r2025.0.0 }
+     * \DAAL_DEPRECATED
      */
     DAAL_DEPRECATED NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
                                         const double featureValue)
