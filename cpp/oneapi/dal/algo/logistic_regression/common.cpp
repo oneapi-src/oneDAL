@@ -48,6 +48,7 @@ public:
     double tol = 1e-4;
 
     std::int64_t class_count = 2;
+    optimizer_enum opt;
 
     result_option_id result_options = get_default_result_options<Task>();
 };
@@ -76,12 +77,14 @@ template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept,
                                        double l2_coef,
                                        std::int32_t max_iter,
-                                       double tol)
+                                       double tol,
+                                       optimizer_enum opt)
         : impl_(new descriptor_impl<Task>{}) {
     impl_->compute_intercept = compute_intercept;
     impl_->l2_coef = l2_coef;
     impl_->tol = tol;
     impl_->max_iter = max_iter;
+    impl_->opt = opt;
 }
 
 template <typename Task>
@@ -115,6 +118,11 @@ std::int32_t descriptor_base<Task>::get_max_iter() const {
 // }
 
 template <typename Task>
+optimizer_enum descriptor_base<Task>::get_optimizer() const {
+    return impl_->opt;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
     impl_->compute_intercept = compute_intercept;
 }
@@ -137,6 +145,11 @@ void descriptor_base<Task>::set_tol_impl(double tol) {
 template <typename Task>
 void descriptor_base<Task>::set_max_iter_impl(std::int32_t max_iter) {
     impl_->max_iter = max_iter;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_optimizer_impl(optimizer_enum opt) {
+    impl_->opt = opt;
 }
 
 // template <typename Task>

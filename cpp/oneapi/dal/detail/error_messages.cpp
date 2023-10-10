@@ -148,6 +148,7 @@ MSG(archive_is_in_invalid_state,
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
+MSG(conv_tol_lt_zero, "Convergence tolerance is less than zero")
 MSG(input_data_is_empty, "Input data is empty")
 MSG(input_data_rc_neq_input_responses_rc,
     "Input data row count is not equal to input responses row count")

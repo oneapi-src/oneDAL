@@ -42,15 +42,30 @@ using v1::by_default;
 namespace method {
 namespace v1 {
 /// Tag-type that denotes :ref:`normal eqution <norm_eq>` computational method.
-struct newton_cg {};
+struct dense_batch {};
 
-using by_default = newton_cg;
+using by_default = dense_batch;
 } // namespace v1
+
+using v1::dense_batch;
+using v1::by_default;
+
+} // namespace method
+
+namespace optimizer {
+namespace v1 {
+
+struct newton_cg {};
+using by_default = newton_cg;
+
+} //namespace v1
 
 using v1::newton_cg;
 using v1::by_default;
 
-} // namespace method
+} // namespace optimizer
+
+enum optimizer_enum { newton_cg };
 
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
@@ -95,10 +110,13 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::newton_cg>;
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = std::is_same_v<Task, task::binary_classification>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::binary_classification>;
+
+template <typename Optimizer>
+constexpr bool is_valid_optimizer_v = std::is_same_v<Optimizer, optimizer::newton_cg>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -109,7 +127,11 @@ public:
 
     descriptor_base();
 
-    descriptor_base(bool compute_intercept, double l2_coef, std::int32_t max_iter, double tol);
+    descriptor_base(bool compute_intercept,
+                    double l2_coef,
+                    std::int32_t max_iter,
+                    double tol,
+                    optimizer_enum opt);
 
     bool get_compute_intercept() const;
     //double get_l1_coef() const;
@@ -117,6 +139,7 @@ public:
     double get_tol() const;
     std::int32_t get_max_iter() const;
     //std::int64_t get_class_count() const;
+    optimizer_enum get_optimizer() const;
     result_option_id get_result_options() const;
 
 protected:
@@ -126,6 +149,8 @@ protected:
     void set_tol_impl(double tol);
     void set_max_iter_impl(std::int32_t max_iter);
     //void set_class_count_impl(std::int64_t class_count);
+
+    void set_optimizer_impl(optimizer_enum opt);
     void set_result_options_impl(const result_option_id& value);
 
 private:
@@ -142,25 +167,35 @@ using v1::descriptor_base;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+using v1::is_valid_optimizer_v;
 
 } // namespace detail
 
 namespace v1 {
 
+template <typename Optimizer>
+optimizer_enum type2enum() {
+    if (std::is_same_v<Optimizer, optimizer::newton_cg>) {
+        return optimizer_enum::newton_cg;
+    }
+}
+
 /// @tparam Float       The floating-point type that the algorithm uses for
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
-///                     be :expr:`method::newton_cg`.
+///                     be :expr:`method::dense_batch`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::binary_classification`.
 template <typename Float = float,
           typename Method = method::by_default,
-          typename Task = task::by_default>
+          typename Task = task::by_default,
+          typename Optimizer = optimizer::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
+    static_assert(detail::is_valid_optimizer_v<Optimizer>);
 
     using base_t = detail::descriptor_base<Task>;
 
@@ -168,13 +203,14 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
+    using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
     explicit descriptor(bool compute_intercept = true,
                         double l2_coef = 0.0,
                         std::int32_t maxiter = 100,
-                        double tol = 1.0e-4)
-            : base_t(compute_intercept, l2_coef, maxiter, tol) {}
+                        double tol = 1e-4)
+            : base_t(compute_intercept, l2_coef, maxiter, tol, type2enum<Optimizer>()) {}
 
     /// Creates a new instance of the class with default parameters
     //explicit descriptor() : base_t(true) {}

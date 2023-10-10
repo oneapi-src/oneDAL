@@ -37,7 +37,7 @@ std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, cons
 }
 
 template <typename Float, typename Task>
-struct train_parameters_gpu<Float, method::newton_cg, Task> {
+struct train_parameters_gpu<Float, method::dense_batch, Task> {
     using params_t = detail::train_parameters<Task>;
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
@@ -57,8 +57,8 @@ struct train_parameters_gpu<Float, method::newton_cg, Task> {
 };
 
 template struct ONEDAL_EXPORT
-    train_parameters_gpu<float, method::newton_cg, task::binary_classification>;
+    train_parameters_gpu<float, method::dense_batch, task::binary_classification>;
 template struct ONEDAL_EXPORT
-    train_parameters_gpu<double, method::newton_cg, task::binary_classification>;
+    train_parameters_gpu<double, method::dense_batch, task::binary_classification>;
 
 } // namespace oneapi::dal::logistic_regression::parameters

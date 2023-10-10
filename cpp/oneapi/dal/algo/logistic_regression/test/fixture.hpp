@@ -231,7 +231,7 @@ protected:
 };
 
 using lr_types = COMBINE_TYPES((double),
-                               (logistic_regression::method::newton_cg),
+                               (logistic_regression::method::dense_batch),
                                (logistic_regression::task::binary_classification));
 
 } // namespace oneapi::dal::logistic_regression::test

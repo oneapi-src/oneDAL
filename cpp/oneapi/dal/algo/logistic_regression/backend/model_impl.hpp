@@ -22,10 +22,10 @@
 
 namespace oneapi::dal::logistic_regression {
 
-using newton_cg_proto = ONEDAL_SERIALIZABLE(logistic_regression_model_impl_id);
+using dense_batch_proto = ONEDAL_SERIALIZABLE(logistic_regression_model_impl_id);
 
 template <typename Task>
-class detail::v1::model_impl : public newton_cg_proto {
+class detail::v1::model_impl : public dense_batch_proto {
 public:
     model_impl() = default;
 

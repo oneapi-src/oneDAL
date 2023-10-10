@@ -162,6 +162,7 @@ public:
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
+    MSG(conv_tol_lt_zero);
     MSG(input_data_is_empty);
     MSG(input_data_rc_neq_input_responses_rc);
     MSG(input_data_rc_neq_input_weights_rc);

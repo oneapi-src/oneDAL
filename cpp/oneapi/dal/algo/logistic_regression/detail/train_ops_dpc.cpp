@@ -64,8 +64,8 @@ private:
 #define INSTANTIATE(F, M, T) \
     template struct ONEDAL_EXPORT train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, method::newton_cg, task::binary_classification)
-INSTANTIATE(double, method::newton_cg, task::binary_classification)
+INSTANTIATE(float, method::dense_batch, task::binary_classification)
+INSTANTIATE(double, method::dense_batch, task::binary_classification)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression::detail

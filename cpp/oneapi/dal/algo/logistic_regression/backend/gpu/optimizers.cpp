@@ -14,26 +14,27 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/interop/common.hpp"
-
-#include "oneapi/dal/algo/logistic_regression/common.hpp"
-#include "oneapi/dal/algo/logistic_regression/infer_types.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/gpu/optimizers.hpp"
+#include "oneapi/dal/backend/primitives/optimizers.hpp"
 
 namespace oneapi::dal::logistic_regression::backend {
 
-using dal::backend::context_cpu;
+template <typename Float>
+newton_cg_optimizer<Float>::newton_cg_optimizer(double tol, std::int32_t maxiter)
+        : tol_(tol),
+          maxiter_(maxiter) {}
 
-template <typename Float, typename Task>
-struct infer_kernel_cpu<Float, method::newton_cg, Task> {
-    infer_result<Task> operator()(const context_cpu& ctx,
-                                  const detail::descriptor_base<Task>& desc,
-                                  const infer_input<Task>& input) const {
-        throw std::logic_error("Not implemented");
-    }
-};
+template <typename Float>
+sycl::event newton_cg_optimizer<Float>::minimize(sycl::queue& q,
+                                                 pr::BaseFunction<Float>& f,
+                                                 pr::ndview<Float, 1>& x,
+                                                 const be::event_vector& deps) {
+    return pr::newton_cg(q, f, x, Float(tol_), maxiter_, deps);
+}
 
-template struct infer_kernel_cpu<float, method::newton_cg, task::binary_classification>;
-template struct infer_kernel_cpu<double, method::newton_cg, task::binary_classification>;
+template class optimizer_iface<float>;
+template class optimizer_iface<double>;
+template class newton_cg_optimizer<float>;
+template class newton_cg_optimizer<double>;
 
 } // namespace oneapi::dal::logistic_regression::backend

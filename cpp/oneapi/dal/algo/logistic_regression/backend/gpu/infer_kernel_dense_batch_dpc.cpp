@@ -23,7 +23,6 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/objective_function.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
@@ -132,7 +131,7 @@ static infer_result<Task> infer(const context_gpu& ctx,
 }
 
 template <typename Float, typename Task>
-struct infer_kernel_gpu<Float, method::newton_cg, Task> {
+struct infer_kernel_gpu<Float, method::dense_batch, Task> {
     infer_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
@@ -140,7 +139,7 @@ struct infer_kernel_gpu<Float, method::newton_cg, Task> {
     }
 };
 
-template struct infer_kernel_gpu<float, method::newton_cg, task::binary_classification>;
-template struct infer_kernel_gpu<double, method::newton_cg, task::binary_classification>;
+template struct infer_kernel_gpu<float, method::dense_batch, task::binary_classification>;
+template struct infer_kernel_gpu<double, method::dense_batch, task::binary_classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend
