@@ -67,8 +67,13 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     //const Float tol = desc.get_tol();
     //const std::int64_t maxiter = desc.get_max_iter();
 
+    // TODO: add check if the dataset can be moved to gpu
+    // Move data to gpu
+    pr::ndarray<Float, 2> data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
+    table data_gpu = homogen_table::wrap(data_nd.flatten(queue, {}), sample_count, feature_count);
+
     pr::LogLossFunction<Float> loss_func =
-        pr::LogLossFunction(queue, data, responses_nd, L2, fit_intercept, bsize);
+        pr::LogLossFunction(queue, data_gpu, responses_nd, L2, fit_intercept, bsize);
 
     auto opt_ptr = get_optimizer<Float, Task>(desc);
 
