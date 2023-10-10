@@ -302,6 +302,10 @@ MSG(input_y_is_empty, "Input y is empty")
 MSG(intercept_result_option_requires_intercept_flag,
     "Intercept result option requires intercept flag")
 
+/* Logistic Regression */
+MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
+    "LogisticRegression is not implemented for CPU")
+
 /* Decision Forest */
 MSG(bootstrap_is_incompatible_with_error_metric,
     "Values of bootstrap and error metric parameters provided "

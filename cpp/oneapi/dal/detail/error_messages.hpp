@@ -241,6 +241,9 @@ public:
     /* Linear Regression */
     MSG(intercept_result_option_requires_intercept_flag);
 
+    /* Logistic Regression */
+    MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu);
+
     /* Louvain */
     MSG(negative_resolution);
     MSG(input_initial_partition_table_rc_neq_vertex_count);
