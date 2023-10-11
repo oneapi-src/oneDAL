@@ -112,34 +112,34 @@ inline sycl::event element_wise(sycl::queue& queue,
     });
 }
 
-template <typename Functor,
-          typename Input1Type,
-          typename Input2Type,
-          typename OutputType,
-          ndorder input_layout,
-          ndorder output_layout>
-inline sycl::event element_wise(sycl::queue& queue,
-                                const Functor& functor,
-                                const ndview<Input1Type, 2, input_layout>& input,
-                                const Input2Type& argument,
-                                ndview<OutputType, 2, output_layout>& output,
-                                const event_vector& deps = {}) {
-    const auto shape = output.get_shape();
-    ONEDAL_ASSERT(shape == input.get_shape());
+// template <typename Functor,
+//           typename Input1Type,
+//           typename Input2Type,
+//           typename OutputType,
+//           ndorder input_layout,
+//           ndorder output_layout>
+// inline sycl::event element_wise(sycl::queue& queue,
+//                                 const Functor& functor,
+//                                 const ndview<Input1Type, 2, input_layout>& input,
+//                                 const Input2Type& argument,
+//                                 ndview<OutputType, 2, output_layout>& output,
+//                                 const event_vector& deps = {}) {
+//     const auto shape = output.get_shape();
+//     ONEDAL_ASSERT(shape == input.get_shape());
 
-    auto out = make_ndindexer(output);
-    auto inp = make_ndindexer(input);
+//     auto out = make_ndindexer(output);
+//     auto inp = make_ndindexer(input);
 
-    return queue.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
+//     return queue.submit([&](sycl::handler& h) {
+//         h.depends_on(deps);
 
-        const auto range = shape.to_range();
-        h.parallel_for(range, [=](sycl::id<2> idx) {
-            const auto& l = inp.at(idx[0], idx[1]);
-            out.at(idx[0], idx[1]) = functor(l, argument);
-        });
-    });
-}
+//         const auto range = shape.to_range();
+//         h.parallel_for(range, [=](sycl::id<2> idx) {
+//             const auto& l = inp.at(idx[0], idx[1]);
+//             out.at(idx[0], idx[1]) = functor(l, argument);
+//         });
+//     });
+// }
 
 template <typename Functor,
           typename Input1Type,
@@ -159,6 +159,51 @@ inline sycl::event element_wise(sycl::queue& queue,
     auto out = output.template reshape<2>({ 1, count });
     const auto inp = input.template reshape<2>({ 1, count });
     return element_wise(queue, functor, inp, argument, out, deps);
+}
+
+template <typename Functor,
+          typename Input1Type,
+          typename OutputType,
+          ndorder input_layout,
+          ndorder output_layout>
+inline sycl::event element_wise(sycl::queue& queue,
+                                const Functor& functor,
+                                const ndview<Input1Type, 2, input_layout>& input,
+                                ndview<OutputType, 2, output_layout>& output,
+                                const event_vector& deps = {}) {
+    const auto shape = output.get_shape();
+    ONEDAL_ASSERT(shape == input.get_shape());
+
+    auto out = make_ndindexer(output);
+    auto inp = make_ndindexer(input);
+
+    return queue.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+
+        const auto range = shape.to_range();
+        h.parallel_for(range, [=](sycl::id<2> idx) {
+            const auto& l = inp.at(idx[0], idx[1]);
+            out.at(idx[0], idx[1]) = functor(l);
+        });
+    });
+}
+
+template <typename Functor,
+          typename Input1Type,
+          typename OutputType,
+          ndorder input_layout,
+          ndorder output_layout>
+inline sycl::event element_wise(sycl::queue& queue,
+                                const Functor& functor,
+                                const ndview<Input1Type, 1, input_layout>& input,
+                                ndview<OutputType, 1, output_layout>& output,
+                                const event_vector& deps = {}) {
+    const auto count = input.get_count();
+    ONEDAL_ASSERT(count == output.get_count());
+
+    auto out = output.template reshape<2>({ 1, count });
+    const auto inp = input.template reshape<2>({ 1, count });
+    return element_wise(queue, functor, inp, out, deps);
 }
 
 #endif
