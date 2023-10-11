@@ -69,9 +69,12 @@ public:
         ONEDAL_ASSERT(responses.get_column_count() == ref_responses.get_column_count());
         ONEDAL_ASSERT(responses.get_column_count() == 1);
         const auto row_count = responses.get_row_count();
+        std::cout<<row_count<<std::endl;
         const auto rows = row_accessor<const float_t>(responses).pull({ 0, -1 });
         const auto ref_rows = row_accessor<const float_t>(ref_responses).pull({ 0, -1 });
         for (std::int64_t i = 0; i < row_count; i++) {
+            std::cout<<"ref rows =" << ref_rows[i]<<std::endl;
+            std::cout<<"rows =" << rows[i]<<std::endl;
             REQUIRE(ref_rows[i] == rows[i]);
         }
     }
