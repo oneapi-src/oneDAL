@@ -343,9 +343,6 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
         algorithmFPType * phi            = res + (iRow * nColumnsPhi);
         for (size_t currentTreeIndex = iTree; currentTreeIndex < iTree + nTrees; ++currentTreeIndex)
         {
-            // regression model builder tree 0 contains only the base_score and must be skipped
-            if (currentTreeIndex == 0) continue;
-
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
             st |= gbt::treeshap::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper, condition,
                                                                                                 conditionFeature);
