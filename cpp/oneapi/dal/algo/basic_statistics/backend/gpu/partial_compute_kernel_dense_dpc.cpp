@@ -170,27 +170,20 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
     if (has_nobs_data) {
-        const auto sums_nd =
-            pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
-        const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_n_rows());
-
-        const auto min_nd =
-            pr::table2ndarray_1d<Float>(q, input_.get_partial_min(), sycl::usm::alloc::device);
-        const auto max_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_max());
-
-        const auto sums2_nd = pr::table2ndarray_1d<Float>(q,
-                                                          input_.get_partial_sum_squares(),
-                                                          sycl::usm::alloc::device);
         if (weights_enabling) {
             compute_result_ = kernel(ctx, local_desc, { data, weights });
         }
         else {
             compute_result_ = kernel(ctx, local_desc, { data });
         }
+        const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_n_rows());
         auto [result_nobs, nobs_update_event] =
             update_partial_n_rows_results(q, row_count, nobs_nd);
 
         if (res_op.test(result_options::min) || res_op.test(result_options::max)) {
+            const auto min_nd =
+                pr::table2ndarray_1d<Float>(q, input_.get_partial_min(), sycl::usm::alloc::device);
+            const auto max_nd = pr::table2ndarray_1d<Float>(q, input_.get_partial_max());
             auto [result_min, result_max, update_min_max_event] =
                 update_min_max_results(q,
                                        min_nd,
@@ -212,6 +205,11 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
         }
 
         if (res_op.test(result_options::sum)) {
+            const auto sums_nd =
+                pr::table2ndarray_1d<Float>(q, input_.get_partial_sum(), sycl::usm::alloc::device);
+            const auto sums2_nd = pr::table2ndarray_1d<Float>(q,
+                                                              input_.get_partial_sum_squares(),
+                                                              sycl::usm::alloc::device);
             auto [result_sums, result_sums2, result_sums2cent, merge_sums_event] =
                 update_partial_sums(q,
                                     sums_nd,
