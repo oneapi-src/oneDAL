@@ -1,6 +1,6 @@
 # Documentation owners and reviewers
-/docs/         @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
-*.md           @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
+/docs/         @Vika-F @maria-Petrova @Alexsandruss @aepanchi
+*.md           @Vika-F @maria-Petrova @Alexsandruss @aepanchi
 
 # TTP files
 third-party*   @maria-Petrova
