@@ -65,6 +65,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                       nullptr,
                                                                       daal_eigenvalues.get(),
                                                                       *daal_result));
+
     return result_t{}.set_transformed_data(
         dal::detail::homogen_table_builder{}.reset(arr_result, row_count, component_count).build());
 }

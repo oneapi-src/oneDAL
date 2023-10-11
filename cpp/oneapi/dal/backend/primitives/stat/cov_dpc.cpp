@@ -51,98 +51,6 @@ sycl::event means(sycl::queue& q,
     });
 }
 
-// Subtract 1d array from 2d array elementwise
-template <typename Float>
-sycl::event elementwise_difference(sycl::queue& q,
-                                   std::int64_t row_count,
-                                   const ndview<Float, 2>& minuend,
-                                   const ndview<Float, 1>& subtrahend,
-                                   ndview<Float, 2>& difference,
-                                   const event_vector& deps) {
-    ONEDAL_ASSERT(minuend.has_data());
-    ONEDAL_ASSERT(subtrahend.has_data());
-    ONEDAL_ASSERT(difference.has_mutable_data());
-    ONEDAL_ASSERT(is_known_usm(q, minuend.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, subtrahend.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, difference.get_mutable_data()));
-    ONEDAL_ASSERT(minuend.get_dimension(0) == difference.get_dimension(0));
-    ONEDAL_ASSERT(minuend.get_dimension(1) == subtrahend.get_dimension(0));
-
-    const auto column_count = minuend.get_dimension(1);
-
-    const Float* minuend_ptr = minuend.get_data();
-    const Float* subtrahend_ptr = subtrahend.get_data();
-    Float* difference_ptr = difference.get_mutable_data();
-
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_range_2d(row_count, column_count);
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            difference_ptr[i * column_count + j] =
-                minuend_ptr[i * column_count + j] - subtrahend_ptr[j];
-        });
-    });
-}
-
-// SQRT of 1d array elementwise
-template <typename Float>
-sycl::event elementwise_sqrt(sycl::queue& q,
-                             const ndview<Float, 1>& src,
-                             ndview<Float, 1>& dst,
-                             const event_vector& deps) {
-    ONEDAL_ASSERT(src.has_data());
-    ONEDAL_ASSERT(dst.has_mutable_data());
-    ONEDAL_ASSERT(dst.get_shape() == src.get_shape());
-    Float* dst_ptr = dst.get_mutable_data();
-    const Float* src_ptr = src.get_data();
-    const auto num_elems = src.get_dimension(0);
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_range_1d(num_elems);
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<1> id) {
-            dst_ptr[id[0]] = sycl::sqrt(src_ptr[id[0]]);
-        });
-    });
-}
-
-// Divide 2d array by 1d array elementwise
-template <typename Float>
-sycl::event elementwise_division(sycl::queue& q,
-                                 std::int64_t row_count,
-                                 const ndview<Float, 2>& numerator,
-                                 const ndview<Float, 1>& denominator,
-                                 ndview<Float, 2>& quotient,
-                                 const event_vector& deps) {
-    ONEDAL_ASSERT(numerator.has_data());
-    ONEDAL_ASSERT(denominator.has_data());
-    ONEDAL_ASSERT(quotient.has_mutable_data());
-    ONEDAL_ASSERT(is_known_usm(q, numerator.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, denominator.get_data()));
-    ONEDAL_ASSERT(is_known_usm(q, quotient.get_mutable_data()));
-    ONEDAL_ASSERT(numerator.get_dimension(0) == quotient.get_dimension(0));
-    ONEDAL_ASSERT(numerator.get_dimension(1) == denominator.get_dimension(0));
-
-    const auto column_count = numerator.get_dimension(1);
-
-    const Float* numerator_ptr = numerator.get_data();
-    const Float* denominator_ptr = denominator.get_data();
-    Float* quotient_ptr = quotient.get_mutable_data();
-
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_range_2d(row_count, column_count);
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            ONEDAL_ASSERT(Float(denominator_ptr[j]) != Float(0.0));
-            quotient_ptr[i * column_count + j] =
-                numerator_ptr[i * column_count + j] / denominator_ptr[j];
-        });
-    });
-}
-
 template <typename Float>
 inline sycl::event compute_covariance(sycl::queue& q,
                                       std::int64_t row_count,
@@ -434,37 +342,6 @@ sycl::event correlation_from_covariance(sycl::queue& q,
 
 INSTANTIATE_MEANS(float)
 INSTANTIATE_MEANS(double)
-
-#define INSTANTIATE_ELEMENWISE_DIFFERENCE(F)                                          \
-    template ONEDAL_EXPORT sycl::event elementwise_difference<F>(sycl::queue&,        \
-                                                                 std::int64_t,        \
-                                                                 const ndview<F, 2>&, \
-                                                                 const ndview<F, 1>&, \
-                                                                 ndview<F, 2>&,       \
-                                                                 const event_vector&);
-
-INSTANTIATE_ELEMENWISE_DIFFERENCE(float)
-INSTANTIATE_ELEMENWISE_DIFFERENCE(double)
-
-#define INSTANTIATE_ELEMENWISE_DIVISION(F)                                          \
-    template ONEDAL_EXPORT sycl::event elementwise_division<F>(sycl::queue&,        \
-                                                               std::int64_t,        \
-                                                               const ndview<F, 2>&, \
-                                                               const ndview<F, 1>&, \
-                                                               ndview<F, 2>&,       \
-                                                               const event_vector&);
-
-INSTANTIATE_ELEMENWISE_DIVISION(float)
-INSTANTIATE_ELEMENWISE_DIVISION(double)
-
-#define INSTANTIATE_ELEMENWISE_SQRT(F)                                          \
-    template ONEDAL_EXPORT sycl::event elementwise_sqrt<F>(sycl::queue&,        \
-                                                           const ndview<F, 1>&, \
-                                                           ndview<F, 1>&,       \
-                                                           const event_vector&);
-
-INSTANTIATE_ELEMENWISE_SQRT(float)
-INSTANTIATE_ELEMENWISE_SQRT(double)
 
 #define INSTANTIATE_COV(F)                                                \
     template ONEDAL_EXPORT sycl::event covariance<F>(sycl::queue&,        \

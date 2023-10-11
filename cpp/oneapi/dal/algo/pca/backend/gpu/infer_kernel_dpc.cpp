@@ -22,6 +22,7 @@
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -51,17 +52,21 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     dal::detail::check_mul_overflow(row_count, component_count);
 
     const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
-    auto means_nd = pr::table2ndarray_1d<Float>(queue, means, sycl::usm::alloc::device);
+    const auto means_nd = pr::table2ndarray_1d<Float>(queue, means, sycl::usm::alloc::device);
     auto mean_centered_data_nd =
         pr::ndarray<Float, 2>::empty(queue, { row_count, col_count }, sycl::usm::alloc::device);
     const auto eigenvectors_nd =
         pr::table2ndarray<Float>(queue, eigenvectors, sycl::usm::alloc::device);
 
+    
+    const auto kernel_minus = [=](const Float a, const Float b) -> Float {
+        return a - b;
+    };
+
     sycl::event mean_center_event;
     {
-        ONEDAL_PROFILER_TASK(elementwise_difference, queue);
-        mean_center_event =
-            pr::elementwise_difference(queue, row_count, data_nd, means_nd, mean_centered_data_nd);
+        auto mean_center_event =
+            pr::element_wise(queue, kernel_minus, data_nd, means_nd, mean_centered_data_nd, {});
     }
 
     auto res_nd = pr::ndarray<Float, 2>::empty(queue,
@@ -76,7 +81,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
                               res_nd,
                               Float(1.0),
                               Float(0.0),
-                              { mean_center_event });
+                              { });
         gemm_event.wait_and_throw();
     }
 
@@ -85,22 +90,24 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
             pr::table2ndarray_1d<Float>(queue, eigenvalues, sycl::usm::alloc::device);
         auto sqrt_eigenvalues_nd =
             pr::ndarray<Float, 1>::empty(queue, { component_count }, sycl::usm::alloc::device);
-        pr::elementwise_sqrt(queue, eigenvalues_nd, sqrt_eigenvalues_nd);
+        sqrt_eigenvalues_nd = sqrt(eigenvalues_nd);
+        const auto kernel_sqrt = [=](const Float a) -> Float {
+            return std::sqrt(a);
+        };
+        element_wise(queue, kernel_sqrt, eigenvalues_nd, sqrt_eigenvalues_nd);
 
         auto result_whitened_nd = pr::ndarray<Float, 2>::empty(queue,
                                                                { row_count, component_count },
                                                                sycl::usm::alloc::device);
         sycl::event whiten_event;
         {
-            ONEDAL_PROFILER_TASK(elementwise_division, queue);
-            whiten_event = pr::elementwise_division(queue,
-                                                    row_count,
-                                                    res_nd,
-                                                    sqrt_eigenvalues_nd,
-                                                    result_whitened_nd);
+            const auto kernel_division = [=](const Float a, const Float b) -> Float {
+                return a/b;
+            };
+            auto whiten_event = pr::element_wise(queue, kernel_division, res_nd, eigenvalues_nd, result_whitened_nd, {});
         }
 
-        const auto res_array_whitened = result_whitened_nd.flatten(queue, { whiten_event });
+        const auto res_array_whitened = result_whitened_nd.flatten(queue, { gemm_event });
         const auto res_table = homogen_table::wrap(res_array_whitened, row_count, component_count);
 
         return result_t{}.set_transformed_data(res_table);
