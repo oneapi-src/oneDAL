@@ -43,6 +43,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx, 
     auto queue = ctx.get_queue();
     const csr_table csr_tdata = input.get_data();
     const auto column_count = csr_tdata.get_column_count();
+    auto result_options = desc.get_result_options();
     const auto row_count = csr_tdata.get_row_count();
     auto [csr_data, column_indices, row_offsets] = csr_accessor<const Float>(csr_tdata).pull(queue, { 0, -1 }, sparse_indexing::zero_based);
     auto csr_data_ptr = csr_data.get_data();
@@ -52,17 +53,8 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx, 
     using limits_t = std::numeric_limits<Float>;
     constexpr Float maximum = limits_t::max();
 
-    auto min_arr = pr::ndarray<Float, 2>::empty(queue, { 1, column_count }, sycl::usm::alloc::device);
-    auto max_arr = pr::ndarray<Float, 2>::empty(queue, { 1, column_count }, sycl::usm::alloc::device);
-    auto sum_arr = pr::ndarray<Float, 2>::empty(queue, { 1, column_count }, sycl::usm::alloc::device);
-    auto mean_arr = pr::ndarray<Float, 2>::empty(queue, { 1, column_count }, sycl::usm::alloc::device);
-    auto s2cent_arr = pr::ndarray<Float, 2>::empty(queue, { 1, column_count }, sycl::usm::alloc::device);
-    
-    auto min_arr_ptr = min_arr.get_mutable_data();
-    auto max_arr_ptr = max_arr.get_mutable_data();
-    auto sum_arr_ptr = sum_arr.get_mutable_data();
-    auto mean_arr_ptr = mean_arr.get_mutable_data();
-    auto s2cent_arr_ptr = s2cent_arr.get_mutable_data();
+    auto result_data = pr::ndarray<Float, 2>::empty(queue, {res_opt_count_, column_count }, sycl::usm::alloc::device);
+    auto result_data_ptr = result_data.get_mutable_data();
 
     // const auto local_size = bk::device_max_wg_size();
     const auto nd_range = bk::make_multiple_nd_range_2d({column_count, 1}, {1, 1});
@@ -70,41 +62,50 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx, 
         cgh.parallel_for(nd_range, [=](auto item) {
             std::int32_t col_idx = item.get_global_id(0);
             // Init result arrays
-            min_arr_ptr[col_idx] = maximum;
-            max_arr_ptr[col_idx] = -maximum;
-            sum_arr_ptr[col_idx] = Float(0);
-            mean_arr_ptr[col_idx] = Float(0);
-            s2cent_arr_ptr[col_idx] = Float(0);
+            Float* min = result_data_ptr + 0 * column_count + col_idx;
+            Float* max = result_data_ptr + 1 * column_count + col_idx;
+            Float* sum = result_data_ptr + 2 * column_count + col_idx;
+            Float* sum_squares = result_data_ptr + 3 * column_count + col_idx;
+            Float* sum_squares_centered = result_data_ptr + 4 * column_count + col_idx;
+            Float* mean = result_data_ptr + 5 * column_count + col_idx;
+
+            min[0] = maximum;
+            max[0] = -maximum;
+            sum[0] = Float(0);
+            sum_squares[0] = Float(0);
+            sum_squares_centered[0] = Float(0);
+            mean[0] = Float(0);
 
             for (std::int32_t row_idx = 0; row_idx < row_count; ++row_idx) {
                 for (std::int32_t data_idx = row_offsets_ptr[row_idx]; data_idx < row_offsets_ptr[row_idx + 1]; ++data_idx) {
                     if (column_indices_ptr[data_idx] == col_idx) {
-                        min_arr_ptr[col_idx] = sycl::min<Float>(min_arr_ptr[col_idx], csr_data_ptr[data_idx]);
-                        max_arr_ptr[col_idx] = sycl::max<Float>(max_arr_ptr[col_idx], csr_data_ptr[data_idx]);
-                        sum_arr_ptr[col_idx] += csr_data_ptr[data_idx];
+                        auto val = csr_data_ptr[data_idx];
+                        min[0] = sycl::min<Float>(min[0], val);
+                        max[0] = sycl::max<Float>(max[0], val);
+                        sum[0] += val;
+                        sum_squares[0] += val * val;
                     }
                 }
             }
             // In case column is empty need to compare min and max with zero
-            min_arr_ptr[col_idx] = sycl::min<Float>(min_arr_ptr[col_idx], Float(0));
-            max_arr_ptr[col_idx] = sycl::max<Float>(max_arr_ptr[col_idx], Float(0));
+            min[0] = sycl::min<Float>(min[0], Float(0));
+            max[0] = sycl::max<Float>(max[0], Float(0));
             // Compute mean
-            const auto mean = sum_arr_ptr[col_idx] / row_count;
-            mean_arr_ptr[col_idx] = mean;
+            const auto mean_val = sum[0] / row_count;
+            mean[0] = mean_val;
             // Compute squares
             for (std::int32_t row_idx = 0; row_idx < row_count; ++row_idx) {
                 for (std::int32_t data_idx = row_offsets_ptr[row_idx]; data_idx < row_offsets_ptr[row_idx + 1]; ++data_idx) {
                     if (column_indices_ptr[data_idx] == col_idx) {
                         const auto val = csr_data_ptr[data_idx];
-                        s2cent_arr_ptr[col_idx] += (val - mean) * (val - mean);
+                        sum_squares_centered[0] += (val - mean_val) * (val - mean_val);
                     }
                 }
             }
         });
     });
-    result_t res;
-
-    return res;
+    event.wait_and_throw();
+    return get_result(queue, result_data, result_options);
 }
 
 template class compute_kernel_csr_impl<float>;

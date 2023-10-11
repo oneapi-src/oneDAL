@@ -25,6 +25,7 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/csr_table_builder.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::basic_statistics::test {
@@ -79,73 +80,6 @@ public:
         return result;
     }
 
-    /**
-    * Generates random CSR table based on inputs:
-    * @param row_count          The number of rows in CSR table.
-    * @param column_count       The number of columns in CSR table.
-    * @param indexing           Indexing of CSR table. Can be sparse_indexing::{one_based|zero_based}. Default is one_based.
-    * @param nnz_fraction       The fraction of non-zero elements in CSR table. Default is 0.2.
-    */
-    template<typename Float = float>
-    csr_table generate_random_csr(std::int32_t row_count, std::int32_t column_count, sparse_indexing indexing = sparse_indexing::one_based, Float nnz_fraction = 0.2) {
-        std::int32_t total_count = row_count * column_count;
-        std::int32_t nonzero_count = total_count * nnz_fraction;
-        std::int32_t indexing_shift = bool(indexing == sparse_indexing::one_based);
-
-        std::uint32_t seed = 42;
-        std::mt19937 rng(seed);
-        std::uniform_real_distribution<Float> uniform_data(-3.0f, 3.0f);
-        std::uniform_int_distribution<std::int64_t> uniform_indices(0, column_count - 1);
-        std::uniform_int_distribution<std::int64_t> uniform_ind_count(0, column_count - 1);
-
-        dal::array<Float> data = dal::array<Float>::empty(nonzero_count);
-        auto data_ptr = data.get_mutable_data();
-        auto col_indices = dal::array<std::int64_t>::empty(nonzero_count);
-        auto row_offsets = dal::array<std::int64_t>::empty(row_count + 1);
-        auto col_indices_ptr = col_indices.get_mutable_data();
-        auto row_offsets_ptr = row_offsets.get_mutable_data();
-        // Generate data
-        for (std::int32_t i = 0; i < nonzero_count; ++i) {
-            data_ptr[i] = uniform_data(rng);
-        }
-        // Generate column indices and fill row offsets
-        std::int32_t row_idx = 0;
-        std::int32_t fill_count = 0;
-        row_offsets_ptr[0] = indexing_shift;
-        while (fill_count < nonzero_count && row_idx < row_count) {
-            // Generate the number of non-zero columns for current row
-            int nnz_col_count = uniform_ind_count(rng);
-            nnz_col_count = std::min(nnz_col_count, nonzero_count - fill_count);
-            for (std::int32_t i = 0; i < nnz_col_count; ++i) {
-                std::int32_t col_idx = uniform_indices(rng) + indexing_shift;
-                col_indices_ptr[fill_count + i] = col_idx;
-            }
-            std::sort(col_indices_ptr + fill_count, col_indices_ptr + fill_count + nnz_col_count);
-            // Remove duplications
-            std::int32_t dup_count = 0;
-            for (std::int32_t i = 1; i < nnz_col_count; ++i) {
-                auto cur_ptr = col_indices_ptr + (fill_count - dup_count);
-                if (cur_ptr[i] == cur_ptr[i - 1]) {
-                    ++dup_count;
-                    // Shift the tail if there is duplication
-                    for (std::int32_t j = i + 1; j < nnz_col_count; ++j) {
-                        cur_ptr[j - 1] = cur_ptr[j];
-                    }
-                }
-            }
-            fill_count += (nnz_col_count - dup_count);
-            // Update row offsets
-            row_offsets_ptr[row_idx + 1] = fill_count + indexing_shift;
-        }
-        if (row_idx < row_count) {
-            for (std::int32_t i = row_idx; i <= row_count; ++i) {
-                row_offsets_ptr[i] = nonzero_count;
-            }
-        }
-        // Create table
-        return csr_table::wrap(data, col_indices, row_offsets, column_count, indexing);
-    }
-
     void general_checks(const te::dataframe& data_fr,
                         std::shared_ptr<te::dataframe> weights_fr,
                         bs::result_option_id compute_mode) {
@@ -174,10 +108,22 @@ public:
                             bs::result_option_id compute_mode) {
         const auto desc = bs::descriptor<float_t, basic_statistics::method::sparse>{}
             .set_result_options(compute_mode);
-        bs::compute_result<> compute_result;
 
-        compute_result = this->compute(desc, table);
-
+        auto compute_result = this->compute(desc, table);
+        auto column_count = table.get_column_count();
+        auto min_table = compute_result.get_min();
+        auto max_table = compute_result.get_max();
+        auto min_ptr = row_accessor<const float_t>(min_table).pull({ 0, -1 });
+        auto max_ptr = row_accessor<const float_t>(max_table).pull({ 0, -1 });
+        std::cout << "RESULT: min:" << std::endl;
+        for (int i = 0; i < column_count; ++i) {
+            std::cout << min_ptr[i] << " ";
+        }
+        std::cout << std::endl << "max:" << std::endl;
+        for (int i = 0; i < column_count; ++i) {
+            std::cout << max_ptr[i] << " ";
+        }
+        std::cout << std::endl;
     }
 
     void online_general_checks(const te::dataframe& data_fr,

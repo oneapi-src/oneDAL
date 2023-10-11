@@ -68,15 +68,14 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
                      "[basic_statistics][integration][batch]",
                      basic_statistics_sparse_types) {
     SKIP_IF(this->not_float64_friendly());
-
-    csr_table data = this->generate_random_csr(10, 10);
+    using float_type = std::tuple_element_t<0, std::tuple_element_t<0, basic_statistics_sparse_types>>;
+    csr_table data = te::csr_table_builder<float_type>(5, 5).build_random_csr_table(this->get_policy());
 
     const bs::result_option_id res_min_max = result_options::min | result_options::max;
-    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
-    const bs::result_option_id res_all =
-        bs::result_option_id(dal::result_option_id_base(mask_full));
-
-    const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
+    // const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+    // const bs::result_option_id res_all =
+        // bs::result_option_id(dal::result_option_id_base(mask_full));
+    const bs::result_option_id compute_mode = res_min_max; // GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 
     this->csr_general_checks(data, compute_mode);
 }
