@@ -32,18 +32,19 @@ using parameters_t = detail::compute_parameters<task::compute>;
 namespace daal_covariance = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
+using daal_hyperparameters_t = daal_covariance::internal::Hyperparameter;
+
 template <typename Float, daal::CpuType Cpu>
 using daal_covariance_kernel_t = daal_covariance::internal::
     CovarianceDenseBatchKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
 
 template <typename Float, typename Task>
-static auto convert_parameters(const detail::compute_parameters<Task>& params) {
-    using daal_covariance::internal::Hyperparameter;
+static daal_hyperparameters_t convert_parameters(const detail::compute_parameters<Task>& params) {
     using daal_covariance::internal::HyperparameterId;
 
     const std::int64_t block = params.get_cpu_macro_block();
 
-    Hyperparameter daal_hyperparameter;
+    daal_hyperparameters_t daal_hyperparameter;
     auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
     interop::status_to_exception(status);
 

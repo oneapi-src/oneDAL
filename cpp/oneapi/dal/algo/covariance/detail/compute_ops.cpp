@@ -34,8 +34,8 @@ struct compute_ops_dispatcher<Policy, Float, Method, Task> {
     compute_parameters<Task> select_parameters(const Policy& ctx,
                                                const descriptor_base<Task>& desc,
                                                const compute_input<Task>& input) const {
-        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
-            KERNEL_SINGLE_NODE_CPU(parameters::compute_parameters_cpu<Float, Method, Task>)>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<KERNEL_SINGLE_NODE_CPU(
+            parameters::compute_parameters_cpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
@@ -51,8 +51,8 @@ private:
                                const descriptor_base<Task>& desc,
                                const compute_parameters<Task>& params,
                                const compute_input<Task>& input) const {
-        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
-            KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>)>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<KERNEL_SINGLE_NODE_CPU(
+            backend::compute_kernel_cpu<Float, Method, Task>)>;
         return kernel_dispatcher_t()(ctx, desc, params, input);
     }
 };
