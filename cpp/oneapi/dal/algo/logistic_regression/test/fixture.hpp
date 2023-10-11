@@ -75,6 +75,8 @@ public:
 
     void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
+            //n_ = GENERATE(100, 200);
+            //p_ = GENERATE(10, 20);
             this->n_ = GENERATE(100, 200, 1000, 10000, 50000);
             this->p_ = GENERATE(10, 20, 30);
         }
@@ -170,7 +172,21 @@ public:
         const auto infer_res = this->infer(desc, X_test, train_res.get_model());
 
         table resp_table = infer_res.get_responses();
-        auto resp_host = row_accessor<const float_t>(resp_table).pull({ 0, -1 });
+        auto resp_host = row_accessor<const std::int32_t>(resp_table).pull({ 0, -1 });
+
+        table prob_table = infer_res.get_probabilities();
+        auto prob_host = row_accessor<const float_t>(prob_table).pull({ 0, -1 });
+        // std::cout << "Probs:" << std::endl;
+        // for (std::int64_t i = 0; i < test_size; ++i) {
+        //     std::cout <<  *(prob_host.get_data() + i) << " ";
+        // }
+        // std::cout << std::endl;
+
+        // std::cout << "Responses" << std::endl;
+        // for (std::int64_t i = 0; i < test_size; ++i) {
+        //     std::cout << *(resp_host.get_data() + i) << " ";
+        // }
+        // std::cout << std::endl;
 
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(X_host_.get_mutable_data() + i * p_,
@@ -189,10 +205,10 @@ public:
                 }
             }
             if (i >= train_size) {
+                REQUIRE(abs(val - *(prob_host.get_mutable_data() + i - train_size)) < 1e-5);
                 REQUIRE(*(resp_host.get_mutable_data() + i - train_size) == resp);
             }
         }
-
         std::int64_t acc_algo = 0;
         for (std::int64_t i = 0; i < test_size; ++i) {
             if (*(resp_host.get_mutable_data() + i) ==

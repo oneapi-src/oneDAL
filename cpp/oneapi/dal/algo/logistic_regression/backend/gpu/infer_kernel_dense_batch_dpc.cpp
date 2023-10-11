@@ -79,9 +79,11 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto bsize = propose_block_size<Float>(queue, feature_count, 1);
     const be::uniform_blocking blocking(sample_count, bsize);
 
-    sycl::event last_event;
+    //sycl::event last_event;
 
     row_accessor<const Float> x_accessor(infer);
+
+    be::event_vector all_deps = {};
 
     for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
         const auto last = blocking.get_block_end_index(b);
@@ -94,26 +96,22 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
         auto x_rows = x_accessor.pull(queue, { first, last }, alloc);
         auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, feature_count });
 
-        sycl::event prob_event = pr::compute_probabilities(queue,
-                                                           params_suf,
-                                                           x_nd,
-                                                           probs_slice,
-                                                           fit_intercept,
-                                                           { last_event });
+        sycl::event prob_event =
+            pr::compute_probabilities(queue, params_suf, x_nd, probs_slice, fit_intercept, {});
 
-        const auto* const prob_ptr = probs_slice.get_mutable_data();
+        const auto* const prob_ptr = probs_slice.get_data();
         auto* const resp_ptr = resp_slice.get_mutable_data();
 
-        sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
+        sycl::event fill_resp_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(prob_event);
             const auto range = be::make_range_1d(length);
             cgh.parallel_for(range, [=](sycl::id<1> idx) {
                 resp_ptr[idx] = prob_ptr[idx] < 0.5 ? 0 : 1;
             });
         });
+        all_deps.push_back(fill_resp_event);
     }
-
-    sycl::event::wait({ last_event });
+    be::wait_or_pass(all_deps).wait_and_throw();
 
     auto resp_table = homogen_table::wrap(responses.flatten(queue, {}), sample_count, 1);
     auto prob_table = homogen_table::wrap(probs.flatten(queue, {}), sample_count, 1);
