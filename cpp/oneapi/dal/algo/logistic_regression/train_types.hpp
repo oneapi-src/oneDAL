@@ -79,7 +79,7 @@ public:
     /// and :literal:`responses` property values
     train_input(const table& data, const table& responses);
 
-    train_input(const table& data);
+    //train_input(const table& data);
 
     /// The training set X
     /// @remark default = table{}

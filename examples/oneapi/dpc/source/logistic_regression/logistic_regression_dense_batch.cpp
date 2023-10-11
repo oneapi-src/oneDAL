@@ -55,8 +55,13 @@ void run(sycl::queue& q) {
 
     std::cout << "Fitting model... ";
 
-    const auto log_reg_desc = dal::logistic_regression::descriptor<>(true, 2.0).set_result_options(
-        result_options::coefficients | result_options::intercept);
+    using method_t = dal::logistic_regression::method::dense_batch;
+    using task_t = dal::logistic_regression::task::binary_classification;
+    using optimizer_t = dal::logistic_regression::optimizer::newton_cg;
+
+    const auto log_reg_desc =
+        dal::logistic_regression::descriptor<double, method_t, task_t, optimizer_t>(true, 2.0)
+            .set_result_options(result_options::coefficients | result_options::intercept);
 
     const auto train_result = dal::train(q, log_reg_desc, x_train, y_train);
 

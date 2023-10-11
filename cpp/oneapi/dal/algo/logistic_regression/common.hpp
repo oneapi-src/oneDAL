@@ -187,6 +187,8 @@ optimizer_enum type2enum() {
 ///                     be :expr:`method::dense_batch`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::binary_classification`.
+/// @tparam Optimizer   Tag-type that specifies type of the optimizer used by algorithm.
+///                     Can be :expr:`optimizer::newton_cg`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -211,9 +213,6 @@ public:
                         std::int32_t maxiter = 100,
                         double tol = 1e-4)
             : base_t(compute_intercept, l2_coef, maxiter, tol, type2enum<Optimizer>()) {}
-
-    /// Creates a new instance of the class with default parameters
-    //explicit descriptor() : base_t(true) {}
 
     /// Defines should intercept be taken into consideration.
     bool get_compute_intercept() const {
@@ -296,8 +295,8 @@ public:
     model& set_packed_coefficients(const table& t);
 
 private:
-    //void serialize(dal::detail::output_archive& ar) const;
-    //void deserialize(dal::detail::input_archive& ar);
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
 
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;

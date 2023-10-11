@@ -88,9 +88,6 @@ train_input<Task>::train_input(const table& data, const table& responses)
         : impl_(new train_input_impl<Task>(data, responses)) {}
 
 template <typename Task>
-train_input<Task>::train_input(const table& data) : impl_(new train_input_impl<Task>(data)) {}
-
-template <typename Task>
 const table& train_input<Task>::get_data() const {
     return impl_->data;
 }
