@@ -23,6 +23,7 @@
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -38,10 +39,10 @@ template <typename Float>
 static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& queue = ctx.get_queue();
     const auto data = input.get_data();
-    auto model = input.get_model();
-    auto eigenvectors = model.get_eigenvectors();
-    auto means = model.get_means();
-    auto eigenvalues = model.get_eigenvalues();
+    const auto model = input.get_model();
+    const auto eigenvectors = model.get_eigenvectors();
+    const auto means = model.get_means();
+    const auto eigenvalues = model.get_eigenvalues();
 
     const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(row_count > 0);
@@ -62,7 +63,6 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     const auto kernel_minus = [=](const Float a, const Float b) -> Float {
         return a - b;
     };
-
     sycl::event mean_center_event;
     {
         auto mean_center_event =
@@ -88,23 +88,26 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     if (eigenvalues.has_data()) {
         auto eigenvalues_nd =
             pr::table2ndarray_1d<Float>(queue, eigenvalues, sycl::usm::alloc::device);
-        auto sqrt_eigenvalues_nd =
-            pr::ndarray<Float, 1>::empty(queue, { component_count }, sycl::usm::alloc::device);
-        sqrt_eigenvalues_nd = sqrt(eigenvalues_nd);
-        const auto kernel_sqrt = [=](const Float a) -> Float {
-            return std::sqrt(a);
-        };
-        element_wise(queue, kernel_sqrt, eigenvalues_nd, sqrt_eigenvalues_nd);
+        // const auto sqrt_eigenvalues_nd =
+        //     pr::ndarray<Float, 1>::empty(queue, { component_count }, sycl::usm::alloc::device);
+
+        // const auto kernel_sqrt = [=](const Float a) -> Float {
+        //     return std::sqrt(a);
+        // };
+        // sycl::event sqrt_event;
+        // {
+        //     auto sqrt_event = reduce_1d(queue, eigenvalues_nd, sqrt_eigenvalues_nd, {}, {kernel_sqrt}, {});
+        // }
 
         auto result_whitened_nd = pr::ndarray<Float, 2>::empty(queue,
                                                                { row_count, component_count },
                                                                sycl::usm::alloc::device);
-        sycl::event whiten_event;
-        {
-            const auto kernel_division = [=](const Float a, const Float b) -> Float {
+        const auto kernel_division = [=](const Float a, const Float b) -> Float {
                 return a/b;
             };
-            auto whiten_event = pr::element_wise(queue, kernel_division, res_nd, eigenvalues_nd, result_whitened_nd, {});
+        sycl::event whiten_event;
+        {
+            auto whiten_event = pr::element_wise(queue, kernel_division, res_nd, eigenvalues_nd, result_whitened_nd, {sqrt_event});
         }
 
         const auto res_array_whitened = result_whitened_nd.flatten(queue, { gemm_event });
