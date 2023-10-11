@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ struct compute_kernel_cpu<Float, method_t, task_t> {
                         const descriptor_t& desc,
                         const input_t& input) const {
         result_t res;
+        res.set_result_options(desc.get_result_options());
         // TODO Bind DAAL CPU Sparse implementation
         return res;
     }
