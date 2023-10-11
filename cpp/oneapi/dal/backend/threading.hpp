@@ -100,14 +100,14 @@ class task_executor {
 #if !defined(DAAL_THREAD_PINNING_DISABLED)
     thread_pinner* thread_pinner_;
 #endif
-    tbb::task_arena* create_task_arena(const threading_policy& policy);
+    tbb::task_arena* create_task_arena();
 
 public:
     template <typename F>
     auto execute(F&& f) -> decltype(f());
-    task_executor(threading_policy& policy) {
+    task_executor(threading_policy policy) {
         policy_ = policy;
-        task_arena_ = create_task_arena(policy_);
+        task_arena_ = create_task_arena();
     }
 };
 
