@@ -50,7 +50,6 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx, 
     auto column_indices_ptr = column_indices.get_data();
 
     using limits_t = std::numeric_limits<Float>;
-
     constexpr Float maximum = limits_t::max();
 
     auto result_data = pr::ndarray<Float, 2>::empty(queue, {res_opt_count_, column_count }, sycl::usm::alloc::device);
@@ -77,28 +76,24 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx, 
             std::uint32_t* row_counter_buf = row_counter.get_pointer().get();
 #endif
             auto local_id = item.get_local_id(1);
-            Float* local_min = work_group_buf + local_id * res_opt_count_ + 0;
-            Float* local_max = work_group_buf + local_id * res_opt_count_ + 1;
-            Float* local_sum = work_group_buf + local_id * res_opt_count_ + 2;
-            Float* local_sum_squares = work_group_buf + local_id * res_opt_count_ + 3;
-            Float* local_sum_squares_cent = work_group_buf + local_id * res_opt_count_ + 4;
+            Float* local_stat = work_group_buf + local_id * res_opt_count_;
 
             auto cur_row_counter = row_counter_buf + local_id;
             cur_row_counter[0] = 0;
 
-            local_min[0] = maximum;
-            local_max[0] = -maximum;
-            local_sum[0] = Float(0);
-            local_sum_squares[0] = Float(0);
-            local_sum_squares_cent[0] = Float(0);
+            local_stat[stat::min] = maximum;
+            local_stat[stat::max] = -maximum;
+            local_stat[stat::sum] = Float(0);
+            local_stat[stat::sum_sq] = Float(0);
+            local_stat[stat::sum_sq_cent] = Float(0);
 
             for (std::int32_t data_idx = local_id; data_idx < nonzero_count; data_idx += local_size) {
                 if (column_indices_ptr[data_idx] == col_idx) {
                     auto val = csr_data_ptr[data_idx];
-                    local_min[0] = sycl::min<Float>(local_min[0], val);
-                    local_max[0] = sycl::max<Float>(local_max[0], val);
-                    local_sum[0] += val;
-                    local_sum_squares[0] += val * val;
+                    local_stat[stat::min] = sycl::min<Float>(local_stat[stat::min], val);
+                    local_stat[stat::max] = sycl::max<Float>(local_stat[stat::max], val);
+                    local_stat[stat::sum] += val;
+                    local_stat[stat::sum_sq] += val * val;
                     cur_row_counter[0] += 1;
                 }
             }
@@ -106,48 +101,50 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx, 
             for (std::uint32_t i = local_size / 2; i > 0; i /= 2) {
                 item.barrier(sycl::access::fence_space::local_space);
                 if (local_id < i) {
-                    local_min[0] = sycl::min<Float>(local_min[0], work_group_buf[(local_id + i) * res_opt_count_ + 0]);
-                    local_max[0] = sycl::max<Float>(local_max[0], work_group_buf[(local_id + i) * res_opt_count_ + 1]);
-                    local_sum[0] += work_group_buf[(local_id + i) * res_opt_count_ + 2];
-                    local_sum_squares[0] += work_group_buf[(local_id + i) * res_opt_count_ + 3];
+                    auto opposite_stat = work_group_buf + (local_id + i) * res_opt_count_;
+                    local_stat[stat::min] = sycl::min<Float>(local_stat[stat::min], opposite_stat[stat::min]);
+                    local_stat[stat::max] = sycl::max<Float>(local_stat[stat::max], opposite_stat[stat::max]);
+                    local_stat[stat::sum] += opposite_stat[stat::sum];
+                    local_stat[stat::sum_sq] += opposite_stat[stat::sum_sq];
                     cur_row_counter[0] += row_counter_buf[local_id + i];
                 }
             }
             item.barrier(sycl::access::fence_space::local_space);
             if (local_id == 0) {
-                // In case when some rows are zero it must to compare
+                // In case when some rows are zero it must be compared
                 // min and max with zero
-                local_min[0] = row_counter[0] == row_count ? local_min[0] : sycl::min<Float>(0, local_min[0]);
-                local_max[0] = row_counter[0] == row_count ? local_max[0] : sycl::max<Float>(0, local_max[0]);
+                local_stat[stat::min] = row_counter_buf[0] == row_count ? local_stat[stat::min] : sycl::min<Float>(0, local_stat[stat::min]);
+                local_stat[stat::max] = row_counter_buf[0] == row_count ? local_stat[stat::max] : sycl::max<Float>(0, local_stat[stat::max]);
                 // Copy computed data to global memory
-                result_data_ptr[0 * column_count + col_idx] =  local_min[0];
-                result_data_ptr[1 * column_count + col_idx] = local_max[0];
-                result_data_ptr[2 * column_count + col_idx] = local_sum[0];
-                result_data_ptr[3 * column_count + col_idx] = local_sum_squares[0];
+                result_data_ptr[stat::min * column_count + col_idx] =  local_stat[stat::min];
+                result_data_ptr[stat::max * column_count + col_idx] = local_stat[stat::max];
+                result_data_ptr[stat::sum * column_count + col_idx] = local_stat[stat::sum];
+                result_data_ptr[stat::sum_sq * column_count + col_idx] = local_stat[stat::sum_sq];
 
-                result_data_ptr[5 * column_count + col_idx] = local_sum[0] / row_count;
-                result_data_ptr[6 * column_count + col_idx] = local_sum_squares[0] / row_count;
+                result_data_ptr[stat::mean * column_count + col_idx] = local_stat[stat::sum] / row_count;
+                result_data_ptr[stat::moment2 * column_count + col_idx] = local_stat[stat::sum_sq] / row_count;
             }
             item.barrier(sycl::access::fence_space::local_space);
-            auto mean_val = result_data_ptr[5 * column_count + col_idx];
+            auto mean_val = result_data_ptr[stat::mean * column_count + col_idx];
             for (std::int32_t data_idx = local_id; data_idx < nonzero_count; data_idx += local_size) {
                 if (column_indices_ptr[data_idx] == col_idx) {
                     auto val = csr_data_ptr[data_idx];
-                    local_sum_squares_cent[0] += (val - mean_val) * (val - mean_val);
+                    local_stat[stat::sum_sq_cent] += (val - mean_val) * (val - mean_val);
                 }
             }
             // Reduce local sum squares centered using tree reduction
             for (std::uint32_t i = local_size / 2; i > 0; i /= 2) {
                 item.barrier(sycl::access::fence_space::local_space);
                 if (local_id < i) {
-                    local_sum_squares_cent[0] += work_group_buf[(local_id + i) * res_opt_count_ + 4];
+                    auto opposite_stat = work_group_buf + (local_id + i) * res_opt_count_;
+                    local_stat[stat::sum_sq_cent] += opposite_stat[stat::sum_sq_cent];
                 }
             }
             if (local_id == 0) {
-                result_data_ptr[4 * column_count + col_idx] = local_sum_squares_cent[0];
-                result_data_ptr[7 * column_count + col_idx] = local_sum_squares_cent[0] / (row_count - 1);
-                result_data_ptr[8 * column_count + col_idx] = sycl::sqrt(result_data_ptr[7 * column_count + col_idx]);
-                result_data_ptr[9 * column_count + col_idx] = result_data_ptr[7 * column_count + col_idx] / mean_val;
+                result_data_ptr[stat::sum_sq_cent * column_count + col_idx] = local_stat[stat::sum_sq_cent];
+                result_data_ptr[stat::variance * column_count + col_idx] = local_stat[stat::sum_sq_cent] / (row_count - 1);
+                result_data_ptr[stat::stddev * column_count + col_idx] = sycl::sqrt(result_data_ptr[stat::variance * column_count + col_idx]);
+                result_data_ptr[stat::variation * column_count + col_idx] = result_data_ptr[stat::stddev * column_count + col_idx] / mean_val;
             }
         });
     });
