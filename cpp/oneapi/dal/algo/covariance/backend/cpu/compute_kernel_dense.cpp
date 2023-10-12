@@ -63,7 +63,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
-    const auto hp = convert_parameters<Float, Task>(params);
+    const daal_hyperparameters_t& hp = convert_parameters<Float, Task>(params);
 
     dal::detail::check_mul_overflow(component_count, component_count);
 

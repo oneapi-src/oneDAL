@@ -76,11 +76,10 @@ TEMPLATE_LIST_TEST_M(covariance_params_test,
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 100, 10 }.fill_uniform(0, 1, 7777),
-                           te::dataframe_builder{ 100, 10 }.fill_uniform(-10, 10, 7777),
-                           te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
-                           te::dataframe_builder{ 500, 250 }.fill_uniform(0, 1, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
+                           te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 10000, 100 }.fill_uniform(-30, 30, 7777),
+                           te::dataframe_builder{ 100000, 20 }.fill_uniform(1, 10, 7777));
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
 
