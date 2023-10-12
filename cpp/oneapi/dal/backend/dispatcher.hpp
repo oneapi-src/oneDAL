@@ -374,8 +374,9 @@ inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 
     
     return op(cpu_dispatch_default{});
-}
 #endif
+}
+
 
 
 template <typename Op, typename OnUnknown>
