@@ -31,6 +31,19 @@ namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+enum stat {
+    min,
+    max,
+    sum,
+    sum_sq,
+    sum_sq_cent,
+    mean,
+    moment2,
+    variance,
+    stddev,
+    variation
+};
+
 template <typename Float>
 class compute_kernel_csr_impl {
     using method_t = method::sparse;
