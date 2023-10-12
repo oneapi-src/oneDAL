@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-
+#if !defined(__APPLE__)
 #include "tbb/tbb.h"
 #include "oneapi/dal/detail/policy.hpp"
 
@@ -133,3 +133,5 @@ auto task_executor::execute(F&& f) -> decltype(f()) {
 }
 
 } // namespace oneapi::dal::backend
+
+#endif

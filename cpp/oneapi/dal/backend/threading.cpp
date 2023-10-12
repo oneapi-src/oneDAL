@@ -13,6 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+#if !defined(__APPLE__)
 #define TBB_PREVIEW_TASK_ARENA_CONSTRAINTS_EXTENSION 1
 
 #include "oneapi/dal/backend/threading.hpp"
@@ -79,3 +81,5 @@ tbb::task_arena* task_executor::create_task_arena() {
 }
 
 } // namespace oneapi::dal::backend
+
+#endif

@@ -125,7 +125,6 @@ DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
 
-/*This functionality has been moved to oneDAL side*/
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (!isInit && !externalThreadingControl)

@@ -66,7 +66,7 @@ enum class cpu_extension : uint64_t {
     avx2 = 1U << 4,
     avx512 = 1U << 5
 };
-
+#if !defined(__APPLE__)
 #ifdef DAAL_THREAD_PINNING_DISABLED
 struct ONEDAL_EXPORT threading_policy {
     int max_concurrency;
@@ -90,7 +90,10 @@ struct ONEDAL_EXPORT threading_policy {
               max_threads_per_core(max_threads_per_core_) {}
 };
 #endif
+#endif
 
+
+#if !defined(__APPLE__)
 class ONEDAL_EXPORT host_policy : public base {
     friend pimpl_accessor;
 
@@ -134,6 +137,31 @@ public:
     }
 };
 
+#else
+class ONEDAL_EXPORT default_host_policy {};
+
+class ONEDAL_EXPORT host_policy : public base {
+public:
+    host_policy();
+
+    static const host_policy& get_default() {
+        const static host_policy instance;
+        return instance;
+    }
+
+    cpu_extension get_enabled_cpu_extensions() const noexcept;
+
+    auto& set_enabled_cpu_extensions(const cpu_extension& extensions) {
+        set_enabled_cpu_extensions_impl(extensions);
+        return *this;
+    }
+private:
+    void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
+    pimpl<host_policy_impl> impl_;
+};
+
+#endif
+
 template <>
 struct is_execution_policy<host_policy> : std::bool_constant<true> {};
 
@@ -154,8 +182,11 @@ public:
         return queue_;
     }
 
+#if !defined(__APPLE__)
+
     threading_policy get_threading_policy() const noexcept;
     void set_threading_policy(const threading_policy& policy) noexcept;
+#endif
 
 private:
     void init_impl(const sycl::queue& queue);
@@ -192,7 +223,9 @@ using v1::is_data_parallel_policy_v;
 using v1::cpu_extension;
 using v1::default_host_policy;
 using v1::host_policy;
+#if !defined(__APPLE__)
 using v1::threading_policy;
+#endif
 
 #ifdef ONEDAL_DATA_PARALLEL
 using v1::data_parallel_policy;
