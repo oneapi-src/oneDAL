@@ -72,7 +72,8 @@ protected:
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     using dispatcher_t = gbt::prediction::internal::PredictDispatcher<hasUnorderedFeatures, hasAnyMissing>;
 
-    services::Status runInternal(services::HostAppIface * pHostApp, NumericTable * result, bool predShapContributions, bool predShapInteractions);
+    services::Status runInternal(services::HostAppIface * pHostApp, NumericTable * result, double predictionBias, bool predShapContributions,
+                                 bool predShapInteractions);
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
                                    const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher);
@@ -310,7 +311,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::reg
     _aTree.reset(nTreesTotal);
     DAAL_CHECK_MALLOC(_aTree.get());
     for (size_t i = 0; i < nTreesTotal; ++i) _aTree[i] = m->at(i);
-    return runInternal(pHostApp, this->_res, predShapContributions, predShapInteractions);
+    return runInternal(pHostApp, this->_res, m->getPredictionBias(), predShapContributions, predShapInteractions);
 }
 
 /**
@@ -446,7 +447,8 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(services::HostAppIface * pHostApp, NumericTable * result,
-                                                                          bool predShapContributions, bool predShapInteractions)
+                                                                          double predictionBias, bool predShapContributions,
+                                                                          bool predShapInteractions)
 {
     // assert we're not requesting both contributions and interactions
     DAAL_ASSERT(!(predShapContributions && predShapInteractions));
@@ -481,12 +483,21 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 // thread-local write rows into global result buffer
                 WriteOnlyRows<algorithmFPType, cpu> resRow(result, iStartRow, nRowsToProcess);
                 DAAL_CHECK_BLOCK_STATUS_THR(resRow);
-
+                auto resRowPtr = resRow.get();
+                if ((predictionBias * predictionBias) > (DBL_EPSILON * DBL_EPSILON))
+                {
+                    // memory is already initialized to 0
+                    // only set it to the bias term if it's != 0
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        resRowPtr[i * resultNColumns + predictionIndex] = predictionBias;
+                    }
+                }
                 // bias term: prediction - sum_i phi_i (subtraction in predictContributions)
-                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRow.get(), dim, resultNColumns);
+                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRowPtr, dim, resultNColumns);
 
                 // TODO: support tree weights
-                safeStat |= predictContributions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRow.get(), 0, 0, dim);
+                safeStat |= predictContributions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRowPtr, 0, 0, dim);
             }
             else if (predShapInteractions)
             {
@@ -495,11 +506,15 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 DAAL_CHECK_BLOCK_STATUS_THR(resRow);
 
                 // nominal values are required to calculate the correct bias term
-                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_calloc(nRowsToProcess * sizeof(algorithmFPType)));
+                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_malloc(nRowsToProcess * sizeof(algorithmFPType)));
                 if (!nominal)
                 {
                     safeStat.add(ErrorMemoryAllocationFailed);
                     return;
+                }
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    nominal[i] = predictionBias;
                 }
                 predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim, 1);
 
@@ -511,6 +526,15 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             else
             {
                 algorithmFPType * res = resMatrix.get() + iStartRow;
+                if ((predictionBias * predictionBias) > (DBL_EPSILON * DBL_EPSILON))
+                {
+                    // memory is already initialized to 0
+                    // only set it to the bias term if it's != 0
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        res[i] = predictionBias;
+                    }
+                }
                 predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), res, dim, 1);
             }
         });

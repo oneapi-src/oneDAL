@@ -123,8 +123,26 @@ public:
      */
     virtual size_t getNumberOfTrees() const = 0;
 
+    /**
+     * \brief Set the Prediction Bias term
+     *
+     * \param value global prediction bias
+     */
+    void setPredictionBias(double value) { _predictionBias = value; }
+
+    /**
+     * \brief Get the Prediction Bias term
+     *
+     * \return double prediction bias
+     */
+    double getPredictionBias() const { return _predictionBias; }
+
 protected:
     Model();
+
+private:
+    /* global bias applied to predictions*/
+    double _predictionBias;
 };
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;

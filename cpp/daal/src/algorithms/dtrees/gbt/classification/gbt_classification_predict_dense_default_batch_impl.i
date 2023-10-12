@@ -66,6 +66,13 @@ public:
     PredictBinaryClassificationTask(const NumericTable * x, NumericTable * y, NumericTable * prob) : super(x, y), _prob(prob) {}
     services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nIterations, services::HostAppIface * pHostApp)
     {
+        double bias = m->getPredictionBias();
+        DAAL_ASSERT((bias >= 0) && (bias < 1));
+        if (bias > 0)
+        {
+            // convert to margin
+            bias = -1.0f * daal::internal::MathInst<double, cpu>::sLog(1.0f / bias - 1.0f);
+        }
         DAAL_ASSERT(!nIterations || nIterations <= m->size());
         DAAL_CHECK_MALLOC(this->_featHelper.init(*this->_data));
         const auto nTreesTotal = (nIterations ? nIterations : m->size());
@@ -75,7 +82,7 @@ public:
         const auto nRows = this->_data->getNumberOfRows();
         services::Status s;
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(algorithmFPType));
-        //compute raw boosted values
+        // compute raw boosted values
         if (this->_res && _prob)
         {
             WriteOnlyRows<algorithmFPType, cpu> resBD(this->_res, 0, nRows);
@@ -88,7 +95,7 @@ public:
             TArray<algorithmFPType, cpu> expValPtr(nRows);
             algorithmFPType * expVal = expValPtr.get();
             DAAL_CHECK_MALLOC(expVal);
-            s = super::runInternal(pHostApp, this->_res, false, false);
+            s = super::runInternal(pHostApp, this->_res, bias, false, false);
             if (!s) return s;
 
             auto nBlocks           = daal::threader_get_threads_number();
@@ -120,7 +127,7 @@ public:
             algorithmFPType * expVal = expValPtr.get();
             NumericTablePtr expNT    = HomogenNumericTableCPU<algorithmFPType, cpu>::create(expVal, 1, nRows, &s);
             DAAL_CHECK_MALLOC(expVal);
-            s = super::runInternal(pHostApp, expNT.get(), false, false);
+            s = super::runInternal(pHostApp, expNT.get(), bias, false, false);
             if (!s) return s;
 
             auto nBlocks           = daal::threader_get_threads_number();
@@ -143,12 +150,12 @@ public:
             DAAL_CHECK_BLOCK_STATUS(resBD);
             const algorithmFPType label[2] = { algorithmFPType(1.), algorithmFPType(0.) };
             algorithmFPType * res          = resBD.get();
-            s                              = super::runInternal(pHostApp, this->_res, false, false);
+            s                              = super::runInternal(pHostApp, this->_res, bias, false, false);
             if (!s) return s;
 
             for (size_t iRow = 0; iRow < nRows; ++iRow)
             {
-                //probablity is a sigmoid(f) hence sign(f) can be checked
+                // probability is a sigmoid(f) hence sign(f) can be checked
                 res[iRow] = label[services::internal::SignBit<algorithmFPType, cpu>::get(res[iRow])];
             }
         }
@@ -175,7 +182,7 @@ public:
     services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nClasses, size_t nIterations, services::HostAppIface * pHostApp);
 
 protected:
-    services::Status predictByAllTrees(size_t nTreesTotal, size_t nClasses, const DimType & dim);
+    services::Status predictByAllTrees(size_t nTreesTotal, size_t nClasses, double bias, const DimType & dim);
 
     template <bool hasUnorderedFeatures, bool hasAnyMissing>
     using dispatcher_t = gbt::prediction::internal::PredictDispatcher<hasUnorderedFeatures, hasAnyMissing>;
@@ -398,7 +405,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const gbt::cla
 
     DimType dim(*_data, nTreesTotal, getNumberOfNodes(nTreesTotal));
 
-    return predictByAllTrees(nTreesTotal, nClasses, dim);
+    return predictByAllTrees(nTreesTotal, nClasses, m->getPredictionBias(), dim);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -433,7 +440,7 @@ void PredictMulticlassTask<algorithmFPType, cpu>::predictByTreesVector(algorithm
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(size_t nTreesTotal, size_t nClasses, const DimType & dim)
+services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(size_t nTreesTotal, size_t nClasses, double bias, const DimType & dim)
 {
     WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, dim.nRowsTotal);
     DAAL_CHECK_BLOCK_STATUS(resBD);
@@ -449,7 +456,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
         TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
         algorithmFPType * valFull = valPtr.get();
-        services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(0), nRows * nClasses);
+        services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(bias), nRows * nClasses);
 
         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
