@@ -337,7 +337,7 @@ inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 
     threading_policy policy = ctx.get_threading_policy();
     task_executor task_executor_(policy);
- 
+
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return task_executor_.execute([&]() {
             return op(cpu_dispatch_avx512{});
@@ -358,26 +358,18 @@ inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     });
 #else
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
-        
-            return op(cpu_dispatch_avx512{});
-        })
+        return op(cpu_dispatch_avx512{});
+    })
 
-    ONEDAL_IF_CPU_DISPATCH_AVX2(if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) {
-        
-            return op(cpu_dispatch_avx2{});
-        })
+    ONEDAL_IF_CPU_DISPATCH_AVX2(
+        if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
 
-    ONEDAL_IF_CPU_DISPATCH_SSE42(if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) {
-        
-            return op(cpu_dispatch_sse42{});
-        })
+    ONEDAL_IF_CPU_DISPATCH_SSE42(
+        if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
 
-    
     return op(cpu_dispatch_default{});
 #endif
 }
-
-
 
 template <typename Op, typename OnUnknown>
 inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnUnknown&& on_unknown) {

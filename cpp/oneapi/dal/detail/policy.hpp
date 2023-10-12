@@ -92,7 +92,6 @@ struct ONEDAL_EXPORT threading_policy {
 #endif
 #endif
 
-
 #if !defined(__APPLE__)
 class ONEDAL_EXPORT host_policy : public base {
     friend pimpl_accessor;
@@ -155,6 +154,7 @@ public:
         set_enabled_cpu_extensions_impl(extensions);
         return *this;
     }
+
 private:
     void set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept;
     pimpl<host_policy_impl> impl_;
