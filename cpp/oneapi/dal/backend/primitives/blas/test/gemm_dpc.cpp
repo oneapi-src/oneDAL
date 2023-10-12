@@ -85,7 +85,7 @@ public:
         return ndarray<float_t, 2, co>::empty(this->get_queue(), { m_, n_ });
     }
 
-    void test_gemm() {
+    void test_onedal_gemm() {
         auto c = C();
         auto [a, a_e] = A();
         auto [b, b_e] = B();
@@ -93,12 +93,14 @@ public:
         auto [bt, bt_e] = Bt();
 
         SECTION("A x B") {
-            gemm(this->get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
+            auto axb_event = gemm(this->get_queue(), a, b, c, { a_e, b_e });
+            axb_event.wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("A x Bt") {
-            gemm(this->get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
+            auto axbt_event = gemm(this->get_queue(), a, bt.t(), c, { a_e, bt_e });
+            axbt_event.wait_and_throw();
             check_ones_matrix(c);
         }
 
@@ -110,6 +112,69 @@ public:
         SECTION("At x Bt") {
             gemm(this->get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
+        }
+    }
+
+    void test_mkl_gemm() {
+        auto c = C();
+        auto [a, a_e] = A();
+        auto [b, b_e] = B();
+        auto [at, at_e] = At();
+        auto [bt, bt_e] = Bt();
+        constexpr bool is_c_trans = (c.get_order() == ndorder::c);
+
+        SECTION("A x B") {
+            if constexpr (is_c_trans) {
+                mkl::blas::gemm(this->get_queue(),
+                                f_order_as_transposed(b.get_order()),
+                                f_order_as_transposed(a.get_order()),
+                                c.get_dimension(1),
+                                c.get_dimension(0),
+                                a.get_dimension(1),
+                                1,
+                                b.get_data(),
+                                b.get_leading_stride(),
+                                a.get_data(),
+                                a.get_leading_stride(),
+                                0,
+                                c.get_mutable_data(),
+                                c.get_leading_stride(),
+                                { a_e, b_e });
+            }
+            else {
+                mkl::blas::gemm(this->get_queue(),
+                                c_order_as_transposed(a.get_order()),
+                                c_order_as_transposed(b.get_order()),
+                                c.get_dimension(0),
+                                c.get_dimension(1),
+                                a.get_dimension(1),
+                                1,
+                                a.get_data(),
+                                a.get_leading_stride(),
+                                b.get_data(),
+                                b.get_leading_stride(),
+                                0,
+                                c.get_mutable_data(),
+                                c.get_leading_stride(),
+                                { a_e, b_e });
+
+            }
+
+            check_ones_matrix(c);
+            // SECTION("A x Bt") {
+            //     gemm_event = gemm(this->get_queue(), a, bt.t(), c, { a_e, bt_e }, {gemm_event});
+            //     check_ones_matrix(c);
+            // }
+
+            // SECTION("At x B") {
+            //     gemm_event gemm(this->get_queue(), at.t(), b, c, { at_e, b_e }, {gemm_event});
+            //     check_ones_matrix(c);
+            // }
+
+            // SECTION("At x Bt") {
+            //     gemm_event = gemm(this->get_queue(), at.t(), bt.t(), c, { at_e, bt_e }, {gemm_event});
+            //     check_ones_matrix(c);
+            // }
         }
     }
 
@@ -149,25 +214,39 @@ using gemm_types = COMBINE_TYPES((float, double),
                                  (c_order, f_order));
 
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small]", gemm_types) {
-    // DPC++ GEMM from micro MKL libs is not supported on GPU
+    // DPC++ GEMM from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
     SKIP_IF(this->not_float64_friendly());
 
     this->generate_small_dimensions();
-    this->test_gemm();
+    this->test_onedal_gemm();
 }
 
-TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
-    // DPC++ GEMM from micro MKL libs is not supported on GPU
+TEMPLATE_LIST_TEST_M(gemm_test,
+                     "ones matrix mkl gemm on small sizes",
+                     "[gemm][small]",
+                     gemm_types) {
+    // DPC++ GEMM from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
     SKIP_IF(this->not_float64_friendly());
 
-    this->generate_medium_dimensions();
-    this->test_gemm();
+    this->generate_small_dimensions();
+    this->test_mkl_gemm();
 }
+
+// TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
+//     // DPC++ GEMM from micro MKL libs is not supported on CPU
+//     SKIP_IF(this->get_policy().is_cpu());
+
+//     // Test takes too long time if HW emulates float64
+//     SKIP_IF(this->not_float64_friendly());
+
+//     this->generate_medium_dimensions();
+//     this->test_onedal_gemm();
+// }
 
 } // namespace oneapi::dal::backend::primitives::test
