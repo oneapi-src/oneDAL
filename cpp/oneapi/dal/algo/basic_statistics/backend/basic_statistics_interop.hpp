@@ -31,6 +31,35 @@ namespace bk = dal::backend;
 using task_t = task::compute;
 using descriptor_t = detail::descriptor_base<task_t>;
 
+template <typename Float>
+inline auto get_desc_to_compute(const descriptor_t& desc) {
+    const auto res_op = desc.get_result_options();
+    bool has_min_max = res_op.test(result_options::min) || res_op.test(result_options::max);
+    bool has_other_stat =
+        res_op.test(result_options::mean) || res_op.test(result_options::variance) ||
+        res_op.test(result_options::second_order_raw_moment) ||
+        res_op.test(result_options::variation) || res_op.test(result_options::standard_deviation);
+    bool has_sums = res_op.test(result_options::sum) ||
+                    res_op.test(result_options::sum_squares_centered) || has_other_stat;
+    bool has_sums2 = res_op.test(result_options::sum_squares_centered) ||
+                     res_op.test(result_options::sum_squares_centered) || has_other_stat;
+    auto local_desc =
+        basic_statistics::descriptor<Float, method::dense, basic_statistics::task::compute>();
+    if (has_min_max && has_sums && has_sums2) {
+        local_desc.set_result_options(result_options::min | result_options::max |
+                                      result_options::sum | result_options::sum_squares |
+                                      result_options::sum_squares_centered);
+    }
+    else if (!has_min_max || has_sums || has_sums2) {
+        local_desc.set_result_options(result_options::sum | result_options::sum_squares |
+                                      result_options::sum_squares_centered);
+    }
+    else if (has_min_max && !has_sums && !has_sums2) {
+        local_desc.set_result_options(result_options::min | result_options::max);
+    }
+    return local_desc;
+}
+
 inline auto get_daal_estimates_to_compute(const descriptor_t& desc) {
     const auto res_op = desc.get_result_options();
     const auto res_min_max = result_options::min | result_options::max;

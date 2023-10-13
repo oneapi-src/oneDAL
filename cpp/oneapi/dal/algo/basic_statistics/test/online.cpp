@@ -45,6 +45,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
 
     std::shared_ptr<te::dataframe> weights;
     const bool use_weights = GENERATE(0, 1);
+    const int64_t nBlocks = GENERATE(1, 3, 10);
 
     if (use_weights) {
         const auto row_count = data.get_row_count();
@@ -59,7 +60,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
 
     const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 
-    this->online_general_checks(data, weights, compute_mode);
+    this->online_general_checks(data, weights, compute_mode, nBlocks);
 }
 
 } // namespace oneapi::dal::basic_statistics::test
