@@ -46,10 +46,13 @@ template <typename Float>
 auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
-
+    std::cout << "here 1" << std::endl;
     auto U = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
+    std::cout << "here 2" << std::endl;
     auto S = pr::ndarray<Float, 1>::empty(queue, { row_count }, alloc::device);
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
+    std::cout << "here 3" << std::endl;
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
+    std::cout << "here 4" << std::endl;
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
@@ -57,18 +60,22 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
     std::int64_t ldvt = row_count;
-
-    auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::vectors>(queue,
-                                                                       column_count,
-                                                                       row_count,
-                                                                       data_ptr,
-                                                                       lda,
-                                                                       S_ptr,
-                                                                       U_ptr,
-                                                                       ldu,
-                                                                       V_T_ptr,
-                                                                       ldvt,
-                                                                       {});
+    std::cout << "here 5" << std::endl;
+    {
+        ONEDAL_PROFILER_TASK(gesvd, queue);
+        auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
+                                                                         column_count,
+                                                                         row_count,
+                                                                         data_ptr,
+                                                                         lda,
+                                                                         S_ptr,
+                                                                         U_ptr,
+                                                                         ldu,
+                                                                         V_T_ptr,
+                                                                         ldvt,
+                                                                         {});
+    }
+    std::cout << "here 6" << std::endl;
     return std::make_tuple(U, S, V_T);
 }
 
@@ -91,16 +98,17 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
         auto [U, S, V_T] = svd_decomposition(q_, data_nd);
-
+        std::cout << "here 10" << std::endl;
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, row_count));
         }
         //TODO: fix bug with sign flip function(move computations on gpu)
+        std::cout << "here 11" << std::endl;
         auto u_host = U.to_host(q_);
         if (desc.get_deterministic()) {
             sign_flip(u_host);
         }
-
+        std::cout << "here 12" << std::endl;
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
                 homogen_table::wrap(u_host.flatten(), column_count, column_count));
