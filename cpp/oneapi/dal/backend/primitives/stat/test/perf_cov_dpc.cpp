@@ -54,10 +54,9 @@ TEST("100K x 4K", "[cor][perf]") {
 
     // We need to wait until all previously submitted kernels are executed
     q.wait_and_throw();
-    auto gemm_event = pr::gemm(q, data.t(), data, corr, float_t(1), float_t(0));
-    gemm_event.wait_and_throw();
+    auto gemm_event = pr::gemm(q, data.t(), data, corr, float_t(1), float_t(0), { sums_event });
     BENCHMARK("correlation") {
-        correlation(q, data.get_dimension(0), sums, corr, tmp, { sums_event }).wait_and_throw();
+        correlation(q, data.get_dimension(0), sums, corr, tmp, { gemm_event }).wait_and_throw();
     };
 }
 

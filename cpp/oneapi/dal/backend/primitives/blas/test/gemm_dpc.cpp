@@ -91,25 +91,46 @@ public:
         auto [b, b_e] = B();
         auto [at, at_e] = At();
         auto [bt, bt_e] = Bt();
-        //sycl::event axb_event;
-        //sycl::event axbt_event;
+        sycl::event axb_event, axbt_event, atxb_event, atxbt_event;
         SECTION("A x B") {
-            gemm(this->get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
+            axb_event = gemm(this->get_queue(), a, b, c, float_t(1), float_t(0), { a_e, b_e });
+            axb_event.wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("A x Bt") {
-            gemm(this->get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
+            axbt_event = gemm(this->get_queue(),
+                              a,
+                              bt.t(),
+                              c,
+                              float_t(1),
+                              float_t(0),
+                              { a_e, bt_e, axb_event });
+            axbt_event.wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x B") {
-            gemm(this->get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
+            atxb_event = gemm(this->get_queue(),
+                              at.t(),
+                              b,
+                              c,
+                              float_t(1),
+                              float_t(0),
+                              { at_e, b_e, axbt_event });
+            atxb_event.wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x Bt") {
-            gemm(this->get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
+            atxbt_event = gemm(this->get_queue(),
+                               at.t(),
+                               bt.t(),
+                               c,
+                               float_t(1),
+                               float_t(0),
+                               { at_e, bt_e, atxb_event });
+            atxbt_event.wait_and_throw();
             check_ones_matrix(c);
         }
     }
@@ -121,7 +142,7 @@ public:
         auto [at, at_e] = At();
         auto [bt, bt_e] = Bt();
         constexpr bool is_c_trans = (c.get_order() == ndorder::c);
-        sycl::event axb_event, axbt_event;
+        sycl::event axb_event, axbt_event, atxb_event, atxbt_event;
         SECTION("A x B") {
             if constexpr (is_c_trans) {
                 axb_event = mkl::blas::gemm(this->get_queue(),
@@ -157,9 +178,10 @@ public:
                                             c.get_leading_stride(),
                                             { a_e, b_e });
             }
+            //TODO: create a bug to MKL
+            axb_event.wait_and_throw();
             check_ones_matrix(c);
         }
-        //TODO::create a ticket for MKL with this reproducer
         SECTION("A x Bt") {
             if constexpr (is_c_trans) {
                 axbt_event = mkl::blas::gemm(this->get_queue(),
@@ -195,18 +217,88 @@ public:
                                              c.get_leading_stride(),
                                              { a_e, bt_e, axb_event });
             }
+            //TODO: create a bug to MKL
+            axbt_event.wait_and_throw();
             check_ones_matrix(c);
         }
-
-        // SECTION("At x B") {
-        //     gemm_event gemm(this->get_queue(), at.t(), b, c, { at_e, b_e }, {gemm_event});
-        //     check_ones_matrix(c);
-        // }
-
-        // SECTION("At x Bt") {
-        //     gemm_event = gemm(this->get_queue(), at.t(), bt.t(), c, { at_e, bt_e }, {gemm_event});
-        //     check_ones_matrix(c);
-        // }
+        SECTION("At x B") {
+            if constexpr (is_c_trans) {
+                atxb_event = mkl::blas::gemm(this->get_queue(),
+                                             f_order_as_transposed(b.get_order()),
+                                             f_order_as_transposed(at.t().get_order()),
+                                             c.get_dimension(1),
+                                             c.get_dimension(0),
+                                             at.t().get_dimension(1),
+                                             1,
+                                             b.get_data(),
+                                             b.get_leading_stride(),
+                                             at.t().get_data(),
+                                             at.t().get_leading_stride(),
+                                             0,
+                                             c.get_mutable_data(),
+                                             c.get_leading_stride(),
+                                             { at_e, b_e, axbt_event });
+            }
+            else {
+                atxb_event = mkl::blas::gemm(this->get_queue(),
+                                             c_order_as_transposed(at.t().get_order()),
+                                             c_order_as_transposed(b.get_order()),
+                                             c.get_dimension(0),
+                                             c.get_dimension(1),
+                                             at.t().get_dimension(1),
+                                             1,
+                                             at.t().get_data(),
+                                             at.t().get_leading_stride(),
+                                             b.get_data(),
+                                             b.get_leading_stride(),
+                                             0,
+                                             c.get_mutable_data(),
+                                             c.get_leading_stride(),
+                                             { at_e, b_e, axbt_event });
+            }
+            //TODO: create a bug to MKL
+            atxb_event.wait_and_throw();
+            check_ones_matrix(c);
+        }
+        SECTION("At x Bt") {
+            if constexpr (is_c_trans) {
+                atxbt_event = mkl::blas::gemm(this->get_queue(),
+                                              f_order_as_transposed(bt.t().get_order()),
+                                              f_order_as_transposed(at.t().get_order()),
+                                              c.get_dimension(1),
+                                              c.get_dimension(0),
+                                              at.t().get_dimension(1),
+                                              1,
+                                              bt.t().get_data(),
+                                              bt.t().get_leading_stride(),
+                                              at.t().get_data(),
+                                              at.t().get_leading_stride(),
+                                              0,
+                                              c.get_mutable_data(),
+                                              c.get_leading_stride(),
+                                              { at_e, bt_e, atxb_event });
+            }
+            else {
+                atxbt_event = mkl::blas::gemm(this->get_queue(),
+                                              c_order_as_transposed(at.t().get_order()),
+                                              c_order_as_transposed(bt.t().get_order()),
+                                              c.get_dimension(0),
+                                              c.get_dimension(1),
+                                              at.t().get_dimension(1),
+                                              1,
+                                              at.t().get_data(),
+                                              at.t().get_leading_stride(),
+                                              bt.t().get_data(),
+                                              bt.t().get_leading_stride(),
+                                              0,
+                                              c.get_mutable_data(),
+                                              c.get_leading_stride(),
+                                              { at_e, bt_e, atxb_event });
+            }
+            //TODO: create a bug to MKL
+            atxbt_event.wait_and_throw();
+            check_ones_matrix(c);
+        }
     }
 
     void check_ones_matrix(const ndarray<float_t, 2, co>& mat) {
@@ -269,15 +361,32 @@ TEMPLATE_LIST_TEST_M(gemm_test,
     this->test_mkl_gemm();
 }
 
-// TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
-//     // DPC++ GEMM from micro MKL libs is not supported on CPU
-//     SKIP_IF(this->get_policy().is_cpu());
+TEMPLATE_LIST_TEST_M(gemm_test,
+                     "ones matrix onedal gemm on medium sizes",
+                     "[gemm][medium]",
+                     gemm_types) {
+    // DPC++ GEMM from micro MKL libs is not supported on CPU
+    SKIP_IF(this->get_policy().is_cpu());
 
-//     // Test takes too long time if HW emulates float64
-//     SKIP_IF(this->not_float64_friendly());
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
 
-//     this->generate_medium_dimensions();
-//     this->test_onedal_gemm();
-// }
+    this->generate_medium_dimensions();
+    this->test_onedal_gemm();
+}
+
+TEMPLATE_LIST_TEST_M(gemm_test,
+                     "ones matrix onemkl gemm on medium sizes",
+                     "[gemm][medium]",
+                     gemm_types) {
+    // DPC++ GEMM from micro MKL libs is not supported on CPU
+    SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
+
+    this->generate_medium_dimensions();
+    this->test_mkl_gemm();
+}
 
 } // namespace oneapi::dal::backend::primitives::test
