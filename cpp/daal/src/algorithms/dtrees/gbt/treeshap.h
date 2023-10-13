@@ -24,7 +24,7 @@
  * XGBoost is licensed under Apache-2 (https://github.com/dmlc/xgboost/blob/master/LICENSE)
  *
  * Fast TreeSHAP algorithm v1 and v2 by Jilei Yang, 2021
- * https://arxiv.org/abs/2109.09847.
+ * https://arxiv.org/abs/2109.09847
  * C code available at https://github.com/linkedin/FastTreeSHAP/blob/master/fasttreeshap/cext/_cext.cc
  * Fast TreeSHAP is licensed under BSD-2 (https://github.com/linkedin/FastTreeSHAP/blob/master/LICENSE)
  */
