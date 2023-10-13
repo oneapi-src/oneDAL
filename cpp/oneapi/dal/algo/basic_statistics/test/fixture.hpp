@@ -104,26 +104,15 @@ public:
         check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
-    void csr_general_checks(const csr_table& table,
-                            bs::result_option_id compute_mode) {
-        const auto desc = bs::descriptor<float_t, basic_statistics::method::sparse>{}
-            .set_result_options(compute_mode);
-
-        auto compute_result = this->compute(desc, table);
-        auto column_count = table.get_column_count();
-        auto min_table = compute_result.get_min();
-        auto max_table = compute_result.get_max();
-        auto min_ptr = row_accessor<const float_t>(min_table).pull({ 0, -1 });
-        auto max_ptr = row_accessor<const float_t>(max_table).pull({ 0, -1 });
-        std::cout << "RESULT: min:" << std::endl;
-        for (int i = 0; i < column_count; ++i) {
-            std::cout << min_ptr[i] << " ";
-        }
-        std::cout << std::endl << "max:" << std::endl;
-        for (int i = 0; i < column_count; ++i) {
-            std::cout << max_ptr[i] << " ";
-        }
-        std::cout << std::endl;
+    void csr_general_checks(const te::csr_table_builder& data, bs::result_option_id compute_mode) {
+        const auto desc =
+            bs::descriptor<float_t, basic_statistics::method::sparse>{}.set_result_options(
+                compute_mode);
+        const auto csr_table = data.build_csr_table(this->get_policy());
+        const auto dense_table = data.build_dense_table();
+        auto compute_result = this->compute(desc, csr_table);
+        table weights;
+        check_compute_result(compute_mode, dense_table, weights, compute_result);
     }
 
     void online_general_checks(const te::dataframe& data_fr,
@@ -314,14 +303,12 @@ public:
                                              (elem * weight - ref_mean.get(0, clmn));
             }
         }
-
         for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
             ref_sorm.set(0, clmn) = ref_sum2.get(0, clmn) / float_t(row_count);
             ref_varc.set(0, clmn) = ref_sum2cent.get(0, clmn) / float_t(row_count - 1);
             ref_stdev.set(0, clmn) = std::sqrt(ref_varc.get(0, clmn));
             ref_vart.set(0, clmn) = ref_stdev.get(0, clmn) / ref_mean.get(0, clmn);
         }
-
         if (compute_mode.test(result_options::min)) {
             const table ref = homogen_table::wrap(ref_min.get_array(), 1l, column_count);
             check_if_close(result.get_min(), ref, "Min");
@@ -406,6 +393,7 @@ private:
 };
 
 using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));
-using basic_statistics_sparse_types = COMBINE_TYPES((float, double), (basic_statistics::method::sparse));
+using basic_statistics_sparse_types = COMBINE_TYPES((float, double),
+                                                    (basic_statistics::method::sparse));
 
 } // namespace oneapi::dal::basic_statistics::test
