@@ -1,17 +1,28 @@
 # Documentation owners and reviewers
-/docs/         @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
-*.md           @Vika-F @maria-Petrova @Alexsandruss @alexandraepan
+/docs/         @Vika-F @maria-Petrova @Alexsandruss @aepanchi
+*.md           @Vika-F @maria-Petrova @Alexsandruss @aepanchi
 
-samples/       @maria-Petrova @Alexsandruss
+# TTP files
+third-party*   @maria-Petrova
+
+# Samples & examples
+samples/       @maria-Petrova @Alexsandruss @Alexandr-Solovev
 examples/      @maria-Petrova @Alexsandruss @samir-nasibli
 
-.ci/           @Alexsandruss @napetrov
-.github/       @Alexsandruss @napetrov
+# Infrastructure and tools
+.ci/           @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser
+.github/       @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser
+.bazelversion  @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser
+WORKSPACE      @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser
 
+# Build & dev infrastructure
 make*          @Alexsandruss
 cmake/         @Alexsandruss
-deploy/        @Alexsandruss
-dev/           @Alexsandruss
+deploy/        @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser 
+dev/           @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser 
 
-cpp/daal/      @Alexsandruss @samir-nasibli
-cpp/oneapi/    @Alexsandruss @samir-nasibli @KulikovNikita
+# C++ code
+cpp/           @Alexsandruss @samir-nasibli @KulikovNikita @Alexandr-Solovev
+
+# Tree based methods
+dtrees         @razdoburdin @ahuber21 @avolkov-intel @icfaust
