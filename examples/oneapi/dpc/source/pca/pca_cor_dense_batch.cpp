@@ -30,11 +30,11 @@
 namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
-    const auto train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name = get_data_path("pca_centered.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 
-    const auto pca_desc = dal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
+    const auto pca_desc = dal::pca::descriptor<>().set_component_count(2).set_deterministic(true);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 

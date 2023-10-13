@@ -26,6 +26,7 @@
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -41,43 +42,69 @@ using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
+template <typename Float>
+auto compute_sums(sycl::queue& q,
+                  const pr::ndview<Float, 2>& data,
+                  const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_sums, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) > 0);
+
+    const std::int64_t column_count = data.get_dimension(1);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
+    return std::make_tuple(sums, reduce_event);
+}
+
+template <typename Float>
+auto compute_means(sycl::queue& q,
+                   const pr::ndview<Float, 1>& sums,
+                   std::int64_t row_count,
+                   const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(sums.get_dimension(0) > 0);
+
+    const std::int64_t column_count = sums.get_dimension(0);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto means_event = pr::means(q, row_count, sums, means, deps);
+    return std::make_tuple(means, means_event);
+}
+
 //TODO::call wrapper instead of direct call of mkl
 template <typename Float>
 auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
-    std::cout << "here 1" << std::endl;
+
     auto U = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
-    std::cout << "here 2" << std::endl;
-    auto S = pr::ndarray<Float, 1>::empty(queue, { row_count }, alloc::device);
-    std::cout << "here 3" << std::endl;
+
+    auto S = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
+
     auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
-    std::cout << "here 4" << std::endl;
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
-    std::int64_t lda = data.get_leading_stride();
-    std::int64_t ldu = U.get_leading_stride();
-    std::int64_t ldvt = V_T.get_leading_stride();
-
-    std::cout << "here 5" << std::endl;
+    std::int64_t lda = column_count;
+    std::int64_t ldu = column_count;
+    std::int64_t ldvt = row_count;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::somevec>(queue,
-                                                                           row_count,
-                                                                           column_count,
-                                                                           data_ptr,
-                                                                           lda,
-                                                                           S_ptr,
-                                                                           U_ptr,
-                                                                           ldu,
-                                                                           V_T_ptr,
-                                                                           ldvt,
-                                                                           {});
+        auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::novec>(queue,
+                                                                         column_count,
+                                                                         row_count,
+                                                                         data_ptr,
+                                                                         lda,
+                                                                         S_ptr,
+                                                                         U_ptr,
+                                                                         ldu,
+                                                                         V_T_ptr,
+                                                                         ldvt,
+                                                                         {});
     }
-    std::cout << "here 6" << std::endl;
     return std::make_tuple(U, S, V_T);
 }
 
@@ -93,29 +120,27 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
-    if (data.get_data_layout() == data_layout::row_major) {
-        std::cout << "row major" << std::endl;
-    }
-    else if (data.get_data_layout() == data_layout::column_major) {
-        std::cout << "column major" << std::endl;
-    }
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     //TODO: add mean centering by default
+    auto [sums, sums_event] = compute_sums(q_, data_nd);
+    auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
 
+    const auto kernel_minus = [=](const Float a, const Float b) -> Float {
+        return a - b;
+    };
+    auto compute_event =
+        element_wise(q_, kernel_minus, data_nd, means, data_nd, { means_event }); // r0 = Ax0 - b
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
         auto [U, S, V_T] = svd_decomposition(q_, data_nd);
-        std::cout << "here 10" << std::endl;
         if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, row_count));
+            result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, column_count));
         }
         //TODO: fix bug with sign flip function(move computations on gpu)
-        std::cout << "here 11" << std::endl;
         auto u_host = U.to_host(q_);
         if (desc.get_deterministic()) {
             sign_flip(u_host);
         }
-        std::cout << "here 12" << std::endl;
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
                 homogen_table::wrap(u_host.flatten(), column_count, column_count));

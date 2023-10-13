@@ -27,8 +27,8 @@ namespace mkl = oneapi::fpk;
 
 template <mkl::jobsvd jobu, mkl::jobsvd jobvt, typename Float>
 sycl::event gesvd(sycl::queue &queue,
-                  std::int64_t m,
-                  std::int64_t n,
+                  std::int64_t row_count,
+                  std::int64_t column_count,
                   Float *a,
                   std::int64_t lda,
                   Float *s,

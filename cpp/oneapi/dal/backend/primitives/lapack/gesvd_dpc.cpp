@@ -26,8 +26,8 @@ template <typename Float>
 static sycl::event gesvd_wrapper(sycl::queue& queue,
                                  mkl::jobsvd jobu,
                                  mkl::jobsvd jobvt,
-                                 std::int64_t column_count,
                                  std::int64_t row_count,
+                                 std::int64_t column_count,
                                  Float* data_ptr,
                                  std::int64_t lda,
                                  Float* S_ptr,
@@ -58,8 +58,8 @@ static sycl::event gesvd_wrapper(sycl::queue& queue,
 
 template <mkl::jobsvd jobu, mkl::jobsvd jobvt, typename Float>
 sycl::event gesvd(sycl::queue& queue,
-                  std::int64_t m,
-                  std::int64_t n,
+                  std::int64_t row_count,
+                  std::int64_t column_count,
                   Float* a,
                   std::int64_t lda,
                   Float* s,
@@ -75,8 +75,14 @@ sycl::event gesvd(sycl::queue& queue,
     // std::int64_t lda = m;
     // std::int64_t ldu = m;
     // std::int64_t ldvt = n;
-    const auto scratchpad_size =
-        mkl::lapack::gesvd_scratchpad_size<Float>(queue, job_u, job_vt, m, n, lda, ldu, ldvt);
+    const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
+                                                                           job_u,
+                                                                           job_vt,
+                                                                           row_count,
+                                                                           column_count,
+                                                                           lda,
+                                                                           ldu,
+                                                                           ldvt);
 
     auto scratchpad =
         ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
@@ -84,8 +90,8 @@ sycl::event gesvd(sycl::queue& queue,
     return gesvd_wrapper(queue,
                          job_u,
                          job_vt,
-                         m,
-                         n,
+                         row_count,
+                         column_count,
                          a,
                          lda,
                          s,
