@@ -51,29 +51,31 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     std::cout << "here 2" << std::endl;
     auto S = pr::ndarray<Float, 1>::empty(queue, { row_count }, alloc::device);
     std::cout << "here 3" << std::endl;
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
     std::cout << "here 4" << std::endl;
+
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
-    std::int64_t lda = column_count;
-    std::int64_t ldu = column_count;
-    std::int64_t ldvt = row_count;
+    std::int64_t lda = data.get_leading_stride();
+    std::int64_t ldu = U.get_leading_stride();
+    std::int64_t ldvt = V_T.get_leading_stride();
+
     std::cout << "here 5" << std::endl;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
-                                                                         column_count,
-                                                                         row_count,
-                                                                         data_ptr,
-                                                                         lda,
-                                                                         S_ptr,
-                                                                         U_ptr,
-                                                                         ldu,
-                                                                         V_T_ptr,
-                                                                         ldvt,
-                                                                         {});
+        auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::somevec>(queue,
+                                                                           row_count,
+                                                                           column_count,
+                                                                           data_ptr,
+                                                                           lda,
+                                                                           S_ptr,
+                                                                           U_ptr,
+                                                                           ldu,
+                                                                           V_T_ptr,
+                                                                           ldvt,
+                                                                           {});
     }
     std::cout << "here 6" << std::endl;
     return std::make_tuple(U, S, V_T);
@@ -91,7 +93,12 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
-
+    if (data.get_data_layout() == data_layout::row_major) {
+        std::cout << "row major" << std::endl;
+    }
+    else if (data.get_data_layout() == data_layout::column_major) {
+        std::cout << "column major" << std::endl;
+    }
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     //TODO: add mean centering by default
 
