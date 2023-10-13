@@ -28,7 +28,6 @@ using input_t = compute_input<task_t, dal::csr_table>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
-
 template <typename Float>
 struct compute_kernel_gpu<Float, method_t, task_t> {
     result_t operator()(const bk::context_gpu& ctx,

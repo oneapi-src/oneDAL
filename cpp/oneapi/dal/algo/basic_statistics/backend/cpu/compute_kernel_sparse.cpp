@@ -41,16 +41,42 @@ using descriptor_t = detail::descriptor_base<task_t>;
 namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
 
+template <typename Float, daal::CpuType Cpu>
+using daal_lom_batch_kernel_t =
+    daal_lom::internal::LowOrderMomentsBatchKernel<Float, daal_lom::fastCSR, Cpu>;
+
+template <typename Float>
+result_t call_daal_kernel_without_weights(const context_cpu& ctx,
+                                          const descriptor_t& desc,
+                                          const csr_table& data) {
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+
+    auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
+    auto daal_input = daal_lom::Input();
+    auto daal_result = daal_lom::Result();
+
+    daal_input.set(daal_lom::InputId::data, daal_data);
+
+    interop::status_to_exception(
+        daal_result.allocate<Float>(&daal_input, &daal_parameter, daal_lom::fastCSR));
+
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
+                                                                  daal_data.get(),
+                                                                  &daal_result,
+                                                                  &daal_parameter));
+
+    auto result =
+        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+    return result;
+}
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method_t, task_t> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        result_t res;
-        res.set_result_options(desc.get_result_options());
-        // TODO Bind DAAL CPU Sparse implementation
-        return res;
+        return call_daal_kernel_without_weights<Float>(ctx, desc, input.get_data());
     }
 };
 

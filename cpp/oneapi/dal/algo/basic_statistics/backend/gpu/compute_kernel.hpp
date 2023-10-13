@@ -24,7 +24,9 @@ namespace oneapi::dal::basic_statistics::backend {
 
 template <typename Float, typename Method, typename Task>
 struct compute_kernel_gpu {
-    using input_t = std::conditional_t<std::is_same_v<Method, method::dense>, compute_input<Task, table>, compute_input<Task, csr_table>>;
+    using input_t = std::conditional_t<std::is_same_v<Method, method::dense>,
+                                       compute_input<Task, table>,
+                                       compute_input<Task, csr_table>>;
 
     compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                     const detail::descriptor_base<Task>& params,

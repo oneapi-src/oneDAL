@@ -31,18 +31,7 @@ namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-enum stat {
-    min,
-    max,
-    sum,
-    sum_sq,
-    sum_sq_cent,
-    mean,
-    moment2,
-    variance,
-    stddev,
-    variation
-};
+enum stat { min, max, sum, sum_sq, sum_sq_cent, mean, moment2, variance, stddev, variation };
 
 template <typename Float>
 class compute_kernel_csr_impl {
@@ -61,67 +50,81 @@ private:
     static const std::int32_t res_opt_count_ = 10;
     // An array of basic statistics
     const result_option_id res_options_[res_opt_count_] = { result_options::min,
-                                                          result_options::max,
-                                                          result_options::sum,
-                                                          result_options::sum_squares,
-                                                          result_options::sum_squares_centered,
-                                                          result_options::mean,
-                                                          result_options::second_order_raw_moment,
-                                                          result_options::variance,
-                                                          result_options::standard_deviation,
-                                                          result_options::variation };
+                                                            result_options::max,
+                                                            result_options::sum,
+                                                            result_options::sum_squares,
+                                                            result_options::sum_squares_centered,
+                                                            result_options::mean,
+                                                            result_options::second_order_raw_moment,
+                                                            result_options::variance,
+                                                            result_options::standard_deviation,
+                                                            result_options::variation };
 
-    result_t get_result(sycl::queue q, const pr::ndarray<Float, 2> computed_result, result_option_id requested_results) {
+    result_t get_result(sycl::queue q,
+                        const pr::ndarray<Float, 2> computed_result,
+                        result_option_id requested_results) {
         result_t res;
-        auto data_host = computed_result.to_host(q).get_data();
-        auto column_count = computed_result.get_shape()[1];
         res.set_result_options(requested_results);
         if (requested_results.test(result_options::min)) {
             auto index = get_result_option_index(result_options::min);
-            res.set_min(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_min(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::max)) {
             auto index = get_result_option_index(result_options::max);
-            res.set_max(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_max(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::sum)) {
             auto index = get_result_option_index(result_options::sum);
-            res.set_sum(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_sum(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::sum_squares)) {
             auto index = get_result_option_index(result_options::sum_squares);
-            res.set_sum_squares(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_sum_squares(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::sum_squares_centered)) {
             auto index = get_result_option_index(result_options::sum_squares_centered);
-            res.set_sum_squares_centered(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_sum_squares_centered(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::mean)) {
             auto index = get_result_option_index(result_options::mean);
-            res.set_mean(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_mean(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::second_order_raw_moment)) {
             auto index = get_result_option_index(result_options::second_order_raw_moment);
-            res.set_second_order_raw_moment(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_second_order_raw_moment(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::variance)) {
             auto index = get_result_option_index(result_options::variance);
-            res.set_variance(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_variance(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::standard_deviation)) {
             auto index = get_result_option_index(result_options::standard_deviation);
-            res.set_standard_deviation(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_standard_deviation(get_result_table(q, computed_result, index));
         }
         if (requested_results.test(result_options::variation)) {
             auto index = get_result_option_index(result_options::variation);
-            res.set_variation(homogen_table::wrap(data_host + index * column_count, 1, column_count));
+            res.set_variation(get_result_table(q, computed_result, index));
         }
         return res;
     }
 
+    table get_result_table(sycl::queue q,
+                           const pr::ndarray<Float, 2> computed_result,
+                           std::int32_t index) {
+        auto column_count = computed_result.get_shape()[1];
+        const auto arr = dal::array<Float>::empty(column_count);
+        dal::backend::copy_usm2host(q,
+                                    arr.get_mutable_data(),
+                                    computed_result.get_data() + index * column_count,
+                                    column_count)
+            .wait_and_throw();
+        return homogen_table::wrap(arr, 1, column_count);
+    }
+
     std::int32_t get_result_option_index(result_option_id opt) {
         std::int32_t index = 0;
-        while (!opt.test(res_options_[index])) ++index;
+        while (!opt.test(res_options_[index]))
+            ++index;
         return index;
     }
 };

@@ -44,7 +44,7 @@ namespace v1 {
 struct dense {};
 
 /// Tag-type that denotes sparse computational method.
-struct sparse{};
+struct sparse {};
 
 /// Alias tag-type for dense computational method.
 using by_default = dense;

@@ -17,8 +17,6 @@
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-// TODO Remove debug prints
-#include <iostream>
 
 namespace oneapi::dal::test::engine {
 
@@ -27,60 +25,61 @@ namespace pr = dal::backend::primitives;
 /**
 * Generates random CSR table based on inputs
 */
-template <typename Float>
 struct csr_table_builder {
-    std::int32_t row_count_, column_count_;
+    using Float = float;
+    std::int64_t row_count_, column_count_;
     float nonzero_fraction_;
     sparse_indexing indexing_;
-    pr::ndarray<Float, 1> data_;
-    pr::ndarray<std::int64_t, 1> column_indices_;
-    pr::ndarray<std::int64_t, 1> row_offsets_;
+    const dal::array<Float> data_;
+    const dal::array<std::int64_t> column_indices_;
+    const dal::array<std::int64_t> row_offsets_;
 
-    csr_table_builder(std::int32_t row_count,
-                      std::int32_t column_count,
+    csr_table_builder(std::int64_t row_count,
+                      std::int64_t column_count,
                       float nnz_fraction = 0.2,
                       sparse_indexing indexing = sparse_indexing::zero_based)
             : row_count_(row_count),
               column_count_(column_count),
               nonzero_fraction_(nnz_fraction),
-              indexing_(indexing)
-    {
-        std::int32_t total_count = row_count_ * column_count_;
-        std::int32_t nonzero_count = total_count * nnz_fraction;
-        std::int32_t indexing_shift = bool(indexing == sparse_indexing::one_based);
+              indexing_(indexing),
+              data_(dal::array<Float>::empty(nnz_fraction * row_count * column_count)),
+              column_indices_(
+                  dal::array<std::int64_t>::empty(nnz_fraction * row_count * column_count)),
+              row_offsets_(dal::array<std::int64_t>::empty(row_count + 1)) {
+        std::int64_t total_count = row_count_ * column_count_;
+        std::int64_t nonzero_count = total_count * nnz_fraction;
+        std::int64_t indexing_shift = bool(indexing == sparse_indexing::one_based);
 
         std::uint32_t seed = 42;
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> uniform_data(-3.0f, 3.0f);
-        std::uniform_int_distribution<std::int64_t> uniform_indices(0, column_count_ - 1);
+        std::uniform_int_distribution<std::int64_t> uniform_indices(
+            0,
+            column_count_ - 1 - indexing_shift);
         std::uniform_int_distribution<std::int64_t> uniform_ind_count(0, column_count_ - 1);
 
-        pr::ndarray<Float, 1> data = pr::ndarray<Float, 1>::empty(nonzero_count);
-        auto col_indices = pr::ndarray<std::int64_t, 1>::empty(nonzero_count);
-        auto row_offsets = pr::ndarray<std::int64_t, 1>::empty(row_count_ + 1);
-
-        auto data_ptr = data.get_mutable_data();
-        auto col_indices_ptr = col_indices.get_mutable_data();
-        auto row_offsets_ptr = row_offsets.get_mutable_data();
+        auto data_ptr = data_.get_mutable_data();
+        auto col_indices_ptr = column_indices_.get_mutable_data();
+        auto row_offsets_ptr = row_offsets_.get_mutable_data();
         // Generate data
         for (std::int32_t i = 0; i < nonzero_count; ++i) {
             data_ptr[i] = uniform_data(rng);
         }
         // Generate column indices and fill row offsets
-        std::int32_t row_idx = 0;
-        std::int32_t fill_count = 0;
+        std::int64_t row_idx = 0;
+        std::int64_t fill_count = 0;
         row_offsets_ptr[0] = indexing_shift;
         while (fill_count < nonzero_count && row_idx < row_count_) {
             // Generate the number of non-zero columns for current row
-            int nnz_col_count = uniform_ind_count(rng);
+            std::int64_t nnz_col_count = uniform_ind_count(rng);
             nnz_col_count = std::min(nnz_col_count, nonzero_count - fill_count);
             for (std::int32_t i = 0; i < nnz_col_count; ++i) {
-                std::int32_t col_idx = uniform_indices(rng) + indexing_shift;
+                std::int64_t col_idx = uniform_indices(rng) + indexing_shift;
                 col_indices_ptr[fill_count + i] = col_idx;
             }
             std::sort(col_indices_ptr + fill_count, col_indices_ptr + fill_count + nnz_col_count);
             // Remove duplications
-            std::int32_t dup_count = 0;
+            std::int64_t dup_count = 0;
             for (std::int32_t i = 1; i < nnz_col_count; ++i) {
                 auto cur_ptr = col_indices_ptr + (fill_count - dup_count);
                 if (cur_ptr[i] == cur_ptr[i - 1]) {
@@ -98,54 +97,80 @@ struct csr_table_builder {
         }
         if (row_idx < row_count_) {
             for (std::int32_t i = row_idx; i <= row_count_; ++i) {
-                row_offsets_ptr[i] = nonzero_count;
+                row_offsets_ptr[i] = nonzero_count + indexing_shift;
             }
         }
-        std::cout << "DATA nnz=" << nonzero_count << ", row_count=" << row_count_
-                  << ", column_indices_count=" << nonzero_count << ":\n";
-        for (int i = 0; i < nonzero_count; ++i) {
-            std::cout << data_ptr[i] << " ";
-        }
-        std::cout << std::endl << "row_offsets:" << std::endl;
-        for (int i = 0; i < row_count_ + 1; ++i) {
-            std::cout << row_offsets_ptr[i] << " ";
-        }
-        std::cout << std::endl << "column_indices:" << std::endl;
-        for (int i = 0; i < nonzero_count; ++i) {
-            std::cout << col_indices_ptr[i] << " ";
-        }
-        std::cout << std::endl << "--------------------------" << std::endl;
-        // Assign to class attributes
-        data_ = data;
-        column_indices_ = col_indices;
-        row_offsets_ = row_offsets;
-
-        // Create table
-        //return csr_table::wrap(data, col_indices, row_offsets, column_count_, indexing);
     }
 
-    csr_table build_random_csr_table(device_test_policy& policy) {
+#ifdef ONEDAL_DATA_PARALLEL
+    csr_table build_csr_table(device_test_policy& policy) const {
         auto queue = policy.get_queue();
-        auto device_data = data_.to_device(queue);
-        auto device_column_indices = column_indices_.to_device(queue);
-        auto device_row_offsets = row_offsets_.to_device(queue);
-        
+        auto nnz_count = data_.get_count();
+        const auto copied_data =
+            dal::array<Float>::empty(queue, nnz_count, sycl::usm::alloc::device);
+        const auto copied_col_indices =
+            dal::array<std::int64_t>::empty(queue, nnz_count, sycl::usm::alloc::device);
+        const auto copied_row_offsets =
+            dal::array<std::int64_t>::empty(queue, row_count_ + 1, sycl::usm::alloc::device);
+        dal::backend::copy_host2usm(queue,
+                                    copied_data.get_mutable_data(),
+                                    data_.get_data(),
+                                    nnz_count)
+            .wait_and_throw();
+        dal::backend::copy_host2usm(queue,
+                                    copied_col_indices.get_mutable_data(),
+                                    column_indices_.get_data(),
+                                    nnz_count)
+            .wait_and_throw();
+        dal::backend::copy_host2usm(queue,
+                                    copied_row_offsets.get_mutable_data(),
+                                    row_offsets_.get_data(),
+                                    row_count_ + 1)
+            .wait_and_throw();
         return csr_table::wrap(queue,
-                               device_data.get_data(),
-                               device_column_indices.get_data(),
-                               device_row_offsets.get_data(),
+                               copied_data.get_data(),
+                               copied_col_indices.get_data(),
+                               copied_row_offsets.get_data(),
                                row_count_,
                                column_count_,
                                indexing_);
     }
+#endif // ONEDAL_DATA_PARALLEL
 
-    csr_table build_random_csr_table(host_test_policy& policy) {
-        return csr_table::wrap(data_.get_data(),
-                               column_indices_.get_data(),
-                               row_offsets_.get_data(),
-                               row_count_,
+    csr_table build_csr_table(host_test_policy& policy) const {
+        auto nnz_count = data_.get_count();
+        const auto copied_data = dal::array<Float>::empty(nnz_count);
+        const auto copied_col_indices = dal::array<std::int64_t>::empty(nnz_count);
+        const auto copied_row_offsets = dal::array<std::int64_t>::empty(row_count_ + 1);
+        dal::backend::copy(copied_data.get_mutable_data(), data_.get_data(), nnz_count);
+        dal::backend::copy(copied_col_indices.get_mutable_data(),
+                           column_indices_.get_data(),
+                           nnz_count);
+        dal::backend::copy(copied_row_offsets.get_mutable_data(),
+                           row_offsets_.get_data(),
+                           row_count_ + 1);
+        return csr_table::wrap(copied_data,
+                               copied_col_indices,
+                               copied_row_offsets,
                                column_count_,
                                indexing_);
+    }
+
+    table build_dense_table() const {
+        const dal::array<Float> dense_data = dal::array<Float>::zeros(row_count_ * column_count_);
+        auto data_ptr = dense_data.get_mutable_data();
+        auto sparse_data_ptr = data_.get_data();
+        auto row_offs_ptr = row_offsets_.get_data();
+        auto col_indices_ptr = column_indices_.get_data();
+        for (std::int32_t row_idx = 0; row_idx < row_count_; ++row_idx) {
+            for (std::int32_t data_idx = row_offs_ptr[row_idx];
+                 data_idx < row_offs_ptr[row_idx + 1];
+                 ++data_idx) {
+                data_ptr[row_idx * column_count_ + col_indices_ptr[data_idx]] =
+                    sparse_data_ptr[data_idx];
+            }
+        }
+        return homogen_table::wrap(dense_data, row_count_, column_count_);
     }
 };
 

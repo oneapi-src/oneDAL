@@ -34,7 +34,7 @@ namespace oneapi::dal::basic_statistics::backend {
 using dal::backend::context_cpu;
 using method_t = method::dense;
 using task_t = task::compute;
-using input_t = compute_input<task_t>;
+using input_t = compute_input<task_t, table>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
