@@ -21,18 +21,19 @@
 
 namespace oneapi::dal::pca::backend {
 
-template <typename Float>
-void sign_flip_impl(sycl::queue& queue,
-                    Float* eigvecs,
-                    std::int64_t row_count,
-                    std::int64_t column_count);
+template <typename Cpu, typename Float>
+void sign_flip_impl(Float* eigvecs, std::int64_t row_count, std::int64_t column_count);
 
 template <typename Float>
-void sign_flip(sycl::queue& queue, dal::backend::primitives::ndview<Float, 2>& eigvecs) {
-    sign_flip_impl<Float>(queue,
-                          eigvecs.get_mutable_data(),
-                          eigvecs.get_dimension(0),
-                          eigvecs.get_dimension(1));
+void sign_flip(dal::backend::primitives::ndview<Float, 2>& eigvecs) {
+    using dal::backend::context_cpu;
+    using dal::backend::dispatch_by_cpu;
+
+    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+        sign_flip_impl<decltype(cpu)>(eigvecs.get_mutable_data(),
+                                      eigvecs.get_dimension(0),
+                                      eigvecs.get_dimension(1));
+    });
 }
 
 } // namespace oneapi::dal::pca::backend

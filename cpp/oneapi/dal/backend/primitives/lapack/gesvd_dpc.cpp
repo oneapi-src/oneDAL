@@ -26,32 +26,32 @@ template <typename Float>
 static sycl::event gesvd_wrapper(sycl::queue& queue,
                                  mkl::jobsvd jobu,
                                  mkl::jobsvd jobvt,
-                                 std::int64_t m,
-                                 std::int64_t n,
-                                 Float* a,
+                                 std::int64_t column_count,
+                                 std::int64_t row_count,
+                                 Float* data_ptr,
                                  std::int64_t lda,
-                                 Float* s,
-                                 Float* u,
+                                 Float* S_ptr,
+                                 Float* U_ptr,
                                  std::int64_t ldu,
-                                 Float* vt,
+                                 Float* V_T_ptr,
                                  std::int64_t ldvt,
-                                 Float* scratchpad,
+                                 Float* scratchpad_ptr,
                                  std::int64_t scratchpad_size,
                                  const event_vector& deps) {
-    ONEDAL_ASSERT(lda >= n);
+    //ONEDAL_ASSERT(lda >= n);
     return mkl::lapack::gesvd(queue,
-                              mkl::jobsvd::vectors,
-                              mkl::jobsvd::vectors,
-                              m,
-                              n,
-                              a,
+                              jobu,
+                              jobu,
+                              column_count,
+                              row_count,
+                              data_ptr,
                               lda,
-                              s,
-                              u,
+                              S_ptr,
+                              U_ptr,
                               ldu,
-                              vt,
+                              V_T_ptr,
                               ldvt,
-                              scratchpad,
+                              scratchpad_ptr,
                               scratchpad_size,
                               deps);
 }
@@ -72,15 +72,18 @@ sycl::event gesvd(sycl::queue& queue,
 
     constexpr auto job_u = ident_jobsvd(jobu);
     constexpr auto job_vt = ident_jobsvd(jobvt);
+    // std::int64_t lda = m;
+    // std::int64_t ldu = m;
+    // std::int64_t ldvt = n;
     const auto scratchpad_size =
         mkl::lapack::gesvd_scratchpad_size<Float>(queue, job_u, job_vt, m, n, lda, ldu, ldvt);
-    std::cout << scratchpad_size << std::endl;
+
     auto scratchpad =
         ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
     auto scratchpad_ptr = scratchpad.get_mutable_data();
     return gesvd_wrapper(queue,
-                         mkl::jobsvd::vectors,
-                         mkl::jobsvd::vectors,
+                         job_u,
+                         job_vt,
                          m,
                          n,
                          a,

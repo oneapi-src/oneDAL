@@ -207,15 +207,14 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }
-        auto eigvecs_device = eigvecs.to_device(q_);
+
         if (desc.get_deterministic()) {
-            sign_flip(q_, eigvecs_device);
+            sign_flip(eigvecs);
         }
-        auto eigvecs_host = eigvecs_device.to_host(q_);
 
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(eigvecs_host.flatten(), component_count, column_count));
+                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
             result.set_model(model);
         }
     }

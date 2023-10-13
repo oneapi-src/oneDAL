@@ -40,7 +40,7 @@
 //     const auto work = ndarray<Float, 1>::empty(lwork);
 
 //     Float* work_ptr = work.get_mutable_data();
-    
+
 //     auto event = mkl::lapack::syevd(q, mkl::job::vec, mkl::uplo::upper, n, a, lda, w, work_ptr, lwork, deps);
 
 //     return event;

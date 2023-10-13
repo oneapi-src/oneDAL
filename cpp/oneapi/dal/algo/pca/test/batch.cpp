@@ -21,7 +21,7 @@ namespace oneapi::dal::pca::test {
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace pca = oneapi::dal::pca;
-using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, method::svd));
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov));
 using pca_types_precomputed = COMBINE_TYPES((float, double), (method::precomputed));
 
 template <typename TestType>

@@ -57,32 +57,18 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
     std::int64_t ldvt = row_count;
-    const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
-                                                                           mkl::jobsvd::vectors,
-                                                                           mkl::jobsvd::vectors,
-                                                                           column_count,
-                                                                           row_count,
-                                                                           lda,
-                                                                           ldu,
-                                                                           ldvt);
-    auto scratchpad =
-        pr::ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
-    auto scratchpad_ptr = scratchpad.get_mutable_data();
-    auto event = mkl::lapack::gesvd(queue,
-                                    mkl::jobsvd::vectors,
-                                    mkl::jobsvd::vectors,
-                                    column_count,
-                                    row_count,
-                                    data_ptr,
-                                    lda,
-                                    S_ptr,
-                                    U_ptr,
-                                    ldu,
-                                    V_T_ptr,
-                                    ldvt,
-                                    scratchpad_ptr,
-                                    scratchpad_size,
-                                    {});
+
+    auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::vectors>(queue,
+                                                                       column_count,
+                                                                       row_count,
+                                                                       data_ptr,
+                                                                       lda,
+                                                                       S_ptr,
+                                                                       U_ptr,
+                                                                       ldu,
+                                                                       V_T_ptr,
+                                                                       ldvt,
+                                                                       {});
     return std::make_tuple(U, S, V_T);
 }
 
@@ -101,12 +87,6 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     //TODO: add mean centering by default
-    //sycl::event mean_center_event;
-    // {
-    //     ONEDAL_PROFILER_TASK(elementwise_difference, q_);
-    //     mean_center_event = pr::elementwise_difference(q_, row_count, data_nd, means_nd,
-    //                                                    mean_centered_data_nd);
-    // }
 
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
@@ -116,13 +96,14 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, row_count));
         }
         //TODO: fix bug with sign flip function(move computations on gpu)
+        auto u_host = U.to_host(q_);
         if (desc.get_deterministic()) {
-            sign_flip(q_, U);
+            sign_flip(u_host);
         }
 
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(U.flatten(q_), column_count, column_count));
+                homogen_table::wrap(u_host.flatten(), column_count, column_count));
             result.set_model(model);
         }
     }
