@@ -38,7 +38,7 @@ static sycl::event gesvd_wrapper(sycl::queue& queue,
                                  Float* scratchpad_ptr,
                                  std::int64_t scratchpad_size,
                                  const event_vector& deps) {
-    //ONEDAL_ASSERT(lda >= n);
+    //TODO: add new checks + table format investigation
     return mkl::lapack::gesvd(queue,
                               jobu,
                               jobu,
@@ -68,13 +68,11 @@ sycl::event gesvd(sycl::queue& queue,
                   Float* vt,
                   std::int64_t ldvt,
                   const event_vector& deps) {
-    // ONEDAL_PROFILER_TASK(blas.gesvd, queue);
+    ONEDAL_PROFILER_TASK(lapack_gesvd, queue);
 
     constexpr auto job_u = ident_jobsvd(jobu);
     constexpr auto job_vt = ident_jobsvd(jobvt);
-    // std::int64_t lda = m;
-    // std::int64_t ldu = m;
-    // std::int64_t ldvt = n;
+
     const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
                                                                            job_u,
                                                                            job_vt,

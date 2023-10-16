@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("pca_centered.csv");
-    //const auto train_data_file_name = get_data_path("pca_normalized.csv");
+
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
     using float_t = float;
     using method_t = dal::pca::method::svd;
@@ -44,6 +44,7 @@ void run(sycl::queue& q) {
     std::cout << "Singular Values:\n" << result_train.get_eigenvalues() << std::endl;
 
     std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
+
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
