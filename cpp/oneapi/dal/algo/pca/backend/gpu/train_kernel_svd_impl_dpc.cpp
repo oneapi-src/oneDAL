@@ -97,27 +97,29 @@ auto compute_mean_centered_data(sycl::queue& q,
 }
 
 template <typename Float>
-auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
+auto svd_decomposition(sycl::queue& queue,
+                       pr::ndview<Float, 2>& data,
+                       std::int64_t component_count) {
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
-    std::cout<<"step 1"<<std::endl;
-    auto U = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
-    std::cout<<"step 2"<<std::endl;
-    auto S = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
-    std::cout<<"step 3"<<std::endl;
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
-    std::cout<<"step 4"<<std::endl;
+    std::cout << "step 1" << std::endl;
+    auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
+    std::cout << "step 2" << std::endl;
+    auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
+    std::cout << "step 3" << std::endl;
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
+    std::cout << "step 4" << std::endl;
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
     std::int64_t lda = column_count;
-    std::int64_t ldu = column_count;
-    std::int64_t ldvt = row_count;
-    std::cout<<"step 5"<<std::endl;
+    std::int64_t ldu = row_count;
+    std::int64_t ldvt = column_count;
+    std::cout << "step 5" << std::endl;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        auto event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::novec>(queue,
+        auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
                                                                          column_count,
                                                                          row_count,
                                                                          data_ptr,
@@ -129,7 +131,7 @@ auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
                                                                          ldvt,
                                                                          {});
     }
-    std::cout<<"step 6"<<std::endl;
+    std::cout << "step 6" << std::endl;
     return std::make_tuple(U, S, V_T);
 }
 
@@ -147,7 +149,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     //TODO: add mean centering by default
-    
+
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
 
@@ -156,23 +158,27 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T] = svd_decomposition(q_, data_to_compute);
+        auto [U, S, V_T] = svd_decomposition(q_, data_to_compute, component_count);
+
         if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, column_count));
+            result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, component_count));
         }
-        std::cout<<"step 7"<<std::endl;
+        std::cout << "step 7" << std::endl;
         //TODO: fix bug with sign flip function(move computations on gpu)
         auto u_host = U.to_host(q_);
         if (desc.get_deterministic()) {
             sign_flip(u_host);
         }
-        std::cout<<"step 8"<<std::endl;
+        std::cout << "step 8" << std::endl;
+        //TODO: sklearn doesnt compute full eigenvalues
         if (desc.get_result_options().test(result_options::eigenvectors)) {
-            const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(u_host.flatten(), column_count, column_count));
+            const auto model =
+                model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
+                                                               u_host.get_dimension(0),
+                                                               u_host.get_dimension(1)));
             result.set_model(model);
         }
-        std::cout<<"step 9"<<std::endl;
+        std::cout << "step 9" << std::endl;
     }
 
     return result;
