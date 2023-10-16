@@ -79,7 +79,7 @@ protected:
                                    const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher);
     template <bool hasUnorderedFeatures, bool hasAnyMissing, size_t vectorBlockSize>
     void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x, algorithmFPType * res,
-                              const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher, size_t resIncrement);
+                              const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher);
 
     inline size_t getNumberOfNodes(size_t nTrees)
     {
@@ -114,50 +114,44 @@ protected:
     }
 
     template <bool hasUnorderedFeatures, bool hasAnyMissing, size_t vectorBlockSize>
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res,
-                        size_t resIncrement)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
         size_t iRow;
         dispatcher_t<hasUnorderedFeatures, hasAnyMissing> dispatcher;
         for (iRow = 0; iRow + vectorBlockSize <= nRows; iRow += vectorBlockSize)
         {
-            predictByTreesVector<hasUnorderedFeatures, hasAnyMissing, vectorBlockSize>(iTree, nTrees, x + iRow * nColumns, res + iRow, dispatcher,
-                                                                                       resIncrement);
+            predictByTreesVector<hasUnorderedFeatures, hasAnyMissing, vectorBlockSize>(iTree, nTrees, x + iRow * nColumns, res + iRow, dispatcher);
         }
         for (; iRow < nRows; ++iRow)
         {
-            // result goes into final columns of current row
-            const size_t lastColumn = (iRow + 1) * resIncrement - 1;
-            res[lastColumn] += predictByTrees(iTree, nTrees, x + iRow * nColumns, dispatcher);
+            res[iRow] += predictByTrees(iTree, nTrees, x + iRow * nColumns, dispatcher);
         }
     }
 
     template <bool hasAnyMissing, size_t vectorBlockSize>
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res,
-                        size_t resIncrement)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
         if (_featHelper.hasUnorderedFeatures())
         {
-            predict<true, hasAnyMissing, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res, resIncrement);
+            predict<true, hasAnyMissing, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res);
         }
         else
         {
-            predict<false, hasAnyMissing, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res, resIncrement);
+            predict<false, hasAnyMissing, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res);
         }
     }
 
     template <size_t vectorBlockSize>
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res,
-                        size_t resIncrement)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, size_t nColumns, const algorithmFPType * x, algorithmFPType * res)
     {
         const bool hasAnyMissing = checkForMissing(x, nTrees, nRows, nColumns);
         if (hasAnyMissing)
         {
-            predict<true, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res, resIncrement);
+            predict<true, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res);
         }
         else
         {
-            predict<false, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res, resIncrement);
+            predict<false, vectorBlockSize>(iTree, nTrees, nRows, nColumns, x, res);
         }
     }
 
@@ -240,42 +234,41 @@ protected:
     // Recursively checking template parameter until it becomes equal to dim.vectorBlockSizeFactor or equal to DimType::minVectorBlockSizeFactor.
     template <size_t vectorBlockSizeFactor>
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, const algorithmFPType * x, algorithmFPType * res, const DimType & dim,
-                        BooleanConstant<true> keepLooking, size_t resIncrement)
+                        BooleanConstant<true> keepLooking)
     {
         const size_t nColumns                = dim.nCols;
         constexpr size_t vectorBlockSizeStep = DimType::vectorBlockSizeStep;
         if (dim.vectorBlockSizeFactor == vectorBlockSizeFactor)
         {
-            predict<vectorBlockSizeFactor * vectorBlockSizeStep>(iTree, nTrees, nRows, nColumns, x, res, resIncrement);
+            predict<vectorBlockSizeFactor * vectorBlockSizeStep>(iTree, nTrees, nRows, nColumns, x, res);
         }
         else
         {
             predict<vectorBlockSizeFactor - 1>(iTree, nTrees, nRows, x, res, dim,
-                                               BooleanConstant<vectorBlockSizeFactor != DimType::minVectorBlockSizeFactor>(), resIncrement);
+                                               BooleanConstant<vectorBlockSizeFactor != DimType::minVectorBlockSizeFactor>());
         }
     }
 
     template <size_t vectorBlockSizeFactor>
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, const algorithmFPType * x, algorithmFPType * res, const DimType & dim,
-                        BooleanConstant<false> keepLooking, size_t resIncrement)
+                        BooleanConstant<false> keepLooking)
     {
         const size_t nColumns                = dim.nCols;
         constexpr size_t vectorBlockSizeStep = DimType::vectorBlockSizeStep;
-        predict<vectorBlockSizeFactor * vectorBlockSizeStep>(iTree, nTrees, nRows, nColumns, x, res, resIncrement);
+        predict<vectorBlockSizeFactor * vectorBlockSizeStep>(iTree, nTrees, nRows, nColumns, x, res);
     }
 
-    inline void predict(size_t iTree, size_t nTrees, size_t nRows, const algorithmFPType * x, algorithmFPType * res, const DimType & dim,
-                        size_t resIncrement)
+    inline void predict(size_t iTree, size_t nTrees, size_t nRows, const algorithmFPType * x, algorithmFPType * res, const DimType & dim)
     {
         const size_t nColumns                     = dim.nCols;
         constexpr size_t maxVectorBlockSizeFactor = DimType::maxVectorBlockSizeFactor;
         if (maxVectorBlockSizeFactor > 1)
         {
-            predict<maxVectorBlockSizeFactor>(iTree, nTrees, nRows, x, res, dim, BooleanConstant<true>(), resIncrement);
+            predict<maxVectorBlockSizeFactor>(iTree, nTrees, nRows, x, res, dim, BooleanConstant<true>());
         }
         else
         {
-            predict<maxVectorBlockSizeFactor>(iTree, nTrees, nRows, x, res, dim, BooleanConstant<false>(), resIncrement);
+            predict<maxVectorBlockSizeFactor>(iTree, nTrees, nRows, x, res, dim, BooleanConstant<false>());
         }
     }
 
@@ -480,21 +473,33 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 
             if (predShapContributions)
             {
+                // nominal values are required to calculate the correct bias term
+                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_malloc(nRowsToProcess * sizeof(algorithmFPType)));
+                if (!nominal)
+                {
+                    safeStat.add(ErrorMemoryAllocationFailed);
+                    return;
+                }
+                for (size_t i = 0; i < nRowsToProcess; ++i)
+                {
+                    nominal[i] = predictionBias;
+                }
+
+                // bias term: prediction - sum_i phi_i (subtraction in predictContributions)
+                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim);
+
                 // thread-local write rows into global result buffer
                 WriteOnlyRows<algorithmFPType, cpu> resRow(result, iStartRow, nRowsToProcess);
                 DAAL_CHECK_BLOCK_STATUS_THR(resRow);
+
+                // copy nominal predictions for bias term to correct spot in result array
                 auto resRowPtr = resRow.get();
-                if ((predictionBias * predictionBias) > (DBL_EPSILON * DBL_EPSILON))
+                for (size_t i = 0; i < nRowsToProcess; ++i)
                 {
-                    // memory is already initialized to 0
-                    // only set it to the bias term if it's != 0
-                    for (size_t i = 0; i < nRowsToProcess; ++i)
-                    {
-                        resRowPtr[i * resultNColumns + predictionIndex] = predictionBias;
-                    }
+                    resRowPtr[i * resultNColumns + predictionIndex] = nominal[i];
                 }
-                // bias term: prediction - sum_i phi_i (subtraction in predictContributions)
-                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRowPtr, dim, resultNColumns);
+
+                daal_free(nominal);
 
                 // TODO: support tree weights
                 safeStat |= predictContributions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRowPtr, 0, 0, dim);
@@ -516,7 +521,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 {
                     nominal[i] = predictionBias;
                 }
-                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim, 1);
+                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim);
 
                 // TODO: support tree weights
                 safeStat |= predictContributionInteractions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, resRow.get(), dim);
@@ -535,7 +540,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                         res[i] = predictionBias;
                     }
                 }
-                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), res, dim, 1);
+                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), res, dim);
             }
         });
 
@@ -560,8 +565,7 @@ template <typename algorithmFPType, CpuType cpu>
 template <bool hasUnorderedFeatures, bool hasAnyMissing, size_t vectorBlockSize>
 void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType * x,
                                                                        algorithmFPType * res,
-                                                                       const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher,
-                                                                       size_t resIncrement)
+                                                                       const dispatcher_t<hasUnorderedFeatures, hasAnyMissing> & dispatcher)
 {
     algorithmFPType v[vectorBlockSize];
     for (size_t iTree = iFirstTree, iLastTree = iFirstTree + nTrees; iTree < iLastTree; ++iTree)
@@ -573,8 +577,7 @@ void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iF
         PRAGMA_VECTOR_ALWAYS
         for (size_t row = 0; row < vectorBlockSize; ++row)
         {
-            const size_t lastColumn = (row + 1) * resIncrement - 1;
-            res[lastColumn] += v[row];
+            res[row] += v[row];
         }
     }
 }
