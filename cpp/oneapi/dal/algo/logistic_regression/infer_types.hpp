@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::binary_classification` or :expr:`task::search`.
+///              be :expr:`task::classification` or :expr:`task::search`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);

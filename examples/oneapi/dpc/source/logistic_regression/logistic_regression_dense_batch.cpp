@@ -36,10 +36,16 @@ float get_time_duration(std::chrono::time_point<std::chrono::steady_clock>& a,
 }
 
 void run(sycl::queue& q) {
-    const auto x_train_filename = get_data_path("df_binary_classification_train_data.csv");
-    const auto y_train_filename = get_data_path("df_binary_classification_train_label.csv");
-    const auto x_test_filename = get_data_path("df_binary_classification_test_data.csv");
-    const auto y_test_filename = get_data_path("df_binary_classification_test_label.csv");
+    std::string prefix = "/export/users/anatolyv/scikit-learn_bench/data/a9a_";
+    const auto x_train_filename = prefix + "x_train.csv";
+    const auto x_test_filename = prefix + "x_test.csv";
+    const auto y_train_filename = prefix + "y_train.csv";
+    const auto y_test_filename = prefix + "y_test.csv";
+
+    // const auto x_train_filename = get_data_path("df_binary_classification_train_data.csv");
+    // const auto y_train_filename = get_data_path("df_binary_classification_train_label.csv");
+    // const auto x_test_filename = get_data_path("df_binary_classification_test_data.csv");
+    // const auto y_test_filename = get_data_path("df_binary_classification_test_label.csv");
 
     auto tm1 = std::chrono::steady_clock::now();
 
@@ -56,11 +62,15 @@ void run(sycl::queue& q) {
     std::cout << "Fitting model... ";
 
     using method_t = dal::logistic_regression::method::dense_batch;
-    using task_t = dal::logistic_regression::task::binary_classification;
-    using optimizer_t = dal::logistic_regression::optimizer::newton_cg;
+    using task_t = dal::logistic_regression::task::classification;
+    using optimizer_t = dal::newton_cg::descriptor<>;
+
+    const auto optimizer_desc = dal::newton_cg::descriptor<>(1e-4, 100l);
 
     const auto log_reg_desc =
-        dal::logistic_regression::descriptor<double, method_t, task_t, optimizer_t>(true, 2.0)
+        dal::logistic_regression::descriptor<double, method_t, task_t, optimizer_t>(true,
+                                                                                    1.0,
+                                                                                    optimizer_desc)
             .set_result_options(result_options::coefficients | result_options::intercept);
 
     const auto train_result = dal::train(q, log_reg_desc, x_train, y_train);

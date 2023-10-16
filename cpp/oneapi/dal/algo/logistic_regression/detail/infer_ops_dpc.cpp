@@ -39,8 +39,8 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
 // template struct ONEDAL_EXPORT                                         \
     //     infer_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, method::dense_batch, task::binary_classification)
-INSTANTIATE(double, method::dense_batch, task::binary_classification)
+INSTANTIATE(float, method::dense_batch, task::classification)
+INSTANTIATE(double, method::dense_batch, task::classification)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression::detail

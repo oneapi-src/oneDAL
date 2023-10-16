@@ -39,21 +39,22 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
-    explicit descriptor_impl() = default;
+    explicit descriptor_impl(const detail::optimizer_ptr& optimizer) : opt(optimizer) {}
 
     double l1_coef = 0.0;
     double l2_coef = 0.0;
     bool compute_intercept = true;
-    std::int32_t max_iter = 100;
-    double tol = 1e-4;
     std::int64_t class_count = 2;
-    optimizer_enum opt;
+    detail::optimizer_ptr opt;
 
     result_option_id result_options = get_default_result_options<Task>();
 };
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
+descriptor_base<Task>::descriptor_base()
+        : impl_(new descriptor_impl<Task>{
+              std::make_shared<detail::optimizer<oneapi::dal::newton_cg::descriptor<float_t>>>(
+                  oneapi::dal::newton_cg::descriptor<float_t>()) }) {}
 
 template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
@@ -75,15 +76,11 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept,
                                        double l2_coef,
-                                       std::int32_t max_iter,
-                                       double tol,
-                                       optimizer_enum opt)
-        : impl_(new descriptor_impl<Task>{}) {
+                                       const detail::optimizer_ptr& optimizer)
+        : impl_(new descriptor_impl<Task>{ optimizer }) {
     impl_->compute_intercept = compute_intercept;
     impl_->l2_coef = l2_coef;
-    impl_->tol = tol;
-    impl_->max_iter = max_iter;
-    impl_->opt = opt;
+    impl_->opt = optimizer;
 }
 
 template <typename Task>
@@ -101,15 +98,15 @@ double descriptor_base<Task>::get_l2_coef() const {
     return impl_->l2_coef;
 }
 
-template <typename Task>
-double descriptor_base<Task>::get_tol() const {
-    return impl_->tol;
-}
+// template <typename Task>
+// double descriptor_base<Task>::get_tol() const {
+//     return impl_->tol;
+// }
 
-template <typename Task>
-std::int32_t descriptor_base<Task>::get_max_iter() const {
-    return impl_->max_iter;
-}
+// template <typename Task>
+// std::int32_t descriptor_base<Task>::get_max_iter() const {
+//     return impl_->max_iter;
+// }
 
 // template <typename Task>
 // std::int64_t descriptor_base<Task>::get_class_count() const {
@@ -117,8 +114,13 @@ std::int32_t descriptor_base<Task>::get_max_iter() const {
 // }
 
 template <typename Task>
-optimizer_enum descriptor_base<Task>::get_optimizer() const {
+const detail::optimizer_ptr& descriptor_base<Task>::get_optimizer_impl() const {
     return impl_->opt;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_optimizer_impl(const detail::optimizer_ptr& opt) {
+    impl_->opt = opt;
 }
 
 template <typename Task>
@@ -136,27 +138,22 @@ void descriptor_base<Task>::set_l2_coef_impl(double l2_coef) {
     impl_->l2_coef = l2_coef;
 }
 
-template <typename Task>
-void descriptor_base<Task>::set_tol_impl(double tol) {
-    impl_->tol = tol;
-}
+// template <typename Task>
+// void descriptor_base<Task>::set_tol_impl(double tol) {
+//     impl_->tol = tol;
+// }
 
-template <typename Task>
-void descriptor_base<Task>::set_max_iter_impl(std::int32_t max_iter) {
-    impl_->max_iter = max_iter;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_optimizer_impl(optimizer_enum opt) {
-    impl_->opt = opt;
-}
+// template <typename Task>
+// void descriptor_base<Task>::set_max_iter_impl(std::int32_t max_iter) {
+//     impl_->max_iter = max_iter;
+// }
 
 // template <typename Task>
 // void descriptor_base<Task>::set_class_count_impl(std::int64_t class_count) {
 //     impl_->class_count = class_count;
 // }
 
-template class ONEDAL_EXPORT descriptor_base<task::binary_classification>;
+template class ONEDAL_EXPORT descriptor_base<task::classification>;
 
 } // namespace v1
 } // namespace detail
@@ -192,9 +189,9 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
     dal::detail::deserialize_polymorphic_shared(impl_, ar);
 }
 
-template class ONEDAL_EXPORT model<task::binary_classification>;
+template class ONEDAL_EXPORT model<task::classification>;
 
-// ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::binary_classification>)
+ONEDAL_REGISTER_SERIALIZABLE(detail::model_impl<task::classification>)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression

@@ -14,5 +14,10 @@ dal_module(
 
 dal_module(
     name = "model_impl",
-    hdrs = glob(["*.hpp"]),
+    hdrs = glob(["model_impl.hpp"]),
+)
+
+dal_module(
+    name = "optimizer_impl",
+    hdrs = glob(["optimizer_impl.hpp"]),
 )

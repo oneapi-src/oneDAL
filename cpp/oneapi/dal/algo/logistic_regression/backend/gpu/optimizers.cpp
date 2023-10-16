@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+/*
+
 #include "oneapi/dal/algo/logistic_regression/backend/gpu/optimizers.hpp"
 #include "oneapi/dal/backend/primitives/optimizers.hpp"
 
@@ -38,3 +40,6 @@ template class newton_cg_optimizer<float>;
 template class newton_cg_optimizer<double>;
 
 } // namespace oneapi::dal::logistic_regression::backend
+
+
+*/

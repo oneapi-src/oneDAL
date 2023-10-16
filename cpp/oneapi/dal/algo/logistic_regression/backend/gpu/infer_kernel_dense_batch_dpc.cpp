@@ -137,7 +137,7 @@ struct infer_kernel_gpu<Float, method::dense_batch, Task> {
     }
 };
 
-template struct infer_kernel_gpu<float, method::dense_batch, task::binary_classification>;
-template struct infer_kernel_gpu<double, method::dense_batch, task::binary_classification>;
+template struct infer_kernel_gpu<float, method::dense_batch, task::classification>;
+template struct infer_kernel_gpu<double, method::dense_batch, task::classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend

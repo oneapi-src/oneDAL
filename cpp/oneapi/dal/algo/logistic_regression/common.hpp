@@ -21,6 +21,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/algo/logistic_regression/detail/optimizer.hpp"
 
 namespace oneapi::dal::logistic_regression {
 
@@ -28,13 +29,13 @@ namespace task {
 namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`regression problem <regression>`.
-struct binary_classification {};
+struct classification {};
 
 /// Alias tag-type for regression task.
-using by_default = binary_classification;
+using by_default = classification;
 } // namespace v1
 
-using v1::binary_classification;
+using v1::classification;
 using v1::by_default;
 
 } // namespace task
@@ -52,6 +53,7 @@ using v1::by_default;
 
 } // namespace method
 
+/*
 namespace optimizer {
 namespace v1 {
 
@@ -66,6 +68,8 @@ using v1::by_default;
 } // namespace optimizer
 
 enum optimizer_enum { newton_cg };
+
+*/
 
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
@@ -113,45 +117,46 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::binary_classification>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
 
 template <typename Optimizer>
-constexpr bool is_valid_optimizer_v = std::is_same_v<Optimizer, optimizer::newton_cg>;
+constexpr bool is_valid_optimizer_v =
+    dal::detail::is_tag_one_of_v<Optimizer, newton_cg::detail::descriptor_tag>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
+    friend detail::optimizer_accessor;
 
 public:
     using tag_t = descriptor_tag;
 
     descriptor_base();
 
-    descriptor_base(bool compute_intercept,
-                    double l2_coef,
-                    std::int32_t max_iter,
-                    double tol,
-                    optimizer_enum opt);
-
     bool get_compute_intercept() const;
     //double get_l1_coef() const;
     double get_l2_coef() const;
-    double get_tol() const;
-    std::int32_t get_max_iter() const;
+    // double get_tol() const;
+    // std::int32_t get_max_iter() const;
     //std::int64_t get_class_count() const;
-    optimizer_enum get_optimizer() const;
     result_option_id get_result_options() const;
 
 protected:
+    explicit descriptor_base(bool compute_intercept,
+                             double l2_coef,
+                             const detail::optimizer_ptr& optimizer);
+
     void set_compute_intercept_impl(bool compute_intercept);
     //void set_l1_coef_impl(bool l1_coef);
     void set_l2_coef_impl(double l2_coef);
-    void set_tol_impl(double tol);
-    void set_max_iter_impl(std::int32_t max_iter);
+    // void set_tol_impl(double tol);
+    // void set_max_iter_impl(std::int32_t max_iter);
     //void set_class_count_impl(std::int64_t class_count);
 
-    void set_optimizer_impl(optimizer_enum opt);
+    void set_optimizer_impl(const detail::optimizer_ptr& opt);
     void set_result_options_impl(const result_option_id& value);
+
+    const detail::optimizer_ptr& get_optimizer_impl() const;
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -173,26 +178,19 @@ using v1::is_valid_optimizer_v;
 
 namespace v1 {
 
-template <typename Optimizer>
-optimizer_enum type2enum() {
-    if (std::is_same_v<Optimizer, optimizer::newton_cg>) {
-        return optimizer_enum::newton_cg;
-    }
-}
-
 /// @tparam Float       The floating-point type that the algorithm uses for
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
 ///                     be :expr:`method::dense_batch`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
-///                     be :expr:`task::binary_classification`.
+///                     be :expr:`task::classification`.
 /// @tparam Optimizer   Tag-type that specifies type of the optimizer used by algorithm.
 ///                     Can be :expr:`optimizer::newton_cg`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
-          typename Optimizer = optimizer::by_default>
+          typename Optimizer = oneapi::dal::newton_cg::descriptor<Float>>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -208,11 +206,16 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept = true,
-                        double l2_coef = 0.0,
-                        std::int32_t maxiter = 100,
-                        double tol = 1e-4)
-            : base_t(compute_intercept, l2_coef, maxiter, tol, type2enum<Optimizer>()) {}
+    explicit descriptor(bool compute_intercept = true, double l2_coef = 0.0)
+            : base_t(compute_intercept,
+                     l2_coef,
+                     std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
+
+    /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    explicit descriptor(bool compute_intercept, double l2_coef, const optimizer_t& optimizer)
+            : base_t(compute_intercept,
+                     l2_coef,
+                     std::make_shared<detail::optimizer<optimizer_t>>(optimizer)) {}
 
     /// Defines should intercept be taken into consideration.
     bool get_compute_intercept() const {
@@ -227,13 +230,13 @@ public:
         return base_t::get_l2_coef();
     }
 
-    double get_tol() const {
-        return base_t::get_tol();
-    }
+    // double get_tol() const {
+    //     return base_t::get_tol();
+    // }
 
-    std::int32_t get_max_iter() const {
-        return base_t::get_max_iter();
-    }
+    // std::int32_t get_max_iter() const {
+    //     return base_t::get_max_iter();
+    // }
 
     // double get_class_count() const {
     //     return base_t::get_class_count();
@@ -254,20 +257,31 @@ public:
         return *this;
     }
 
-    auto& set_tol(double tol) const {
-        base_t::set_tol_impl(tol);
-        return *this;
-    }
+    // auto& set_tol(double tol) const {
+    //     base_t::set_tol_impl(tol);
+    //     return *this;
+    // }
 
-    auto& set_max_iter(std::int32_t maxiter) const {
-        base_t::set_max_iter_impl(maxiter);
-        return *this;
-    }
+    // auto& set_max_iter(std::int32_t maxiter) const {
+    //     base_t::set_max_iter_impl(maxiter);
+    //     return *this;
+    // }
 
     // auto& set_class_count(std::int64_t class_count) const {
     //     base_t::set_class_count_impl(class_count);
     //     return *this;
     // }
+
+    const optimizer_t& get_optimizer() const {
+        using optimizer_t = detail::optimizer<optimizer_t>;
+        const auto opt = std::static_pointer_cast<optimizer_t>(base_t::get_optimizer_impl());
+        return opt;
+    }
+
+    auto& set_optimizer(const optimizer_t& opt) {
+        base_t::set_optimizer_impl(std::make_shared<detail::optimizer<optimizer_t>>(opt));
+        return *this;
+    }
 
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {

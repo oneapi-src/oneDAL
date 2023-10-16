@@ -73,7 +73,7 @@ void train_parameters<Task>::set_gpu_macro_block_impl(std::int64_t val) {
     impl_->gpu_macro_block = val;
 }
 
-template class ONEDAL_EXPORT train_parameters<task::binary_classification>;
+template class ONEDAL_EXPORT train_parameters<task::classification>;
 
 } // namespace detail::v1
 
@@ -176,8 +176,8 @@ void train_result<Task>::set_result_options_impl(const result_option_id& value) 
     impl_->options = value;
 }
 
-template class ONEDAL_EXPORT train_result<task::binary_classification>;
-template class ONEDAL_EXPORT train_input<task::binary_classification>;
+template class ONEDAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_input<task::classification>;
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression

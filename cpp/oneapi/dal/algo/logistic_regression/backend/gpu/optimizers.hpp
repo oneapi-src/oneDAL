@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+/*
+
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
@@ -61,3 +63,6 @@ std::shared_ptr<optimizer_iface<Float>> get_optimizer(const detail::descriptor_b
 }
 
 } // namespace oneapi::dal::logistic_regression::backend
+
+
+*/

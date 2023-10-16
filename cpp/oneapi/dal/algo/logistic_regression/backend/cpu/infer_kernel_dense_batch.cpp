@@ -33,7 +33,7 @@ struct infer_kernel_cpu<Float, method::dense_batch, Task> {
     }
 };
 
-template struct infer_kernel_cpu<float, method::dense_batch, task::binary_classification>;
-template struct infer_kernel_cpu<double, method::dense_batch, task::binary_classification>;
+template struct infer_kernel_cpu<float, method::dense_batch, task::classification>;
+template struct infer_kernel_cpu<double, method::dense_batch, task::classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend

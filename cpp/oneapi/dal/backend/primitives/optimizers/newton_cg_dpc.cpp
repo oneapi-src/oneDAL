@@ -52,30 +52,42 @@ sycl::event newton_cg(sycl::queue& queue,
     Float update_norm = tol + 1;
 
     for (std::int64_t i = 0; i < maxiter; ++i) {
-        if (update_norm < tol) {
-            break;
-        }
+        std::cout << "Iteration " << i << ", Update norm: " << update_norm << std::endl;
+
+        // if (update_norm < tol) {
+        //     break;
+        // }
 
         auto update_event_vec = f.update_x(x, true, last_iter_deps);
         auto gradient = f.get_gradient();
 
+        std::cout << "Loss: " << f.get_value() << std::endl;
+
         Float grad_norm = 0;
         l1_norm(queue, gradient, tmp_gpu, &grad_norm, update_event_vec).wait_and_throw();
+
+        if (grad_norm < tol) {
+            break;
+        }
+
         Float tol_k = std::min<Float>(sqrt(grad_norm), 0.5);
 
         auto prepare_grad_event =
             element_wise(queue, kernel_minus, gradient, Float(0), gradient, update_event_vec);
 
-        auto copy_event = copy(queue, direction, gradient, { prepare_grad_event });
+        // auto copy_event = copy(queue, direction, gradient, { prepare_grad_event });
+        auto init_dir_event = fill(queue, direction, Float(0), { prepare_grad_event });
 
         Float desc = -1;
         std::int32_t iter_num = 0;
-        auto last_event = copy_event;
+        auto last_event = init_dir_event;
+        //auto last_event = copy_event;
         while (desc < 0 && iter_num < 10) {
             if (iter_num > 0) {
                 tol_k /= 10;
             }
             iter_num++;
+            std::cout << "Running CG-solve with tol_k = " << tol_k << std::endl;
 
             auto solve_event = cg_solve(queue,
                                         f.get_hessian_product(),
@@ -110,6 +122,10 @@ sycl::event newton_cg(sycl::queue& queue,
         update_norm = 0;
         dot_product(queue, direction, direction, tmp_gpu, &update_norm, { last_event })
             .wait_and_throw();
+
+        std::cout << "Real update norm: " << sqrt(update_norm) << " Alpha opt " << alpha_opt
+                  << std::endl;
+
         update_norm = sqrt(update_norm) * alpha_opt;
         // updated x is in buffer2
         last = copy(queue, x, buffer2, {});

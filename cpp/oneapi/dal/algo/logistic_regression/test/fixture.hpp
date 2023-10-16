@@ -248,6 +248,6 @@ protected:
 
 using lr_types = COMBINE_TYPES((double),
                                (logistic_regression::method::dense_batch),
-                               (logistic_regression::task::binary_classification));
+                               (logistic_regression::task::classification));
 
 } // namespace oneapi::dal::logistic_regression::test

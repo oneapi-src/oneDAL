@@ -57,8 +57,8 @@ struct train_parameters_gpu<Float, method::dense_batch, Task> {
 };
 
 template struct ONEDAL_EXPORT
-    train_parameters_gpu<float, method::dense_batch, task::binary_classification>;
+    train_parameters_gpu<float, method::dense_batch, task::classification>;
 template struct ONEDAL_EXPORT
-    train_parameters_gpu<double, method::dense_batch, task::binary_classification>;
+    train_parameters_gpu<double, method::dense_batch, task::classification>;
 
 } // namespace oneapi::dal::logistic_regression::parameters
