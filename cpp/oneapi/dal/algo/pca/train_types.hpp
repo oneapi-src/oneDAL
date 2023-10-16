@@ -27,10 +27,14 @@ class train_input_impl;
 
 template <typename Task>
 class train_result_impl;
+
+template <typename Task>
+class partial_train_result_impl;
 } // namespace v1
 
 using v1::train_input_impl;
 using v1::train_result_impl;
+using v1::partial_train_result_impl;
 
 } // namespace detail
 
@@ -45,6 +49,7 @@ class train_input : public base {
 public:
     using task_t = Task;
 
+    train_input();
     /// Creates a new instance of the class with the given :literal:`data`
     /// property value
     train_input(const table& data);
@@ -143,9 +148,89 @@ private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
 
+template <typename Task = task::by_default>
+class partial_train_result : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
+public:
+    using task_t = Task;
+
+    partial_train_result();
+
+    /// The nobs value.
+    /// @remark default = table{}
+    const table& get_nobs() const;
+
+    auto& set_nobs(const table& value) {
+        set_nobs_impl(value);
+        return *this;
+    }
+
+    /// The crossproduct matrix.
+    /// @remark default = table{}
+    const table& get_crossproduct() const;
+
+    auto& set_crossproduct(const table& value) {
+        set_crossproduct_impl(value);
+        return *this;
+    }
+
+    /// Sums.
+    /// @remark default = table{}
+    const table& get_sums() const;
+
+    auto& set_sums(const table& value) {
+        set_sums_impl(value);
+        return *this;
+    }
+
+protected:
+    void set_nobs_impl(const table&);
+    void set_crossproduct_impl(const table&);
+    void set_sums_impl(const table&);
+
+private:
+    dal::detail::pimpl<detail::partial_train_result_impl<Task>> impl_;
+};
+
+template <typename Task = task::by_default>
+class partial_train_input : protected train_input<Task> {
+public:
+    using task_t = Task;
+
+    partial_train_input();
+
+    partial_train_input(const table& data);
+
+    partial_train_input(const partial_train_result<Task>& prev, const table& data);
+
+    const table& get_data() const {
+        return train_input<Task>::get_data();
+    }
+
+    auto& set_data(const table& value) {
+        train_input<Task>::set_data(value);
+        return *this;
+    }
+
+    const partial_train_result<Task>& get_prev() const {
+        return prev_;
+    }
+
+    auto& set_prev(const partial_train_result<Task>& value) {
+        prev_ = value;
+        return *this;
+    }
+
+private:
+    partial_train_result<Task> prev_;
+};
+
 } // namespace v1
 
 using v1::train_input;
 using v1::train_result;
+using v1::partial_train_input;
+using v1::partial_train_result;
 
 } // namespace oneapi::dal::pca

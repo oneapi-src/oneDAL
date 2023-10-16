@@ -22,6 +22,7 @@ namespace oneapi::dal::pca {
 template <typename Task>
 class detail::v1::train_input_impl : public base {
 public:
+    train_input_impl() : data(table()){};
     train_input_impl(const table& data) : data(data) {}
     table data;
 };
@@ -36,10 +37,22 @@ public:
     result_option_id result_options;
 };
 
+template <typename Task>
+class detail::v1::partial_train_result_impl : public base {
+public:
+    table nobs;
+    table crossproduct;
+    table sums;
+};
+
 using detail::v1::train_input_impl;
 using detail::v1::train_result_impl;
+using detail::v1::partial_train_result_impl;
 
 namespace v1 {
+
+template <typename Task>
+train_input<Task>::train_input() : impl_(new train_input_impl<Task>{}) {}
 
 template <typename Task>
 train_input<Task>::train_input(const table& data) : impl_(new train_input_impl<Task>(data)) {}
@@ -55,6 +68,22 @@ void train_input<Task>::set_data_impl(const table& value) {
 }
 
 using msg = dal::detail::error_messages;
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const table& data)
+        : train_input<Task>(data),
+          prev_() {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input() : train_input<Task>(),
+                                                   prev_() {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const partial_train_result<Task>& prev,
+                                               const table& data)
+        : train_input<Task>(data) {
+    this->prev_ = prev;
+}
 
 template <typename Task>
 train_result<Task>::train_result() : impl_(new train_result_impl<Task>{}) {}
@@ -135,8 +164,42 @@ void train_result<Task>::set_result_options_impl(const result_option_id& value) 
     impl_->result_options = value;
 }
 
+template <typename Task>
+const table& partial_train_result<Task>::get_nobs() const {
+    return impl_->nobs;
+}
+
+template <typename Task>
+partial_train_result<Task>::partial_train_result() : impl_(new partial_train_result_impl<Task>()) {}
+
+template <typename Task>
+void partial_train_result<Task>::set_nobs_impl(const table& value) {
+    impl_->nobs = value;
+}
+
+template <typename Task>
+const table& partial_train_result<Task>::get_crossproduct() const {
+    return impl_->crossproduct;
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_crossproduct_impl(const table& value) {
+    impl_->crossproduct = value;
+}
+template <typename Task>
+const table& partial_train_result<Task>::get_sums() const {
+    return impl_->sums;
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_sums_impl(const table& value) {
+    impl_->sums = value;
+}
+
 template class ONEDAL_EXPORT train_input<task::dim_reduction>;
 template class ONEDAL_EXPORT train_result<task::dim_reduction>;
+template class ONEDAL_EXPORT partial_train_input<task::dim_reduction>;
+template class ONEDAL_EXPORT partial_train_result<task::dim_reduction>;
 
 } // namespace v1
 } // namespace oneapi::dal::pca
