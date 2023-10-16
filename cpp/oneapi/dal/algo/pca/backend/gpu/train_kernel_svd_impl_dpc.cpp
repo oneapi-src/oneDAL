@@ -72,7 +72,31 @@ auto compute_means(sycl::queue& q,
     return std::make_tuple(means, means_event);
 }
 
-//TODO::call wrapper instead of direct call of mkl
+template <typename Float>
+auto compute_mean_centered_data(sycl::queue& q,
+                                const pr::ndview<Float, 2>& data,
+                                const pr::ndview<Float, 1>& means,
+                                const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_means, q);
+    const std::int64_t row_count = data.get_dimension(0);
+    const std::int64_t column_count = data.get_dimension(1);
+    auto data_to_compute =
+        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
+    auto copy_event = copy(q, data_to_compute, data, { deps });
+    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
+    auto means_ptr = means.get_data();
+    auto event = q.submit([&](sycl::handler& h) {
+        const auto range = bk::make_range_2d(row_count, column_count);
+        h.parallel_for(range, [=](sycl::id<2> id) {
+            const std::int64_t i = id[0];
+            const std::int64_t j = id[1];
+            data_to_compute_ptr[i * column_count + j] =
+                data_to_compute_ptr[i * column_count + j] - means_ptr[j];
+        });
+    });
+    return std::make_tuple(data_to_compute, event);
+}
+
 template <typename Float>
 auto svd_decomposition(sycl::queue& queue, pr::ndview<Float, 2>& data) {
     const std::int64_t row_count = data.get_dimension(0);
@@ -125,14 +149,12 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
 
-    const auto kernel_minus = [=](const Float a, const Float b) -> Float {
-        return a - b;
-    };
-    auto compute_event =
-        element_wise(q_, kernel_minus, data_nd, means, data_nd, { means_event }); // r0 = Ax0 - b
+    auto [data_to_compute, compute_event] =
+        compute_mean_centered_data(q_, data_nd, means, { means_event });
+
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T] = svd_decomposition(q_, data_nd);
+        auto [U, S, V_T] = svd_decomposition(q_, data_to_compute);
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, column_count));
         }
