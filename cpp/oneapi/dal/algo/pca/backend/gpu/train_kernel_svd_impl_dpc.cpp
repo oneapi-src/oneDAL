@@ -103,7 +103,7 @@ auto svd_decomposition(sycl::queue& queue,
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
     std::cout << "step 1" << std::endl;
-    auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
+    auto U = pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
     std::cout << "step 2" << std::endl;
     auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
     std::cout << "step 3" << std::endl;
@@ -114,7 +114,7 @@ auto svd_decomposition(sycl::queue& queue,
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
     std::int64_t lda = column_count;
-    std::int64_t ldu = row_count;
+    std::int64_t ldu = column_count;
     std::int64_t ldvt = column_count;
     std::cout << "step 5" << std::endl;
     {
