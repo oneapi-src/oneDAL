@@ -6,6 +6,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 PARAMETRIZED_ALGOS = [
+    "covariance",
     "linear_regression",
 ]
 
@@ -14,7 +15,6 @@ ALGOS = [
     "chebyshev_distance",
     "connected_components",
     "cosine_distance",
-    "covariance",
     "dbscan",
     "decision_forest",
     "decision_tree",
