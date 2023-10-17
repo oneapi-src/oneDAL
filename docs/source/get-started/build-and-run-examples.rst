@@ -39,15 +39,9 @@ basic usage scenarios of |short_name| with DPCPP. Go to
          On Linux, there are two possible ways to set up the required environment:
          via ``vars.sh`` script or via ``modulefiles``.
 
-         * Setting up |short_name| environment via ``vars.sh`` script
-
-           Run the following command:
-
-           .. code-block:: bash
-
-              source ./env/vars.sh
-
-         * Setting up |short_name| environment via ``modulefiles``
+         * To set up |short_name| environment via ``vars.sh`` script, run ``source ./env/vars.sh``. 
+         * To set up |short_name| environment via ``setvars.sh`` script, run ``source ./setvars.sh``. 
+         * To set up |short_name| environment via ``modulefiles``
 
            #. Initialize ``modules``:
 
@@ -71,11 +65,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
       .. group-tab:: Windows
 
-         Run the following command:
-
-         .. code-block:: bash
-
-            /env/vars.bat
+         To set up |short_name| environment, run ``source /env/vars.bat`` or ``source setvars.bat``. 
 
 #. Copy ``./examples/oneapi/dpc`` to a writable directory if necessary (since it creates temporary files):
 
