@@ -37,7 +37,7 @@ public:
     #ifdef ONEDAL_DATA_PARALLEL
     template<typename Float>
     virtual sycl::event minimize(sycl::queue& q,
-                         pr::BaseFunction<Float>& f,
+                         pr::base_function<Float>& f,
                          pr::ndview<Float, 1>& x,
                          const be::event_vector& deps = {}) = 0;
     #endif

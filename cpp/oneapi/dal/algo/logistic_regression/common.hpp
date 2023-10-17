@@ -28,7 +28,7 @@ namespace oneapi::dal::logistic_regression {
 namespace task {
 namespace v1 {
 /// Tag-type that parameterizes entities used for solving
-/// :capterm:`regression problem <regression>`.
+/// :capterm:`classification problem <classification>`.
 struct classification {};
 
 /// Alias tag-type for regression task.
@@ -42,7 +42,7 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes :ref:`normal eqution <norm_eq>` computational method.
+/// Tag-type that denotes :ref:`dense batch <dense_batch>` computational method.
 struct dense_batch {};
 
 using by_default = dense_batch;
@@ -52,24 +52,6 @@ using v1::dense_batch;
 using v1::by_default;
 
 } // namespace method
-
-/*
-namespace optimizer {
-namespace v1 {
-
-struct newton_cg {};
-using by_default = newton_cg;
-
-} //namespace v1
-
-using v1::newton_cg;
-using v1::by_default;
-
-} // namespace optimizer
-
-enum optimizer_enum { newton_cg };
-
-*/
 
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
@@ -134,24 +116,22 @@ public:
     descriptor_base();
 
     bool get_compute_intercept() const;
-    //double get_l1_coef() const;
+    double get_l1_coef() const;
     double get_l2_coef() const;
-    // double get_tol() const;
-    // std::int32_t get_max_iter() const;
-    //std::int64_t get_class_count() const;
+    std::int64_t get_class_count() const;
     result_option_id get_result_options() const;
 
 protected:
     explicit descriptor_base(bool compute_intercept,
+                             double l1_coef,
                              double l2_coef,
+                             std::int64_t class_count,
                              const detail::optimizer_ptr& optimizer);
 
     void set_compute_intercept_impl(bool compute_intercept);
-    //void set_l1_coef_impl(bool l1_coef);
+    void set_l1_coef_impl(double l1_coef);
     void set_l2_coef_impl(double l2_coef);
-    // void set_tol_impl(double tol);
-    // void set_max_iter_impl(std::int32_t max_iter);
-    //void set_class_count_impl(std::int64_t class_count);
+    void set_class_count_impl(std::int64_t class_count);
 
     void set_optimizer_impl(const detail::optimizer_ptr& opt);
     void set_result_options_impl(const result_option_id& value);
@@ -206,15 +186,26 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept = true, double l2_coef = 0.0)
+    explicit descriptor(bool compute_intercept = true,
+                        double l1_coef = 0.0,
+                        double l2_coef = 0.0,
+                        std::int64_t class_count = 2)
             : base_t(compute_intercept,
+                     l1_coef,
                      l2_coef,
+                     class_count,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept, double l2_coef, const optimizer_t& optimizer)
+    explicit descriptor(bool compute_intercept,
+                        double l1_coef,
+                        double l2_coef,
+                        std::int64_t class_count,
+                        const optimizer_t& optimizer)
             : base_t(compute_intercept,
+                     l1_coef,
                      l2_coef,
+                     class_count,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer)) {}
 
     /// Defines should intercept be taken into consideration.
@@ -222,55 +213,37 @@ public:
         return base_t::get_compute_intercept();
     }
 
-    // double get_l1_coef() const {
-    //     return base_t::get_l1_coef();
-    // }
+    double get_l1_coef() const {
+        return base_t::get_l1_coef();
+    }
 
     double get_l2_coef() const {
         return base_t::get_l2_coef();
     }
 
-    // double get_tol() const {
-    //     return base_t::get_tol();
-    // }
-
-    // std::int32_t get_max_iter() const {
-    //     return base_t::get_max_iter();
-    // }
-
-    // double get_class_count() const {
-    //     return base_t::get_class_count();
-    // }
+    double get_class_count() const {
+        return base_t::get_class_count();
+    }
 
     auto& set_compute_intercept(bool compute_intercept) const {
         base_t::set_compute_intercept_impl(compute_intercept);
         return *this;
     }
 
-    // auto& set_l1_coef(bool l1_coef) const {
-    //     base_t::set_l1_coef_impl(l1_coef);
-    //     return *this;
-    // }
+    auto& set_l1_coef(bool l1_coef) const {
+        base_t::set_l1_coef_impl(l1_coef);
+        return *this;
+    }
 
     auto& set_l2_coef(bool l2_coef) const {
         base_t::set_l2_coef_impl(l2_coef);
         return *this;
     }
 
-    // auto& set_tol(double tol) const {
-    //     base_t::set_tol_impl(tol);
-    //     return *this;
-    // }
-
-    // auto& set_max_iter(std::int32_t maxiter) const {
-    //     base_t::set_max_iter_impl(maxiter);
-    //     return *this;
-    // }
-
-    // auto& set_class_count(std::int64_t class_count) const {
-    //     base_t::set_class_count_impl(class_count);
-    //     return *this;
-    // }
+    auto& set_class_count(std::int64_t class_count) const {
+        base_t::set_class_count_impl(class_count);
+        return *this;
+    }
 
     const optimizer_t& get_optimizer() const {
         using optimizer_t = detail::optimizer<optimizer_t>;

@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 sycl::event newton_cg(sycl::queue& queue,
-                      BaseFunction<Float>& f,
+                      base_function<Float>& f,
                       ndview<Float, 1>& x,
                       Float tol,
                       std::int64_t maxiter,
@@ -134,12 +134,12 @@ sycl::event newton_cg(sycl::queue& queue,
     return last;
 }
 
-#define INSTANTIATE(F)                                  \
-    template sycl::event newton_cg<F>(sycl::queue&,     \
-                                      BaseFunction<F>&, \
-                                      ndview<F, 1>&,    \
-                                      F,                \
-                                      std::int64_t,     \
+#define INSTANTIATE(F)                                   \
+    template sycl::event newton_cg<F>(sycl::queue&,      \
+                                      base_function<F>&, \
+                                      ndview<F, 1>&,     \
+                                      F,                 \
+                                      std::int64_t,      \
                                       const event_vector&);
 
 INSTANTIATE(float);

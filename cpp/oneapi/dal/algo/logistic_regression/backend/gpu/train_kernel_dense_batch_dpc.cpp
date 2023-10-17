@@ -28,7 +28,6 @@
 #include "oneapi/dal/algo/logistic_regression/train_types.hpp"
 #include "oneapi/dal/algo/logistic_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/logistic_regression/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/gpu/optimizers.hpp"
 #include "oneapi/dal/backend/primitives/objective_function.hpp"
 #include "oneapi/dal/backend/primitives/optimizers.hpp"
 #include "oneapi/dal/algo/logistic_regression/backend/optimizer_impl.hpp"
@@ -51,6 +50,12 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
 
+    auto opt_impl = detail::get_optimizer_impl(desc);
+
+    if (!opt_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_optimizer() };
+    }
+
     auto& queue = ctx.get_queue();
 
     ONEDAL_PROFILER_TASK(log_reg_train_kernel, queue);
@@ -65,18 +70,14 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const Float L2 = desc.get_l2_coef();
     const bool fit_intercept = desc.get_compute_intercept();
-    //const Float tol = desc.get_tol();
-    //const std::int64_t maxiter = desc.get_max_iter();
 
     // TODO: add check if the dataset can be moved to gpu
     // Move data to gpu
     pr::ndarray<Float, 2> data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
     table data_gpu = homogen_table::wrap(data_nd.flatten(queue, {}), sample_count, feature_count);
 
-    pr::LogLossFunction<Float> loss_func =
-        pr::LogLossFunction(queue, data_gpu, responses_nd, L2, fit_intercept, bsize);
-
-    auto opt_impl = detail::get_optimizer_impl(desc);
+    pr::logloss_function<Float> loss_func =
+        pr::logloss_function(queue, data_gpu, responses_nd, L2, fit_intercept, bsize);
 
     auto [x, fill_event] =
         pr::ndarray<Float, 1>::zeros(queue, { feature_count + 1 }, sycl::usm::alloc::device);

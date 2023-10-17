@@ -24,7 +24,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 sycl::event cg_solve(sycl::queue& queue,
-                     BaseMatrixOperator<Float>& mul_operator,
+                     base_matrix_operator<Float>& mul_operator,
                      const ndview<Float, 1>& b,
                      ndview<Float, 1>& x,
                      ndview<Float, 1>& residual,
@@ -159,17 +159,17 @@ sycl::event cg_solve(sycl::queue& queue,
     return compute_conj_event;
 }
 
-#define INSTANTIATE(F)                                       \
-    template sycl::event cg_solve<F>(sycl::queue&,           \
-                                     BaseMatrixOperator<F>&, \
-                                     const ndview<F, 1>&,    \
-                                     ndview<F, 1>&,          \
-                                     ndview<F, 1>&,          \
-                                     ndview<F, 1>&,          \
-                                     ndview<F, 1>&,          \
-                                     F,                      \
-                                     F,                      \
-                                     std::int64_t,           \
+#define INSTANTIATE(F)                                         \
+    template sycl::event cg_solve<F>(sycl::queue&,             \
+                                     base_matrix_operator<F>&, \
+                                     const ndview<F, 1>&,      \
+                                     ndview<F, 1>&,            \
+                                     ndview<F, 1>&,            \
+                                     ndview<F, 1>&,            \
+                                     ndview<F, 1>&,            \
+                                     F,                        \
+                                     F,                        \
+                                     std::int64_t,             \
                                      const event_vector&);
 
 INSTANTIATE(float);

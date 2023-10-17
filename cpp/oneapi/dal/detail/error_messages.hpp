@@ -242,7 +242,10 @@ public:
     MSG(intercept_result_option_requires_intercept_flag);
 
     /* Logistic Regression */
+    MSG(class_count_neq_two);
+    MSG(l1_coef_neq_zero);
     MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu);
+    MSG(unknown_optimizer);
 
     /* Louvain */
     MSG(negative_resolution);

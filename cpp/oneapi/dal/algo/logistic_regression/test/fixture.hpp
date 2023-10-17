@@ -69,14 +69,15 @@ public:
         result_option_id resopts = result_options::coefficients;
         if (this->fit_intercept_)
             resopts = resopts | result_options::intercept;
-        return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_, L2_)
+        return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_,
+                                                                          0.0,
+                                                                          L2_,
+                                                                          2)
             .set_result_options(resopts);
     }
 
     void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
-            //n_ = GENERATE(100, 200);
-            //p_ = GENERATE(10, 20);
             this->n_ = GENERATE(100, 200, 1000, 10000, 50000);
             this->p_ = GENERATE(10, 20, 30);
         }

@@ -53,6 +53,13 @@ struct train_ops {
         const auto& data = input.get_data();
         const auto& responses = input.get_responses();
 
+        if (params.get_class_count() != 2) {
+            throw domain_error(msg::class_count_neq_two());
+        }
+
+        if (params.get_l1_coef() != 0.0) {
+            throw domain_error(msg::l1_coef_neq_zero());
+        }
         if (!data.has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
@@ -83,7 +90,6 @@ struct train_ops {
         if (res.test(result_options::coefficients)) {
             [[maybe_unused]] const table& coefficients = //
                 result.get_coefficients();
-
             ONEDAL_ASSERT(coefficients.has_data());
             ONEDAL_ASSERT(coefficients.get_row_count() == r_count);
             ONEDAL_ASSERT(coefficients.get_column_count() == f_count);

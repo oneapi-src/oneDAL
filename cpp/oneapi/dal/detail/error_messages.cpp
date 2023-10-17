@@ -303,8 +303,13 @@ MSG(intercept_result_option_requires_intercept_flag,
     "Intercept result option requires intercept flag")
 
 /* Logistic Regression */
+MSG(class_count_neq_two,
+    "Only binary classification is supported so class count should be equal to 2")
+MSG(l1_coef_neq_zero,
+    "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
 MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
     "LogisticRegression is not implemented for CPU")
+MSG(unknown_optimizer, "Custom optimizers are not supported, use on of provided by the library")
 
 /* Decision Forest */
 MSG(bootstrap_is_incompatible_with_error_metric,

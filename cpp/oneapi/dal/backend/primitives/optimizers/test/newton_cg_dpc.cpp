@@ -96,7 +96,7 @@ public:
         A_ = X_train.to_device(this->get_queue());
         table data = homogen_table::wrap<float_t>(A_.get_mutable_data(), train_size, p_);
         auto logloss_func =
-            LogLossFunction<float_t>(this->get_queue(), data, y_gpu, 3.0, true, bsz);
+            logloss_function<float_t>(this->get_queue(), data, y_gpu, 3.0, true, bsz);
         auto [solution_, fill_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
         newton_cg(this->get_queue(), logloss_func, solution_, float_t(1e-8), 100, { fill_e })
@@ -170,7 +170,7 @@ public:
         A_ = A_host.to_device(this->get_queue());
         b_ = b_host.to_device(this->get_queue());
 
-        func_ = std::make_shared<QuadraticFunction<float_t>>(this->get_queue(), A_, b_);
+        func_ = std::make_shared<quadratic_function<float_t>>(this->get_queue(), A_, b_);
 
         auto x_host = ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
         auto buffer = ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
@@ -223,7 +223,7 @@ public:
 private:
     std::int64_t n_;
     std::int64_t p_;
-    std::shared_ptr<BaseFunction<float_t>> func_;
+    std::shared_ptr<base_function<float_t>> func_;
     ndarray<float_t, 1> solution_;
     ndarray<float_t, 2> A_;
     ndarray<float_t, 1> b_;

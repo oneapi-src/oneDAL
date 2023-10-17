@@ -45,7 +45,11 @@ sycl::event compute_probabilities(sycl::queue& q,
     Float w0 = fit_intercept ? parameters.get_slice(0, 1).at_device(q, 0l) : 0; // Poor perfomance
     ndview<Float, 1> param_suf = fit_intercept ? parameters.get_slice(1, p + 1) : parameters;
 
-    auto event = gemv(q, data, param_suf, probabilities, Float(1), w0, { fill_event });
+    sycl::event gemv_event;
+    {
+        gemv_event = gemv(q, data, param_suf, probabilities, Float(1), w0, { fill_event });
+        gemv_event.wait_and_throw();
+    }
     auto* const prob_ptr = probabilities.get_mutable_data();
 
     const Float bottom = sizeof(Float) == 4 ? 1e-7 : 1e-15;
@@ -53,7 +57,7 @@ sycl::event compute_probabilities(sycl::queue& q,
     // Log Loss is undefined for p = 0 and p = 1 so probabilities are clipped into [eps, 1 - eps]
 
     return q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(event);
+        cgh.depends_on(gemv_event);
         const auto range = make_range_1d(n);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             prob_ptr[idx] = 1 / (1 + sycl::exp(-prob_ptr[idx]));
@@ -179,8 +183,13 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
     }
 
     auto out_der_suffix = fit_intercept ? out_derivative.get_slice(1, p + 1) : out_derivative;
-
-    return gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event, derw0_event });
+    sycl::event gemv_event;
+    {
+        gemv_event =
+            gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event, derw0_event });
+        gemv_event.wait_and_throw();
+    }
+    return gemv_event;
 }
 
 template <typename Float>
@@ -248,8 +257,11 @@ sycl::event compute_derivative(sycl::queue& q,
 
     auto out_der_suffix = fit_intercept ? out_derivative.get_slice(1, p + 1) : out_derivative;
 
-    auto der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
-
+    sycl::event der_event;
+    {
+        der_event = gemv(q, data.t(), derivative_object, out_der_suffix, { loss_event });
+        der_event.wait_and_throw();
+    }
     return der_event;
 }
 
@@ -456,11 +468,11 @@ std::int64_t get_block_size(std::int64_t n, std::int64_t p) {
 }
 
 template <typename Float>
-LogLossHessianProduct<Float>::LogLossHessianProduct(sycl::queue& q,
-                                                    const table& data,
-                                                    Float L2,
-                                                    bool fit_intercept,
-                                                    std::int64_t bsz)
+logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
+                                                        const table& data,
+                                                        Float L2,
+                                                        bool fit_intercept,
+                                                        std::int64_t bsz)
         : q_(q),
           data_(data),
           L2_(L2),
@@ -474,14 +486,14 @@ LogLossHessianProduct<Float>::LogLossHessianProduct(sycl::queue& q,
 }
 
 template <typename Float>
-ndview<Float, 1>& LogLossHessianProduct<Float>::get_raw_hessian() {
+ndview<Float, 1>& logloss_hessian_product<Float>::get_raw_hessian() {
     return raw_hessian_;
 }
 
 template <typename Float>
-sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
-                                                                     ndview<Float, 1>& out,
-                                                                     const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
+                                                                       ndview<Float, 1>& out,
+                                                                       const event_vector& deps) {
     auto* const tmp_ptr = tmp_gpu_.get_mutable_data();
     ONEDAL_ASSERT(vec.get_dimension(0) == p_ + 1);
     ONEDAL_ASSERT(out.get_dimension(0) == p_ + 1);
@@ -548,9 +560,10 @@ sycl::event LogLossHessianProduct<Float>::compute_with_fit_intercept(const ndvie
 }
 
 template <typename Float>
-sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const ndview<Float, 1>& vec,
-                                                                        ndview<Float, 1>& out,
-                                                                        const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
+    const ndview<Float, 1>& vec,
+    ndview<Float, 1>& out,
+    const event_vector& deps) {
     ONEDAL_ASSERT(vec.get_dimension(0) == p_);
     ONEDAL_ASSERT(out.get_dimension(0) == p_);
 
@@ -609,9 +622,9 @@ sycl::event LogLossHessianProduct<Float>::compute_without_fit_intercept(const nd
 }
 
 template <typename Float>
-sycl::event LogLossHessianProduct<Float>::operator()(const ndview<Float, 1>& vec,
-                                                     ndview<Float, 1>& out,
-                                                     const event_vector& deps) {
+sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& vec,
+                                                       ndview<Float, 1>& out,
+                                                       const event_vector& deps) {
     if (fit_intercept_) {
         return compute_with_fit_intercept(vec, out, deps);
     }
@@ -621,12 +634,12 @@ sycl::event LogLossHessianProduct<Float>::operator()(const ndview<Float, 1>& vec
 }
 
 template <typename Float>
-LogLossFunction<Float>::LogLossFunction(sycl::queue q,
-                                        const table& data,
-                                        const ndview<std::int32_t, 1>& labels,
-                                        Float L2,
-                                        bool fit_intercept,
-                                        std::int64_t bsz)
+logloss_function<Float>::logloss_function(sycl::queue q,
+                                          const table& data,
+                                          const ndview<std::int32_t, 1>& labels,
+                                          Float L2,
+                                          bool fit_intercept,
+                                          std::int64_t bsz)
         : q_(q),
           data_(data),
           labels_(labels),
@@ -644,9 +657,9 @@ LogLossFunction<Float>::LogLossFunction(sycl::queue q,
 }
 
 template <typename Float>
-event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
-                                              bool need_hessp,
-                                              const event_vector& deps) {
+event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
+                                               bool need_hessp,
+                                               const event_vector& deps) {
     using dal::backend::operator+;
     value_ = 0;
     auto fill_event = fill(q_, gradient_, Float(0), deps);
@@ -732,16 +745,16 @@ event_vector LogLossFunction<Float>::update_x(const ndview<Float, 1>& x,
 }
 
 template <typename Float>
-Float LogLossFunction<Float>::get_value() {
+Float logloss_function<Float>::get_value() {
     return value_;
 }
 template <typename Float>
-ndview<Float, 1>& LogLossFunction<Float>::get_gradient() {
+ndview<Float, 1>& logloss_function<Float>::get_gradient() {
     return gradient_;
 }
 
 template <typename Float>
-BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
+base_matrix_operator<Float>& logloss_function<Float>::get_hessian_product() {
     return hessp_;
 }
 
@@ -808,8 +821,8 @@ BaseMatrixOperator<Float>& LogLossFunction<Float>::get_hessian_product() {
                                                 const ndview<F, 1>&,                 \
                                                 ndview<F, 1>&,                       \
                                                 const event_vector&);                \
-    template class LogLossHessianProduct<F>;                                         \
-    template class LogLossFunction<F>;
+    template class logloss_hessian_product<F>;                                       \
+    template class logloss_function<F>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);

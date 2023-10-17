@@ -104,13 +104,13 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 const event_vector& deps = {});
 
 template <typename Float>
-class LogLossHessianProduct : public BaseMatrixOperator<Float> {
+class logloss_hessian_product : public base_matrix_operator<Float> {
 public:
-    LogLossHessianProduct(sycl::queue& q,
-                          const table& data,
-                          Float L2 = Float(0),
-                          bool fit_intercept = true,
-                          std::int64_t bsz = -1);
+    logloss_hessian_product(sycl::queue& q,
+                            const table& data,
+                            Float L2 = Float(0),
+                            bool fit_intercept = true,
+                            std::int64_t bsz = -1);
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
                            const event_vector& deps) final;
@@ -137,17 +137,17 @@ private:
 };
 
 template <typename Float>
-class LogLossFunction : public BaseFunction<Float> {
+class logloss_function : public base_function<Float> {
 public:
-    LogLossFunction(sycl::queue queue,
-                    const table& data,
-                    const ndview<std::int32_t, 1>& labels,
-                    Float L2 = 0.0,
-                    bool fit_intercept = true,
-                    std::int64_t bsz = -1);
+    logloss_function(sycl::queue queue,
+                     const table& data,
+                     const ndview<std::int32_t, 1>& labels,
+                     Float L2 = 0.0,
+                     bool fit_intercept = true,
+                     std::int64_t bsz = -1);
     Float get_value() final;
     ndview<Float, 1>& get_gradient() final;
-    BaseMatrixOperator<Float>& get_hessian_product() final;
+    base_matrix_operator<Float>& get_hessian_product() final;
 
     event_vector update_x(const ndview<Float, 1>& x,
                           bool need_hessp = false,
@@ -165,7 +165,7 @@ private:
     ndarray<Float, 1> probabilities_;
     ndarray<Float, 1> gradient_;
     ndarray<Float, 1> buffer_;
-    LogLossHessianProduct<Float> hessp_;
+    logloss_hessian_product<Float> hessp_;
     const std::int64_t dimension_;
     Float value_;
 };

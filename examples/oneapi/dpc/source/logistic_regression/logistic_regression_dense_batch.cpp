@@ -69,7 +69,9 @@ void run(sycl::queue& q) {
 
     const auto log_reg_desc =
         dal::logistic_regression::descriptor<double, method_t, task_t, optimizer_t>(true,
+                                                                                    0.0,
                                                                                     1.0,
+                                                                                    2,
                                                                                     optimizer_desc)
             .set_result_options(result_options::coefficients | result_options::intercept);
 

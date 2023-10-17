@@ -41,9 +41,9 @@ class descriptor_impl : public base {
 public:
     explicit descriptor_impl(const detail::optimizer_ptr& optimizer) : opt(optimizer) {}
 
+    bool compute_intercept = true;
     double l1_coef = 0.0;
     double l2_coef = 0.0;
-    bool compute_intercept = true;
     std::int64_t class_count = 2;
     detail::optimizer_ptr opt;
 
@@ -75,11 +75,15 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept,
+                                       double l1_coef,
                                        double l2_coef,
+                                       std::int64_t class_count,
                                        const detail::optimizer_ptr& optimizer)
         : impl_(new descriptor_impl<Task>{ optimizer }) {
     impl_->compute_intercept = compute_intercept;
+    impl_->l1_coef = l1_coef;
     impl_->l2_coef = l2_coef;
+    impl_->class_count = class_count;
     impl_->opt = optimizer;
 }
 
@@ -88,30 +92,20 @@ bool descriptor_base<Task>::get_compute_intercept() const {
     return impl_->compute_intercept;
 }
 
-// template <typename Task>
-// double descriptor_base<Task>::get_l1_coef() const {
-//     return impl_->l1_coef;
-// }
+template <typename Task>
+double descriptor_base<Task>::get_l1_coef() const {
+    return impl_->l1_coef;
+}
 
 template <typename Task>
 double descriptor_base<Task>::get_l2_coef() const {
     return impl_->l2_coef;
 }
 
-// template <typename Task>
-// double descriptor_base<Task>::get_tol() const {
-//     return impl_->tol;
-// }
-
-// template <typename Task>
-// std::int32_t descriptor_base<Task>::get_max_iter() const {
-//     return impl_->max_iter;
-// }
-
-// template <typename Task>
-// std::int64_t descriptor_base<Task>::get_class_count() const {
-//     return impl_->class_count;
-// }
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_class_count() const {
+    return impl_->class_count;
+}
 
 template <typename Task>
 const detail::optimizer_ptr& descriptor_base<Task>::get_optimizer_impl() const {
@@ -128,30 +122,20 @@ void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
     impl_->compute_intercept = compute_intercept;
 }
 
-// template <typename Task>
-// void descriptor_base<Task>::set_l1_coef_impl(double l1_coef) {
-//     impl_->l1_coef = l1_coef;
-// }
+template <typename Task>
+void descriptor_base<Task>::set_l1_coef_impl(double l1_coef) {
+    impl_->l1_coef = l1_coef;
+}
 
 template <typename Task>
 void descriptor_base<Task>::set_l2_coef_impl(double l2_coef) {
     impl_->l2_coef = l2_coef;
 }
 
-// template <typename Task>
-// void descriptor_base<Task>::set_tol_impl(double tol) {
-//     impl_->tol = tol;
-// }
-
-// template <typename Task>
-// void descriptor_base<Task>::set_max_iter_impl(std::int32_t max_iter) {
-//     impl_->max_iter = max_iter;
-// }
-
-// template <typename Task>
-// void descriptor_base<Task>::set_class_count_impl(std::int64_t class_count) {
-//     impl_->class_count = class_count;
-// }
+template <typename Task>
+void descriptor_base<Task>::set_class_count_impl(std::int64_t class_count) {
+    impl_->class_count = class_count;
+}
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
 
