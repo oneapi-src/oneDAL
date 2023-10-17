@@ -69,7 +69,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
                      basic_statistics_sparse_types) {
     SKIP_IF(this->not_float64_friendly());
     const auto data = GENERATE_COPY(te::csr_table_builder(5, 5),
-                                    te::csr_table_builder(10, 10),
+                                    te::csr_table_builder(7, 10),
                                     te::csr_table_builder(100, 100));
     const bs::result_option_id res_min_max = result_options::min | result_options::max;
     const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;

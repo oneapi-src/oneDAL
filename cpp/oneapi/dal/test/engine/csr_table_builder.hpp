@@ -36,8 +36,8 @@ struct csr_table_builder {
 
     csr_table_builder(std::int64_t row_count,
                       std::int64_t column_count,
-                      float nnz_fraction = 0.2,
-                      sparse_indexing indexing = sparse_indexing::zero_based)
+                      float nnz_fraction = 0.3,
+                      sparse_indexing indexing = sparse_indexing::one_based)
             : row_count_(row_count),
               column_count_(column_count),
               nonzero_fraction_(nnz_fraction),
@@ -52,11 +52,11 @@ struct csr_table_builder {
 
         std::uint32_t seed = 42;
         std::mt19937 rng(seed);
-        std::uniform_real_distribution<Float> uniform_data(-3.0f, 3.0f);
+        std::uniform_real_distribution<Float> uniform_data(-10.0f, 10.0f);
         std::uniform_int_distribution<std::int64_t> uniform_indices(
             0,
             column_count_ - 1 - indexing_shift);
-        std::uniform_int_distribution<std::int64_t> uniform_ind_count(0, column_count_ - 1);
+        std::uniform_int_distribution<std::int64_t> uniform_ind_count(1, column_count_ - 2);
 
         auto data_ptr = data_.get_mutable_data();
         auto col_indices_ptr = column_indices_.get_mutable_data();
@@ -75,7 +75,7 @@ struct csr_table_builder {
             nnz_col_count = std::min(nnz_col_count, nonzero_count - fill_count);
             for (std::int32_t i = 0; i < nnz_col_count; ++i) {
                 std::int64_t col_idx = uniform_indices(rng) + indexing_shift;
-                col_indices_ptr[fill_count + i] = col_idx;
+                col_indices_ptr[fill_count + i] = col_idx + indexing_shift;
             }
             std::sort(col_indices_ptr + fill_count, col_indices_ptr + fill_count + nnz_col_count);
             // Remove duplications
@@ -158,15 +158,16 @@ struct csr_table_builder {
 
     table build_dense_table() const {
         const dal::array<Float> dense_data = dal::array<Float>::zeros(row_count_ * column_count_);
+        std::int64_t indexing_shift = bool(indexing_ == sparse_indexing::one_based);
         auto data_ptr = dense_data.get_mutable_data();
         auto sparse_data_ptr = data_.get_data();
         auto row_offs_ptr = row_offsets_.get_data();
         auto col_indices_ptr = column_indices_.get_data();
         for (std::int32_t row_idx = 0; row_idx < row_count_; ++row_idx) {
-            for (std::int32_t data_idx = row_offs_ptr[row_idx];
-                 data_idx < row_offs_ptr[row_idx + 1];
+            for (std::int32_t data_idx = row_offs_ptr[row_idx] - indexing_shift;
+                 data_idx < row_offs_ptr[row_idx + 1] - indexing_shift;
                  ++data_idx) {
-                data_ptr[row_idx * column_count_ + col_indices_ptr[data_idx]] =
+                data_ptr[row_idx * column_count_ + col_indices_ptr[data_idx] - indexing_shift] =
                     sparse_data_ptr[data_idx];
             }
         }
