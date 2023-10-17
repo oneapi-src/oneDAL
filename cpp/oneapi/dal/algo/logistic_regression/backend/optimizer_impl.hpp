@@ -15,9 +15,11 @@
 *******************************************************************************/
 
 #pragma once
-
-#include "oneapi/dal/backend/primitives/objective_function.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+
+#ifdef ONEDAL_DATA_PARALLEL
+#include "oneapi/dal/backend/primitives/objective_function.hpp"
+#endif
 
 namespace oneapi::dal::logistic_regression::detail {
 namespace v1 {

@@ -17,8 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/blas/gemv.hpp"
-#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
