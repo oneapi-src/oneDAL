@@ -28,6 +28,7 @@
 #include "oneapi/dal/test/engine/csr_table_builder.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
+#include "oneapi/dal/table/csr_accessor.hpp"
 namespace oneapi::dal::basic_statistics::test {
 
 namespace te = dal::test::engine;
