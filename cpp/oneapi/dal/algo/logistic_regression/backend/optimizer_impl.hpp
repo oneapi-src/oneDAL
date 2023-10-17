@@ -33,16 +33,16 @@ public:
     virtual optimizer_type get_optimizer_type() = 0;
     virtual double get_tol() = 0;
     virtual std::int64_t get_max_iter() = 0;
-    /*
-    #ifdef ONEDAL_DATA_PARALLEL
-    template<typename Float>
-    virtual sycl::event minimize(sycl::queue& q,
-                         pr::base_function<Float>& f,
-                         pr::ndview<Float, 1>& x,
-                         const be::event_vector& deps = {}) = 0;
-    #endif
-*/
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename Float>
+sycl::event minimize(optimizer_impl* opt,
+                     sycl::queue& q,
+                     pr::base_function<Float>& f,
+                     pr::ndview<Float, 1>& x,
+                     const be::event_vector& deps = {});
+#endif
 
 } // namespace v1
 
