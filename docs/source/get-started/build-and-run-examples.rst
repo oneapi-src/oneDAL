@@ -41,7 +41,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
          * To set up |short_name| environment via ``vars.sh`` script, run ``source ./env/vars.sh``. 
          * To set up |short_name| environment via ``setvars.sh`` script, run ``source ./setvars.sh``. 
-         * To set up |short_name| environment via ``modulefiles``
+         * To set up |short_name| environment via ``modulefiles``:
 
            #. Initialize ``modules``:
 
