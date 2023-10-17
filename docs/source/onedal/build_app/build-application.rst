@@ -165,18 +165,18 @@ Applications on Windows* OS
 Examples
 ********
 
-Dynamic linking short_name| with the GPU target:
+Dynamic linking |short_name| with the GPU target:
 
-   * Linux* OS:
+* Linux* OS:
    
-   .. code-block:: text
+  .. code-block:: text
 
      icpx -fsycl my_first_dal_program.cpp -Wl,
      --start-group -L<install dir>/dal/latest/lib -lonedal_core -lonedal_dpc -lonedal_parameters_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/ -ltbb -ltbbmalloc <install dir>/dal/latest/lib/libonedal_sycl.a -Wl,--end-group
 
-   * Windows* OS:
+* Windows* OS:
    
-   .. code-block:: text
+  .. code-block:: text
 
      icx-cl -fsycl my_first_dal_program.cpp -Wl,
      --start-group -L<install dir>/dal/latest/lib/ -lonedal_core -lonedal_dpc -lonedal_thread -lpthread -ldl -lOpenCL -L<install dir>/tbb/latest/lib/ -ltbb -ltbbmalloc <install dir>/dal/latest/lib/libonedal_sycl.a -Wl,--end-group
