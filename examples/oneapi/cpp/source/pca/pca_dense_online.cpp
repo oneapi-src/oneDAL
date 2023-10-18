@@ -28,8 +28,9 @@ int main(int argc, char const* argv[]) {
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     dal::pca::partial_train_result<> partial_result;
 
-    const auto pca_desc =
-        dal::pca::descriptor<float, cov>().set_component_count(5).set_deterministic(true);
+    const auto pca_desc = dal::pca::descriptor<float, dal::pca::method::cov>()
+                              .set_component_count(5)
+                              .set_deterministic(true);
 
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
