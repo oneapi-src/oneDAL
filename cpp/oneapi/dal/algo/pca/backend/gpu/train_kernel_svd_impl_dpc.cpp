@@ -96,19 +96,19 @@ auto compute_mean_centered_data(sycl::queue& q,
     return std::make_tuple(data_to_compute, event);
 }
 
-template <typename Float>
+template <typename Float, pr::ndorder order>
 auto svd_decomposition(sycl::queue& queue,
-                       pr::ndview<Float, 2>& data,
+                       pr::ndview<Float, 2, order>& data,
                        std::int64_t component_count) {
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
-    std::cout << "step 1" << std::endl;
+
     auto U = pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
-    std::cout << "step 2" << std::endl;
+
     auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
-    std::cout << "step 3" << std::endl;
+
     auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
-    std::cout << "step 4" << std::endl;
+
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
@@ -116,7 +116,6 @@ auto svd_decomposition(sycl::queue& queue,
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
     std::int64_t ldvt = column_count;
-    std::cout << "step 5" << std::endl;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
         auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
@@ -131,7 +130,6 @@ auto svd_decomposition(sycl::queue& queue,
                                                                          ldvt,
                                                                          {});
     }
-    std::cout << "step 6" << std::endl;
     return std::make_tuple(U, S, V_T);
 }
 
@@ -155,7 +153,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
     auto [data_to_compute, compute_event] =
         compute_mean_centered_data(q_, data_nd, means, { means_event });
-
+    //auto data_to_compute_ = data_to_compute.t();
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
         auto [U, S, V_T] = svd_decomposition(q_, data_to_compute, component_count);
