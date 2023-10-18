@@ -14,6 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/logistic_regression.hpp"
 #include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -22,8 +26,6 @@
 #include <iostream>
 #include <time.h>
 #include <unistd.h>
-
-using namespace std::chrono;
 
 namespace dal = oneapi::dal;
 namespace result_options = dal::logistic_regression::result_options;

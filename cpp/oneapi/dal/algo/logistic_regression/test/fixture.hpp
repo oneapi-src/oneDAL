@@ -23,7 +23,6 @@
 
 #include "oneapi/dal/algo/logistic_regression/common.hpp"
 #include "oneapi/dal/algo/logistic_regression/train.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/logistic_regression/infer.hpp"
 
