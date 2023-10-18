@@ -355,7 +355,8 @@ void ModelImpl::getMaxLvl(const dtrees::internal::DecisionTreeNode * const arr, 
 
 const GbtDecisionTree * ModelImpl::at(const size_t idx) const
 {
-    return static_cast<const GbtDecisionTree *>((*super::_serializationData)[idx].get());
+    auto * const rawTree = (*super::_serializationData)[idx].get();
+    return static_cast<const GbtDecisionTree *>(rawTree);
 }
 
 } // namespace internal

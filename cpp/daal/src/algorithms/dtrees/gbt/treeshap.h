@@ -44,6 +44,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 #include "src/services/service_arrays.h"
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
+#include <cfloat> // FLT_EPSILON
 
 namespace daal
 {
@@ -157,7 +158,7 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
 
     // see if we have already split on this feature,
     // if so we undo that split so we can redo it for this node
-    size_t previousSplitPathIndex = 0;
+    size_t previousSplitPathIndex = 0ul;
     for (; previousSplitPathIndex <= uniqueDepth; ++previousSplitPathIndex)
     {
         const FeatureIndexType castIndex = static_cast<FeatureIndexType>(uniquePath[previousSplitPathIndex].featureIndex);
@@ -220,7 +221,7 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
     PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nUniquePath));
     DAAL_CHECK_MALLOC(uniquePathData)
     PathElement init;
-    for (size_t i = 0; i < nUniquePath; ++i)
+    for (size_t i = 0ul; i < nUniquePath; ++i)
     {
         DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
     }
@@ -419,14 +420,14 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
     PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nElements));
     DAAL_CHECK_MALLOC(uniquePathData)
     PathElement init;
-    for (size_t i = 0; i < nElements; ++i)
+    for (size_t i = 0ul; i < nElements; ++i)
     {
         DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
     }
 
     float * pWeights = static_cast<float *>(daal_malloc(sizeof(float) * nElements));
     DAAL_CHECK_MALLOC(pWeights)
-    for (size_t i = 0; i < nElements; ++i)
+    for (size_t i = 0ul; i < nElements; ++i)
     {
         pWeights[i] = 0.0f;
     }

@@ -36,6 +36,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_memory.h"
 #include "src/threading/threading.h"
+#include <cfloat> // DBL_EPSILON
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -83,8 +84,8 @@ protected:
 
     inline size_t getNumberOfNodes(size_t nTrees)
     {
-        size_t nNodesTotal = 0;
-        for (size_t iTree = 0; iTree < nTrees; ++iTree)
+        size_t nNodesTotal = 0ul;
+        for (size_t iTree = 0ul; iTree < nTrees; ++iTree)
         {
             nNodesTotal += _aTree[iTree]->getNumberOfNodes();
         }
@@ -93,8 +94,8 @@ protected:
 
     inline bool checkForMissing(const algorithmFPType * x, size_t nTrees, size_t nRows, size_t nColumns) const
     {
-        size_t nLvlTotal = 0;
-        for (size_t iTree = 0; iTree < nTrees; ++iTree)
+        size_t nLvlTotal = 0ul;
+        for (size_t iTree = 0ul; iTree < nTrees; ++iTree)
         {
             nLvlTotal += _aTree[iTree]->getMaxLvl();
         }
@@ -105,7 +106,7 @@ protected:
         }
         else
         {
-            for (size_t idx = 0; idx < nRows * nColumns; ++idx)
+            for (size_t idx = 0ul; idx < nRows * nColumns; ++idx)
             {
                 if (checkFinitenessByComparison(x[idx])) return true;
             }
@@ -178,8 +179,7 @@ protected:
     inline services::Status predictContributions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x, algorithmFPType * res,
                                                  int condition, FeatureIndexType conditionFeature, const DimType & dim)
     {
-        const size_t nColumnsData = dim.nCols;
-        const bool hasAnyMissing  = checkForMissing(x, nTrees, nRowsData, nColumnsData);
+        const bool hasAnyMissing = checkForMissing(x, nTrees, nRowsData, dim.nCols);
         if (hasAnyMissing)
         {
             return predictContributions<true>(iTree, nTrees, nRowsData, x, res, condition, conditionFeature, dim);
@@ -213,8 +213,7 @@ protected:
     inline services::Status predictContributionInteractions(size_t iTree, size_t nTrees, size_t nRowsData, const algorithmFPType * x,
                                                             const algorithmFPType * nominal, algorithmFPType * res, const DimType & dim)
     {
-        const size_t nColumnsData = dim.nCols;
-        const bool hasAnyMissing  = checkForMissing(x, nTrees, nRowsData, nColumnsData);
+        const bool hasAnyMissing = checkForMissing(x, nTrees, nRowsData, dim.nCols);
         if (hasAnyMissing)
         {
             return predictContributionInteractions<true>(iTree, nTrees, nRowsData, x, nominal, res, dim);
@@ -253,9 +252,8 @@ protected:
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, const algorithmFPType * x, algorithmFPType * res, const DimType & dim,
                         BooleanConstant<false> keepLooking)
     {
-        const size_t nColumns                = dim.nCols;
         constexpr size_t vectorBlockSizeStep = DimType::vectorBlockSizeStep;
-        predict<vectorBlockSizeFactor * vectorBlockSizeStep>(iTree, nTrees, nRows, nColumns, x, res);
+        predict<vectorBlockSizeFactor * vectorBlockSizeStep>(iTree, nTrees, nRows, dim.nCols, x, res);
     }
 
     inline void predict(size_t iTree, size_t nTrees, size_t nRows, const algorithmFPType * x, algorithmFPType * res, const DimType & dim)
@@ -303,7 +301,10 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::reg
     const auto nTreesTotal = (nIterations ? nIterations : m->size());
     _aTree.reset(nTreesTotal);
     DAAL_CHECK_MALLOC(_aTree.get());
-    for (size_t i = 0; i < nTreesTotal; ++i) _aTree[i] = m->at(i);
+
+    PRAGMA_VECTOR_ALWAYS
+    for (size_t i = 0ul; i < nTreesTotal; ++i) _aTree[i] = m->at(i);
+
     return runInternal(pHostApp, this->_res, m->getPredictionBias(), predShapContributions, predShapInteractions);
 }
 
@@ -331,10 +332,10 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
     const size_t nColumnsPhi   = nColumnsData + 1;
     const size_t biasTermIndex = nColumnsPhi - 1;
 
-    for (size_t iRow = 0; iRow < nRowsData; ++iRow)
+    for (size_t iRow = 0ul; iRow < nRowsData; ++iRow)
     {
-        const algorithmFPType * currentX = x + (iRow * nColumnsData);
-        algorithmFPType * phi            = res + (iRow * nColumnsPhi);
+        const algorithmFPType * const currentX = x + (iRow * nColumnsData);
+        algorithmFPType * const phi            = res + (iRow * nColumnsPhi);
         for (size_t currentTreeIndex = iTree; currentTreeIndex < iTree + nTrees; ++currentTreeIndex)
         {
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
@@ -398,13 +399,13 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
     // Copy nominal values (for bias term) to the condition = 0 buffer
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nRowsData; ++i)
+    for (size_t i = 0ul; i < nRowsData; ++i)
     {
         contribsDiag[i * nColumnsPhi + biasTermIndex] = nominal[i];
     }
 
     predictContributions(iTree, nTrees, nRowsData, x, contribsDiag, 0, 0, dim);
-    for (size_t i = 0; i < nColumnsPhi; ++i)
+    for (size_t i = 0ul; i < nColumnsPhi; ++i)
     {
         // initialize/reset the on/off buffers
         service_memset_seq<algorithmFPType, cpu>(contribsOff, algorithmFPType(0), 2 * elementsInMatrix);
@@ -412,12 +413,12 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
         predictContributions(iTree, nTrees, nRowsData, x, contribsOff, -1, i, dim);
         predictContributions(iTree, nTrees, nRowsData, x, contribsOn, 1, i, dim);
 
-        for (size_t j = 0; j < nRowsData; ++j)
+        for (size_t j = 0ul; j < nRowsData; ++j)
         {
             const unsigned dataRowOffset = j * interactionMatrixSize + i * nColumnsPhi;
             const unsigned columnOffset  = j * nColumnsPhi;
             res[dataRowOffset + i]       = 0;
-            for (size_t k = 0; k < nColumnsPhi; ++k)
+            for (size_t k = 0ul; k < nColumnsPhi; ++k)
             {
                 // fill in the diagonal with additive effects, and off-diagonal with the interactions
                 if (k == i)
@@ -426,7 +427,8 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
                 }
                 else
                 {
-                    res[dataRowOffset + k] = (contribsOn[columnOffset + k] - contribsOff[columnOffset + k]) / 2.0f;
+                    constexpr algorithmFPType half(0.5);
+                    res[dataRowOffset + k] = (contribsOn[columnOffset + k] - contribsOff[columnOffset + k]) * half;
                     res[dataRowOffset + i] -= res[dataRowOffset + k];
                 }
             }
@@ -460,7 +462,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     HostAppHelper host(pHostApp, 100);
 
     const size_t predictionIndex = resultNColumns - 1;
-    for (size_t iTree = 0; iTree < nTreesTotal; iTree += dim.nTreesInBlock)
+    for (size_t iTree = 0ul; iTree < nTreesTotal; iTree += dim.nTreesInBlock)
     {
         if (!s || host.isCancelled(s, 1)) return s;
         size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
@@ -480,7 +482,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                     safeStat.add(ErrorMemoryAllocationFailed);
                     return;
                 }
-                for (size_t i = 0; i < nRowsToProcess; ++i)
+                for (size_t i = 0ul; i < nRowsToProcess; ++i)
                 {
                     nominal[i] = predictionBias;
                 }
@@ -494,7 +496,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 
                 // copy nominal predictions for bias term to correct spot in result array
                 auto resRowPtr = resRow.get();
-                for (size_t i = 0; i < nRowsToProcess; ++i)
+                for (size_t i = 0ul; i < nRowsToProcess; ++i)
                 {
                     resRowPtr[i * resultNColumns + predictionIndex] = nominal[i];
                 }
@@ -517,7 +519,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                     safeStat.add(ErrorMemoryAllocationFailed);
                     return;
                 }
-                for (size_t i = 0; i < nRowsToProcess; ++i)
+                for (size_t i = 0ul; i < nRowsToProcess; ++i)
                 {
                     nominal[i] = predictionBias;
                 }
@@ -531,11 +533,11 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             else
             {
                 algorithmFPType * res = resMatrix.get() + iStartRow;
-                if ((predictionBias * predictionBias) > (DBL_EPSILON * DBL_EPSILON))
+                if ((predictionBias < 0 && predictionBias < -DBL_EPSILON) || (0 < predictionBias && DBL_EPSILON < predictionBias))
                 {
                     // memory is already initialized to 0
                     // only set it to the bias term if it's != 0
-                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    for (size_t i = 0ul; i < nRowsToProcess; ++i)
                     {
                         res[i] = predictionBias;
                     }
@@ -575,7 +577,7 @@ void PredictRegressionTask<algorithmFPType, cpu>::predictByTreesVector(size_t iF
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t row = 0; row < vectorBlockSize; ++row)
+        for (size_t row = 0ul; row < vectorBlockSize; ++row)
         {
             res[row] += v[row];
         }

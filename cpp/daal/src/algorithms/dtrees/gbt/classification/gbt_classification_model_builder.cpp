@@ -83,7 +83,7 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t classLab
         {
             return Status(ErrorID::ErrorIncorrectParameter);
         }
-        if (classLabel > (_nClasses - 1))
+        if (_nClasses <= classLabel)
         {
             return Status(ErrorID::ErrorIncorrectParameter);
         }

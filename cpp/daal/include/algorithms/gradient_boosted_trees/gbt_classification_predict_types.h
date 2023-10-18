@@ -70,14 +70,11 @@ namespace interface2
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 {
-    Parameter(size_t nClasses = 2)
-        : daal::algorithms::classifier::Parameter(nClasses), nIterations(0), predShapContributions(false), predShapInteractions(false)
-    {}
+    typedef daal::algorithms::classifier::Parameter super;
+
+    Parameter(size_t nClasses = 2) : super(nClasses), nIterations(0), predShapContributions(false), predShapInteractions(false) {}
     Parameter(const Parameter & o)
-        : daal::algorithms::classifier::Parameter(o),
-          nIterations(o.nIterations),
-          predShapContributions(o.predShapContributions),
-          predShapInteractions(o.predShapInteractions)
+        : super(o), nIterations(o.nIterations), predShapContributions(o.predShapContributions), predShapInteractions(o.predShapInteractions)
     {}
     size_t nIterations;         /*!< Number of iterations of the trained model to be used for prediction */
     bool predShapContributions; /*!< Predict SHAP contributions */
