@@ -39,11 +39,11 @@ struct finalize_train_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        ONEDAL_ASSERT(input.get_nobs().has_data());
-        ONEDAL_ASSERT(input.get_nobs().get_column_count() == 1);
-        ONEDAL_ASSERT(input.get_nobs().get_row_count() == 1);
-        ONEDAL_ASSERT(input.get_crossproduct().has_data());
-        ONEDAL_ASSERT(input.get_sums().has_data());
+        ONEDAL_ASSERT(input.get_partial_n_rows().has_data());
+        ONEDAL_ASSERT(input.get_partial_n_rows().get_column_count() == 1);
+        ONEDAL_ASSERT(input.get_partial_n_rows().get_row_count() == 1);
+        ONEDAL_ASSERT(input.get_partial_crossproduct().has_data());
+        ONEDAL_ASSERT(input.get_partial_sum().has_data());
     }
 
     void check_postconditions(const Descriptor& params,
