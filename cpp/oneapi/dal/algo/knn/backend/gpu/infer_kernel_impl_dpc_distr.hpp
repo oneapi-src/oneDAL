@@ -39,6 +39,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -238,8 +239,12 @@ public:
 
         auto inp_responses = this->temp_resp_.get_row_slice(0, len);
 
-        auto select_inp_resp_event =
-            pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
+        sycl::event select_inp_resp_event, treat_event, final_event, selt_event;
+        {
+            ONEDAL_PROFILER_TASK(qblock.select_indexed1, queue_);
+            select_inp_resp_event =
+                pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
+        }
 
         const pr::ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
         auto select = selc_t(queue_, typical_blocking, k_neighbors_);
@@ -250,60 +255,78 @@ public:
 
         // add global offset value to input indices
         ONEDAL_ASSERT(global_index_offset_ != -1);
-        auto treat_event =
-            pr::treat_indices(queue_, inp_indices, global_index_offset_, { select_inp_resp_event });
+        {
+            ONEDAL_PROFILER_TASK(qblock.treat, queue_);
+            treat_event =
+                pr::treat_indices(queue_, inp_indices, global_index_offset_, { select_inp_resp_event });
+        }
 
-        auto actual_min_dist_copy_dest =
-            part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
-                                         .get_row_slice(first, last);
-        copy_actual_dist_event =
-            pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, { treat_event });
-        copy_current_dist_event =
-            pr::copy(queue_, current_min_dist_dest, inp_distances, { treat_event });
+        {
+            ONEDAL_PROFILER_TASK(qblock.copy, queue_);
+            // TODO: any way this can be optimized?
+            auto actual_min_dist_copy_dest =
+                part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+            auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
+                                            .get_row_slice(first, last);
+            copy_actual_dist_event =
+                pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, { treat_event });
+            copy_current_dist_event =
+                pr::copy(queue_, current_min_dist_dest, inp_distances, { treat_event });
 
-        auto actual_min_indc_copy_dest =
-            part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-        auto current_min_indc_dest =
-            part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
-        copy_actual_indc_event =
-            pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, { treat_event });
-        copy_current_indc_event =
-            pr::copy(queue_, current_min_indc_dest, inp_indices, { treat_event });
+            auto actual_min_indc_copy_dest =
+                part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+            auto current_min_indc_dest =
+                part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
+            copy_actual_indc_event =
+                pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, { treat_event });
+            copy_current_indc_event =
+                pr::copy(queue_, current_min_indc_dest, inp_indices, { treat_event });
 
-        auto actual_min_resp_copy_dest =
-            part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-        auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
-                                         .get_row_slice(first, last);
-        copy_actual_resp_event =
-            pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
-        copy_current_resp_event =
-            pr::copy(queue_, current_min_resp_dest, inp_responses, { treat_event });
+            // TODO: why is this being done for responses - can I just run select_indexed one time on it?
+            auto actual_min_resp_copy_dest =
+                part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+            auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
+                                            .get_row_slice(first, last);
+            copy_actual_resp_event =
+                pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
+            copy_current_resp_event =
+                pr::copy(queue_, current_min_resp_dest, inp_responses, { treat_event });
+        }
 
-        auto kselect_block = part_distances_.get_row_slice(first, last);
-        auto selt_event = select(queue_,
-                                 kselect_block,
-                                 k_neighbors_,
-                                 min_dist_dest,
-                                 min_indc_dest,
-                                 { copy_actual_dist_event,
-                                   copy_current_dist_event,
-                                   copy_actual_indc_event,
-                                   copy_current_indc_event,
-                                   copy_actual_resp_event,
-                                   copy_current_resp_event });
-        auto resps_event = select_indexed(queue_,
-                                          min_indc_dest,
-                                          part_responses_.get_row_slice(first, last),
-                                          min_resp_dest,
-                                          { selt_event });
-        auto final_event = select_indexed(queue_,
-                                          min_indc_dest,
-                                          part_indices_.get_row_slice(first, last),
-                                          min_indc_dest,
-                                          { resps_event });
-        if (last_iteration_) {
-            final_event = finalize(qb_id, indices_, distances_, { final_event });
+        {
+            ONEDAL_PROFILER_TASK(qblock.selection, queue_);
+            auto kselect_block = part_distances_.get_row_slice(first, last);
+            selt_event = select(queue_,
+                                    kselect_block,
+                                    k_neighbors_,
+                                    min_dist_dest,
+                                    min_indc_dest,
+                                    { copy_actual_dist_event,
+                                    copy_current_dist_event,
+                                    copy_actual_indc_event,
+                                    copy_current_indc_event,
+                                    copy_actual_resp_event,
+                                    copy_current_resp_event });
+        }
+        {
+            ONEDAL_PROFILER_TASK(qblock.select_indexed2, queue_);
+            auto resps_event = select_indexed(queue_,
+                                            min_indc_dest,
+                                            part_responses_.get_row_slice(first, last),
+                                            min_resp_dest,
+                                            { selt_event });
+            // TODO: is this really dependent on resps_event or just selt_event?
+            final_event = select_indexed(queue_,
+                                            min_indc_dest,
+                                            part_indices_.get_row_slice(first, last),
+                                            min_indc_dest,
+                                            { resps_event });
+        }
+        {
+            ONEDAL_PROFILER_TASK(qblock.last, queue_);
+            if (last_iteration_) {
+                final_event = finalize(qb_id, indices_, distances_, { final_event });
+            }
         }
         return final_event;
     }
@@ -320,6 +343,7 @@ protected:
         return std::make_pair(first, last);
     }
 
+    // TODO: are output_distances and output_indices redundant - logic already happens in operator?
     sycl::event output_distances(const std::pair<idx_t, idx_t>& bnds,
                                  const pr::ndview<dst_t, 2>& inp_dts,
                                  const bk::event_vector& deps = {}) {
@@ -516,9 +540,10 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     using res_t = response_t<Task, Float>;
     constexpr auto torder = pr::ndorder::c;
 
-    // Input arrays test section
+    // Input arrays test section2
     ONEDAL_ASSERT(train.has_data());
     ONEDAL_ASSERT(query.has_data());
+    // TODO: any reason not to remove [[maybe_unused]]
     [[maybe_unused]] auto tcount = train.get_row_count();
     const auto qcount = query.get_dimension(0);
     const auto fcount = train.get_column_count();
@@ -622,6 +647,8 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
 
+    // TODO: add conditionals from for loop here
+    // TODO: assert at least one of the distances is set?
     using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
     const bool is_minkowski_distance =
         distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
@@ -636,6 +663,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto first_block_index = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
 
+    // TODO: rename block_number, block_index to absolute, relative
     for (std::int64_t block_number = 0; block_number < block_count; ++block_number) {
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
@@ -652,6 +680,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
         auto sc = current_block.get_dimension(0);
         ONEDAL_ASSERT(sc >= actual_rows_in_block);
+        // TODO: add tests for curr_k = actual_rows_in_block
         auto curr_k = std::min(actual_rows_in_block, kcount);
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
         auto actual_current_tresps = current_tresps_1d.get_slice(0, actual_rows_in_block);
@@ -661,6 +690,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         if (block_number == block_count - 1) {
             callback.set_last_iteration(true);
         }
+        // TODO: add part of this to above TODO outside loop and only keep search stuff
         if (is_cosine_distance) {
             using dst_t = pr::cosine_distance<Float>;
             using search_t = pr::search_engine<Float, dst_t, torder>;
@@ -699,26 +729,31 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
-        auto send_count = current_block.get_count();
-        ONEDAL_ASSERT(send_count >= 0);
-        ONEDAL_ASSERT(send_count <= de::limits<int>::max());
-        // send recv replace
-        comm.sendrecv_replace(array<Float>::wrap(queue,
-                                                 current_block.get_mutable_data(),
-                                                 send_count,
-                                                 { next_event }),
-                              prev_node,
-                              next_node)
-            .wait();
-        train_block_queue.emplace_back(current_block);
-        comm.sendrecv_replace(array<res_t>::wrap(queue,
-                                                 current_tresps.get_mutable_data(),
-                                                 current_tresps.get_count(),
-                                                 { next_event }),
-                              prev_node,
-                              next_node)
-            .wait();
-        tresps_queue.emplace_back(current_tresps);
+        {
+            ONEDAL_PROFILER_TASK(tblock.sendrecvreplace, queue);
+            // TODO: is this not just block_size?
+            auto send_count = current_block.get_count();
+            ONEDAL_ASSERT(send_count >= 0);
+            ONEDAL_ASSERT(send_count <= de::limits<int>::max());
+            // send recv replace
+            // TODO: add profiler task for send recv replace
+            comm.sendrecv_replace(array<Float>::wrap(queue,
+                                                    current_block.get_mutable_data(),
+                                                    send_count,
+                                                    { next_event }),
+                                prev_node,
+                                next_node)
+                .wait();
+            train_block_queue.emplace_back(current_block);
+            comm.sendrecv_replace(array<res_t>::wrap(queue,
+                                                    current_tresps.get_mutable_data(),
+                                                    current_tresps.get_count(),
+                                                    { next_event }),
+                                prev_node,
+                                next_node)
+                .wait();
+            tresps_queue.emplace_back(current_tresps);
+        }
     }
 
     return next_event;
