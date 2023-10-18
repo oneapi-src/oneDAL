@@ -128,19 +128,18 @@ public:
      *
      * \param value global prediction bias
      */
-    void setPredictionBias(double value) { _predictionBias = value; }
+    virtual void setPredictionBias(double value) = 0;
 
     /**
      * \brief Get the Prediction Bias term
      *
      * \return double prediction bias
      */
-    double getPredictionBias() const { return _predictionBias; }
+    virtual double getPredictionBias() const = 0;
 
 protected:
     Model() : classifier::Model() {}
 
-private:
     /* global bias applied to predictions*/
     double _predictionBias;
 };

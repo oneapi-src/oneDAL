@@ -61,6 +61,9 @@ public:
     virtual void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
     virtual void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
 
+    virtual void setPredictionBias(double value) DAAL_C11_OVERRIDE;
+    virtual double getPredictionBias() const DAAL_C11_OVERRIDE;
+
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 

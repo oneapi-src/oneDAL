@@ -94,22 +94,28 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
     float nextOnePortion = uniquePath[uniqueDepth].partialWeight;
     float total          = 0;
 
-    for (int i = uniqueDepth - 1; i >= 0; --i)
+    if (oneFraction != 0)
     {
-        if (oneFraction != 0)
+        const float frac = zeroFraction / oneFraction;
+        for (int i = uniqueDepth - 1; i >= 0; --i)
         {
-            const float tmp = nextOnePortion * (uniqueDepth + 1) / static_cast<float>((i + 1) * oneFraction);
+            const float tmp = nextOnePortion / (i + 1);
             total += tmp;
-            nextOnePortion = uniquePath[i].partialWeight - tmp * zeroFraction * ((uniqueDepth - i) / static_cast<float>(uniqueDepth + 1));
+            nextOnePortion = uniquePath[i].partialWeight - tmp * frac * (uniqueDepth - i);
         }
-        else if (zeroFraction != 0)
+        total *= (uniqueDepth + 1) / oneFraction;
+    }
+    else if (zeroFraction != 0)
+    {
+        for (int i = uniqueDepth - 1; i >= 0; --i)
         {
-            total += (uniquePath[i].partialWeight / zeroFraction) / ((uniqueDepth - i) / static_cast<float>(uniqueDepth + 1));
+            total += uniquePath[i].partialWeight / (uniqueDepth - i);
         }
-        else
-        {
-            DAAL_ASSERT(uniquePath[i].partialWeight == 0);
-        }
+        total *= (uniqueDepth + 1) / zeroFraction;
+    }
+    else
+    {
+        DAAL_ASSERT(uniquePath[i].partialWeight == 0);
     }
 
     return total;
