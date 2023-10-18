@@ -14,16 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <algorithm>
 #include <cmath>
-#include <limits>
-#include <numeric>
-#include <random>
-#include <vector>
 
 #include "oneapi/dal/algo/logistic_regression/common.hpp"
 #include "oneapi/dal/algo/logistic_regression/train.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/logistic_regression/infer.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
@@ -33,7 +27,6 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
-#include "oneapi/dal/test/engine/metrics/regression.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::logistic_regression::test {
