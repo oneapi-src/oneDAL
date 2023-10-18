@@ -18,7 +18,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
-#include "oneapi/dal/backend/primitives/objective_function.hpp"
+#include "oneapi/dal/backend/primitives/optimizers.hpp"
 #endif
 
 namespace oneapi::dal::logistic_regression::detail {
@@ -35,16 +35,18 @@ public:
     virtual optimizer_type get_optimizer_type() = 0;
     virtual double get_tol() = 0;
     virtual std::int64_t get_max_iter() = 0;
-};
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename Float>
-sycl::event minimize(optimizer_impl* opt,
-                     sycl::queue& q,
-                     pr::base_function<Float>& f,
-                     pr::ndview<Float, 1>& x,
-                     const be::event_vector& deps = {});
+    virtual sycl::event minimize(sycl::queue& q,
+                                 pr::base_function<float>& f,
+                                 pr::ndview<float, 1>& x,
+                                 const be::event_vector& deps = {}) = 0;
+    virtual sycl::event minimize(sycl::queue& q,
+                                 pr::base_function<double>& f,
+                                 pr::ndview<double, 1>& x,
+                                 const be::event_vector& deps = {}) = 0;
 #endif
+};
 
 } // namespace v1
 

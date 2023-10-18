@@ -24,11 +24,11 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
-    explicit descriptor_impl(double tol = 1e-4, std::int32_t maxiter = 100)
+    explicit descriptor_impl(double tol = 1e-4, std::int64_t maxiter = 100)
             : tol(tol),
               maxiter(maxiter) {}
     double tol;
-    std::int32_t maxiter;
+    std::int64_t maxiter;
 };
 
 template <typename Task>
@@ -40,7 +40,7 @@ double descriptor_base<Task>::get_tolerance() const {
 }
 
 template <typename Task>
-std::int32_t descriptor_base<Task>::get_max_iteration() const {
+std::int64_t descriptor_base<Task>::get_max_iteration() const {
     return impl_->maxiter;
 }
 
@@ -54,7 +54,7 @@ void descriptor_base<Task>::set_tolerance_impl(double tol) {
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_max_iteration_impl(std::int32_t maxiter) {
+void descriptor_base<Task>::set_max_iteration_impl(std::int64_t maxiter) {
     using msg = dal::detail::error_messages;
     if (maxiter < 0) {
         throw domain_error(msg::max_iteration_count_lt_zero());

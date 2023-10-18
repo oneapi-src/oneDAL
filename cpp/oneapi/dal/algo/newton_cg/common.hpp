@@ -79,11 +79,11 @@ public:
     descriptor_base();
 
     double get_tolerance() const;
-    std::int32_t get_max_iteration() const;
+    std::int64_t get_max_iteration() const;
 
 protected:
     void set_tolerance_impl(double tol);
-    void set_max_iteration_impl(std::int32_t maxiter);
+    void set_max_iteration_impl(std::int64_t maxiter);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -127,7 +127,7 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`l1_regularization_coefficient`,
     /// :literal:`l2_regularization_coefficient` and :literal:`fit_intercept` property values.
-    explicit descriptor(double tol = 1e-4, std::int32_t maxiter = 100) {
+    explicit descriptor(double tol = 1e-4, std::int64_t maxiter = 100) {
         set_tolerance(tol);
         set_max_iteration(maxiter);
     }
@@ -145,11 +145,11 @@ public:
 
     /// The maximum iteration number
     /// @invariant :expr:`maxiter >= 0`
-    std::int32_t get_max_iteration() const {
+    std::int64_t get_max_iteration() const {
         return base_t::get_max_iteration();
     }
 
-    auto& set_max_iteration(std::int32_t maxiter) {
+    auto& set_max_iteration(std::int64_t maxiter) {
         base_t::set_max_iteration_impl(maxiter);
         return *this;
     }

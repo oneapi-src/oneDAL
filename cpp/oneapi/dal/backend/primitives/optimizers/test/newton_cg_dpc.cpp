@@ -83,15 +83,6 @@ public:
         auto y_train = y_host.slice(0, train_size);
         auto y_test = y_host.slice(train_size, test_size);
 
-        // std::cout << "Train size: " << X_train.get_dimension(0) << " " << X_train.get_dimension(1) << std::endl;
-        // std::cout << "Test size: " << X_test.get_dimension(0) << " " << X_test.get_dimension(1) << std::endl;
-
-        // std::cout << "Gth parameters: " << std::endl;
-        // for (std::int64_t i = 0; i < p_ + 1; ++i) {
-        //     std::cout << params_host.at(i) << " ";
-        // }
-        // std::cout << std::endl;
-
         auto y_gpu = y_train.to_device(this->get_queue());
         A_ = X_train.to_device(this->get_queue());
         table data = homogen_table::wrap<float_t>(A_.get_mutable_data(), train_size, p_);
@@ -102,12 +93,6 @@ public:
         newton_cg(this->get_queue(), logloss_func, solution_, float_t(1e-8), 100, { fill_e })
             .wait_and_throw();
         auto solution_host = solution_.to_host(this->get_queue());
-
-        // std::cout << "Parameters found by algorithm" << std::endl;
-        // for (std::int64_t i = 0; i < p_ + 1; ++i) {
-        //     std::cout << solution_host.at(i) << " ";
-        // }
-        // std::cout << std::endl;
 
         double train_score = 0;
         for (std::int64_t i = 0; i < train_size; ++i) {
@@ -122,7 +107,6 @@ public:
                 train_score += 1;
             }
         }
-        // std::cout << "Accuracy on train: " << train_score / train_size << "(" << train_score << " out of " << train_size << ")" << std::endl;
 
         double val_score = 0;
         for (std::int64_t i = 0; i < test_size; ++i) {
@@ -137,8 +121,6 @@ public:
                 val_score += 1;
             }
         }
-        // std::cout << "Accuracy on test: " << val_score / test_size << "(" << val_score << " out of " << test_size << ")" << std::endl;
-
         REQUIRE(train_score >= 0.97 * train_size);
         REQUIRE(val_score >= 0.96 * test_size);
     }

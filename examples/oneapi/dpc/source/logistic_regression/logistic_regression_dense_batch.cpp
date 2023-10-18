@@ -36,16 +36,10 @@ float get_time_duration(std::chrono::time_point<std::chrono::steady_clock>& a,
 }
 
 void run(sycl::queue& q) {
-    std::string prefix = "/export/users/anatolyv/scikit-learn_bench/data/a9a_";
-    const auto x_train_filename = prefix + "x_train.csv";
-    const auto x_test_filename = prefix + "x_test.csv";
-    const auto y_train_filename = prefix + "y_train.csv";
-    const auto y_test_filename = prefix + "y_test.csv";
-
-    // const auto x_train_filename = get_data_path("df_binary_classification_train_data.csv");
-    // const auto y_train_filename = get_data_path("df_binary_classification_train_label.csv");
-    // const auto x_test_filename = get_data_path("df_binary_classification_test_data.csv");
-    // const auto y_test_filename = get_data_path("df_binary_classification_test_label.csv");
+    const auto x_train_filename = get_data_path("df_binary_classification_train_data.csv");
+    const auto y_train_filename = get_data_path("df_binary_classification_train_label.csv");
+    const auto x_test_filename = get_data_path("df_binary_classification_test_data.csv");
+    const auto y_test_filename = get_data_path("df_binary_classification_test_label.csv");
 
     auto tm1 = std::chrono::steady_clock::now();
 

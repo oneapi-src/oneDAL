@@ -118,12 +118,6 @@ public:
         rn_gen.uniform(n_ * p_, X_host_.get_mutable_data(), eng.get_state(), -10.0, 10.0);
         rn_gen.uniform(dim, params_host_.get_mutable_data(), eng.get_state(), -3.0, 3.0);
 
-        // std::cout << "Real parameters" << std::endl;
-        // for (int i = 0; i < dim; ++i) {
-        //     std::cout << *(params_ptr + i) << " ";
-        // }
-        // std::cout << std::endl;
-
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(x_ptr + i * p_,
                                         params_ptr + (std::int64_t)fit_intercept_,
@@ -138,8 +132,6 @@ public:
     }
 
     void run_test() {
-        std::cout << "Test n = " << n_ << " p = " << p_ << " " << fit_intercept_ << std::endl;
-
         std::int64_t train_size = n_ * 0.7;
         std::int64_t test_size = n_ - train_size;
 
@@ -157,15 +149,9 @@ public:
         if (fit_intercept_) {
             intercept = train_res.get_intercept();
             bias_host = row_accessor<const float_t>(intercept).pull({ 0, -1 });
-            //std::cout << *(bias_host.get_mutable_data()) << " ";
         }
         table coefs = train_res.get_coefficients();
         auto coefs_host = row_accessor<const float_t>(coefs).pull({ 0, -1 });
-
-        for (int i = 0; i < p_; ++i) {
-            std::cout << *(coefs_host.get_mutable_data() + i) << " ";
-        }
-        std::cout << std::endl;
 
         std::int64_t train_acc = 0;
         std::int64_t test_acc = 0;
@@ -177,17 +163,6 @@ public:
 
         table prob_table = infer_res.get_probabilities();
         auto prob_host = row_accessor<const float_t>(prob_table).pull({ 0, -1 });
-        // std::cout << "Probs:" << std::endl;
-        // for (std::int64_t i = 0; i < test_size; ++i) {
-        //     std::cout <<  *(prob_host.get_data() + i) << " ";
-        // }
-        // std::cout << std::endl;
-
-        // std::cout << "Responses" << std::endl;
-        // for (std::int64_t i = 0; i < test_size; ++i) {
-        //     std::cout << *(resp_host.get_data() + i) << " ";
-        // }
-        // std::cout << std::endl;
 
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(X_host_.get_mutable_data() + i * p_,
@@ -218,13 +193,13 @@ public:
             }
         }
 
-        std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc
-                  << " out of " << train_size << ")" << std::endl;
-        std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc
-                  << " out of " << test_size << ")" << std::endl;
+        // std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc
+        //           << " out of " << train_size << ")" << std::endl;
+        // std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc
+        //           << " out of " << test_size << ")" << std::endl;
 
-        std::cout << "Accuracy on test(algo): " << float_t(acc_algo) / test_size << " (" << acc_algo
-                  << " out of " << test_size << ")" << std::endl;
+        // std::cout << "Accuracy on test(algo): " << float_t(acc_algo) / test_size << " (" << acc_algo
+        //           << " out of " << test_size << ")" << std::endl;
 
         float_t min_train_acc = 0.95;
         float_t min_test_acc = n_ < 500 ? 0.7 : 0.85;

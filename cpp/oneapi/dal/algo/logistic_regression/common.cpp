@@ -53,8 +53,7 @@ public:
 template <typename Task>
 descriptor_base<Task>::descriptor_base()
         : impl_(new descriptor_impl<Task>{
-              std::make_shared<detail::optimizer<oneapi::dal::newton_cg::descriptor<float_t>>>(
-                  oneapi::dal::newton_cg::descriptor<float_t>()) }) {}
+              std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t()) }) {}
 
 template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {

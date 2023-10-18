@@ -91,8 +91,6 @@ sycl::event cg_solve(sycl::queue& queue,
         .wait_and_throw(); // compute r^T r
 
     for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
-        std::cout << "Inside CG solve, iter " << iter_num << ", r_norm " << sqrt(r_norm)
-                  << std::endl;
         if (sqrt(r_norm) < threshold) {
             break;
         }
@@ -100,8 +98,6 @@ sycl::event cg_solve(sycl::queue& queue,
             mul_operator(conj_vector, buffer, { compute_conj_event }); // compute A p_i
         dot_product<Float>(queue, conj_vector, buffer, tmp_ptr, &alpha, { compute_matmul_event })
             .wait_and_throw(); // compute p_i^T A p_i
-
-        std::cout << "Alpha (p^t A p): " << alpha << std::endl;
 
         if (alpha <= 0) {
             // if p^t A p is less or equal to zero then matrix A is not positively definite
@@ -147,14 +143,6 @@ sycl::event cg_solve(sycl::queue& queue,
                          conj_vector,
                          { update_x_event, update_residual_event }); // p_i+1 = -r_i+1 + beta * p_i
     }
-
-    // auto x_host = x.to_host(queue, {compute_conj_event});
-
-    // std::cout << "Descent direction" << std::endl;
-    // for (int i = 0; i < p; ++i) {
-    //     std::cout << x_host.at(i) << " ";
-    // }
-    // std::cout << std::endl;
 
     return compute_conj_event;
 }

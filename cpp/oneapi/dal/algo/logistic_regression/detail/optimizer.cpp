@@ -46,6 +46,30 @@ public:
         return max_iter_;
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Float>
+    sycl::event minimize_impl(sycl::queue& q,
+                              pr::base_function<Float>& f,
+                              pr::ndview<Float, 1>& x,
+                              const be::event_vector& deps = {}) {
+        return pr::newton_cg(q, f, x, Float(tol_), max_iter_, deps);
+    }
+
+    sycl::event minimize(sycl::queue& q,
+                         pr::base_function<float>& f,
+                         pr::ndview<float, 1>& x,
+                         const be::event_vector& deps = {}) final {
+        return minimize_impl(q, f, x, deps);
+    }
+
+    sycl::event minimize(sycl::queue& q,
+                         pr::base_function<double>& f,
+                         pr::ndview<double, 1>& x,
+                         const be::event_vector& deps = {}) final {
+        return minimize_impl(q, f, x, deps);
+    }
+#endif
+
 private:
     std::int64_t max_iter_ = 100;
     double tol_ = 1e-4;
@@ -60,30 +84,6 @@ template <typename F, typename M>
 optimizer_impl* optimizer<newton_cg_optimizer_t<F, M>>::get_impl() const {
     return impl_.get();
 }
-
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename Float>
-sycl::event minimize(optimizer_impl* opt,
-                     sycl::queue& q,
-                     pr::base_function<Float>& f,
-                     pr::ndview<Float, 1>& x,
-                     const be::event_vector& deps) {
-    if (opt->get_optimizer_type() == optimizer_type::newton_cg) {
-        return pr::newton_cg(q, f, x, Float(opt->get_tol()), opt->get_max_iter(), deps);
-    }
-    return {};
-}
-
-#define INSTANTIATE_MINIMIZE(F)                             \
-    template sycl::event minimize<F>(optimizer_impl*,       \
-                                     sycl::queue&,          \
-                                     pr::base_function<F>&, \
-                                     pr::ndview<F, 1>&,     \
-                                     const be::event_vector&);
-INSTANTIATE_MINIMIZE(float)
-INSTANTIATE_MINIMIZE(double)
-
-#endif
 
 #define INSTANTIATE_NEWTON_CG(F, M) \
     template class ONEDAL_EXPORT optimizer<newton_cg_optimizer_t<F, M>>;

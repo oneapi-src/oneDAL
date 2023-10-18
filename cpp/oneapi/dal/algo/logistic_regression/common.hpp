@@ -112,7 +112,8 @@ class descriptor_base : public base {
 
 public:
     using tag_t = descriptor_tag;
-
+    using float_t = float;
+    using optimizer_t = oneapi::dal::newton_cg::descriptor<float_t>;
     descriptor_base();
 
     bool get_compute_intercept() const;
