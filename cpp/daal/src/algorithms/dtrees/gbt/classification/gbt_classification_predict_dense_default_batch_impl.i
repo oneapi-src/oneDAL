@@ -38,6 +38,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
 #include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
 #include "src/services/service_algo_utils.h"
+#include <cfloat>
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -420,7 +421,13 @@ services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::run(cons
     services::Status s;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(algorithmFPType));
 
-    algorithmFPType margin = getMarginFromModelBias(m->getPredictionBias());
+    // we convert the bias to a margin if it's > 0
+    // otherwise the margin is 0
+    algorithmFPType margin(0);
+    if (m->getPredictionBias() > FLT_EPSILON)
+    {
+        margin = getMarginFromModelBias(m->getPredictionBias());
+    }
 
     // compute raw boosted values
     if (this->_res && _prob)

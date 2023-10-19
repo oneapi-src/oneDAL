@@ -115,7 +115,10 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
     }
     else
     {
-        DAAL_ASSERT(uniquePath[i].partialWeight == 0);
+        for (int i = uniqueDepth - 1; i >= 0; --i)
+        {
+            DAAL_ASSERT(uniquePath[i].partialWeight == 0);
+        }
     }
 
     return total;
