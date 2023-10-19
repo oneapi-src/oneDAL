@@ -25,15 +25,6 @@ namespace gbt
 namespace treeshap
 {
 
-uint8_t getRequestedAlgorithmVersion(uint8_t fallback)
-{
-    char * val = getenv("SHAP_VERSION");
-    if (val)
-    {
-        return atoi(val);
-    }
-    return fallback;
-}
 namespace internal
 {
 

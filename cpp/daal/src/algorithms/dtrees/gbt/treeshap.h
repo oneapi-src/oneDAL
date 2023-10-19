@@ -211,25 +211,19 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
  * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
  * \param conditionFeature the index of the feature to fix
  */
-template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+template <typename algorithmFPType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing>
 inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
                                  const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
 {
     services::Status st;
-    const int depth              = tree->getMaxLvl() + 2;
-    const size_t nUniquePath     = ((depth * (depth + 1)) / 2);
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nUniquePath));
-    DAAL_CHECK_MALLOC(uniquePathData)
-    PathElement init;
-    for (size_t i = 0ul; i < nUniquePath; ++i)
-    {
-        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
-    }
+    const int depth          = tree->getMaxLvl() + 2;
+    const size_t nUniquePath = ((depth * (depth + 1)) / 2);
 
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, uniquePathData, 1, 1, -1, condition,
+    TArray<PathElement, cpu> uniquePathData(nUniquePath);
+    DAAL_CHECK_MALLOC(uniquePathData.get());
+
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, uniquePathData.get(), 1, 1, -1, condition,
                                                                    conditionFeature, 1);
-
-    daal_free(uniquePathData);
 
     return st;
 }
@@ -407,41 +401,36 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
  * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
  * \param conditionFeature the index of the feature to fix
  */
-template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+template <typename algorithmFPType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing>
 inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
                                  const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
 {
     services::Status st;
 
     // pre-allocate space for the unique path data and pWeights
-    const int depth              = tree->getMaxLvl() + 2;
-    const size_t nElements       = (depth * (depth + 1)) / 2;
-    PathElement * uniquePathData = static_cast<PathElement *>(daal_malloc(sizeof(PathElement) * nElements));
-    DAAL_CHECK_MALLOC(uniquePathData)
-    PathElement init;
-    for (size_t i = 0ul; i < nElements; ++i)
-    {
-        DAAL_ASSERT(0 == daal::services::internal::daal_memcpy_s(uniquePathData + i, sizeof(PathElement), &init, sizeof(PathElement)));
-    }
+    const int depth        = tree->getMaxLvl() + 2;
+    const size_t nElements = (depth * (depth + 1)) / 2;
 
-    float * pWeights = static_cast<float *>(daal_malloc(sizeof(float) * nElements));
-    DAAL_CHECK_MALLOC(pWeights)
-    for (size_t i = 0ul; i < nElements; ++i)
-    {
-        pWeights[i] = 0.0f;
-    }
+    TArray<PathElement, cpu> uniquePathData(nElements);
+    DAAL_CHECK_MALLOC(uniquePathData.get());
 
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, 0, uniquePathData, pWeights, 1, 1, 1, -1,
-                                                                   condition, conditionFeature, 1);
+    TArray<float, cpu> pWeights(nElements);
+    DAAL_CHECK_MALLOC(pWeights.get());
 
-    daal_free(uniquePathData);
-    daal_free(pWeights);
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, 0, uniquePathData.get(), pWeights.get(), 1,
+                                                                   1, 1, -1, condition, conditionFeature, 1);
 
     return st;
 }
 } // namespace v1
 
 } // namespace internal
+
+enum TreeShapVersion
+{
+    lundberg = 0, /** https://arxiv.org/abs/1802.03888 */
+    fast_v1,      /** https://arxiv.org/abs/2109.09847 */
+};
 
 /**
  * \brief Recursive function that computes the feature attributions for a single tree.
@@ -452,24 +441,23 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
  * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
  * \param conditionFeature the index of the feature to fix
  */
-template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
+template <typename algorithmFPType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing>
 inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
-                                 const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
+                                 const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature,
+                                 TreeShapVersion shapVersion = fast_v1)
 {
     DAAL_ASSERT(x);
     DAAL_ASSERT(phi);
     DAAL_ASSERT(featureHelper);
 
-    uint8_t shapVersion = getRequestedAlgorithmVersion(1);
-
     switch (shapVersion)
     {
-    case 0:
-        return treeshap::internal::v0::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
-                                                                                                      conditionFeature);
-    case 1:
-        return treeshap::internal::v1::treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
-                                                                                                      conditionFeature);
+    case lundberg:
+        return treeshap::internal::v0::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
+                                                                                                           conditionFeature);
+    case fast_v1:
+        return treeshap::internal::v1::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
+                                                                                                           conditionFeature);
     default: return services::Status(ErrorMethodNotImplemented);
     }
 }
