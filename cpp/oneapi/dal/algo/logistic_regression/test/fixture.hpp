@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <cmath>
+#include <random>
 
 #include "oneapi/dal/algo/logistic_regression/common.hpp"
 #include "oneapi/dal/algo/logistic_regression/train.hpp"
@@ -27,15 +28,11 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
-#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
-
 namespace oneapi::dal::logistic_regression::test {
 
 namespace te = dal::test::engine;
 namespace de = dal::detail;
 namespace la = te::linalg;
-
-namespace pr = oneapi::dal::backend::primitives;
 
 template <typename TestType, typename Derived>
 class log_reg_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -89,6 +86,7 @@ public:
     }
 
     void gen_input(bool fit_intercept = true, double L2 = 0.0, std::int64_t seed = 2007) {
+
         this->get_impl()->gen_dimensions();
 
         this->fit_intercept_ = fit_intercept;
@@ -105,11 +103,22 @@ public:
         params_host_ = array<float_t>::zeros(dim);
         auto* params_ptr = params_host_.get_mutable_data();
 
-        pr::rng<float_t> rn_gen;
-        pr::engine eng(2007 + n_ + p_);
-        rn_gen.uniform(n_ * p_, X_host_.get_mutable_data(), eng.get_state(), -10.0, 10.0);
-        rn_gen.uniform(dim, params_host_.get_mutable_data(), eng.get_state(), -3.0, 3.0);
+        
+        std::mt19937 rnd(seed + n_ + p_);
+        std::uniform_real_distribution<> dis_data(-10.0, 10.0);
+        std::uniform_real_distribution<> dis_params(-3.0, 3.0);
 
+        for (std::int64_t i = 0; i < n_; ++i) {
+            for (std::int64_t j = 0; j < p_; ++j) {
+                *(x_ptr + i * p_ + j) = dis_data(rnd);
+            }
+        }
+
+        for (std::int64_t i = 0; i < dim; ++i) {
+            *(params_ptr + i) = dis_params(rnd);
+        }
+
+        
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(x_ptr + i * p_,
                                         params_ptr + (std::int64_t)fit_intercept_,

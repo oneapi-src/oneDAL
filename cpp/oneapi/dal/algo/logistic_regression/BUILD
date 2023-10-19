@@ -50,7 +50,6 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":logistic_regression",
-        "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
 )
 
