@@ -107,7 +107,9 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     size_t nIterations = pPrm->nIterations;
 
     DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
-    DAAL_CHECK(!(pPrm->predShapContributions && pPrm->predShapInteractions), services::ErrorGbtPredictShapOptions);
+    const bool predictContribs     = pPrm->resultsToCompute & shapContributions;
+    const bool predictInteractions = pPrm->resultsToCompute & shapInteractions;
+    DAAL_CHECK(!(predictContribs && predictInteractions), services::ErrorGbtPredictShapOptions);
     return s;
 }
 
@@ -146,12 +148,12 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const auto inputCast                              = static_cast<const algorithms::gbt::regression::prediction::Input *>(input);
     const prediction::Parameter * regressionParameter = static_cast<const prediction::Parameter *>(par);
     size_t expectedNColumns                           = 1;
-    if (regressionParameter->predShapContributions)
+    if (regressionParameter->resultsToCompute & shapContributions)
     {
         const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
         expectedNColumns      = nColumns + 1;
     }
-    else if (regressionParameter->predShapInteractions)
+    else if (regressionParameter->resultsToCompute & shapInteractions)
     {
         const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
         expectedNColumns      = (nColumns + 1) * (nColumns + 1);

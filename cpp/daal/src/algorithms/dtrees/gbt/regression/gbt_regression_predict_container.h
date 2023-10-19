@@ -61,8 +61,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const gbt::regression::prediction::Parameter * par = static_cast<gbt::regression::prediction::Parameter *>(_par);
 
     daal::services::Environment::env & env = *_env;
+    const bool predShapContributions       = par->resultsToCompute & shapContributions;
+    const bool predShapInteractions        = par->resultsToCompute & shapInteractions;
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), a, m, r, par->nIterations, par->predShapContributions, par->predShapInteractions);
+                       daal::services::internal::hostApp(*input), a, m, r, par->nIterations, predShapContributions, predShapInteractions);
 }
 
 } // namespace prediction

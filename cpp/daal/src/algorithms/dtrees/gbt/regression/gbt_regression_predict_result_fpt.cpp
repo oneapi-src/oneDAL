@@ -48,12 +48,12 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     size_t nColumnsToAllocate             = 1;
     const Parameter * regressionParameter = static_cast<const Parameter *>(par);
-    if (regressionParameter->predShapContributions)
+    if (regressionParameter->resultsToCompute & shapContributions)
     {
         const size_t nColumns = dataPtr->getNumberOfColumns();
         nColumnsToAllocate    = nColumns + 1;
     }
-    else if (regressionParameter->predShapInteractions)
+    else if (regressionParameter->resultsToCompute & shapInteractions)
     {
         const size_t nColumns = dataPtr->getNumberOfColumns();
         nColumnsToAllocate    = (nColumns + 1) * (nColumns + 1);

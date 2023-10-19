@@ -91,6 +91,17 @@ enum ResultId
 };
 
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__GBT__PREDICTION__REGRESSSION__RESULTTOCOMPUTEID"></a>
+ * Available identifiers to specify the result to compute - results are mutually exclusive
+ */
+enum ResultToComputeId
+{
+    predictionResult  = (1 << 0), /*!< Compute the regular prediction */
+    shapContributions = (1 << 1), /*!< Compute SHAP contribution values */
+    shapInteractions  = (1 << 2)  /*!< Compute SHAP interaction values */
+};
+
+/**
  * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
  */
 namespace interface1
@@ -104,16 +115,10 @@ namespace interface1
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
-    Parameter() : daal::algorithms::Parameter(), nIterations(0), predShapContributions(false), predShapInteractions(false) {}
-    Parameter(const Parameter & o)
-        : daal::algorithms::Parameter(o),
-          nIterations(o.nIterations),
-          predShapContributions(o.predShapContributions),
-          predShapInteractions(o.predShapInteractions)
-    {}
-    size_t nIterations;         /*!< Number of iterations of the trained model to be uses for prediction*/
-    bool predShapContributions; /*!< Predict SHAP contributions */
-    bool predShapInteractions;  /*!< Predict SHAP interactions */
+    Parameter() : daal::algorithms::Parameter(), nIterations(0), resultsToCompute(predictionResult) {}
+    Parameter(const Parameter & o) : daal::algorithms::Parameter(o), nIterations(o.nIterations), resultsToCompute(o.resultsToCompute) {}
+    size_t nIterations;           /*!< Number of iterations of the trained model to be uses for prediction*/
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
 
