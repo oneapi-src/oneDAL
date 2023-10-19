@@ -27,23 +27,50 @@ template <typename TestType>
 class pca_online_test : public pca_test<TestType, pca_online_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(pca_online_test, "pca common flow", "[pca][integration][online]", pca_types) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
+                           te::dataframe_builder{ 100, 100 }.fill_uniform(0.2, 0.5),
+                           te::dataframe_builder{ 1000, 100 }.fill_uniform(0.2, 0.5),
+                           te::dataframe_builder{ 10000, 100 }.fill_uniform(0.2, 0.5),
                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
-
+    const int64_t nBlocks = GENERATE(1, 3, 10);
     const std::int64_t component_count = GENERATE_COPY(0,
                                                        1,
                                                        data.get_column_count(),
                                                        data.get_column_count() - 1,
                                                        data.get_column_count() / 2);
 
-    this->online_general_checks(data, component_count, data_table_id);
+    this->online_general_checks(data, component_count, data_table_id, nBlocks);
+}
+
+TEMPLATE_LIST_TEST_M(pca_online_test,
+                     "pca fill_normal flow",
+                     "[pca][integration][online]",
+                     pca_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 1000, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 10000, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 100000, 10 }.fill_normal(0, 1, 7777));
+
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto data_table_id = this->get_homogen_table_id();
+    const int64_t nBlocks = GENERATE(1, 3, 10);
+    const std::int64_t component_count = GENERATE_COPY(0,
+                                                       1,
+                                                       data.get_column_count(),
+                                                       data.get_column_count() - 1,
+                                                       data.get_column_count() / 2);
+
+    this->online_general_checks(data, component_count, data_table_id, nBlocks);
 }
 
 TEMPLATE_LIST_TEST_M(pca_online_test,
@@ -53,13 +80,13 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
-    const std::int64_t component_count = 0;
+    const std::int64_t component_count = 1;
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_100t_train.csv" });
-
+    const int64_t nBlocks = GENERATE(1, 3, 10);
     const auto data_table_id = this->get_homogen_table_id();
 
-    this->online_general_checks(data, component_count, data_table_id);
+    this->online_general_checks(data, component_count, data_table_id, nBlocks);
 }
 
 } // namespace oneapi::dal::pca::test

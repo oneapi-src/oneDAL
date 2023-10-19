@@ -53,9 +53,9 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
-    //const std::int64_t component_count = get_component_count(desc, input.get_partial_crossproduct());
-    const std::int64_t component_count = input.get_partial_crossproduct().get_column_count();
-    const std::int64_t column_count = component_count;
+    const std::int64_t component_count =
+        get_component_count(desc, input.get_partial_crossproduct());
+    const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
 
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
 
@@ -67,17 +67,17 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
 
-    auto arr_means = array<Float>::empty(component_count);
-    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, component_count);
+    auto arr_means = array<Float>::empty(column_count);
+    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
 
     auto daal_crossproduct =
         interop::convert_to_daal_table<Float>(input.get_partial_crossproduct());
     auto daal_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
     const auto daal_nobs = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
 
-    auto arr_cor_matrix = array<Float>::empty(component_count * component_count);
+    auto arr_cor_matrix = array<Float>::empty(column_count * column_count);
     const auto daal_cor_matrix =
-        interop::convert_to_daal_homogen_table(arr_cor_matrix, component_count, component_count);
+        interop::convert_to_daal_homogen_table(arr_cor_matrix, column_count, column_count);
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
@@ -113,7 +113,6 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
-    std::cout << "here" << std::endl;
 
     return result;
 }
