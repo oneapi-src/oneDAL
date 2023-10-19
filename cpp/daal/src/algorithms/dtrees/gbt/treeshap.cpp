@@ -165,11 +165,12 @@ void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
     if (oneFraction != 0)
     {
         // shrink partialWeights iff the feature satisfies the threshold
-        for (unsigned i = uniqueDepthPartialWeights - 1; i >= 0; --i)
+        for (unsigned i = uniqueDepthPartialWeights - 1;; --i)
         {
             const float tmp   = partialWeights[i];
             partialWeights[i] = nextOnePortion * (uniqueDepth + 1) / static_cast<float>(i + 1);
             nextOnePortion    = tmp - partialWeights[i] * zeroFraction * (uniqueDepth - i) / static_cast<float>(uniqueDepth + 1);
+            if (i == 0) break;
         }
     }
     else
