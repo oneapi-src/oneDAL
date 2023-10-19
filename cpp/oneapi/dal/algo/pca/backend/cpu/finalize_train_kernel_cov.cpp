@@ -14,17 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-//#include "daal/src/algorithms/pca/pca_kernel.h"
-
 #include <daal/src/algorithms/pca/pca_dense_correlation_online_kernel.h>
 #include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 #include "daal/src/algorithms/covariance/covariance_kernel.h"
+
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/finalize_train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include <iostream>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::backend {
@@ -32,7 +31,7 @@ namespace oneapi::dal::pca::backend {
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 using model_t = model<task::dim_reduction>;
-// namespace daal_pca = daal::algorithms::pca;
+
 namespace interop = dal::backend::interop;
 
 namespace daal_pca = daal::algorithms::pca;
@@ -45,9 +44,6 @@ using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::onl
 template <typename Float, daal::CpuType Cpu>
 using daal_cov_kernel_t =
     daal_cov::internal::CovarianceDenseOnlineKernel<Float, daal_cov::Method::defaultDense, Cpu>;
-
-template <typename Float, daal::CpuType Cpu>
-using daal_pca_cor_kernel__base_t = daal_pca::internal::PCACorrelationBase<Float, Cpu>;
 
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,

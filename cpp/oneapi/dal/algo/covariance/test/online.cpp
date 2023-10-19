@@ -31,13 +31,13 @@ TEMPLATE_LIST_TEST_M(covariance_online_test,
                      "[covariance][integration][online]",
                      covariance_types) {
     SKIP_IF(this->not_float64_friendly());
-
+    const int64_t nBlocks = GENERATE(1, 3, 10);
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 250, 250 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777));
-    const int64_t nBlocks = GENERATE(1, 3, 10);
+
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
     this->online_general_checks(input, input_data_table_id, nBlocks);

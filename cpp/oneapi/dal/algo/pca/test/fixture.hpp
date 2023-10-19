@@ -160,7 +160,7 @@ public:
         const auto pca_desc = get_descriptor(component_count);
         INFO("run training");
         auto partial_result = dal::pca::partial_train_result();
-        auto input_table = split_table_by_rows<double>(x, nBlocks);
+        auto input_table = split_table_by_rows<float>(x, nBlocks);
         for (std::int64_t i = 0; i < nBlocks; ++i) {
             partial_result = this->partial_train(pca_desc, partial_result, input_table[i]);
         }

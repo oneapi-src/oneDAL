@@ -17,13 +17,14 @@
 #include <daal/src/algorithms/pca/pca_dense_correlation_online_kernel.h>
 #include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 #include "daal/src/algorithms/covariance/covariance_kernel.h"
+
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/partial_train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
 
 namespace oneapi::dal::pca::backend {
 
@@ -39,9 +40,6 @@ namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::online, Float, Cpu>;
-
-template <typename Float, daal::CpuType Cpu>
 using daal_covariance_kernel_t =
     daal_cov::internal::CovarianceDenseOnlineKernel<Float, daal_cov::Method::defaultDense, Cpu>;
 
@@ -50,13 +48,13 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_train_input<task::dim_reduction>& input) {
-    //ONEDAL_ASSERT(data.has_data());
     const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
     const auto data = input.get_data();
+    ONEDAL_ASSERT(data.has_data());
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     auto result = partial_train_result();
