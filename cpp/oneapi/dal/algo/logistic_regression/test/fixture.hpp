@@ -86,7 +86,6 @@ public:
     }
 
     void gen_input(bool fit_intercept = true, double L2 = 0.0, std::int64_t seed = 2007) {
-
         this->get_impl()->gen_dimensions();
 
         this->fit_intercept_ = fit_intercept;
@@ -103,7 +102,6 @@ public:
         params_host_ = array<float_t>::zeros(dim);
         auto* params_ptr = params_host_.get_mutable_data();
 
-        
         std::mt19937 rnd(seed + n_ + p_);
         std::uniform_real_distribution<> dis_data(-10.0, 10.0);
         std::uniform_real_distribution<> dis_params(-3.0, 3.0);
@@ -118,7 +116,6 @@ public:
             *(params_ptr + i) = dis_params(rnd);
         }
 
-        
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(x_ptr + i * p_,
                                         params_ptr + (std::int64_t)fit_intercept_,
