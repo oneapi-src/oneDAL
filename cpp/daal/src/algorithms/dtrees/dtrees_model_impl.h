@@ -53,7 +53,7 @@ struct DecisionTreeNode
     ClassIndexType leftIndexOrClass;    //split: left node index, classification leaf: class index
     ModelFPType featureValueOrResponse; //split: feature value, regression tree leaf: response
     int defaultLeft;                    //split: if 1: go to the yes branch for missing value
-    double cover;                       //split: cover (sum_hess) of the node
+    ModelFPType cover;                  //split: cover (sum_hess) of the node
     DAAL_FORCEINLINE bool isSplit() const { return featureIndex != -1; }
     ModelFPType featureValue() const { return featureValueOrResponse; }
 };

@@ -49,7 +49,7 @@ void extendPath(PathElement * uniquePath, size_t uniqueDepth, float zeroFraction
     uniquePath[uniqueDepth].partialWeight = (uniqueDepth == 0 ? 1.0f : 0.0f);
 
     const float constant = 1.0f / static_cast<float>(uniqueDepth + 1);
-    for (int i = uniqueDepth - 1; i >= 0; i--)
+    for (int i = uniqueDepth - 1; i >= 0; --i)
     {
         uniquePath[i + 1].partialWeight += oneFraction * uniquePath[i].partialWeight * (i + 1) * constant;
         uniquePath[i].partialWeight = zeroFraction * uniquePath[i].partialWeight * (uniqueDepth - i) * constant;
@@ -63,15 +63,18 @@ void unwindPath(PathElement * uniquePath, size_t uniqueDepth, size_t pathIndex)
     const float zeroFraction = uniquePath[pathIndex].zeroFraction;
     float nextOnePortion     = uniquePath[uniqueDepth].partialWeight;
 
-    for (int i = uniqueDepth - 1; i >= 0; --i)
+    if (oneFraction != 0)
     {
-        if (oneFraction != 0)
+        for (int i = uniqueDepth - 1; i >= 0; --i)
         {
             const float tmp             = uniquePath[i].partialWeight;
             uniquePath[i].partialWeight = nextOnePortion * (uniqueDepth + 1) / static_cast<float>((i + 1) * oneFraction);
             nextOnePortion              = tmp - uniquePath[i].partialWeight * zeroFraction * (uniqueDepth - i) / static_cast<float>(uniqueDepth + 1);
         }
-        else
+    }
+    else
+    {
+        for (int i = 0; i < uniqueDepth; ++i)
         {
             uniquePath[i].partialWeight = (uniquePath[i].partialWeight * (uniqueDepth + 1)) / static_cast<float>(zeroFraction * (uniqueDepth - i));
         }
@@ -107,7 +110,7 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
     }
     else if (zeroFraction != 0)
     {
-        for (int i = uniqueDepth - 1; i >= 0; --i)
+        for (int i = 0; i < uniqueDepth; ++i)
         {
             total += uniquePath[i].partialWeight / (uniqueDepth - i);
         }
@@ -115,7 +118,7 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
     }
     else
     {
-        for (int i = uniqueDepth - 1; i >= 0; --i)
+        for (int i = 0; i < uniqueDepth; ++i)
         {
             DAAL_ASSERT(uniquePath[i].partialWeight == 0);
         }
@@ -162,7 +165,7 @@ void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
     if (oneFraction != 0)
     {
         // shrink partialWeights iff the feature satisfies the threshold
-        for (int i = uniqueDepthPartialWeights - 1; i >= 0; --i)
+        for (unsigned i = uniqueDepthPartialWeights - 1; i >= 0; --i)
         {
             const float tmp   = partialWeights[i];
             partialWeights[i] = nextOnePortion * (uniqueDepth + 1) / static_cast<float>(i + 1);
@@ -171,7 +174,7 @@ void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
     }
     else
     {
-        for (int i = uniqueDepthPartialWeights; i >= 0; --i)
+        for (unsigned i = 0; i <= uniqueDepthPartialWeights; ++i)
         {
             partialWeights[i] *= (uniqueDepth + 1) / static_cast<float>(uniqueDepth - i);
         }
@@ -207,7 +210,7 @@ float unwoundPathSumZero(const float * partialWeights, unsigned uniqueDepth, uns
     float total = 0;
     if (uniqueDepth > uniqueDepthPartialWeights)
     {
-        for (int i = uniqueDepthPartialWeights; i >= 0; --i)
+        for (unsigned i = 0; i <= uniqueDepthPartialWeights; ++i)
         {
             total += partialWeights[i] / static_cast<float>(uniqueDepth - i);
         }

@@ -290,7 +290,6 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
 
     if (isLeaf)
     {
-        // +1 to account for -1 in splitValues array
         const unsigned valuesOffset = nodeIndex * numOutputs;
         unsigned valuesNonZeroInd   = 0;
         unsigned valuesNonZeroCount = 0;
