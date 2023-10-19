@@ -476,19 +476,13 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             if (predShapContributions)
             {
                 // nominal values are required to calculate the correct bias term
-                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_malloc(nRowsToProcess * sizeof(algorithmFPType)));
-                if (!nominal)
-                {
-                    safeStat.add(ErrorMemoryAllocationFailed);
-                    return;
-                }
-                for (size_t i = 0ul; i < nRowsToProcess; ++i)
-                {
-                    nominal[i] = predictionBias;
-                }
+                TArray<algorithmFPType, cpu> nominal(nRowsToProcess);
+                algorithmFPType * nominalPtr = nominal.get();
+                DAAL_CHECK_MALLOC_THR(nominalPtr);
+                service_memset<algorithmFPType, cpu>(nominalPtr, algorithmFPType(predictionBias), nRowsToProcess);
 
                 // bias term: prediction - sum_i phi_i (subtraction in predictContributions)
-                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim);
+                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominalPtr, dim);
 
                 // thread-local write rows into global result buffer
                 WriteOnlyRows<algorithmFPType, cpu> resRow(result, iStartRow, nRowsToProcess);
@@ -498,10 +492,8 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 auto resRowPtr = resRow.get();
                 for (size_t i = 0ul; i < nRowsToProcess; ++i)
                 {
-                    resRowPtr[i * resultNColumns + predictionIndex] = nominal[i];
+                    resRowPtr[i * resultNColumns + predictionIndex] = nominalPtr[i];
                 }
-
-                daal_free(nominal);
 
                 // TODO: support tree weights
                 safeStat |= predictContributions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), resRowPtr, 0, 0, dim);
@@ -513,22 +505,15 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 DAAL_CHECK_BLOCK_STATUS_THR(resRow);
 
                 // nominal values are required to calculate the correct bias term
-                algorithmFPType * nominal = static_cast<algorithmFPType *>(daal_malloc(nRowsToProcess * sizeof(algorithmFPType)));
-                if (!nominal)
-                {
-                    safeStat.add(ErrorMemoryAllocationFailed);
-                    return;
-                }
-                for (size_t i = 0ul; i < nRowsToProcess; ++i)
-                {
-                    nominal[i] = predictionBias;
-                }
-                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, dim);
+                TArray<algorithmFPType, cpu> nominal(nRowsToProcess);
+                algorithmFPType * nominalPtr = nominal.get();
+                DAAL_CHECK_MALLOC_THR(nominalPtr);
+                service_memset<algorithmFPType, cpu>(nominalPtr, algorithmFPType(predictionBias), nRowsToProcess);
+
+                predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominalPtr, dim);
 
                 // TODO: support tree weights
-                safeStat |= predictContributionInteractions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominal, resRow.get(), dim);
-
-                daal_free(nominal);
+                safeStat |= predictContributionInteractions(iTree, nTreesToUse, nRowsToProcess, xBD.get(), nominalPtr, resRow.get(), dim);
             }
             else
             {
@@ -537,10 +522,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
                 {
                     // memory is already initialized to 0
                     // only set it to the bias term if it's != 0
-                    for (size_t i = 0ul; i < nRowsToProcess; ++i)
-                    {
-                        res[i] = predictionBias;
-                    }
+                    service_memset<algorithmFPType, cpu>(res, algorithmFPType(predictionBias), nRowsToProcess);
                 }
                 predict(iTree, nTreesToUse, nRowsToProcess, xBD.get(), res, dim);
             }
