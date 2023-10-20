@@ -14,9 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/pca/pca_dense_correlation_online_kernel.h>
-#include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
-#include "daal/src/algorithms/covariance/covariance_kernel.h"
+#include <daal/src/algorithms/pca/pca_dense_svd_online_kernel.h>
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/finalize_train_kernel.hpp"
@@ -25,7 +23,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-
+#include <iostream>
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
@@ -35,81 +33,56 @@ using model_t = model<task::dim_reduction>;
 namespace interop = dal::backend::interop;
 
 namespace daal_pca = daal::algorithms::pca;
-namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::online, Float, Cpu>;
-
-template <typename Float, daal::CpuType Cpu>
-using daal_cov_kernel_t =
-    daal_cov::internal::CovarianceDenseOnlineKernel<Float, daal_cov::Method::defaultDense, Cpu>;
+using daal_svd_kernel_t = daal_pca::internal::PCASVDOnlineKernel<Float, Cpu>;
 
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
-    const std::int64_t component_count =
-        get_component_count(desc, input.get_partial_crossproduct());
+    // const std::int64_t component_count =
+    //     get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
 
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
-
-    auto arr_eigvec = array<Float>::empty(column_count * component_count);
-    auto arr_eigval = array<Float>::empty(1 * component_count);
-
+    daal::services::SharedPtr<DataCollection> DataCollectionPtr;
+    auto arr_eigvec = array<Float>::empty(column_count * column_count);
+    auto arr_eigval = array<Float>::empty(1 * column_count);
+    const auto daal_crossproduct =
+        interop::copy_to_daal_homogen_table<Float>(input.get_auxialry_table());
     const auto daal_eigenvectors =
-        interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
+        interop::convert_to_daal_homogen_table(arr_eigvec, column_count, column_count);
     const auto daal_eigenvalues =
-        interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
-
-    auto arr_means = array<Float>::empty(column_count);
-    const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
-
-    auto daal_crossproduct =
-        interop::convert_to_daal_table<Float>(input.get_partial_crossproduct());
-    auto daal_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
+        interop::convert_to_daal_homogen_table(arr_eigval, 1, column_count);
+    std::cout << "here" << std::endl;
     const auto daal_nobs = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
-
-    auto arr_cor_matrix = array<Float>::empty(column_count * column_count);
-    const auto daal_cor_matrix =
-        interop::convert_to_daal_homogen_table(arr_cor_matrix, column_count, column_count);
-    daal_cov::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
-
+    daal::data_management::DataCollectionPtr covarianceCollection =
+        daal::data_management::DataCollectionPtr(new daal::data_management::DataCollection());
+    std::cout << "push" << std::endl;
+    covarianceCollection->push_back(daal_crossproduct);
+    std::cout << "push1" << std::endl;
+    daal_pca::internal::InputDataType dtype = daal_pca::internal::normalizedDataset;
     interop::status_to_exception(
-        interop::call_daal_kernel_finalize_compute<Float, daal_cov_kernel_t>(
-            ctx,
-            daal_nobs.get(),
-            daal_crossproduct.get(),
-            daal_sums.get(),
-            daal_cor_matrix.get(),
-            daal_means.get(),
-            &daal_parameter));
-
-    const auto data_to_compute = daal_cor_matrix;
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeCorrelationEigenvalues(
-                *data_to_compute,
-                *daal_eigenvectors,
-                *daal_eigenvalues);
-        });
-
-        interop::status_to_exception(status);
-    }
+        interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
+                                                                           dtype,
+                                                                           daal_nobs,
+                                                                           *daal_eigenvalues,
+                                                                           *daal_eigenvectors,
+                                                                           covarianceCollection));
+    std::cout << "push2" << std::endl;
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        const auto mdl = model_t{}.set_eigenvectors(
-            homogen_table::wrap(arr_eigvec, component_count, column_count));
+        const auto mdl =
+            model_t{}.set_eigenvectors(homogen_table::wrap(arr_eigvec, column_count, column_count));
         result.set_model(mdl);
     }
-
+    std::cout << "push3" << std::endl;
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, column_count));
     }
-
+    std::cout << "push3" << std::endl;
     return result;
 }
 
@@ -121,7 +94,7 @@ static train_result<Task> finalize_train(const context_cpu& ctx,
 }
 
 template <typename Float>
-struct finalize_train_kernel_cpu<Float, method::cov, task::dim_reduction> {
+struct finalize_train_kernel_cpu<Float, method::svd, task::dim_reduction> {
     train_result<task::dim_reduction> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
@@ -130,7 +103,7 @@ struct finalize_train_kernel_cpu<Float, method::cov, task::dim_reduction> {
     }
 };
 
-template struct finalize_train_kernel_cpu<float, method::cov, task::dim_reduction>;
-template struct finalize_train_kernel_cpu<double, method::cov, task::dim_reduction>;
+template struct finalize_train_kernel_cpu<float, method::svd, task::dim_reduction>;
+template struct finalize_train_kernel_cpu<double, method::svd, task::dim_reduction>;
 
 } // namespace oneapi::dal::pca::backend

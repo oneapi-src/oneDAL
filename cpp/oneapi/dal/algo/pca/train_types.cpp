@@ -43,6 +43,7 @@ public:
     table nobs;
     table crossproduct;
     table sums;
+    table auxialry_table;
 };
 
 using detail::v1::train_input_impl;
@@ -194,6 +195,15 @@ const table& partial_train_result<Task>::get_partial_sum() const {
 template <typename Task>
 void partial_train_result<Task>::set_partial_sum_impl(const table& value) {
     impl_->sums = value;
+}
+template <typename Task>
+const table& partial_train_result<Task>::get_auxialry_table() const {
+    return impl_->auxialry_table;
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_auxilary_table_impl(const table& value) {
+    impl_->auxialry_table = value;
 }
 
 template class ONEDAL_EXPORT train_input<task::dim_reduction>;

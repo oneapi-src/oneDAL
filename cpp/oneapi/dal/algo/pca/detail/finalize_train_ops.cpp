@@ -37,6 +37,8 @@ struct finalize_train_ops_dispatcher<Policy, Float, Method, Task> {
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::cov, task::dim_reduction)
+INSTANTIATE(float, method::svd, task::dim_reduction)
+INSTANTIATE(double, method::svd, task::dim_reduction)
 
 } // namespace v1
 } // namespace oneapi::dal::pca::detail
