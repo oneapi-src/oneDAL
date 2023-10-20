@@ -115,8 +115,10 @@ namespace interface1
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
-    Parameter() : daal::algorithms::Parameter(), nIterations(0), resultsToCompute(predictionResult) {}
-    Parameter(const Parameter & o) : daal::algorithms::Parameter(o), nIterations(o.nIterations), resultsToCompute(o.resultsToCompute) {}
+    typedef daal::algorithms::Parameter super;
+
+    Parameter() : super(), nIterations(0), resultsToCompute(predictionResult) {}
+    Parameter(const Parameter & o) : super(o), nIterations(o.nIterations), resultsToCompute(o.resultsToCompute) {}
     size_t nIterations;           /*!< Number of iterations of the trained model to be uses for prediction*/
     DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
