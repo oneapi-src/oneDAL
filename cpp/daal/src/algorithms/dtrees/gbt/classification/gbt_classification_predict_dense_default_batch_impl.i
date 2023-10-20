@@ -80,7 +80,7 @@ public:
      *
      * \param m The model for which to run prediction
      * \param nIterations Number of iterations
-     * \param pHostApp HostAppIntertface
+     * \param pHostApp HostAppInterface
      * \return services::Status
      */
     services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nIterations, services::HostAppIface * pHostApp);
@@ -125,7 +125,7 @@ public:
      * \param m The model for which to run prediction
      * \param nClasses Number of data classes
      * \param nIterations Number of iterations
-     * \param pHostApp HostAppIntertface
+     * \param pHostApp HostAppInterface
      * \return services::Status
      */
     services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nClasses, size_t nIterations, services::HostAppIface * pHostApp);
@@ -251,8 +251,8 @@ protected:
      * \param nTrees Number of contributing trees
      * \param nRows Number of rows in input observation data to be considered
      * \param nColumns Number of columns in input observation data to be considered
-     * \return true If runtime check for missing is requared
-     * \return false If runtime check for missing is not requared
+     * \return true If runtime check for missing is required
+     * \return false If runtime check for missing is not required
      */
     inline bool checkForMissing(const algorithmFPType * x, size_t nTrees, size_t nRows, size_t nColumns);
 
@@ -261,7 +261,7 @@ protected:
      *
      * \param hasUnorderedFeatures Data has unordered features yes/no
      * \param hasAnyMissing Data has missing values yes/no
-     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skip if no)
      * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSize Vector instruction block size
      * \param nTrees Number of trees contributing to prediction
@@ -280,7 +280,7 @@ protected:
      * \brief Traverse a number of trees to get prediction results
      *
      * \param hasAnyMissing Data has missing values yes/no
-     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skip if no)
      * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSize Vector instruction block size
      * \param nTrees Number of trees contributing to prediction
@@ -298,7 +298,7 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skip if no)
      * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSize Vector instruction block size
      * \param nTrees Number of trees contributing to prediction
@@ -316,7 +316,7 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skip if no)
      * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSizeFactor Vector instruction block size - recursively decremented until it becomes equal to dim.vectorBlockSizeFactor or equal to DimType::minVectorBlockSizeFactor
      * \param nTrees Number of trees contributing to prediction
@@ -334,7 +334,7 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skip if no)
      * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSizeFactor Vector instruction block size - recursively decremented until it becomes equal to dim.vectorBlockSizeFactor or equal to DimType::minVectorBlockSizeFactor
      * \param nTrees Number of trees contributing to prediction
@@ -354,7 +354,7 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skip if no)
      * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
