@@ -203,7 +203,7 @@ protected:
     inline void updateResult(algorithmFPType * res, algorithmFPType * val, size_t iRow, size_t i, size_t nClasses, BooleanConstant<true> dispatcher);
 
     /**
-     * \brief
+     * \brief Empty function if results assigning is not required.
      *
      * \param res Pointer to result array
      * \param val Value of current prediction
@@ -215,7 +215,7 @@ protected:
     inline void updateResult(algorithmFPType * res, algorithmFPType * val, size_t iRow, size_t i, size_t nClasses, BooleanConstant<false> dispatcher);
 
     /**
-     * \brief
+     * \brief Prepare buff pointer for the next using. All steps reuse the same memory.
      *
      * \param buff Pointer to a buffer
      * \param buf_shift
@@ -226,7 +226,7 @@ protected:
     inline algorithmFPType * updateBuffer(algorithmFPType * buff, size_t buf_shift, size_t buf_size, BooleanConstant<true> dispatcher);
 
     /**
-     * \brief
+     * \brief Prepare buff pointer for the next using. Steps have own memory.
      *
      * \param buff
      * \param buf_shift
@@ -251,8 +251,8 @@ protected:
      * \param nTrees Number of contributing trees
      * \param nRows Number of rows in input observation data to be considered
      * \param nColumns Number of columns in input observation data to be considered
-     * \return true If missing data is found
-     * \return false If no missing data is found
+     * \return true If runtime check for missing is requared
+     * \return false If runtime check for missing is not requared
      */
     inline bool checkForMissing(const algorithmFPType * x, size_t nTrees, size_t nRows, size_t nColumns);
 
@@ -261,8 +261,8 @@ protected:
      *
      * \param hasUnorderedFeatures Data has unordered features yes/no
      * \param hasAnyMissing Data has missing values yes/no
-     * \param isResValidPtr Result pointer is valid yes/no (triggers initialization if necessary)
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSize Vector instruction block size
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
@@ -280,8 +280,8 @@ protected:
      * \brief Traverse a number of trees to get prediction results
      *
      * \param hasAnyMissing Data has missing values yes/no
-     * \param isResValidPtr Result pointer is valid yes/no (triggers initialization if necessary)
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSize Vector instruction block size
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
@@ -298,8 +298,8 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (triggers initialization if necessary)
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSize Vector instruction block size
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
@@ -316,8 +316,8 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (triggers initialization if necessary)
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSizeFactor Vector instruction block size - recursively decremented until it becomes equal to dim.vectorBlockSizeFactor or equal to DimType::minVectorBlockSizeFactor
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
@@ -334,8 +334,8 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (triggers initialization if necessary)
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param vectorBlockSizeFactor Vector instruction block size - recursively decremented until it becomes equal to dim.vectorBlockSizeFactor or equal to DimType::minVectorBlockSizeFactor
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
@@ -354,8 +354,8 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param isResValidPtr Result pointer is valid yes/no (triggers initialization if necessary)
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param isResValidPtr Result pointer is valid yes/no (write result to the pointer if yes, skipp if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
      * \param nRows Number of rows in observation data for which prediction is run
@@ -372,7 +372,7 @@ protected:
     /**
      * \brief Traverse a number of trees to get prediction results
      *
-     * \param reuseBuffer Re-use buffer yes/no (will initialize fresh memory as necessary if no)
+     * \param reuseBuffer Re-use buffer yes/no (will fill buffer with zero if yes, shift buff pointer if no)
      * \param nTrees Number of trees contributing to prediction
      * \param nClasses Number of data classes
      * \param nRows Number of rows in observation data for which prediction is run
