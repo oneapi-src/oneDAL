@@ -139,9 +139,6 @@ public:
 
 protected:
     Model();
-
-    /* global bias applied to predictions*/
-    double _predictionBias;
 };
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
