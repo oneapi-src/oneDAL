@@ -50,19 +50,21 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     daal::services::SharedPtr<DataCollection> DataCollectionPtr;
     auto arr_eigvec = array<Float>::empty(column_count * column_count);
     auto arr_eigval = array<Float>::empty(1 * column_count);
-    const auto daal_crossproduct =
-        interop::copy_to_daal_homogen_table<Float>(input.get_auxialry_table());
+
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, column_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, column_count);
-    std::cout << "here" << std::endl;
+
     const auto daal_nobs = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
-    daal::data_management::DataCollectionPtr covarianceCollection =
+    daal::data_management::DataCollectionPtr decomposeCollection =
         daal::data_management::DataCollectionPtr(new daal::data_management::DataCollection());
-    std::cout << "push" << std::endl;
-    covarianceCollection->push_back(daal_crossproduct);
-    std::cout << "push1" << std::endl;
+    auto tables = input.get_auxialry_table_vector();
+    std::cout << tables.size() << std::endl;
+    for (size_t i = 0; i < tables.size(); i++) {
+        const auto daal_crossproduct = interop::copy_to_daal_homogen_table<Float>(tables[i]);
+        decomposeCollection->push_back(daal_crossproduct);
+    }
     daal_pca::internal::InputDataType dtype = daal_pca::internal::normalizedDataset;
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
@@ -70,19 +72,18 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                                            daal_nobs,
                                                                            *daal_eigenvalues,
                                                                            *daal_eigenvectors,
-                                                                           covarianceCollection));
-    std::cout << "push2" << std::endl;
+                                                                           decomposeCollection));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         const auto mdl =
             model_t{}.set_eigenvectors(homogen_table::wrap(arr_eigvec, column_count, column_count));
         result.set_model(mdl);
     }
-    std::cout << "push3" << std::endl;
+
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, column_count));
     }
-    std::cout << "push3" << std::endl;
+
     return result;
 }
 

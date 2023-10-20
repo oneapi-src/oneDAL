@@ -46,7 +46,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const descriptor_t& desc,
     const partial_train_input<task::dim_reduction>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
-    //std::int64_t row_count =  input.get_data().get_row_count();
+
     const auto input_ = input.get_prev();
 
     const auto data = input.get_data();
@@ -62,14 +62,16 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
         auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum());
         auto daal_nobs_matrix =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
-        auto daal_auxilary_matrix =
-            interop::copy_to_daal_homogen_table<Float>(input_.get_auxialry_table());
+        auto auxiliaryTable = array<Float>::zeros(component_count * component_count);
+        auto daal_auxilary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
+                                                                               component_count,
+                                                                               component_count);
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_svd_kernel_t>(ctx,
                                                                 dtype,
                                                                 daal_data,
                                                                 *daal_nobs_matrix,
-                                                                *daal_auxilary_matrix,
+                                                                *daal_auxilary_svd,
                                                                 *daal_sums,
                                                                 *daal_crossproduct_svd));
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
@@ -77,8 +79,9 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
             interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
         result.set_partial_crossproduct(
             interop::convert_from_daal_homogen_table<Float>(daal_crossproduct_svd));
-        result.set_auxialry_table(
-            interop::convert_from_daal_homogen_table<Float>(daal_auxilary_matrix));
+        auto vector = input_.get_auxialry_table_vector();
+        vector.push_back(interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
+        result.set_auxialry_table_vector(vector);
     }
     else {
         auto arr_crossproduct_svd = array<Float>::zeros(component_count);
@@ -93,7 +96,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
         auto daal_sums =
             interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, component_count);
         auto daal_nobs_matrix = interop::convert_to_daal_homogen_table<int>(arr_nobs_matrix, 1, 1);
-        std::cout << "here before " << std::endl;
+
         {
             interop::status_to_exception(
                 interop::call_daal_kernel<Float, daal_svd_kernel_t>(ctx,
@@ -104,9 +107,9 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
                                                                     *daal_sums,
                                                                     *daal_crossproduct_svd));
         }
-
-        result.set_auxialry_table(
-            interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
+        auto vector = input_.get_auxialry_table_vector();
+        vector.push_back(interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
+        result.set_auxialry_table_vector(vector);
 
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
 

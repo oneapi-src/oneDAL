@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
-
+#include <iostream>
 namespace oneapi::dal::pca {
 
 template <typename Task>
@@ -43,7 +43,8 @@ public:
     table nobs;
     table crossproduct;
     table sums;
-    table auxialry_table;
+    //TODO: temporary solution
+    std::vector<table> auxialry_tables;
 };
 
 using detail::v1::train_input_impl;
@@ -196,14 +197,15 @@ template <typename Task>
 void partial_train_result<Task>::set_partial_sum_impl(const table& value) {
     impl_->sums = value;
 }
+//TODO:temporary solution
 template <typename Task>
-const table& partial_train_result<Task>::get_auxialry_table() const {
-    return impl_->auxialry_table;
+std::vector<table>& partial_train_result<Task>::get_auxialry_table_vector() const {
+    return impl_->auxialry_tables;
 }
 
 template <typename Task>
-void partial_train_result<Task>::set_auxilary_table_impl(const table& value) {
-    impl_->auxialry_table = value;
+void partial_train_result<Task>::set_auxilary_table_vector_impl(const std::vector<table>& value) {
+    impl_->auxialry_tables = value;
 }
 
 template class ONEDAL_EXPORT train_input<task::dim_reduction>;

@@ -48,7 +48,8 @@ template <typename Method>
 void run(const dal::table& x_train, const std::string& method_name) {
     const auto pca_desc =
         dal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
-    const std::int64_t nBlocks = 2;
+    const std::int64_t nBlocks = 10;
+
     dal::pca::partial_train_result<> partial_result;
     std::cout << method_name << "\n" << std::endl;
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
@@ -60,10 +61,10 @@ void run(const dal::table& x_train, const std::string& method_name) {
     std::cout << "Eigenvectors:\n" << result.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:\n" << result.get_eigenvalues() << std::endl;
+    //TODO: temporary disabling
+    // const auto result_infer = dal::infer(pca_desc, result.get_model(), x_train);
 
-    //const auto result_infer = dal::infer(pca_desc, result.get_model(), x_train);
-
-    //std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+    // std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
