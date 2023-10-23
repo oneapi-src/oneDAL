@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-#if !defined(__APPLE__)
+#if defined(__linux__)
 #include "tbb/tbb.h"
 #include "oneapi/dal/detail/policy.hpp"
 

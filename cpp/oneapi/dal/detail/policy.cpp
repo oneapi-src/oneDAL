@@ -24,7 +24,7 @@ class host_policy_impl : public base {
 public:
     cpu_extension cpu_extensions_mask = backend::detect_top_cpu_extension();
 
-#if !defined(__APPLE__)
+#if defined(__linux__)
     threading_policy threading_parameters;
 
     host_policy_impl() {
@@ -35,7 +35,7 @@ public:
 
 host_policy::host_policy() : impl_(new host_policy_impl()) {}
 
-#if !defined(__APPLE__)
+#if defined(__linux__)
 const auto default_impl = std::make_shared<host_policy_impl>();
 
 auto host_policy::make_default_impl() -> std::shared_ptr<host_policy_impl> {
@@ -51,7 +51,7 @@ void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extension
 cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
     return impl_->cpu_extensions_mask;
 }
-#if !defined(__APPLE__)
+#if defined(__linux__)
 threading_policy host_policy::get_threading_policy() const noexcept {
     return impl_->threading_parameters;
 }
@@ -62,7 +62,7 @@ void host_policy::set_threading_policy(const threading_policy& policy) noexcept 
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-#if !defined(__APPLE__)
+#if defined(__linux__)
 class data_parallel_policy_impl : public base {
 public:
     threading_policy threading_parameters;

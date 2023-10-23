@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if !defined(__APPLE__)
+#if defined(__linux__)
 #define TBB_PREVIEW_TASK_ARENA_CONSTRAINTS_EXTENSION 1
 
 #include "oneapi/dal/backend/threading.hpp"
