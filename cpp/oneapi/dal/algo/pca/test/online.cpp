@@ -27,6 +27,7 @@ template <typename TestType>
 class pca_online_test : public pca_test<TestType, pca_online_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(pca_online_test, "pca common flow", "[pca][integration][online]", pca_types) {
+    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     const int64_t nBlocks = GENERATE(1, 3, 10);
     const te::dataframe data =
@@ -52,6 +53,7 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
                      "pca fill_normal flow",
                      "[pca][integration][online]",
                      pca_types) {
+    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
     const int64_t nBlocks = GENERATE(1, 3, 10);
     const te::dataframe data =

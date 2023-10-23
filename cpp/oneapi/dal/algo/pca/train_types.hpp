@@ -184,12 +184,12 @@ public:
         return *this;
     }
 
-    /// Tables.
-    /// @remark default = table{}
-    std::vector<table>& get_auxialry_table_vector() const;
+    std::int64_t get_auxialry_table_count() const;
 
-    auto& set_auxialry_table_vector(const std::vector<table>& value) {
-        set_auxilary_table_vector_impl(value);
+    const table& get_auxialry_table(const std::int64_t) const;
+
+    auto& set_auxialry_table(const table& value) {
+        set_auxilary_table_impl(value);
         return *this;
     }
 
@@ -197,7 +197,7 @@ protected:
     void set_partial_n_rows_impl(const table&);
     void set_partial_crossproduct_impl(const table&);
     void set_partial_sum_impl(const table&);
-    void set_auxilary_table_vector_impl(const std::vector<table>&);
+    void set_auxilary_table_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::partial_train_result_impl<Task>> impl_;

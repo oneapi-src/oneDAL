@@ -23,7 +23,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
+
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
@@ -40,6 +40,15 @@ namespace interop = dal::backend::interop;
 template <typename Float, daal::CpuType Cpu>
 using daal_svd_kernel_t = daal_pca::internal::PCASVDOnlineKernel<Float, Cpu>;
 
+auto update_tables(const partial_train_input<task::dim_reduction>& input) {
+    auto result = partial_train_result();
+    const auto prev_ = input.get_prev();
+    for (std::int64_t i = 0; i < prev_.get_auxialry_table_count(); i++) {
+        result.set_auxialry_table(prev_.get_auxialry_table(i));
+    }
+    return result;
+}
+
 template <typename Float>
 static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
@@ -53,10 +62,11 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     ONEDAL_ASSERT(data.has_data());
     const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
 
-    auto result = partial_train_result();
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
-    daal_pca::internal::InputDataType dtype = daal_pca::internal::normalizedDataset;
+
+    daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
     if (has_nobs_data) {
+        auto result = update_tables(input);
         auto daal_crossproduct_svd =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_crossproduct());
         auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum());
@@ -79,11 +89,13 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
             interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
         result.set_partial_crossproduct(
             interop::convert_from_daal_homogen_table<Float>(daal_crossproduct_svd));
-        auto vector = input_.get_auxialry_table_vector();
-        vector.push_back(interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
-        result.set_auxialry_table_vector(vector);
+
+        result.set_auxialry_table(
+            interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
+        return result;
     }
     else {
+        auto result = partial_train_result();
         auto arr_crossproduct_svd = array<Float>::zeros(component_count);
         auto arr_sums = array<Float>::zeros(component_count);
         auto arr_nobs_matrix = array<int>::zeros(1 * 1);
@@ -107,9 +119,8 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
                                                                     *daal_sums,
                                                                     *daal_crossproduct_svd));
         }
-        auto vector = input_.get_auxialry_table_vector();
-        vector.push_back(interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
-        result.set_auxialry_table_vector(vector);
+        result.set_auxialry_table(
+            interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
 
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
 
@@ -117,9 +128,8 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
 
         result.set_partial_crossproduct(
             interop::convert_from_daal_homogen_table<Float>(daal_crossproduct_svd));
+        return result;
     }
-
-    return result;
 }
 
 template <typename Float>

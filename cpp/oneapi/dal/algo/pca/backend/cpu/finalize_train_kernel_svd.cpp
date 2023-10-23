@@ -23,7 +23,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
+
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
@@ -42,30 +42,30 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
-    // const std::int64_t component_count =
-    //     get_component_count(desc, input.get_partial_crossproduct());
+    const std::int64_t component_count =
+        get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
 
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
     daal::services::SharedPtr<DataCollection> DataCollectionPtr;
     auto arr_eigvec = array<Float>::empty(column_count * column_count);
-    auto arr_eigval = array<Float>::empty(1 * column_count);
+    auto arr_eigval = array<Float>::empty(1 * component_count);
 
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, column_count);
     const auto daal_eigenvalues =
-        interop::convert_to_daal_homogen_table(arr_eigval, 1, column_count);
+        interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
 
     const auto daal_nobs = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
     daal::data_management::DataCollectionPtr decomposeCollection =
         daal::data_management::DataCollectionPtr(new daal::data_management::DataCollection());
-    auto tables = input.get_auxialry_table_vector();
-    std::cout << tables.size() << std::endl;
-    for (size_t i = 0; i < tables.size(); i++) {
-        const auto daal_crossproduct = interop::copy_to_daal_homogen_table<Float>(tables[i]);
+
+    for (std::int64_t i = 0; i < input.get_auxialry_table_count(); i++) {
+        const auto daal_crossproduct =
+            interop::copy_to_daal_homogen_table<Float>(input.get_auxialry_table(i));
         decomposeCollection->push_back(daal_crossproduct);
     }
-    daal_pca::internal::InputDataType dtype = daal_pca::internal::normalizedDataset;
+    daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
                                                                            dtype,
@@ -75,13 +75,14 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                                            decomposeCollection));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        const auto mdl =
-            model_t{}.set_eigenvectors(homogen_table::wrap(arr_eigvec, column_count, column_count));
+        auto reshaped_array = arr_eigvec.get_slice(0, component_count * column_count);
+        const auto mdl = model_t{}.set_eigenvectors(
+            homogen_table::wrap(reshaped_array, component_count, column_count));
         result.set_model(mdl);
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, column_count));
+        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
 
     return result;

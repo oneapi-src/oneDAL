@@ -43,7 +43,6 @@ public:
     table nobs;
     table crossproduct;
     table sums;
-    //TODO: temporary solution
     std::vector<table> auxialry_tables;
 };
 
@@ -197,15 +196,20 @@ template <typename Task>
 void partial_train_result<Task>::set_partial_sum_impl(const table& value) {
     impl_->sums = value;
 }
-//TODO:temporary solution
+
 template <typename Task>
-std::vector<table>& partial_train_result<Task>::get_auxialry_table_vector() const {
-    return impl_->auxialry_tables;
+std::int64_t partial_train_result<Task>::get_auxialry_table_count() const {
+    return impl_->auxialry_tables.size();
 }
 
 template <typename Task>
-void partial_train_result<Task>::set_auxilary_table_vector_impl(const std::vector<table>& value) {
-    impl_->auxialry_tables = value;
+const table& partial_train_result<Task>::get_auxialry_table(std::int64_t num) const {
+    return impl_->auxialry_tables.at(num);
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_auxilary_table_impl(const table& value) {
+    impl_->auxialry_tables.push_back(value);
 }
 
 template class ONEDAL_EXPORT train_input<task::dim_reduction>;

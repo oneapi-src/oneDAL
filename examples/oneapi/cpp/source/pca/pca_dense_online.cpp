@@ -61,10 +61,9 @@ void run(const dal::table& x_train, const std::string& method_name) {
     std::cout << "Eigenvectors:\n" << result.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:\n" << result.get_eigenvalues() << std::endl;
-    //TODO: temporary disabling
-    // const auto result_infer = dal::infer(pca_desc, result.get_model(), x_train);
+    const auto result_infer = dal::infer(pca_desc, result.get_model(), x_train);
 
-    // std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+    std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
