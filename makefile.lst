@@ -236,6 +236,7 @@ ONEAPI.ALGOS :=          \
     logistic_regression  \
     logloss_objective    \
     louvain              \
+    newton_cg            \
     minkowski_distance   \
     objective_function   \
     pca                  \
