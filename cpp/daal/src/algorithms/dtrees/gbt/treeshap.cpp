@@ -122,7 +122,7 @@ float unwoundPathSum(const PathElement * uniquePath, size_t uniqueDepth, size_t 
 
 namespace v1
 {
-void extendPath(PathElement * uniquePath, float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights, float zeroFraction,
+void extendPath(PathElement * uniquePath, float * partialWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPartialWeights, float zeroFraction,
                 float oneFraction, int featureIndex)
 {
     uniquePath[uniqueDepth].featureIndex = featureIndex;
@@ -147,7 +147,7 @@ void extendPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
     }
 }
 
-void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights, unsigned pathIndex)
+void unwindPath(PathElement * uniquePath, float * partialWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPartialWeights, uint32_t pathIndex)
 {
     const float oneFraction  = uniquePath[pathIndex].oneFraction;
     const float zeroFraction = uniquePath[pathIndex].zeroFraction;
@@ -156,7 +156,7 @@ void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
     if (oneFraction != 0)
     {
         // shrink partialWeights iff the feature satisfies the threshold
-        for (unsigned i = uniqueDepthPartialWeights - 1;; --i)
+        for (uint32_t i = uniqueDepthPartialWeights - 1;; --i)
         {
             const float tmp   = partialWeights[i];
             partialWeights[i] = nextOnePortion * (uniqueDepth + 1) / static_cast<float>(i + 1);
@@ -166,13 +166,13 @@ void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
     }
     else
     {
-        for (unsigned i = 0; i <= uniqueDepthPartialWeights; ++i)
+        for (uint32_t i = 0; i <= uniqueDepthPartialWeights; ++i)
         {
             partialWeights[i] *= (uniqueDepth + 1) / static_cast<float>(uniqueDepth - i);
         }
     }
 
-    for (unsigned i = pathIndex; i < uniqueDepth; ++i)
+    for (uint32_t i = pathIndex; i < uniqueDepth; ++i)
     {
         uniquePath[i].featureIndex = uniquePath[i + 1].featureIndex;
         uniquePath[i].zeroFraction = uniquePath[i + 1].zeroFraction;
@@ -182,8 +182,8 @@ void unwindPath(PathElement * uniquePath, float * partialWeights, unsigned uniqu
 
 // determine what the total permuation weight would be if
 // we unwound a previous extension in the decision path (for feature satisfying the threshold)
-float unwoundPathSum(const PathElement * uniquePath, const float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights,
-                     unsigned pathIndex)
+float unwoundPathSum(const PathElement * uniquePath, const float * partialWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPartialWeights,
+                     uint32_t pathIndex)
 {
     float total              = 0;
     const float zeroFraction = uniquePath[pathIndex].zeroFraction;
@@ -197,12 +197,12 @@ float unwoundPathSum(const PathElement * uniquePath, const float * partialWeight
     return total * (uniqueDepth + 1);
 }
 
-float unwoundPathSumZero(const float * partialWeights, unsigned uniqueDepth, unsigned uniqueDepthPartialWeights)
+float unwoundPathSumZero(const float * partialWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPartialWeights)
 {
     float total = 0;
     if (uniqueDepth > uniqueDepthPartialWeights)
     {
-        for (unsigned i = 0; i <= uniqueDepthPartialWeights; ++i)
+        for (uint32_t i = 0; i <= uniqueDepthPartialWeights; ++i)
         {
             total += partialWeights[i] / static_cast<float>(uniqueDepth - i);
         }

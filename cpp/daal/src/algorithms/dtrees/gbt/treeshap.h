@@ -143,8 +143,8 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
     const algorithmFPType dataValue   = x[splitIndex];
 
     gbt::prediction::internal::PredictDispatcher<hasUnorderedFeatures, hasAnyMissing> dispatcher;
-    FeatureIndexType hotIndex        = updateIndex(nodeIndex, dataValue, splitValues, defaultLeft, *featureHelper, splitIndex, dispatcher);
-    const FeatureIndexType coldIndex = 2 * nodeIndex + (hotIndex == (2 * nodeIndex));
+    size_t hotIndex        = updateIndex(nodeIndex, dataValue, splitValues, defaultLeft, *featureHelper, splitIndex, dispatcher);
+    const size_t coldIndex = 2 * nodeIndex + (hotIndex == (2 * nodeIndex));
 
     const float w = nodeCoverValues[nodeIndex];
     DAAL_ASSERT(w > 0);
@@ -233,11 +233,11 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
 namespace v1
 {
 
-void extendPath(PathElement * uniquePath, float * pWeights, unsigned uniqueDepth, unsigned uniqueDepthPWeights, float zeroFraction, float oneFraction,
+void extendPath(PathElement * uniquePath, float * pWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPWeights, float zeroFraction, float oneFraction,
                 int featureIndex);
-void unwindPath(PathElement * uniquePath, float * pWeights, unsigned uniqueDepth, unsigned uniqueDepthPWeights, unsigned pathIndex);
-float unwoundPathSum(const PathElement * uniquePath, const float * pWeights, unsigned uniqueDepth, unsigned uniqueDepthPWeights, unsigned pathIndex);
-float unwoundPathSumZero(const float * pWeights, unsigned uniqueDepth, unsigned uniqueDepthPWeights);
+void unwindPath(PathElement * uniquePath, float * pWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPWeights, uint32_t pathIndex);
+float unwoundPathSum(const PathElement * uniquePath, const float * pWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPWeights, uint32_t pathIndex);
+float unwoundPathSumZero(const float * pWeights, uint32_t uniqueDepth, uint32_t uniqueDepthPWeights);
 
 /**
  * Recursive Fast TreeSHAP version 1
@@ -269,7 +269,7 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
     copyStatus       = daal::services::internal::daal_memcpy_s(pWeights, nBytes, parentPWeights, nBytes);
     DAAL_ASSERT(copyStatus == 0);
 
-    if (condition == 0 || conditionFeature != static_cast<unsigned>(parentFeatureIndex))
+    if (condition == 0 || conditionFeature != static_cast<uint32_t>(parentFeatureIndex))
     {
         extendPath(uniquePath, pWeights, uniqueDepth, uniqueDepthPWeights, parentZeroFraction, parentOneFraction, parentFeatureIndex);
         // update pWeightsResidual if the feature of the last split does not satisfy the threshold
@@ -284,10 +284,10 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
 
     if (isLeaf)
     {
-        const unsigned valuesOffset = nodeIndex * numOutputs;
-        unsigned valuesNonZeroInd   = 0;
-        unsigned valuesNonZeroCount = 0;
-        for (unsigned j = 0; j < numOutputs; ++j)
+        const size_t valuesOffset   = nodeIndex * numOutputs;
+        uint32_t valuesNonZeroInd   = 0;
+        uint32_t valuesNonZeroCount = 0;
+        for (uint32_t j = 0; j < numOutputs; ++j)
         {
             if (splitValues[valuesOffset + j] != 0)
             {
@@ -299,10 +299,10 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
         const algorithmFPType wZero     = unwoundPathSumZero(pWeights, uniqueDepth, uniqueDepthPWeights);
         const algorithmFPType scaleZero = -wZero * pWeightsResidual * conditionFraction;
         algorithmFPType scale;
-        for (unsigned i = 1; i <= uniqueDepth; ++i)
+        for (uint32_t i = 1; i <= uniqueDepth; ++i)
         {
             const PathElement & el   = uniquePath[i];
-            const unsigned phiOffset = el.featureIndex * numOutputs;
+            const uint32_t phiOffset = el.featureIndex * numOutputs;
             // update contributions to SHAP values for features satisfying the thresholds and not satisfying the thresholds separately
             if (el.oneFraction != 0)
             {
@@ -319,7 +319,7 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
             }
             else
             {
-                for (unsigned j = 0; j < numOutputs; ++j)
+                for (uint32_t j = 0; j < numOutputs; ++j)
                 {
                     phi[phiOffset + j] += scale * splitValues[valuesOffset + j];
                 }
@@ -329,12 +329,12 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
         return;
     }
 
-    const unsigned splitIndex       = fIndexes[nodeIndex];
-    const algorithmFPType dataValue = x[splitIndex];
+    const FeatureIndexType splitIndex = fIndexes[nodeIndex];
+    const algorithmFPType dataValue   = x[splitIndex];
 
     gbt::prediction::internal::PredictDispatcher<hasUnorderedFeatures, hasAnyMissing> dispatcher;
-    FeatureIndexType hotIndex        = updateIndex(nodeIndex, dataValue, splitValues, defaultLeft, *featureHelper, splitIndex, dispatcher);
-    const FeatureIndexType coldIndex = 2 * nodeIndex + (hotIndex == (2 * nodeIndex));
+    size_t hotIndex        = updateIndex(nodeIndex, dataValue, splitValues, defaultLeft, *featureHelper, splitIndex, dispatcher);
+    const size_t coldIndex = 2 * nodeIndex + (hotIndex == (2 * nodeIndex));
 
     const algorithmFPType w                = nodeCoverValues[nodeIndex];
     const algorithmFPType hotZeroFraction  = nodeCoverValues[hotIndex] / w;
@@ -344,10 +344,10 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
 
     // see if we have already split on this feature,
     // if so we undo that split so we can redo it for this node
-    unsigned pathIndex = 0;
+    uint32_t pathIndex = 0;
     for (; pathIndex <= uniqueDepth; ++pathIndex)
     {
-        if (static_cast<unsigned>(uniquePath[pathIndex].featureIndex) == splitIndex) break;
+        if (uniquePath[pathIndex].featureIndex == splitIndex) break;
     }
     if (pathIndex != uniqueDepth + 1)
     {
