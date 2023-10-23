@@ -144,6 +144,13 @@ public:
         return *this;
     }
 
+    std::int64_t get_iterations_number() const;
+
+    auto& set_iterations_number(std::int64_t value) {
+        set_iterations_number_impl(value);
+        return *this;
+    }
+
     /// Table of Logistic regression coefficients with intercept
     const table& get_packed_coefficients() const;
 
@@ -166,6 +173,7 @@ protected:
     void set_intercept_impl(const table&);
     void set_coefficients_impl(const table&);
     void set_packed_coefficients_impl(const table&);
+    void set_iterations_number_impl(std::int64_t);
 
     void set_result_options_impl(const result_option_id&);
 

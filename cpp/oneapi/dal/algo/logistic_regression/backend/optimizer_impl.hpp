@@ -37,14 +37,14 @@ public:
     virtual std::int64_t get_max_iter() = 0;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    virtual sycl::event minimize(sycl::queue& q,
-                                 pr::base_function<float>& f,
-                                 pr::ndview<float, 1>& x,
-                                 const be::event_vector& deps = {}) = 0;
-    virtual sycl::event minimize(sycl::queue& q,
-                                 pr::base_function<double>& f,
-                                 pr::ndview<double, 1>& x,
-                                 const be::event_vector& deps = {}) = 0;
+    virtual std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,
+                                                          pr::base_function<float>& f,
+                                                          pr::ndview<float, 1>& x,
+                                                          const be::event_vector& deps = {}) = 0;
+    virtual std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,
+                                                          pr::base_function<double>& f,
+                                                          pr::ndview<double, 1>& x,
+                                                          const be::event_vector& deps = {}) = 0;
 #endif
 };
 

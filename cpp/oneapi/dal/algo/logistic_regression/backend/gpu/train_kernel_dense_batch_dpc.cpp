@@ -86,7 +86,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     x_suf = fit_intercept ? x : x.slice(1, feature_count);
 
-    sycl::event train_event = opt_impl->minimize(queue, loss_func, x_suf, { fill_event });
+    auto [train_event, iter_num] = opt_impl->minimize(queue, loss_func, x_suf, { fill_event });
 
     auto all_coefs = homogen_table::wrap(x.flatten(queue, { train_event }), 1, feature_count + 1);
 
@@ -109,6 +109,10 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                 1,
                                 feature_count);
         result.set_coefficients(coefs_table);
+    }
+
+    if (options.test(result_options::iterations_number)) {
+        result.set_iterations_number(iter_num);
     }
 
     return result;

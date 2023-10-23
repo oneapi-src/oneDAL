@@ -25,7 +25,6 @@
 #include <chrono>
 #include <iostream>
 #include <time.h>
-#include <unistd.h>
 
 namespace dal = oneapi::dal;
 namespace result_options = dal::logistic_regression::result_options;
@@ -69,7 +68,8 @@ void run(sycl::queue& q) {
                                                                                     1.0,
                                                                                     2,
                                                                                     optimizer_desc)
-            .set_result_options(result_options::coefficients | result_options::intercept);
+            .set_result_options(result_options::coefficients | result_options::intercept |
+                                result_options::iterations_number);
 
     const auto train_result = dal::train(q, log_reg_desc, x_train, y_train);
 
@@ -78,6 +78,7 @@ void run(sycl::queue& q) {
 
     std::cout << "Coefficients:\n" << train_result.get_coefficients() << std::endl;
     std::cout << "Intercept:\n" << train_result.get_intercept() << std::endl;
+    std::cout << "Iterations number: " << train_result.get_iterations_number() << std::endl;
 
     const auto log_reg_model = train_result.get_model();
 

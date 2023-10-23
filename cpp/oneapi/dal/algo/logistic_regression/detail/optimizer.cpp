@@ -48,24 +48,24 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename Float>
-    sycl::event minimize_impl(sycl::queue& q,
-                              pr::base_function<Float>& f,
-                              pr::ndview<Float, 1>& x,
-                              const be::event_vector& deps = {}) {
+    std::pair<sycl::event, std::int64_t> minimize_impl(sycl::queue& q,
+                                                       pr::base_function<Float>& f,
+                                                       pr::ndview<Float, 1>& x,
+                                                       const be::event_vector& deps = {}) {
         return pr::newton_cg(q, f, x, Float(tol_), max_iter_, deps);
     }
 
-    sycl::event minimize(sycl::queue& q,
-                         pr::base_function<float>& f,
-                         pr::ndview<float, 1>& x,
-                         const be::event_vector& deps = {}) final {
+    std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,
+                                                  pr::base_function<float>& f,
+                                                  pr::ndview<float, 1>& x,
+                                                  const be::event_vector& deps = {}) final {
         return minimize_impl(q, f, x, deps);
     }
 
-    sycl::event minimize(sycl::queue& q,
-                         pr::base_function<double>& f,
-                         pr::ndview<double, 1>& x,
-                         const be::event_vector& deps = {}) final {
+    std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,
+                                                  pr::base_function<double>& f,
+                                                  pr::ndview<double, 1>& x,
+                                                  const be::event_vector& deps = {}) final {
         return minimize_impl(q, f, x, deps);
     }
 #endif
