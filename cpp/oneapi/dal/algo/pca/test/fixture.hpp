@@ -199,9 +199,9 @@ public:
     void check_train_result_online(const pca::descriptor<Float, Method>& desc,
                                    const te::dataframe& data,
                                    const pca::train_result<>& result) {
-        const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
+        const auto [eigenvalues, eigenvectors] = unpack_online_result(result);
 
-        check_shapes(desc, data, result);
+        check_online_shapes(desc, data, result);
         check_nans(result);
 
         INFO("check if eigenvectors order is descending")
@@ -214,6 +214,23 @@ public:
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
                             const te::dataframe& data,
                             const pca::infer_result<>& result) {}
+
+    void check_online_shapes(const pca::descriptor<Float, Method>& desc,
+                             const te::dataframe& data,
+                             const pca::train_result<>& result) {
+        const auto [eigenvalues, eigenvectors] = unpack_online_result(result);
+
+        const std::int64_t expected_component_count =
+            (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
+
+        INFO("check if eigenvalues shape is expected")
+        REQUIRE(eigenvalues.get_row_count() == 1);
+        REQUIRE(eigenvalues.get_column_count() == expected_component_count);
+
+        INFO("check if eigenvectors shape is expected")
+        REQUIRE(eigenvectors.get_row_count() == expected_component_count);
+        REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
+    }
 
     void check_shapes(const pca::descriptor<Float, Method>& desc,
                       const te::dataframe& data,
@@ -231,13 +248,13 @@ public:
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
 
-        // INFO("check if means shape is expected")
-        // REQUIRE(means.get_row_count() == 1);
-        // REQUIRE(means.get_column_count() == data.get_column_count());
+        INFO("check if means shape is expected")
+        REQUIRE(means.get_row_count() == 1);
+        REQUIRE(means.get_column_count() == data.get_column_count());
 
-        // INFO("check if variances shape is expected")
-        // REQUIRE(variances.get_row_count() == 1);
-        // REQUIRE(variances.get_column_count() == data.get_column_count());
+        INFO("check if variances shape is expected")
+        REQUIRE(variances.get_row_count() == 1);
+        REQUIRE(variances.get_column_count() == data.get_column_count());
     }
 
     void check_nans(const pca::train_result<>& result) {
@@ -306,6 +323,12 @@ public:
     }
 
 private:
+    static auto unpack_online_result(const pca::train_result<>& result) {
+        const auto eigenvalues = result.get_eigenvalues();
+        const auto eigenvectors = result.get_eigenvectors();
+        return std::make_tuple(eigenvalues, eigenvectors);
+    }
+
     static auto unpack_result(const pca::train_result<>& result) {
         const auto means = result.get_means();
         const auto variances = result.get_variances();
