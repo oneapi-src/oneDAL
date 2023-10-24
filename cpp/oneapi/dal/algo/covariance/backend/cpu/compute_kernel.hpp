@@ -24,7 +24,8 @@ namespace oneapi::dal::covariance::backend {
 template <typename Float, typename Method, typename Task>
 struct compute_kernel_cpu {
     compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
+                                    const detail::descriptor_base<Task>& desc,
+                                    const detail::compute_parameters<Task>& params,
                                     const compute_input<Task>& input) const;
 };
 
