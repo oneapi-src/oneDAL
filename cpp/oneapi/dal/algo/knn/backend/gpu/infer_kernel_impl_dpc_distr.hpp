@@ -242,6 +242,7 @@ public:
         sycl::event select_inp_resp_event, treat_event, final_event, selt_event;
         {
             ONEDAL_PROFILER_TASK(qblock.select_indexed1, queue_);
+            // TODO: investigate why this is strangely expensive
             select_inp_resp_event =
                 pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
         }
@@ -580,8 +581,11 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto rank_count = comm.get_rank_count();
     auto block_size = propose_distributed_block_size<Float>(queue, fcount);
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
-
+    // TODO: any additional profiler tasks needed? or reset_dists_inds?
     comm.allgather(tcount, node_sample_counts.flatten()).wait();
+    // TODO: event here?
+    auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
+    block_size = std::min(max_tcount, block_size)
 
     auto current_rank = comm.get_rank();
     auto prev_node = (current_rank - 1 + rank_count) % rank_count;
@@ -593,8 +597,11 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     std::int64_t bounds_size = boundaries.size();
     ONEDAL_ASSERT(block_count + 1 == bounds_size);
 
-    auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
-    auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
+    {
+        ONEDAL_PROFILER_TASK(main.split_table, queue);
+        auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
+        auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
+    }
     std::int64_t tbq_size = train_block_queue.size();
     std::int64_t trq_size = tresps_queue.size();
     ONEDAL_ASSERT(tbq_size <= block_count);
@@ -613,6 +620,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     callback.set_indices(indices);
     callback.set_part_indices(part_indices);
 
+    // TODO: is this necessary?
     auto next_event = callback.reset_dists_inds(deps);
 
     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -660,11 +668,10 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
 
     const auto it = std::find(nodes.begin(), nodes.end(), current_rank);
-    auto first_block_index = std::distance(nodes.begin(), it);
+    auto relative_block_offset = std::distance(nodes.begin(), it);
     ONEDAL_ASSERT(it != nodes.end());
 
-    // TODO: rename block_number, block_index to absolute, relative
-    for (std::int64_t block_number = 0; block_number < block_count; ++block_number) {
+    for (std::int64_t relative_block_idx = 0; relative_block_idx < block_count; ++relative_block_idx) {
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
         ONEDAL_ASSERT(current_block.has_data());
@@ -674,9 +681,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             pr::ndview<res_t, 1>::wrap(current_tresps.get_data(), { current_tresps.get_count() });
         tresps_queue.pop_front();
 
-        auto block_index = (block_number + first_block_index) % block_count;
-        ONEDAL_ASSERT(block_index + 1 < bounds_size);
-        auto actual_rows_in_block = boundaries.at(block_index + 1) - boundaries.at(block_index);
+        auto absolute_block_idx = (relative_block_idx + relative_block_offset) % block_count;
+        ONEDAL_ASSERT(absolute_block_idx + 1 < bounds_size);
+        auto actual_rows_in_block = boundaries.at(absolute_block_idx + 1) - boundaries.at(absolute_block_idx);
 
         auto sc = current_block.get_dimension(0);
         ONEDAL_ASSERT(sc >= actual_rows_in_block);
@@ -685,9 +692,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
         auto actual_current_tresps = current_tresps_1d.get_slice(0, actual_rows_in_block);
 
-        callback.set_global_index_offset(boundaries.at(block_index));
+        callback.set_global_index_offset(boundaries.at(absolute_block_idx));
         callback.set_train_responses(actual_current_tresps);
-        if (block_number == block_count - 1) {
+        if (relative_block_idx == block_count - 1) {
             callback.set_last_iteration(true);
         }
         // TODO: add part of this to above TODO outside loop and only keep search stuff
@@ -729,14 +736,11 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             next_event = search(query, callback, qbcount, curr_k, { next_event });
         }
 
-        {
-            ONEDAL_PROFILER_TASK(tblock.sendrecvreplace, queue);
-            // TODO: is this not just block_size?
+        if (relative_block_idx < block_count - 1) {
+            ONEDAL_PROFILER_TASK(dblock.sendrecvreplace, queue);
             auto send_count = current_block.get_count();
             ONEDAL_ASSERT(send_count >= 0);
             ONEDAL_ASSERT(send_count <= de::limits<int>::max());
-            // send recv replace
-            // TODO: add profiler task for send recv replace
             comm.sendrecv_replace(array<Float>::wrap(queue,
                                                     current_block.get_mutable_data(),
                                                     send_count,
