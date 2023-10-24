@@ -49,12 +49,12 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
     daal::services::SharedPtr<DataCollection> DataCollectionPtr;
     auto arr_eigvec = array<Float>::empty(column_count * column_count);
-    auto arr_eigval = array<Float>::empty(1 * component_count);
+    auto arr_eigval = array<Float>::empty(1 * column_count);
 
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, column_count);
     const auto daal_eigenvalues =
-        interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
+        interop::convert_to_daal_homogen_table(arr_eigval, 1, column_count);
 
     const auto daal_nobs = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
     daal::data_management::DataCollectionPtr decomposeCollection =
@@ -75,14 +75,15 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                                            decomposeCollection));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        auto reshaped_array = arr_eigvec.get_slice(0, component_count * column_count);
+        auto reshaped_eigvec = arr_eigvec.get_slice(0, component_count * column_count);
         const auto mdl = model_t{}.set_eigenvectors(
-            homogen_table::wrap(reshaped_array, component_count, column_count));
+            homogen_table::wrap(reshaped_eigvec, component_count, column_count));
         result.set_model(mdl);
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+        auto reshaped_eigval = arr_eigval.get_slice(0, component_count);
+        result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
     }
 
     return result;

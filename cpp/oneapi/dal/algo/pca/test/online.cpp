@@ -53,24 +53,30 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
     this->online_general_checks(data, component_count, data_table_id, nBlocks);
 }
 
-// TEMPLATE_LIST_TEST_M(pca_online_test,
-//                      "pca fill_normal flow svd",
-//                      "[pca][integration][online]",
-//                      pca_types_svd) {
+TEMPLATE_LIST_TEST_M(pca_online_test,
+                     "pca fill_normal flow svd",
+                     "[pca][integration][online]",
+                     pca_types_svd) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    const int64_t nBlocks = GENERATE(1, 3, 10);
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 1000, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 10000, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 100000, 10 }.fill_normal(0, 1, 7777));
 
-//     SKIP_IF(this->not_float64_friendly());
-//     const int64_t nBlocks = GENERATE(1);
-//     const te::dataframe data =
-//         GENERATE_DATAFRAME(
-//                            te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777));
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto data_table_id = this->get_homogen_table_id();
 
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto data_table_id = this->get_homogen_table_id();
+    const std::int64_t component_count = GENERATE_COPY(0,
+                                                       1,
+                                                       data.get_column_count(),
+                                                       data.get_column_count() - 1,
+                                                       data.get_column_count() / 2);
 
-//     const std::int64_t component_count = GENERATE_COPY(data.get_column_count() / 2);
-
-//     this->online_general_checks(data, component_count, data_table_id, nBlocks);
-// }
+    this->online_general_checks(data, component_count, data_table_id, nBlocks);
+}
 
 TEMPLATE_LIST_TEST_M(pca_online_test,
                      "pca fill_normal flow",
