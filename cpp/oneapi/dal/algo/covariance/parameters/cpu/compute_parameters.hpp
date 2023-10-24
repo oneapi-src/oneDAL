@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
 #include "oneapi/dal/algo/covariance/compute_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::covariance::backend {
+namespace oneapi::dal::covariance::parameters {
 
 template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& desc,
-                                    const detail::compute_parameters<Task>& params,
-                                    const compute_input<Task>& input) const;
+struct ONEDAL_EXPORT compute_parameters_cpu {
+    using params_t = detail::compute_parameters<Task>;
+    params_t operator()(const dal::backend::context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const compute_input<Task>& input) const;
 };
 
-} // namespace oneapi::dal::covariance::backend
+} // namespace oneapi::dal::covariance::parameters
