@@ -584,8 +584,12 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     // TODO: any additional profiler tasks needed? or reset_dists_inds?
     comm.allgather(tcount, node_sample_counts.flatten()).wait();
     // TODO: event here?
-    auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
-    block_size = std::min(max_tcount, block_size)
+    // auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
+    std::int64_t max_tcount = 0;
+    for (std::int32_t index = 0; index < node_sample_counts.get_count(); ++index) {
+        max_tcount = std::max(node_sample_counts.at(index), max_tcount);
+    }
+    block_size = std::min(max_tcount, block_size);
 
     auto current_rank = comm.get_rank();
     auto prev_node = (current_rank - 1 + rank_count) % rank_count;
@@ -597,11 +601,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     std::int64_t bounds_size = boundaries.size();
     ONEDAL_ASSERT(block_count + 1 == bounds_size);
 
-    {
-        ONEDAL_PROFILER_TASK(main.split_table, queue);
-        auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
-        auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
-    }
+    auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
+    auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
+
     std::int64_t tbq_size = train_block_queue.size();
     std::int64_t trq_size = tresps_queue.size();
     ONEDAL_ASSERT(tbq_size <= block_count);

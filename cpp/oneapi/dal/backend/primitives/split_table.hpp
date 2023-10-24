@@ -22,6 +22,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -127,7 +128,10 @@ inline auto split_table(sycl::queue& queue,
                         T default_value = std::numeric_limits<T>::max(),
                         sycl::usm::alloc kind = sycl::usm::alloc::device) {
     Container result;
-    split_table_inplace<T, order>(queue, input, block, result, default_value, kind);
+    {
+        ONEDAL_PROFILER_TASK(split_table, queue);
+        split_table_inplace<T, order>(queue, input, block, result, default_value, kind);
+    }
     return result;
 }
 
