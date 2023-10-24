@@ -95,6 +95,9 @@ struct get_core_wide_kernel {
                         }
                         Float distance =
                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance > epsilon) {
+                            continue;
+                        }
                         if constexpr (use_weights) {
                             count += distance <= epsilon ? weights_ptr[j] : count_type(0);
                         }
@@ -152,7 +155,9 @@ struct get_core_narrow_kernel {
                                     data_ptr[j * column_count + i];
                         sum += val * val;
                     }
-
+                    if (sum > epsilon) {
+                        continue;
+                    }
                     if constexpr (use_weights) {
                         count += sum <= epsilon ? weights_ptr[j] : count_type(0);
                     }
