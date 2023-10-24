@@ -392,7 +392,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                 for (std::int32_t j = 0; j < algo_queue_size; j++) {
                     const std::int32_t index = queue_ptr[j + queue_begin];
                     Float sum = Float(0);
-                    for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                    for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
                         Float val =
                             data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
                         sum += val * val;
@@ -400,6 +400,16 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     Float distance =
                         sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                     if (distance > epsilon)
+                        continue;
+                    for (std::int64_t i = column_count / 2 + local_id; i < column_count;
+                         i += local_size) {
+                        Float val =
+                            data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
+                        sum += val * val;
+                    }
+                    Float distance_check =
+                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                    if (distance_check > epsilon)
                         continue;
                     if (local_id == 0) {
                         responses_ptr[wg_id] = cluster_id;
