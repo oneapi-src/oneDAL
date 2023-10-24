@@ -44,7 +44,7 @@ public:
     table nobs;
     table crossproduct;
     table sums;
-    std::vector<table> auxiliary_tables;
+    std::vector<oneapi::dal::v1::table> auxiliary_tables;
 };
 
 using detail::v1::train_input_impl;

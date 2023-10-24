@@ -43,7 +43,7 @@ void run(sycl::queue& q) {
     }
     auto result = dal::finalize_train(pca_desc, partial_result);
 
-    const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
+    const auto result_infer = dal::infer(q, pca_desc, result.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
