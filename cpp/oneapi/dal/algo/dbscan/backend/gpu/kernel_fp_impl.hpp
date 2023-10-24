@@ -101,6 +101,13 @@ struct get_core_wide_kernel {
                         else {
                             count += distance <= epsilon ? count_type(1) : count_type(0);
                         }
+                        //TODO::doublecheck
+                        if (count > min_observations) {
+                            if (local_id == 0) {
+                                cores_ptr[wg_id] = 1;
+                            }
+                            break;
+                        }
                     }
                     if (local_id == 0) {
                         cores_ptr[wg_id] = (std::int32_t)(count >= min_observations);
@@ -162,6 +169,11 @@ struct get_core_narrow_kernel {
                     }
                     else {
                         count += sum <= epsilon ? count_type(1) : count_type(0);
+                    }
+                    //todo::doublecheck
+                    if (count > min_observations) {
+                        cores_ptr[idx] = (std::int32_t)(count >= min_observations);
+                        break;
                     }
                 }
                 cores_ptr[idx] = (std::int32_t)(count >= min_observations);
