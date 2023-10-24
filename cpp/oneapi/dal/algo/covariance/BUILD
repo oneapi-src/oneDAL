@@ -5,17 +5,27 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "covariance",
+    name = "core",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
-        "@onedal//cpp/oneapi/dal/backend/primitives:stat",
-        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
-    extra_deps = [
-        "@onedal//cpp/daal/src/algorithms/covariance:kernel",
+)
+
+dal_module(
+    name = "parameters",
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo/covariance/parameters",
+    ],
+)
+
+dal_module(
+    name = "covariance",
+    dal_deps = [
+        ":core",
+        ":parameters",
+        "@onedal//cpp/oneapi/dal/algo/covariance/detail",
+        "@onedal//cpp/oneapi/dal/algo/covariance/backend",
     ]
 )
 

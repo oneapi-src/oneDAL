@@ -39,6 +39,7 @@ using task_t = task::compute;
 using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
+using parameters_t = detail::compute_parameters<task_t>;
 
 template <typename Float>
 auto compute_sums(sycl::queue& q,
@@ -118,6 +119,7 @@ auto compute_correlation(sycl::queue& q,
 
 template <typename Float>
 result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
+                                                      const parameters_t& params,
                                                       const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
 
