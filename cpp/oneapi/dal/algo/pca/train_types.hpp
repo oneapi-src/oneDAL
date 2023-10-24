@@ -184,12 +184,12 @@ public:
         return *this;
     }
 
-    std::int64_t get_auxialry_table_count() const;
+    std::int64_t get_auxiliary_table_count() const;
 
-    const table& get_auxialry_table(const std::int64_t) const;
+    const table& get_auxiliary_table(const std::int64_t) const;
 
-    auto& set_auxialry_table(const table& value) {
-        set_auxilary_table_impl(value);
+    auto& set_auxiliary_table(const table& value) {
+        set_auxiliary_table_impl(value);
         return *this;
     }
 
@@ -197,7 +197,7 @@ protected:
     void set_partial_n_rows_impl(const table&);
     void set_partial_crossproduct_impl(const table&);
     void set_partial_sum_impl(const table&);
-    void set_auxilary_table_impl(const table&);
+    void set_auxiliary_table_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::partial_train_result_impl<Task>> impl_;

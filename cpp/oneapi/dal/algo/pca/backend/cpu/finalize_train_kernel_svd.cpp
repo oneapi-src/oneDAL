@@ -60,9 +60,9 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     daal::data_management::DataCollectionPtr decomposeCollection =
         daal::data_management::DataCollectionPtr(new daal::data_management::DataCollection());
 
-    for (std::int64_t i = 0; i < input.get_auxialry_table_count(); i++) {
+    for (std::int64_t i = 0; i < input.get_auxiliary_table_count(); i++) {
         const auto daal_crossproduct =
-            interop::copy_to_daal_homogen_table<Float>(input.get_auxialry_table(i));
+            interop::copy_to_daal_homogen_table<Float>(input.get_auxiliary_table(i));
         decomposeCollection->push_back(daal_crossproduct);
     }
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;

@@ -43,8 +43,8 @@ using daal_svd_kernel_t = daal_pca::internal::PCASVDOnlineKernel<Float, Cpu>;
 auto update_tables(const partial_train_input<task::dim_reduction>& input) {
     auto result = partial_train_result();
     const auto prev_ = input.get_prev();
-    for (std::int64_t i = 0; i < prev_.get_auxialry_table_count(); i++) {
-        result.set_auxialry_table(prev_.get_auxialry_table(i));
+    for (std::int64_t i = 0; i < prev_.get_auxiliary_table_count(); i++) {
+        result.set_auxiliary_table(prev_.get_auxiliary_table(i));
     }
     return result;
 }
@@ -73,15 +73,15 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
         auto daal_nobs_matrix =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
         auto auxiliaryTable = array<Float>::zeros(component_count * component_count);
-        auto daal_auxilary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
-                                                                               component_count,
-                                                                               component_count);
+        auto daal_auxiliary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
+                                                                                component_count,
+                                                                                component_count);
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_svd_kernel_t>(ctx,
                                                                 dtype,
                                                                 daal_data,
                                                                 *daal_nobs_matrix,
-                                                                *daal_auxilary_svd,
+                                                                *daal_auxiliary_svd,
                                                                 *daal_sums,
                                                                 *daal_crossproduct_svd));
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
@@ -90,8 +90,8 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
         result.set_partial_crossproduct(
             interop::convert_from_daal_homogen_table<Float>(daal_crossproduct_svd));
 
-        result.set_auxialry_table(
-            interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
+        result.set_auxiliary_table(
+            interop::convert_from_daal_homogen_table<Float>(daal_auxiliary_svd));
         return result;
     }
     else {
@@ -102,9 +102,9 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
         auto auxiliaryTable = array<Float>::zeros(component_count * component_count);
         auto daal_crossproduct_svd =
             interop::convert_to_daal_homogen_table<Float>(arr_crossproduct_svd, 1, component_count);
-        auto daal_auxilary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
-                                                                               component_count,
-                                                                               component_count);
+        auto daal_auxiliary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
+                                                                                component_count,
+                                                                                component_count);
         auto daal_sums =
             interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, component_count);
         auto daal_nobs_matrix = interop::convert_to_daal_homogen_table<int>(arr_nobs_matrix, 1, 1);
@@ -115,12 +115,12 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
                                                                     dtype,
                                                                     daal_data,
                                                                     *daal_nobs_matrix,
-                                                                    *daal_auxilary_svd,
+                                                                    *daal_auxiliary_svd,
                                                                     *daal_sums,
                                                                     *daal_crossproduct_svd));
         }
-        result.set_auxialry_table(
-            interop::convert_from_daal_homogen_table<Float>(daal_auxilary_svd));
+        result.set_auxiliary_table(
+            interop::convert_from_daal_homogen_table<Float>(daal_auxiliary_svd));
 
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
 
