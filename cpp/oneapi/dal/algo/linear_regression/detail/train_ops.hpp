@@ -102,6 +102,14 @@ struct train_ops {
         }
     }
 
+    /// Check that the hyperparameters of the algorithm belong to the expected ranges
+    void check_parameters_ranges(const param_t& params, const input_t& input) const {
+        ONEDAL_ASSERT(params.get_cpu_macro_block() > 0);
+        ONEDAL_ASSERT(params.get_cpu_macro_block() <= 0x10000l);
+        ONEDAL_ASSERT(params.get_gpu_macro_block() > 0);
+        ONEDAL_ASSERT(params.get_gpu_macro_block() <= 0x100000l);
+    }
+
     template <typename Context>
     auto select_parameters(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
@@ -115,6 +123,7 @@ struct train_ops {
                     const Descriptor& desc,
                     const param_t& params,
                     const input_t& input) const {
+        check_parameters_ranges(params, input);
         const auto result =
             train_ops_dispatcher<Context, float_t, method_t, task_t>{}(ctx, desc, params, input);
         check_postconditions(desc, input, result);
