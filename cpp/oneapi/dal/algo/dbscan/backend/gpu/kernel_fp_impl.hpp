@@ -101,16 +101,12 @@ struct get_core_wide_kernel {
                         else {
                             count += distance <= epsilon ? count_type(1) : count_type(0);
                         }
-                        //TODO::doublecheck
-                        if (count > min_observations) {
+                        if (count >= min_observations) {
                             if (local_id == 0) {
-                                cores_ptr[wg_id] = 1;
+                                cores_ptr[wg_id] = count_type(1);
                             }
                             break;
                         }
-                    }
-                    if (local_id == 0) {
-                        cores_ptr[wg_id] = (std::int32_t)(count >= min_observations);
                     }
                 });
         });
@@ -151,32 +147,23 @@ struct get_core_narrow_kernel {
                 count_type count = 0;
                 for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
-                    for (std::int64_t i = 0; i < column_count / 2; i++) {
+                    for (std::int64_t i = 0; i < column_count; i++) {
                         Float val = data_ptr[(block_start + idx) * column_count + i] -
                                     data_ptr[j * column_count + i];
                         sum += val * val;
                     }
-                    if (sum > epsilon) {
-                        continue;
-                    }
-                    for (std::int64_t i = column_count / 2; i < column_count; i++) {
-                        Float val = data_ptr[(block_start + idx) * column_count + i] -
-                                    data_ptr[j * column_count + i];
-                        sum += val * val;
-                    }
+
                     if constexpr (use_weights) {
                         count += sum <= epsilon ? weights_ptr[j] : count_type(0);
                     }
                     else {
                         count += sum <= epsilon ? count_type(1) : count_type(0);
                     }
-                    //todo::doublecheck
-                    if (count > min_observations) {
-                        cores_ptr[idx] = (std::int32_t)(count >= min_observations);
+                    if (count >= min_observations) {
+                        cores_ptr[idx] = count_type(1);
                         break;
                     }
                 }
-                cores_ptr[idx] = (std::int32_t)(count >= min_observations);
             });
         });
         return event;
