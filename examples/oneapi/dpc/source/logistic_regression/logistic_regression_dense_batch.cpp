@@ -112,7 +112,9 @@ void run(sycl::queue& q) {
 }
 
 int main(int argc, char const* argv[]) {
-    for (auto d : list_devices()) {
+    std::vector<sycl::device> devices;
+    try_add_device(devices, &sycl::gpu_selector_v);
+    for (auto d : devices) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
