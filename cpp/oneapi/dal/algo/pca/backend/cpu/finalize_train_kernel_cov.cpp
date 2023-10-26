@@ -63,6 +63,8 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
 
+    auto rows_count_global =
+        row_accessor<const Float>(input.get_partial_n_rows()).pull({ 0, -1 })[0];
     auto arr_means = array<Float>::empty(column_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     daal_cov::internal::Hyperparameter daal_hyperparameter;
@@ -70,10 +72,10 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
     if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
-        //const std::int64_t row_count = data.get_row_count();
-        //if (5000 < row_count && row_count <= 50000) {
-        blockSize = 1024;
-        //}
+        const std::int64_t row_count = rows_count_global;
+        if (5000 < row_count && row_count <= 50000) {
+            blockSize = 1024;
+        }
     }
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
