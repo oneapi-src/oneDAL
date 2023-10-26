@@ -30,6 +30,8 @@
 #include "data_management/data/data_collection.h"
 #include "services/error_handling.h"
 #include "services/daal_shared_ptr.h"
+#include <stdint.h>
+#include <cstdint>
 
 namespace daal
 {
@@ -81,7 +83,7 @@ struct DAAL_EXPORT HyperparameterIface
      * \param[in] value The value of the hyperparameter
      * \return Execution status
      */
-    virtual services::Status set(uint32_t id, int64_t value) = 0;
+    virtual services::Status set(std::uint32_t id, std::int64_t value) = 0;
 
     /**
      * Sets double precision hyperparameter into this structure
@@ -89,7 +91,7 @@ struct DAAL_EXPORT HyperparameterIface
      * \param[in] value The value of the hyperparameter
      * \return Execution status
      */
-    virtual services::Status set(uint32_t id, double value) = 0;
+    virtual services::Status set(std::uint32_t id, double value) = 0;
 
     /**
      * Finds integer hyperparameter in this structure
@@ -99,7 +101,7 @@ struct DAAL_EXPORT HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(uint32_t id, int64_t & value) const = 0;
+    virtual services::Status find(std::uint32_t id, std::int64_t & value) const = 0;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -109,7 +111,7 @@ struct DAAL_EXPORT HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(uint32_t id, double & value) const = 0;
+    virtual services::Status find(std::uint32_t id, double & value) const = 0;
 
     virtual ~HyperparameterIface() {}
 };
@@ -146,7 +148,7 @@ protected:
      * \param[in] value The value of the hyperparameter
      * \return Execution status
      */
-    services::Status set(uint32_t id, int64_t value) final;
+    services::Status set(std::uint32_t id, std::int64_t value) final;
 
     /**
      * Sets double precision hyperparameter into this structure
@@ -154,7 +156,7 @@ protected:
      * \param[in] value The value of the hyperparameter
      * \return Execution status
      */
-    services::Status set(uint32_t id, double value) final;
+    services::Status set(std::uint32_t id, double value) final;
 
     /**
      * Finds integer hyperparameter in this structure
@@ -164,7 +166,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(uint32_t id, int64_t & value) const final;
+    services::Status find(std::uint32_t id, std::int64_t & value) const final;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -174,7 +176,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(uint32_t id, double & value) const final;
+    services::Status find(std::uint32_t id, double & value) const final;
 
     /** Pointer to the implementation */
     services::SharedPtr<HyperparameterBaseImpl> _pimpl;
