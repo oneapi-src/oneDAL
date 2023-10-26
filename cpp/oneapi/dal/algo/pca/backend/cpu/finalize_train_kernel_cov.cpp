@@ -65,7 +65,18 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
 
     auto arr_means = array<Float>::empty(column_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
-
+    daal_cov::internal::Hyperparameter daal_hyperparameter;
+    /// the logic of block size calculation is copied from DAAL,
+    /// to be changed to passing the values from the performance model
+    std::int64_t blockSize = 140;
+    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
+        //const std::int64_t row_count = data.get_row_count();
+        //if (5000 < row_count && row_count <= 50000) {
+        blockSize = 1024;
+        //}
+    }
+    interop::status_to_exception(
+        daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     auto daal_crossproduct =
         interop::convert_to_daal_table<Float>(input.get_partial_crossproduct());
     auto daal_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
@@ -85,7 +96,8 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
             daal_sums.get(),
             daal_cor_matrix.get(),
             daal_means.get(),
-            &daal_parameter));
+            &daal_parameter,
+            &daal_hyperparameter));
 
     const auto data_to_compute = daal_cor_matrix;
     {

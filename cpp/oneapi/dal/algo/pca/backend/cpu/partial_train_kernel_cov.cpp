@@ -59,7 +59,18 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
 
     auto result = partial_train_result();
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
-
+    daal_cov::internal::Hyperparameter daal_hyperparameter;
+    /// the logic of block size calculation is copied from DAAL,
+    /// to be changed to passing the values from the performance model
+    std::int64_t blockSize = 140;
+    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
+        const std::int64_t row_count = data.get_row_count();
+        if (5000 < row_count && row_count <= 50000) {
+            blockSize = 1024;
+        }
+    }
+    interop::status_to_exception(
+        daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     if (has_nobs_data) {
         auto daal_crossproduct =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_crossproduct());
@@ -72,7 +83,8 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
                                                                        daal_nobs_matrix.get(),
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
-                                                                       &daal_parameter));
+                                                                       &daal_parameter,
+                                                                       &daal_hyperparameter));
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
         result.set_partial_n_rows(
             interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
@@ -96,7 +108,8 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
                                                                        daal_nobs_matrix.get(),
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
-                                                                       &daal_parameter));
+                                                                       &daal_parameter,
+                                                                       &daal_hyperparameter));
 
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
         result.set_partial_n_rows(
