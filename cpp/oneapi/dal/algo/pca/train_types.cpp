@@ -17,9 +17,6 @@
 #include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
-#if defined(__APPLE__)
-#include <vector>
-#endif
 
 namespace oneapi::dal::pca {
 
