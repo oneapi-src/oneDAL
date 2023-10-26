@@ -21,10 +21,12 @@ namespace daal::algorithms::gbt::internal
 {
 GbtDecisionTree prepareThreeNodeTree()
 {
-    // create a tree with 3 nodes, 1 root (split), 2 leaves
-    //               ROOT        (level 1)
-    //              /    \
-    //             L      L      (level 2)
+    /**
+     * create a tree with 3 nodes, 1 root (split), 2 leaves
+     *               ROOT        (level 1)
+     *              /    \
+     *             L      L      (level 2)
+     */
     GbtDecisionTree tree = GbtDecisionTree(3, 2);
 
     ModelFPType * splitPoints       = tree.getSplitPoints();
@@ -52,13 +54,14 @@ GbtDecisionTree prepareThreeNodeTree()
 
 GbtDecisionTree prepareFiveNodeTree()
 {
-    // create a tree with 5 nodes
-    //              ROOT (1)        (level 1)
-    //              /    \
-    //            L (2)  S (3)      (level 2)
-    //                   / \
-    //               L (6) L (7)    (level 3)
-    // (note: on level 3, nodes 4 and 5 do not exist and will be created as "dummy leaf")
+    /** create a tree with 5 nodes
+     *               ROOT (1)        (level 1)
+     *               /    \
+     *             L (2)  S (3)      (level 2)
+     *                    / \
+     *                L (6) L (7)    (level 3)
+     * (note: on level 3, nodes 4 and 5 do not exist and will be created as "dummy leaf")
+     */
     GbtDecisionTree tree = GbtDecisionTree(5, 3);
 
     ModelFPType * splitPoints       = tree.getSplitPoints();
