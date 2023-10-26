@@ -572,13 +572,18 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
             auto tnorms = temp_objs->get_train_norms_block(tb_id);
             ONEDAL_ASSERT(train.get_dimension(0) == train_block_size);
             auto ip = temp_objs->get_distances()
-                        .get_col_slice(0, train_block_size)
-                        .get_row_slice(0, query_block_size);
+                          .get_col_slice(0, train_block_size)
+                          .get_row_slice(0, query_block_size);
             {
                 ONEDAL_PROFILER_TASK(tblock.distance, this->get_queue());
                 tevent = temp_objs->get_train_norms_event(tb_id);
-                ip_event =
-                    gemm(this->get_queue(), query, train.t(), ip, Float(-2), Float(0), { last_event });
+                ip_event = gemm(this->get_queue(),
+                                query,
+                                train.t(),
+                                ip,
+                                Float(-2),
+                                Float(0),
+                                { last_event });
             }
             const auto rel_idx = tb_id - start_tb;
             auto part_inds =
@@ -589,13 +594,13 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                 ONEDAL_PROFILER_TASK(tblock.selection, this->get_queue());
                 // TODO: does complexity of this differ from others?
                 selt_event = selt_objs->select_sq_l2(this->get_queue(),
-                                                        qnorms,
-                                                        tnorms,
-                                                        ip,
-                                                        k_neighbors,
-                                                        part_dsts,
-                                                        part_inds,
-                                                        { ip_event, qevent, tevent });
+                                                     qnorms,
+                                                     tnorms,
+                                                     ip,
+                                                     k_neighbors,
+                                                     part_dsts,
+                                                     part_inds,
+                                                     { ip_event, qevent, tevent });
             }
             {
                 ONEDAL_PROFILER_TASK(tblock.treat, this->get_queue());
@@ -609,17 +614,17 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
             const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
             auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
             selt_event = (*selt_objs)(this->get_queue(),
-                                        dists,
-                                        k_neighbors,
-                                        temp_objs->get_out_distances(),
-                                        temp_objs->get_out_indices(),
-                                        { last_event });
+                                      dists,
+                                      k_neighbors,
+                                      temp_objs->get_out_distances(),
+                                      temp_objs->get_out_indices(),
+                                      { last_event });
         }
         {
             ONEDAL_PROFILER_TASK(sblock.select_indexed, this->get_queue());
             inds_event = this->select_indexed(temp_objs->get_part_indices(),
-                                                temp_objs->get_out_indices(),
-                                                { selt_event });
+                                              temp_objs->get_out_indices(),
+                                              { selt_event });
         }
         {
             ONEDAL_PROFILER_TASK(sblock.copy, this->get_queue());
