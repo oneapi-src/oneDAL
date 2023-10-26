@@ -4,7 +4,9 @@ load("@onedal//dev/bazel:dal.bzl", "dal_test_suite")
 
 daal_module(
     name = "kernel",
-    auto = True,
+    auto = False,
+    hdrs = glob(["**/*.h", "**/*.i", "**/*.cl"]),
+    srcs = glob(["*.cpp"]),
     deps = [
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal:sycl",
@@ -15,7 +17,6 @@ daal_module(
 
 dal_test_suite(
     name = "tests",
-    framework = "catch2",
     compile_as = [ "c++" ],
     private = True,
     srcs = glob([
