@@ -47,7 +47,7 @@ public:
     table nobs;
     table crossproduct;
     table sums;
-    vector<table> auxiliary_tables;
+    std::vector<table> auxiliary_tables;
 };
 
 using detail::v1::train_input_impl;
