@@ -111,7 +111,7 @@ private:
     table get_result_table(sycl::queue q,
                            const pr::ndarray<Float, 2> computed_result,
                            std::int32_t index) {
-        auto column_count = computed_result.get_dimension(1);;
+        auto column_count = computed_result.get_dimension(1);
         const auto arr = dal::array<Float>::empty(column_count);
         dal::backend::copy_usm2host(q,
                                     arr.get_mutable_data(),
