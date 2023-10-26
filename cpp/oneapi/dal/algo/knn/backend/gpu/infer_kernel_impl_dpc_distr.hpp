@@ -197,39 +197,14 @@ public:
         return *this;
     }
 
-    sycl::event finalize(std::int64_t qb_id,
-                         pr::ndview<idx_t, 2>& inp_indices,
-                         pr::ndview<Float, 2>& inp_distances,
-                         const bk::event_vector& deps = {}) {
-        sycl::event copy_indices, copy_distances, comp_responses;
-
-        const auto bounds = this->block_bounds(qb_id);
-
-        if (result_options_.test(result_options::indices)) {
-            copy_indices = this->output_indices(bounds, inp_indices, deps);
-        }
-
-        if (result_options_.test(result_options::distances)) {
-            copy_distances = this->output_distances(bounds, inp_distances, deps);
-        }
-
-        if (result_options_.test(result_options::responses)) {
-            using namespace bk;
-            const auto ndeps = deps + copy_indices + copy_distances;
-            comp_responses = this->output_responses(bounds, inp_indices, inp_distances, ndeps);
-        }
-
-        sycl::event::wait_and_throw({ copy_indices, copy_distances, comp_responses });
-        return sycl::event();
-    }
-
     sycl::event operator()(std::int64_t qb_id,
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
         sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event,
             copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event;
-        const auto& [first, last] = this->block_bounds(qb_id);
+        const auto& bounds = this->block_bounds(qb_id);
+        const auto& [first, last] = bounds;
         const auto len = last - first;
         ONEDAL_ASSERT(last > first);
         ONEDAL_ASSERT(inp_indices.get_dimension(0) == len);
@@ -237,14 +212,15 @@ public:
         ONEDAL_ASSERT(inp_distances.get_dimension(0) == len);
         ONEDAL_ASSERT(inp_distances.get_dimension(1) == k_neighbors_);
 
-        auto inp_responses = this->temp_resp_.get_row_slice(0, len);
+        auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
+                                            .get_row_slice(first, last);
 
-        sycl::event select_inp_resp_event, treat_event, final_event, selt_event;
+        sycl::event treat_event, final_event, selt_event;
         {
             ONEDAL_PROFILER_TASK(qblock.select_indexed1, queue_);
             // TODO: investigate why this is strangely expensive
-            select_inp_resp_event =
-                pr::select_indexed(queue_, inp_indices, train_responses_, inp_responses, deps);
+            copy_current_resp_event =
+                pr::select_indexed(queue_, inp_indices, train_responses_, current_min_resp_dest, deps);
         }
 
         const pr::ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
@@ -259,12 +235,11 @@ public:
         {
             ONEDAL_PROFILER_TASK(qblock.treat, queue_);
             treat_event =
-                pr::treat_indices(queue_, inp_indices, global_index_offset_, { select_inp_resp_event });
+                pr::treat_indices(queue_, inp_indices, global_index_offset_, { copy_current_resp_event });
         }
 
         {
             ONEDAL_PROFILER_TASK(qblock.copy, queue_);
-            // TODO: any way this can be optimized?
             auto actual_min_dist_copy_dest =
                 part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
             auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
@@ -283,15 +258,10 @@ public:
             copy_current_indc_event =
                 pr::copy(queue_, current_min_indc_dest, inp_indices, { treat_event });
 
-            // TODO: why is this being done for responses - can I just run select_indexed one time on it?
             auto actual_min_resp_copy_dest =
                 part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-            auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
-                                            .get_row_slice(first, last);
             copy_actual_resp_event =
                 pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
-            copy_current_resp_event =
-                pr::copy(queue_, current_min_resp_dest, inp_responses, { treat_event });
         }
 
         {
@@ -316,7 +286,6 @@ public:
                                             part_responses_.get_row_slice(first, last),
                                             min_resp_dest,
                                             { selt_event });
-            // TODO: is this really dependent on resps_event or just selt_event?
             final_event = select_indexed(queue_,
                                             min_indc_dest,
                                             part_indices_.get_row_slice(first, last),
@@ -326,7 +295,10 @@ public:
         {
             ONEDAL_PROFILER_TASK(qblock.last, queue_);
             if (last_iteration_) {
-                final_event = finalize(qb_id, indices_, distances_, { final_event });
+                if (this->compute_sqrt_) {
+                    final_event = copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, {final_event});
+                }
+                final_event = this->output_responses(bounds, indices_, distances_, {final_event});
             }
         }
         return final_event;
@@ -342,46 +314,6 @@ protected:
         const auto first = blocking.get_block_start_index(qb_id);
         const auto last = blocking.get_block_end_index(qb_id);
         return std::make_pair(first, last);
-    }
-
-    // TODO: are output_distances and output_indices redundant - logic already happens in operator?
-    sycl::event output_distances(const std::pair<idx_t, idx_t>& bnds,
-                                 const pr::ndview<dst_t, 2>& inp_dts,
-                                 const bk::event_vector& deps = {}) {
-        ONEDAL_ASSERT(inp_dts.has_data());
-        ONEDAL_ASSERT(this->result_options_.test(result_options::distances));
-
-        const auto& [first, last] = bnds;
-        ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
-
-        auto out_dts = this->distances_.get_row_slice(first, last);
-        ONEDAL_ASSERT((last - first) == inp_dts.get_dimension(0));
-        ONEDAL_ASSERT((last - first) == out_dts.get_dimension(0));
-
-        const bool& csqrt = this->compute_sqrt_;
-        if (!csqrt)
-            return pr::copy(queue, out_dts, inp_dts, deps);
-        else
-            return copy_with_sqrt(queue, inp_dts, out_dts, deps);
-    }
-
-    sycl::event output_indices(const std::pair<idx_t, idx_t>& bnds,
-                               const pr::ndview<idx_t, 2>& inp_ids,
-                               const bk::event_vector& deps = {}) {
-        ONEDAL_ASSERT(inp_ids.has_data());
-        ONEDAL_ASSERT(this->result_options_.test(result_options::indices));
-
-        const auto& [first, last] = bnds;
-        ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
-
-        auto out_ids = this->indices_.get_row_slice(first, last);
-        ONEDAL_ASSERT((last - first) == inp_ids.get_dimension(0));
-        ONEDAL_ASSERT((last - first) == out_ids.get_dimension(0));
-        ONEDAL_ASSERT(inp_ids.get_shape() == out_ids.get_shape());
-
-        return pr::copy(queue, out_ids, inp_ids, deps);
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
@@ -541,7 +473,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     using res_t = response_t<Task, Float>;
     constexpr auto torder = pr::ndorder::c;
 
-    // Input arrays test section2
+    // Input arrays test section
     ONEDAL_ASSERT(train.has_data());
     ONEDAL_ASSERT(query.has_data());
     // TODO: any reason not to remove [[maybe_unused]]
@@ -622,7 +554,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     callback.set_indices(indices);
     callback.set_part_indices(part_indices);
 
-    // TODO: is this necessary?
     auto next_event = callback.reset_dists_inds(deps);
 
     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -657,8 +588,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         throw internal_error{ de::error_messages::unknown_distance_type() };
     }
 
-    // TODO: add conditionals from for loop here
-    // TODO: assert at least one of the distances is set?
     using daal_distance_t = decltype(distance_impl->get_daal_distance_type());
     const bool is_minkowski_distance =
         distance_impl->get_daal_distance_type() == daal_distance_t::minkowski;
@@ -668,6 +597,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
     const bool is_euclidean_distance =
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
+    ONEDAL_ASSERT(is_minkowski_distance ^ is_chebyshev_distance ^ is_cosine_distance);
 
     const auto it = std::find(nodes.begin(), nodes.end(), current_rank);
     auto relative_block_offset = std::distance(nodes.begin(), it);
@@ -699,7 +629,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         if (relative_block_idx == block_count - 1) {
             callback.set_last_iteration(true);
         }
-        // TODO: add part of this to above TODO outside loop and only keep search stuff
+        // TODO: CAN THIS BE REMOVED FROM LOOP
         if (is_cosine_distance) {
             using dst_t = pr::cosine_distance<Float>;
             using search_t = pr::search_engine<Float, dst_t, torder>;
