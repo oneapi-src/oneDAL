@@ -30,7 +30,7 @@
 #include "data_management/data/data_collection.h"
 #include "services/error_handling.h"
 #include "services/daal_shared_ptr.h"
-#include <stdint.h>
+
 #include <cstdint>
 
 namespace daal
