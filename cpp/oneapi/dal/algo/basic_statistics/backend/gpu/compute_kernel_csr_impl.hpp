@@ -47,7 +47,7 @@ public:
 
 private:
     // Number of different basic statistics
-    static const std::int32_t res_opt_count_ = 10;
+    static constexpr std::int32_t res_opt_count_ = 10;
     // An array of basic statistics
     const result_option_id res_options_[res_opt_count_] = { result_options::min,
                                                             result_options::max,

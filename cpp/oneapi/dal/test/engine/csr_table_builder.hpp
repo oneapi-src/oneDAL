@@ -112,21 +112,20 @@ struct csr_table_builder {
             dal::array<std::int64_t>::empty(queue, nnz_count, sycl::usm::alloc::device);
         const auto copied_row_offsets =
             dal::array<std::int64_t>::empty(queue, row_count_ + 1, sycl::usm::alloc::device);
-        dal::backend::copy_host2usm(queue,
-                                    copied_data.get_mutable_data(),
-                                    data_.get_data(),
-                                    nnz_count)
-            .wait_and_throw();
-        dal::backend::copy_host2usm(queue,
-                                    copied_col_indices.get_mutable_data(),
-                                    column_indices_.get_data(),
-                                    nnz_count)
-            .wait_and_throw();
-        dal::backend::copy_host2usm(queue,
-                                    copied_row_offsets.get_mutable_data(),
-                                    row_offsets_.get_data(),
-                                    row_count_ + 1)
-            .wait_and_throw();
+        auto data_event = dal::backend::copy_host2usm(queue,
+                                                      copied_data.get_mutable_data(),
+                                                      data_.get_data(),
+                                                      nnz_count);
+
+        auto col_indices_event = dal::backend::copy_host2usm(queue,
+                                                             copied_col_indices.get_mutable_data(),
+                                                             column_indices_.get_data(),
+                                                             nnz_count);
+        auto row_offsets_event = dal::backend::copy_host2usm(queue,
+                                                             copied_row_offsets.get_mutable_data(),
+                                                             row_offsets_.get_data(),
+                                                             row_count_ + 1);
+        sycl::event::wait_and_throw({ data_event, col_indices_event, row_offsets_event });
         return csr_table::wrap(queue,
                                copied_data.get_data(),
                                copied_col_indices.get_data(),

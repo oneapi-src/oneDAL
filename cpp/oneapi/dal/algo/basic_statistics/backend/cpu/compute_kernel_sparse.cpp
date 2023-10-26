@@ -66,8 +66,8 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                                                   &daal_result,
                                                                   &daal_parameter));
 
-    auto result =
-        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
+    auto result = get_result<Float, task_t>(desc, daal_result);
+    result.set_result_options(desc.get_result_options());
     return result;
 }
 
