@@ -120,7 +120,7 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense>;
+constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense, method::sparse>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
@@ -172,7 +172,7 @@ template <typename Float = detail::descriptor_base<>::float_t,
           typename Task = detail::descriptor_base<>::task_t>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
-    // static_assert(detail::is_valid_method_v<Method>);
+    static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
 
     using base_t = detail::descriptor_base<Task>;
