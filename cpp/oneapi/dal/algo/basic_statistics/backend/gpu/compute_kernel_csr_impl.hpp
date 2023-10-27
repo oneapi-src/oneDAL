@@ -111,12 +111,12 @@ private:
     table get_result_table(sycl::queue q,
                            const pr::ndarray<Float, 2> computed_result,
                            std::int32_t index) {
+        ONEDAL_ASSERT(computed_result.has_data());
         auto column_count = computed_result.get_dimension(1);
         const auto arr = dal::array<Float>::empty(column_count);
-        dal::backend::copy_usm2host(q,
-                                    arr.get_mutable_data(),
-                                    computed_result.get_data() + index * column_count,
-                                    column_count)
+        const auto res_arr_ptr = arr.get_mutable_data();
+        const auto computed_res_ptr = computed_result.get_data() + index * column_count;
+        dal::backend::copy_usm2host(q, res_arr_ptr, computed_res_ptr, column_count)
             .wait_and_throw();
         return homogen_table::wrap(arr, 1, column_count);
     }
