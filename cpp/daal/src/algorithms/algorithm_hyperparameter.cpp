@@ -40,25 +40,25 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
 
     HyperparameterImpl(size_t intParamCount, size_t doubleParamCount) : _iHT(intParamCount), _dHT(doubleParamCount) {}
 
-    services::Status set(std::uint32_t id, std::int64_t value)
+    services::Status set(unsigned int id, int64_t value)
     {
         _iHT.insert(id, value);
         return services::Status();
     }
 
-    services::Status set(std::uint32_t id, double value)
+    services::Status set(unsigned int id, double value)
     {
         _dHT.insert(id, value);
         return services::Status();
     }
 
-    services::Status find(std::uint32_t id, std::int64_t & value) const
+    services::Status find(unsigned int id, int64_t & value) const
     {
         DAAL_CHECK_EX(_iHT.find(id, value), services::ErrorHyperparameterNotFound, services::Key, id);
         return services::Status();
     }
 
-    services::Status find(std::uint32_t id, double & value) const
+    services::Status find(unsigned int id, double & value) const
     {
         DAAL_CHECK_EX(_dHT.find(id, value), services::ErrorHyperparameterNotFound, services::Key, id);
         return services::Status();
@@ -66,10 +66,10 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
 
 protected:
     /** Stores integer hyperparameters of the algorithm */
-    HashTable<sse2, std::uint32_t, std::int64_t> _iHT;
+    HashTable<sse2, uint32_t, int64_t> _iHT;
 
     /** Stores floating point hyperparameters of the algorithm */
-    HashTable<sse2, std::uint32_t, double> _dHT;
+    HashTable<sse2, uint32_t, double> _dHT;
 };
 
 } // namespace internal
@@ -80,22 +80,22 @@ Hyperparameter::Hyperparameter(size_t intParamCount, size_t doubleParamCount)
     : _pimpl(new internal::HyperparameterImpl(intParamCount, doubleParamCount))
 {}
 
-services::Status Hyperparameter::set(std::uint32_t id, std::int64_t value)
+services::Status Hyperparameter::set(unsigned int id, int64_t value)
 {
     return _pimpl->set(id, value);
 }
 
-services::Status Hyperparameter::set(std::uint32_t id, double value)
+services::Status Hyperparameter::set(unsigned int id, double value)
 {
     return _pimpl->set(id, value);
 }
 
-services::Status Hyperparameter::find(std::uint32_t id, std::int64_t & value) const
+services::Status Hyperparameter::find(unsigned int id, int64_t & value) const
 {
     return _pimpl->find(id, value);
 }
 
-services::Status Hyperparameter::find(std::uint32_t id, double & value) const
+services::Status Hyperparameter::find(unsigned int id, double & value) const
 {
     return _pimpl->find(id, value);
 }
