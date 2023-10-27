@@ -48,7 +48,11 @@ struct finalize_train_ops {
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
-                              const result_t& result) const {}
+                              const result_t& result) const {
+        ONEDAL_ASSERT(input.get_partial_n_rows().has_data());
+        ONEDAL_ASSERT(input.get_partial_n_rows().get_column_count() == 1);
+        ONEDAL_ASSERT(input.get_partial_n_rows().get_row_count() == 1);
+    }
 
     template <typename Context>
     auto operator()(const Context& ctx,
