@@ -41,7 +41,6 @@
 #include "src/services/service_algo_utils.h"
 #include "services/internal/sycl/types.h"
 
-using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::internal;
 using namespace daal::algorithms::gbt::regression::internal;
 
@@ -1108,10 +1107,9 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         connector.getMaxLevel(0, maxLevel);
         DAAL_ASSERT(maxLevel + 1 <= 63);
         DAAL_ASSERT(((size_t)1 << (maxLevel + 1)) > 0 && ((size_t)1 << (maxLevel + 1)) < static_cast<size_t>(UINT_MAX));
-        const uint32_t nNodes        = ((size_t)1 << (maxLevel + 1)) - 1;
-        const uint32_t nNodesPresent = connector.getNNodes(0);
+        const uint32_t nNodes = ((size_t)1 << (maxLevel + 1)) - 1;
 
-        gbt::internal::GbtDecisionTree * pTbl = new gbt::internal::GbtDecisionTree(nNodes, maxLevel, nNodesPresent);
+        gbt::internal::GbtDecisionTree * pTbl = new gbt::internal::GbtDecisionTree(nNodes, maxLevel);
         DAAL_CHECK_MALLOC(pTbl);
 
         HomogenNumericTable<double> * pTblImp = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
