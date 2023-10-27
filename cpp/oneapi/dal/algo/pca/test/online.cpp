@@ -31,6 +31,8 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
                      "pca common flow",
                      "[pca][integration][online]",
                      pca_types_cov) {
+    SKIP_IF(this->not_float64_friendly());
+
     const int64_t nBlocks = GENERATE(1, 3, 10);
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
@@ -55,7 +57,9 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
                      "pca fill_normal flow svd",
                      "[pca][integration][online]",
                      pca_types_svd) {
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());
+
     const int64_t nBlocks = GENERATE(1, 3, 10);
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(0, 1, 7777),
@@ -79,6 +83,8 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
                      "pca fill_normal flow",
                      "[pca][integration][online]",
                      pca_types_cov) {
+    SKIP_IF(this->not_float64_friendly());
+
     const int64_t nBlocks = GENERATE(1, 3, 10);
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(0, 1, 7777),
@@ -103,6 +109,8 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
                      "pca common flow higgs",
                      "[external-dataset][pca][integration][online]",
                      pca_types_cov) {
+    SKIP_IF(this->not_float64_friendly());
+
     const int64_t nBlocks = GENERATE(1, 3, 10);
     const std::int64_t component_count = 1;
     const te::dataframe data =
