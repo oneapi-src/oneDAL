@@ -204,7 +204,7 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
     size_t nRowsInBlock = 128;
     if (hyperparameter != nullptr)
     {
-        std::int64_t nRowsInBlockInt64 = 0l;
+        DAAL_INT64 nRowsInBlockInt64 = 0l;
         services::Status status        = hyperparameter->find(denseUpdateStepBlockSize, nRowsInBlockInt64);
         DAAL_CHECK(0l < nRowsInBlockInt64, services::ErrorIncorrectDataRange);
         DAAL_CHECK_STATUS_VAR(status);

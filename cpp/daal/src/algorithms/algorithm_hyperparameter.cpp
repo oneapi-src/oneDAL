@@ -40,7 +40,7 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
 
     HyperparameterImpl(size_t intParamCount, size_t doubleParamCount) : _iHT(intParamCount), _dHT(doubleParamCount) {}
 
-    services::Status set(unsigned int id, int64_t value)
+    services::Status set(unsigned int id, DAAL_INT64 value)
     {
         _iHT.insert(id, value);
         return services::Status();
@@ -52,7 +52,7 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
         return services::Status();
     }
 
-    services::Status find(unsigned int id, int64_t & value) const
+    services::Status find(unsigned int id, DAAL_INT64 & value) const
     {
         DAAL_CHECK_EX(_iHT.find(id, value), services::ErrorHyperparameterNotFound, services::Key, id);
         return services::Status();
@@ -80,7 +80,7 @@ Hyperparameter::Hyperparameter(size_t intParamCount, size_t doubleParamCount)
     : _pimpl(new internal::HyperparameterImpl(intParamCount, doubleParamCount))
 {}
 
-services::Status Hyperparameter::set(unsigned int id, int64_t value)
+services::Status Hyperparameter::set(unsigned int id, DAAL_INT64 value)
 {
     return _pimpl->set(id, value);
 }
@@ -90,7 +90,7 @@ services::Status Hyperparameter::set(unsigned int id, double value)
     return _pimpl->set(id, value);
 }
 
-services::Status Hyperparameter::find(unsigned int id, int64_t & value) const
+services::Status Hyperparameter::find(unsigned int id, DAAL_INT64 & value) const
 {
     return _pimpl->find(id, value);
 }

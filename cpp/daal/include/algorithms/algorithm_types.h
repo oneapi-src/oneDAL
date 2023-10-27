@@ -81,7 +81,7 @@ struct DAAL_EXPORT HyperparameterIface
      * \param[in] value The value of the hyperparameter
      * \return Execution status
      */
-    virtual services::Status set(unsigned int id, int64_t value) = 0;
+    virtual services::Status set(unsigned int id, DAAL_INT64 value) = 0;
 
     /**
      * Sets double precision hyperparameter into this structure
@@ -99,7 +99,7 @@ struct DAAL_EXPORT HyperparameterIface
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    virtual services::Status find(unsigned int id, int64_t & value) const = 0;
+    virtual services::Status find(unsigned int id, DAAL_INT64 & value) const = 0;
 
     /**
      * Finds double precision hyperparameter in this structure
@@ -146,7 +146,7 @@ protected:
      * \param[in] value The value of the hyperparameter
      * \return Execution status
      */
-    services::Status set(unsigned int id, int64_t value) final;
+    services::Status set(unsigned int id, DAAL_INT64 value) final;
 
     /**
      * Sets double precision hyperparameter into this structure
@@ -164,7 +164,7 @@ protected:
      *         ErrorHyperparameterNotFound is returned if the 'id' of the hyperparameter cannot be foun
      *         in the structure.
      */
-    services::Status find(unsigned int id, int64_t & value) const final;
+    services::Status find(unsigned int id, DAAL_INT64 & value) const final;
 
     /**
      * Finds double precision hyperparameter in this structure
