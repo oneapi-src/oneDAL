@@ -107,14 +107,23 @@ public:
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] classLabel      Class label to be predicted
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel)
+    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const double cover)
     {
         NodeId resId;
-        _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, resId);
+        _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+    *  \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel)
+    {
+        return addLeafNode(treeId, parentId, position, classLabel, 0);
     }
 
     /**
@@ -123,14 +132,23 @@ public:
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] proba           Array with probability values for each class
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba)
+    NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba, const double cover)
     {
         NodeId resId;
-        _status |= addLeafNodeByProbaInternal(treeId, parentId, position, proba, resId);
+        _status |= addLeafNodeByProbaInternal(treeId, parentId, position, proba, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+    *  \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba)
+    {
+        return addLeafNodeByProba(treeId, parentId, position, proba, 0);
     }
 
     /**
@@ -140,14 +158,26 @@ public:
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] featureIndex    Feature index for splitting
     *  \param[in] featureValue    Feature value for splitting
+    *  \param[in] defaultLeft     Behaviour in case of missing values
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex, const double featureValue)
+    NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex, const double featureValue,
+                        const int defaultLeft, const double cover)
     {
         NodeId resId;
-        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, resId);
+        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
+                                        const double featureValue)
+    {
+        return addSplitNode(treeId, parentId, position, featureIndex, featureValue, 0, 0);
     }
 
     void setNFeatures(size_t nFeatures)
@@ -184,11 +214,12 @@ protected:
     services::Status _status;
     services::Status initialize(const size_t nClasses, const size_t nTrees);
     services::Status createTreeInternal(const size_t nNodes, TreeId & resId);
-    services::Status addLeafNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, NodeId & res);
+    services::Status addLeafNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel,
+                                         const double cover, NodeId & res);
     services::Status addLeafNodeByProbaInternal(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba,
-                                                NodeId & res);
+                                                const double cover, NodeId & res);
     services::Status addSplitNodeInternal(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex,
-                                          const double featureValue, NodeId & res);
+                                          const double featureValue, const int defaultLeft, const double cover, NodeId & res);
 
 private:
     size_t _nClasses;

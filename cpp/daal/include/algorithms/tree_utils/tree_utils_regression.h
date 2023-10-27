@@ -50,7 +50,8 @@ namespace interface1
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {
-    double response; /*!< Value to be predicted when reaching the leaf */
+    double response;   /*!< Value to be predicted when reaching the leaf */
+    double coverValue; /*!< Cover (sum_hess) for the leaf */
 };
 
 typedef daal::algorithms::tree_utils::TreeNodeVisitor<LeafNodeDescriptor> TreeNodeVisitor;
