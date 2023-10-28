@@ -31,8 +31,6 @@
 #include "services/error_handling.h"
 #include "services/daal_shared_ptr.h"
 
-#include <cstdint>
-
 namespace daal
 {
 /**
