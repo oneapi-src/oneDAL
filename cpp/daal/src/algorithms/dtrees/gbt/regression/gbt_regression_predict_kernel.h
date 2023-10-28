@@ -55,9 +55,11 @@ public:
      *  \param m[in]    gradient boosted trees model obtained on training stage
      *  \param r[out]   Prediction results
      *  \param nIterations[in]  Number of iterations to predict in gradient boosted trees algorithm parameter
+     *  \param predShapContributions[in] Predict SHAP contributions
+     *  \param predShapInteractions[in] Predict SHAP interactions
      */
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const regression::Model * m, NumericTable * r,
-                             size_t nIterations);
+                             size_t nIterations, bool predShapContributions, bool predShapInteractions);
 };
 
 } // namespace internal

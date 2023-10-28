@@ -123,6 +123,20 @@ public:
      */
     virtual size_t getNumberOfTrees() const = 0;
 
+    /**
+     * \brief Set the Prediction Bias term
+     *
+     * \param value global prediction bias
+     */
+    virtual void setPredictionBias(double value) = 0;
+
+    /**
+     * \brief Get the Prediction Bias term
+     *
+     * \return double prediction bias
+     */
+    virtual double getPredictionBias() const = 0;
+
 protected:
     Model();
 };

@@ -45,8 +45,22 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     DAAL_CHECK_EX(dataPtr.get(), ErrorNullInputNumericTable, ArgumentName, dataStr());
     services::Status s;
     const size_t nVectors = dataPtr->getNumberOfRows();
-    Argument::set(prediction,
-                  data_management::HomogenNumericTable<algorithmFPType>::create(1, nVectors, data_management::NumericTableIface::doAllocate, &s));
+
+    size_t nColumnsToAllocate             = 1;
+    const Parameter * regressionParameter = static_cast<const Parameter *>(par);
+    if (regressionParameter->resultsToCompute & shapContributions)
+    {
+        const size_t nColumns = dataPtr->getNumberOfColumns();
+        nColumnsToAllocate    = nColumns + 1;
+    }
+    else if (regressionParameter->resultsToCompute & shapInteractions)
+    {
+        const size_t nColumns = dataPtr->getNumberOfColumns();
+        nColumnsToAllocate    = (nColumns + 1) * (nColumns + 1);
+    }
+
+    Argument::set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(nColumnsToAllocate, nVectors,
+                                                                                            data_management::NumericTableIface::doAllocate, &s));
     return s;
 }
 
