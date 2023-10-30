@@ -127,6 +127,12 @@ private:
             ++index;
         return index;
     }
+
+    void finalize_for_distr(sycl::queue& q,
+                            comm_t& communicator,
+                            pr::ndarray<Float, 2>& results,
+                            const input_t& input,
+                            const std::vector<sycl::event>& deps);
 };
 
 } // namespace oneapi::dal::basic_statistics::backend
