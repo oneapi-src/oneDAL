@@ -88,8 +88,8 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             local_stat[stat::min] = maximum;
             local_stat[stat::max] = -maximum;
             local_stat[stat::sum] = Float(0);
-            local_stat[stat::sum_sq] = Float(0);
-            local_stat[stat::sum_sq_cent] = Float(0);
+            local_stat[stat::sum2] = Float(0);
+            local_stat[stat::sum2_cent] = Float(0);
 
             for (std::int32_t data_idx = local_id; data_idx < nonzero_count;
                  data_idx += local_size) {
@@ -98,7 +98,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                     local_stat[stat::min] = sycl::min<Float>(local_stat[stat::min], val);
                     local_stat[stat::max] = sycl::max<Float>(local_stat[stat::max], val);
                     local_stat[stat::sum] += val;
-                    local_stat[stat::sum_sq] += val * val;
+                    local_stat[stat::sum2] += val * val;
                     cur_row_counter[0] += 1;
                 }
             }
@@ -112,7 +112,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                     local_stat[stat::max] =
                         sycl::max<Float>(local_stat[stat::max], opposite_stat[stat::max]);
                     local_stat[stat::sum] += opposite_stat[stat::sum];
-                    local_stat[stat::sum_sq] += opposite_stat[stat::sum_sq];
+                    local_stat[stat::sum2] += opposite_stat[stat::sum2];
                     cur_row_counter[0] += row_counter_buf[local_id + i];
                 }
             }
@@ -130,12 +130,12 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                 result_data_ptr[stat::min * column_count + col_idx] = local_stat[stat::min];
                 result_data_ptr[stat::max * column_count + col_idx] = local_stat[stat::max];
                 result_data_ptr[stat::sum * column_count + col_idx] = local_stat[stat::sum];
-                result_data_ptr[stat::sum_sq * column_count + col_idx] = local_stat[stat::sum_sq];
+                result_data_ptr[stat::sum2 * column_count + col_idx] = local_stat[stat::sum2];
 
                 result_data_ptr[stat::mean * column_count + col_idx] =
                     local_stat[stat::sum] / row_count;
                 result_data_ptr[stat::moment2 * column_count + col_idx] =
-                    local_stat[stat::sum_sq] / row_count;
+                    local_stat[stat::sum2] / row_count;
             }
             item.barrier(sycl::access::fence_space::local_space);
             auto mean_val = result_data_ptr[stat::mean * column_count + col_idx];
@@ -143,7 +143,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                  data_idx += local_size) {
                 if (column_indices_ptr[data_idx] == col_idx) {
                     auto val = csr_data_ptr[data_idx];
-                    local_stat[stat::sum_sq_cent] += (val - mean_val) * (val - mean_val);
+                    local_stat[stat::sum2_cent] += (val - mean_val) * (val - mean_val);
                 }
             }
             // Reduce local sum squares centered using tree reduction
@@ -151,17 +151,17 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                 item.barrier(sycl::access::fence_space::local_space);
                 if (local_id < i) {
                     auto opposite_stat = work_group_buf + (local_id + i) * res_opt_count_;
-                    local_stat[stat::sum_sq_cent] += opposite_stat[stat::sum_sq_cent];
+                    local_stat[stat::sum2_cent] += opposite_stat[stat::sum2_cent];
                 }
             }
             item.barrier(sycl::access::fence_space::local_space);
             if (local_id == 0) {
-                local_stat[stat::sum_sq_cent] +=
+                local_stat[stat::sum2_cent] +=
                     (row_count - row_counter_buf[0]) * mean_val * mean_val;
-                result_data_ptr[stat::sum_sq_cent * column_count + col_idx] =
-                    local_stat[stat::sum_sq_cent];
+                result_data_ptr[stat::sum2_cent * column_count + col_idx] =
+                    local_stat[stat::sum2_cent];
                 result_data_ptr[stat::variance * column_count + col_idx] =
-                    local_stat[stat::sum_sq_cent] / (row_count - 1);
+                    local_stat[stat::sum2_cent] / (row_count - 1);
                 result_data_ptr[stat::stddev * column_count + col_idx] =
                     sycl::sqrt(result_data_ptr[stat::variance * column_count + col_idx]);
                 result_data_ptr[stat::variation * column_count + col_idx] =
