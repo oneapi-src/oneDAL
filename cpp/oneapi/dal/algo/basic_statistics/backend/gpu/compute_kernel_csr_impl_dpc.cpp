@@ -38,11 +38,100 @@ using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
+void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
+                                                        comm_t& communicator,
+                                                        pr::ndarray<Float, 2>& results,
+                                                        const input_t& input,
+                                                        const std::vector<sycl::event>& deps) {
+    auto result_ptr = results.get_mutable_data();
+    const csr_table csr_tdata = input.get_data();
+    auto [csr_data, column_indices, row_offsets] =
+        csr_accessor<const Float>(csr_tdata).pull(q, { 0, -1 }, sparse_indexing::zero_based);
+    const auto column_count = csr_tdata.get_column_count();
+    const auto row_count = csr_tdata.get_row_count();
+    const auto nonzero_count = csr_tdata.get_non_zero_count();
+
+    auto host_results = results.flatten(q, deps);
+    communicator
+        .allreduce(host_results.get_slice(stat::min * column_count, column_count),
+                   spmd::reduce_op::min)
+        .wait();
+    communicator
+        .allreduce(host_results.get_slice(stat::max * column_count, column_count),
+                   spmd::reduce_op::max)
+        .wait();
+    communicator
+        .allreduce(host_results.get_slice(stat::sum * column_count, column_count),
+                   spmd::reduce_op::sum)
+        .wait();
+    communicator
+        .allreduce(host_results.get_slice(stat::sum2 * column_count, column_count),
+                   spmd::reduce_op::sum)
+        .wait();
+    communicator
+        .allreduce(host_results.get_slice(stat::moment2 * column_count, column_count),
+                   spmd::reduce_op::sum)
+        .wait();
+
+    results.assign_from_host(q, host_results.get_data(), res_opt_count_ * column_count)
+        .wait_and_throw();
+
+    auto csr_data_ptr = csr_data.get_data();
+    auto column_indices_ptr = column_indices.get_data();
+    auto distr_range = sycl::range<1>(column_count);
+    auto calc_s2c_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(distr_range, [=](std::int64_t col_idx) {
+            auto mean_val = result_ptr[stat::sum * column_count + col_idx] / row_count;
+            result_ptr[stat::mean * column_count + col_idx] = mean_val;
+            Float sum2_cent = Float(0);
+            std::int32_t nnz_row_count = 0;
+            for (std::int32_t data_idx = 0; data_idx < nonzero_count; ++data_idx) {
+                if (col_idx == column_indices_ptr[data_idx]) {
+                    auto val = csr_data_ptr[data_idx];
+                    sum2_cent += (val - mean_val) * (val - mean_val);
+                    nnz_row_count += 1;
+                }
+            }
+            // For zero values sum2_cent is just square of mean value
+            sum2_cent += (row_count - nnz_row_count) * mean_val * mean_val;
+
+            result_ptr[stat::sum2_cent * column_count + col_idx] = sum2_cent;
+        });
+    });
+
+    host_results = results.flatten(q, { calc_s2c_event });
+    communicator
+        .allreduce(host_results.get_slice(stat::sum2_cent * column_count, column_count),
+                   spmd::reduce_op::sum)
+        .wait();
+    auto allreduce_event =
+        results.assign_from_host(q, host_results.get_data(), res_opt_count_ * column_count);
+
+    auto final_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ allreduce_event });
+        cgh.parallel_for(distr_range, [=](std::int64_t col_idx) {
+            auto mean_val = result_ptr[stat::mean * column_count + col_idx];
+            result_ptr[stat::variance * column_count + col_idx] =
+                result_ptr[stat::sum2_cent * column_count + col_idx] / (row_count - 1);
+            result_ptr[stat::stddev * column_count + col_idx] =
+                sycl::sqrt(result_ptr[stat::variance * column_count + col_idx]);
+            result_ptr[stat::variation * column_count + col_idx] =
+                result_ptr[stat::stddev * column_count + col_idx] / mean_val;
+        });
+    });
+
+    final_event.wait_and_throw();
+}
+
+template <typename Float>
 result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                                                     const descriptor_t& desc,
                                                     const input_t& input) {
     auto queue = ctx.get_queue();
     const csr_table csr_tdata = input.get_data();
+    comm_t comm = ctx.get_communicator();
+    const bool distr_mode = comm.get_rank_count() > 1;
     const auto column_count = csr_tdata.get_column_count();
     const auto row_count = csr_tdata.get_row_count();
     auto result_options = desc.get_result_options();
@@ -170,6 +259,9 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
         });
     });
     event.wait_and_throw();
+    if (distr_mode) {
+        finalize_for_distr(queue, comm, result_data, input, { event });
+    }
     return get_result(queue, result_data, result_options);
 }
 
