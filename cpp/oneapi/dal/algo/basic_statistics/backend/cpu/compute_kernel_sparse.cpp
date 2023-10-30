@@ -26,7 +26,6 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include <daal/src/algorithms/low_order_moments/moments_online.h>
 #include <daal/src/algorithms/low_order_moments/low_order_moments_kernel.h>
 
 namespace oneapi::dal::basic_statistics::backend {
@@ -46,7 +45,7 @@ using daal_lom_batch_kernel_t =
     daal_lom::internal::LowOrderMomentsBatchKernel<Float, daal_lom::fastCSR, Cpu>;
 
 template <typename Float>
-result_t call_daal_kernel_without_weights(const context_cpu& ctx,
+result_t call_daal_sparse_kernel(const context_cpu& ctx,
                                           const descriptor_t& desc,
                                           const csr_table& data) {
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -76,7 +75,7 @@ struct compute_kernel_cpu<Float, method_t, task_t> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return call_daal_kernel_without_weights<Float>(ctx, desc, input.get_data());
+        return call_daal_sparse_kernel<Float>(ctx, desc, input.get_data());
     }
 };
 

@@ -31,7 +31,7 @@ namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-enum stat { min, max, sum, sum_sq, sum_sq_cent, mean, moment2, variance, stddev, variation };
+enum stat { min, max, sum, sum2, sum2_cent, mean, moment2, variance, stddev, variation };
 
 template <typename Float>
 class compute_kernel_csr_impl {
