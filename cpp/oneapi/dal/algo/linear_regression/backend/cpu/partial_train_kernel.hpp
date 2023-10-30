@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/linear_regression/infer.hpp"
-#include "oneapi/dal/algo/linear_regression/train.hpp"
-#include "oneapi/dal/algo/linear_regression/partial_train.hpp"
-#include "oneapi/dal/algo/linear_regression/finalize_train.hpp"
+#include "oneapi/dal/algo/linear_regression/train_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+
+namespace oneapi::dal::linear_regression::backend {
+
+template <typename Float, typename Method, typename Task>
+struct partial_train_kernel_cpu {
+    partial_train_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                          const detail::descriptor_base<Task>& params,
+                                          const partial_train_input<Task>& input) const;
+};
+
+} // namespace oneapi::dal::linear_regression::backend
