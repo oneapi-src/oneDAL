@@ -46,7 +46,7 @@ namespace interface1
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLGEMM"></a>
- *  \brief Adapter for MKL GEMM routine
+ *  \brief Adapter for Intel(R) MKL GEMM routine
  */
 template <typename algorithmFPType>
 struct MKLGemm
@@ -112,7 +112,7 @@ private:
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLSYRK"></a>
- *  \brief Adapter for MKL SYRK routine
+ *  \brief Adapter for Intel(R) MKL SYRK routine
  */
 template <typename algorithmFPType>
 struct MKLSyrk
@@ -171,7 +171,7 @@ private:
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLAXPY"></a>
- *  \brief Adapter for MKL AXPY routine
+ *  \brief Adapter for Intel(R) MKL AXPY routine
  */
 template <typename algorithmFPType>
 struct MKLAxpy

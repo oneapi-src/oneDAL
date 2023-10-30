@@ -40,19 +40,20 @@ namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
 
+using daal_hyperparameters_t = daal_lr::internal::Hyperparameter;
+
 constexpr auto daal_method = daal_lr::training::normEqDense;
 
 template <typename Float, daal::CpuType Cpu>
 using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
 
 template <typename Float, typename Task>
-static auto convert_parameters(const detail::train_parameters<Task>& params) {
-    using daal_lr::internal::Hyperparameter;
+static daal_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
     using daal_lr::internal::HyperparameterId;
 
     const std::int64_t block = params.get_cpu_macro_block();
 
-    Hyperparameter daal_hyperparameter;
+    daal_hyperparameters_t daal_hyperparameter;
     auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
     interop::status_to_exception(status);
 
@@ -96,7 +97,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
 
-    const auto hp = convert_parameters<Float>(params);
+    const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
 
     {
         const auto status = interop::call_daal_kernel<Float, online_kernel_t>(ctx,

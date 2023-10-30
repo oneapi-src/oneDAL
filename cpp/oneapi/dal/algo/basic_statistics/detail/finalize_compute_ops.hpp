@@ -38,15 +38,41 @@ struct finalize_compute_ops {
     using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const input_t& input) const {
+    void check_preconditions(const Descriptor& desc, const input_t& input) const {
+        const auto compute_mode = desc.get_result_options();
         ONEDAL_ASSERT(input.get_partial_n_rows().has_data());
         ONEDAL_ASSERT(input.get_partial_n_rows().get_column_count() == 1);
         ONEDAL_ASSERT(input.get_partial_n_rows().get_row_count() == 1);
-        ONEDAL_ASSERT(input.get_partial_max().has_data());
-        ONEDAL_ASSERT(input.get_partial_min().has_data());
-        ONEDAL_ASSERT(input.get_partial_sum().has_data());
-        ONEDAL_ASSERT(input.get_partial_sum_squares().has_data());
-        ONEDAL_ASSERT(input.get_partial_sum_squares_centered().has_data());
+        if (compute_mode.test(result_options::min)) {
+            ONEDAL_ASSERT(input.get_partial_min().has_data());
+        }
+        if (compute_mode.test(result_options::max)) {
+            ONEDAL_ASSERT(input.get_partial_max().has_data());
+        }
+        if (compute_mode.test(result_options::sum)) {
+            ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        }
+        if (compute_mode.test(result_options::sum_squares)) {
+            ONEDAL_ASSERT(input.get_partial_sum_squares().has_data());
+        }
+        if (compute_mode.test(result_options::sum_squares_centered)) {
+            ONEDAL_ASSERT(input.get_partial_sum_squares_centered().has_data());
+        }
+        if (compute_mode.test(result_options::mean)) {
+            ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        }
+        if (compute_mode.test(result_options::second_order_raw_moment)) {
+            ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        }
+        if (compute_mode.test(result_options::variance)) {
+            ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        }
+        if (compute_mode.test(result_options::standard_deviation)) {
+            ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        }
+        if (compute_mode.test(result_options::variation)) {
+            ONEDAL_ASSERT(input.get_partial_sum().has_data());
+        }
     }
 
     void check_postconditions(const Descriptor& params,

@@ -1,13 +1,4 @@
 pull_request_rules:
-  - name: backport patches to 2021 branch
-    conditions:
-      - base=master
-      - label=backport-2021
-    actions:
-      backport:
-        branches:
-          - rls/2021-gold-mnt
-        ignore_conflicts: true
   - name: delete head branch after merge
     conditions:
       - head~=^renovate/
