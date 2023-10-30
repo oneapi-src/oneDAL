@@ -46,8 +46,8 @@ using daal_lom_batch_kernel_t =
 
 template <typename Float>
 result_t call_daal_sparse_kernel(const context_cpu& ctx,
-                                          const descriptor_t& desc,
-                                          const csr_table& data) {
+                                 const descriptor_t& desc,
+                                 const csr_table& data) {
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
@@ -65,8 +65,8 @@ result_t call_daal_sparse_kernel(const context_cpu& ctx,
                                                                   &daal_result,
                                                                   &daal_parameter));
 
-    auto result = get_result<Float, task_t>(desc, daal_result);
-    result.set_result_options(desc.get_result_options());
+    auto result =
+        get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
     return result;
 }
 
