@@ -1,6 +1,5 @@
-/* file: pca_dense_correlation_online_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,30 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of PCA calculation functions.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/pca/pca_dense_correlation_online_container.h"
-#include "src/algorithms/pca/pca_dense_correlation_online_kernel.h"
-#include "src/algorithms/pca/pca_dense_correlation_online_impl.i"
+#include "oneapi/dal/algo/pca/train_types.hpp"
+#include "oneapi/dal/algo/pca/detail/partial_train_ops.hpp"
+#include "oneapi/dal/partial_train.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace pca
-{
-namespace interface1
-{
-template class OnlineContainer<DAAL_FPTYPE, correlationDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class DAAL_EXPORT PCACorrelationKernel<online, DAAL_FPTYPE, DAAL_CPU>;
-}
-} // namespace pca
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::detail {
+namespace v1 {
+
+template <typename Descriptor>
+struct partial_train_ops<Descriptor, dal::pca::detail::descriptor_tag>
+        : dal::pca::detail::partial_train_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail

@@ -14,42 +14,52 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/src/algorithms/pca/pca_dense_correlation_online_kernel.h>
+#include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 #include "daal/src/algorithms/covariance/covariance_kernel.h"
 
-#include "oneapi/dal/algo/covariance/backend/cpu/partial_compute_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/cpu/partial_train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
 #include "oneapi/dal/table/row_accessor.hpp"
 
-namespace oneapi::dal::covariance::backend {
+namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
-using descriptor_t = detail::descriptor_base<task::compute>;
+using model_t = model<task::dim_reduction>;
+using task_t = task::dim_reduction;
+using input_t = train_input<task::dim_reduction>;
+using result_t = train_result<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task_t>;
 
-namespace daal_covariance = daal::algorithms::covariance;
+namespace daal_pca = daal::algorithms::pca;
+namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_covariance_kernel_t = daal_covariance::internal::
-    CovarianceDenseOnlineKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
+using daal_covariance_kernel_t =
+    daal_cov::internal::CovarianceDenseOnlineKernel<Float, daal_cov::Method::defaultDense, Cpu>;
 
-template <typename Float, typename Task>
-static partial_compute_result<Task> call_daal_kernel_partial_compute(
+template <typename Float>
+static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
-    const partial_compute_input<Task>& input) {
+    const partial_train_input<task::dim_reduction>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
-    daal_covariance::Parameter daal_parameter;
-    daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
+    daal_cov::Parameter daal_parameter;
+    daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
-    dal::detail::check_mul_overflow(component_count, component_count);
-
-    auto data = input.get_data();
+    const auto data = input.get_data();
+    ONEDAL_ASSERT(data.has_data());
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    daal_covariance::internal::Hyperparameter daal_hyperparameter;
+
+    auto result = partial_train_result();
+    const bool has_nobs_data = input_.get_partial_n_rows().has_data();
+    daal_cov::internal::Hyperparameter daal_hyperparameter;
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
@@ -60,11 +70,7 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
         }
     }
     interop::status_to_exception(
-        daal_hyperparameter.set(daal_covariance::internal::denseUpdateStepBlockSize, blockSize));
-    auto result = partial_compute_result();
-
-    const bool has_nobs_data = input_.get_partial_n_rows().has_data();
-
+        daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     if (has_nobs_data) {
         auto daal_crossproduct =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_crossproduct());
@@ -115,24 +121,25 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
     return result;
 }
 
-template <typename Float, typename Task>
-static partial_compute_result<Task> partial_compute(const context_cpu& ctx,
-                                                    const descriptor_t& desc,
-                                                    const partial_compute_input<Task>& input) {
-    return call_daal_kernel_partial_compute<Float, Task>(ctx, desc, input);
+template <typename Float>
+static partial_train_result<task_t> partial_train(
+    const context_cpu& ctx,
+    const descriptor_t& desc,
+    const partial_train_input<task::dim_reduction>& input) {
+    return call_daal_kernel_partial_train<Float>(ctx, desc, input);
 }
 
 template <typename Float>
-struct partial_compute_kernel_cpu<Float, method::by_default, task::compute> {
-    partial_compute_result<task::compute> operator()(
+struct partial_train_kernel_cpu<Float, method::cov, task::dim_reduction> {
+    partial_train_result<task_t> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
-        const partial_compute_input<task::compute>& input) const {
-        return partial_compute<Float, task::compute>(ctx, desc, input);
+        const partial_train_input<task::dim_reduction>& input) const {
+        return partial_train<Float>(ctx, desc, input);
     }
 };
 
-template struct partial_compute_kernel_cpu<float, method::dense, task::compute>;
-template struct partial_compute_kernel_cpu<double, method::dense, task::compute>;
+template struct partial_train_kernel_cpu<float, method::cov, task::dim_reduction>;
+template struct partial_train_kernel_cpu<double, method::cov, task::dim_reduction>;
 
-} // namespace oneapi::dal::covariance::backend
+} // namespace oneapi::dal::pca::backend
