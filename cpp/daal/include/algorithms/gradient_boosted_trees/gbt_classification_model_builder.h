@@ -109,14 +109,23 @@ public:
     *  \param[in] parentId        Parent node to which new node is added (use noParent for root node)
     *  \param[in] position        Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
     *  \param[in] response        Response value for leaf node to be predicted
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response)
+    NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response, double cover)
     {
         NodeId resId;
-        _status |= addLeafNodeInternal(treeId, parentId, position, response, resId);
+        _status |= addLeafNodeInternal(treeId, parentId, position, response, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+    *  \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response)
+    {
+        return addLeafNode(treeId, parentId, position, response, 0);
     }
 
     /**
@@ -127,14 +136,23 @@ public:
     *  \param[in] featureIndex    Feature index for splitting
     *  \param[in] featureValue    Feature value for splitting
     *  \param[in] defaultLeft     Behaviour in case of missing values
+    *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft = 0)
+    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft, double cover)
     {
         NodeId resId;
-        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, resId, defaultLeft);
+        _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
         services::throwIfPossible(_status);
         return resId;
+    }
+
+    /**
+    *  \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue)
+    {
+        return addSplitNode(treeId, parentId, position, featureIndex, featureValue, 0, 0);
     }
 
     /**
@@ -159,9 +177,9 @@ protected:
     services::Status _status;
     services::Status initialize(size_t nFeatures, size_t nIterations, size_t nClasses);
     services::Status createTreeInternal(size_t nNodes, size_t classLabel, TreeId & resId);
-    services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId & res);
-    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId & res,
-                                          int defaultLeft);
+    services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, const double cover, NodeId & res);
+    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft,
+                                          const double cover, NodeId & res);
     services::Status convertModelInternal();
     size_t _nClasses;
     size_t _nIterations;

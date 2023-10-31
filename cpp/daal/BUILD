@@ -1,4 +1,8 @@
 package(default_visibility = ["//visibility:public"])
+load("@onedal//dev/bazel:dal.bzl",
+    "dal_test_suite",
+    "dal_collect_test_suites",
+)
 load("@onedal//dev/bazel:daal.bzl",
     "daal_module",
     "daal_static_lib",
@@ -28,7 +32,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ "@openblas//:openblas",
                                  ],
-        "//conditions:default": [ "@micromkl//:mkl_thr", 
+        "//conditions:default": [ "@micromkl//:mkl_thr",
                                 ],
         }),
 )
@@ -54,7 +58,7 @@ daal_module(
         "DAAL_HIDE_DEPRECATED",
     ],
     deps = select({
-        "@config//:backend_ref": [ 
+        "@config//:backend_ref": [
                                    ":public_includes",
                                    "@openblas//:headers",
                                  ],
@@ -123,11 +127,11 @@ daal_module(
     hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
     srcs = glob(["src/sycl/**/*.cpp"]),
     deps = select({
-            "@config//:backend_ref": [ 
+            "@config//:backend_ref": [
                                     ":services",
                                     "@onedal//cpp/daal/src/algorithms/engines:kernel",
                                         ],
-            "//conditions:default": [ 
+            "//conditions:default": [
                                     ":services",
                                     "@onedal//cpp/daal/src/algorithms/engines:kernel",
                                     "@micromkl_dpc//:headers",
@@ -146,13 +150,13 @@ daal_module(
         "TBB_USE_ASSERT=0",
     ],
     deps = select({
-            "@config//:backend_ref": [ 
+            "@config//:backend_ref": [
                                           ":threading_headers",
                                           ":mathbackend_thread",
                                           "@tbb//:tbb",
                                           "@tbb//:tbbmalloc",
                                         ],
-            "//conditions:default": [ 
+            "//conditions:default": [
                                       ":threading_headers",
                                       ":mathbackend_thread",
                                       "@tbb//:tbb",
@@ -269,7 +273,7 @@ daal_dynamic_lib(
     ],
     def_file = select({
         "@config//:backend_ref": "src/threading/export_lnx32e.ref.def",
-        "//conditions:default": "src/threading/export_lnx32e.mkl.def", 
+        "//conditions:default": "src/threading/export_lnx32e.mkl.def",
         }),
 )
 
@@ -314,5 +318,24 @@ filegroup(
     srcs = [
         ":core_static",
         ":thread_static",
+    ],
+)
+
+dal_test_suite(
+    name = "unit_tests",
+    framework = "catch2",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+)
+
+dal_collect_test_suites(
+    name = "tests",
+    root = "@onedal//cpp/daal/src/algorithms",
+    modules = [
+        "dtrees/gbt/regression"
+    ],
+    tests = [
+        ":unit_tests",
     ],
 )

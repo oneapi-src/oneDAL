@@ -85,9 +85,20 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     ImplType::traverseBFS(iTree, visitor);
 }
 
+void ModelImpl::setPredictionBias(double value)
+{
+    _predictionBias = value;
+}
+
+double ModelImpl::getPredictionBias() const
+{
+    return _predictionBias;
+}
+
 services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
     auto s = algorithms::regression::Model::serialImpl<data_management::InputDataArchive, false>(arch);
+    arch->set(this->_predictionBias);
     s.add(algorithms::regression::internal::ModelInternal::serialImpl<data_management::InputDataArchive, false>(arch));
     return s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
 }
@@ -95,6 +106,7 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * ar
 services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
     auto s = algorithms::regression::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
+    arch->set(this->_predictionBias);
     s.add(algorithms::regression::internal::ModelInternal::serialImpl<const data_management::OutputDataArchive, true>(arch));
     return s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
 }
