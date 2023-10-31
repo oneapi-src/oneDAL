@@ -111,21 +111,6 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::status_to_exception(status);
     }
 
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return online_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
-                                                                      *xty_daal_table,
-                                                                      *xtx_daal_table,
-                                                                      *xty_daal_table,
-                                                                      *betas_daal_table,
-                                                                      intp,
-                                                                      &hp);
-        });
-
-        interop::status_to_exception(status);
-    }
-
     auto betas_table = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
 
     const auto model_impl = std::make_shared<model_impl_t>(betas_table);

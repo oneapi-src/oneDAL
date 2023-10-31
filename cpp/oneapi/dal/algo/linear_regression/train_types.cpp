@@ -25,6 +25,7 @@ namespace detail::v1 {
 template <typename Task>
 class train_input_impl : public base {
 public:
+    train_input_impl() : data(table()){};
     train_input_impl(const table& data, const table& responses = table{})
             : data(data),
               responses(responses) {}
@@ -42,6 +43,15 @@ public:
     result_option_id options;
 
     model<Task> trained_model;
+};
+
+template <typename Task>
+class partial_train_result_impl : public base {
+public:
+    table nobs;
+    table betas;
+    table xtx;
+    table xty;
 };
 
 template <typename Task>
@@ -80,8 +90,12 @@ template class ONEDAL_EXPORT train_parameters<task::regression>;
 using detail::v1::train_input_impl;
 using detail::v1::train_result_impl;
 using detail::v1::train_parameters;
+using detail::v1::partial_train_result_impl;
 
 namespace v1 {
+
+template <typename Task>
+train_input<Task>::train_input() : impl_(new train_input_impl<Task>{}) {}
 
 template <typename Task>
 train_input<Task>::train_input(const table& data, const table& responses)
@@ -179,8 +193,81 @@ void train_result<Task>::set_result_options_impl(const result_option_id& value) 
     impl_->options = value;
 }
 
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const table& data, const table& responses)
+        : train_input<Task>(data, responses),
+          prev_() {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const table& data)
+        : train_input<Task>(data),
+          prev_() {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input() : train_input<Task>(),
+                                                   prev_() {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const partial_train_result<Task>& prev,
+                                               const table& data)
+        : train_input<Task>(data) {
+    this->prev_ = prev;
+}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const partial_train_result<Task>& prev,
+                                               const table& data,
+                                               const table& responses)
+        : train_input<Task>(data, responses) {
+    this->prev_ = prev;
+}
+
+template <typename Task>
+const table& partial_train_result<Task>::get_partial_n_rows() const {
+    return impl_->nobs;
+}
+
+template <typename Task>
+partial_train_result<Task>::partial_train_result() : impl_(new partial_train_result_impl<Task>()) {}
+
+template <typename Task>
+void partial_train_result<Task>::set_partial_n_rows_impl(const table& value) {
+    impl_->nobs = value;
+}
+
+template <typename Task>
+const table& partial_train_result<Task>::get_partial_xtx() const {
+    return impl_->xtx;
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_partial_xtx_impl(const table& value) {
+    impl_->xtx = value;
+}
+template <typename Task>
+const table& partial_train_result<Task>::get_partial_betas() const {
+    return impl_->betas;
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_partial_betas_impl(const table& value) {
+    impl_->betas = value;
+}
+
+template <typename Task>
+const table& partial_train_result<Task>::get_partial_xty() const {
+    return impl_->xty;
+}
+
+template <typename Task>
+void partial_train_result<Task>::set_partial_xty_impl(const table& value) {
+    impl_->xty = value;
+}
+
 template class ONEDAL_EXPORT train_result<task::regression>;
 template class ONEDAL_EXPORT train_input<task::regression>;
+template class ONEDAL_EXPORT partial_train_input<task::regression>;
+template class ONEDAL_EXPORT partial_train_result<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::linear_regression
