@@ -56,9 +56,8 @@ enum DoubleHyperparameterId
 struct DAAL_EXPORT Hyperparameter : public daal::algorithms::Hyperparameter
 {
     using algorithms::Hyperparameter::set;
-    //using algorithms::Hyperparameter::set(std::uint32_t id, double value);
     using algorithms::Hyperparameter::find;
-    //using algorithms::Hyperparameter::find(std::uint32_t id, double & value) const;
+
     /** Default constructor */
     Hyperparameter();
 
