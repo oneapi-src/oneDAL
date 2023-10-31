@@ -68,7 +68,7 @@ services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations, 
     return s;
 }
 
-services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t clasLabel, TreeId & resId)
+services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t classLabel, TreeId & resId)
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
@@ -83,19 +83,22 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t clasLabe
         {
             return Status(ErrorID::ErrorIncorrectParameter);
         }
-        if (clasLabel > (_nClasses - 1))
+        if (_nClasses <= classLabel)
         {
             return Status(ErrorID::ErrorIncorrectParameter);
         }
-        TreeId treeId                               = clasLabel * _nIterations;
+        TreeId treeId                               = classLabel * _nIterations;
         const SerializationIface * isEmptyTreeTable = (*(modelImplRef._serializationData))[treeId].get();
-        const size_t nTrees                         = (clasLabel + 1) * _nIterations;
+        const size_t nTrees                         = (classLabel + 1) * _nIterations;
         while (isEmptyTreeTable && treeId < nTrees)
         {
             treeId++;
             isEmptyTreeTable = (*(modelImplRef._serializationData))[treeId].get();
         }
-        if (treeId == nTrees) return Status(ErrorID::ErrorIncorrectParameter);
+        if (treeId == nTrees)
+        {
+            return Status(ErrorID::ErrorIncorrectParameter);
+        }
 
         services::SharedPtr<DecisionTreeTable> treeTablePtr(
             new DecisionTreeTable(nNodes)); //DecisionTreeTable* const treeTable = new DecisionTreeTable(nNodes);
@@ -120,22 +123,21 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t clasLabe
     }
 }
 
-services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId & res)
+services::Status ModelBuilder::addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, double cover, NodeId & res)
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addLeafNodeInternal<double>(modelImplRef._serializationData, treeId, parentId, position, response,
-                                                                           res);
-    ;
+                                                                           cover, res);
 }
 
 services::Status ModelBuilder::addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue,
-                                                    NodeId & res, int defaultLeft)
+                                                    int defaultLeft, const double cover, NodeId & res)
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
     return daal::algorithms::dtrees::internal::addSplitNodeInternal(modelImplRef._serializationData, treeId, parentId, position, featureIndex,
-                                                                    featureValue, res, defaultLeft);
+                                                                    featureValue, defaultLeft, cover, res);
 }
 
 } // namespace interface1

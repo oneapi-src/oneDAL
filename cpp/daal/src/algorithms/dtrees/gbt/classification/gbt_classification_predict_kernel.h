@@ -51,9 +51,10 @@ public:
     /**
      *  \brief Compute gradient boosted trees prediction results.
      *
-     *  \param a[in]    Matrix of input variables X
-     *  \param m[in]   Gradient boosted trees model obtained on training stage
-     *  \param r[out]   Prediction results
+     *  \param a[in]            Matrix of input variables X
+     *  \param m[in]            Gradient boosted trees model obtained on training stage
+     *  \param r[out]           Prediction results
+     *  \param prob[out]        Prediction class probabilities
      *  \param nClasses[in]     Number of classes in gradient boosted trees algorithm parameter
      *  \param nIterations[in]  Number of iterations to predict in gradient boosted trees algorithm parameter
      */
