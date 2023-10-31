@@ -103,6 +103,7 @@ public:
     }
     host_policy(const host_policy&) = default;
     host_policy(host_policy&&) = default;
+    host_policy& operator=(const host_policy&) = default;
 
     static host_policy get_default() {
         return host_policy(make_default_impl());

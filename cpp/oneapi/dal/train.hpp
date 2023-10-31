@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/detail/train_ops.hpp"
+#include "oneapi/dal/detail/user_policy.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
 #include "oneapi/dal/spmd/communicator.hpp"
 
@@ -26,6 +27,11 @@ namespace v1 {
 template <typename... Args>
 auto train(Args&&... args) {
     return dal::detail::train_dispatch(std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+auto train(detail::user_cpu_context uctx, Args&&... args) {
+    return dal::detail::train_dispatch(uctx.get_host_policy(), std::forward<Args>(args)...);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
