@@ -50,7 +50,7 @@ result_t call_daal_sparse_kernel(const context_cpu& ctx,
                                  const csr_table& data) {
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
+    auto daal_parameter = daal_lom::Parameter(daal_lom::estimatesAll);
     auto daal_input = daal_lom::Input();
     auto daal_result = daal_lom::Result();
 
