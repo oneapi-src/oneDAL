@@ -53,6 +53,7 @@ struct DecisionTreeNode
     ClassIndexType leftIndexOrClass;    //split: left node index, classification leaf: class index
     ModelFPType featureValueOrResponse; //split: feature value, regression tree leaf: response
     int defaultLeft;                    //split: if 1: go to the yes branch for missing value
+    ModelFPType cover;                  //split: cover (sum_hess) of the node
     DAAL_FORCEINLINE bool isSplit() const { return featureIndex != -1; }
     ModelFPType featureValue() const { return featureValueOrResponse; }
 };
@@ -60,12 +61,13 @@ struct DecisionTreeNode
 class DecisionTreeTable : public data_management::AOSNumericTable
 {
 public:
-    DecisionTreeTable(size_t rowCount = 0) : data_management::AOSNumericTable(sizeof(DecisionTreeNode), 4, rowCount)
+    DecisionTreeTable(size_t rowCount = 0) : data_management::AOSNumericTable(sizeof(DecisionTreeNode), 5, rowCount)
     {
         setFeature<int>(0, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, featureIndex));
         setFeature<ClassIndexType>(1, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, leftIndexOrClass));
         setFeature<ModelFPType>(2, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, featureValueOrResponse));
         setFeature<int>(3, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, defaultLeft));
+        setFeature<double>(4, DAAL_STRUCT_MEMBER_OFFSET(DecisionTreeNode, cover));
         allocateDataMemory();
     }
 };
@@ -339,19 +341,19 @@ ModelImplType & getModelRef(ModelTypePtr & modelPtr)
 
 services::Status createTreeInternal(data_management::DataCollectionPtr & serializationData, size_t nNodes, size_t & resId);
 
-void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel);
+void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel, double cover);
 
-void setNode(DecisionTreeNode & node, int featureIndex, double response);
+void setNode(DecisionTreeNode & node, int featureIndex, double response, double cover);
 
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
-                                      size_t featureIndex, double featureValue, size_t & res, int defaultLeft = 0);
+                                      size_t featureIndex, double featureValue, int defaultLeft, double cover, size_t & res);
 
 void setProbabilities(const size_t treeId, const size_t nodeId, const size_t response, const data_management::DataCollectionPtr probTbl,
                       const double * const prob);
 
 template <typename ClassOrResponseType>
 static services::Status addLeafNodeInternal(const data_management::DataCollectionPtr & serializationData, const size_t treeId, const size_t parentId,
-                                            const size_t position, ClassOrResponseType response, size_t & res,
+                                            const size_t position, ClassOrResponseType response, double cover, size_t & res,
                                             const data_management::DataCollectionPtr probTbl = data_management::DataCollectionPtr(),
                                             const double * const prob = nullptr, const size_t nClasses = 0)
 {
@@ -373,7 +375,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
     size_t nodeId                  = 0;
     if (parentId == noParent)
     {
-        setNode(aNode[0], -1, response);
+        setNode(aNode[0], -1, response, cover);
         setProbabilities(treeId, 0, response, probTbl, prob);
         nodeId = 0;
     }
@@ -390,7 +392,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
             nodeId                  = reservedId;
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
-                setNode(aNode[nodeId], -1, response);
+                setNode(aNode[nodeId], -1, response, cover);
                 setProbabilities(treeId, nodeId, response, probTbl, prob);
             }
         }
@@ -400,7 +402,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
             nodeId                  = reservedId;
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
-                setNode(aNode[nodeId], -1, response);
+                setNode(aNode[nodeId], -1, response, cover);
                 setProbabilities(treeId, nodeId, response, probTbl, prob);
             }
         }
@@ -420,7 +422,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
             {
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
             }
-            setNode(aNode[nodeId], -1, response);
+            setNode(aNode[nodeId], -1, response, cover);
             setProbabilities(treeId, nodeId, response, probTbl, prob);
             aNode[parentId].leftIndexOrClass = nodeId;
             if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID))
@@ -454,7 +456,7 @@ static services::Status addLeafNodeInternal(const data_management::DataCollectio
             nodeId                           = leftEmptyId + 1;
             if (nodeId < nRows)
             {
-                setNode(aNode[nodeId], -1, response);
+                setNode(aNode[nodeId], -1, response, cover);
                 setProbabilities(treeId, nodeId, response, probTbl, prob);
             }
             else
