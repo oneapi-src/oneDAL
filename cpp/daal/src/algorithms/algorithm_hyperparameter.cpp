@@ -66,7 +66,7 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
 
 protected:
     /** Stores integer hyperparameters of the algorithm */
-    HashTable<sse2, uint32_t, int64_t> _iHT;
+    HashTable<sse2, uint32_t, DAAL_INT64> _iHT;
 
     /** Stores floating point hyperparameters of the algorithm */
     HashTable<sse2, uint32_t, double> _dHT;
