@@ -674,7 +674,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             ONEDAL_PROFILER_TASK(dblock.sendrecvreplace, queue);
             auto send_count = current_block.get_count();
             // TEMPORARY - REMOVE AFTER DEBUG
-            std::cout << "Rank: " << rank_count << ", Block: " << relative_block_idx << ", Count: " << send_count << std::endl;
+            std::cout << "Rank: " << current_rank << ", Block: " << relative_block_idx << ", Send count X: " << send_count << ", Send count Y: " << current_tresps.get_count() << ", Block count: " << block_count << std::endl;
             ONEDAL_ASSERT(send_count >= 0);
             ONEDAL_ASSERT(send_count <= de::limits<int>::max());
             comm.sendrecv_replace(array<Float>::wrap(queue,
