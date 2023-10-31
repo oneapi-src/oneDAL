@@ -41,81 +41,6 @@ using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 using parameters_t = detail::compute_parameters<task_t>;
 
-template <typename Float>
-auto compute_sums(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
-                  const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_sums, q);
-    ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(data.get_dimension(1) > 0);
-
-    const std::int64_t column_count = data.get_dimension(1);
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto reduce_event =
-        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-    return std::make_tuple(sums, reduce_event);
-}
-
-template <typename Float>
-auto compute_means(sycl::queue& q,
-                   const pr::ndview<Float, 1>& sums,
-                   std::int64_t row_count,
-                   const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_means, q);
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(sums.get_dimension(0) > 0);
-
-    const std::int64_t column_count = sums.get_dimension(0);
-    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto means_event = pr::means(q, row_count, sums, means, deps);
-    return std::make_tuple(means, means_event);
-}
-
-template <typename Float>
-auto compute_covariance(sycl::queue& q,
-                        std::int64_t row_count,
-                        const pr::ndview<Float, 2>& xtx,
-                        const pr::ndarray<Float, 1>& sums,
-                        const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_covariance, q);
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(xtx.has_data());
-    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
-
-    const std::int64_t column_count = xtx.get_dimension(1);
-
-    auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-    auto copy_event = copy(q, cov, xtx, { deps });
-
-    auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
-    return std::make_tuple(cov, cov_event);
-}
-
-template <typename Float>
-auto compute_correlation(sycl::queue& q,
-                         std::int64_t row_count,
-                         const pr::ndview<Float, 2>& xtx,
-                         const pr::ndarray<Float, 1>& sums,
-                         const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(xtx.has_data());
-    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
-
-    const std::int64_t column_count = xtx.get_dimension(1);
-
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-
-    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-    auto copy_event = copy(q, corr, xtx, { deps });
-
-    auto corr_event = pr::correlation(q, row_count, sums, corr, tmp, { copy_event });
-
-    auto smart_event = bk::smart_event{ corr_event }.attach(tmp);
-    return std::make_tuple(corr, smart_event);
-}
 
 template <typename Float>
 result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
@@ -132,11 +57,13 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto [sums, sums_event] = compute_sums(q_, data_nd);
+    auto sums = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q_, data_nd, sums, pr::sum<Float>{}, pr::identity<Float>{}, {});
 
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
-        comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
+        comm_.allreduce(sums.flatten(q_, { reduce_event }), spmd::reduce_op::sum).wait();
     }
 
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
@@ -158,20 +85,26 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] =
-            compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
+        auto cov = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+        auto copy_event = copy(q_, cov, xtx, { gemm_event });
+        auto cov_event = pr::covariance(q_, rows_count_global, sums, cov, { copy_event });
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto [corr, corr_event] =
-            compute_correlation(q_, rows_count_global, xtx, sums, { gemm_event });
+        auto tmp = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
+
+        auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+
+        auto copy_event = copy(q_, corr, xtx, { gemm_event });
+        auto corr_event = pr::correlation(q_, rows_count_global, sums, corr, tmp, { copy_event });
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
-        result.set_means(homogen_table::wrap(means.flatten(q_, { gemm_event }), 1, column_count));
+        auto means = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
+        auto means_event = pr::means(q_, rows_count_global, sums, means, { gemm_event });
+        result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
     return result;
 }
