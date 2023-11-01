@@ -36,6 +36,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -143,7 +144,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_distances = array<Float>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_distances =
                 pr::ndview<Float, 2>::wrap_mutable(part_distances,
-                                                   { infer_row_count, 2 * neighbor_count });
+                                                { infer_row_count, 2 * neighbor_count });
         }
         auto part_indices = array<idx_t>{};
         auto wrapped_part_indices = pr::ndview<idx_t, 2>{};
@@ -152,7 +153,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_indices =
                 pr::ndview<idx_t, 2>::wrap_mutable(part_indices,
-                                                   { infer_row_count, 2 * neighbor_count });
+                                                { infer_row_count, 2 * neighbor_count });
         }
         auto part_responses = array<res_t>{};
         auto wrapped_part_responses = pr::ndview<res_t, 2>{};
@@ -163,28 +164,31 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_responses = array<res_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_responses =
                 pr::ndview<res_t, 2>::wrap_mutable(part_responses,
-                                                   { infer_row_count, 2 * neighbor_count });
+                                                { infer_row_count, 2 * neighbor_count });
             intermediate_responses = array<res_t>::empty(queue,
-                                                         infer_row_count * neighbor_count,
-                                                         sycl::usm::alloc::device);
+                                                        infer_row_count * neighbor_count,
+                                                        sycl::usm::alloc::device);
             wrapped_intermediate_responses =
                 pr::ndview<res_t, 2>::wrap_mutable(intermediate_responses,
-                                                   { infer_row_count, neighbor_count });
+                                                { infer_row_count, neighbor_count });
         }
-        bf_kernel_distr(queue,
-                        comm,
-                        desc,
-                        train,
-                        query_data,
-                        resps,
-                        wrapped_distances,
-                        wrapped_part_distances,
-                        wrapped_indices,
-                        wrapped_part_indices,
-                        wrapped_responses,
-                        wrapped_part_responses,
-                        wrapped_intermediate_responses)
-            .wait_and_throw();
+        {
+            ONEDAL_PROFILER_TASK(bf_kernel_distr, queue);
+            bf_kernel_distr(queue,
+                            comm,
+                            desc,
+                            train,
+                            query_data,
+                            resps,
+                            wrapped_distances,
+                            wrapped_part_distances,
+                            wrapped_indices,
+                            wrapped_part_indices,
+                            wrapped_responses,
+                            wrapped_part_responses,
+                            wrapped_intermediate_responses)
+                .wait_and_throw();
+        }
     }
     else {
         bf_kernel(queue,
@@ -200,21 +204,24 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
     }
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
+    {
+        ONEDAL_PROFILER_TASK(extra.post, queue);
 
-    if (desc.get_result_options().test(result_options::responses)) {
-        if constexpr (detail::is_not_search_v<Task>) {
-            result = result.set_responses(homogen_table::wrap(arr_responses, infer_row_count, 1));
+        if (desc.get_result_options().test(result_options::responses)) {
+            if constexpr (detail::is_not_search_v<Task>) {
+                result = result.set_responses(homogen_table::wrap(arr_responses, infer_row_count, 1));
+            }
         }
-    }
 
-    if (desc.get_result_options().test(result_options::indices)) {
-        result =
-            result.set_indices(homogen_table::wrap(arr_indices, infer_row_count, neighbor_count));
-    }
+        if (desc.get_result_options().test(result_options::indices)) {
+            result =
+                result.set_indices(homogen_table::wrap(arr_indices, infer_row_count, neighbor_count));
+        }
 
-    if (desc.get_result_options().test(result_options::distances)) {
-        result = result.set_distances(
-            homogen_table::wrap(arr_distances, infer_row_count, neighbor_count));
+        if (desc.get_result_options().test(result_options::distances)) {
+            result = result.set_distances(
+                homogen_table::wrap(arr_distances, infer_row_count, neighbor_count));
+        }
     }
 
     return result;

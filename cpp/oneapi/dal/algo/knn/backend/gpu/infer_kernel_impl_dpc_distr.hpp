@@ -484,37 +484,44 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     ONEDAL_ASSERT(fcount == query.get_dimension(1));
     // Output arrays test section
     const auto& ropts = desc.get_result_options();
-    if (ropts.test(result_options::responses)) {
-        ONEDAL_ASSERT(tresps.has_data());
-        ONEDAL_ASSERT(qresps.has_mutable_data());
-        ONEDAL_ASSERT(tcount == tresps.get_row_count());
-        ONEDAL_ASSERT(qcount == qresps.get_count());
-        ONEDAL_ASSERT(qcount == part_responses.get_dimension(0));
-        ONEDAL_ASSERT(2 * kcount == part_responses.get_dimension(1));
-        ONEDAL_ASSERT(qcount == intermediate_responses.get_dimension(0));
-        ONEDAL_ASSERT(kcount == intermediate_responses.get_dimension(1));
-    }
-    if (ropts.test(result_options::indices)) {
-        ONEDAL_ASSERT(indices.has_mutable_data());
-        ONEDAL_ASSERT(qcount == indices.get_dimension(0));
-        ONEDAL_ASSERT(kcount == indices.get_dimension(1));
-        ONEDAL_ASSERT(qcount == part_indices.get_dimension(0));
-        ONEDAL_ASSERT(2 * kcount == part_indices.get_dimension(1));
-    }
-    if (ropts.test(result_options::distances)) {
-        ONEDAL_ASSERT(distances.has_mutable_data());
-        ONEDAL_ASSERT(qcount == distances.get_dimension(0));
-        ONEDAL_ASSERT(kcount == distances.get_dimension(1));
-        ONEDAL_ASSERT(qcount == part_distances.get_dimension(0));
-        ONEDAL_ASSERT(2 * kcount == part_distances.get_dimension(1));
+    {
+        ONEDAL_PROFILER_TASK(extra.asserts, queue);
+        if (ropts.test(result_options::responses)) {
+            ONEDAL_ASSERT(tresps.has_data());
+            ONEDAL_ASSERT(qresps.has_mutable_data());
+            ONEDAL_ASSERT(tcount == tresps.get_row_count());
+            ONEDAL_ASSERT(qcount == qresps.get_count());
+            ONEDAL_ASSERT(qcount == part_responses.get_dimension(0));
+            ONEDAL_ASSERT(2 * kcount == part_responses.get_dimension(1));
+            ONEDAL_ASSERT(qcount == intermediate_responses.get_dimension(0));
+            ONEDAL_ASSERT(kcount == intermediate_responses.get_dimension(1));
+        }
+        if (ropts.test(result_options::indices)) {
+            ONEDAL_ASSERT(indices.has_mutable_data());
+            ONEDAL_ASSERT(qcount == indices.get_dimension(0));
+            ONEDAL_ASSERT(kcount == indices.get_dimension(1));
+            ONEDAL_ASSERT(qcount == part_indices.get_dimension(0));
+            ONEDAL_ASSERT(2 * kcount == part_indices.get_dimension(1));
+        }
+        if (ropts.test(result_options::distances)) {
+            ONEDAL_ASSERT(distances.has_mutable_data());
+            ONEDAL_ASSERT(qcount == distances.get_dimension(0));
+            ONEDAL_ASSERT(kcount == distances.get_dimension(1));
+            ONEDAL_ASSERT(qcount == part_distances.get_dimension(0));
+            ONEDAL_ASSERT(2 * kcount == part_distances.get_dimension(1));
+        }
     }
     const auto ccount = desc.get_class_count();
 
     auto rank_count = comm.get_rank_count();
     auto block_size = propose_distributed_block_size<Float>(queue, fcount);
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
-    // TODO: any additional profiler tasks needed? or reset_dists_inds?
-    comm.allgather(tcount, node_sample_counts.flatten()).wait();
+    {
+        ONEDAL_PROFILER_TASK(extra.allgather, queue);
+        // TODO: any additional profiler tasks needed? or reset_dists_inds?
+        comm.allgather(tcount, node_sample_counts.flatten()).wait();
+    }
+
     // TODO: event here?
     // auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
     std::int64_t max_tcount = 0;
@@ -545,41 +552,45 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
     knn_callback_distr<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
+    sycl::event next_event;
+    {
+        ONEDAL_PROFILER_TASK(extra.callbacksetup, queue);
 
-    callback.set_distances(distances);
-    callback.set_part_distances(part_distances);
-    callback.set_responses(qresps);
-    callback.set_part_responses(part_responses);
-    callback.set_intermediate_responses(intermediate_responses);
-    callback.set_indices(indices);
-    callback.set_part_indices(part_indices);
+        callback.set_distances(distances);
+        callback.set_part_distances(part_distances);
+        callback.set_responses(qresps);
+        callback.set_part_responses(part_responses);
+        callback.set_intermediate_responses(intermediate_responses);
+        callback.set_indices(indices);
+        callback.set_part_indices(part_indices);
 
-    auto next_event = callback.reset_dists_inds(deps);
+        next_event = callback.reset_dists_inds(deps);
 
-    if constexpr (std::is_same_v<Task, task::classification>) {
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            if (desc.get_result_options().test(result_options::responses) &&
+                (desc.get_voting_mode() == voting_mode::uniform)) {
+                callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
+            }
+
+            if (desc.get_result_options().test(result_options::responses) &&
+                (desc.get_voting_mode() == voting_mode::distance)) {
+                callback.set_distance_voting(
+                    std::move(pr::make_distance_voting<Float>(queue, qbcount, ccount)));
+            }
         }
 
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::distance)) {
-            callback.set_distance_voting(
-                std::move(pr::make_distance_voting<Float>(queue, qbcount, ccount)));
-        }
-    }
+        if constexpr (std::is_same_v<Task, task::regression>) {
+            if (desc.get_result_options().test(result_options::responses) &&
+                (desc.get_voting_mode() == voting_mode::uniform)) {
+                callback.set_uniform_regression(
+                    std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
+            }
 
-    if constexpr (std::is_same_v<Task, task::regression>) {
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::uniform)) {
-            callback.set_uniform_regression(
-                std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
-        }
-
-        if (desc.get_result_options().test(result_options::responses) &&
-            (desc.get_voting_mode() == voting_mode::distance)) {
-            callback.set_distance_regression(
-                std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
+            if (desc.get_result_options().test(result_options::responses) &&
+                (desc.get_voting_mode() == voting_mode::distance)) {
+                callback.set_distance_regression(
+                    std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
+            }
         }
     }
 
@@ -605,6 +616,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     for (std::int64_t relative_block_idx = 0; relative_block_idx < block_count;
          ++relative_block_idx) {
+        ONEDAL_PROFILER_TASK(extra.blockloop, queue);
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
         ONEDAL_ASSERT(current_block.has_data());
