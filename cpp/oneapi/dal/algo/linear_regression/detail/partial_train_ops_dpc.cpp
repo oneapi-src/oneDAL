@@ -26,13 +26,13 @@ namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct partial_train_ops_dispatcher<Policy, Float, Method, Task> {
-    partial_train_result<Task> operator()(const Policy& ctx,
+    partial_train_result<Task> operator()(const Policy& policy,
                                           const descriptor_base<Task>& desc,
                                           const partial_train_input<Task>& input) const {
-        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
-            KERNEL_SINGLE_NODE_CPU(parameters::partial_train_parameters_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(parameters::partial_train_parameters_gpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t{}(ctx, desc, input);
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
+            KERNEL_SINGLE_NODE_CPU(backend::partial_train_kernel_cpu<Float, Method, Task>),
+            KERNEL_SINGLE_NODE_GPU(backend::partial_train_kernel_gpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t()(policy, desc, input);
     }
 };
 

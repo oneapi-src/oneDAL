@@ -25,7 +25,6 @@ template <typename Float, typename Method, typename Task>
 struct finalize_train_kernel_cpu {
     train_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
-                                  const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const;
 };
 

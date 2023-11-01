@@ -36,7 +36,7 @@ void run() {
     const auto lr_desc = dal::linear_regression::descriptor<>().set_result_options(
         result_options::coefficients | result_options::intercept);
 
-    dal::covariance::partial_compute_result<> partial_result;
+    dal::linear_regression::partial_train_result<> partial_result;
 
     auto input_table_x = split_table_by_rows<double>(x_train, nBlocks);
     auto input_table_y = split_table_by_rows<double>(y_train, nBlocks);
@@ -46,15 +46,15 @@ void run() {
     }
     auto result = dal::finalize_train(lr_desc, partial_result);
 
-    std::cout << "Coefficients:\n" << result.get_coefficients() << std::endl;
-    std::cout << "Intercept:\n" << result.get_intercept() << std::endl;
+    // std::cout << "Coefficients:\n" << result.get_coefficients() << std::endl;
+    // std::cout << "Intercept:\n" << result.get_intercept() << std::endl;
 
-    const auto lr_model = result.get_model();
+    // const auto lr_model = result.get_model();
 
-    const auto test_result = dal::infer(lr_desc, x_test, lr_model);
+    // const auto test_result = dal::infer(lr_desc, x_test, lr_model);
 
-    std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
-    std::cout << "True responses:\n" << y_test << std::endl;
+    // std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
+    // std::cout << "True responses:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
