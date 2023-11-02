@@ -143,6 +143,19 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
 
     using limits_t = std::numeric_limits<Float>;
     constexpr Float maximum = limits_t::max();
+    std::cout << "DATAAAA:" << std::endl;
+    for (int i = 0; i < nonzero_count; ++i) {
+        std::cout << csr_data_ptr[i] << " ";
+    }
+    std::cout << std::endl << "COLYMN INDICES:" << std::endl;
+    for (int i = 0; i < nonzero_count; ++i) {
+        std::cout << column_indices_ptr[i] << " ";
+    }
+    std::cout << std::endl << "ROW_OFFSETS:" << std::endl;
+    for (int i = 0; i < row_count + 1; ++i) {
+        std::cout << row_offsets.get_data()[i] << " ";
+    }
+    std::cout << std::endl;
 
     auto result_data = pr::ndarray<Float, 2>::empty(queue,
                                                     { res_opt_count_, column_count },

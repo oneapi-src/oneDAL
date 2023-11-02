@@ -50,12 +50,12 @@ struct csr_table_builder {
         std::int64_t nonzero_count = total_count * nnz_fraction;
         std::int64_t indexing_shift = bool(indexing == sparse_indexing::one_based);
 
-        std::uint32_t seed = 42;
+        std::uint32_t seed = 3457;
         std::mt19937 rng(seed);
-        std::uniform_real_distribution<Float> uniform_data(-10.0f, 10.0f);
+        std::uniform_real_distribution<Float> uniform_data(-100.0f, 100.0f);
         std::uniform_int_distribution<std::int64_t> uniform_indices(
             0,
-            column_count_ - 1 - indexing_shift);
+            column_count_ - indexing_shift);
         std::uniform_int_distribution<std::int64_t> uniform_ind_count(1, column_count_ - 2);
 
         auto data_ptr = data_.get_mutable_data();
@@ -75,7 +75,7 @@ struct csr_table_builder {
             nnz_col_count = std::min(nnz_col_count, nonzero_count - fill_count);
             for (std::int32_t i = 0; i < nnz_col_count; ++i) {
                 std::int64_t col_idx = uniform_indices(rng) + indexing_shift;
-                col_indices_ptr[fill_count + i] = col_idx + indexing_shift;
+                col_indices_ptr[fill_count + i] = col_idx;
             }
             std::sort(col_indices_ptr + fill_count, col_indices_ptr + fill_count + nnz_col_count);
             // Remove duplications
