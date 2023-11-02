@@ -29,7 +29,8 @@ struct infer_kernel_cpu<Float, method::dense_batch, Task> {
     infer_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
-        throw std::logic_error("Not implemented");
+        throw unimplemented(
+            dal::detail::error_messages::log_reg_dense_batch_method_is_not_implemented_for_cpu());
     }
 };
 

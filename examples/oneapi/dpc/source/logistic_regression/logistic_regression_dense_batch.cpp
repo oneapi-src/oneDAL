@@ -23,8 +23,6 @@
 #include "oneapi/dal/exceptions.hpp"
 #include "example_util/utils.hpp"
 #include <chrono>
-#include <iostream>
-#include <time.h>
 
 namespace dal = oneapi::dal;
 namespace result_options = dal::logistic_regression::result_options;

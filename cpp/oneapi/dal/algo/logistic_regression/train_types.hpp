@@ -144,6 +144,7 @@ public:
         return *this;
     }
 
+    /// Actual number of optimizer iterations
     std::int64_t get_iterations_number() const;
 
     auto& set_iterations_number(std::int64_t value) {

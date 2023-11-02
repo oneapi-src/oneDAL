@@ -191,14 +191,6 @@ public:
             }
         }
 
-        // std::cout << "Accuracy on train: " << float_t(train_acc) / train_size << " (" << train_acc
-        //           << " out of " << train_size << ")" << std::endl;
-        // std::cout << "Accuracy on test: " << float_t(test_acc) / test_size << " (" << test_acc
-        //           << " out of " << test_size << ")" << std::endl;
-
-        // std::cout << "Accuracy on test(algo): " << float_t(acc_algo) / test_size << " (" << acc_algo
-        //           << " out of " << test_size << ")" << std::endl;
-
         float_t min_train_acc = 0.95;
         float_t min_test_acc = n_ < 500 ? 0.7 : 0.85;
 

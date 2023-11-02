@@ -79,8 +79,6 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto bsize = propose_block_size<Float>(queue, feature_count, 1);
     const be::uniform_blocking blocking(sample_count, bsize);
 
-    //sycl::event last_event;
-
     row_accessor<const Float> x_accessor(infer);
 
     be::event_vector all_deps = {};
