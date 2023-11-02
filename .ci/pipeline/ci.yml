@@ -257,7 +257,8 @@ jobs:
       bazel test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
-                 --test_thread_mode=par
+                 --test_thread_mode=par \
+                 --test_output=all
     displayName: 'cpp-tests-thread-dev'
 
   - script: |
