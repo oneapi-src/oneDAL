@@ -21,6 +21,7 @@
 //--
 */
 
+#include <stdint.h>
 #include "src/algorithms/covariance/covariance_hyperparameter_impl.h"
 
 namespace daal

@@ -21,6 +21,7 @@
 //--
 */
 
+#include <stdint.h>
 #include "src/algorithms/linear_model/linear_model_hyperparameter_impl.h"
 #include "src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h"
 
