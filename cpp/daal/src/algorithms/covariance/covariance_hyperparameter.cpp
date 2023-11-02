@@ -36,22 +36,22 @@ Hyperparameter::Hyperparameter() : algorithms::Hyperparameter(hyperparameterIdCo
 
 services::Status Hyperparameter::set(HyperparameterId id, DAAL_INT64 value)
 {
-    return this->algorithms::Hyperparameter::set(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::set(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::set(DoubleHyperparameterId id, double value)
 {
-    return this->algorithms::Hyperparameter::set(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::set(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::find(HyperparameterId id, DAAL_INT64 & value) const
 {
-    return this->algorithms::Hyperparameter::find(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::find(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::find(DoubleHyperparameterId id, double & value) const
 {
-    return this->algorithms::Hyperparameter::find(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::find(uint32_t(id), value);
 }
 
 } // namespace internal
