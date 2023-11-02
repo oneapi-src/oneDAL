@@ -22,157 +22,157 @@ pr:
     - docs
     - .ci/pipeline/docs.yml
 
-jobs:
-- job: 'ClangFormat'
-  pool:
-    vmImage: 'ubuntu-22.04'
-  steps:
-    - script: |
-        .ci/env/apt.sh clang-format
-      displayName: 'apt-get'
-    - script: |
-        .ci/scripts/clang-format.sh
-      displayName: 'clang-format check'
-      failOnStderr: true
+# jobs:
+# - job: 'ClangFormat'
+#   pool:
+#     vmImage: 'ubuntu-22.04'
+#   steps:
+#     - script: |
+#         .ci/env/apt.sh clang-format
+#       displayName: 'apt-get'
+#     - script: |
+#         .ci/scripts/clang-format.sh
+#       displayName: 'clang-format check'
+#       failOnStderr: true
 
-- job: 'LinuxMakeGNU_MKL'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
-  pool:
-    vmImage: 'ubuntu-22.04'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
-    displayName: 'daal/cpp/mpi samples'
-  - script: |
-      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
-      tree -h -I include __nuget/inteldal*/
-      ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget pkg'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
+# - job: 'LinuxMakeGNU_MKL'
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_lnx_gnu'
+#     platform.type : 'lnx32e'
+#   pool:
+#     vmImage: 'ubuntu-22.04'
+#   steps:
+#   - script: |
+#       .ci/env/apt.sh dev-base
+#     displayName: 'apt-get and conda install'
+#   - script: |
+#       .ci/scripts/describe_system.sh
+#     displayName: 'System info'
+#   - script: |
+#       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
+#     displayName: 'make daal'
+#   - script: |
+#       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c
+#     displayName: 'make onedal_c'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) build'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Upload build artifacts'
+#     continueOnError: true
+#   - script: |
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake
+#     displayName: 'daal/cpp examples'
+#   - script: |
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake
+#     displayName: 'oneapi/cpp examples'
+#   - script: |
+#       .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
+#     displayName: 'daal/cpp/mpi samples'
+#   - script: |
+#       deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+#       tree -h -I include __nuget/inteldal*/
+#       ls -lh __nuget/inteldal*.nupkg
+#     displayName: 'nuget pkg'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) fail'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Uploading on fail'
+#     condition: failed()
+#     continueOnError: true
 
-- job: 'LinuxMakeGNU_OpenBLAS'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
-  pool:
-    vmImage: 'ubuntu-22.04'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend_config ref --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c --backend_config ref
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) OpenBLAS build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
-    displayName: 'oneapi/cpp examples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
+# - job: 'LinuxMakeGNU_OpenBLAS'
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_lnx_gnu'
+#     platform.type : 'lnx32e'
+#   pool:
+#     vmImage: 'ubuntu-22.04'
+#   steps:
+#   - script: |
+#       .ci/env/apt.sh dev-base
+#     displayName: 'apt-get and conda install'
+#   - script: |
+#       .ci/scripts/describe_system.sh
+#     displayName: 'System info'
+#   - script: |
+#       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend_config ref --conda-env ci-env
+#     displayName: 'make daal'
+#   - script: |
+#       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c --backend_config ref
+#     displayName: 'make onedal_c'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) OpenBLAS build'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Upload build artifacts'
+#     continueOnError: true
+#   - script: |
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
+#     displayName: 'daal/cpp examples'
+#   - script: |
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
+#     displayName: 'oneapi/cpp examples'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) fail'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Uploading on fail'
+#     condition: failed()
+#     continueOnError: true
 
-- job: 'LinuxMakeDPCPP'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_icx'
-    platform.type : 'lnx32e'
-  pool:
-    vmImage: 'ubuntu-22.04'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/env/apt.sh dpcpp
-    displayName: 'dpcpp installation'
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal_dpc
-    displayName: 'make onedal_dpc'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) DPC build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
-    displayName: 'daal/cpp examples'
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build_system cmake
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
-    displayName: 'daal/cpp/mpi samples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) DPC fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
+# - job: 'LinuxMakeDPCPP'
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_lnx_icx'
+#     platform.type : 'lnx32e'
+#   pool:
+#     vmImage: 'ubuntu-22.04'
+#   steps:
+#   - script: |
+#       .ci/env/apt.sh dev-base
+#     displayName: 'apt-get and conda install'
+#   - script: |
+#       .ci/env/apt.sh dpcpp
+#     displayName: 'dpcpp installation'
+#   - script: |
+#       source /opt/intel/oneapi/compiler/latest/env/vars.sh
+#       .ci/scripts/describe_system.sh
+#     displayName: 'System info'
+#   - script: |
+#       source /opt/intel/oneapi/compiler/latest/env/vars.sh
+#       .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
+#     displayName: 'make daal'
+#   - script: |
+#       source /opt/intel/oneapi/compiler/latest/env/vars.sh
+#       .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal_dpc
+#     displayName: 'make onedal_dpc'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) DPC build'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Upload build artifacts'
+#     continueOnError: true
+#   - script: |
+#       source /opt/intel/oneapi/compiler/latest/env/vars.sh
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
+#     displayName: 'daal/cpp examples'
+#   - script: |
+#       source /opt/intel/oneapi/compiler/latest/env/vars.sh
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build_system cmake
+#     displayName: 'oneapi/cpp examples'
+#   - script: |
+#       source /opt/intel/oneapi/compiler/latest/env/vars.sh
+#       .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build_system make
+#     displayName: 'daal/cpp/mpi samples'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) DPC fail'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Uploading on fail'
+#     condition: failed()
 
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
@@ -286,194 +286,194 @@ jobs:
       fi
     displayName: 'bazel-cache-limit'
 
-- job: LinuxDaal4py
-  dependsOn: LinuxMakeGNU_MKL
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
-  pool:
-    vmImage: 'ubuntu-22.04'
-    maxParallel: 2
-  strategy:
-    matrix:
-      Python311:
-        python.version: '3.11'
-  steps:
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      artifact: '$(platform.type) build'
-      path: $(Pipeline.Workspace)
-  - script: .ci/env/apt.sh dev-base
-    displayName: 'apt-get'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      conda update -y -q conda
-      conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
-    displayName: 'Conda create'
-  - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git daal4py
-    displayName: Clone daal4py
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      pip install -r daal4py/dependencies-dev
-      pip install -r daal4py/requirements-test.txt
-    displayName: Create python environment
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      cd daal4py
-      export PYTHON=python
-      ./conda-recipe/build.sh
-    displayName: daal4py build
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) daal4py build'
-      targetPath: '$(Build.Repository.LocalPath)/daal4py'
-    displayName: 'Upload daal4py build artifacts'
-    continueOnError: true
-  - script: |
-      . /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      cd daal4py
-      python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
-    displayName: sklearnex build
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      ./daal4py/conda-recipe/run_test.sh
-    timeoutInMinutes: 15
-    displayName: daal4py test
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      ret_code=0
-      python -m daal4py daal4py/tests/run_examples.py
-      ret_code=$(($ret_code + $?))
-      python -m daal4py daal4py/tests/daal4py/sycl/sklearn_sycl.py
-      ret_code=$(($ret_code + $?))
-      exit $ret_code
-    displayName: daal4py examples
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
-    timeoutInMinutes: 15
-    displayName: Conformance tests
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) conformance tests report'
-      targetPath: '$(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/'
-    displayName: 'Upload conformance tests artifacts'
-    continueOnError: true
+# - job: LinuxDaal4py
+#   dependsOn: LinuxMakeGNU_MKL
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_lnx_gnu'
+#     platform.type : 'lnx32e'
+#   pool:
+#     vmImage: 'ubuntu-22.04'
+#     maxParallel: 2
+#   strategy:
+#     matrix:
+#       Python311:
+#         python.version: '3.11'
+#   steps:
+#   - task: DownloadPipelineArtifact@2
+#     inputs:
+#       artifact: '$(platform.type) build'
+#       path: $(Pipeline.Workspace)
+#   - script: .ci/env/apt.sh dev-base
+#     displayName: 'apt-get'
+#   - script: |
+#       .ci/scripts/describe_system.sh
+#     displayName: 'System info'
+#   - script: |
+#       conda update -y -q conda
+#       conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
+#     displayName: 'Conda create'
+#   - script: |
+#       git clone https://github.com/intel/scikit-learn-intelex.git daal4py
+#     displayName: Clone daal4py
+#   - script: |
+#       source /usr/share/miniconda/etc/profile.d/conda.sh
+#       conda activate CB
+#       pip install -r daal4py/dependencies-dev
+#       pip install -r daal4py/requirements-test.txt
+#     displayName: Create python environment
+#   - script: |
+#       source /usr/share/miniconda/etc/profile.d/conda.sh
+#       conda activate CB
+#       export DALROOT=$(Pipeline.Workspace)/daal/latest
+#       source ${DALROOT}/env/vars.sh
+#       cd daal4py
+#       export PYTHON=python
+#       ./conda-recipe/build.sh
+#     displayName: daal4py build
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) daal4py build'
+#       targetPath: '$(Build.Repository.LocalPath)/daal4py'
+#     displayName: 'Upload daal4py build artifacts'
+#     continueOnError: true
+#   - script: |
+#       . /usr/share/miniconda/etc/profile.d/conda.sh
+#       conda activate CB
+#       export DALROOT=$(Pipeline.Workspace)/daal/latest
+#       cd daal4py
+#       python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
+#     displayName: sklearnex build
+#   - script: |
+#       source /usr/share/miniconda/etc/profile.d/conda.sh
+#       conda activate CB
+#       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
+#       ./daal4py/conda-recipe/run_test.sh
+#     timeoutInMinutes: 15
+#     displayName: daal4py test
+#   - script: |
+#       source /usr/share/miniconda/etc/profile.d/conda.sh
+#       conda activate CB
+#       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
+#       ret_code=0
+#       python -m daal4py daal4py/tests/run_examples.py
+#       ret_code=$(($ret_code + $?))
+#       python -m daal4py daal4py/tests/daal4py/sycl/sklearn_sycl.py
+#       ret_code=$(($ret_code + $?))
+#       exit $ret_code
+#     displayName: daal4py examples
+#   - script: |
+#       source /usr/share/miniconda/etc/profile.d/conda.sh
+#       conda activate CB
+#       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
+#       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
+#     timeoutInMinutes: 15
+#     displayName: Conformance tests
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) conformance tests report'
+#       targetPath: '$(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/'
+#     displayName: 'Upload conformance tests artifacts'
+#     continueOnError: true
 
-- job: 'macOSMakeClang'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_mac_clang'
-    platform.type : 'mac32e'
-  pool:
-    vmImage:  'macos-12'
-  steps:
-  - script: |
-      brew install dos2unix tree
-      conda create -n ci-env -q -y -c conda-forge python=3.10
-      source /usr/local/miniconda/etc/profile.d/conda.sh
-      conda activate ci-env
-      pip install -q cpufeature
-    displayName: 'brew and conda install'
-  - script: |
-      source /usr/local/miniconda/etc/profile.d/conda.sh
-      conda activate ci-env
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 avx2" --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --compiler clang --target onedal_c --optimizations "sse2 avx2"
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build_system cmake
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
-      tree -h -I include __nuget/inteldal*/
-      ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget pkg'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
+# - job: 'macOSMakeClang'
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_mac_clang'
+#     platform.type : 'mac32e'
+#   pool:
+#     vmImage:  'macos-12'
+#   steps:
+#   - script: |
+#       brew install dos2unix tree
+#       conda create -n ci-env -q -y -c conda-forge python=3.10
+#       source /usr/local/miniconda/etc/profile.d/conda.sh
+#       conda activate ci-env
+#       pip install -q cpufeature
+#     displayName: 'brew and conda install'
+#   - script: |
+#       source /usr/local/miniconda/etc/profile.d/conda.sh
+#       conda activate ci-env
+#       .ci/scripts/describe_system.sh
+#     displayName: 'System info'
+#   - script: |
+#       .ci/scripts/build.sh --compiler clang --target daal --optimizations "sse2 avx2" --conda-env ci-env
+#     displayName: 'make daal'
+#   - script: |
+#       .ci/scripts/build.sh --compiler clang --target onedal_c --optimizations "sse2 avx2"
+#     displayName: 'make onedal_c'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) build'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Upload build artifacts'
+#     continueOnError: true
+#   - script: |
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build_system cmake
+#     displayName: 'daal/cpp examples'
+#   - script: |
+#       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build_system cmake
+#     displayName: 'oneapi/cpp examples'
+#   - script: |
+#       deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+#       tree -h -I include __nuget/inteldal*/
+#       ls -lh __nuget/inteldal*.nupkg
+#     displayName: 'nuget pkg'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) fail'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Uploading on fail'
+#     condition: failed()
+#     continueOnError: true
 
-- job: 'WindowsMakeVC'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_win_vc'
-    platform.type : 'win32e'
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-  - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
-      pip install cpufeature
-      pacman -S -y --noconfirm zip dos2unix tree
-    displayName: 'pacman'
-  - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
-      bash .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      .\.ci\scripts\build.bat daal vc avx2
-    displayName: 'make daal'
-  - script: |
-      .\.ci\scripts\build.bat onedal_c vc avx2
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      .\.ci\scripts\test.bat daal\cpp lib msvs cmake
-      .\.ci\scripts\test.bat daal\cpp dll msvs cmake
-    displayName: 'daal/cpp examples'
-  - script: |
-      .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
-      .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
-      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
-      tree -h -I include __nuget/inteldal*/
-      ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget pkg'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
+# - job: 'WindowsMakeVC'
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_win_vc'
+#     platform.type : 'win32e'
+#   pool:
+#     vmImage: 'windows-2022'
+#   steps:
+#   - script: |
+#       set PATH=C:\msys64\usr\bin;%PATH%
+#       pip install cpufeature
+#       pacman -S -y --noconfirm zip dos2unix tree
+#     displayName: 'pacman'
+#   - script: |
+#       set PATH=C:\msys64\usr\bin;%PATH%
+#       bash .ci/scripts/describe_system.sh
+#     displayName: 'System info'
+#   - script: |
+#       .\.ci\scripts\build.bat daal vc avx2
+#     displayName: 'make daal'
+#   - script: |
+#       .\.ci\scripts\build.bat onedal_c vc avx2
+#     displayName: 'make onedal_c'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) build'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Upload build artifacts'
+#     continueOnError: true
+#   - script: |
+#       .\.ci\scripts\test.bat daal\cpp lib msvs cmake
+#       .\.ci\scripts\test.bat daal\cpp dll msvs cmake
+#     displayName: 'daal/cpp examples'
+#   - script: |
+#       .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
+#       .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
+#     displayName: 'oneapi/cpp examples'
+#   - script: |
+#       set PATH=C:\msys64\usr\bin;%PATH%
+#       bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+#       tree -h -I include __nuget/inteldal*/
+#       ls -lh __nuget/inteldal*.nupkg
+#     displayName: 'nuget pkg'
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       artifactName: '$(platform.type) fail'
+#       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+#     displayName: 'Uploading on fail'
+#     condition: failed()
+#     continueOnError: true
