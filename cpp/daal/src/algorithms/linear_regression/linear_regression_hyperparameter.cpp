@@ -37,22 +37,22 @@ Hyperparameter::Hyperparameter() : algorithms::Hyperparameter(hyperparameterIdCo
 
 services::Status Hyperparameter::set(HyperparameterId id, DAAL_INT64 value)
 {
-    return this->algorithms::Hyperparameter::set(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::set(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::set(DoubleHyperparameterId id, double value)
 {
-    return this->algorithms::Hyperparameter::set(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::set(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::find(HyperparameterId id, DAAL_INT64 & value) const
 {
-    return this->algorithms::Hyperparameter::find(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::find(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::find(DoubleHyperparameterId id, double & value) const
 {
-    return this->algorithms::Hyperparameter::find(unsigned int(id), value);
+    return this->algorithms::Hyperparameter::find(uint32_t(id), value);
 }
 
 services::Status convert(const Hyperparameter * params, services::SharedPtr<LinearModelHyperparameter> & result)
@@ -63,7 +63,7 @@ services::Status convert(const Hyperparameter * params, services::SharedPtr<Line
 
     if (params != nullptr)
     {
-        std::int64_t denseUpdateStepBlockSize = 0l;
+        DAAL_INT64 denseUpdateStepBlockSize = 0l;
 
         auto * const resultPtr = new LinearModelHyperparameter();
         DAAL_CHECK_MALLOC(resultPtr);
