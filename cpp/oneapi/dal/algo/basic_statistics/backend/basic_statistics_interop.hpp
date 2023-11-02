@@ -28,6 +28,8 @@ namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
 namespace bk = dal::backend;
 
+using namespace daal::data_management;
+
 using task_t = task::compute;
 using descriptor_t = detail::descriptor_base<task_t>;
 
@@ -124,6 +126,18 @@ inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_re
     }
     if (res_op.test(result_options::variation)) {
         std::cout << "VARIATION IS SET" << std::endl;
+        BlockDescriptor<> block;
+        auto var = daal_result.get(daal_lom::ResultId::variation);
+        var->getBlockOfRows(0, 1, readOnly, block);
+        auto col_count = block.getNumberOfColumns();
+        auto ptr = block.getBlockPtr();
+        
+        for (size_t i = 0; i < col_count; ++i) {
+            std::cout << ptr[i] << " ";
+        }
+        std::cout << std::endl;
+
+
         res.set_variation(interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(daal_lom::ResultId::variation)));
     }

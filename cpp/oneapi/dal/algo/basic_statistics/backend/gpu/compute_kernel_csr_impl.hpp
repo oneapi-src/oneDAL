@@ -103,6 +103,13 @@ private:
         }
         if (requested_results.test(result_options::variation)) {
             auto index = get_result_option_index(result_options::variation);
+            std::cout << "VARIATION IS SET GPU" << std::endl;
+            auto var = get_result_table(q, computed_result, index);
+            auto ptr = row_accessor<const float>(var).pull({0, -1});
+            for (int i = 0; i < var.get_column_count(); ++i) {
+                std::cout << ptr[i] << " ";
+            }
+            std::cout << std::endl;
             res.set_variation(get_result_table(q, computed_result, index));
         }
         return res;
