@@ -23,6 +23,7 @@
 #include <mpi.h>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
+#include <iostream>
 
 namespace spmd = oneapi::dal::preview::spmd;
 
@@ -270,6 +271,7 @@ public:
                                           const data_type& dtype,
                                           std::int64_t destination_rank,
                                           std::int64_t source_rank) override {
+        std::cout << "in" << std::endl;
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
 
@@ -282,6 +284,7 @@ public:
 
         MPI_Status status;
         constexpr int zero_tag = 0;
+        std::cout << "pre MPI" << std::endl;
         mpi_call(MPI_Sendrecv_replace(buf,
                                       integral_cast<int>(count),
                                       make_mpi_data_type(dtype),
@@ -291,6 +294,7 @@ public:
                                       zero_tag,
                                       mpi_comm_,
                                       &status));
+        std::cout << "post MPI" << std::endl;
         return nullptr;
     }
 

@@ -199,15 +199,16 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
     const std::int64_t size = check_mul_overflow(dtype_size, count);
 
     const auto buff_host = array<byte_t>::empty(size);
-    memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
-
-    wait_request(sendrecv_replace(buff_host.get_mutable_data(),
+    // memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
+    std::cout << "pre" << std::endl;
+    wait_request(sendrecv_replace(buf,
                                   count,
                                   dtype,
                                   destination_rank,
                                   source_rank));
+    std::cout << "post" << std::endl;
 
-    memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
+    // memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
 
     return nullptr;
 }
