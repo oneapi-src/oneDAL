@@ -123,6 +123,7 @@ inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_re
             daal_result.get(daal_lom::ResultId::standardDeviation)));
     }
     if (res_op.test(result_options::variation)) {
+        std::cout << "VARIATION IS SET" << std::endl;
         res.set_variation(interop::convert_from_daal_homogen_table<Float>(
             daal_result.get(daal_lom::ResultId::variation)));
     }
