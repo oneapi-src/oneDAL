@@ -21,7 +21,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include <daal/include/algorithms/moments/low_order_moments_types.h>
-
+#include <iostream>
 namespace oneapi::dal::basic_statistics::backend {
 
 namespace daal_lom = daal::algorithms::low_order_moments;
