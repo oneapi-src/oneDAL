@@ -55,7 +55,7 @@ struct csr_table_builder {
         std::uniform_real_distribution<Float> uniform_data(-100.0f, 100.0f);
         std::uniform_int_distribution<std::int64_t> uniform_indices(
             0,
-            column_count_ - indexing_shift);
+            column_count_ - 1);
         std::uniform_int_distribution<std::int64_t> uniform_ind_count(1, column_count_ - 2);
 
         auto data_ptr = data_.get_mutable_data();

@@ -230,7 +230,7 @@ public:
                 CAPTURE(name, r_count, c_count, r, c, lval, rval);
 
                 const auto aerr = std::abs(lval - rval);
-                if (aerr < tol)
+                if (aerr < tol || (std::isnan(lval) && std::isnan(rval)))
                     continue;
 
                 const auto den = std::max({ eps, //
