@@ -15,6 +15,8 @@
 *******************************************************************************/
 #include "oneapi/dal/detail/policy.hpp"
 
+#pragma once
+
 namespace oneapi::dal::detail {
 class user_cpu_context_impl;
 
