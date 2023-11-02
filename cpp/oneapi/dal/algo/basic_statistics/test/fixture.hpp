@@ -209,6 +209,7 @@ public:
                         std::string name = "",
                         double tol = 1e-2) {
         constexpr auto eps = std::numeric_limits<float_t>::epsilon();
+        constexpr auto max = std::numeric_limits<float_t>::max();
 
         const auto c_count = left.get_column_count();
         const auto r_count = left.get_row_count();
@@ -230,7 +231,7 @@ public:
                 CAPTURE(name, r_count, c_count, r, c, lval, rval);
 
                 const auto aerr = std::abs(lval - rval);
-                if (aerr < tol || (std::isnan(lval) && std::isnan(rval)))
+                if (aerr < tol || (lval >= max && rval >= max) || (lval <= -max  && rval <= -max))
                     continue;
 
                 const auto den = std::max({ eps, //
