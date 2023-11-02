@@ -47,33 +47,30 @@ constexpr auto daal_method = daal_lr::training::normEqDense;
 template <typename Float, daal::CpuType Cpu>
 using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
 
-template <typename Float>
-static partial_train_result<task::regression> call_daal_kernel(
-    const context_cpu& ctx,
-    const detail::descriptor_base<task::regression>& desc,
-    const partial_train_input<task::regression>& input) {
+template <typename Float, typename Task>
+static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                                   const detail::descriptor_base<Task>& desc,
+                                                   const partial_train_input<Task>& input) {
     using dal::detail::check_mul_overflow;
     std::cout << "Calling partial train" << std::endl;
-    auto result = partial_train_result<task::regression>();
+    auto result = partial_train_result<Task>();
 
     return result;
 }
 
-template <typename Float>
-static partial_train_result<task::regression> train(
-    const context_cpu& ctx,
-    const detail::descriptor_base<task::regression>& desc,
-    const partial_train_input<task::regression>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input);
+template <typename Float, typename Task>
+static partial_train_result<Task> train(const context_cpu& ctx,
+                                        const detail::descriptor_base<Task>& desc,
+                                        const partial_train_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input);
 }
 
-template <typename Float>
-struct partial_train_kernel_cpu<Float, method::norm_eq, task::regression> {
-    partial_train_result<task::regression> operator()(
-        const context_cpu& ctx,
-        const detail::descriptor_base<task::regression>& desc,
-        const partial_train_input<task::regression>& input) const {
-        return train<Float>(ctx, desc, input);
+template <typename Float, typename Task>
+struct partial_train_kernel_cpu<Float, method::norm_eq, Task> {
+    partial_train_result<Task> operator()(const context_cpu& ctx,
+                                          const detail::descriptor_base<Task>& desc,
+                                          const partial_train_input<Task>& input) const {
+        return train<Float, Task>(ctx, desc, input);
     }
 };
 
