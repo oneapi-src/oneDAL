@@ -16,7 +16,6 @@
 
 #include <algorithm>
 
-#include "oneapi/dal/algo/basic_statistics/backend/cpu/apply_weights.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
 
