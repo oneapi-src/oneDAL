@@ -26,9 +26,9 @@ namespace de = dal::detail;
 namespace la = te::linalg;
 
 template <typename TestType>
-class lr_batch_online : public lr_test<TestType, lr_batch_online<TestType>> {
+class lr_online_test : public lr_test<TestType, lr_online_test<TestType>> {
 public:
-    using base_t = lr_test<TestType, lr_batch_online<TestType>>;
+    using base_t = lr_test<TestType, lr_online_test<TestType>>;
     using float_t = typename base_t::float_t;
     using train_input_t = typename base_t::train_input_t;
     using train_result_t = typename base_t::train_result_t;
@@ -42,7 +42,7 @@ public:
     }
 };
 
-TEMPLATE_LIST_TEST_M(lr_batch_online, "LR common flow", "[lr][online]", lr_types) {
+TEMPLATE_LIST_TEST_M(lr_online_test, "LR common flow", "[lr][online]", lr_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_gpu());
     this->generate(777);
