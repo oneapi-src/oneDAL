@@ -48,8 +48,22 @@ template <typename Float, daal::CpuType Cpu>
 using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
 
 template <typename Float, typename Task>
+static daal_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
+    using daal_lr::internal::HyperparameterId;
+
+    const std::int64_t block = params.get_cpu_macro_block();
+
+    daal_hyperparameters_t daal_hyperparameter;
+    auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
+}
+
+template <typename Float, typename Task>
 static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                    const detail::descriptor_base<Task>& desc,
+                                                   const detail::train_parameters<Task>& params,
                                                    const partial_train_input<Task>& input) {
     using dal::detail::check_mul_overflow;
 
@@ -57,11 +71,10 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const auto feature_count = input.get_data().get_column_count();
     const auto response_count = input.get_responses().get_column_count();
-    std::cout << "here" << std::endl;
+    const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
     const auto ext_feature_count = feature_count + intp;
     const bool has_xtx_data = input.get_prev().get_partial_xtx().has_data();
     if (has_xtx_data) {
-        std::cout << "data is exist" << std::endl;
         auto daal_xtx =
             interop::copy_to_daal_homogen_table<Float>(input.get_prev().get_partial_xtx());
         auto daal_xty =
@@ -74,7 +87,8 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                   *y_daal_table,
                                                                                   *daal_xtx,
                                                                                   *daal_xty,
-                                                                                  intp);
+                                                                                  intp,
+                                                                                  &hp);
 
             interop::status_to_exception(status);
         }
@@ -109,7 +123,8 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                   *y_daal_table,
                                                                                   *xtx_daal_table,
                                                                                   *xty_daal_table,
-                                                                                  intp);
+                                                                                  intp,
+                                                                                  &hp);
 
             interop::status_to_exception(status);
         }
@@ -124,16 +139,18 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
 template <typename Float, typename Task>
 static partial_train_result<Task> train(const context_cpu& ctx,
                                         const detail::descriptor_base<Task>& desc,
+                                        const detail::train_parameters<Task>& params,
                                         const partial_train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input);
+    return call_daal_kernel<Float, Task>(ctx, desc, params, input);
 }
 
 template <typename Float, typename Task>
 struct partial_train_kernel_cpu<Float, method::norm_eq, Task> {
     partial_train_result<Task> operator()(const context_cpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
+                                          const detail::train_parameters<Task>& params,
                                           const partial_train_input<Task>& input) const {
-        return train<Float, Task>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, params, input);
     }
 };
 

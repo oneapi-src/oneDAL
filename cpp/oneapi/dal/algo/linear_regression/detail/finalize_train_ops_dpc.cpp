@@ -39,9 +39,6 @@ struct finalize_train_ops_dispatcher<Policy, Float, Method, Task> {
 #define INSTANTIATE(F, M, T)      \
     template struct ONEDAL_EXPORT \
         finalize_train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
-#define INSTANTIATE(F, M, T)      \
-    template struct ONEDAL_EXPORT \
-        finalize_train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::norm_eq, task::regression)
 INSTANTIATE(double, method::norm_eq, task::regression)

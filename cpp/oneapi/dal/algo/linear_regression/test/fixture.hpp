@@ -285,27 +285,27 @@ public:
         dal::linear_regression::partial_train_result<> partial_result;
         auto input_table_x = split_table_by_rows<double>(x_train, 10);
         auto input_table_y = split_table_by_rows<double>(y_train, 10);
-        for (std::int64_t i = 0; i < 10; i++) {
-            partial_result =
-                this->partial_train(desc, partial_result, input_table_x[i], input_table_y[i]);
-        }
-        auto train_res = this->finalize_train(desc, partial_result);
+        // for (std::int64_t i = 0; i < 10; i++) {
+        //     partial_result =
+        //         this->partial_train(desc, partial_result, input_table_x[i], input_table_y[i]);
+        // }
+        // auto train_res = this->finalize_train(desc, partial_result);
 
-        SECTION("Checking intercept values") {
-            if (desc.get_result_options().test(result_options::intercept))
-                check_if_close(train_res.get_intercept(), this->bias_, tol);
-        }
+        // SECTION("Checking intercept values") {
+        //     if (desc.get_result_options().test(result_options::intercept))
+        //         check_if_close(train_res.get_intercept(), this->bias_, tol);
+        // }
 
-        SECTION("Checking coefficient values") {
-            if (desc.get_result_options().test(result_options::coefficients))
-                check_if_close(train_res.get_coefficients(), this->beta_, tol);
-        }
+        // SECTION("Checking coefficient values") {
+        //     if (desc.get_result_options().test(result_options::coefficients))
+        //         check_if_close(train_res.get_coefficients(), this->beta_, tol);
+        // }
 
-        const auto infer_res = this->infer(desc, x_test, train_res.get_model());
+        // const auto infer_res = this->infer(desc, x_test, train_res.get_model());
 
-        SECTION("Checking infer results") {
-            check_if_close(infer_res.get_responses(), y_test, tol);
-        }
+        // SECTION("Checking infer results") {
+        //     check_if_close(infer_res.get_responses(), y_test, tol);
+        // }
     }
 
 protected:

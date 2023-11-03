@@ -48,8 +48,22 @@ template <typename Float, daal::CpuType Cpu>
 using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
 
 template <typename Float, typename Task>
+static daal_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
+    using daal_lr::internal::HyperparameterId;
+
+    const std::int64_t block = params.get_cpu_macro_block();
+
+    daal_hyperparameters_t daal_hyperparameter;
+    auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
+}
+
+template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
+                                           const detail::train_parameters<Task>& params,
                                            const partial_train_result<Task>& input) {
     using dal::detail::check_mul_overflow;
 
@@ -65,7 +79,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
-
+    const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
     auto xtx_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xtx());
     auto xty_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xty());
     auto betas_daal_table =
@@ -79,7 +93,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                       *xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *betas_daal_table,
-                                                                      intp);
+                                                                      intp,
+                                                                      &hp);
         });
 
         interop::status_to_exception(status);
@@ -126,16 +141,18 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
+                                const detail::train_parameters<Task>& params,
                                 const partial_train_result<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input);
+    return call_daal_kernel<Float>(ctx, desc, params, input);
 }
 
 template <typename Float, typename Task>
 struct finalize_train_kernel_cpu<Float, method::norm_eq, Task> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
+                                  const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const {
-        return train<Float, Task>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, params, input);
     }
 };
 

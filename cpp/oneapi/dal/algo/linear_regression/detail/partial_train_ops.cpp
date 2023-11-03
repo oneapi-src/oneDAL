@@ -26,12 +26,36 @@ using dal::detail::host_policy;
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct partial_train_ops_dispatcher<Policy, Float, Method, Task> {
-    partial_train_result<Task> operator()(const Policy& policy,
+    partial_train_result<Task> operator()(const Policy& ctx,
+                                          const descriptor_base<Task>& desc,
+                                          const train_parameters<Task>& params,
+                                          const partial_train_input<Task>& input) const {
+        return implementation(ctx, desc, params, input);
+    }
+
+    train_parameters<Task> select_parameters(const Policy& ctx,
+                                             const descriptor_base<Task>& desc,
+                                             const partial_train_input<Task>& input) const {
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
+            KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t{}(ctx, desc, input);
+    }
+
+    partial_train_result<Task> operator()(const Policy& ctx,
                                           const descriptor_base<Task>& desc,
                                           const partial_train_input<Task>& input) const {
+        const auto params = select_parameters(ctx, desc, input);
+        return implementation(ctx, desc, params, input);
+    }
+
+private:
+    inline auto implementation(const Policy& ctx,
+                               const descriptor_base<Task>& desc,
+                               const train_parameters<Task>& params,
+                               const partial_train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::partial_train_kernel_cpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t()(policy, desc, input);
+        return kernel_dispatcher_t{}(ctx, desc, params, input);
     }
 };
 

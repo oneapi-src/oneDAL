@@ -27,14 +27,12 @@ struct ONEDAL_EXPORT train_parameters_cpu {
     params_t operator()(const dal::backend::context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const train_input<Task>& input) const;
-};
-
-template <typename Float, typename Method, typename Task>
-struct ONEDAL_EXPORT partial_train_parameters_cpu {
-    using params_t = detail::train_parameters<Task>;
     params_t operator()(const dal::backend::context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const;
+    params_t operator()(const dal::backend::context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const;
 };
 
 } // namespace oneapi::dal::linear_regression::parameters

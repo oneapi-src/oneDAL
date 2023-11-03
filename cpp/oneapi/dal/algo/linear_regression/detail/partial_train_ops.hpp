@@ -26,6 +26,13 @@ template <typename Context, typename Float, typename Method, typename Task, type
 struct partial_train_ops_dispatcher {
     partial_train_result<Task> operator()(const Context&,
                                           const descriptor_base<Task>&,
+                                          const train_parameters<Task>&,
+                                          const partial_train_input<Task>&) const;
+    train_parameters<Task> select_parameters(const Context&,
+                                             const descriptor_base<Task>&,
+                                             const partial_train_input<Task>&) const;
+    partial_train_result<Task> operator()(const Context&,
+                                          const descriptor_base<Task>&,
                                           const partial_train_input<Task>&) const;
 };
 
@@ -34,7 +41,7 @@ struct partial_train_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
-    // using param_t = train_parameters<task_t>;
+    using param_t = train_parameters<task_t>;
     using input_t = partial_train_input<task_t>;
     using result_t = partial_train_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
@@ -45,22 +52,43 @@ struct partial_train_ops {
                               const input_t& input,
                               const result_t& result) const {}
 
+    /// Check that the hyperparameters of the algorithm belong to the expected ranges
+    void check_parameters_ranges(const param_t& params, const input_t& input) const {
+        ONEDAL_ASSERT(params.get_cpu_macro_block() > 0);
+        ONEDAL_ASSERT(params.get_cpu_macro_block() <= 0x10000l);
+        ONEDAL_ASSERT(params.get_gpu_macro_block() > 0);
+        ONEDAL_ASSERT(params.get_gpu_macro_block() <= 0x100000l);
+    }
+
+    template <typename Context>
+    auto select_parameters(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+        check_preconditions(desc, input);
+        return partial_train_ops_dispatcher<Context, float_t, method_t, task_t>{}.select_parameters(
+            ctx,
+            desc,
+            input);
+    }
+
     template <typename Context>
     auto operator()(const Context& ctx,
                     const Descriptor& desc,
-                    const partial_train_input<task_t>& input) const {
-        check_preconditions(desc, input);
+                    const param_t& params,
+                    const input_t& input) const {
+        check_parameters_ranges(params, input);
         const auto result =
-            partial_train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
+            partial_train_ops_dispatcher<Context, float_t, method_t, task_t>{}(ctx,
+                                                                               desc,
+                                                                               params,
+                                                                               input);
         check_postconditions(desc, input, result);
         return result;
     }
 
-    // template <typename Context>
-    // auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
-    //     const auto params = select_parameters(ctx, desc, input);
-    //     return this->operator()(ctx, desc, params, input);
-    // }
+    template <typename Context>
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+        const auto params = select_parameters(ctx, desc, input);
+        return this->operator()(ctx, desc, params, input);
+    }
 };
 
 } // namespace v1

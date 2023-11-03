@@ -54,11 +54,6 @@ struct train_parameters_cpu<Float, method::norm_eq, Task> {
 
         return params_t{}.set_cpu_macro_block(block);
     }
-};
-
-template <typename Float, typename Task>
-struct partial_train_parameters_cpu<Float, method::norm_eq, Task> {
-    using params_t = detail::train_parameters<Task>;
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
@@ -72,8 +67,20 @@ struct partial_train_parameters_cpu<Float, method::norm_eq, Task> {
 
         return params_t{}.set_cpu_macro_block(block);
     }
-};
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const {
+        // const auto& x_train = input.get_data();
+        // const auto& y_train = input.get_responses();
 
+        // const auto f_count = x_train.get_column_count();
+        // const auto r_count = y_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(100, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+};
 template struct ONEDAL_EXPORT train_parameters_cpu<float, method::norm_eq, task::regression>;
 template struct ONEDAL_EXPORT train_parameters_cpu<double, method::norm_eq, task::regression>;
 
