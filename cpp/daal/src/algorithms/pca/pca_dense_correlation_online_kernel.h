@@ -43,6 +43,8 @@ class PCACorrelationKernel<online, algorithmFPType, cpu> : public PCACorrelation
 public:
     explicit PCACorrelationKernel() {};
 
+    using PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEigenvalues;
+
     services::Status compute(const data_management::NumericTablePtr & pData, PartialResult<correlationDense> * partialResult,
                              const OnlineParameter<algorithmFPType, correlationDense> * parameter);
 

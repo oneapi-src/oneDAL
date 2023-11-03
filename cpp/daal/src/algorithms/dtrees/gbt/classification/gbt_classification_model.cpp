@@ -84,10 +84,21 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     ImplType::traverseBFS(iTree, visitor);
 }
 
+void ModelImpl::setPredictionBias(double value)
+{
+    _predictionBias = value;
+}
+
+double ModelImpl::getPredictionBias() const
+{
+    return _predictionBias;
+}
+
 services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
     auto s = algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     arch->set(this->_nFeatures); //algorithms::classifier::internal::ModelInternal
+    arch->set(this->_predictionBias);
     return s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
 }
 
@@ -95,6 +106,7 @@ services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArc
 {
     auto s = algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
     arch->set(this->_nFeatures); //algorithms::classifier::internal::ModelInternal
+    arch->set(this->_predictionBias);
     return s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(
         arch, COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion())));
 }

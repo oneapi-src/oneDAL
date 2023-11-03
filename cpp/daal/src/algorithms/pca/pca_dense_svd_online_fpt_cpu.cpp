@@ -35,7 +35,7 @@ template class OnlineContainer<DAAL_FPTYPE, svdDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class PCASVDOnlineKernel<DAAL_FPTYPE, DAAL_CPU>;
+template class DAAL_EXPORT PCASVDOnlineKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
 } // namespace pca
 } // namespace algorithms
