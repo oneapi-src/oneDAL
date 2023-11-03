@@ -28,6 +28,8 @@
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/partial_compute.hpp"
 #include "oneapi/dal/finalize_compute.hpp"
+#include "oneapi/dal/partial_train.hpp"
+#include "oneapi/dal/finalize_train.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 #include "oneapi/dal/test/engine/catch.hpp"
@@ -204,6 +206,15 @@ inline auto finalize_compute(host_test_policy& policy, Args&&... args) {
     return dal::finalize_compute(std::forward<Args>(args)...);
 }
 
+template <typename... Args>
+inline auto partial_train(host_test_policy& policy, Args&&... args) {
+    return dal::partial_train(std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+inline auto finalize_train(host_test_policy& policy, Args&&... args) {
+    return dal::finalize_train(std::forward<Args>(args)...);
+}
 #ifdef ONEDAL_DATA_PARALLEL
 class test_queue_provider {
 public:
@@ -281,6 +292,16 @@ inline auto partial_compute(device_test_policy& policy, Args&&... args) {
 template <typename... Args>
 inline auto finalize_compute(device_test_policy& policy, Args&&... args) {
     return dal::finalize_compute(policy.get_queue(), std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+inline auto partial_train(device_test_policy& policy, Args&&... args) {
+    return dal::partial_train(policy.get_queue(), std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+inline auto finalize_train(device_test_policy& policy, Args&&... args) {
+    return dal::finalize_train(policy.get_queue(), std::forward<Args>(args)...);
 }
 #endif
 

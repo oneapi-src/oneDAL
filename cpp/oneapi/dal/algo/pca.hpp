@@ -18,3 +18,5 @@
 
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
+#include "oneapi/dal/algo/pca/partial_train.hpp"
+#include "oneapi/dal/algo/pca/finalize_train.hpp"
