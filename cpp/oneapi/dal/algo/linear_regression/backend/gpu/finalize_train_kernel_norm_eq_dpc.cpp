@@ -40,6 +40,7 @@ namespace pr = be::primitives;
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
+                                          const detail::train_parameters<Task>& params,
                                           const partial_train_result<Task>& input) {
     auto result = train_result<Task>();
 
@@ -49,16 +50,18 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
+                                const detail::train_parameters<Task>& params,
                                 const partial_train_result<Task>& input) {
-    return call_dal_kernel<Float, Task>(ctx, desc, input);
+    return call_dal_kernel<Float, Task>(ctx, desc, params, input);
 }
 
 template <typename Float, typename Task>
 struct finalize_train_kernel_gpu<Float, method::norm_eq, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
+                                  const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const {
-        return train<Float, Task>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, params, input);
     }
 };
 

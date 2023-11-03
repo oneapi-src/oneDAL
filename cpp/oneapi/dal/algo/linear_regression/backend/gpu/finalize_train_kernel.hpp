@@ -24,7 +24,8 @@ namespace oneapi::dal::linear_regression::backend {
 template <typename Float, typename Method, typename Task>
 struct finalize_train_kernel_gpu {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                  const detail::descriptor_base<Task>& params,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const;
 };
 

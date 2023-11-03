@@ -38,7 +38,7 @@ struct partial_train_ops_dispatcher<Policy, Float, Method, Task> {
                                              const partial_train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>),
-            KERNEL_UNIVERSAL_SPMD_GPU(parameters::train_parameters_gpu<Float, Method, Task>)>;
+            KERNEL_SINGLE_NODE_GPU(parameters::train_parameters_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
@@ -56,7 +56,7 @@ private:
                                const partial_train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::partial_train_kernel_cpu<Float, Method, Task>),
-            KERNEL_UNIVERSAL_SPMD_GPU(backend::partial_train_kernel_gpu<Float, Method, Task>)>;
+            KERNEL_SINGLE_NODE_GPU(backend::partial_train_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, params, input);
     }
 };

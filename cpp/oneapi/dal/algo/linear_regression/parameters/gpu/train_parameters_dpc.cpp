@@ -54,6 +54,37 @@ struct train_parameters_gpu<Float, method::norm_eq, Task> {
 
         return params_t{}.set_gpu_macro_block(block);
     }
+
+    params_t operator()(const context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const {
+        const auto& queue = ctx.get_queue();
+
+        // const auto& x_train = input.get_data();
+        // const auto& y_train = input.get_responses();
+
+        // const auto f_count = x_train.get_column_count();
+        // const auto r_count = y_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, 100, 100);
+
+        return params_t{}.set_gpu_macro_block(block);
+    }
+    params_t operator()(const context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const {
+        const auto& queue = ctx.get_queue();
+
+        // const auto& x_train = input.get_data();
+        // const auto& y_train = input.get_responses();
+
+        // const auto f_count = x_train.get_column_count();
+        // const auto r_count = y_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, 100, 100);
+
+        return params_t{}.set_gpu_macro_block(block);
+    }
 };
 
 template struct ONEDAL_EXPORT train_parameters_gpu<float, method::norm_eq, task::regression>;

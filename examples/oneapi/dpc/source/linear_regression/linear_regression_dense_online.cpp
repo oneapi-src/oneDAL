@@ -46,9 +46,9 @@ void run(sycl::queue& q) {
     auto input_table_y = split_table_by_rows<double>(y_train, nBlocks);
     for (std::int64_t i = 0; i < nBlocks; i++) {
         partial_result =
-            dal::partial_train(lr_desc, partial_result, input_table_x[i], input_table_y[i]);
+            dal::partial_train(q, lr_desc, partial_result, input_table_x[i], input_table_y[i]);
     }
-    auto result = dal::finalize_train(lr_desc, partial_result);
+    auto result = dal::finalize_train(q, lr_desc, partial_result);
 
     std::cout << "Coefficients:\n" << result.get_coefficients() << std::endl;
     std::cout << "Intercept:\n" << result.get_intercept() << std::endl;

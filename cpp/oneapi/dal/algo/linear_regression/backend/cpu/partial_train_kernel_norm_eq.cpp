@@ -115,8 +115,6 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
         auto x_daal_table = interop::convert_to_daal_table<Float>(input.get_data());
         auto y_daal_table = interop::convert_to_daal_table<Float>(input.get_responses());
 
-        // const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
-
         {
             const auto status = interop::call_daal_kernel<Float, online_kernel_t>(ctx,
                                                                                   *x_daal_table,
