@@ -66,7 +66,7 @@ enum class cpu_extension : uint64_t {
     avx2 = 1U << 4,
     avx512 = 1U << 5
 };
-#if defined(__linux__)
+#if !defined(__APPLE__)
 #ifdef DAAL_THREAD_PINNING_DISABLED
 struct ONEDAL_EXPORT threading_policy {
     int max_concurrency;
@@ -92,7 +92,7 @@ struct ONEDAL_EXPORT threading_policy {
 #endif
 #endif
 
-#if defined(__linux__)
+#if !defined(__APPLE__)
 class ONEDAL_EXPORT host_policy : public base {
     friend pimpl_accessor;
 
@@ -183,7 +183,7 @@ public:
         return queue_;
     }
 
-#if defined(__linux__)
+#if !defined(__APPLE__)
 
     threading_policy get_threading_policy() const noexcept;
     void set_threading_policy(const threading_policy& policy) noexcept;
@@ -224,7 +224,7 @@ using v1::is_data_parallel_policy_v;
 using v1::cpu_extension;
 using v1::default_host_policy;
 using v1::host_policy;
-#if defined(__linux__)
+#if !defined(__APPLE__)
 using v1::threading_policy;
 #endif
 

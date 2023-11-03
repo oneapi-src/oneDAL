@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #pragma once
-#if defined(__linux__)
-#include "tbb/tbb.h"
+#if !defined(__APPLE__)
+#include "tbb/task_arena.h"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {

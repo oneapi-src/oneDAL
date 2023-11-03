@@ -24,7 +24,7 @@
 #include "oneapi/dal/backend/dispatcher_cpu.hpp"
 #include <daal/src/services/service_defines.h>
 
-#if defined(__linux__)
+#if !defined(__APPLE__)
 #include "oneapi/dal/backend/threading.hpp"
 #endif
 
@@ -76,7 +76,7 @@ private:
 
 class context_cpu : public communicator_provider<spmd::device_memory_access::none> {
 public:
-#if defined(__linux__)
+#if !defined(__APPLE__)
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
             : cpu_extensions_(policy.get_enabled_cpu_extensions()),
               threading_policy_(policy.get_threading_policy()) {
@@ -135,7 +135,7 @@ public:
     detail::cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
     }
-#if defined(__linux__)
+#if !defined(__APPLE__)
     threading_policy get_threading_policy() const {
         return threading_policy_;
     }
@@ -144,7 +144,7 @@ public:
 private:
     void global_init();
     detail::cpu_extension cpu_extensions_;
-#if defined(__linux__)
+#if !defined(__APPLE__)
     detail::threading_policy threading_policy_;
 #endif
 };
@@ -332,7 +332,7 @@ template <typename Op>
 inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     using detail::cpu_extension;
     [[maybe_unused]] const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
-#if defined(__linux__)
+#if !defined(__APPLE__)
     using detail::threading_policy;
 
     threading_policy policy = ctx.get_threading_policy();
