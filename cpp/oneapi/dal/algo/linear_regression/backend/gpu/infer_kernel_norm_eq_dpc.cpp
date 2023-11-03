@@ -132,8 +132,8 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
         auto x_arr = x_accessor.pull(queue, { first, last }, alloc);
         auto x_sub = pr::ndarray<Float, 2>::wrap(x_arr, { length, feature_count });
 
-        sycl::event gemm_event;
-        { gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event }); }
+        auto gemm_event = pr::gemm(queue, x_sub, core.t(), y_sub, one, zero, { last_event });
+
         last_event = apply_betas(queue, beta, y_sub, intp, { gemm_event });
     }
 

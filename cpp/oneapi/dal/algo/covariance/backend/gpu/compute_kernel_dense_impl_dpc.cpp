@@ -143,7 +143,6 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     {
         ONEDAL_PROFILER_TASK(gemm, q_);
         gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0), { sums_event });
-        //gemm_event.wait_and_throw();
     }
 
     {
