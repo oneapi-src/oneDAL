@@ -180,17 +180,19 @@ services::Status createTreeInternal(data_management::DataCollectionPtr & seriali
     return s;
 }
 
-void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel)
+void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel, double cover)
 {
     node.featureIndex           = featureIndex;
     node.leftIndexOrClass       = classLabel;
+    node.cover                  = cover;
     node.featureValueOrResponse = 0;
 }
 
-void setNode(DecisionTreeNode & node, int featureIndex, double response)
+void setNode(DecisionTreeNode & node, int featureIndex, double response, double cover)
 {
     node.featureIndex           = featureIndex;
     node.leftIndexOrClass       = 0;
+    node.cover                  = cover;
     node.featureValueOrResponse = response;
 }
 
@@ -222,7 +224,7 @@ void setProbabilities(const size_t treeId, const size_t nodeId, const size_t res
 }
 
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
-                                      size_t featureIndex, double featureValue, size_t & res, int defaultLeft)
+                                      size_t featureIndex, double featureValue, int defaultLeft, double cover, size_t & res)
 {
     const size_t noParent = static_cast<size_t>(-1);
     services::Status s;
@@ -243,6 +245,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
         aNode[0].defaultLeft            = defaultLeft;
         aNode[0].leftIndexOrClass       = 0;
         aNode[0].featureValueOrResponse = featureValue;
+        aNode[0].cover                  = cover;
         nodeId                          = 0;
     }
     else if (aNode[parentId].featureIndex < 0)
@@ -262,6 +265,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 aNode[nodeId].defaultLeft            = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
+                aNode[nodeId].cover                  = cover;
             }
         }
         if ((aNode[parentId].leftIndexOrClass > 0) && (position == 0))
@@ -274,6 +278,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 aNode[nodeId].defaultLeft            = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
+                aNode[nodeId].cover                  = cover;
             }
         }
         if ((aNode[parentId].leftIndexOrClass == 0) && (position == 0))
@@ -296,6 +301,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
             aNode[nodeId].defaultLeft            = defaultLeft;
             aNode[nodeId].leftIndexOrClass       = 0;
             aNode[nodeId].featureValueOrResponse = featureValue;
+            aNode[nodeId].cover                  = cover;
             aNode[parentId].leftIndexOrClass     = nodeId;
             if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID))
             {
@@ -332,6 +338,7 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 aNode[nodeId].defaultLeft            = defaultLeft;
                 aNode[nodeId].leftIndexOrClass       = 0;
                 aNode[nodeId].featureValueOrResponse = featureValue;
+                aNode[nodeId].cover                  = cover;
             }
             else
             {
