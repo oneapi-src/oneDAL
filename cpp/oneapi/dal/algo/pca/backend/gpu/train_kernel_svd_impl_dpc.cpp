@@ -103,22 +103,22 @@ auto svd_decomposition(sycl::queue& queue,
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto U = pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
+    auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
 
     auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
 
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
     Float* S_ptr = S.get_mutable_data();
     Float* V_T_ptr = V_T.get_mutable_data();
     std::int64_t lda = column_count;
-    std::int64_t ldu = column_count;
+    std::int64_t ldu = row_count;
     std::int64_t ldvt = column_count;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
+        auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
                                                                          column_count,
                                                                          row_count,
                                                                          data_ptr,
@@ -169,13 +169,13 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         }
         std::cout << "step 8" << std::endl;
         //TODO: sklearn doesnt compute full eigenvalues
-        if (desc.get_result_options().test(result_options::eigenvectors)) {
-            const auto model =
-                model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
-                                                               u_host.get_dimension(0),
-                                                               u_host.get_dimension(1)));
-            result.set_model(model);
-        }
+        // if (desc.get_result_options().test(result_options::eigenvectors)) {
+        //     const auto model =
+        //         model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
+        //                                                        u_host.get_dimension(0),
+        //                                                        u_host.get_dimension(1)));
+        //     result.set_model(model);
+        // }
         std::cout << "step 9" << std::endl;
     }
 
