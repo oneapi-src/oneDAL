@@ -476,40 +476,36 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     // Input arrays test section
     ONEDAL_ASSERT(train.has_data());
     ONEDAL_ASSERT(query.has_data());
-    // TODO: any reason not to remove [[maybe_unused]]
-    [[maybe_unused]] auto tcount = train.get_row_count();
+    auto tcount = train.get_row_count();
     const auto qcount = query.get_dimension(0);
     const auto fcount = train.get_column_count();
     const auto kcount = desc.get_neighbor_count();
     ONEDAL_ASSERT(fcount == query.get_dimension(1));
     // Output arrays test section
     const auto& ropts = desc.get_result_options();
-    {
-        ONEDAL_PROFILER_TASK(extra.asserts, queue);
-        if (ropts.test(result_options::responses)) {
-            ONEDAL_ASSERT(tresps.has_data());
-            ONEDAL_ASSERT(qresps.has_mutable_data());
-            ONEDAL_ASSERT(tcount == tresps.get_row_count());
-            ONEDAL_ASSERT(qcount == qresps.get_count());
-            ONEDAL_ASSERT(qcount == part_responses.get_dimension(0));
-            ONEDAL_ASSERT(2 * kcount == part_responses.get_dimension(1));
-            ONEDAL_ASSERT(qcount == intermediate_responses.get_dimension(0));
-            ONEDAL_ASSERT(kcount == intermediate_responses.get_dimension(1));
-        }
-        if (ropts.test(result_options::indices)) {
-            ONEDAL_ASSERT(indices.has_mutable_data());
-            ONEDAL_ASSERT(qcount == indices.get_dimension(0));
-            ONEDAL_ASSERT(kcount == indices.get_dimension(1));
-            ONEDAL_ASSERT(qcount == part_indices.get_dimension(0));
-            ONEDAL_ASSERT(2 * kcount == part_indices.get_dimension(1));
-        }
-        if (ropts.test(result_options::distances)) {
-            ONEDAL_ASSERT(distances.has_mutable_data());
-            ONEDAL_ASSERT(qcount == distances.get_dimension(0));
-            ONEDAL_ASSERT(kcount == distances.get_dimension(1));
-            ONEDAL_ASSERT(qcount == part_distances.get_dimension(0));
-            ONEDAL_ASSERT(2 * kcount == part_distances.get_dimension(1));
-        }
+    if (ropts.test(result_options::responses)) {
+        ONEDAL_ASSERT(tresps.has_data());
+        ONEDAL_ASSERT(qresps.has_mutable_data());
+        ONEDAL_ASSERT(tcount == tresps.get_row_count());
+        ONEDAL_ASSERT(qcount == qresps.get_count());
+        ONEDAL_ASSERT(qcount == part_responses.get_dimension(0));
+        ONEDAL_ASSERT(2 * kcount == part_responses.get_dimension(1));
+        ONEDAL_ASSERT(qcount == intermediate_responses.get_dimension(0));
+        ONEDAL_ASSERT(kcount == intermediate_responses.get_dimension(1));
+    }
+    if (ropts.test(result_options::indices)) {
+        ONEDAL_ASSERT(indices.has_mutable_data());
+        ONEDAL_ASSERT(qcount == indices.get_dimension(0));
+        ONEDAL_ASSERT(kcount == indices.get_dimension(1));
+        ONEDAL_ASSERT(qcount == part_indices.get_dimension(0));
+        ONEDAL_ASSERT(2 * kcount == part_indices.get_dimension(1));
+    }
+    if (ropts.test(result_options::distances)) {
+        ONEDAL_ASSERT(distances.has_mutable_data());
+        ONEDAL_ASSERT(qcount == distances.get_dimension(0));
+        ONEDAL_ASSERT(kcount == distances.get_dimension(1));
+        ONEDAL_ASSERT(qcount == part_distances.get_dimension(0));
+        ONEDAL_ASSERT(2 * kcount == part_distances.get_dimension(1));
     }
     const auto ccount = desc.get_class_count();
 
@@ -518,7 +514,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
     {
         ONEDAL_PROFILER_TASK(extra.allgather, queue);
-        // TODO: any additional profiler tasks needed? or reset_dists_inds?
         comm.allgather(tcount, node_sample_counts.flatten()).wait();
     }
 
@@ -542,7 +537,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     auto train_block_queue = pr::split_table<Float>(queue, train, block_size);
     auto tresps_queue = pr::split_table<res_t>(queue, tresps, block_size);
-
     std::int64_t tbq_size = train_block_queue.size();
     std::int64_t trq_size = tresps_queue.size();
     ONEDAL_ASSERT(tbq_size <= block_count);
@@ -616,7 +610,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     for (std::int64_t relative_block_idx = 0; relative_block_idx < block_count;
          ++relative_block_idx) {
-        ONEDAL_PROFILER_TASK(extra.blockloop, queue);
         auto current_block = train_block_queue.front();
         train_block_queue.pop_front();
         ONEDAL_ASSERT(current_block.has_data());
@@ -685,8 +678,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         if (relative_block_idx < block_count - 1) {
             ONEDAL_PROFILER_TASK(dblock.sendrecvreplace, queue);
             auto send_count = current_block.get_count();
-            // TEMPORARY - REMOVE AFTER DEBUG
-            std::cout << "Rank: " << current_rank << ", Block: " << relative_block_idx << ", Send count X: " << send_count << ", Send count Y: " << current_tresps.get_count() << ", Block count: " << block_count << std::endl;
             ONEDAL_ASSERT(send_count >= 0);
             ONEDAL_ASSERT(send_count <= de::limits<int>::max());
             comm.sendrecv_replace(array<Float>::wrap(queue,
