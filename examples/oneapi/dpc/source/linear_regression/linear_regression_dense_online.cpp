@@ -14,15 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
+
 #include "oneapi/dal/algo/linear_regression.hpp"
 #include "oneapi/dal/io/csv.hpp"
+
 #include "oneapi/dal/exceptions.hpp"
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
 namespace result_options = dal::linear_regression::result_options;
 
-void run() {
+void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("linear_regression_train_data.csv");
     const auto train_response_file_name = get_data_path("linear_regression_train_responses.csv");
     const auto test_data_file_name = get_data_path("linear_regression_test_data.csv");
@@ -35,7 +40,6 @@ void run() {
 
     const auto lr_desc = dal::linear_regression::descriptor<>().set_result_options(
         result_options::coefficients | result_options::intercept);
-
     dal::linear_regression::partial_train_result<> partial_result;
 
     auto input_table_x = split_table_by_rows<double>(x_train, nBlocks);
@@ -51,13 +55,19 @@ void run() {
 
     const auto lr_model = result.get_model();
 
-    const auto test_result = dal::infer(lr_desc, x_test, lr_model);
+    const auto test_result = dal::infer(q, lr_desc, x_test, lr_model);
 
     std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
-    run();
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
+    }
     return 0;
 }

@@ -27,7 +27,7 @@
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
-#include "oneapi/dal/algo/linear_regression/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/finalize_train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
@@ -40,10 +40,8 @@ namespace pr = be::primitives;
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
-                                          const detail::train_parameters<Task>& params,
-                                          const table& data,
-                                          const table& resp) {
-    auto result = train_result<Task>().set_model(model).set_result_options(options);
+                                          const partial_train_result<Task>& input) {
+    auto result = train_result<Task>();
 
     return result;
 }
@@ -51,18 +49,16 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
-                                const detail::train_parameters<Task>& params,
                                 const partial_train_result<Task>& input) {
-    return call_dal_kernel<Float, Task>(ctx, desc, params, input.get_data(), input.get_responses());
+    return call_dal_kernel<Float, Task>(ctx, desc, input);
 }
 
 template <typename Float, typename Task>
 struct finalize_train_kernel_gpu<Float, method::norm_eq, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
-                                  const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const {
-        return train<Float, Task>(ctx, desc, params, input);
+        return train<Float, Task>(ctx, desc, input);
     }
 };
 

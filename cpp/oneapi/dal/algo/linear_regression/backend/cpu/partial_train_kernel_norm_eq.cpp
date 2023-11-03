@@ -52,10 +52,73 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                    const detail::descriptor_base<Task>& desc,
                                                    const partial_train_input<Task>& input) {
     using dal::detail::check_mul_overflow;
-    std::cout << "Calling partial train" << std::endl;
-    auto result = partial_train_result<Task>();
 
-    return result;
+    const bool intp = desc.get_compute_intercept();
+
+    const auto feature_count = input.get_data().get_column_count();
+    const auto response_count = input.get_responses().get_column_count();
+    std::cout << "here" << std::endl;
+    const auto ext_feature_count = feature_count + intp;
+    const bool has_xtx_data = input.get_prev().get_partial_xtx().has_data();
+    if (has_xtx_data) {
+        std::cout << "data is exist" << std::endl;
+        auto daal_xtx =
+            interop::copy_to_daal_homogen_table<Float>(input.get_prev().get_partial_xtx());
+        auto daal_xty =
+            interop::copy_to_daal_homogen_table<Float>(input.get_prev().get_partial_xty());
+        auto x_daal_table = interop::convert_to_daal_table<Float>(input.get_data());
+        auto y_daal_table = interop::convert_to_daal_table<Float>(input.get_responses());
+        {
+            const auto status = interop::call_daal_kernel<Float, online_kernel_t>(ctx,
+                                                                                  *x_daal_table,
+                                                                                  *y_daal_table,
+                                                                                  *daal_xtx,
+                                                                                  *daal_xty,
+                                                                                  intp);
+
+            interop::status_to_exception(status);
+        }
+        auto result = partial_train_result<Task>();
+        result.set_partial_xtx(interop::convert_from_daal_homogen_table<Float>(daal_xtx));
+        result.set_partial_xty(interop::convert_from_daal_homogen_table<Float>(daal_xty));
+        return result;
+    }
+    else {
+        const auto xtx_size = check_mul_overflow(ext_feature_count, ext_feature_count);
+        auto xtx_arr = array<Float>::zeros(xtx_size);
+
+        const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
+        auto xty_arr = array<Float>::zeros(xty_size);
+
+        const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
+        auto betas_arr = array<Float>::zeros(betas_size);
+
+        auto xtx_daal_table =
+            interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
+        auto xty_daal_table =
+            interop::convert_to_daal_homogen_table(xty_arr, response_count, ext_feature_count);
+
+        auto x_daal_table = interop::convert_to_daal_table<Float>(input.get_data());
+        auto y_daal_table = interop::convert_to_daal_table<Float>(input.get_responses());
+
+        // const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
+
+        {
+            const auto status = interop::call_daal_kernel<Float, online_kernel_t>(ctx,
+                                                                                  *x_daal_table,
+                                                                                  *y_daal_table,
+                                                                                  *xtx_daal_table,
+                                                                                  *xty_daal_table,
+                                                                                  intp);
+
+            interop::status_to_exception(status);
+        }
+
+        auto result = partial_train_result<Task>();
+        result.set_partial_xtx(interop::convert_from_daal_homogen_table<Float>(xtx_daal_table));
+        result.set_partial_xty(interop::convert_from_daal_homogen_table<Float>(xty_daal_table));
+        return result;
+    }
 }
 
 template <typename Float, typename Task>
