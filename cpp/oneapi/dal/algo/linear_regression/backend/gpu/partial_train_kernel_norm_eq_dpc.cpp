@@ -53,43 +53,59 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const auto feature_count = input.get_data().get_column_count();
     const auto response_count = input.get_responses().get_column_count();
-
+    const auto input_ = input.get_prev();
     const bool beta = desc.get_compute_intercept();
     const std::int64_t ext_feature_count = feature_count + beta;
+    const bool has_xtx_data = input_.get_partial_xtx().has_data();
+    if (has_xtx_data) {
+        const auto data_nd =
+            pr::table2ndarray<Float>(queue, input.get_data(), sycl::usm::alloc::device);
+        const auto res_nd =
+            pr::table2ndarray<Float>(queue, input.get_responses(), sycl::usm::alloc::device);
+        auto xtx_nd =
+            pr::table2ndarray<Float>(queue, input_.get_partial_xtx(), sycl::usm::alloc::device);
+        auto xty_nd = pr::table2ndarray<Float, pr::ndorder::f>(queue,
+                                                               input_.get_partial_xty(),
+                                                               sycl::usm::alloc::device);
 
-    // const bool has_xtx_data = input.get_prev().get_partial_xtx().has_data();
-    // if (has_xtx_data) {
-    //     //     last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
-    //     //     last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
-    //     // result.set_partial_xtx(xtx);
-    //     // result.set_partial_xty(xty);
+        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx_nd, {});
+        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty_nd, {});
 
-    //     return result;
-    // }
-    // else {
-    const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
-    const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
-    const auto data_nd =
-        pr::table2ndarray<Float>(queue, input.get_data(), sycl::usm::alloc::device);
-    const auto res_nd =
-        pr::table2ndarray<Float>(queue, input.get_responses(), sycl::usm::alloc::device);
-    auto [xty, fill_xty_event] =
-        pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
-    auto [xtx, fill_xtx_event] =
-        pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
+        result.set_partial_xtx(homogen_table::wrap(xtx_nd.flatten(queue, { last_xtx_event }),
+                                                   ext_feature_count,
+                                                   ext_feature_count));
+        result.set_partial_xty(homogen_table::wrap(xty_nd.flatten(queue, { last_xty_event }),
+                                                   response_count,
+                                                   ext_feature_count,
+                                                   data_layout::column_major));
 
-    auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { fill_xty_event });
-    auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx, { fill_xtx_event });
+        return result;
+    }
+    else {
+        const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
+        const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
+        const auto data_nd =
+            pr::table2ndarray<Float>(queue, input.get_data(), sycl::usm::alloc::device);
+        const auto res_nd =
+            pr::table2ndarray<Float>(queue, input.get_responses(), sycl::usm::alloc::device);
+        auto [xty, fill_xty_event] =
+            pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
+        auto [xtx, fill_xtx_event] =
+            pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
 
-    result.set_partial_xtx(homogen_table::wrap(xtx.flatten(queue, { last_xtx_event }),
-                                               ext_feature_count,
-                                               ext_feature_count));
-    result.set_partial_xty(homogen_table::wrap(xty.flatten(queue, { last_xty_event }),
-                                               response_count,
-                                               ext_feature_count));
+        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { fill_xty_event });
+        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx, { fill_xtx_event });
 
-    return result;
-    // }
+        result.set_partial_xtx(homogen_table::wrap(xtx.flatten(queue, { last_xtx_event }),
+                                                   ext_feature_count,
+                                                   ext_feature_count));
+        result.set_partial_xty(homogen_table::wrap(xty.flatten(queue, { last_xty_event }),
+                                                   response_count,
+                                                   ext_feature_count,
+                                                   data_layout::column_major));
+
+        return result;
+    }
 }
 
 template <typename Float, typename Task>

@@ -63,8 +63,9 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const auto xtx_nd =
         pr::table2ndarray<Float>(queue, input.get_partial_xtx(), sycl::usm::alloc::device);
-    const auto xty_nd =
-        pr::table2ndarray<Float>(queue, input.get_partial_xty(), sycl::usm::alloc::device);
+    const auto xty_nd = pr::table2ndarray<Float, pr::ndorder::f>(queue,
+                                                                 input.get_partial_xty(),
+                                                                 sycl::usm::alloc::device);
 
     const pr::ndshape<2> betas_shape{ response_count, feature_count + 1 };
 

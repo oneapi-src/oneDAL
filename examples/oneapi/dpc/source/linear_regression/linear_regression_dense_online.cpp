@@ -32,7 +32,7 @@ void run(sycl::queue& q) {
     const auto train_response_file_name = get_data_path("linear_regression_train_responses.csv");
     const auto test_data_file_name = get_data_path("linear_regression_test_data.csv");
     const auto test_response_file_name = get_data_path("linear_regression_test_responses.csv");
-    const std::int64_t nBlocks = 1;
+    const std::int64_t nBlocks = 2;
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_response_file_name });
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });

@@ -44,7 +44,7 @@ public:
 
 TEMPLATE_LIST_TEST_M(lr_online_test, "LR common flow", "[lr][online]", lr_types) {
     SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_gpu());
+    //SKIP_IF(this->get_policy().is_gpu());
     this->generate(777);
 
     this->run_and_check_online();

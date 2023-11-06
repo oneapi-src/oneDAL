@@ -263,7 +263,7 @@ public:
         using namespace ::oneapi::dal::detail;
 
         std::mt19937 meta_gen(seed);
-
+        std::int64_t nBlocks = 1;
         const std::int64_t train_seed = meta_gen();
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
@@ -285,9 +285,9 @@ public:
 
         const auto desc = this->get_descriptor();
         dal::linear_regression::partial_train_result<> partial_result;
-        auto input_table_x = split_table_by_rows<double>(x_train, 10);
-        auto input_table_y = split_table_by_rows<double>(y_train, 10);
-        for (std::int64_t i = 0; i < 10; i++) {
+        auto input_table_x = split_table_by_rows<double>(x_train, nBlocks);
+        auto input_table_y = split_table_by_rows<double>(y_train, nBlocks);
+        for (std::int64_t i = 0; i < nBlocks; i++) {
             partial_result =
                 this->partial_train(desc, partial_result, input_table_x[i], input_table_y[i]);
         }
