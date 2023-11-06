@@ -195,20 +195,24 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
     preview::detail::check_if_pointer_matches_queue(q, buf);
     sycl::event::wait_and_throw(deps);
 
-    const std::int64_t dtype_size = get_data_type_size(dtype);
-    const std::int64_t size = check_mul_overflow(dtype_size, count);
-
-    const auto buff_host = array<byte_t>::empty(size);
-    // memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
-    std::cout << "pre" << std::endl;
+    #ifdef I_MPI_OFFLOAD
     wait_request(sendrecv_replace(buf,
                                   count,
                                   dtype,
                                   destination_rank,
                                   source_rank));
-    std::cout << "post" << std::endl;
-
-    // memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
+    #else
+    const std::int64_t dtype_size = get_data_type_size(dtype);
+    const std::int64_t size = check_mul_overflow(dtype_size, count);
+    const auto buff_host = array<byte_t>::empty(size);
+    memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
+    wait_request(sendrecv_replace(buff_host.get_mutable_data(),
+                                  count,
+                                  dtype,
+                                  destination_rank,
+                                  source_rank));
+    memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
+    #endif
 
     return nullptr;
 }
