@@ -46,8 +46,7 @@ public:
     explicit descriptor_impl(const detail::optimizer_ptr& optimizer) : opt(optimizer) {}
 
     bool compute_intercept = true;
-    double l1_coef = 0.0;
-    double l2_coef = 0.0;
+    double C = 1.0;
     std::int64_t class_count = 2;
     detail::optimizer_ptr opt;
 
@@ -78,14 +77,12 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 
 template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept,
-                                       double l1_coef,
-                                       double l2_coef,
+                                       double C,
                                        std::int64_t class_count,
                                        const detail::optimizer_ptr& optimizer)
         : impl_(new descriptor_impl<Task>{ optimizer }) {
     impl_->compute_intercept = compute_intercept;
-    impl_->l1_coef = l1_coef;
-    impl_->l2_coef = l2_coef;
+    impl_->C = C;
     impl_->class_count = class_count;
     impl_->opt = optimizer;
 }
@@ -96,13 +93,8 @@ bool descriptor_base<Task>::get_compute_intercept() const {
 }
 
 template <typename Task>
-double descriptor_base<Task>::get_l1_coef() const {
-    return impl_->l1_coef;
-}
-
-template <typename Task>
-double descriptor_base<Task>::get_l2_coef() const {
-    return impl_->l2_coef;
+double descriptor_base<Task>::get_inverse_regularization() const {
+    return impl_->C;
 }
 
 template <typename Task>
@@ -126,13 +118,8 @@ void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_l1_coef_impl(double l1_coef) {
-    impl_->l1_coef = l1_coef;
-}
-
-template <typename Task>
-void descriptor_base<Task>::set_l2_coef_impl(double l2_coef) {
-    impl_->l2_coef = l2_coef;
+void descriptor_base<Task>::set_inverse_regularization_impl(double C) {
+    impl_->C = C;
 }
 
 template <typename Task>

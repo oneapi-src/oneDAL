@@ -305,6 +305,7 @@ MSG(intercept_result_option_requires_intercept_flag,
 /* Logistic Regression */
 MSG(class_count_neq_two,
     "Only binary classification is supported so class count should be equal to 2")
+MSG(inverse_regularization_leq_zero, "Inverse regularization factor should be a positive number")
 MSG(l1_coef_neq_zero,
     "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
 MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,

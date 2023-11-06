@@ -68,7 +68,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const std::int64_t bsize = params.get_gpu_macro_block();
 
-    const Float L2 = desc.get_l2_coef();
+    const Float l2 = Float(1.0) / desc.get_inverse_regularization();
     const bool fit_intercept = desc.get_compute_intercept();
 
     // TODO: add check if the dataset can be moved to gpu
@@ -77,7 +77,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     table data_gpu = homogen_table::wrap(data_nd.flatten(queue, {}), sample_count, feature_count);
 
     pr::logloss_function<Float> loss_func =
-        pr::logloss_function(queue, data_gpu, responses_nd, L2, fit_intercept, bsize);
+        pr::logloss_function(queue, data_gpu, responses_nd, l2, fit_intercept, bsize);
 
     auto [x, fill_event] =
         pr::ndarray<Float, 1>::zeros(queue, { feature_count + 1 }, sycl::usm::alloc::device);

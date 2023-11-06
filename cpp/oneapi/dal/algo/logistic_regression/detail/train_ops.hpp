@@ -56,10 +56,10 @@ struct train_ops {
         if (params.get_class_count() != 2) {
             throw domain_error(msg::class_count_neq_two());
         }
-
-        if (params.get_l1_coef() != 0.0) {
-            throw domain_error(msg::l1_coef_neq_zero());
+        if (params.get_inverse_regularization() <= 0.0) {
+            throw domain_error(msg::inverse_regularization_leq_zero());
         }
+
         if (!data.has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }

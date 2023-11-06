@@ -120,21 +120,18 @@ public:
     descriptor_base();
 
     bool get_compute_intercept() const;
-    double get_l1_coef() const;
-    double get_l2_coef() const;
+    double get_inverse_regularization() const;
     std::int64_t get_class_count() const;
     result_option_id get_result_options() const;
 
 protected:
     explicit descriptor_base(bool compute_intercept,
-                             double l1_coef,
-                             double l2_coef,
+                             double C,
                              std::int64_t class_count,
                              const detail::optimizer_ptr& optimizer);
 
     void set_compute_intercept_impl(bool compute_intercept);
-    void set_l1_coef_impl(double l1_coef);
-    void set_l2_coef_impl(double l2_coef);
+    void set_inverse_regularization_impl(double C);
     void set_class_count_impl(std::int64_t class_count);
 
     void set_optimizer_impl(const detail::optimizer_ptr& opt);
@@ -190,25 +187,19 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept = true,
-                        double l1_coef = 0.0,
-                        double l2_coef = 0.0,
-                        std::int64_t class_count = 2)
+    explicit descriptor(bool compute_intercept = true, double C = 1.0, std::int64_t class_count = 2)
             : base_t(compute_intercept,
-                     l1_coef,
-                     l2_coef,
+                     C,
                      class_count,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
     explicit descriptor(bool compute_intercept,
-                        double l1_coef,
-                        double l2_coef,
+                        double C,
                         std::int64_t class_count,
                         const optimizer_t& optimizer)
             : base_t(compute_intercept,
-                     l1_coef,
-                     l2_coef,
+                     C,
                      class_count,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer)) {}
 
@@ -217,14 +208,12 @@ public:
         return base_t::get_compute_intercept();
     }
 
-    double get_l1_coef() const {
-        return base_t::get_l1_coef();
+    /// Defines inverse regularization factor.
+    double get_inverse_regularization() const {
+        return base_t::get_inverse_regularization();
     }
 
-    double get_l2_coef() const {
-        return base_t::get_l2_coef();
-    }
-
+    /// Defines number of classes.
     double get_class_count() const {
         return base_t::get_class_count();
     }
@@ -234,13 +223,8 @@ public:
         return *this;
     }
 
-    auto& set_l1_coef(bool l1_coef) const {
-        base_t::set_l1_coef_impl(l1_coef);
-        return *this;
-    }
-
-    auto& set_l2_coef(bool l2_coef) const {
-        base_t::set_l2_coef_impl(l2_coef);
+    auto& set_inverse_regularization(double C) const {
+        base_t::set_inverse_regularization_impl(C);
         return *this;
     }
 

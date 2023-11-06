@@ -58,10 +58,7 @@ public:
         result_option_id resopts = result_options::coefficients;
         if (this->fit_intercept_)
             resopts = resopts | result_options::intercept;
-        return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_,
-                                                                          0.0,
-                                                                          L2_,
-                                                                          2)
+        return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_, C_, 2)
             .set_result_options(resopts);
     }
 
@@ -85,11 +82,11 @@ public:
         return float_t(1) / (1 + std::exp(-val));
     }
 
-    void gen_input(bool fit_intercept = true, double L2 = 0.0, std::int64_t seed = 2007) {
+    void gen_input(bool fit_intercept = true, double C = 1.0, std::int64_t seed = 2007) {
         this->get_impl()->gen_dimensions();
 
         this->fit_intercept_ = fit_intercept;
-        this->L2_ = L2;
+        this->C_ = C;
 
         std::int64_t dim = fit_intercept_ ? p_ + 1 : p_;
 
@@ -195,7 +192,7 @@ public:
 
 protected:
     bool fit_intercept_ = true;
-    double L2_ = 0.0;
+    double C_ = 1.0;
     std::int64_t n_ = 0;
     std::int64_t p_ = 0;
     array<float_t> X_host_;
