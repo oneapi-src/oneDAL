@@ -64,17 +64,21 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
             pr::table2ndarray<Float>(queue, input.get_responses(), sycl::usm::alloc::device);
         auto xtx_nd =
             pr::table2ndarray<Float>(queue, input_.get_partial_xtx(), sycl::usm::alloc::device);
+        const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
+        auto [xty, fill_xty_event] =
+            pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
         auto xty_nd = pr::table2ndarray<Float, pr::ndorder::f>(queue,
                                                                input_.get_partial_xty(),
                                                                sycl::usm::alloc::device);
-
+        //update_xty works only after copy, have to investigate
+        auto copy_event = copy(queue, xty, xty_nd, { fill_xty_event });
         auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx_nd, {});
-        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty_nd, {});
+        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { copy_event });
 
         result.set_partial_xtx(homogen_table::wrap(xtx_nd.flatten(queue, { last_xtx_event }),
                                                    ext_feature_count,
                                                    ext_feature_count));
-        result.set_partial_xty(homogen_table::wrap(xty_nd.flatten(queue, { last_xty_event }),
+        result.set_partial_xty(homogen_table::wrap(xty.flatten(queue, { last_xty_event }),
                                                    response_count,
                                                    ext_feature_count,
                                                    data_layout::column_major));

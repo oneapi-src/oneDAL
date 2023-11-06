@@ -259,11 +259,13 @@ public:
 
         return result;
     }
-    void run_and_check_online(std::int64_t seed = 888, double tol = 1e-2) {
+    void run_and_check_online(std::int64_t nBlocks) {
         using namespace ::oneapi::dal::detail;
 
+        std::int64_t seed = 888;
+        double tol = 1e-2;
+
         std::mt19937 meta_gen(seed);
-        std::int64_t nBlocks = 1;
         const std::int64_t train_seed = meta_gen();
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,

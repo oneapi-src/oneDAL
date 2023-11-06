@@ -44,10 +44,10 @@ public:
 
 TEMPLATE_LIST_TEST_M(lr_online_test, "LR common flow", "[lr][online]", lr_types) {
     SKIP_IF(this->not_float64_friendly());
-    //SKIP_IF(this->get_policy().is_gpu());
     this->generate(777);
+    const int64_t nBlocks = GENERATE(1, 3, 10);
 
-    this->run_and_check_online();
+    this->run_and_check_online(nBlocks);
 }
 
 } // namespace oneapi::dal::linear_regression::test
