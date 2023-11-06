@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/array.hpp"
 
 namespace spmd = oneapi::dal::preview::spmd;
@@ -49,19 +50,29 @@ spmd::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
     preview::detail::check_if_pointer_matches_queue(q, send_buf);
     sycl::event::wait_and_throw(deps);
 
-    const std::int64_t dtype_size = get_data_type_size(dtype);
-    const std::int64_t size = check_mul_overflow(dtype_size, count);
-
-    const auto send_buff_host = array<byte_t>::empty(size);
-    if (get_rank() == root) {
-        memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, size);
+    #ifdef I_MPI_OFFLOAD
+    {
+        ONEDAL_PROFILER_TASK(comm.bcast_gpu, q);
+        wait_request(bcast(send_buf, count, dtype, root));
     }
+    #else
+    {
+        ONEDAL_PROFILER_TASK(comm.bcast_cpu, q);
+        const std::int64_t dtype_size = get_data_type_size(dtype);
+        const std::int64_t size = check_mul_overflow(dtype_size, count);
 
-    wait_request(bcast(send_buff_host.get_mutable_data(), count, dtype, root));
+        const auto send_buff_host = array<byte_t>::empty(size);
+        if (get_rank() == root) {
+            memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, size);
+        }
 
-    if (get_rank() != root) {
-        memcpy_host2usm(q, send_buf, send_buff_host.get_mutable_data(), size);
+        wait_request(bcast(send_buff_host.get_mutable_data(), count, dtype, root));
+
+        if (get_rank() != root) {
+            memcpy_host2usm(q, send_buf, send_buff_host.get_mutable_data(), size);
+        }
     }
+    #endif
 
     return nullptr;
 }
@@ -99,40 +110,55 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
         }
     }
 
-    const std::int64_t dtype_size = get_data_type_size(dtype);
-    const std::int64_t send_size = check_mul_overflow(dtype_size, send_count);
-    const std::int64_t total_recv_size = check_mul_overflow(dtype_size, total_recv_count);
-    // Workaround for zero send_size
-    const auto send_buff_host = array<byte_t>::empty(send_size > 0 ? send_size : 1);
-    if (send_size > 0) {
-        memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
+    #ifdef I_MPI_OFFLOAD
+    {
+        ONEDAL_PROFILER_TASK(comm.allgatherv_gpu, q);
+        wait_request(allgatherv(send_buf,
+                                send_count,
+                                recv_buf,
+                                recv_counts_host,
+                                displs_host,
+                                dtype));
     }
+    #else
+    {
+        ONEDAL_PROFILER_TASK(comm.allgatherv_cpu, q);
+        const std::int64_t dtype_size = get_data_type_size(dtype);
+        const std::int64_t send_size = check_mul_overflow(dtype_size, send_count);
+        const std::int64_t total_recv_size = check_mul_overflow(dtype_size, total_recv_count);
+        // Workaround for zero send_size
+        const auto send_buff_host = array<byte_t>::empty(send_size > 0 ? send_size : 1);
+        if (send_size > 0) {
+            memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
+        }
 
-    array<byte_t> recv_buf_host;
-    byte_t* recv_buf_host_ptr = nullptr;
-    ONEDAL_ASSERT(total_recv_size > 0);
-    recv_buf_host.reset(total_recv_size);
-    recv_buf_host_ptr = recv_buf_host.get_mutable_data();
-    wait_request(allgatherv(send_buff_host.get_data(),
-                            send_count,
-                            recv_buf_host_ptr,
-                            recv_counts_host,
-                            displs_host,
-                            dtype));
+        array<byte_t> recv_buf_host;
+        byte_t* recv_buf_host_ptr = nullptr;
+        ONEDAL_ASSERT(total_recv_size > 0);
+        recv_buf_host.reset(total_recv_size);
+        recv_buf_host_ptr = recv_buf_host.get_mutable_data();
+        wait_request(allgatherv(send_buff_host.get_data(),
+                                send_count,
+                                recv_buf_host_ptr,
+                                recv_counts_host,
+                                displs_host,
+                                dtype));
 
-    const std::int64_t* displs_host_root_ptr = displs_host_root.get_data();
-    ONEDAL_ASSERT(displs_host_root_ptr);
-    ONEDAL_ASSERT(displs_host);
-    ONEDAL_ASSERT(recv_counts_host);
+        const std::int64_t* displs_host_root_ptr = displs_host_root.get_data();
+        ONEDAL_ASSERT(displs_host_root_ptr);
+        ONEDAL_ASSERT(displs_host);
+        ONEDAL_ASSERT(recv_counts_host);
 
-    for (std::int64_t i = 0; i < rank_count; i++) {
-        const std::int64_t src_offset = check_mul_overflow(dtype_size, displs_host_root_ptr[i]);
-        const std::int64_t dst_offset = check_mul_overflow(dtype_size, displs_host[i]);
-        const std::int64_t copy_size = check_mul_overflow(dtype_size, recv_counts_host[i]);
-        if (copy_size > 0) {
-            memcpy_host2usm(q, recv_buf + dst_offset, recv_buf_host_ptr + src_offset, copy_size);
+        for (std::int64_t i = 0; i < rank_count; i++) {
+            const std::int64_t src_offset = check_mul_overflow(dtype_size, displs_host_root_ptr[i]);
+            const std::int64_t dst_offset = check_mul_overflow(dtype_size, displs_host[i]);
+            const std::int64_t copy_size = check_mul_overflow(dtype_size, recv_counts_host[i]);
+            if (copy_size > 0) {
+                memcpy_host2usm(q, recv_buf + dst_offset, recv_buf_host_ptr + src_offset, copy_size);
+            }
         }
     }
+    #endif
     return nullptr;
 }
 #endif
@@ -158,16 +184,27 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
     preview::detail::check_if_pointer_matches_queue(q, recv_buf);
     sycl::event::wait_and_throw(deps);
 
-    const std::int64_t dtype_size = get_data_type_size(dtype);
-    const std::int64_t byte_count = check_mul_overflow(dtype_size, count);
+    #ifdef I_MPI_OFFLOAD
+    {
+        ONEDAL_PROFILER_TASK(comm.allreduce_gpu, q);
+        wait_request(
+            allreduce(send_buf, recv_buf, count, dtype, op));
+    }
+    #else
+    {
+        ONEDAL_PROFILER_TASK(comm.allreduce_cpu, q);
+        const std::int64_t dtype_size = get_data_type_size(dtype);
+        const std::int64_t byte_count = check_mul_overflow(dtype_size, count);
 
-    const auto send_buff_host = array<byte_t>::empty(byte_count);
-    const auto recv_buf_host = array<byte_t>::empty(byte_count);
+        const auto send_buff_host = array<byte_t>::empty(byte_count);
+        const auto recv_buf_host = array<byte_t>::empty(byte_count);
 
-    memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, byte_count);
-    wait_request(
-        allreduce(send_buff_host.get_data(), recv_buf_host.get_mutable_data(), count, dtype, op));
-    memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
+        memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, byte_count);
+        wait_request(
+            allreduce(send_buff_host.get_data(), recv_buf_host.get_mutable_data(), count, dtype, op));
+        memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
+    }
+    #endif
 
     return nullptr;
 }
@@ -196,22 +233,28 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
     sycl::event::wait_and_throw(deps);
 
     #ifdef I_MPI_OFFLOAD
-    wait_request(sendrecv_replace(buf,
-                                  count,
-                                  dtype,
-                                  destination_rank,
-                                  source_rank));
+    {
+        ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
+        wait_request(sendrecv_replace(buf,
+                                    count,
+                                    dtype,
+                                    destination_rank,
+                                    source_rank));
+    }
     #else
-    const std::int64_t dtype_size = get_data_type_size(dtype);
-    const std::int64_t size = check_mul_overflow(dtype_size, count);
-    const auto buff_host = array<byte_t>::empty(size);
-    memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
-    wait_request(sendrecv_replace(buff_host.get_mutable_data(),
-                                  count,
-                                  dtype,
-                                  destination_rank,
-                                  source_rank));
-    memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
+    {
+        ONEDAL_PROFILER_TASK(comm.srr_cpu, q);
+        const std::int64_t dtype_size = get_data_type_size(dtype);
+        const std::int64_t size = check_mul_overflow(dtype_size, count);
+        const auto buff_host = array<byte_t>::empty(size);
+        memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
+        wait_request(sendrecv_replace(buff_host.get_mutable_data(),
+                                    count,
+                                    dtype,
+                                    destination_rank,
+                                    source_rank));
+        memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
+    }
     #endif
 
     return nullptr;
