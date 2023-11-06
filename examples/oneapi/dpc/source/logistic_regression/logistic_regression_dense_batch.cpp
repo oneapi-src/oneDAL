@@ -58,7 +58,7 @@ void run(sycl::queue& q) {
     using task_t = dal::logistic_regression::task::classification;
     using optimizer_t = dal::newton_cg::descriptor<>;
 
-    const auto optimizer_desc = dal::newton_cg::descriptor<>(1e-4, 100l);
+    const auto optimizer_desc = dal::newton_cg::descriptor<>(1e-4, 10l);
 
     const auto log_reg_desc =
         dal::logistic_regression::descriptor<float, method_t, task_t, optimizer_t>(true,
@@ -67,7 +67,7 @@ void run(sycl::queue& q) {
                                                                                    2,
                                                                                    optimizer_desc)
             .set_result_options(result_options::coefficients | result_options::intercept |
-                                result_options::iterations_number);
+                                result_options::iterations_count);
 
     const auto train_result = dal::train(q, log_reg_desc, x_train, y_train);
 
@@ -76,7 +76,7 @@ void run(sycl::queue& q) {
 
     std::cout << "Coefficients:\n" << train_result.get_coefficients() << std::endl;
     std::cout << "Intercept:\n" << train_result.get_intercept() << std::endl;
-    std::cout << "Iterations number: " << train_result.get_iterations_number() << std::endl;
+    std::cout << "Iterations number: " << train_result.get_iterations_count() << std::endl;
 
     const auto log_reg_model = train_result.get_model();
 

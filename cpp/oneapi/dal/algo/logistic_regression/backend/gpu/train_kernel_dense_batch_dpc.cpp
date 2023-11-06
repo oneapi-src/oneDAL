@@ -56,7 +56,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         throw internal_error{ dal::detail::error_messages::unknown_optimizer() };
     }
 
-    auto& queue = ctx.get_queue();
+    auto queue = ctx.get_queue();
 
     ONEDAL_PROFILER_TASK(log_reg_train_kernel, queue);
 
@@ -82,9 +82,7 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     auto [x, fill_event] =
         pr::ndarray<Float, 1>::zeros(queue, { feature_count + 1 }, sycl::usm::alloc::device);
 
-    pr::ndview<Float, 1> x_suf;
-
-    x_suf = fit_intercept ? x : x.slice(1, feature_count);
+    pr::ndview<Float, 1> x_suf = fit_intercept ? x : x.slice(1, feature_count);
 
     auto [train_event, iter_num] = opt_impl->minimize(queue, loss_func, x_suf, { fill_event });
 
@@ -104,15 +102,13 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     }
 
     if (options.test(result_options::coefficients)) {
-        auto coefs_table =
-            homogen_table::wrap(x.slice(1, feature_count).flatten(queue, { train_event }),
-                                1,
-                                feature_count);
+        auto coefs_array = x.slice(1, feature_count).flatten(queue, { train_event });
+        auto coefs_table = homogen_table::wrap(coefs_array, 1, feature_count);
         result.set_coefficients(coefs_table);
     }
 
-    if (options.test(result_options::iterations_number)) {
-        result.set_iterations_number(iter_num);
+    if (options.test(result_options::iterations_count)) {
+        result.set_iterations_count(iter_num);
     }
 
     return result;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public:
     float_t predict_proba(float_t* ptr, float_t* params_ptr, float_t intercept) {
         float_t val = 0;
         for (std::int64_t j = 0; j < p_; ++j) {
-            val += *(ptr + j) * *(params_ptr + j);
+            val += ptr[j] * params_ptr[j];
         }
         val += intercept;
         return float_t(1) / (1 + std::exp(-val));
@@ -116,16 +116,12 @@ public:
             *(params_ptr + i) = dis_params(rnd);
         }
 
+        constexpr float_t half = 0.5;
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = predict_proba(x_ptr + i * p_,
                                         params_ptr + (std::int64_t)fit_intercept_,
                                         fit_intercept_ ? *params_ptr : 0);
-            if (val < 0.5) {
-                *(y_ptr + i) = 0;
-            }
-            else {
-                *(y_ptr + i) = 1;
-            }
+            y_ptr[i] = bool(val < half);
         }
     }
 
@@ -171,12 +167,9 @@ public:
                 resp = 1;
             }
             if (resp == *(y_host_.get_mutable_data() + i)) {
-                if (i < train_size) {
-                    train_acc += 1;
-                }
-                else {
-                    test_acc += 1;
-                }
+                bool is_train = i < train_size;
+                train_acc += std::int64_t(is_train);
+                test_acc += std::int64_t(!is_train);
             }
             if (i >= train_size) {
                 REQUIRE(abs(val - *(prob_host.get_mutable_data() + i - train_size)) < 1e-5);
@@ -209,7 +202,6 @@ protected:
     array<float_t> params_host_;
     array<std::int32_t> y_host_;
     array<std::int32_t> resp_;
-    // table x_test_;
 };
 
 using lr_types = COMBINE_TYPES((double),

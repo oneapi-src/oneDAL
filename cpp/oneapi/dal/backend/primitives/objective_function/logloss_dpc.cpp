@@ -580,6 +580,7 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
         const auto last = blocking.get_block_end_index(b);
         const auto first = blocking.get_block_start_index(b);
         const auto length = last - first;
+        ONEDAL_ASSERT(0l < length);
         auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
         auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
         ndview<Float, 1> buffer_batch = buffer_.slice(first, length);
@@ -677,6 +678,7 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
         const auto first = blocking.get_block_start_index(b);
         const auto last = blocking.get_block_end_index(b);
         const std::int64_t cursize = last - first;
+        ONEDAL_ASSERT(0l < cursize);
 
         const auto data_rows =
             row_accessor<const Float>(data_).pull(q_, { first, last }, sycl::usm::alloc::device);

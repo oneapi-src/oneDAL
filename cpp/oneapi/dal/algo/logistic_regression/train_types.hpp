@@ -145,10 +145,10 @@ public:
     }
 
     /// Actual number of optimizer iterations
-    std::int64_t get_iterations_number() const;
+    std::int64_t get_iterations_count() const;
 
-    auto& set_iterations_number(std::int64_t value) {
-        set_iterations_number_impl(value);
+    auto& set_iterations_count(std::int64_t value) {
+        set_iterations_count_impl(value);
         return *this;
     }
 
@@ -174,7 +174,7 @@ protected:
     void set_intercept_impl(const table&);
     void set_coefficients_impl(const table&);
     void set_packed_coefficients_impl(const table&);
-    void set_iterations_number_impl(std::int64_t);
+    void set_iterations_count_impl(std::int64_t);
 
     void set_result_options_impl(const result_option_id&);
 

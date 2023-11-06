@@ -56,7 +56,7 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const model<Task>& m) {
     using dal::detail::check_mul_overflow;
 
-    auto& queue = ctx.get_queue();
+    auto queue = ctx.get_queue();
     ONEDAL_PROFILER_TASK(logreg_infer_kernel, queue);
 
     constexpr auto alloc = sycl::usm::alloc::device;
@@ -78,41 +78,44 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     const auto bsize = propose_block_size<Float>(queue, feature_count, 1);
     const be::uniform_blocking blocking(sample_count, bsize);
+    const auto b_count = blocking.get_block_count();
 
     row_accessor<const Float> x_accessor(infer);
 
-    be::event_vector all_deps = {};
+    be::event_vector all_deps;
+    all_deps.reserve(b_count);
 
-    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+    for (std::int64_t b = 0; b < b_count; ++b) {
         const auto last = blocking.get_block_end_index(b);
         const auto first = blocking.get_block_start_index(b);
 
         const auto length = last - first;
+        ONEDAL_ASSERT(0l < length);
 
         auto probs_slice = probs.slice(first, length);
         auto resp_slice = responses.slice(first, length);
         auto x_rows = x_accessor.pull(queue, { first, last }, alloc);
         auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, feature_count });
 
-        sycl::event prob_event =
+        auto prob_event =
             pr::compute_probabilities(queue, params_suf, x_nd, probs_slice, fit_intercept, {});
 
         const auto* const prob_ptr = probs_slice.get_data();
         auto* const resp_ptr = resp_slice.get_mutable_data();
 
-        sycl::event fill_resp_event = queue.submit([&](sycl::handler& cgh) {
+        auto fill_resp_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(prob_event);
             const auto range = be::make_range_1d(length);
             cgh.parallel_for(range, [=](sycl::id<1> idx) {
-                resp_ptr[idx] = prob_ptr[idx] < 0.5 ? 0 : 1;
+                constexpr Float half = 0.5f;
+                resp_ptr[idx] = prob_ptr[idx] < half ? 0 : 1;
             });
         });
         all_deps.push_back(fill_resp_event);
     }
-    be::wait_or_pass(all_deps).wait_and_throw();
 
-    auto resp_table = homogen_table::wrap(responses.flatten(queue, {}), sample_count, 1);
-    auto prob_table = homogen_table::wrap(probs.flatten(queue, {}), sample_count, 1);
+    auto resp_table = homogen_table::wrap(responses.flatten(queue, all_deps), sample_count, 1);
+    auto prob_table = homogen_table::wrap(probs.flatten(queue, all_deps), sample_count, 1);
 
     auto result = infer_result<Task>().set_responses(resp_table).set_probabilities(prob_table);
 

@@ -30,7 +30,7 @@ result_option_id get_coefficients_id() {
     return result_option_id{ result_option_id::make_by_index(1) };
 }
 
-result_option_id get_iterations_number() {
+result_option_id get_iterations_count() {
     return result_option_id{ result_option_id::make_by_index(2) };
 }
 
@@ -67,7 +67,7 @@ result_option_id descriptor_base<Task>::get_result_options() const {
 template <typename Task>
 void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
     using msg = dal::detail::error_messages;
-    if (!bool(value)) {
+    if (!value) {
         throw domain_error(msg::empty_set_of_result_options());
     }
     else if (!get_compute_intercept() && value.test(result_options::intercept)) {

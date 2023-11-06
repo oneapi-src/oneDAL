@@ -140,18 +140,18 @@ void train_result<Task>::set_intercept_impl(const table& value) {
 }
 
 template <typename Task>
-std::int64_t train_result<Task>::get_iterations_number() const {
+std::int64_t train_result<Task>::get_iterations_count() const {
     using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::iterations_number)) {
+    if (!get_result_options().test(result_options::iterations_count)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->iter_num;
 }
 
 template <typename Task>
-void train_result<Task>::set_iterations_number_impl(std::int64_t value) {
+void train_result<Task>::set_iterations_count_impl(std::int64_t value) {
     using msg = dal::detail::error_messages;
-    if (!get_result_options().test(result_options::iterations_number)) {
+    if (!get_result_options().test(result_options::iterations_count)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     impl_->iter_num = value;

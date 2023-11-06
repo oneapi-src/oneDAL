@@ -71,8 +71,8 @@ public:
 #endif
 
 private:
-    std::int64_t max_iter_ = 100;
-    double tol_ = 1e-4;
+    std::int64_t max_iter_;
+    double tol_;
 };
 
 template <typename F, typename M>
