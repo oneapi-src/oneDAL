@@ -33,7 +33,6 @@ ONEDAL_EXPORT push_rows_iface* get_push_rows_iface_impl(table_builder_iface* tab
 ONEDAL_EXPORT pull_column_iface* get_pull_column_iface_impl(table_builder_iface* table_builder);
 ONEDAL_EXPORT push_column_iface* get_push_column_iface_impl(table_builder_iface* table_builder);
 
-
 template <typename Object>
 inline std::shared_ptr<csr_table_iface> get_csr_table_iface(Object&& obj) {
     const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
