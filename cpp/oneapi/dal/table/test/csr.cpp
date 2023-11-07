@@ -155,7 +155,7 @@ TEST("can construct table reference") {
     te::check_if_metadata_equal(m1, m2);
 }
 
-TEST("can construct table reference") {
+TEST("can construct table reference with a copy constructor") {
     using oneapi::dal::detail::empty_delete;
 
     const float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };

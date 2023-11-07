@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/table/detail/table_kinds.hpp"
+#include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/backend/csr_table_impl.hpp"
 
 namespace oneapi::dal {
