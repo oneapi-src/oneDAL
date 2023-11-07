@@ -137,7 +137,10 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
     auto result_options = desc.get_result_options();
     const auto nonzero_count = csr_tdata.get_non_zero_count();
     auto [csr_data, column_indices, row_offsets] =
-        csr_accessor<const Float>(csr_tdata).pull(queue, { 0, -1 }, sparse_indexing::zero_based);
+        csr_accessor<const Float>(csr_tdata).pull(queue,
+                                                  { 0, -1 },
+                                                  sparse_indexing::zero_based,
+                                                  sycl::usm::alloc::device);
     auto csr_data_ptr = csr_data.get_data();
     auto column_indices_ptr = column_indices.get_data();
 
