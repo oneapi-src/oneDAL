@@ -47,6 +47,10 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const table& resp) {
     using dal::detail::check_mul_overflow;
 
+    auto queue = ctx.get_queue();
+
+    ONEDAL_PROFILER_TASK(log_reg_train_kernel, queue);
+
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
 
@@ -55,10 +59,6 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     if (!opt_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_optimizer() };
     }
-
-    auto queue = ctx.get_queue();
-
-    ONEDAL_PROFILER_TASK(log_reg_train_kernel, queue);
 
     const auto sample_count = data.get_row_count();
     const auto feature_count = data.get_column_count();
