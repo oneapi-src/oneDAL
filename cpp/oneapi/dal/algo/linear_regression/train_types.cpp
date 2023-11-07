@@ -48,8 +48,6 @@ public:
 template <typename Task>
 class partial_train_result_impl : public base {
 public:
-    table nobs;
-    table betas;
     table xtx;
     table xty;
 };
@@ -223,17 +221,7 @@ partial_train_input<Task>::partial_train_input(const partial_train_result<Task>&
 }
 
 template <typename Task>
-const table& partial_train_result<Task>::get_partial_n_rows() const {
-    return impl_->nobs;
-}
-
-template <typename Task>
 partial_train_result<Task>::partial_train_result() : impl_(new partial_train_result_impl<Task>()) {}
-
-template <typename Task>
-void partial_train_result<Task>::set_partial_n_rows_impl(const table& value) {
-    impl_->nobs = value;
-}
 
 template <typename Task>
 const table& partial_train_result<Task>::get_partial_xtx() const {
@@ -243,15 +231,6 @@ const table& partial_train_result<Task>::get_partial_xtx() const {
 template <typename Task>
 void partial_train_result<Task>::set_partial_xtx_impl(const table& value) {
     impl_->xtx = value;
-}
-template <typename Task>
-const table& partial_train_result<Task>::get_partial_betas() const {
-    return impl_->betas;
-}
-
-template <typename Task>
-void partial_train_result<Task>::set_partial_betas_impl(const table& value) {
-    impl_->betas = value;
 }
 
 template <typename Task>

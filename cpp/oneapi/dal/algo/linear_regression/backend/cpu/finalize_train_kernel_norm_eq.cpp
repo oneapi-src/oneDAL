@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-#include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
@@ -70,16 +68,18 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
 
-    const bool intp = desc.get_compute_intercept();
+    const bool beta = desc.get_compute_intercept();
 
     const auto response_count = input.get_partial_xty().get_row_count();
     const auto ext_feature_count = input.get_partial_xty().get_column_count();
 
-    const auto feature_count = ext_feature_count - intp;
+    const auto feature_count = ext_feature_count - beta;
 
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
+
     const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
+
     auto xtx_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xtx());
     auto xty_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xty());
     auto betas_daal_table =
@@ -93,7 +93,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                       *xtx_daal_table,
                                                                       *xty_daal_table,
                                                                       *betas_daal_table,
-                                                                      intp,
+                                                                      beta,
                                                                       &hp);
         });
 

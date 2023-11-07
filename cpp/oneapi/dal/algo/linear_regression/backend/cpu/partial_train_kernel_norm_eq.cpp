@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,10 +21,6 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
-
-#include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
@@ -36,7 +32,6 @@ using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace be = dal::backend;
-namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
 
@@ -67,12 +62,15 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                    const partial_train_input<Task>& input) {
     using dal::detail::check_mul_overflow;
 
-    const bool intp = desc.get_compute_intercept();
+    const bool beta = desc.get_compute_intercept();
 
     const auto feature_count = input.get_data().get_column_count();
     const auto response_count = input.get_responses().get_column_count();
+
     const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
-    const auto ext_feature_count = feature_count + intp;
+
+    const auto ext_feature_count = feature_count + beta;
+
     const bool has_xtx_data = input.get_prev().get_partial_xtx().has_data();
     if (has_xtx_data) {
         auto daal_xtx =
@@ -87,7 +85,7 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                   *y_daal_table,
                                                                                   *daal_xtx,
                                                                                   *daal_xty,
-                                                                                  intp,
+                                                                                  beta,
                                                                                   &hp);
 
             interop::status_to_exception(status);
@@ -95,6 +93,7 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
         auto result = partial_train_result<Task>();
         result.set_partial_xtx(interop::convert_from_daal_homogen_table<Float>(daal_xtx));
         result.set_partial_xty(interop::convert_from_daal_homogen_table<Float>(daal_xty));
+
         return result;
     }
     else {
@@ -103,9 +102,6 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
         const auto xty_size = check_mul_overflow(response_count, ext_feature_count);
         auto xty_arr = array<Float>::zeros(xty_size);
-
-        const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
-        auto betas_arr = array<Float>::zeros(betas_size);
 
         auto xtx_daal_table =
             interop::convert_to_daal_homogen_table(xtx_arr, ext_feature_count, ext_feature_count);
@@ -121,7 +117,7 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                   *y_daal_table,
                                                                                   *xtx_daal_table,
                                                                                   *xty_daal_table,
-                                                                                  intp,
+                                                                                  beta,
                                                                                   &hp);
 
             interop::status_to_exception(status);
@@ -130,6 +126,7 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
         auto result = partial_train_result<Task>();
         result.set_partial_xtx(interop::convert_from_daal_homogen_table<Float>(xtx_daal_table));
         result.set_partial_xty(interop::convert_from_daal_homogen_table<Float>(xty_daal_table));
+
         return result;
     }
 }

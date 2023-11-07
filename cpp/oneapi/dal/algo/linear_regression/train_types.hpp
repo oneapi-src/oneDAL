@@ -188,24 +188,8 @@ public:
 
     partial_train_result();
 
-    /// The nobs value.
+    /// The partial_xtx matrix.
     /// @remark default = table{}
-    const table& get_partial_n_rows() const;
-
-    auto& set_partial_n_rows(const table& value) {
-        set_partial_n_rows_impl(value);
-        return *this;
-    }
-
-    /// The crossproduct matrix.
-    /// @remark default = table{}
-    const table& get_partial_betas() const;
-
-    auto& set_partial_betas(const table& value) {
-        set_partial_betas_impl(value);
-        return *this;
-    }
-
     const table& get_partial_xtx() const;
 
     auto& set_partial_xtx(const table& value) {
@@ -213,6 +197,8 @@ public:
         return *this;
     }
 
+    /// The partial_xty matrix.
+    /// @remark default = table{}
     const table& get_partial_xty() const;
 
     auto& set_partial_xty(const table& value) {
@@ -221,8 +207,6 @@ public:
     }
 
 protected:
-    void set_partial_n_rows_impl(const table&);
-    void set_partial_betas_impl(const table&);
     void set_partial_xtx_impl(const table&);
     void set_partial_xty_impl(const table&);
 

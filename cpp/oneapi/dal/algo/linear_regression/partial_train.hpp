@@ -19,7 +19,6 @@
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/detail/partial_train_ops.hpp"
 #include "oneapi/dal/partial_train.hpp"
-#include "oneapi/dal/algo/linear_regression/train_types.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {

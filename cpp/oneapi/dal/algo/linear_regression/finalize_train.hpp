@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/algo/linear_regression/detail/finalize_train_ops.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/finalize_train.hpp"

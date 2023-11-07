@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,11 +22,9 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 
-#include "oneapi/dal/table/row_accessor.hpp"
-
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
-#include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
+
 #include "oneapi/dal/algo/linear_regression/backend/gpu/partial_train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
 
@@ -47,33 +45,39 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto& queue = ctx.get_queue();
 
-    ONEDAL_PROFILER_TASK(linreg_train_kernel, queue);
-
     constexpr auto alloc = sycl::usm::alloc::device;
+
+    const bool beta = desc.get_compute_intercept();
 
     const auto feature_count = input.get_data().get_column_count();
     const auto response_count = input.get_responses().get_column_count();
-    const auto input_ = input.get_prev();
-    const bool beta = desc.get_compute_intercept();
     const std::int64_t ext_feature_count = feature_count + beta;
+
+    const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
+    const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
+
+    const auto input_ = input.get_prev();
+
     const bool has_xtx_data = input_.get_partial_xtx().has_data();
     if (has_xtx_data) {
         const auto data_nd =
             pr::table2ndarray<Float>(queue, input.get_data(), sycl::usm::alloc::device);
         const auto res_nd =
             pr::table2ndarray<Float>(queue, input.get_responses(), sycl::usm::alloc::device);
+
         auto xtx_nd =
             pr::table2ndarray<Float>(queue, input_.get_partial_xtx(), sycl::usm::alloc::device);
-        const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
+        auto [xtx, fill_xtx_event] =
+            pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
+        auto copy_xtx_event = copy(queue, xtx, xtx_nd, { fill_xtx_event });
         auto [xty, fill_xty_event] =
             pr::ndarray<Float, 2, pr::ndorder::f>::zeros(queue, xty_shape, alloc);
         auto xty_nd = pr::table2ndarray<Float, pr::ndorder::f>(queue,
                                                                input_.get_partial_xty(),
                                                                sycl::usm::alloc::device);
-        //update_xty works only after copy, have to investigate
-        auto copy_event = copy(queue, xty, xty_nd, { fill_xty_event });
-        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx_nd, {});
-        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { copy_event });
+        auto copy_xty_event = copy(queue, xty, xty_nd, { fill_xty_event });
+        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx_nd, { copy_xtx_event });
+        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { copy_xty_event });
 
         result.set_partial_xtx(homogen_table::wrap(xtx_nd.flatten(queue, { last_xtx_event }),
                                                    ext_feature_count,
@@ -86,8 +90,6 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
         return result;
     }
     else {
-        const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
-        const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
         const auto data_nd =
             pr::table2ndarray<Float>(queue, input.get_data(), sycl::usm::alloc::device);
         const auto res_nd =

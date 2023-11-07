@@ -47,11 +47,47 @@ struct finalize_train_ops {
     using param_t = train_parameters<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const input_t& input) const {}
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
+        using msg = dal::detail::error_messages;
+
+        const auto& partial_xtx = input.get_partial_xtx();
+        const auto& partial_xty = input.get_partial_xty();
+
+        if (!partial_xtx.has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+        if (!partial_xty.has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+    }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
-                              const result_t& result) const {}
+                              const result_t& result) const {
+        const auto& res = params.get_result_options();
+
+        if (res.test(result_options::coefficients)) {
+            [[maybe_unused]] const table& coefficients = //
+                result.get_coefficients();
+
+            ONEDAL_ASSERT(coefficients.has_data());
+        }
+
+        if (res.test(result_options::intercept)) {
+            [[maybe_unused]] const table& intercept = //
+                result.get_intercept();
+
+            ONEDAL_ASSERT(intercept.has_data());
+            ONEDAL_ASSERT(intercept.get_row_count() == 1);
+        }
+
+        {
+            [[maybe_unused]] const table& betas = //
+                result.get_packed_coefficients();
+
+            ONEDAL_ASSERT(betas.has_data());
+        }
+    }
 
     void check_parameters_ranges(const param_t& params, const input_t& input) const {
         ONEDAL_ASSERT(params.get_cpu_macro_block() > 0);

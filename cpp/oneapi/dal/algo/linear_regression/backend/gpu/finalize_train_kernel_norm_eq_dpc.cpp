@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
 
     const bool beta = desc.get_compute_intercept();
-    ONEDAL_PROFILER_TASK(linreg_train_kernel, queue);
 
     constexpr auto uplo = pr::mkl::uplo::upper;
     constexpr auto alloc = sycl::usm::alloc::device;

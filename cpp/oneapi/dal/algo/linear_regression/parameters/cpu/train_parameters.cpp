@@ -70,13 +70,13 @@ struct train_parameters_cpu<Float, method::norm_eq, Task> {
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_result<Task>& input) const {
-        // const auto& x_train = input.get_data();
-        // const auto& y_train = input.get_responses();
+        const auto& xtx = input.get_partial_xtx();
+        const auto& xty = input.get_partial_xty();
 
-        // const auto f_count = x_train.get_column_count();
-        // const auto r_count = y_train.get_column_count();
+        const auto f_count = xtx.get_column_count();
+        const auto r_count = xty.get_column_count();
 
-        const auto block = propose_block_size<Float>(100, 100);
+        const auto block = propose_block_size<Float>(f_count, r_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }

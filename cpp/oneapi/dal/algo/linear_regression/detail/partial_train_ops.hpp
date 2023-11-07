@@ -46,11 +46,38 @@ struct partial_train_ops {
     using result_t = partial_train_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const input_t& input) const {}
+    void check_preconditions(const Descriptor& params, const input_t& input) const {
+        using msg = dal::detail::error_messages;
+
+        const auto& data = input.get_data();
+        const auto& responses = input.get_responses();
+
+        if (!data.has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+        if (!responses.has_data()) {
+            throw domain_error(msg::input_responses_are_empty());
+        }
+        if (data.get_row_count() != responses.get_row_count()) {
+            throw domain_error(msg::input_data_rc_neq_input_responses_rc());
+        }
+    }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
-                              const result_t& result) const {}
+                              const result_t& result) const {
+        using msg = dal::detail::error_messages;
+
+        const auto& partial_xtx = result.get_partial_xtx();
+        const auto& partial_xty = result.get_partial_xty();
+
+        if (!partial_xtx.has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+        if (!partial_xty.has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+    }
 
     /// Check that the hyperparameters of the algorithm belong to the expected ranges
     void check_parameters_ranges(const param_t& params, const input_t& input) const {

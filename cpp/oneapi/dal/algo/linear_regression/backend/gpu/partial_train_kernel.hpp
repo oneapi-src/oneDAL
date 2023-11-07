@@ -18,9 +18,6 @@
 
 #include "oneapi/dal/algo/linear_regression/train_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/util/common.hpp"
-#include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
