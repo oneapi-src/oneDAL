@@ -58,7 +58,7 @@ public:
         result_option_id resopts = result_options::coefficients;
         if (this->fit_intercept_)
             resopts = resopts | result_options::intercept;
-        return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_, C_, 2)
+        return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_, C_)
             .set_result_options(resopts);
     }
 

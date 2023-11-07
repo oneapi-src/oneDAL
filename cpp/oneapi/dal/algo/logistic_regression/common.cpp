@@ -78,12 +78,10 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
 template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept,
                                        double C,
-                                       std::int64_t class_count,
                                        const detail::optimizer_ptr& optimizer)
         : impl_(new descriptor_impl<Task>{ optimizer }) {
     impl_->compute_intercept = compute_intercept;
     impl_->C = C;
-    impl_->class_count = class_count;
     impl_->opt = optimizer;
 }
 

@@ -127,7 +127,6 @@ public:
 protected:
     explicit descriptor_base(bool compute_intercept,
                              double C,
-                             std::int64_t class_count,
                              const detail::optimizer_ptr& optimizer);
 
     void set_compute_intercept_impl(bool compute_intercept);
@@ -187,20 +186,15 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept = true, double C = 1.0, std::int64_t class_count = 2)
+    explicit descriptor(bool compute_intercept = true, double C = 1.0)
             : base_t(compute_intercept,
                      C,
-                     class_count,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
-    explicit descriptor(bool compute_intercept,
-                        double C,
-                        std::int64_t class_count,
-                        const optimizer_t& optimizer)
+    explicit descriptor(bool compute_intercept, double C, const optimizer_t& optimizer)
             : base_t(compute_intercept,
                      C,
-                     class_count,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer)) {}
 
     /// Defines should intercept be taken into consideration.
