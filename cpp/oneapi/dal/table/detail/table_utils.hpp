@@ -47,6 +47,13 @@ inline std::shared_ptr<heterogen_table_iface> get_heterogen_table_iface(Object&&
 }
 
 template <typename Object>
+inline std::shared_ptr<homogen_table_iface> get_csr_table_iface(Object&& obj) {
+    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
+    auto csr_iface_ptr = get_csr_table_iface_impl(pimpl.get());
+    return std::shared_ptr<csr_table_iface>{ pimpl, csr_iface_ptr };
+}
+
+template <typename Object>
 inline std::shared_ptr<pull_rows_iface> get_pull_rows_iface(Object&& obj) {
     const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
     return std::shared_ptr<pull_rows_iface>{ pimpl, get_pull_rows_iface_impl(pimpl.get()) };

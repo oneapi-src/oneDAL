@@ -21,6 +21,13 @@
 namespace oneapi::dal {
 namespace v1 {
 
+static std::shared_ptr<detail::csr_table_iface> get_csr_iface(const table& other) {
+    if (const auto csr_iface = detail::get_csr_table_iface(other)) {
+        return csr_iface;
+    }
+    return std::make_shared<backend::csr_table_impl>();
+}
+
 std::int64_t csr_table::kind() {
     return detail::get_csr_table_kind();
 }
@@ -36,6 +43,8 @@ sparse_indexing csr_table::get_indexing() const {
 }
 
 csr_table::csr_table() : csr_table(new backend::csr_table_impl{}) {}
+
+csr_table::csr_table(const table& other) : csr_table(get_csr_iface(other)) {}
 
 const void* csr_table::get_data() const {
     const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
