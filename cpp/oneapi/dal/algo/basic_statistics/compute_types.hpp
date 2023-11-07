@@ -22,7 +22,7 @@ namespace oneapi::dal::basic_statistics {
 
 namespace detail {
 namespace v1 {
-template <typename Task, typename table_type>
+template <typename Task, typename TableType>
 class compute_input_impl;
 
 template <typename Task>
@@ -42,7 +42,9 @@ namespace v1 {
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
 ///              be :expr:`task::compute`.
-template <typename Task = task::by_default, typename table_type = table>
+/// @tparam TableType specifies the type of input table. Can be
+///              :expr:`oneapi::dal::table` or :expr:`oneapi::dal::csr_table`
+template <typename Task = task::by_default, typename TableType = table>
 class compute_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
 
@@ -51,32 +53,32 @@ public:
     compute_input();
     /// Creates a new instance of the class with the given :literal:`data`
     /// property value
-    compute_input(const table_type& data);
-    compute_input(const table_type& data, const table_type& weights);
+    compute_input(const TableType& data);
+    compute_input(const TableType& data, const TableType& weights);
 
     /// An $n \\times p$ table with the training data, where each row stores one
     /// feature vector.
     /// @remark default = table{}
-    const table_type& get_data() const;
+    const TableType& get_data() const;
 
-    auto& set_data(const table_type& data) {
+    auto& set_data(const TableType& data) {
         set_data_impl(data);
         return *this;
     }
 
-    const table_type& get_weights() const;
+    const TableType& get_weights() const;
 
-    auto& set_weights(const table_type& weights) {
+    auto& set_weights(const TableType& weights) {
         set_weights_impl(weights);
         return *this;
     }
 
 protected:
-    void set_data_impl(const table_type& data);
-    void set_weights_impl(const table_type& weights);
+    void set_data_impl(const TableType& data);
+    void set_weights_impl(const TableType& weights);
 
 private:
-    dal::detail::pimpl<detail::compute_input_impl<Task, table_type>> impl_;
+    dal::detail::pimpl<detail::compute_input_impl<Task, TableType>> impl_;
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can

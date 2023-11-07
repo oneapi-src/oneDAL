@@ -20,15 +20,15 @@
 
 namespace oneapi::dal::basic_statistics {
 
-template <typename Task, typename table_type = table>
+template <typename Task, typename TableType = table>
 class detail::v1::compute_input_impl : public base {
 public:
     compute_input_impl() : data(table()){};
-    compute_input_impl(const table_type& data) : data(data) {}
-    compute_input_impl(const table_type& data, const table_type& weights)
+    compute_input_impl(const TableType& data) : data(data) {}
+    compute_input_impl(const TableType& data, const TableType& weights)
             : data(data),
               weights(weights) {}
-    table_type data, weights;
+    TableType data, weights;
 };
 
 template <typename Task>
@@ -65,35 +65,35 @@ using detail::v1::partial_compute_result_impl;
 
 namespace v1 {
 
-template <typename Task, typename table_type>
-compute_input<Task, table_type>::compute_input()
-        : impl_(new compute_input_impl<Task, table_type>{}) {}
+template <typename Task, typename TableType>
+compute_input<Task, TableType>::compute_input()
+        : impl_(new compute_input_impl<Task, TableType>{}) {}
 
-template <typename Task, typename table_type>
-compute_input<Task, table_type>::compute_input(const table_type& data)
-        : impl_(new compute_input_impl<Task, table_type>(data)) {}
+template <typename Task, typename TableType>
+compute_input<Task, TableType>::compute_input(const TableType& data)
+        : impl_(new compute_input_impl<Task, TableType>(data)) {}
 
-template <typename Task, typename table_type>
-compute_input<Task, table_type>::compute_input(const table_type& data, const table_type& weights)
-        : impl_(new compute_input_impl<Task, table_type>(data, weights)) {}
+template <typename Task, typename TableType>
+compute_input<Task, TableType>::compute_input(const TableType& data, const TableType& weights)
+        : impl_(new compute_input_impl<Task, TableType>(data, weights)) {}
 
-template <typename Task, typename table_type>
-const table_type& compute_input<Task, table_type>::get_data() const {
+template <typename Task, typename TableType>
+const TableType& compute_input<Task, TableType>::get_data() const {
     return impl_->data;
 }
 
-template <typename Task, typename table_type>
-const table_type& compute_input<Task, table_type>::get_weights() const {
+template <typename Task, typename TableType>
+const TableType& compute_input<Task, TableType>::get_weights() const {
     return impl_->weights;
 }
 
-template <typename Task, typename table_type>
-void compute_input<Task, table_type>::set_data_impl(const table_type& value) {
+template <typename Task, typename TableType>
+void compute_input<Task, TableType>::set_data_impl(const TableType& value) {
     impl_->data = value;
 }
 
-template <typename Task, typename table_type>
-void compute_input<Task, table_type>::set_weights_impl(const table_type& value) {
+template <typename Task, typename TableType>
+void compute_input<Task, TableType>::set_weights_impl(const TableType& value) {
     impl_->weights = value;
 }
 

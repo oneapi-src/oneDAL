@@ -126,11 +126,9 @@ struct csr_table_builder {
                                                              row_offsets_.get_data(),
                                                              row_count_ + 1);
         sycl::event::wait_and_throw({ data_event, col_indices_event, row_offsets_event });
-        return csr_table::wrap(queue,
-                               copied_data.get_data(),
-                               copied_col_indices.get_data(),
-                               copied_row_offsets.get_data(),
-                               row_count_,
+        return csr_table::wrap(copied_data,
+                               copied_col_indices,
+                               copied_row_offsets,
                                column_count_,
                                indexing_);
     }
