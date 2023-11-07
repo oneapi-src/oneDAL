@@ -76,10 +76,10 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                                                input_.get_partial_xty(),
                                                                sycl::usm::alloc::device);
         auto copy_xty_event = copy(queue, xty, xty_nd, { fill_xty_event });
-        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx_nd, { copy_xtx_event });
+        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx, { copy_xtx_event });
         auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { copy_xty_event });
 
-        result.set_partial_xtx(homogen_table::wrap(xtx_nd.flatten(queue, { last_xtx_event }),
+        result.set_partial_xtx(homogen_table::wrap(xtx.flatten(queue, { last_xtx_event }),
                                                    ext_feature_count,
                                                    ext_feature_count));
         result.set_partial_xty(homogen_table::wrap(xty.flatten(queue, { last_xty_event }),
