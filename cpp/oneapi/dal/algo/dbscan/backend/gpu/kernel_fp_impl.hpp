@@ -333,6 +333,206 @@ sycl::event set_arr_value(sycl::queue& queue,
 }
 
 template <typename Float>
+struct update_queue_wide {
+    static auto run(sycl::queue& queue,
+                    const pr::ndview<Float, 2>& data,
+                    const pr::ndview<std::int32_t, 1>& cores,
+                    pr::ndview<std::int32_t, 1>& algo_queue,
+                    std::int32_t queue_begin,
+                    std::int32_t queue_end,
+                    pr::ndview<std::int32_t, 1>& responses,
+                    pr::ndview<std::int32_t, 1>& queue_front,
+                    Float epsilon,
+                    std::int32_t cluster_id,
+                    std::int64_t block_start,
+                    std::int64_t block_end,
+                    const bk::event_vector& deps) {
+        ONEDAL_PROFILER_TASK(update_algo_queue, queue);
+        const auto row_count = data.get_dimension(0);
+        ONEDAL_ASSERT(row_count > 0);
+        ONEDAL_ASSERT(queue_begin < algo_queue.get_dimension(0));
+        ONEDAL_ASSERT(queue_end <= algo_queue.get_dimension(0));
+        ONEDAL_ASSERT(queue_begin >= 0);
+        ONEDAL_ASSERT(queue_end >= 0);
+        ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
+        block_start = (block_start < 0) ? 0 : block_start;
+        block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
+        ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
+        ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
+        const auto block_size = block_end - block_start;
+        ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
+        ONEDAL_ASSERT(responses.get_dimension(0) >= block_size);
+        const std::int64_t column_count = data.get_dimension(1);
+        ONEDAL_ASSERT(column_count > 0);
+        const std::int32_t algo_queue_size = queue_end - queue_begin;
+
+        const Float* data_ptr = data.get_data();
+        std::int32_t* cores_ptr = cores.get_mutable_data();
+        std::int32_t* queue_ptr = algo_queue.get_mutable_data();
+        std::int32_t* queue_front_ptr = queue_front.get_mutable_data();
+        std::int32_t* responses_ptr = responses.get_mutable_data();
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
+            cgh.parallel_for(
+                bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+                [=](sycl::nd_item<2> item) {
+                    auto sg = item.get_sub_group();
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    if (sg_id > 0)
+                        return;
+                    const std::uint32_t wg_id = item.get_global_id(1);
+                    if (wg_id >= block_size)
+                        return;
+                    const std::uint32_t local_id = sg.get_local_id();
+                    const std::uint32_t local_size = sg.get_local_range()[0];
+                    const std::int32_t probe = block_start + wg_id;
+                    if (responses_ptr[wg_id] >= 0)
+                        return;
+
+                    for (std::int32_t j = 0; j < algo_queue_size; j++) {
+                        const std::int32_t index = queue_ptr[j + queue_begin];
+                        Float sum = Float(0);
+                        for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
+                            Float val = data_ptr[probe * column_count + i] -
+                                        data_ptr[index * column_count + i];
+                            sum += val * val;
+                        }
+                        Float distance =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance > epsilon)
+                            continue;
+                        for (std::int64_t i = column_count / 2 + local_id; i < column_count;
+                             i += local_size) {
+                            Float val = data_ptr[probe * column_count + i] -
+                                        data_ptr[index * column_count + i];
+                            sum += val * val;
+                        }
+                        Float distance_check =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance_check > epsilon)
+                            continue;
+                        if (local_id == 0) {
+                            responses_ptr[wg_id] = cluster_id;
+                        }
+
+                        if (cores_ptr[wg_id] == 0)
+                            continue;
+                        if (local_id == 0) {
+                            sycl::atomic_ref<
+                                std::int32_t,
+                                sycl::memory_order::relaxed,
+                                sycl::memory_scope::device,
+                                sycl::access::address_space::ext_intel_global_device_space>
+                                counter_atomic(queue_front_ptr[0]);
+                            std::int32_t new_front = counter_atomic.fetch_add(1);
+                            queue_ptr[new_front] = probe;
+                        }
+                        break;
+                    }
+                });
+        });
+        return event;
+    }
+    static constexpr std::int64_t min_width = 4;
+};
+
+template <typename Float>
+struct update_queue_narrow {
+    static auto run(sycl::queue& queue,
+                    const pr::ndview<Float, 2>& data,
+                    const pr::ndview<std::int32_t, 1>& cores,
+                    pr::ndview<std::int32_t, 1>& algo_queue,
+                    std::int32_t queue_begin,
+                    std::int32_t queue_end,
+                    pr::ndview<std::int32_t, 1>& responses,
+                    pr::ndview<std::int32_t, 1>& queue_front,
+                    Float epsilon,
+                    std::int32_t cluster_id,
+                    std::int64_t block_start,
+                    std::int64_t block_end,
+                    const bk::event_vector& deps) {
+        ONEDAL_PROFILER_TASK(update_algo_queue, queue);
+        const auto row_count = data.get_dimension(0);
+        ONEDAL_ASSERT(row_count > 0);
+        ONEDAL_ASSERT(queue_begin < algo_queue.get_dimension(0));
+        ONEDAL_ASSERT(queue_end <= algo_queue.get_dimension(0));
+        ONEDAL_ASSERT(queue_begin >= 0);
+        ONEDAL_ASSERT(queue_end >= 0);
+        ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
+        block_start = (block_start < 0) ? 0 : block_start;
+        block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
+        ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
+        ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
+        const auto block_size = block_end - block_start;
+        ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
+        ONEDAL_ASSERT(responses.get_dimension(0) >= block_size);
+        const std::int64_t column_count = data.get_dimension(1);
+        ONEDAL_ASSERT(column_count > 0);
+        const std::int32_t algo_queue_size = queue_end - queue_begin;
+
+        const Float* data_ptr = data.get_data();
+        std::int32_t* cores_ptr = cores.get_mutable_data();
+        std::int32_t* queue_ptr = algo_queue.get_mutable_data();
+        std::int32_t* queue_front_ptr = queue_front.get_mutable_data();
+        std::int32_t* responses_ptr = responses.get_mutable_data();
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
+            cgh.parallel_for(
+                bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+                [=](sycl::nd_item<2> item) {
+                    auto sg = item.get_sub_group();
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    if (sg_id > 0)
+                        return;
+                    const std::uint32_t wg_id = item.get_global_id(1);
+                    if (wg_id >= block_size)
+                        return;
+                    const std::uint32_t local_id = sg.get_local_id();
+                    const std::uint32_t local_size = sg.get_local_range()[0];
+                    const std::int32_t probe = block_start + wg_id;
+                    if (responses_ptr[wg_id] >= 0)
+                        return;
+
+                    for (std::int32_t j = 0; j < algo_queue_size; j++) {
+                        const std::int32_t index = queue_ptr[j + queue_begin];
+                        Float sum = Float(0);
+                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                            Float val = data_ptr[probe * column_count + i] -
+                                        data_ptr[index * column_count + i];
+                            sum += val * val;
+                        }
+                        Float distance =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance > epsilon)
+                            continue;
+                        if (local_id == 0) {
+                            responses_ptr[wg_id] = cluster_id;
+                        }
+
+                        if (cores_ptr[wg_id] == 0)
+                            continue;
+                        if (local_id == 0) {
+                            sycl::atomic_ref<
+                                std::int32_t,
+                                sycl::memory_order::relaxed,
+                                sycl::memory_scope::device,
+                                sycl::access::address_space::ext_intel_global_device_space>
+                                counter_atomic(queue_front_ptr[0]);
+                            std::int32_t new_front = counter_atomic.fetch_add(1);
+                            queue_ptr[new_front] = probe;
+                        }
+                        break;
+                    }
+                });
+        });
+        return event;
+    }
+    static constexpr std::int64_t max_width = 4;
+};
+
+template <typename Float>
 sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             const pr::ndview<Float, 2>& data,
                                             const pr::ndview<std::int32_t, 1>& cores,
@@ -346,91 +546,38 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             std::int64_t block_start,
                                             std::int64_t block_end,
                                             const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(update_algo_queue, queue);
-    const auto row_count = data.get_dimension(0);
-    ONEDAL_ASSERT(row_count > 0);
-    ONEDAL_ASSERT(queue_begin < algo_queue.get_dimension(0));
-    ONEDAL_ASSERT(queue_end <= algo_queue.get_dimension(0));
-    ONEDAL_ASSERT(queue_begin >= 0);
-    ONEDAL_ASSERT(queue_end >= 0);
-    ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
-    block_start = (block_start < 0) ? 0 : block_start;
-    block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
-    ONEDAL_ASSERT(block_start >= 0 && block_end > 0);
-    ONEDAL_ASSERT(block_start < row_count && block_end <= row_count);
-    const auto block_size = block_end - block_start;
-    ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
-    ONEDAL_ASSERT(responses.get_dimension(0) >= block_size);
+    ONEDAL_PROFILER_TASK(update_queue, queue);
     const std::int64_t column_count = data.get_dimension(1);
-    ONEDAL_ASSERT(column_count > 0);
-    const std::int32_t algo_queue_size = queue_end - queue_begin;
-
-    const Float* data_ptr = data.get_data();
-    std::int32_t* cores_ptr = cores.get_mutable_data();
-    std::int32_t* queue_ptr = algo_queue.get_mutable_data();
-    std::int32_t* queue_front_ptr = queue_front.get_mutable_data();
-    std::int32_t* responses_ptr = responses.get_mutable_data();
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
-        cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                if (sg_id > 0)
-                    return;
-                const std::uint32_t wg_id = item.get_global_id(1);
-                if (wg_id >= block_size)
-                    return;
-                const std::uint32_t local_id = sg.get_local_id();
-                const std::uint32_t local_size = sg.get_local_range()[0];
-                const std::int32_t probe = block_start + wg_id;
-                if (responses_ptr[wg_id] >= 0)
-                    return;
-
-                for (std::int32_t j = 0; j < algo_queue_size; j++) {
-                    const std::int32_t index = queue_ptr[j + queue_begin];
-                    Float sum = Float(0);
-                    for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
-                        Float val =
-                            data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
-                        sum += val * val;
-                    }
-                    Float distance =
-                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                    if (distance > epsilon)
-                        continue;
-                    for (std::int64_t i = column_count / 2 + local_id; i < column_count;
-                         i += local_size) {
-                        Float val =
-                            data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
-                        sum += val * val;
-                    }
-                    Float distance_check =
-                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                    if (distance_check > epsilon)
-                        continue;
-                    if (local_id == 0) {
-                        responses_ptr[wg_id] = cluster_id;
-                    }
-
-                    if (cores_ptr[wg_id] == 0)
-                        continue;
-                    if (local_id == 0) {
-                        sycl::atomic_ref<std::int32_t,
-                                         sycl::memory_order::relaxed,
-                                         sycl::memory_scope::device,
-                                         sycl::access::address_space::ext_intel_global_device_space>
-                            counter_atomic(queue_front_ptr[0]);
-                        std::int32_t new_front = counter_atomic.fetch_add(1);
-                        queue_ptr[new_front] = probe;
-                    }
-                    break;
-                }
-            });
-    });
-    return event;
+    if (column_count > update_queue_wide<Float>::min_width) {
+        return update_queue_narrow<Float>::run(queue,
+                                               data,
+                                               cores,
+                                               algo_queue,
+                                               queue_begin,
+                                               queue_end,
+                                               responses,
+                                               queue_front,
+                                               epsilon,
+                                               cluster_id,
+                                               block_start,
+                                               block_end,
+                                               deps);
+    }
+    else {
+        return update_queue_wide<Float>::run(queue,
+                                             data,
+                                             cores,
+                                             algo_queue,
+                                             queue_begin,
+                                             queue_end,
+                                             responses,
+                                             queue_front,
+                                             epsilon,
+                                             cluster_id,
+                                             block_start,
+                                             block_end,
+                                             deps);
+    }
 }
 
 template <typename Float>
