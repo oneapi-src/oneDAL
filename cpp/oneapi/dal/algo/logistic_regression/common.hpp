@@ -66,7 +66,7 @@ namespace detail {
 
 ONEDAL_EXPORT result_option_id get_intercept_id();
 ONEDAL_EXPORT result_option_id get_coefficients_id();
-ONEDAL_EXPORT result_option_id get_iterations_count();
+ONEDAL_EXPORT result_option_id get_iterations_count_id();
 
 } // namespace detail
 
@@ -80,7 +80,7 @@ const inline result_option_id intercept = detail::get_intercept_id();
 /// Return the coefficients to use in logistic regression
 const inline result_option_id coefficients = detail::get_coefficients_id();
 
-const inline result_option_id iterations_count = detail::get_iterations_count();
+const inline result_option_id iterations_count = detail::get_iterations_count_id();
 
 } // namespace result_options
 

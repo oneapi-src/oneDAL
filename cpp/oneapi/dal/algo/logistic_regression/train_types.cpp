@@ -38,7 +38,7 @@ class train_result_impl : public base {
 public:
     table intercept;
     table coefficients;
-    std::int64_t iter_num;
+    std::int64_t iter_cnt;
 
     result_option_id options;
 
@@ -145,7 +145,7 @@ std::int64_t train_result<Task>::get_iterations_count() const {
     if (!get_result_options().test(result_options::iterations_count)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    return impl_->iter_num;
+    return impl_->iter_cnt;
 }
 
 template <typename Task>
@@ -154,7 +154,7 @@ void train_result<Task>::set_iterations_count_impl(std::int64_t value) {
     if (!get_result_options().test(result_options::iterations_count)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->iter_num = value;
+    impl_->iter_cnt = value;
 }
 
 template <typename Task>

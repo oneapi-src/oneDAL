@@ -30,7 +30,7 @@ result_option_id get_coefficients_id() {
     return result_option_id{ result_option_id::make_by_index(1) };
 }
 
-result_option_id get_iterations_count() {
+result_option_id get_iterations_count_id() {
     return result_option_id{ result_option_id::make_by_index(2) };
 }
 

@@ -74,7 +74,7 @@ void run(sycl::queue& q) {
 
     std::cout << "Coefficients:\n" << train_result.get_coefficients() << std::endl;
     std::cout << "Intercept:\n" << train_result.get_intercept() << std::endl;
-    std::cout << "Iterations number: " << train_result.get_iterations_count() << std::endl;
+    std::cout << "Iterations count: " << train_result.get_iterations_count() << std::endl;
 
     const auto log_reg_model = train_result.get_model();
 
