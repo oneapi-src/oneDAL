@@ -30,7 +30,7 @@ inline std::int64_t get_recommended_sg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
     // TODO optimization/dispatching
     auto max_sg_size = bk::device_max_wg_size(queue);
-    return bk::down_pow2(std::max(column_count, max_sg_size));
+    return bk::down_pow2(std::min(column_count, max_sg_size));
 }
 
 template <typename Float, bool use_weights>
