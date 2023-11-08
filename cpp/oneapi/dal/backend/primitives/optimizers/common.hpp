@@ -17,8 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/blas/gemv.hpp"
-#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -38,18 +36,18 @@ sycl::event dot_product(sycl::queue& queue,
                         const event_vector& deps = {});
 
 template <typename Float>
-class BaseMatrixOperator {
+class base_matrix_operator {
 public:
-    virtual ~BaseMatrixOperator() {}
+    virtual ~base_matrix_operator() {}
     virtual sycl::event operator()(const ndview<Float, 1>& vec,
                                    ndview<Float, 1>& out,
                                    const event_vector& deps = {}) = 0;
 };
 
 template <typename Float>
-class LinearMatrixOperator : public BaseMatrixOperator<Float> {
+class linear_matrix_operator : public base_matrix_operator<Float> {
 public:
-    LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A);
+    linear_matrix_operator(sycl::queue& q, const ndview<Float, 2>& A);
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
                            const event_vector& deps) final;
@@ -60,12 +58,12 @@ private:
 };
 
 template <typename Float>
-class BaseFunction {
+class base_function {
 public:
-    virtual ~BaseFunction() {}
+    virtual ~base_function() {}
     virtual Float get_value() = 0;
     virtual ndview<Float, 1>& get_gradient() = 0;
-    virtual BaseMatrixOperator<Float>& get_hessian_product() = 0;
+    virtual base_matrix_operator<Float>& get_hessian_product() = 0;
     virtual event_vector update_x(const ndview<Float, 1>& x,
                                   bool need_hessp = false,
                                   const event_vector& deps = {}) = 0;
