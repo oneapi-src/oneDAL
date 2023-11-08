@@ -154,7 +154,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         algorithmFPType nVectorsInv = 1.0 / (double)(nVectors);
 
         /* Split rows by blocks */
-        std::int64_t numRowsInBlock = getBlockSize<cpu>(nVectors);
+        DAAL_INT64 numRowsInBlock = getBlockSize<cpu>(nVectors);
         if (hyperparameter)
         {
             services::Status status = hyperparameter->find(denseUpdateStepBlockSize, numRowsInBlock);

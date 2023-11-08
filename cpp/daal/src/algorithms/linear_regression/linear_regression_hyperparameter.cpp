@@ -21,6 +21,7 @@
 //--
 */
 
+#include <stdint.h>
 #include "src/algorithms/linear_model/linear_model_hyperparameter_impl.h"
 #include "src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h"
 
@@ -35,24 +36,24 @@ namespace internal
 
 Hyperparameter::Hyperparameter() : algorithms::Hyperparameter(hyperparameterIdCount, doubleHyperparameterIdCount) {}
 
-services::Status Hyperparameter::set(HyperparameterId id, std::int64_t value)
+services::Status Hyperparameter::set(HyperparameterId id, DAAL_INT64 value)
 {
-    return this->algorithms::Hyperparameter::set(std::uint32_t(id), value);
+    return this->algorithms::Hyperparameter::set(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::set(DoubleHyperparameterId id, double value)
 {
-    return this->algorithms::Hyperparameter::set(std::uint32_t(id), value);
+    return this->algorithms::Hyperparameter::set(uint32_t(id), value);
 }
 
-services::Status Hyperparameter::find(HyperparameterId id, std::int64_t & value) const
+services::Status Hyperparameter::find(HyperparameterId id, DAAL_INT64 & value) const
 {
-    return this->algorithms::Hyperparameter::find(std::uint32_t(id), value);
+    return this->algorithms::Hyperparameter::find(uint32_t(id), value);
 }
 
 services::Status Hyperparameter::find(DoubleHyperparameterId id, double & value) const
 {
-    return this->algorithms::Hyperparameter::find(std::uint32_t(id), value);
+    return this->algorithms::Hyperparameter::find(uint32_t(id), value);
 }
 
 services::Status convert(const Hyperparameter * params, services::SharedPtr<LinearModelHyperparameter> & result)
@@ -63,7 +64,7 @@ services::Status convert(const Hyperparameter * params, services::SharedPtr<Line
 
     if (params != nullptr)
     {
-        std::int64_t denseUpdateStepBlockSize = 0l;
+        DAAL_INT64 denseUpdateStepBlockSize = 0l;
 
         auto * const resultPtr = new LinearModelHyperparameter();
         DAAL_CHECK_MALLOC(resultPtr);
