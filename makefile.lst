@@ -233,8 +233,10 @@ ONEAPI.ALGOS :=          \
     knn                  \
     linear_kernel        \
     linear_regression    \
+    logistic_regression  \
     logloss_objective    \
     louvain              \
+    newton_cg            \
     minkowski_distance   \
     objective_function   \
     pca                  \
