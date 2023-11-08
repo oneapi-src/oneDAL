@@ -69,7 +69,7 @@ auto compute_crossproduct(sycl::queue& q,
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, q);
-        gemm_event = gemm(q, data.t(), data, xtx, Float(1.0), Float(0.0));
+        gemm_event = gemm(q, data.t(), data, xtx, Float(1.0), Float(0.0), deps);
     }
 
     return std::make_tuple(xtx, gemm_event);
