@@ -231,6 +231,9 @@ public:
                         const table& data,
                         const table& responses);
 
+    partial_train_input(const partial_train_result<Task>& prev,
+                        const partial_train_input<Task>& input);
+
     const table& get_data() const {
         return train_input<Task>::get_data();
     }

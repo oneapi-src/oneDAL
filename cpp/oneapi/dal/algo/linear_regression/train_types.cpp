@@ -221,6 +221,13 @@ partial_train_input<Task>::partial_train_input(const partial_train_result<Task>&
 }
 
 template <typename Task>
+partial_train_input<Task>::partial_train_input(const partial_train_result<Task>& prev,
+                                               const partial_train_input<Task>& input)
+        : train_input<Task>(input.get_data(), input.get_responses()) {
+    this->prev_ = prev;
+}
+
+template <typename Task>
 partial_train_result<Task>::partial_train_result() : impl_(new partial_train_result_impl<Task>()) {}
 
 template <typename Task>

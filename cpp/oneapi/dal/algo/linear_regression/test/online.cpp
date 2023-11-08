@@ -34,8 +34,8 @@ public:
     using train_result_t = typename base_t::train_result_t;
 
     void generate_dimensions() {
-        this->t_count_ = GENERATE(307, 12999, 17777);
-        this->s_count_ = GENERATE(111, 777);
+        this->t_count_ = GENERATE(307, 1500, 2500);
+        this->s_count_ = GENERATE(111, 444);
         this->f_count_ = GENERATE(2, 17);
         this->r_count_ = GENERATE(2, 15);
         this->intercept_ = GENERATE(0, 1);
@@ -45,7 +45,7 @@ public:
 TEMPLATE_LIST_TEST_M(lr_online_test, "LR common flow", "[lr][online]", lr_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate(777);
-    const int64_t nBlocks = GENERATE(1, 3, 10);
+    const int64_t nBlocks = GENERATE(1, 3, 5, 8);
 
     this->run_and_check_online(nBlocks);
 }

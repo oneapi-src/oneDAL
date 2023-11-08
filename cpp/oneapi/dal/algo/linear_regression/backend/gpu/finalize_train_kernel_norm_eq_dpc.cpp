@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/profiler.hpp"
-
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
