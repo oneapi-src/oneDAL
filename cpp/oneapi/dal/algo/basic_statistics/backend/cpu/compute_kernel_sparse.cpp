@@ -74,7 +74,9 @@ struct compute_kernel_cpu<Float, method_t, task_t> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        const csr_table csr_tdata = static_cast<const csr_table &>(input.get_data());
+        const auto table = input.get_data();
+        ONEDAL_ASSERT(table.get_kind() == csr_table::kind());
+        const csr_table csr_tdata = static_cast<const csr_table&>(table);
         return call_daal_sparse_kernel<Float>(ctx, desc, csr_tdata);
     }
 };

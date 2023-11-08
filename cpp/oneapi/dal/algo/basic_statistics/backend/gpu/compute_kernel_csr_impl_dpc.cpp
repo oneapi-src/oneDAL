@@ -44,7 +44,7 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
                                                         const input_t& input,
                                                         const std::vector<sycl::event>& deps) {
     auto result_ptr = results.get_mutable_data();
-    const csr_table csr_tdata = static_cast<const csr_table &>(input.get_data());
+    const csr_table csr_tdata = static_cast<const csr_table&>(input.get_data());
     auto [csr_data, column_indices, row_offsets] =
         csr_accessor<const Float>(csr_tdata).pull(q, { 0, -1 }, sparse_indexing::zero_based);
     const auto column_count = csr_tdata.get_column_count();
@@ -124,8 +124,11 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
     final_event.wait_and_throw();
 }
 
-template<typename Float>
-inline std::int64_t bin_search(Float* indices, std::int64_t left, std::int64_t right, std::int64_t query) {
+template <typename Float>
+inline std::int64_t bin_search(Float* indices,
+                               std::int64_t left,
+                               std::int64_t right,
+                               std::int64_t query) {
     while (left <= right) {
         std::int64_t mid = left + (right - left) / 2;
         if (indices[mid] == query) {
@@ -146,7 +149,9 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                                                     const descriptor_t& desc,
                                                     const input_t& input) {
     auto queue = ctx.get_queue();
-    const csr_table csr_tdata = static_cast<const csr_table &>(input.get_data());
+    const auto table = input.get_data();
+    ONEDAL_ASSERT(table.get_kind() == csr_table::kind());
+    const csr_table csr_tdata = static_cast<const csr_table&>(table);
     comm_t comm = ctx.get_communicator();
     const bool distr_mode = comm.get_rank_count() > 1;
     const auto column_count = csr_tdata.get_column_count();
@@ -203,7 +208,10 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             local_stat[stat::sum2_cent] = Float(0);
 
             for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                auto search_idx = bin_search(column_indices_ptr, row_ofs_ptr[row_idx], row_ofs_ptr[row_idx + 1] - 1, col_idx);
+                auto search_idx = bin_search(column_indices_ptr,
+                                             row_ofs_ptr[row_idx],
+                                             row_ofs_ptr[row_idx + 1] - 1,
+                                             col_idx);
                 if (search_idx >= 0) {
                     auto val = csr_data_ptr[search_idx];
                     local_stat[stat::min] = sycl::min<Float>(local_stat[stat::min], val);
@@ -252,7 +260,10 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             item.barrier(sycl::access::fence_space::local_space);
             auto mean_val = result_data_ptr[stat::mean * column_count + col_idx];
             for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                auto search_idx = bin_search(column_indices_ptr, row_ofs_ptr[row_idx], row_ofs_ptr[row_idx + 1] - 1, col_idx);
+                auto search_idx = bin_search(column_indices_ptr,
+                                             row_ofs_ptr[row_idx],
+                                             row_ofs_ptr[row_idx + 1] - 1,
+                                             col_idx);
                 if (search_idx >= 0) {
                     auto val = csr_data_ptr[search_idx];
                     local_stat[stat::sum2_cent] += (val - mean_val) * (val - mean_val);

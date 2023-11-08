@@ -25,9 +25,7 @@ class detail::v1::compute_input_impl : public base {
 public:
     compute_input_impl() : data(table()){};
     compute_input_impl(const table& data) : data(data) {}
-    compute_input_impl(const table& data, const table& weights)
-            : data(data),
-              weights(weights) {}
+    compute_input_impl(const table& data, const table& weights) : data(data), weights(weights) {}
     table data, weights;
 };
 
@@ -66,12 +64,10 @@ using detail::v1::partial_compute_result_impl;
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input()
-        : impl_(new compute_input_impl<Task>{}) {}
+compute_input<Task>::compute_input() : impl_(new compute_input_impl<Task>{}) {}
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& data)
-        : impl_(new compute_input_impl<Task>(data)) {}
+compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
 compute_input<Task>::compute_input(const table& data, const table& weights)
