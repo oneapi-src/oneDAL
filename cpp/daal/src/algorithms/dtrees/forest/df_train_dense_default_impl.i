@@ -818,13 +818,13 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
-        if(n - split.nLeft != 1)
+        if (n - split.nLeft != 1)
         {
             _helper.convertLeftImpToRight(n, curImpurity, split);
         }
         else
         {
-            _helper.simpleSwap(_aSample.get()[iStart + nLeft], split);
+            _helper.singleSwap(_aSample.get()[iStart + nLeft], split);
         }
 
         if (!_memorySavingMode && !_useConstFeatures)
