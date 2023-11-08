@@ -102,7 +102,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     }
 
     DAAL_CHECK_STATUS(status, this->decompose(normalizedData, eigenvalues, eigenvectors));
-    DAAL_CHECK_STATUS(status, this->scaleSingularValues(eigenvalues, data.getNumberOfRows()));
+    //DAAL_CHECK_STATUS(status, this->scaleSingularValues(eigenvalues, data.getNumberOfRows()));
     if (parameter->isDeterministic)
     {
         DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
