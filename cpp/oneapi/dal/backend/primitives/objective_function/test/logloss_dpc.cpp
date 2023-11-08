@@ -179,8 +179,8 @@ public:
                                                                 fit_intercept,
                                                                 { logloss_event });
         logloss_reg_event.wait_and_throw();
-        const float_t val_logloss1 = out_logloss.to_host(this->get_queue(), {}).at(0);
 
+        const float_t val_logloss1 = out_logloss.to_host(this->get_queue(), {}).at(0);
         check_val(val_logloss1, logloss, rtol, atol);
 
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
@@ -206,8 +206,8 @@ public:
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
 
         const float_t val_logloss2 = out_logloss.to_host(this->get_queue(), {}).at(0);
-
         check_val(val_logloss2, logloss, rtol, atol);
+
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { dim }, sycl::usm::alloc::device);
         auto der_event = compute_derivative(this->get_queue(),
@@ -256,7 +256,6 @@ public:
                                 fit_intercept,
                                 rtol,
                                 atol);
-
         test_formula_hessian(data_host,
                              predictions_host,
                              hessian_host,
@@ -270,26 +269,24 @@ public:
             if (batch_test) {
                 bsz = GENERATE(4, 8, 16, 20, 37, 512);
             }
-
-            // LogLossFunction has different regularization so we need to multiply it by 2 to allign with other implementations
-            auto functor = LogLossFunction<float_t>(this->get_queue(),
-                                                    data_,
-                                                    labels_gpu,
-                                                    L2 * 2,
-                                                    fit_intercept,
-                                                    bsz);
+            // logloss_function has different regularization so we need to multiply it by 2 to allign with other implementations
+            auto functor = logloss_function<float_t>(this->get_queue(),
+                                                     data_,
+                                                     labels_gpu,
+                                                     L2 * 2,
+                                                     fit_intercept,
+                                                     bsz);
             auto set_point_event = functor.update_x(params_gpu, true, {});
             wait_or_pass(set_point_event).wait_and_throw();
 
             check_val(logloss, functor.get_value(), rtol, atol);
             auto grad_func = functor.get_gradient();
             auto grad_func_host = grad_func.to_host(this->get_queue());
-
             std::int64_t dim = fit_intercept ? p + 1 : p;
             for (std::int64_t i = 0; i < dim; ++i) {
                 check_val(out_derivative_host.at(i), grad_func_host.at(i), rtol, atol);
             }
-            BaseMatrixOperator<float_t>& hessp = functor.get_hessian_product();
+            base_matrix_operator<float_t>& hessp = functor.get_hessian_product();
             test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
         }
     }
@@ -465,7 +462,7 @@ public:
     }
 
     void test_hessian_product(const ndview<float_t, 2>& hessian_host,
-                              BaseMatrixOperator<float_t>& hessp,
+                              base_matrix_operator<float_t>& hessp,
                               bool fit_intercept,
                               double L2,
                               const float_t rtol = 1e-3,

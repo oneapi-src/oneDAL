@@ -21,15 +21,15 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-LinearMatrixOperator<Float>::LinearMatrixOperator(sycl::queue& q, const ndview<Float, 2>& A)
-        : BaseMatrixOperator<Float>(),
+linear_matrix_operator<Float>::linear_matrix_operator(sycl::queue& q, const ndview<Float, 2>& A)
+        : base_matrix_operator<Float>(),
           q_(q),
           A_(A) {}
 
 template <typename Float>
-sycl::event LinearMatrixOperator<Float>::operator()(const ndview<Float, 1>& vec,
-                                                    ndview<Float, 1>& out,
-                                                    const event_vector& deps) {
+sycl::event linear_matrix_operator<Float>::operator()(const ndview<Float, 1>& vec,
+                                                      ndview<Float, 1>& out,
+                                                      const event_vector& deps) {
     ONEDAL_ASSERT(A_.get_dimension(1) == vec.get_dimension(0));
     ONEDAL_ASSERT(out.get_dimension(0) == vec.get_dimension(0));
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
@@ -102,9 +102,9 @@ sycl::event l1_norm(sycl::queue& queue,
                                     F*,                       \
                                     F*,                       \
                                     const event_vector&);     \
-    template class BaseMatrixOperator<F>;                     \
-    template class LinearMatrixOperator<F>;                   \
-    template class BaseFunction<F>;
+    template class base_matrix_operator<F>;                   \
+    template class linear_matrix_operator<F>;                 \
+    template class base_function<F>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);

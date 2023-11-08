@@ -930,6 +930,7 @@ void ErrorMessageCollection::parseResourceFile()
     // GBT error: -30000..-30099
     add(ErrorGbtIncorrectNumberOfTrees, "Number of trees in the model is not consistent with the number of classes");
     add(ErrorGbtPredictIncorrectNumberOfIterations, "Number of iterations value in GBT parameter is not consistent with the model");
+    add(ErrorGbtPredictShapOptions, "Incompatible SHAP options. Can calculate either contributions or interactions, not both");
 
     //Math errors: -90000..-90099
     add(ErrorDataSourseNotAvailable, "ErrorDataSourseNotAvailable");

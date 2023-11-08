@@ -67,6 +67,16 @@ public:
         return oneapi::dal::test::engine::finalize_compute(get_policy(),
                                                            std::forward<Args>(args)...);
     }
+
+    template <typename... Args>
+    auto partial_train(Args&&... args) {
+        return oneapi::dal::test::engine::partial_train(get_policy(), std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto finalize_train(Args&&... args) {
+        return oneapi::dal::test::engine::finalize_train(get_policy(), std::forward<Args>(args)...);
+    }
 };
 
 template <typename Float>
@@ -114,6 +124,16 @@ public:
     template <typename... Args>
     auto finalize_compute(Args&&... args) {
         return derived().finalize_compute_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto partial_train(Args&&... args) {
+        return derived().partial_train_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto finalize_train(Args&&... args) {
+        return derived().finalize_train_override(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -169,6 +189,16 @@ public:
     template <typename... Args>
     auto finalize_compute_override(Args&&... args) {
         return base_t::finalize_compute(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto partial_train_override(Args&&... args) {
+        return base_t::partial_train(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto finalize_train_override(Args&&... args) {
+        return base_t::finalize_train(std::forward<Args>(args)...);
     }
 
     template <typename... Args>

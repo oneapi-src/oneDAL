@@ -57,6 +57,17 @@ enum Method
 };
 
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__RESULTTOCOMPUTEID"></a>
+ * Available identifiers to specify the result to compute - results are mutually exclusive
+ */
+enum ResultToComputeId
+{
+    predictionResult  = (1 << 0), /*!< Compute the regular prediction */
+    shapContributions = (1 << 1), /*!< Compute SHAP contribution values */
+    shapInteractions  = (1 << 2)  /*!< Compute SHAP interaction values */
+};
+
+/**
  * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
@@ -70,9 +81,12 @@ namespace interface2
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 {
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses), nIterations(0) {}
-    Parameter(const Parameter & o) : daal::algorithms::classifier::Parameter(o), nIterations(o.nIterations) {}
-    size_t nIterations; /*!< Number of iterations of the trained model to be used for prediction */
+    typedef daal::algorithms::classifier::Parameter super;
+
+    Parameter(size_t nClasses = 2) : super(nClasses), nIterations(0), resultsToCompute(predictionResult) {}
+    Parameter(const Parameter & o) : super(o), nIterations(o.nIterations), resultsToCompute(o.resultsToCompute) {}
+    size_t nIterations;           /*!< Number of iterations of the trained model to be used for prediction */
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
 } // namespace interface2

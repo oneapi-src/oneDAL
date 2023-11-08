@@ -70,7 +70,7 @@ struct DAAL_EXPORT Hyperparameter : public daal::algorithms::Hyperparameter
      * \param[in] id        Identifier of the hyperparameter
      * \param[in] value     The value of the hyperparameter
      */
-    services::Status set(HyperparameterId id, std::int64_t value);
+    services::Status set(HyperparameterId id, DAAL_INT64 value);
 
     /**
      * Sets double precision hyperparameter of the linear regression algorithm
@@ -84,7 +84,7 @@ struct DAAL_EXPORT Hyperparameter : public daal::algorithms::Hyperparameter
      * \param[in]  id       Identifier of the hyperparameter
      * \param[out] value    Value of the found hyperparameter
      */
-    services::Status find(HyperparameterId id, std::int64_t & value) const;
+    services::Status find(HyperparameterId id, DAAL_INT64 & value) const;
 
     /**
      * Finds double precision hyperparameter of the linear regression algorithm by its identifier
