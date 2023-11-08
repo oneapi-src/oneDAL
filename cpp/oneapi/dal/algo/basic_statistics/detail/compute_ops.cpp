@@ -23,9 +23,7 @@ namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<Policy, Float, Method, Task> {
-    using input_t = std::conditional_t<std::is_same_v<Method, method::dense>,
-                                       compute_input<Task, table>,
-                                       compute_input<Task, csr_table>>;
+    using input_t = compute_input<Task>;
     compute_result<Task> operator()(const Policy& policy,
                                     const descriptor_base<Task>& desc,
                                     const input_t& input) const {

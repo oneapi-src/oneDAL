@@ -32,7 +32,7 @@ namespace oneapi::dal::basic_statistics::backend {
 using dal::backend::context_cpu;
 using method_t = method::sparse;
 using task_t = task::compute;
-using input_t = compute_input<task_t, csr_table>;
+using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
@@ -74,7 +74,8 @@ struct compute_kernel_cpu<Float, method_t, task_t> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return call_daal_sparse_kernel<Float>(ctx, desc, input.get_data());
+        const csr_table csr_tdata = static_cast<const csr_table &>(input.get_data());
+        return call_daal_sparse_kernel<Float>(ctx, desc, csr_tdata);
     }
 };
 

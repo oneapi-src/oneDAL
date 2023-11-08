@@ -38,7 +38,7 @@ class compute_kernel_csr_impl {
     using method_t = method::sparse;
     using task_t = task::compute;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
-    using input_t = compute_input<task_t, dal::csr_table>;
+    using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;
     using descriptor_t = detail::descriptor_base<task_t>;
 

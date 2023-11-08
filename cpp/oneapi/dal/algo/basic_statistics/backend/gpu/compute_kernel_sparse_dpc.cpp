@@ -24,7 +24,7 @@ namespace oneapi::dal::basic_statistics::backend {
 
 using method_t = method::sparse;
 using task_t = task::compute;
-using input_t = compute_input<task_t, dal::csr_table>;
+using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 

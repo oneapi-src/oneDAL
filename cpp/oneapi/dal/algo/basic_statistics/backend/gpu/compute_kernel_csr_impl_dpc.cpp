@@ -33,7 +33,7 @@ namespace pr = dal::backend::primitives;
 using method_t = method::sparse;
 using task_t = task::compute;
 using comm_t = bk::communicator<spmd::device_memory_access::usm>;
-using input_t = compute_input<task_t, dal::csr_table>;
+using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
@@ -44,7 +44,7 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
                                                         const input_t& input,
                                                         const std::vector<sycl::event>& deps) {
     auto result_ptr = results.get_mutable_data();
-    const csr_table csr_tdata = input.get_data();
+    const csr_table csr_tdata = static_cast<const csr_table &>(input.get_data());
     auto [csr_data, column_indices, row_offsets] =
         csr_accessor<const Float>(csr_tdata).pull(q, { 0, -1 }, sparse_indexing::zero_based);
     const auto column_count = csr_tdata.get_column_count();
@@ -124,12 +124,29 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
     final_event.wait_and_throw();
 }
 
+template<typename Float>
+inline std::int64_t bin_search(Float* indices, std::int64_t left, std::int64_t right, std::int64_t query) {
+    while (left <= right) {
+        std::int64_t mid = left + (right - left) / 2;
+        if (indices[mid] == query) {
+            return mid;
+        }
+        if (indices[mid] < query) {
+            left = mid + 1;
+        }
+        else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+
 template <typename Float>
 result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                                                     const descriptor_t& desc,
                                                     const input_t& input) {
     auto queue = ctx.get_queue();
-    const csr_table csr_tdata = input.get_data();
+    const csr_table csr_tdata = static_cast<const csr_table &>(input.get_data());
     comm_t comm = ctx.get_communicator();
     const bool distr_mode = comm.get_rank_count() > 1;
     const auto column_count = csr_tdata.get_column_count();
@@ -143,6 +160,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                                                   sycl::usm::alloc::device);
     auto csr_data_ptr = csr_data.get_data();
     auto column_indices_ptr = column_indices.get_data();
+    auto row_ofs_ptr = row_offsets.get_data();
 
     using limits_t = std::numeric_limits<Float>;
     constexpr Float maximum = limits_t::max();
@@ -155,13 +173,14 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
     const auto local_size = std::min(bk::device_max_wg_size(queue), bk::down_pow2(nonzero_count));
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ column_count, local_size }, { 1, local_size });
+
     auto event = queue.submit([&](sycl::handler& cgh) {
         // Init local memory
         sycl::local_accessor<Float, 1> local_res_buf(local_size * res_opt_count_, cgh);
         sycl::local_accessor<std::uint32_t, 1> row_counter(local_size, cgh);
 
         cgh.parallel_for(nd_range, [=](auto item) {
-            std::int32_t col_idx = item.get_global_id(0);
+            const std::int32_t col_idx = item.get_global_id(0);
 #if __SYCL_COMPILER_VERSION >= 20230828
             Float* work_group_buf =
                 local_res_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
@@ -183,10 +202,10 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             local_stat[stat::sum2] = Float(0);
             local_stat[stat::sum2_cent] = Float(0);
 
-            for (std::int32_t data_idx = local_id; data_idx < nonzero_count;
-                 data_idx += local_size) {
-                if (column_indices_ptr[data_idx] == col_idx) {
-                    auto val = csr_data_ptr[data_idx];
+            for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+                auto search_idx = bin_search(column_indices_ptr, row_ofs_ptr[row_idx], row_ofs_ptr[row_idx + 1] - 1, col_idx);
+                if (search_idx >= 0) {
+                    auto val = csr_data_ptr[search_idx];
                     local_stat[stat::min] = sycl::min<Float>(local_stat[stat::min], val);
                     local_stat[stat::max] = sycl::max<Float>(local_stat[stat::max], val);
                     local_stat[stat::sum] += val;
@@ -194,6 +213,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                     cur_row_counter[0] += 1;
                 }
             }
+
             // Reduce local statistics using tree reduction
             for (std::uint32_t i = local_size / 2; i > 0; i /= 2) {
                 item.barrier(sycl::access::fence_space::local_space);
@@ -231,10 +251,10 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             }
             item.barrier(sycl::access::fence_space::local_space);
             auto mean_val = result_data_ptr[stat::mean * column_count + col_idx];
-            for (std::int32_t data_idx = local_id; data_idx < nonzero_count;
-                 data_idx += local_size) {
-                if (column_indices_ptr[data_idx] == col_idx) {
-                    auto val = csr_data_ptr[data_idx];
+            for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+                auto search_idx = bin_search(column_indices_ptr, row_ofs_ptr[row_idx], row_ofs_ptr[row_idx + 1] - 1, col_idx);
+                if (search_idx >= 0) {
+                    auto val = csr_data_ptr[search_idx];
                     local_stat[stat::sum2_cent] += (val - mean_val) * (val - mean_val);
                 }
             }

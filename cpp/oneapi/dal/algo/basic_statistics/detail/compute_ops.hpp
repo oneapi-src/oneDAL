@@ -25,9 +25,7 @@ namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
-    using input_t = std::conditional_t<std::is_same_v<Method, method::dense>,
-                                       compute_input<Task, table>,
-                                       compute_input<Task, csr_table>>;
+    using input_t = compute_input<Task>;
     compute_result<Task> operator()(const Context&,
                                     const descriptor_base<Task>&,
                                     const input_t&) const;
@@ -38,9 +36,7 @@ struct compute_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
-    using input_t = std::conditional_t<std::is_same_v<method_t, method::dense>,
-                                       compute_input<task_t, table>,
-                                       compute_input<task_t, csr_table>>;
+    using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
