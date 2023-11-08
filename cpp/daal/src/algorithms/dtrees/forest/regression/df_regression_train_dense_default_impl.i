@@ -489,7 +489,7 @@ public:
     void finalizeBestSplit(const IndexType * aIdx, const BinIndexType * binIndex, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit,
                            TSplitData & bestSplit, IndexType * bestSplitIdx) const;
     void simpleSplit(const algorithmFPType * featureVal, const IndexType * aIdx, TSplitData & split) const;
-    void simpleSwap(const algorithmFPType featureVal, const IndexType aIdx, TSplitData & split) const;
+    void simpleSwap(const IndexType aIdx, TSplitData & split) const;
     bool terminateCriteria(ImpurityData & imp, algorithmFPType impurityThreshold, size_t nSamples) const { return imp.value() < impurityThreshold; }
 
     TResponse predict(const dtrees::internal::Tree & t, const algorithmFPType * x) const
@@ -597,13 +597,11 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::simpleSplit(const algorithmFPTy
 }
 
 template <typename algorithmFPType, CpuType cpu, typename crtp>
-void RespHelperBase<algorithmFPType, cpu, crtp>::simpleSwap(const algorithmFPType featureVal, const IndexType aIdx, TSplitData & split) const
+void RespHelperBase<algorithmFPType, cpu, crtp>::simpleSwap(const IndexType aIdx, TSplitData & split) const
 {
-    split.featureValue = featureVal;
     split.left.var     = 0;
     split.left.mean    = this->_aResponse[aIdx].val;
     split.nLeft        = 1;
-    split.iStart       = 0;
     split.leftWeights  = this->_aWeights[aIdx].val;
 }
 
