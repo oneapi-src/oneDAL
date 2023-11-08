@@ -124,25 +124,6 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
     final_event.wait_and_throw();
 }
 
-template <typename Float>
-inline std::int64_t bin_search(Float* indices,
-                               std::int64_t left,
-                               std::int64_t right,
-                               std::int64_t query) {
-    while (left <= right) {
-        std::int64_t mid = left + (right - left) / 2;
-        if (indices[mid] == query) {
-            return mid;
-        }
-        if (indices[mid] < query) {
-            left = mid + 1;
-        }
-        else {
-            right = mid - 1;
-        }
-    }
-    return -1;
-}
 
 template <typename Float>
 result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
