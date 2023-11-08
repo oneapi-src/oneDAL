@@ -29,5 +29,6 @@ dal_test_suite(
     dal_deps = [
         ":optimizers",
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",
+        "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
     ],
 )
