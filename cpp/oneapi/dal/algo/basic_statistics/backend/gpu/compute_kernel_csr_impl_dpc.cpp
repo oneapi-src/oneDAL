@@ -124,7 +124,6 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
     final_event.wait_and_throw();
 }
 
-
 template <typename Float>
 result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                                                     const descriptor_t& desc,
