@@ -61,7 +61,7 @@ public:
         auto A = A_host_.to_device(this->get_queue());
         auto b = b_host_.to_device(this->get_queue());
 
-        LinearMatrixOperator<float_t> mul_operator(this->get_queue(), A);
+        linear_matrix_operator<float_t> mul_operator(this->get_queue(), A);
         auto [x0, x0_init_event] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { n_ }, sycl::usm::alloc::device);
         x0_init_event.wait_and_throw();

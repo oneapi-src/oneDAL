@@ -51,6 +51,7 @@ dal_algo_example_suite(
         "knn",
         "linear_kernel",
         "linear_regression",
+        "logistic_regression",
         "pca",
         "rbf_kernel",
         "svm",

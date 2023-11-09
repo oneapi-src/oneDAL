@@ -133,7 +133,7 @@ class Algorithm<batch> : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _par(0), _in(0), _res(0), _hpar(0) {}
+    Algorithm() : _ac(0), _hpar(0), _par(0), _in(0), _res(0) {}
 
     virtual ~Algorithm()
     {

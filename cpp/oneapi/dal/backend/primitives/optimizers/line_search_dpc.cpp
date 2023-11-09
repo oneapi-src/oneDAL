@@ -22,7 +22,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 Float backtracking(sycl::queue queue,
-                   BaseFunction<Float>& f,
+                   base_function<Float>& f,
                    const ndview<Float, 1>& x,
                    const ndview<Float, 1>& direction,
                    ndview<Float, 1>& result,
@@ -40,7 +40,7 @@ Float backtracking(sycl::queue queue,
     Float df0 = 0;
     dot_product(queue, grad_f0, direction, result.get_mutable_data(), &df0, deps + precompute)
         .wait_and_throw();
-    std::int32_t iter_num = 0;
+    std::int64_t iter_num = 0;
     Float cur_val = 0;
     while ((iter_num == 0 || cur_val > f0 + c1 * alpha * df0) && iter_num < 100) {
         if (iter_num > 0) {
@@ -61,7 +61,7 @@ Float backtracking(sycl::queue queue,
 
 #define INSTANTIATE(F)                           \
     template F backtracking(sycl::queue,         \
-                            BaseFunction<F>&,    \
+                            base_function<F>&,   \
                             const ndview<F, 1>&, \
                             const ndview<F, 1>&, \
                             ndview<F, 1>&,       \
