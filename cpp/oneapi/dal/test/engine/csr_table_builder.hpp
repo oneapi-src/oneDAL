@@ -36,8 +36,11 @@ struct csr_table_builder {
 
     csr_table_builder(std::int64_t row_count,
                       std::int64_t column_count,
-                      float nnz_fraction = 0.3,
-                      sparse_indexing indexing = sparse_indexing::one_based)
+                      float nnz_fraction = 0.1,
+                      sparse_indexing indexing = sparse_indexing::one_based,
+                      float min_val = -10.0,
+                      float max_val = 10.0,
+                      int seed_in = 42)
             : row_count_(row_count),
               column_count_(column_count),
               nonzero_fraction_(nnz_fraction),
@@ -50,9 +53,9 @@ struct csr_table_builder {
         std::int64_t nonzero_count = total_count * nnz_fraction;
         std::int64_t indexing_shift = bool(indexing == sparse_indexing::one_based);
 
-        std::uint32_t seed = 42;
+        std::uint32_t seed = seed_in;
         std::mt19937 rng(seed);
-        std::uniform_real_distribution<Float> uniform_data(-10.0f, 10.0f);
+        std::uniform_real_distribution<Float> uniform_data(min_val, max_val);
         std::uniform_int_distribution<std::int64_t> uniform_indices(
             0,
             column_count_ - 1 - indexing_shift);

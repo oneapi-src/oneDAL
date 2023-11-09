@@ -62,63 +62,87 @@ private:
 
     result_t get_result(sycl::queue q,
                         const pr::ndarray<Float, 2> computed_result,
-                        result_option_id requested_results) {
+                        result_option_id requested_results,
+                        const std::vector<sycl::event>& deps = {}) {
         result_t res;
+        std::vector<sycl::event> res_events;
         res.set_result_options(requested_results);
         if (requested_results.test(result_options::min)) {
             auto index = get_result_option_index(result_options::min);
-            res.set_min(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_min(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::max)) {
             auto index = get_result_option_index(result_options::max);
-            res.set_max(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_max(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::sum)) {
             auto index = get_result_option_index(result_options::sum);
-            res.set_sum(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_sum(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::sum_squares)) {
             auto index = get_result_option_index(result_options::sum_squares);
-            res.set_sum_squares(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_sum_squares(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::sum_squares_centered)) {
             auto index = get_result_option_index(result_options::sum_squares_centered);
-            res.set_sum_squares_centered(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_sum_squares_centered(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::mean)) {
             auto index = get_result_option_index(result_options::mean);
-            res.set_mean(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_mean(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::second_order_raw_moment)) {
             auto index = get_result_option_index(result_options::second_order_raw_moment);
-            res.set_second_order_raw_moment(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_second_order_raw_moment(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::variance)) {
             auto index = get_result_option_index(result_options::variance);
-            res.set_variance(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_variance(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::standard_deviation)) {
             auto index = get_result_option_index(result_options::standard_deviation);
-            res.set_standard_deviation(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_standard_deviation(res_table);
+            res_events.push_back(event);
         }
         if (requested_results.test(result_options::variation)) {
             auto index = get_result_option_index(result_options::variation);
-            res.set_variation(get_result_table(q, computed_result, index));
+            auto [res_table, event] = get_result_table(q, computed_result, index, deps);
+            res.set_variation(res_table);
+            res_events.push_back(event);
         }
+        sycl::event::wait_and_throw(res_events);
         return res;
     }
 
-    table get_result_table(sycl::queue q,
-                           const pr::ndarray<Float, 2> computed_result,
-                           std::int32_t index) {
+    std::tuple<table, sycl::event> get_result_table(sycl::queue q,
+                                                    const pr::ndarray<Float, 2> computed_result,
+                                                    std::int32_t index,
+                                                    const std::vector<sycl::event>& deps = {}) {
         ONEDAL_ASSERT(computed_result.has_data());
         auto column_count = computed_result.get_dimension(1);
         const auto arr = dal::array<Float>::empty(column_count);
         const auto res_arr_ptr = arr.get_mutable_data();
         const auto computed_res_ptr = computed_result.get_data() + index * column_count;
-        dal::backend::copy_usm2host(q, res_arr_ptr, computed_res_ptr, column_count)
-            .wait_and_throw();
-        return homogen_table::wrap(arr, 1, column_count);
+        auto event =
+            dal::backend::copy_usm2host(q, res_arr_ptr, computed_res_ptr, column_count, deps);
+        return std::make_tuple(homogen_table::wrap(arr, 1, column_count), event);
     }
 
     std::int32_t get_result_option_index(result_option_id opt) {
@@ -128,11 +152,11 @@ private:
         return index;
     }
 
-    void finalize_for_distr(sycl::queue& q,
-                            comm_t& communicator,
-                            pr::ndarray<Float, 2>& results,
-                            const input_t& input,
-                            const std::vector<sycl::event>& deps);
+    sycl::event finalize_for_distr(sycl::queue& q,
+                                   comm_t& communicator,
+                                   pr::ndarray<Float, 2>& results,
+                                   const input_t& input,
+                                   const std::vector<sycl::event>& deps);
 };
 
 } // namespace oneapi::dal::basic_statistics::backend

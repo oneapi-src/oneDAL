@@ -38,11 +38,12 @@ using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
-void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
-                                                        comm_t& communicator,
-                                                        pr::ndarray<Float, 2>& results,
-                                                        const input_t& input,
-                                                        const std::vector<sycl::event>& deps) {
+sycl::event compute_kernel_csr_impl<Float>::finalize_for_distr(
+    sycl::queue& q,
+    comm_t& communicator,
+    pr::ndarray<Float, 2>& results,
+    const input_t& input,
+    const std::vector<sycl::event>& deps) {
     auto result_ptr = results.get_mutable_data();
     const csr_table csr_tdata = static_cast<const csr_table&>(input.get_data());
     auto [csr_data, column_indices, row_offsets] =
@@ -121,7 +122,7 @@ void compute_kernel_csr_impl<Float>::finalize_for_distr(sycl::queue& q,
         });
     });
 
-    final_event.wait_and_throw();
+    return final_event;
 }
 
 template <typename Float>
@@ -261,11 +262,10 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
         });
     });
 
-    event.wait_and_throw();
     if (distr_mode) {
-        finalize_for_distr(queue, comm, result_data, input, { event });
+        event = finalize_for_distr(queue, comm, result_data, input, { event });
     }
-    return get_result(queue, result_data, result_options);
+    return get_result(queue, result_data, result_options, { event });
 }
 
 template class compute_kernel_csr_impl<float>;
