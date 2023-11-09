@@ -116,19 +116,35 @@ auto svd_decomposition(sycl::queue& queue,
     std::int64_t lda = column_count;
     std::int64_t ldu = row_count;
     std::int64_t ldvt = column_count;
+    const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
+                                                                           mkl::jobsvd::vectors,
+                                                                           mkl::jobsvd::novec,
+                                                                           column_count,
+                                                                           row_count,
+                                                                           lda,
+                                                                           ldu,
+                                                                           ldvt);
+    std::cout << scratchpad_size << std::endl;
+    auto scratchpad =
+        pr::ndarray<Float, 1>::empty(queue, { scratchpad_size }, alloc::device);
+    auto scratchpad_ptr = scratchpad.get_mutable_data();
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        auto event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
-                                                                         column_count,
-                                                                         row_count,
-                                                                         data_ptr,
-                                                                         lda,
-                                                                         S_ptr,
-                                                                         U_ptr,
-                                                                         ldu,
-                                                                         V_T_ptr,
-                                                                         ldvt,
-                                                                         {});
+        auto event = mkl::lapack::gesvd(queue,
+                              mkl::jobsvd::vectors,
+                              mkl::jobsvd::novec,
+                              column_count,
+                              row_count,
+                              data_ptr,
+                              lda,
+                              S_ptr,
+                              U_ptr,
+                              ldu,
+                              V_T_ptr,
+                              ldvt,
+                              scratchpad_ptr,
+                              scratchpad_size,
+                              {});
     }
     return std::make_tuple(U, S, V_T);
 }
@@ -151,12 +167,12 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
 
-    // auto [data_to_compute, compute_event] =
-    //     compute_mean_centered_data(q_, data_nd, means, { means_event });
+    auto [data_to_compute, compute_event] =
+        compute_mean_centered_data(q_, data_nd, means, { means_event });
     //auto data_to_compute_ = data_to_compute.t();
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T] = svd_decomposition(q_, data_nd, component_count);
+        auto [U, S, V_T] = svd_decomposition(q_, data_to_compute, component_count);
 
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, component_count));
