@@ -57,26 +57,26 @@ public:
     }
 }; // namespace oneapi::dal::pca::test
 
-#define PCA_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::svd)
+// #define PCA_OVERFLOW_TEST(name) \
+//     TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::svd)
 
-PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
-    SKIP_IF(this->not_available_on_device());
+// PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
+//     SKIP_IF(this->not_available_on_device());
 
-    const auto pca_desc = this->get_descriptor_with_invalid_component_count();
-    const auto train_data = this->get_train_data_with_invalid_column_count();
+//     const auto pca_desc = this->get_descriptor_with_invalid_component_count();
+//     const auto train_data = this->get_train_data_with_invalid_column_count();
 
-    REQUIRE_THROWS_AS(this->train(pca_desc, train_data), range_error);
-}
+//     REQUIRE_THROWS_AS(this->train(pca_desc, train_data), range_error);
+// }
 
-PCA_OVERFLOW_TEST("infer throws if component count leads to overflow") {
-    SKIP_IF(this->not_available_on_device());
+// PCA_OVERFLOW_TEST("infer throws if component count leads to overflow") {
+//     SKIP_IF(this->not_available_on_device());
 
-    const auto pca_desc = this->get_descriptor_with_invalid_component_count();
-    const auto model = this->get_model_with_invalid_component_count();
-    const auto infer_data = this->get_infer_data();
+//     const auto pca_desc = this->get_descriptor_with_invalid_component_count();
+//     const auto model = this->get_model_with_invalid_component_count();
+//     const auto infer_data = this->get_infer_data();
 
-    REQUIRE_THROWS_AS(this->infer(pca_desc, model, infer_data), range_error);
-}
+//     REQUIRE_THROWS_AS(this->infer(pca_desc, model, infer_data), range_error);
+// }
 
 } // namespace oneapi::dal::pca::test

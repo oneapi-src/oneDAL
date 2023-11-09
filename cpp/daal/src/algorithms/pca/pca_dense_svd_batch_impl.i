@@ -29,7 +29,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -102,7 +102,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     }
 
     DAAL_CHECK_STATUS(status, this->decompose(normalizedData, eigenvalues, eigenvectors));
-    //DAAL_CHECK_STATUS(status, this->scaleSingularValues(eigenvalues, data.getNumberOfRows()));
+
     if (parameter->isDeterministic)
     {
         DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
@@ -291,7 +291,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::decompo
 
     NumericTable * svdResults[3] = { &eigenvalues, nullptr, &eigenvectors };
     svd::Parameter params;
-    std::cout << "here for cpu 2" << std::endl;
+
     params.leftSingularMatrix = svd::notRequired;
     daal::algorithms::svd::internal::SVDBatchKernel<algorithmFPType, svd::defaultDense, cpu> svdKernel;
     return svdKernel.compute(1, svdInputs, 3, svdResults, &params);
