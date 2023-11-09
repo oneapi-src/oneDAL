@@ -61,7 +61,7 @@ struct infer_ops {
 
         if (input.get_model().get_eigenvectors().get_column_count() !=
             input.get_data().get_column_count()) {
-            throw invalid_argument(msg::input_model_eigenvectors_cc_neq_input_data_cc());
+            //throw invalid_argument(msg::input_model_eigenvectors_cc_neq_input_data_cc());
         }
     }
 

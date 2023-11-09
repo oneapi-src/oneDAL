@@ -103,11 +103,11 @@ auto svd_decomposition(sycl::queue& queue,
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
+    auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::host);
 
-    auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
+    auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::host);
 
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::host);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
@@ -145,18 +145,18 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
-    pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
+    pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::host);
     //TODO: add mean centering by default
 
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
 
-    auto [data_to_compute, compute_event] =
-        compute_mean_centered_data(q_, data_nd, means, { means_event });
+    // auto [data_to_compute, compute_event] =
+    //     compute_mean_centered_data(q_, data_nd, means, { means_event });
     //auto data_to_compute_ = data_to_compute.t();
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T] = svd_decomposition(q_, data_to_compute, component_count);
+        auto [U, S, V_T] = svd_decomposition(q_, data_nd, component_count);
 
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, component_count));
@@ -169,13 +169,13 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         }
         std::cout << "step 8" << std::endl;
         //TODO: sklearn doesnt compute full eigenvalues
-        // if (desc.get_result_options().test(result_options::eigenvectors)) {
-        //     const auto model =
-        //         model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
-        //                                                        u_host.get_dimension(0),
-        //                                                        u_host.get_dimension(1)));
-        //     result.set_model(model);
-        // }
+        if (desc.get_result_options().test(result_options::eigenvectors)) {
+            const auto model =
+                model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
+                                                               u_host.get_dimension(0),
+                                                               u_host.get_dimension(1)));
+            result.set_model(model);
+        }
         std::cout << "step 9" << std::endl;
     }
 
