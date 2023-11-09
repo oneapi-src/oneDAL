@@ -173,7 +173,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 {
     NumericTable * const ntA     = const_cast<NumericTable *>(a[0]);
     NumericTable * const ntSigma = const_cast<NumericTable *>(r[0]);
-    std::cout<<"compute seq"<<std::endl;
+    std::cout << "compute seq" << std::endl;
     const size_t n            = ntA->getNumberOfColumns();
     const size_t m            = ntA->getNumberOfRows();
     const size_t minDimension = (n < m) ? n : m;
@@ -190,7 +190,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
     {
-        std::cout<<"here"<<std::endl;
+        std::cout << "here" << std::endl;
         Ublock.set(r[1], 0, m);
         DAAL_CHECK_BLOCK_STATUS(Ublock);
         U = Ublock.get();
@@ -261,7 +261,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
     NumericTable * ntS_output(r[0]);
     NumericTable * ntU_output(r[1]);
     NumericTable * ntV_output(r[2]);
-    std::cout<<"compute thr"<<std::endl;
+    std::cout << "compute thr" << std::endl;
     const size_t n = ntA_input->getNumberOfColumns();
     const size_t m = ntA_input->getNumberOfRows();
 
@@ -539,7 +539,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
     NumericTable * ntSigma(r[0]);
     NumericTable * ntQ(r[1]);
     NumericTable * ntV(r[2]);
-    std::cout<<"compute_pcl"<<std::endl;
+    std::cout << "compute_pcl" << std::endl;
     size_t n           = ntA->getNumberOfColumns();
     size_t m           = ntA->getNumberOfRows();
     size_t nComponents = ntSigma->getNumberOfColumns();
@@ -564,7 +564,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
     {
-        std::cout<<"here needsu"<<std::endl;
+        std::cout << "here needsu" << std::endl;
         Q = qBlock.set(ntQ, 0, m);
         DAAL_CHECK_BLOCK_STATUS(qBlock);
         needsU = true;
@@ -591,7 +591,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
 
     if (svdPar->rightSingularMatrix == requiredInPackedForm)
     {
-        std::cout<<"here vt req"<<std::endl;
+        std::cout << "here vt req" << std::endl;
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> vBlock(ntV, 0, n);
         DAAL_CHECK_BLOCK_STATUS(vBlock);
         algorithmFPType * tV = vBlock.get();

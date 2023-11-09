@@ -29,7 +29,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_blas.h"
 #include "src/externals/service_lapack.h"
-#include <iostream>
+
 #include "src/threading/threading.h"
 
 using namespace daal::internal;
@@ -53,19 +53,11 @@ Status compute_svd_on_one_node(DAAL_INT m, DAAL_INT n, const algorithmFPType * c
     /* 'N': u / vt is not required                                                                       */
     char jobu  = (u ? (m < n ? 'A' : 'S') : 'N');
     char jobvt = (vt ? (m < n ? 'S' : 'A') : 'N');
-    std::cout<<"here compute ion one nooode"<<std::endl;
     DAAL_INT workDim   = -1; /* =lwork in Intel(R) MKL API */
     DAAL_INT mklStatus = 0;  /* =info in Intel(R) MKL API  */
 
     /* buffers */
     algorithmFPType workQuery;
-    std::cout<<jobu<<std::endl;
-    std::cout<<jobvt<<std::endl;
-    std::cout<<m<<std::endl;
-    std::cout<<n<<std::endl;
-    std::cout<<lda<<std::endl;
-    std::cout<<ldvt<<std::endl;
-    std::cout<<ldu<<std::endl;
     /* buffer size query */
     LapackInst<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, const_cast<algorithmFPType *>(a), lda, s, u, ldu, vt, ldvt, &workQuery, workDim,
                                              &mklStatus);

@@ -82,8 +82,7 @@ sycl::event gesvd(sycl::queue& queue,
                                                                            ldu,
                                                                            ldvt);
     std::cout << scratchpad_size << std::endl;
-    auto scratchpad =
-        ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::host);
+    auto scratchpad = ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::host);
     auto scratchpad_ptr = scratchpad.get_mutable_data();
     return gesvd_wrapper(queue,
                          job_u,
