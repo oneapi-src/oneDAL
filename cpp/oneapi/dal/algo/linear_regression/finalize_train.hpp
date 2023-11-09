@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,16 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/linear_regression/infer.hpp"
-#include "oneapi/dal/algo/linear_regression/train.hpp"
-#include "oneapi/dal/algo/linear_regression/partial_train.hpp"
-#include "oneapi/dal/algo/linear_regression/finalize_train.hpp"
+#include "oneapi/dal/algo/linear_regression/detail/finalize_train_ops.hpp"
+#include "oneapi/dal/algo/linear_regression/train_types.hpp"
+#include "oneapi/dal/finalize_train.hpp"
+
+namespace oneapi::dal::detail {
+namespace v1 {
+
+template <typename Descriptor>
+struct finalize_train_ops<Descriptor, dal::linear_regression::detail::descriptor_tag>
+        : dal::linear_regression::detail::finalize_train_ops<Descriptor> {};
+
+} // namespace v1
+} // namespace oneapi::dal::detail
