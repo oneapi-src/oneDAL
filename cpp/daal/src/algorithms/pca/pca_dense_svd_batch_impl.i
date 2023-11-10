@@ -102,7 +102,6 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     }
 
     DAAL_CHECK_STATUS(status, this->decompose(normalizedData, eigenvalues, eigenvectors));
-
     if (parameter->isDeterministic)
     {
         DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
@@ -291,7 +290,6 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::decompo
 
     NumericTable * svdResults[3] = { &eigenvalues, nullptr, &eigenvectors };
     svd::Parameter params;
-
     params.leftSingularMatrix = svd::notRequired;
     daal::algorithms::svd::internal::SVDBatchKernel<algorithmFPType, svd::defaultDense, cpu> svdKernel;
     return svdKernel.compute(1, svdInputs, 3, svdResults, &params);

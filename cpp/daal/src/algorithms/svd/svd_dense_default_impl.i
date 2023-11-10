@@ -51,13 +51,15 @@ Status compute_svd_on_one_node(DAAL_INT m, DAAL_INT n, const algorithmFPType * c
     /* 'A': all columns of U (rows of VT) are returned in the array u / vt                               */
     /* 'S': the first min(m, n) columns of U (the left singular vectors) are returned in the array u     */
     /* 'N': u / vt is not required                                                                       */
-    char jobu          = (u ? (m < n ? 'A' : 'S') : 'N');
-    char jobvt         = (vt ? (m < n ? 'S' : 'A') : 'N');
+    char jobu  = (u ? (m < n ? 'A' : 'S') : 'N');
+    char jobvt = (vt ? (m < n ? 'S' : 'A') : 'N');
+
     DAAL_INT workDim   = -1; /* =lwork in Intel(R) MKL API */
     DAAL_INT mklStatus = 0;  /* =info in Intel(R) MKL API  */
 
     /* buffers */
     algorithmFPType workQuery;
+
     /* buffer size query */
     LapackInst<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, const_cast<algorithmFPType *>(a), lda, s, u, ldu, vt, ldvt, &workQuery, workDim,
                                              &mklStatus);
