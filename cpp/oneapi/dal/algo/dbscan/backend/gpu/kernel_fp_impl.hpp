@@ -124,6 +124,7 @@ struct get_core_narrow_kernel {
                     const pr::ndview<Float, 2>& data,
                     const pr::ndview<Float, 2>& weights,
                     pr::ndview<std::int32_t, 1>& cores,
+                    pr::ndview<std::int32_t, 1>& neighbors,
                     Float epsilon,
                     std::int64_t min_observations,
                     std::int64_t block_start,
@@ -143,31 +144,32 @@ struct get_core_narrow_kernel {
 
         const Float* data_ptr = data.get_data();
         const Float* weights_ptr = weights.get_data();
-        std::int32_t* cores_ptr = cores.get_mutable_data();
+        //std::int32_t* cores_ptr = cores.get_mutable_data();
+        std::int32_t* current_cores_ptr = neighbors.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
-                count_type count = 0;
+                //count_type count = 0;
                 for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
                     for (std::int64_t i = 0; i < column_count; i++) {
                         Float val = data_ptr[(block_start + idx) * column_count + i] -
-                                    data_ptr[j * column_count + i];
+                                    weights_ptr[j * column_count + i];
                         sum += val * val;
                     }
                     if (sum > epsilon) {
                         continue;
                     }
-                    if constexpr (use_weights) {
-                        count += sum <= epsilon ? weights_ptr[j] : count_type(0);
-                    }
+                    // if constexpr (use_weights) {
+                    //     count += sum <= epsilon ? weights_ptr[j] : count_type(0);
+                    // }
                     else {
-                        count += sum <= epsilon ? count_type(1) : count_type(0);
+                        current_cores_ptr[idx] += count_type(1);
                     }
-                    if (count >= min_observations) {
-                        cores_ptr[idx] = count_type(1);
-                        break;
-                    }
+                    // if (count >= min_observations) {
+                    //     current_cores_ptr[idx] += count_type(1);
+                    //     break;
+                    // }
                 }
             });
         });
@@ -182,34 +184,36 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               const pr::ndview<Float, 2>& data,
                                               const pr::ndview<Float, 2>& weights,
                                               pr::ndview<std::int32_t, 1>& cores,
+                                              pr::ndview<std::int32_t, 1>& neighbors,
                                               Float epsilon,
                                               std::int64_t min_observations,
                                               std::int64_t block_start,
                                               std::int64_t block_end,
                                               const bk::event_vector& deps) {
-    const std::int64_t column_count = data.get_dimension(1);
-    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-        return get_core_wide_kernel<Float, use_weights>::run(queue,
-                                                             data,
-                                                             weights,
-                                                             cores,
-                                                             epsilon,
-                                                             min_observations,
-                                                             block_start,
-                                                             block_end,
-                                                             deps);
-    }
-    else {
-        return get_core_narrow_kernel<Float, use_weights>::run(queue,
+    //const std::int64_t column_count = data.get_dimension(1);
+    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+    //     return get_core_wide_kernel<Float, use_weights>::run(queue,
+    //                                                          data,
+    //                                                          weights,
+    //                                                          cores,
+    //                                                          epsilon,
+    //                                                          min_observations,
+    //                                                          block_start,
+    //                                                          block_end,
+    //                                                          deps);
+    // }
+    // else {
+        return get_core_narrow_kernel<Float, false>::run(queue,
                                                                data,
                                                                weights,
                                                                cores,
+                                                               neighbors,
                                                                epsilon,
                                                                min_observations,
                                                                block_start,
                                                                block_end,
                                                                deps);
-    }
+    //}
 }
 
 template <typename Float>
@@ -217,27 +221,29 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                          const pr::ndview<Float, 2>& data,
                                          const pr::ndview<Float, 2>& weights,
                                          pr::ndview<std::int32_t, 1>& cores,
+                                         pr::ndview<std::int32_t, 1>& neighbors,
                                          Float epsilon,
                                          std::int64_t min_observations,
                                          std::int64_t block_start,
                                          std::int64_t block_end,
                                          const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(get_cores, queue);
-    if (weights.get_dimension(0) == data.get_dimension(0)) {
-        return get_cores_impl<true>(queue,
-                                    data,
-                                    weights,
-                                    cores,
-                                    epsilon,
-                                    min_observations,
-                                    block_start,
-                                    block_end,
-                                    deps);
-    }
+    // ONEDAL_PROFILER_TASK(get_cores, queue);
+    // if (weights.get_dimension(0) == data.get_dimension(0)) {
+    //     return get_cores_impl<true>(queue,
+    //                                 data,
+    //                                 weights,
+    //                                 cores,
+    //                                 epsilon,
+    //                                 min_observations,
+    //                                 block_start,
+    //                                 block_end,
+    //                                 deps);
+    // }
     return get_cores_impl<false>(queue,
                                  data,
                                  weights,
                                  cores,
+                                 neighbors,
                                  epsilon,
                                  min_observations,
                                  block_start,

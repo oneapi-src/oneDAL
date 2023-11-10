@@ -45,19 +45,23 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     std::int64_t rank_count = comm.get_rank_count();
 
     data_keeper<Float> keeper(ctx);
+    auto data_to_transfer = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
     keeper.init(local_data, local_weights);
-
     const std::int64_t block_size = keeper.get_block_size();
     const std::int64_t block_start = keeper.get_block_start();
     const std::int64_t block_end = block_start + block_size;
     const std::int64_t row_count = keeper.get_row_count();
     auto arr_data = keeper.get_data();
     auto arr_weights = keeper.get_weights();
-
+    auto current_rank = comm.get_rank();
+    auto prev_node = (current_rank - 1 + rank_count) % rank_count;
+    auto next_node = (current_rank + 1) % rank_count;
     const double epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
     auto [arr_cores, cores_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, block_size, 0, sycl::usm::alloc::device);
+    auto [arr_current_neighbors, current_neighbors_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, block_size, 0, sycl::usm::alloc::device);
     auto [arr_responses, responses_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, block_size, -1, sycl::usm::alloc::device);
@@ -66,18 +70,27 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [arr_queue_front, queue_front_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
-    sycl::event::wait({ cores_event, responses_event, queue_event, queue_front_event });
-
+    sycl::event::wait({ cores_event, responses_event, queue_event, queue_front_event, current_neighbors_event });
+    for(int i = 0; i < rank_count; i++)
+    {
+        comm.sendrecv_replace(array<Float>::wrap(queue,
+                                                 data_to_transfer.get_mutable_data(),
+                                                 block_size,
+                                                 {  }),
+                              prev_node,
+                              next_node)
+            .wait();
     kernels_fp<Float>::get_cores(queue,
                                  arr_data,
-                                 arr_weights,
+                                 data_to_transfer,
                                  arr_cores,
+                                 arr_current_neighbors,
                                  epsilon,
                                  min_observations,
                                  block_start,
                                  block_end)
         .wait_and_throw();
-
+    }
     std::int64_t cluster_count = 0;
     std::int32_t cluster_index =
         kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);

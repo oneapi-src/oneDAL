@@ -120,31 +120,31 @@ protected:
         ONEDAL_ASSERT(block_size_ > 0);
         auto arr_local_data =
             pr::table2ndarray<Float>(queue_, local_data, sycl::usm::alloc::device);
-        data_ = pr::ndarray<Float, 2>::empty(queue_,
-                                             { row_count_, column_count_ },
-                                             sycl::usm::alloc::device);
-        comm_
-            .allgatherv(arr_local_data.flatten(queue_),
-                        data_.flatten(queue_),
-                        local_data_counts_.get_data(),
-                        displs_data_.get_data())
-            .wait();
+        // data_ = pr::ndarray<Float, 2>::empty(queue_,
+        //                                      { row_count_, column_count_ },
+        //                                      sycl::usm::alloc::device);
+        // comm_
+        //     .allgatherv(arr_local_data.flatten(queue_),
+        //                 data_.flatten(queue_),
+        //                 local_data_counts_.get_data(),
+        //                 displs_data_.get_data())
+        //     .wait();
     }
     void collect_weights(const table& local_weights) {
         if (local_weights.get_row_count() == block_size_) {
             ONEDAL_ASSERT(local_weights.get_column_count() == 1);
             ONEDAL_ASSERT(block_size_ > 0);
             ONEDAL_ASSERT(row_count_ > 0);
-            auto arr_local_weights =
-                pr::table2ndarray<Float>(queue_, local_weights, sycl::usm::alloc::device);
-            weights_ =
-                pr::ndarray<Float, 2>::empty(queue_, { row_count_, 1 }, sycl::usm::alloc::device);
-            comm_
-                .allgatherv(arr_local_weights.flatten(queue_),
-                            weights_.flatten(queue_),
-                            local_row_counts_.get_data(),
-                            displs_weights_.get_data())
-                .wait();
+            // auto arr_local_weights =
+            //     pr::table2ndarray<Float>(queue_, local_weights, sycl::usm::alloc::device);
+            // weights_ =
+            //     pr::ndarray<Float, 2>::empty(queue_, { row_count_, 1 }, sycl::usm::alloc::device);
+            // comm_
+            //     .allgatherv(arr_local_weights.flatten(queue_),
+            //                 weights_.flatten(queue_),
+            //                 local_row_counts_.get_data(),
+            //                 displs_weights_.get_data())
+            //     .wait();
         }
     }
 
