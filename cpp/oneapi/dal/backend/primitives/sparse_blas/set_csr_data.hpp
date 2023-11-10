@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,32 +16,28 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/table/common.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
 #include <oneapi/mkl.hpp>
+#endif // ifdef ONEDAL_DATA_PARALLEL
 
 namespace oneapi::dal::backend::primitives {
 
-namespace mkl = oneapi::mkl;
+#ifdef ONEDAL_DATA_PARALLEL
 
-inline constexpr mkl::transpose f_order_as_transposed(ndorder order) {
-    return (order == ndorder::f) ? mkl::transpose::trans : mkl::transpose::nontrans;
-}
+template <typename Float>
+sycl::event set_csr_data(sycl::queue& queue,
+                         oneapi::mkl::sparse::matrix_handle_t handle,
+                         const std::int64_t column_count,
+                         dal::sparse_indexing indexing,
+                         dal::array<Float> &data,
+                         dal::array<std::int64_t> &column_indices,
+                         dal::array<std::int64_t> &row_offsets,
+                         const event_vector& deps = {});
 
-inline constexpr mkl::transpose c_order_as_transposed(ndorder order) {
-    return (order == ndorder::c) ? mkl::transpose::trans : mkl::transpose::nontrans;
-}
-
-inline constexpr mkl::uplo flip_uplo(mkl::uplo order) {
-    constexpr auto upper = mkl::uplo::upper;
-    constexpr auto lower = mkl::uplo::lower;
-    return (order == upper) ? lower : upper;
-}
-
-inline constexpr mkl::uplo ident_uplo(mkl::uplo order) {
-    constexpr auto upper = mkl::uplo::upper;
-    constexpr auto lower = mkl::uplo::lower;
-    return (order == upper) ? upper : lower;
-}
+#endif // ifdef ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives
+

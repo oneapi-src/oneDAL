@@ -18,7 +18,7 @@
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/blas/misc.hpp"
 
-#include <mkl_dal_sycl.hpp>
+#include <oneapi/mkl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
