@@ -54,6 +54,9 @@ class descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
+    bool whitening = false;
+    bool mean_centering = true;
+    bool isNormalized = false;
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -85,6 +88,18 @@ bool descriptor_base<Task>::get_deterministic() const {
 }
 
 template <typename Task>
+bool descriptor_base<Task>::isNormalized() const {
+    return impl_->isNormalized;
+}
+template <typename Task>
+bool descriptor_base<Task>::whitening() const {
+    return impl_->whitening;
+}
+template <typename Task>
+bool descriptor_base<Task>::mean_centering() const {
+    return impl_->mean_centering;
+}
+template <typename Task>
 void descriptor_base<Task>::set_component_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error(dal::detail::error_messages::component_count_lt_zero());
@@ -97,6 +112,20 @@ void descriptor_base<Task>::set_deterministic_impl(bool value) {
     impl_->deterministic = value;
 }
 
+template <typename Task>
+void descriptor_base<Task>::set_whitening_impl(bool value) {
+    impl_->whitening = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_mean_centering_impl(bool value) {
+    impl_->mean_centering = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_normalization_impl(bool value) {
+    impl_->isNormalized = value;
+}
 template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;

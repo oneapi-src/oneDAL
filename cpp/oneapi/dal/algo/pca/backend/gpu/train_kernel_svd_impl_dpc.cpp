@@ -199,16 +199,17 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, component_count));
         }
 
-        auto u_host = U.to_host(q_);
+        //auto u_host = U.to_host(q_);
+        sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
-            sign_flip(u_host);
+            sign_flip_event = sign_flip(q_, U);
         }
 
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model =
-                model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
-                                                               u_host.get_dimension(0),
-                                                               u_host.get_dimension(1)));
+                model_t{}.set_eigenvectors(homogen_table::wrap(U.flatten(q_, { sign_flip_event }),
+                                                               U.get_dimension(0),
+                                                               U.get_dimension(1)));
             result.set_model(model);
         }
     }

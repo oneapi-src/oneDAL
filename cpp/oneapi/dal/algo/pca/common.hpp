@@ -126,6 +126,9 @@ public:
 
     descriptor_base();
 
+    bool whitening() const;
+    bool mean_centering() const;
+    bool isNormalized() const;
     bool get_deterministic() const;
     std::int64_t get_component_count() const;
 
@@ -133,6 +136,9 @@ public:
 
 protected:
     void set_deterministic_impl(bool value);
+    void set_whitening_impl(bool value);
+    void set_mean_centering_impl(bool value);
+    void set_normalization_impl(bool value);
     void set_component_count_impl(std::int64_t value);
     void set_result_options_impl(const result_option_id& value);
 
@@ -205,6 +211,33 @@ public:
 
     auto& set_deterministic(bool value) {
         base_t::set_deterministic_impl(value);
+        return *this;
+    }
+
+    bool whitening() const {
+        return base_t::whitening();
+    }
+
+    auto& set_whitening(bool value) {
+        base_t::set_whitening_impl(value);
+        return *this;
+    }
+
+    bool mean_centering() const {
+        return base_t::mean_centering();
+    }
+
+    auto& set_mean_centering(bool value) {
+        base_t::set_mean_centering_impl(value);
+        return *this;
+    }
+
+    bool isNormalized() const {
+        return base_t::isNormalized();
+    }
+
+    auto& set_normalization(bool value) {
+        base_t::set_normalization_impl(value);
         return *this;
     }
 

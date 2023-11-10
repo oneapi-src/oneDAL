@@ -53,7 +53,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
     auto host_corr = corr.to_host(q, deps);
     pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
+    eigvecs = eigvecs.to_device(q, deps);
     return std::make_tuple(eigvecs, eigvals);
 }
 
@@ -115,12 +115,15 @@ static train_result<Task> train(const context_gpu& ctx,
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }
 
+        sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            sign_flip_event = sign_flip(q, eigvecs, { corr_event });
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+                homogen_table::wrap(eigvecs.flatten(q, { sign_flip_event }),
+                                    component_count,
+                                    column_count));
             result.set_model(model);
         }
     }
