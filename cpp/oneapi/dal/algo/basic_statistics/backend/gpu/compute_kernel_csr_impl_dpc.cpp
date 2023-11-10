@@ -150,122 +150,230 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
     using limits_t = std::numeric_limits<Float>;
     constexpr Float maximum = limits_t::max();
 
-    auto result_data = pr::ndarray<Float, 2>::empty(queue,
-                                                    { res_opt_count_, column_count },
-                                                    sycl::usm::alloc::device);
+    // number of columns processed in one group
+    const auto local_size = bk::device_max_wg_size(queue);
+    // number of data elements processed by one working item
+    constexpr std::int64_t n_items_per_work = 512;
+    const auto num_data_blocks = nonzero_count / (local_size * n_items_per_work) +
+                                 bool(nonzero_count % (local_size * n_items_per_work));
+    const auto num_col_blocks = column_count / local_size + bool(column_count % local_size);
+
+    auto result_data =
+        pr::ndarray<Float, 2>::empty(queue,
+                                     { num_data_blocks * res_opt_count_, column_count },
+                                     sycl::usm::alloc::device);
     auto result_data_ptr = result_data.get_mutable_data();
 
-    const auto local_size =
-        bk::device_max_wg_size(queue); // number of columns processed in one group
-
-    const auto nd_range = bk::make_multiple_nd_range_1d(local_size, local_size);
-    auto event = queue.submit([&](sycl::handler& cgh) {
+    const auto nd_range =
+        bk::make_multiple_nd_range_3d({ num_data_blocks, num_col_blocks, local_size },
+                                      { 1, 1, local_size });
+    const auto merge_range = bk::make_multiple_nd_range_1d(column_count, 1);
+    // First order kernel calculates basic statistics for min, max, sum, sum squares.
+    // The computation is splitted by blocks for columns and data to achieve best performance
+    // on GPU.
+    auto first_order_event = queue.submit([&](sycl::handler& cgh) {
         sycl::local_accessor<Float, 1> local_res_buf(local_size * res_opt_count_, cgh);
-        sycl::local_accessor<std::int32_t, 1> local_hist_buf(local_size, cgh);
         cgh.parallel_for(nd_range, [=](auto item) {
-            auto local_id = item.get_local_id();
+            std::int64_t block_id = item.get_global_id(0);
+            std::int64_t col_ofs = item.get_global_id(1) * local_size;
+            std::int64_t local_id = item.get_local_id(2);
+            std::int64_t data_ofs = block_id * local_size * n_items_per_work;
+            if (col_ofs >= column_count) {
+                return;
+            }
             Float* work_group_buf =
                 local_res_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            std::int32_t* hist_buf =
-                local_hist_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            for (std::int64_t col_ofs = 0; col_ofs < column_count; col_ofs += local_size) {
-                auto local_buf = work_group_buf + local_id * res_opt_count_;
-                local_buf[stat::min] = maximum;
-                local_buf[stat::max] = -maximum;
-                local_buf[stat::sum] = Float(0);
-                local_buf[stat::sum2] = Float(0);
-                local_buf[stat::sum2_cent] = Float(0);
-                hist_buf[local_id] = 0;
-                for (std::int64_t idx = local_id; idx < nonzero_count; idx += local_size) {
-                    auto col_idx = column_indices_ptr[idx] - col_ofs;
-                    auto val = csr_data_ptr[idx];
-                    if (col_idx >= 0 && col_idx < local_size) {
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_device,
-                                         sycl::access::address_space::local_space>
-                            col_min(local_res_buf[col_idx * res_opt_count_ + stat::min]);
-                        col_min.fetch_min(val);
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_device,
-                                         sycl::access::address_space::local_space>
-                            col_max(local_res_buf[col_idx * res_opt_count_ + stat::max]);
-                        col_max.fetch_max(val);
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_device,
-                                         sycl::access::address_space::local_space>
-                            col_sum(local_res_buf[col_idx * res_opt_count_ + stat::sum]);
-                        col_sum.fetch_add(val);
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_device,
-                                         sycl::access::address_space::local_space>
-                            col_sum2(local_res_buf[col_idx * res_opt_count_ + stat::sum2]);
-                        col_sum2.fetch_add(val * val);
-                        sycl::atomic_ref<std::int32_t,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_device,
-                                         sycl::access::address_space::local_space>
-                            hist_buf(local_hist_buf[col_idx]);
-                        hist_buf.fetch_add(1);
-                    }
+            auto local_buf = work_group_buf + local_id * res_opt_count_;
+            local_buf[stat::min] = maximum;
+            local_buf[stat::max] = -maximum;
+            local_buf[stat::sum] = Float(0);
+            local_buf[stat::sum2] = Float(0);
+            local_buf[stat::sum2_cent] = Float(0);
+            item.barrier(sycl::access::fence_space::local_space);
+            for (std::int64_t idx = 0; idx < n_items_per_work; ++idx) {
+                auto data_idx = data_ofs + local_id * n_items_per_work + idx;
+                if (data_idx >= nonzero_count) {
+                    break;
                 }
-                item.barrier(sycl::access::fence_space::local_space);
-                local_buf[stat::mean] = local_buf[stat::sum] / row_count;
-                for (std::int64_t idx = local_id; idx < nonzero_count; idx += local_size) {
-                    auto col_idx = column_indices_ptr[idx] - col_ofs;
-                    auto val = csr_data_ptr[idx];
-                    if (col_idx >= 0 && col_idx < local_size) {
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_device,
-                                         sycl::access::address_space::local_space>
-                            col_sum2_cent(
-                                local_res_buf[col_idx * res_opt_count_ + stat::sum2_cent]);
-                        auto mean_val = work_group_buf[col_idx * res_opt_count_ + stat::mean];
-                        col_sum2_cent.fetch_add((val - mean_val) * (val - mean_val));
-                    }
+                auto col_idx = column_indices_ptr[data_idx] - col_ofs;
+                auto val = csr_data_ptr[data_idx];
+                if (col_idx >= 0 && col_idx < local_size) {
+                    sycl::atomic_ref<Float,
+                                     sycl::memory_order_relaxed,
+                                     sycl::memory_scope_device,
+                                     sycl::access::address_space::local_space>
+                        col_min(local_res_buf[col_idx * res_opt_count_ + stat::min]);
+                    col_min.fetch_min(val);
+                    sycl::atomic_ref<Float,
+                                     sycl::memory_order_relaxed,
+                                     sycl::memory_scope_device,
+                                     sycl::access::address_space::local_space>
+                        col_max(local_res_buf[col_idx * res_opt_count_ + stat::max]);
+                    col_max.fetch_max(val);
+                    sycl::atomic_ref<Float,
+                                     sycl::memory_order_relaxed,
+                                     sycl::memory_scope_device,
+                                     sycl::access::address_space::local_space>
+                        col_sum(local_res_buf[col_idx * res_opt_count_ + stat::sum]);
+                    col_sum.fetch_add(val);
+                    sycl::atomic_ref<Float,
+                                     sycl::memory_order_relaxed,
+                                     sycl::memory_scope_device,
+                                     sycl::access::address_space::local_space>
+                        col_sum2(local_res_buf[col_idx * res_opt_count_ + stat::sum2]);
+                    col_sum2.fetch_add(val * val);
                 }
-                item.barrier(sycl::access::fence_space::local_space);
-                if ((local_id + col_ofs) >= column_count) {
-                    continue;
-                }
-                auto mean_val = local_buf[stat::mean];
-                if (hist_buf[local_id] != row_count) {
-                    local_buf[stat::min] = sycl::min<Float>(0, local_buf[stat::min]);
-                    local_buf[stat::max] = sycl::max<Float>(0, local_buf[stat::max]);
-                    local_buf[stat::sum2_cent] +=
-                        Float(row_count - hist_buf[local_id]) * mean_val * mean_val;
-                }
-                result_data_ptr[stat::min * column_count + col_ofs + local_id] =
-                    local_buf[stat::min];
-                result_data_ptr[stat::max * column_count + col_ofs + local_id] =
-                    local_buf[stat::max];
-                result_data_ptr[stat::sum * column_count + col_ofs + local_id] =
-                    local_buf[stat::sum];
-                result_data_ptr[stat::sum2 * column_count + col_ofs + local_id] =
-                    local_buf[stat::sum2];
-                result_data_ptr[stat::mean * column_count + col_ofs + local_id] = mean_val;
-                result_data_ptr[stat::moment2 * column_count + col_ofs + local_id] =
-                    local_buf[stat::sum2] / row_count;
-                result_data_ptr[stat::sum2_cent * column_count + col_ofs + local_id] =
-                    local_buf[stat::sum2_cent];
-                result_data_ptr[stat::variance * column_count + col_ofs + local_id] =
-                    local_buf[stat::sum2_cent] / (row_count - 1);
-                result_data_ptr[stat::stddev * column_count + col_ofs + local_id] =
-                    sycl::sqrt(result_data_ptr[stat::variance * column_count + col_ofs + local_id]);
-                result_data_ptr[stat::variation * column_count + col_ofs + local_id] =
-                    result_data_ptr[stat::stddev * column_count + col_ofs + local_id] / mean_val;
             }
+            item.barrier(sycl::access::fence_space::local_space);
+            if ((local_id + col_ofs) >= column_count) {
+                return;
+            }
+            const auto col_idx = col_ofs + local_id;
+            const auto block_idx = block_id * res_opt_count_ * column_count;
+            result_data_ptr[stat::min * column_count + block_idx + col_idx] = local_buf[stat::min];
+            result_data_ptr[stat::max * column_count + block_idx + col_idx] = local_buf[stat::max];
+            result_data_ptr[stat::sum * column_count + block_idx + col_idx] = local_buf[stat::sum];
+            result_data_ptr[stat::sum2 * column_count + block_idx + col_idx] =
+                local_buf[stat::sum2];
+        });
+    });
+
+    // First order merge kernel merges results for data blocks computed on previous step.
+    auto merge_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ first_order_event });
+        cgh.parallel_for(merge_range, [=](auto item) {
+            const auto col_idx = item.get_global_id();
+            auto cur_min = result_data_ptr[stat::min * column_count + col_idx];
+            auto cur_max = result_data_ptr[stat::max * column_count + col_idx];
+            auto cur_sum = result_data_ptr[stat::sum * column_count + col_idx];
+            auto cur_sum2 = result_data_ptr[stat::sum2 * column_count + col_idx];
+            for (std::int64_t block_id = 1; block_id < num_data_blocks; ++block_id) {
+                const auto block_idx = block_id * res_opt_count_ * column_count;
+                cur_min =
+                    sycl::min(cur_min,
+                              result_data_ptr[stat::min * column_count + block_idx + col_idx]);
+                cur_max =
+                    sycl::max(cur_max,
+                              result_data_ptr[stat::max * column_count + block_idx + col_idx]);
+                cur_sum += result_data_ptr[stat::sum * column_count + block_idx + col_idx];
+                cur_sum2 += result_data_ptr[stat::sum2 * column_count + block_idx + col_idx];
+            }
+            result_data_ptr[stat::min * column_count + col_idx] = cur_min;
+            result_data_ptr[stat::max * column_count + col_idx] = cur_max;
+            result_data_ptr[stat::sum * column_count + col_idx] = cur_sum;
+            result_data_ptr[stat::sum2 * column_count + col_idx] = cur_sum2;
+        });
+    });
+
+    // Second order kernel computes sum squares centered.
+    // And additionally computes the number of non-zero rows
+    // in order to proper finalize min, max, sum squares centered statistics,
+    // since zero values are invovled to the results of them.
+    auto second_order_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ merge_event });
+        sycl::local_accessor<Float, 1> local_res_buf(local_size, cgh);
+        sycl::local_accessor<Float, 1> mean_vals_buf(local_size, cgh);
+        sycl::local_accessor<std::int32_t, 1> row_counter(local_size, cgh);
+        cgh.parallel_for(nd_range, [=](auto item) {
+            std::int64_t block_id = item.get_global_id(0);
+            std::int64_t col_ofs = item.get_global_id(1) * local_size;
+            std::int64_t local_id = item.get_local_id(2);
+            std::int64_t data_ofs = block_id * local_size * n_items_per_work;
+            if (col_ofs >= column_count) {
+                return;
+            }
+            Float* work_group_buf =
+                local_res_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            Float* mean_vals =
+                mean_vals_buf.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            std::int32_t* row_counter_buf =
+                row_counter.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            mean_vals[local_id] =
+                result_data_ptr[stat::sum * column_count + col_ofs + local_id] / row_count;
+            row_counter_buf[local_id] = 0;
+            work_group_buf[local_id] = Float(0);
+            item.barrier(sycl::access::fence_space::local_space);
+            // Merge results of first order moments
+            for (std::int64_t idx = 0; idx < n_items_per_work; ++idx) {
+                auto data_idx = data_ofs + local_id * n_items_per_work + idx;
+                if (data_idx >= nonzero_count) {
+                    break;
+                }
+                auto col_idx = column_indices_ptr[data_idx] - col_ofs;
+                auto val = csr_data_ptr[data_idx];
+                if (col_idx >= 0 && col_idx < local_size) {
+                    sycl::atomic_ref<Float,
+                                     sycl::memory_order_relaxed,
+                                     sycl::memory_scope_device,
+                                     sycl::access::address_space::local_space>
+                        col_sum2_cent(local_res_buf[col_idx]);
+                    auto mean_val = mean_vals[col_idx];
+                    col_sum2_cent.fetch_add((val - mean_val) * (val - mean_val));
+                    sycl::atomic_ref<std::int32_t,
+                                     sycl::memory_order_relaxed,
+                                     sycl::memory_scope_device,
+                                     sycl::access::address_space::local_space>
+                        row_counter_at(row_counter[col_idx]);
+                    row_counter_at.fetch_add(1);
+                }
+            }
+            item.barrier(sycl::access::fence_space::local_space);
+            if ((local_id + col_ofs) >= column_count) {
+                return;
+            }
+            const auto col_idx = col_ofs + local_id;
+            const auto block_idx = block_id * res_opt_count_ * column_count;
+            result_data_ptr[stat::sum2_cent * column_count + block_idx + col_idx] =
+                work_group_buf[local_id];
+            // Mean is no need to merge it is the same for all blocks
+            result_data_ptr[stat::mean * column_count + block_idx + col_idx] = mean_vals[local_id];
+            // Temporary save row_counts into varitaion placeholder in order to merge it
+            result_data_ptr[stat::variation * column_count + block_idx + col_idx] =
+                row_counter_buf[local_id];
+        });
+    });
+
+    // Second order merge kernel finalizes computations on basic statistics and
+    // merges sum squares centered statistic among data blocks.
+    auto second_merge_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ second_order_event });
+        cgh.parallel_for(merge_range, [=](auto item) {
+            const auto col_idx = item.get_global_id();
+            auto cur_sum2_cent = result_data_ptr[stat::sum2_cent * column_count + col_idx];
+            auto mean_val = result_data_ptr[stat::mean * column_count + col_idx];
+            auto cur_row_count = result_data_ptr[stat::variation * column_count + col_idx];
+            for (std::int64_t block_id = 1; block_id < num_data_blocks; ++block_id) {
+                const auto block_idx = block_id * res_opt_count_ * column_count;
+                cur_sum2_cent +=
+                    result_data_ptr[stat::sum2_cent * column_count + block_idx + col_idx];
+                cur_row_count +=
+                    result_data_ptr[stat::variation * column_count + block_idx + col_idx];
+            }
+            // In case when there are zeros in column it must be compared with min and max
+            // And added to sum2_cent
+            if (row_count != cur_row_count) {
+                auto cur_min = result_data_ptr[stat::min * column_count + col_idx];
+                auto cur_max = result_data_ptr[stat::max * column_count + col_idx];
+                result_data_ptr[stat::min * column_count + col_idx] = sycl::min<Float>(cur_min, 0);
+                result_data_ptr[stat::max * column_count + col_idx] = sycl::max<Float>(cur_max, 0);
+                cur_sum2_cent += Float(row_count - cur_row_count) * mean_val * mean_val;
+            }
+            result_data_ptr[stat::sum2_cent * column_count + col_idx] = cur_sum2_cent;
+            result_data_ptr[stat::moment2 * column_count + col_idx] =
+                result_data_ptr[stat::sum2 * column_count + col_idx] / row_count;
+            result_data_ptr[stat::variance * column_count + col_idx] =
+                cur_sum2_cent / (row_count - 1);
+            result_data_ptr[stat::stddev * column_count + col_idx] =
+                sycl::sqrt(result_data_ptr[stat::variance * column_count + col_idx]);
+            result_data_ptr[stat::variation * column_count + col_idx] =
+                result_data_ptr[stat::stddev * column_count + col_idx] / mean_val;
         });
     });
 
     if (distr_mode) {
-        event = finalize_for_distr(queue, comm, result_data, input, { event });
+        second_merge_event = finalize_for_distr(queue, comm, result_data, input, { merge_event });
     }
-    return get_result(queue, result_data, result_options, { event });
+    return get_result(queue, result_data, result_options, { second_merge_event });
 }
 
 template class compute_kernel_csr_impl<float>;
