@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_svd_impl.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include <iostream>
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
@@ -74,11 +74,14 @@ auto compute_means(sycl::queue& q,
 template <typename Float>
 auto compute_mean_centered_data(sycl::queue& q,
                                 const pr::ndview<Float, 2>& data,
-                                const pr::ndview<Float, 1>& means,
                                 const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_means, q);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
+
+    auto [sums, sums_event] = compute_sums(q, data);
+    auto [means, means_event] = compute_means(q, sums, row_count, { sums_event });
+
     auto data_to_compute =
         pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
     auto copy_event = copy(q, data_to_compute, data, { deps });
@@ -132,8 +135,7 @@ auto svd_decomposition(sycl::queue& queue,
 
     auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
 
-    auto V_T =
-        pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, alloc::device);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
@@ -145,7 +147,7 @@ auto svd_decomposition(sycl::queue& queue,
     //TODO: fix wrapper
     const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
                                                                            mkl::jobsvd::somevec,
-                                                                           mkl::jobsvd::novec,
+                                                                           mkl::jobsvd::somevec,
                                                                            column_count,
                                                                            row_count,
                                                                            lda,
@@ -157,7 +159,7 @@ auto svd_decomposition(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(gesvd, queue);
         auto event = mkl::lapack::gesvd(queue,
                                         mkl::jobsvd::somevec,
-                                        mkl::jobsvd::novec,
+                                        mkl::jobsvd::somevec,
                                         column_count,
                                         row_count,
                                         data_ptr,
@@ -181,19 +183,13 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
     ONEDAL_ASSERT(data.get_column_count() > 0);
     const std::int64_t column_count = data.get_column_count();
-    const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
-    //TODO: add mean centering by default
 
-    auto [sums, sums_event] = compute_sums(q_, data_nd);
-    auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
-
-    auto [data_to_compute, compute_event] =
-        compute_mean_centered_data(q_, data_nd, means, { means_event });
+    auto [data_to_compute, compute_event] = compute_mean_centered_data(q_, data_nd, {});
 
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
@@ -203,14 +199,11 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
             result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, component_count));
         }
 
-        //TODO: fix bug with sign flip function(move computations on gpu)
-        //auto [U_final, event] = slice_data(q_, U, component_count, column_count, {compute_event});
         auto u_host = U.to_host(q_);
         if (desc.get_deterministic()) {
             sign_flip(u_host);
         }
 
-        //TODO: sklearn doesnt compute full eigenvalues
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model =
                 model_t{}.set_eigenvectors(homogen_table::wrap(u_host.flatten(),
