@@ -46,10 +46,9 @@ struct infer_ops {
         }
 
         if (desc.get_component_count() > 0) {
-            //TODO: restore after adding select data by component count
             if (input.get_model().get_eigenvectors().get_row_count() !=
                 desc.get_component_count()) {
-                //throw invalid_argument(msg::input_model_eigenvectors_rc_neq_desc_component_count());
+                throw invalid_argument(msg::input_model_eigenvectors_rc_neq_desc_component_count());
             }
         }
         else {
@@ -61,7 +60,7 @@ struct infer_ops {
 
         if (input.get_model().get_eigenvectors().get_column_count() !=
             input.get_data().get_column_count()) {
-            //throw invalid_argument(msg::input_model_eigenvectors_cc_neq_input_data_cc());
+            throw invalid_argument(msg::input_model_eigenvectors_cc_neq_input_data_cc());
         }
     }
 

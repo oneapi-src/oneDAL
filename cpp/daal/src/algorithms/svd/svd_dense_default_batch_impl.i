@@ -69,12 +69,12 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute(const size_t na, co
     const size_t m = ntAi->getNumberOfRows();
     const size_t t = threader_get_threads_number();
 
-    return SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(na, a, nr, r, svdPar);
+    if (m < 2 * n) return SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(na, a, nr, r, svdPar);
 
     if ((m > n * t) && (n > 10) && (!(n >= 200 && m <= 100000)))
         return SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(na, a, nr, r, svdPar);
 
-    //return SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(na, a, nr, r, svdPar);
+    return SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(na, a, nr, r, svdPar);
 }
 
 /**

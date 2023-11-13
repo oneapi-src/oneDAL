@@ -144,36 +144,22 @@ auto svd_decomposition(sycl::queue& queue,
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
     std::int64_t ldvt = column_count;
-    //TODO: fix wrapper
-    const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
-                                                                           mkl::jobsvd::somevec,
-                                                                           mkl::jobsvd::somevec,
-                                                                           column_count,
-                                                                           row_count,
-                                                                           lda,
-                                                                           ldu,
-                                                                           ldvt);
-    auto scratchpad = pr::ndarray<Float, 1>::empty(queue, { scratchpad_size }, alloc::device);
-    auto scratchpad_ptr = scratchpad.get_mutable_data();
+    sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        auto event = mkl::lapack::gesvd(queue,
-                                        mkl::jobsvd::somevec,
-                                        mkl::jobsvd::somevec,
-                                        column_count,
-                                        row_count,
-                                        data_ptr,
-                                        lda,
-                                        S_ptr,
-                                        U_ptr,
-                                        ldu,
-                                        V_T_ptr,
-                                        ldvt,
-                                        scratchpad_ptr,
-                                        scratchpad_size,
-                                        {});
+        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
+                                                                            column_count,
+                                                                            row_count,
+                                                                            data_ptr,
+                                                                            lda,
+                                                                            S_ptr,
+                                                                            U_ptr,
+                                                                            ldu,
+                                                                            V_T_ptr,
+                                                                            ldvt,
+                                                                            {});
     }
-    return std::make_tuple(U, S, V_T);
+    return std::make_tuple(U, S, V_T, gesvd_event);
 }
 
 template <typename Float>
@@ -193,23 +179,26 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T] = svd_decomposition(q_, data_to_compute, component_count);
+        auto [U, S, V_T, gesvd_event] = svd_decomposition(q_, data_to_compute, component_count);
 
         if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(S.flatten(q_), 1, component_count));
+            result.set_eigenvalues(
+                homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
         }
 
         //auto u_host = U.to_host(q_);
         sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
-            sign_flip_event = sign_flip(q_, U);
+            sign_flip_event = sign_flip(q_, U, { gesvd_event });
         }
 
         if (desc.get_result_options().test(result_options::eigenvectors)) {
+            auto [sliced_data, event] =
+                slice_data(q_, U, component_count, column_count, { sign_flip_event });
             const auto model =
-                model_t{}.set_eigenvectors(homogen_table::wrap(U.flatten(q_, { sign_flip_event }),
-                                                               U.get_dimension(0),
-                                                               U.get_dimension(1)));
+                model_t{}.set_eigenvectors(homogen_table::wrap(sliced_data.flatten(q_, { event }),
+                                                               sliced_data.get_dimension(0),
+                                                               sliced_data.get_dimension(1)));
             result.set_model(model);
         }
     }
