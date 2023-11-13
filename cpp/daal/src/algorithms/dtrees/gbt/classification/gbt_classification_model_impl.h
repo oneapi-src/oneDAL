@@ -48,7 +48,7 @@ public:
     typedef gbt::internal::ModelImpl ImplType;
     typedef algorithms::classifier::internal::ModelInternal ClassificationImplType;
 
-    ModelImpl(size_t nFeatures = 0) : ClassificationImplType(nFeatures) {}
+    ModelImpl(size_t nFeatures = 0) : ClassificationImplType(nFeatures), _predictionBias(0.) {}
     ~ModelImpl() DAAL_C11_OVERRIDE {}
 
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ClassificationImplType::getNumberOfFeatures(); }
