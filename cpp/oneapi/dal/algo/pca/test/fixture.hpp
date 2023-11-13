@@ -182,10 +182,10 @@ public:
         check_nans(result);
 
         INFO("check if eigenvectors order is descending")
-        //this->check_eigenvalues_order(eigenvalues);
+        //check_eigenvalues_order(eigenvalues);
 
         INFO("check if eigenvectors matrix is orthogonal")
-        //check_eigenvectors_orthogonality(eigenvectors);
+        check_eigenvectors_orthogonality(eigenvectors);
 
         const auto bs = te::compute_basic_statistics<double>(data);
         constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;

@@ -51,6 +51,7 @@ dal_test_suite(
     srcs = glob([
         "backend/test/*.cpp",
     ]),
+    compile_as = ["dpc++"],
     dal_deps = [
         ":pca",
     ],
