@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 
 namespace oneapi::dal::pca::backend::test {
 
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-class sign_flip_test {
+class sign_flip_test public : te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
+    using float_t = std::tuple_element_t<0, Param>;
     pr::ndarray<Float, 2> get_negative_data() const {
         const std::int64_t row_count = 3;
         const std::int64_t column_count = 2;
@@ -57,17 +59,21 @@ public:
 };
 
 TEMPLATE_TEST_M(sign_flip_test, "flips if all negative", "[negative]", float, double) {
+    SKIP_IF(this->get_policy().is_cpu());
+
     auto data = this->get_negative_data();
 
-    sign_flip(data);
+    sign_flip(this->get_queue(), data);
 
     this->check_if_flipped_data_positive(this->get_negative_data(), data);
 }
 
 TEMPLATE_TEST_M(sign_flip_test, "does not flips if all positive", "[positive]", float, double) {
+    SKIP_IF(this->get_policy().is_cpu());
+
     auto data = this->get_positive_data();
 
-    sign_flip(data);
+    sign_flip(this->get_queue(), data);
 
     this->check_if_flipped_data_positive(this->get_positive_data(), data);
 }
