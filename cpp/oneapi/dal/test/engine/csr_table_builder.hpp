@@ -15,12 +15,9 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/csr.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::test::engine {
-
-namespace pr = dal::backend::primitives;
 
 /**
 * Generates random CSR table based on inputs
@@ -100,7 +97,7 @@ struct csr_table_builder {
         }
         if (row_idx < row_count_) {
             for (std::int32_t i = row_idx; i <= row_count_; ++i) {
-                row_offsets_ptr[i] = nonzero_count + indexing_shift;
+                row_offsets_ptr[i] = fill_count + indexing_shift;
             }
         }
     }
@@ -108,26 +105,22 @@ struct csr_table_builder {
 #ifdef ONEDAL_DATA_PARALLEL
     csr_table build_csr_table(device_test_policy& policy) const {
         auto queue = policy.get_queue();
-        auto nnz_count = data_.get_count();
+        auto row_offs_ptr = row_offsets_.get_data();
+        auto nnz_count = row_offs_ptr[row_count_] - row_offs_ptr[0];
         const auto copied_data =
             dal::array<Float>::empty(queue, nnz_count, sycl::usm::alloc::device);
         const auto copied_col_indices =
             dal::array<std::int64_t>::empty(queue, nnz_count, sycl::usm::alloc::device);
         const auto copied_row_offsets =
             dal::array<std::int64_t>::empty(queue, row_count_ + 1, sycl::usm::alloc::device);
-        auto data_event = dal::backend::copy_host2usm(queue,
-                                                      copied_data.get_mutable_data(),
-                                                      data_.get_data(),
-                                                      nnz_count);
-
-        auto col_indices_event = dal::backend::copy_host2usm(queue,
-                                                             copied_col_indices.get_mutable_data(),
-                                                             column_indices_.get_data(),
-                                                             nnz_count);
-        auto row_offsets_event = dal::backend::copy_host2usm(queue,
-                                                             copied_row_offsets.get_mutable_data(),
-                                                             row_offsets_.get_data(),
-                                                             row_count_ + 1);
+        auto data_event =
+            queue.copy<float>(data_.get_data(), copied_data.get_mutable_data(), nnz_count);
+        auto col_indices_event = queue.copy<std::int64_t>(column_indices_.get_data(),
+                                                          copied_col_indices.get_mutable_data(),
+                                                          nnz_count);
+        auto row_offsets_event = queue.copy<std::int64_t>(row_offsets_.get_data(),
+                                                          copied_row_offsets.get_mutable_data(),
+                                                          row_count_ + 1);
         sycl::event::wait_and_throw({ data_event, col_indices_event, row_offsets_event });
         return csr_table::wrap(copied_data,
                                copied_col_indices,
@@ -138,17 +131,22 @@ struct csr_table_builder {
 #endif // ONEDAL_DATA_PARALLEL
 
     csr_table build_csr_table(host_test_policy& policy) const {
-        auto nnz_count = data_.get_count();
+        auto row_offs_ptr = row_offsets_.get_data();
+        auto nnz_count = row_offs_ptr[row_count_] - row_offs_ptr[0];
         const auto copied_data = dal::array<Float>::empty(nnz_count);
         const auto copied_col_indices = dal::array<std::int64_t>::empty(nnz_count);
         const auto copied_row_offsets = dal::array<std::int64_t>::empty(row_count_ + 1);
-        dal::backend::copy(copied_data.get_mutable_data(), data_.get_data(), nnz_count);
-        dal::backend::copy(copied_col_indices.get_mutable_data(),
-                           column_indices_.get_data(),
-                           nnz_count);
-        dal::backend::copy(copied_row_offsets.get_mutable_data(),
-                           row_offsets_.get_data(),
-                           row_count_ + 1);
+
+        auto copied_data_ptr = copied_data.get_mutable_data();
+        auto copied_col_indices_ptr = copied_col_indices.get_mutable_data();
+        auto copied_row_offsets_ptr = copied_row_offsets.get_mutable_data();
+        for (std::int32_t i = 0; i < nnz_count; ++i) {
+            copied_data_ptr[i] = data_.get_data()[i];
+            copied_col_indices_ptr[i] = column_indices_.get_data()[i];
+        }
+        for (std::int32_t i = 0; i <= row_count_; ++i) {
+            copied_row_offsets_ptr[i] = row_offs_ptr[i];
+        }
         return csr_table::wrap(copied_data,
                                copied_col_indices,
                                copied_row_offsets,
