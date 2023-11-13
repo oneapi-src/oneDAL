@@ -34,11 +34,6 @@ public:
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
 
-    bool not_available_on_device() {
-        constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
-        return get_policy().is_gpu() && is_svd;
-    }
-
     auto get_descriptor() const {
         return pca::descriptor<float, Method, pca::task::dim_reduction>{};
     }
@@ -69,31 +64,26 @@ private:
     TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", pca::method::cov)
 
 PCA_BADARG_TEST("accepts non-negative component_count") {
-    SKIP_IF(this->not_available_on_device());
     REQUIRE_NOTHROW(this->get_descriptor().set_component_count(0));
 }
 
 PCA_BADARG_TEST("throws if component_count is negative") {
-    SKIP_IF(this->not_available_on_device());
     REQUIRE_THROWS_AS(this->get_descriptor().set_component_count(-1), domain_error);
 }
 
 PCA_BADARG_TEST("throws if train data is empty") {
-    SKIP_IF(this->not_available_on_device());
     const auto pca_desc = this->get_descriptor().set_component_count(2);
 
     REQUIRE_THROWS_AS(this->train(pca_desc, homogen_table{}), domain_error);
 }
 
 PCA_BADARG_TEST("throws if train data columns less than component count") {
-    SKIP_IF(this->not_available_on_device());
     const auto pca_desc = this->get_descriptor().set_component_count(4);
 
     REQUIRE_THROWS_AS(this->train(pca_desc, this->get_train_data()), invalid_argument);
 }
 
 PCA_BADARG_TEST("throws if infer data is empty") {
-    SKIP_IF(this->not_available_on_device());
     const auto pca_desc = this->get_descriptor().set_component_count(2);
     const auto model = this->train(pca_desc, this->get_train_data()).get_model();
 
@@ -101,16 +91,14 @@ PCA_BADARG_TEST("throws if infer data is empty") {
 }
 
 PCA_BADARG_TEST("throws if component count neq eigenvector_rows") {
-    SKIP_IF(this->not_available_on_device());
     auto pca_desc = this->get_descriptor().set_component_count(2);
     const auto model = this->train(pca_desc, this->get_train_data()).get_model();
     pca_desc.set_component_count(4);
-    //TODO: enable after fix component counts check
-    //REQUIRE_THROWS_AS(this->infer(pca_desc, model, this->get_infer_data()), invalid_argument);
+
+    REQUIRE_THROWS_AS(this->infer(pca_desc, model, this->get_infer_data()), invalid_argument);
 }
 
 PCA_BADARG_TEST("throws if infer data column count neq eigenvector columns") {
-    SKIP_IF(this->not_available_on_device());
     const auto pca_desc = this->get_descriptor().set_component_count(2);
     const auto model = this->train(pca_desc, this->get_train_data()).get_model();
     const auto infer_data = this->get_infer_data(4, 4);

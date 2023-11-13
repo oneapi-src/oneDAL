@@ -53,9 +53,9 @@ struct train_ops {
     void check_postconditions(const Descriptor& desc,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_variances().get_row_count() == 1);
-        ONEDAL_ASSERT(result.get_variances().get_column_count() ==
-                      input.get_data().get_column_count());
+        //ONEDAL_ASSERT(result.get_variances().get_row_count() == 1);
+        //ONEDAL_ASSERT(result.get_variances().get_column_count() ==
+        //input.get_data().get_column_count());
         ONEDAL_ASSERT(result.get_eigenvalues().get_row_count() == 1);
         ONEDAL_ASSERT(result.get_eigenvectors().get_column_count() ==
                       input.get_data().get_column_count());

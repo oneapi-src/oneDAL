@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,7 +38,12 @@ static sycl::event gesvd_wrapper(sycl::queue& queue,
                                  Float* scratchpad_ptr,
                                  std::int64_t scratchpad_size,
                                  const event_vector& deps) {
-    //TODO: add new checks + table format investigation
+    ONEDAL_ASSERT(row_count > 0);
+    ONEDAL_ASSERT(column_count > 0);
+    ONEDAL_ASSERT(lda > 0);
+    ONEDAL_ASSERT(ldu > 0);
+    ONEDAL_ASSERT(ldvt > 0);
+    ONEDAL_ASSERT(scratchpad_size > 0);
     return mkl::lapack::gesvd(queue,
                               jobu,
                               jobu,

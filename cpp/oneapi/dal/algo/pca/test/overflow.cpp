@@ -57,6 +57,7 @@ public:
     }
 }; // namespace oneapi::dal::pca::test
 
+//TODO: fix, it doesnt work with cov method as well
 #define PCA_OVERFLOW_TEST(name) \
     TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::svd)
 
