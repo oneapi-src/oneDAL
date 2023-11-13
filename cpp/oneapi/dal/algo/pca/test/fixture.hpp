@@ -188,12 +188,14 @@ public:
         //check_eigenvectors_orthogonality(eigenvectors);
 
         const auto bs = te::compute_basic_statistics<double>(data);
+        constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
+        if (!is_svd) {
+            INFO("check if means are expected")
+            check_means(bs, means);
 
-        // INFO("check if means are expected")
-        // check_means(bs, means);
-
-        // INFO("check if variances are expected")
-        // check_variances(bs, variances);
+            INFO("check if variances are expected")
+            check_variances(bs, variances);
+        }
     }
 
     void check_train_result_online(const pca::descriptor<Float, Method>& desc,
@@ -247,14 +249,16 @@ public:
         INFO("check if eigenvectors shape is expected")
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
+        constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
+        if (!is_svd) {
+            INFO("check if means shape is expected")
+            REQUIRE(means.get_row_count() == 1);
+            REQUIRE(means.get_column_count() == data.get_column_count());
 
-        // INFO("check if means shape is expected")
-        // REQUIRE(means.get_row_count() == 1);
-        // REQUIRE(means.get_column_count() == data.get_column_count());
-
-        // INFO("check if variances shape is expected")
-        // REQUIRE(variances.get_row_count() == 1);
-        // REQUIRE(variances.get_column_count() == data.get_column_count());
+            INFO("check if variances shape is expected")
+            REQUIRE(variances.get_row_count() == 1);
+            REQUIRE(variances.get_column_count() == data.get_column_count());
+        }
     }
 
     void check_nans(const pca::train_result<>& result) {

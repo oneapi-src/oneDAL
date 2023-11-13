@@ -114,6 +114,7 @@ Status compute_svd_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, 
     algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
+    /* gesvd in oneDAL equals to xxgesvd */
     LapackInst<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, workDim, &mklStatus);
 
     if (mklStatus != 0)

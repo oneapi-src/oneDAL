@@ -99,7 +99,6 @@ auto compute_mean_centered_data(sycl::queue& q,
     return std::make_tuple(data_to_compute, event);
 }
 
-//temporary wa
 template <typename Float>
 auto slice_data(sycl::queue& q,
                 const pr::ndview<Float, 2>& data,
@@ -107,7 +106,6 @@ auto slice_data(sycl::queue& q,
                 std::int64_t column_count,
                 const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_means, q);
-    //const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count_local = data.get_dimension(1);
     auto data_to_compute =
         pr::ndarray<Float, 2>::empty(q, { component_count, column_count }, alloc::device);
@@ -186,7 +184,6 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
                 homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
         }
 
-        //auto u_host = U.to_host(q_);
         sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
             sign_flip_event = sign_flip(q_, U, { gesvd_event });

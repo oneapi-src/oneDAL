@@ -61,7 +61,7 @@ private:
 };
 
 #define PCA_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", pca::method::cov)
+    TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", pca::method::cov, pca::method::svd)
 
 PCA_BADARG_TEST("accepts non-negative component_count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_component_count(0));

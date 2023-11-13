@@ -63,10 +63,11 @@ public:
         return split_input;
     }
 
-    void spmd_general_checks(const te::dataframe& data_fr, const te::table_id& data_table_id) {
+    void spmd_general_checks(const te::dataframe& data_fr,
+                             const te::table_id& data_table_id,
+                             bool deterministic) {
         const table data = data_fr.get_table(this->get_policy(), data_table_id);
         const std::int64_t component_count = 0;
-        const bool deterministic = false;
         const auto pca_desc = base_t::get_descriptor(component_count, deterministic);
         const auto train_result = this->train(pca_desc, data);
         INFO("run training");
@@ -90,10 +91,10 @@ TEMPLATE_LIST_TEST_M(pca_spmd_test, "pca common flow", "[pca][integration][spmd]
                            te::dataframe_builder{ 2000, 20 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 2500, 20 }.fill_normal(-30, 30, 7777));
     this->set_rank_count(GENERATE(2, 4));
-
+    bool deterministic = GENERATE(0, 1);
     const auto data_table_id = this->get_homogen_table_id();
 
-    this->spmd_general_checks(data, data_table_id);
+    this->spmd_general_checks(data, data_table_id, deterministic);
 }
 
 } // namespace oneapi::dal::pca::test

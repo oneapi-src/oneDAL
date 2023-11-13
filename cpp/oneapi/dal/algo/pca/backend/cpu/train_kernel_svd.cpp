@@ -81,7 +81,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     parameter.isDeterministic = desc.get_deterministic();
     parameter.normalization = norm_alg;
 
-    parameter.resultsToCompute = std::uint64_t(daal_pca::eigenvalue);
+    parameter.resultsToCompute =
+        std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_svd_kernel_t>(ctx,
