@@ -198,6 +198,11 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
                                                                sliced_data.get_dimension(1)));
             result.set_model(model);
         }
+        auto [sliced_vt, event_vt] =
+            slice_data(q_, V_T, component_count, column_count, { sign_flip_event });
+        result.set_vt(homogen_table::wrap(sliced_vt.flatten(q_, { sign_flip_event }),
+                                          sliced_vt.get_dimension(0),
+                                          sliced_vt.get_dimension(1)));
     }
 
     return result;

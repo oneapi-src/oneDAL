@@ -123,6 +123,13 @@ public:
     /// @remark default = table{}
     const table& get_means() const;
 
+    const table& get_vt() const;
+
+    auto& set_vt(const table& value) {
+        set_vt_impl(value);
+        return *this;
+    }
+
     auto& set_means(const table& value) {
         set_means_impl(value);
         return *this;
@@ -141,6 +148,7 @@ protected:
     void set_eigenvalues_impl(const table&);
     void set_eigenvectors_impl(const table&);
     void set_variances_impl(const table&);
+    void set_vt_impl(const table&);
     void set_means_impl(const table&);
     void set_result_options_impl(const result_option_id&);
 

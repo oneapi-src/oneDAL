@@ -37,14 +37,15 @@ void run(sycl::queue& q) {
     using method_t = dal::pca::method::svd;
     using task_t = dal::pca::task::dim_reduction;
     using descriptor_t = dal::pca::descriptor<float_t, method_t, task_t>;
-    const auto pca_desc = descriptor_t().set_component_count(8).set_deterministic(true);
+    const auto pca_desc = descriptor_t().set_component_count(2).set_deterministic(true);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
     std::cout << "Singular Values:\n" << result_train.get_eigenvalues() << std::endl;
 
-    std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
+    std::cout << "U:\n" << result_train.get_eigenvectors() << std::endl;
 
+    std::cout << "VT:\n" << result_train.get_vt() << std::endl;
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;

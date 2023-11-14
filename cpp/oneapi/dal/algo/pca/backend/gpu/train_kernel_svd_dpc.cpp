@@ -17,23 +17,13 @@
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_svd_impl.hpp"
-#include "oneapi/dal/backend/primitives/lapack.hpp"
-#include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/reduction.hpp"
-#include "oneapi/dal/backend/primitives/stat.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
+
 namespace oneapi::dal::pca::backend {
 
-namespace bk = dal::backend;
-namespace pr = oneapi::dal::backend::primitives;
-using alloc = sycl::usm::alloc;
 using dal::backend::context_gpu;
-using model_t = model<task::dim_reduction>;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;

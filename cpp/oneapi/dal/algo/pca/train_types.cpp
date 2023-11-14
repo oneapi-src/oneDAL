@@ -37,6 +37,7 @@ class detail::v1::train_result_impl : public base {
 public:
     model<Task> trained_model;
     table eigenvalues;
+    table vt;
     table variances;
     table means;
     result_option_id result_options;
@@ -116,6 +117,11 @@ const table& train_result<Task>::get_eigenvectors() const {
 }
 
 template <typename Task>
+const table& train_result<Task>::get_vt() const {
+    return impl_->vt;
+}
+
+template <typename Task>
 const table& train_result<Task>::get_variances() const {
     if (!get_result_options().test(result_options::vars)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
@@ -150,6 +156,11 @@ void train_result<Task>::set_variances_impl(const table& value) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     impl_->variances = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_vt_impl(const table& value) {
+    impl_->vt = value;
 }
 
 template <typename Task>
