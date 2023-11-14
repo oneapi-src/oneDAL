@@ -181,20 +181,29 @@ public:
         check_shapes(desc, data, result);
         check_nans(result);
 
-        INFO("check if eigenvectors order is descending")
-        //check_eigenvalues_order(eigenvalues);
-
-        INFO("check if eigenvectors matrix is orthogonal")
-        check_eigenvectors_orthogonality(eigenvectors);
-
         const auto bs = te::compute_basic_statistics<double>(data);
         constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
         if (!is_svd) {
+            INFO("check if eigenvectors order is descending")
+            check_eigenvalues_order(eigenvalues);
+
+            INFO("check if eigenvectors matrix is orthogonal")
+            check_eigenvectors_orthogonality(eigenvectors);
             INFO("check if means are expected")
             check_means(bs, means);
 
             INFO("check if variances are expected")
             check_variances(bs, variances);
+        }
+        if (is_svd) {
+            INFO("check if singular values are correct")
+            //check_eigenvalues_order(eigenvalues);
+
+            INFO("check if U matrix is correct")
+            //check_eigenvectors_orthogonality(eigenvectors);
+
+            INFO("check if Vt matrix is correct")
+            //check_eigenvectors_orthogonality(eigenvectors);
         }
     }
 

@@ -69,7 +69,7 @@ sycl::event sign_flip_impl(sycl::queue q,
 
     auto update_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(sycl::range<2>(row_count, column_count), [=](sycl::id<2> idx) {
+        cgh.parallel_for(sycl::range<1>(row_count), [=](sycl::id<1> idx) {
             const std::int64_t i = idx[0];
             sign_flip_vector(eigvecs + i * column_count, column_count);
         });
