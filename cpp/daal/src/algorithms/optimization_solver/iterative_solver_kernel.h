@@ -168,7 +168,7 @@ template <typename algorithmFPType, CpuType cpu>
 class RngTask
 {
 public:
-    RngTask(const int * predefined, size_t size) : _predefined(predefined), _size(size), _maxVal(0), _values(0) {}
+    RngTask(const int * predefined, size_t size) : _predefined(predefined), _size(size), _maxVal(0), _values(0), _engine(nullptr) {}
 
     bool init(int maxVal, engines::BatchBase & engine)
     {
