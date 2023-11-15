@@ -171,7 +171,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     }
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
-        result.set_means(homogen_table::wrap(means.flatten(q_, { gemm_event }), 1, column_count));
+        result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
     return result;
 }
