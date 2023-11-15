@@ -459,7 +459,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 const Index bin_ofs = Index(batch_idx > 0) * last_bin_idx_ptr[0];
                 const Index new_bin_ofs = (real_bin_count + bin_ofs) % bin_count;
                 // Clear local memory before use
-                for (Index work_bin = local_id; work_bin < real_bin_count; work_bin += local_size) {
+                for (Index work_bin = local_id; work_bin < batch_size; work_bin += local_size) {
                     scalars_buf_ptr[work_bin].clear();
                     for (Index prop_idx = 0; prop_idx < hist_prop_count; ++prop_idx) {
                         local_hist_ptr[work_bin * hist_prop_count + prop_idx] = hist_type_t(0);
@@ -648,9 +648,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     scalars_buf_ptr[work_bin] = ts.scalars;
                 }
                 item.barrier(sycl::access::fence_space::local_space);
-                // Init best and current split info
-                split_info_t bs;
                 if (local_id == 0) {
+                    // Init best and current split info
+                    split_info_t bs;
                     // Select best among all possible splits in the batch
                     bs.init(local_hist_ptr + local_id * hist_prop_count, hist_prop_count);
                     bs.scalars = scalars_buf_ptr[local_id];
