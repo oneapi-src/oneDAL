@@ -21,6 +21,8 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/sort.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+#include <iostream>
+
 namespace oneapi::dal::kmeans::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -48,7 +50,8 @@ bool can_use_cache_for_distance_matrix(const sycl::queue& queue,
 template <typename Float>
 std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
-    return 0x10000l * (8 / fsize);
+    std::int64_t proposal = 0x100l * (8 / fsize);
+    return std::max<std::int64_t>(128l, proposal);
 }
 
 inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
@@ -160,7 +163,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     const auto sg_size = bk::device_max_sg_size(queue);
 
     const auto sg_count = wg_size / sg_size;
-
+    std::cout << "blocking loop start" << std::endl;
     std::vector<sycl::event> events(blocking.get_block_count());
     for (std::int64_t block_index = 0; block_index < blocking.get_block_count(); ++block_index) {
         const auto first_row = blocking.get_block_start_index(block_index);
@@ -210,6 +213,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
 
         events.push_back(event);
     }
+    std::cout << "blocking loop finish" << std::endl;
     return bk::wait_or_pass(events);
 }
 
@@ -291,7 +295,7 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
     const auto column_count = centroids.get_dimension(1);
     const auto cluster_count = centroids.get_dimension(0);
     const auto sg_size_to_set = get_gpu_sg_size(queue);
-
+    std::cout << "merge reduce centroids start" << std::endl;
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for<centroid_merge<Float>>(
@@ -426,7 +430,7 @@ sycl::event kernels_fp<Float>::complete_closest_distances(sycl::queue& queue,
     const auto elem_count = closest_distances.get_dimension(0);
     auto values_ptr = closest_distances.get_mutable_data();
     const auto squares_ptr = data_squares.get_data();
-
+    std::cout << "complete closet distance loop start" << std::endl;
     auto complete_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for<complete_distances<Float>>(
