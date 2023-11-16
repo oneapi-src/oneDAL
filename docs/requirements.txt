@@ -26,7 +26,7 @@ soupsieve==2.5
 Sphinx==6.2.1
 sphinx-book-theme==1.0.1
 sphinx-notfound-page==1.0.0
-sphinx-prompt==1.8.0
+sphinx-prompt==1.7.0
 Sphinx-Substitution-Extensions==2022.2.16
 sphinx-tabs==3.4.4
 sphinxcontrib-applehelp==1.0.7
