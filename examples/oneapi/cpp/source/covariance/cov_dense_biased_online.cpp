@@ -38,5 +38,5 @@ int main(int argc, char const *argv[]) {
     }
     auto result = dal::finalize_compute(cov_desc, partial_result);
 
-    std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
+    std::cout << "Maximum likelihood covariance estimation:\n" << result.get_cov_matrix() << std::endl;
 }
