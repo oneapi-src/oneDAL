@@ -370,6 +370,7 @@ public:
 
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
+    explicit csr_table(const detail::shared<detail::csr_table_iface>& impl) : table(impl) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
     static std::int64_t get_non_zero_count(sycl::queue& queue,
