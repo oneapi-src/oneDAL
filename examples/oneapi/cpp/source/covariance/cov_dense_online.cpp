@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
 
     const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
     const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cov_matrix | dal::covariance::result_options::means);
+        dal::covariance::result_options::cov_matrix | dal::covariance::result_options::means).set_bias(false);
 
     dal::covariance::partial_compute_result<> partial_result;
 
