@@ -73,7 +73,7 @@ public:
 
         const auto compute_result = this->compute(cov_desc, data);
 
-        base_t::check_compute_result(data, compute_result);
+        base_t::check_compute_result(cov_desc, data, compute_result);
     }
 
 private:
