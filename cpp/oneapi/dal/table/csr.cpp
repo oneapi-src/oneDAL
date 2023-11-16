@@ -39,8 +39,6 @@ sparse_indexing csr_table::get_indexing() const {
     return impl.get_indexing();
 }
 
-csr_table::csr_table() : csr_table(new backend::csr_table_impl{}) {}
-
 csr_table::csr_table(const table& other) {
     if (other.get_kind() == dal::csr_table::kind()) {
         const auto casted_table = static_cast<csr_table>(other);
