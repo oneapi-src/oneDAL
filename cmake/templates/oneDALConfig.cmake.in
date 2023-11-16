@@ -31,6 +31,11 @@ endif()
 # ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
 unset(DAL_LIBS)
 
+# default CMAKE_BUILD_TYPE to Release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type not specified, defaulting to Release" FORCE)
+endif()
+
 if(WIN32)
     message(STATUS "Optimization library is not enabled on Windows")
     set(ONEDAL_USE_PARAMETERS_LIBRARY no)
