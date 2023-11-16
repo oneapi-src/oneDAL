@@ -16,6 +16,9 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type not specified, defaulting to Release" FORCE)
+endif()
 set(ONEDAL_USE_DPCPP yes)
 set(ONEDAL_INTERFACE yes)
 
