@@ -404,7 +404,8 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
     }
 
     algorithmFPType multiplier = invNObservationsM1;
-    if (parameter->bias) {
+    if (parameter->bias)
+    {
         multiplier = invNObservations;
     }
 
