@@ -31,8 +31,9 @@ void run(sycl::queue &q) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
 
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
-    auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cov_matrix).set_bias(true);
+    auto cov_desc = dal::covariance::descriptor{}
+                        .set_result_options(dal::covariance::result_options::cov_matrix)
+                        .set_bias(true);
 
     auto result = dal::compute(q, cov_desc, input);
 

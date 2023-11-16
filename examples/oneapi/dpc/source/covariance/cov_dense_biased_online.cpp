@@ -32,8 +32,10 @@ void run(sycl::queue &q) {
     const std::int64_t nBlocks = 10;
 
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
-    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cov_matrix | dal::covariance::result_options::means).set_bias(true);
+    const auto cov_desc = dal::covariance::descriptor{}
+                              .set_result_options(dal::covariance::result_options::cov_matrix |
+                                                  dal::covariance::result_options::means)
+                              .set_bias(true);
 
     dal::covariance::partial_compute_result<> partial_result;
 
