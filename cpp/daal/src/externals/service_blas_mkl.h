@@ -97,7 +97,7 @@ template <typename fpType, CpuType cpu>
 struct MklBlas
 {};
 
-int fpk_serv_set_num_threads_local(int nthreads) { return nthreads; }
+
 
 /*
 // Double precision functions definition

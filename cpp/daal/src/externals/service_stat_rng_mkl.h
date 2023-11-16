@@ -31,7 +31,7 @@
 
 #define __DAAL_VSLFN(f_cpu, f_pref, f_name)                   __DAAL_CONCAT5(f_pref, _, f_cpu, _, f_name)
 #define __DAAL_VSLFN_CALL(f_pref, f_name, f_args, errcode)    __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)
-#define __DAAL_VSLFN_CALL_NR(f_pref, f_name, f_args, errcode) __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, errcode)
+#define __DAAL_VSLFN_CALL_NR(f_pref, f_name, f_args, errcode) __DAAL_VSLFN_CALL_NO_V(f_pref, f_name, f_args, errcode)
 #define __DAAL_VSLFN_CALL_NR_WHILE(f_pref, f_name, f_args, errcode)   \
     {                                                                 \
         size_t nn_left = n;                                           \
@@ -39,7 +39,7 @@
         {                                                             \
             nn = (nn_left > 0xFFFFFFFL) ? 0xFFFFFFF : (int)(nn_left); \
                                                                       \
-            __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, errcode);      \
+            __DAAL_VSLFN_CALL_V(f_pref, f_name, f_args, errcode);      \
             if (errcode < 0) return errcode;                          \
                                                                       \
             rr += nn;                                                 \
@@ -76,6 +76,7 @@
     {                                                                       \
         return errcode;                                                     \
     }
+
 #define __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, retcode)                 \
     if (avx512 == cpu)                                                      \
     {                                                                       \
@@ -93,5 +94,9 @@
     {                                                                       \
         retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args;  \
     }
+
+#define __DAAL_VSLFN_CALL_V(f_pref, f_name, f_args, retcode) v##f_name f_args;
+
+#define __DAAL_VSLFN_CALL_NO_V(f_pref, f_name, f_args, retcode) f_name f_args;
 
 #endif

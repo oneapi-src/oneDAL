@@ -24,7 +24,8 @@
 #ifndef __SERVICE_RNG_MKL_H__
 #define __SERVICE_RNG_MKL_H__
 
-#include "vmlvsl.h"
+// #include "vmlvsl.h"
+#include "mkl.h"
 #include "src/externals/service_stat_rng_mkl.h"
 #include "src/externals/service_rng_common.h"
 

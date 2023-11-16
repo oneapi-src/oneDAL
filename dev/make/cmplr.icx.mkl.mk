@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.icx = generic
 -DEBC.icx = -g
 
 COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type
+                      -Wreturn-type
 
 
 link.dynamic.lnx.icx = icpx -m64
