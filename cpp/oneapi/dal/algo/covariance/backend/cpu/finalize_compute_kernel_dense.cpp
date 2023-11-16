@@ -44,6 +44,7 @@ static compute_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
     bool is_mean_computed = false;
 
     daal_covariance::Parameter daal_parameter;
+    daal_parameter.bias = desc.get_bias();
     daal_parameter.outputMatrixType = daal_covariance::covarianceMatrix;
 
     dal::detail::check_mul_overflow(component_count, component_count);
