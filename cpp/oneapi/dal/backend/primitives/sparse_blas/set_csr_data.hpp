@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/backend/common.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 #include <oneapi/mkl.hpp>

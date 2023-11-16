@@ -27,7 +27,7 @@
 #endif
 
 DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
-#include "mkl_dal_sycl.hpp"
+#include <oneapi/mkl.hpp>
 DISABLE_MKL_DAL_SYCL_WARNINGS_END()
 
 #undef DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN

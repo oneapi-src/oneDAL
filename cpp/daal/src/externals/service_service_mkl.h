@@ -25,9 +25,13 @@
 #define __SERVICE_SERVICE_MKL_H__
 
 #include "services/daal_defines.h"
-#include "mkl_daal.h"
-#include "istrconv_daal.h"
-#include "istrconv_daal_el.h"
+// #include "mkl_daal.h"
+#include <mkl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <errno.h>
 
 namespace daal
 {
@@ -37,26 +41,33 @@ namespace mkl
 {
 struct MklService
 {
-    static void * serv_malloc(size_t size, size_t alignment) { return fpk_serv_malloc(size, alignment); }
+    static void * serv_malloc(size_t size, size_t alignment) { return aligned_alloc(size, alignment); }
 
-    static void serv_free(void * ptr) { fpk_serv_free(ptr); }
+    static void serv_free(void * ptr) { free(ptr); }
 
-    static void serv_free_buffers() { fpk_serv_free_buffers(); }
+    static void serv_free_buffers() { mkl_free_buffers(); }
 
     static int serv_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize)
     {
-        return fpk_serv_memcpy_s(dest, destSize, src, srcSize);
+        if (destSize < srcSize) return static_cast<int>(ENOMEM);
+        memcpy(dest, src, srcSize);
+        return 0;
     }
 
-    static int serv_memmove_s(void * dest, size_t destSize, const void * src, size_t smax) { return fpk_serv_memmove_s(dest, destSize, src, smax); }
+    static int serv_memmove_s(void * dest, size_t destSize, const void * src, size_t smax)
+    {
+        if (destSize < smax) return static_cast<int>(ENOMEM);
+        memmove(dest, src, smax);
+        return 0;
+    }
 
-    static int serv_get_ht() { return fpk_serv_get_ht(); }
+    static int serv_get_ht() { return 0; }
 
-    static int serv_get_ncpus() { return fpk_serv_get_ncpus(); }
+    static int serv_get_ncpus() { return 224; }
 
-    static int serv_get_ncorespercpu() { return fpk_serv_get_ncorespercpu(); }
+    static int serv_get_ncorespercpu() { return 1; }
 
-    static int serv_set_memory_limit(int type, size_t limit) { return fpk_serv_set_memory_limit(type, limit); }
+    static int serv_set_memory_limit(int type, size_t limit) { return 0; }
 
     // Added for interface compatibility - not expected to be called
     static size_t serv_strnlen_s(const char * src, size_t slen)
@@ -67,19 +78,71 @@ struct MklService
         return i;
     }
 
-    static int serv_strncpy_s(char * dest, size_t dmax, const char * src, size_t slen) { return fpk_serv_strncpy_s(dest, dmax, src, slen); }
+    static int serv_strncpy_s(char * dest, size_t dmax, const char * src, size_t slen)
+    {
+        if (dmax < slen) return static_cast<int>(ENOMEM);
+        strncpy(dest, src, slen);
+        return 0;
+        // TODO: safe funtion
+        // return strncpy_s(dest, dmax, src, slen);
+    }
 
-    static int serv_strncat_s(char * dest, size_t dmax, const char * src, size_t slen) { return fpk_serv_strncat_s(dest, dmax, src, slen); }
+    static int serv_strncat_s(char * dest, size_t dmax, const char * src, size_t slen)
+    {
+        if (dmax < slen) return static_cast<int>(ENOMEM);
+        strncat(dest, src, slen);
+        return 0;
+        // TODO: safe funtion
+        // return strncat_s(dest, dmax, src, slen);
+    }
 
-    static float serv_string_to_float(const char * nptr, char ** endptr) { return __FPK_string_to_float(nptr, endptr); }
+    static double serv_string_to_double(const char * nptr, char ** endptr)
+    {
+        const char * cur = nptr;
+        for (; isdigit(*cur) || *cur == '-' || *cur == 'e' || *cur == 'E' || *cur == '.'; ++cur)
+            ;
+        if (endptr) *endptr = const_cast<char *>(cur);
+        size_t size = cur - nptr;
+        // TODO replace with static buffer
+        char * buffer = static_cast<char *>(malloc(size + 1));
+        for (size_t i = 0; i < size; ++i) buffer[i] = nptr[i];
+        buffer[size] = '\0';
+        double val   = atof(buffer);
+        free(buffer);
+        return val;
+    }
 
-    static double serv_string_to_double(const char * nptr, char ** endptr) { return __FPK_string_to_double(nptr, endptr); }
+    static float serv_string_to_float(const char * nptr, char ** endptr) { return static_cast<float>(serv_string_to_double(nptr, endptr)); }
 
-    static int serv_string_to_int(const char * nptr, char ** endptr) { return __FPK_string_to_int_generic(nptr, endptr); }
+    static int serv_string_to_int(const char * nptr, char ** endptr)
+    {
+        const char * cur = nptr;
+        for (; isdigit(*cur) || *cur == '-'; ++cur)
+            ;
+        if (endptr) *endptr = const_cast<char *>(cur);
+        size_t size = cur - nptr;
+        // TODO replace with static buffer
+        char * buffer = static_cast<char *>(malloc(size + 1));
+        for (size_t i = 0; i < size; ++i) buffer[i] = nptr[i];
+        buffer[size] = '\0';
+        int val      = atoi(buffer);
+        free(buffer);
+        return val;
+    }
 
-    static int serv_int_to_string(char * buffer, size_t n, int value) { return __FPK_int_to_string(buffer, n, value); }
+    static int serv_int_to_string(char * buffer, size_t n, int value)
+    {
+        return snprintf(buffer, n, "%d", value);
+        // TODO: safe funtion
+        // return snprintf_s(buffer, n, "%d", value);
+    }
 
-    static int serv_double_to_string(char * buffer, size_t n, double value) { return __FPK_double_to_string_f(buffer, n, value); }
+    static int serv_double_to_string(char * buffer, size_t n, double value)
+    {
+        return snprintf(buffer, n, "%E", value);
+        // TODO: safe funtion
+        // return snprintf_s(buffer, n, "%E", value);
+    }
 };
 
 } // namespace mkl

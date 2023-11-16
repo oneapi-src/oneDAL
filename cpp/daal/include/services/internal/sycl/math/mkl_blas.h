@@ -40,6 +40,9 @@ namespace math
 {
 namespace interface1
 {
+
+namespace mkl = ::oneapi::mkl;
+
 /** @ingroup oneapi_internal
  * @{
  */
@@ -76,7 +79,7 @@ struct MKLGemm
         auto c_ptr = c_usm.get() + offsetC;
 
         status |= catchSyclExceptions([&]() mutable {
-            ::oneapi::fpk::blas::gemm(_queue, transamkl, transbmkl, m, n, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
+            mkl::blas::gemm(_queue, transamkl, transbmkl, m, n, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
             _queue.wait_and_throw();
         });
 #else
@@ -86,6 +89,7 @@ struct MKLGemm
     }
 
 private:
+/*
     template <typename T>
     void innerGemm(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, T alpha, ::sycl::buffer<T, 1> a, int64_t lda,
                    ::sycl::buffer<T, 1> b, int64_t ldb, T beta, ::sycl::buffer<T, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_b,
@@ -96,7 +100,7 @@ private:
                            int64_t lda, ::sycl::buffer<double, 1> b, int64_t ldb, double beta, ::sycl::buffer<double, 1> c, int64_t ldc,
                            int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
-        ::oneapi::fpk::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
+        mkl::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
 
     template <>
@@ -104,9 +108,9 @@ private:
                           int64_t lda, ::sycl::buffer<float, 1> b, int64_t ldb, float beta, ::sycl::buffer<float, 1> c, int64_t ldc, int64_t offset_a,
                           int64_t offset_b, int64_t offset_c)
     {
-        ::oneapi::fpk::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
+        mkl::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
-
+*/
     ::sycl::queue & _queue;
 };
 
@@ -138,7 +142,7 @@ struct MKLSyrk
         auto c_ptr = c_usm.get() + offsetC;
 
         status |= catchSyclExceptions([&]() mutable {
-            ::oneapi::fpk::blas::syrk(_queue, uplomkl, transmkl, n, k, alpha, a_ptr, lda, beta, c_ptr, ldc);
+            mkl::blas::syrk(_queue, uplomkl, transmkl, n, k, alpha, a_ptr, lda, beta, c_ptr, ldc);
             _queue.wait_and_throw();
         });
 #else
@@ -148,6 +152,7 @@ struct MKLSyrk
     }
 
 private:
+/*
     template <typename T>
     void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, T alpha, ::sycl::buffer<T, 1> a, int64_t lda, T beta,
                    ::sycl::buffer<T, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c);
@@ -156,16 +161,16 @@ private:
     void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, double alpha, ::sycl::buffer<double, 1> a, int64_t lda, double beta,
                    ::sycl::buffer<double, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c)
     {
-        ::oneapi::fpk::gpu::dsyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
+        mkl::gpu::dsyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
     }
 
     template <>
     void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, float alpha, ::sycl::buffer<float, 1> a, int64_t lda, float beta,
                    ::sycl::buffer<float, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c)
     {
-        ::oneapi::fpk::gpu::ssyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
+        mkl::gpu::ssyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
     }
-
+*/
     ::sycl::queue & _queue;
 };
 
@@ -191,7 +196,7 @@ struct MKLAxpy
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= catchSyclExceptions([&]() mutable {
-            ::oneapi::fpk::blas::axpy(_queue, n, a, x_usm.get(), incx, y_usm.get(), incy);
+            mkl::blas::axpy(_queue, n, a, x_usm.get(), incx, y_usm.get(), incy);
             _queue.wait_and_throw();
         });
 #else

@@ -27,7 +27,7 @@ sycl::event set_csr_data(sycl::queue& queue,
                          dal::array<Float> &data,
                          dal::array<std::int64_t> &column_indices,
                          dal::array<std::int64_t> &row_offsets,
-                         const event_vector& deps = {})
+                         const event_vector& deps)
 {
     return sycl::event{};
 }
@@ -37,7 +37,7 @@ sycl::event set_csr_data(sycl::queue& queue,
                                                        oneapi::mkl::sparse::matrix_handle_t handle, \
                                                        const std::int64_t column_count,             \
                                                        dal::sparse_indexing indexing,               \
-                                                       dal::array<Float> &data,                     \
+                                                       dal::array<F> &data,                         \
                                                        dal::array<std::int64_t> &column_indices,    \
                                                        dal::array<std::int64_t> &row_offsets,       \
                                                        const event_vector& deps);

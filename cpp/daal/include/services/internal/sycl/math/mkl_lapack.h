@@ -39,6 +39,9 @@ namespace math
 {
 namespace interface1
 {
+
+namespace mkl = ::oneapi::mkl;
+
 /** @ingroup oneapi_internal
  * @{
  */
@@ -55,7 +58,7 @@ struct MKLPotrf
     Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a, const size_t lda)
     {
         const auto uplomkl                       = to_fpk_uplo(uplo);
-        const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
+        const std::int64_t minimalScratchpadSize = mkl::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
         return this->operator()(uplo, n, a, lda, minimalScratchpadSize);
     }
 
@@ -79,7 +82,7 @@ private:
         }
 
         status |= catchSyclExceptions([&]() mutable {
-            ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_usm.get(), lda, scratchpad, scratchpadSize);
+            mkl::lapack::potrf(_queue, uplomkl, n, a_usm.get(), lda, scratchpad, scratchpadSize);
             _queue.wait_and_throw();
         });
 
@@ -109,7 +112,7 @@ struct MKLPotrs
                       Buffer<algorithmFPType> & b, const size_t ldb)
     {
         const auto uplomkl                       = to_fpk_uplo(uplo);
-        const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
+        const std::int64_t minimalScratchpadSize = mkl::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
         return this->operator()(uplo, n, ny, a, lda, b, ldb, minimalScratchpadSize);
     }
 
@@ -137,7 +140,7 @@ private:
         }
 
         status |= catchSyclExceptions([&]() mutable {
-            ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_usm.get(), lda, b_usm.get(), ldb, scratchpad, scratchpadSize);
+            mkl::lapack::potrs(_queue, uplomkl, n, ny, a_usm.get(), lda, b_usm.get(), ldb, scratchpad, scratchpadSize);
             _queue.wait_and_throw();
         });
 

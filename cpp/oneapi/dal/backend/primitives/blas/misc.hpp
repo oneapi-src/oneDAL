@@ -24,6 +24,7 @@ namespace oneapi::dal::backend::primitives {
 
 namespace mkl = oneapi::mkl;
 
+#ifdef ONEDAL_DATA_PARALLEL
 inline constexpr mkl::transpose f_order_as_transposed(ndorder order) {
     return (order == ndorder::f) ? mkl::transpose::trans : mkl::transpose::nontrans;
 }
@@ -43,5 +44,6 @@ inline constexpr mkl::uplo ident_uplo(mkl::uplo order) {
     constexpr auto lower = mkl::uplo::lower;
     return (order == upper) ? upper : lower;
 }
+#endif
 
 } // namespace oneapi::dal::backend::primitives
