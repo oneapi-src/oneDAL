@@ -67,7 +67,10 @@ inline sycl::event compute_covariance(sycl::queue& q,
     const std::int64_t n = row_count;
     const std::int64_t p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    Float multiplier = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
+    if (bias) {
+        multiplier = inv_n;
+    }
     const Float* sums_ptr = sums.get_data();
     Float* cov_ptr = cov.get_mutable_data();
 
@@ -81,14 +84,8 @@ inline sycl::event compute_covariance(sycl::queue& q,
             const std::int64_t j = id.get_id(1);
 
             if (i < p && j < p) {
-                Float c = cov_ptr[gi];
-                c -= inv_n * sums_ptr[i] * sums_ptr[j];
-                if (bias) {
-                    cov_ptr[gi] = c * inv_n;
-                }
-                else {
-                    cov_ptr[gi] = c * inv_n1;
-                }
+                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j];
+                cov_ptr[gi] *= multiplier;
             }
         });
     });
@@ -254,7 +251,10 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    Float multiplier = (n > 1) ? Float(n - 1) : Float(1);
+    if (bias) {
+        multiplier = Float(n);
+    }
 
     const Float* cov_ptr = cov.get_data();
 
@@ -267,13 +267,7 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            Float c;
-            if (bias) {
-                c = cov_ptr[idx * p + idx] * n;
-            }
-            else {
-                c = cov_ptr[idx * p + idx] / inv_n1;
-            }
+            Float c = cov_ptr[idx * p + idx] * multiplier;
 
             // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
             // to avoid NaN/Inf in the resulting correlation matrix
@@ -302,7 +296,10 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    Float multiplier = (n > 1) ? Float(n - 1) : Float(1);
+    if (bias) {
+        multiplier = Float(n);
+    }
     const Float* tmp_ptr = tmp.get_data();
     Float* corr_ptr = corr.get_mutable_data();
     const Float* cov_ptr = cov.get_data();
@@ -315,13 +312,7 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
             const std::int64_t j = idx[1];
             const std::int64_t gi = i * p + j;
             const Float is_diag = Float(i == j);
-            Float c;
-            if (bias) {
-                c = cov_ptr[gi] * n * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
-            }
-            else {
-                c = cov_ptr[gi] / inv_n1 * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
-            }
+            Float c = cov_ptr[gi] * multiplier * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
             corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
         });
     });
