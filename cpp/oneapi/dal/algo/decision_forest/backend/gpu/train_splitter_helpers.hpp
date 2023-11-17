@@ -177,6 +177,17 @@ struct split_scalar {
         imp_dec = -de::limits<Float>::max();
         left_weight_sum = Float(0);
     }
+
+    void copy(const split_scalar& other) {
+        ftr_id = other.ftr_id;
+        ftr_bin = other.ftr_bin;
+        left_count = other.left_count;
+        right_count = other.right_count;
+        left_imp = other.left_imp;
+        right_imp = other.right_imp;
+        imp_dec = other.imp_dec;
+        left_weight_sum = other.left_weight_sum;
+    }
 };
 
 template <typename Float, typename Index, typename Task>
@@ -348,6 +359,12 @@ struct split_smp {
                                    Index min_observations_in_leaf_node) {
         const split_scalar_t& ts_sc = ts.scalars;
         const split_scalar_t& bs_sc = bs.scalars;
+        return test_split_is_best(bs_sc, ts_sc, min_observations_in_leaf_node);
+    }
+
+    inline bool test_split_is_best(const split_scalar_t& bs_sc,
+                                   const split_scalar_t& ts_sc,
+                                   Index min_observations_in_leaf_node) {
         bool valid_imp_dec = Float(0) < ts_sc.imp_dec;
         bool valid_rcount = ts_sc.right_count >= min_observations_in_leaf_node;
         bool valid_lcount = ts_sc.left_count >= min_observations_in_leaf_node;
