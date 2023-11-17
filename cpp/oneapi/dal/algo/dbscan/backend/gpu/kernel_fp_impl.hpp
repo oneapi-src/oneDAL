@@ -26,11 +26,9 @@ namespace oneapi::dal::dbscan::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
+inline std::int64_t get_recommended_sg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
-    if (column_count > 64) {
-        return 64;
-    }
+    // TODO optimization/dispatching
     return column_count > 32 ? 32 : 16;
 }
 
@@ -62,7 +60,7 @@ struct get_core_wide_kernel {
         std::int32_t* cores_ptr = cores.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+            std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -75,20 +73,30 @@ struct get_core_wide_kernel {
                         return;
                     const std::uint32_t local_id = sg.get_local_id();
                     const std::uint32_t local_size = sg.get_local_range()[0];
+
                     count_type count = 0;
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
-                        Float distance = Float(0);
-                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                        for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
                             sum += val * val;
-                            distance =
-                                sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-
-                            if (distance > epsilon) {
-                                break;
-                            }
+                        }
+                        Float distance_check =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance_check > epsilon) {
+                            continue;
+                        }
+                        for (std::int64_t i = column_count / 2 + local_id; i < column_count;
+                             i += local_size) {
+                            Float val = data_ptr[(block_start + wg_id) * column_count + i] -
+                                        data_ptr[j * column_count + i];
+                            sum += val * val;
+                        }
+                        Float distance =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance > epsilon) {
+                            continue;
                         }
                         if constexpr (use_weights) {
                             count += weights_ptr[j];
@@ -254,7 +262,7 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
-    std::int64_t wg_size = get_recommended_wg_size(queue);
+    std::int64_t wg_size = get_recommended_sg_size(queue);
     auto full_deps = deps + bk::event_vector{ start_index_event };
     auto index_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(full_deps);
@@ -364,7 +372,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     std::int32_t* responses_ptr = responses.get_mutable_data();
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+        std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
         cgh.parallel_for(
             bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
@@ -384,7 +392,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                 for (std::int32_t j = 0; j < algo_queue_size; j++) {
                     const std::int32_t index = queue_ptr[j + queue_begin];
                     Float sum = Float(0);
-                    for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                    for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
                         Float val =
                             data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
                         sum += val * val;
@@ -392,6 +400,16 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     Float distance =
                         sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                     if (distance > epsilon)
+                        continue;
+                    for (std::int64_t i = column_count / 2 + local_id; i < column_count;
+                         i += local_size) {
+                        Float val =
+                            data_ptr[probe * column_count + i] - data_ptr[index * column_count + i];
+                        sum += val * val;
+                    }
+                    Float distance_check =
+                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                    if (distance_check > epsilon)
                         continue;
                     if (local_id == 0) {
                         responses_ptr[wg_id] = cluster_id;
