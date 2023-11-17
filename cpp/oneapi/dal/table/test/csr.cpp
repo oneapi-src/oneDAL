@@ -155,6 +155,50 @@ TEST("can construct table reference") {
     te::check_if_metadata_equal(m1, m2);
 }
 
+TEST("can construct table reference with a copy constructor") {
+    using oneapi::dal::detail::empty_delete;
+
+    const float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
+    const std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };
+    const std::int64_t row_offsets[] = { 1, 4, 5, 7, 8 };
+
+    constexpr std::int64_t row_count{ 4 };
+    constexpr std::int64_t column_count{ 4 };
+
+    csr_table t1{ data,
+                  column_indices,
+                  row_offsets,
+                  row_count,
+                  column_count,
+                  empty_delete<const float>(),
+                  empty_delete<const std::int64_t>(),
+                  empty_delete<const std::int64_t>() };
+    csr_table t2(t1);
+
+    REQUIRE(t1.has_data());
+    REQUIRE(t2.has_data());
+
+    REQUIRE(t1.get_row_count() == t2.get_row_count());
+    REQUIRE(t1.get_column_count() == t2.get_column_count());
+    REQUIRE(t1.get_non_zero_count() == t2.get_non_zero_count());
+    REQUIRE(t1.get_data<float>() == t2.get_data<float>());
+    REQUIRE(t1.get_data<float>() == data);
+    REQUIRE(t2.get_data<float>() == data);
+    REQUIRE(t1.get_column_indices() == t2.get_column_indices());
+    REQUIRE(t1.get_column_indices() == column_indices);
+    REQUIRE(t2.get_column_indices() == column_indices);
+    REQUIRE(t1.get_row_offsets() == t2.get_row_offsets());
+    REQUIRE(t1.get_row_offsets() == row_offsets);
+    REQUIRE(t2.get_row_offsets() == row_offsets);
+
+    const auto& m1 = t1.get_metadata();
+    const auto& m2 = t2.get_metadata();
+
+    REQUIRE(t1.get_indexing() == t2.get_indexing());
+
+    te::check_if_metadata_equal(m1, m2);
+}
+
 TEST("can construct table with move") {
     using oneapi::dal::detail::empty_delete;
 

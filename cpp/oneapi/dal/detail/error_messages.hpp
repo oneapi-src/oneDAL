@@ -162,6 +162,7 @@ public:
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
+    MSG(conv_tol_lt_zero);
     MSG(input_data_is_empty);
     MSG(input_data_rc_neq_input_responses_rc);
     MSG(input_data_rc_neq_input_weights_rc);
@@ -239,6 +240,13 @@ public:
 
     /* Linear Regression */
     MSG(intercept_result_option_requires_intercept_flag);
+
+    /* Logistic Regression */
+    MSG(class_count_neq_two);
+    MSG(inverse_regularization_leq_zero);
+    MSG(l1_coef_neq_zero);
+    MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu);
+    MSG(unknown_optimizer);
 
     /* Louvain */
     MSG(negative_resolution);

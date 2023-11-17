@@ -22,6 +22,8 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+#include "oneapi/dal/backend/primitives/blas/gemv.hpp"
+#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -29,9 +31,9 @@ namespace oneapi::dal::backend::primitives::test {
 // df / dx = Ax - b
 // df / d^2x = A
 template <typename Float>
-class QuadraticFunction : public BaseFunction<Float> {
+class quadratic_function : public base_function<Float> {
 public:
-    QuadraticFunction(sycl::queue& q, const ndview<Float, 2>& A, const ndview<Float, 1>& b)
+    quadratic_function(sycl::queue& q, const ndview<Float, 2>& A, const ndview<Float, 1>& b)
             : q_(q),
               n_(A.get_dimension(0)),
               A_(A),
@@ -50,7 +52,7 @@ public:
         return gradient_;
     }
 
-    BaseMatrixOperator<Float>& get_hessian_product() final {
+    base_matrix_operator<Float>& get_hessian_product() final {
         return hessp_;
     }
 
@@ -89,7 +91,7 @@ private:
     Float value_;
     ndarray<Float, 1> tmp_;
     ndarray<Float, 1> gradient_;
-    LinearMatrixOperator<Float> hessp_;
+    linear_matrix_operator<Float> hessp_;
 };
 
 template <typename Float>

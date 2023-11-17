@@ -25,7 +25,7 @@ namespace oneapi::dal::backend::primitives {
 // https://nvlpubs.nist.gov/nistpubs/jres/049/jresv49n6p409_a1b.pdf
 template <typename Float>
 sycl::event cg_solve(sycl::queue& queue,
-                     BaseMatrixOperator<Float>& mul_operator,
+                     base_matrix_operator<Float>& mul_operator,
                      const ndview<Float, 1>& b,
                      ndview<Float, 1>& x,
                      ndview<Float, 1>& residual,

@@ -18,3 +18,5 @@
 
 #include "oneapi/dal/algo/linear_regression/infer.hpp"
 #include "oneapi/dal/algo/linear_regression/train.hpp"
+#include "oneapi/dal/algo/linear_regression/partial_train.hpp"
+#include "oneapi/dal/algo/linear_regression/finalize_train.hpp"
