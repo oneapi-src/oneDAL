@@ -300,8 +300,8 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
         de::check_mul_overflow(sizeof(Float) * impl_const_t::node_imp_prop_count_,
                                max_node_count_per_tree);
 
-    // Internal scalars to find best split
-    required_mem_size_for_one_tree += max_node_count_per_tree * ctx.selected_ftr_count_ * ctx.max_bin_count_among_ftrs_ * 4 * (sizeof(Float) + sizeof(Index));
+    // // Internal scalars to find best split
+    // required_mem_size_for_one_tree += max_node_count_per_tree * ctx.selected_ftr_count_ * ctx.max_bin_count_among_ftrs_ * 4 * (sizeof(Float) + sizeof(Index));
     // Impurity decrease list
     if (ctx.mdi_required_) {
         required_mem_size_for_one_tree += sizeof(Float) * max_node_count_per_tree;
@@ -1938,7 +1938,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         for (Index level = 0; node_count > 0; ++level) {
             // std::cout << "level=" << level << std::endl;
-            // if (level > 2) break;
+            // if (level > 1) break;
             auto node_list = level_node_lists[level];
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
 

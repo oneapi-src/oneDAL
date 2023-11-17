@@ -382,161 +382,185 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const Index bin_count = ctx.max_bin_count_among_ftrs_;
     ONEDAL_ASSERT(bin_count > 1);
 
-    const Index bin_block = 8;
+    auto device = queue.get_device();
+    std::int64_t device_local_mem_size =
+        device.get_info<sycl::info::device::local_mem_size>() * 0.8;
+    std::int64_t hist_size = hist_prop_count * sizeof(hist_type_t);
+    std::int64_t bin_mem_size = hist_size + sizeof(Float);
+    std::int64_t possible_block_size = (device_local_mem_size - hist_size) / bin_mem_size;
+    const Index bin_block = bk::down_pow2(std::min<Index>(possible_block_size, bin_count));
     const Index local_size = bk::device_max_wg_size(queue);
     const auto nd_range =
-        bk::make_multiple_nd_range_3d({ node_count, ftr_count, local_size }, { 1, 1, local_size });
-    auto res_scalars = pr::ndarray<split_scalar_t, 1>::empty(queue,
-                                                             { node_count * ftr_count * bin_count },
-                                                             alloc::device);
-    auto scalars = res_scalars.get_mutable_data();
-
-    // auto res_hists = pr::ndarray<hist_type_t, 1>::empty(queue, {node_count * hist_prop_count}, alloc::device);
-    // auto final_hists = res_hists.get_mutable_data();
+        bk::make_multiple_nd_range_2d({ node_count, local_size }, { 1, local_size });
 
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> hist(bin_block * hist_prop_count, cgh);
+        local_accessor_rw_t<hist_type_t> best_hist(hist_prop_count, cgh);
         local_accessor_rw_t<Float> l_weight(bin_block, cgh);
-        cgh.parallel_for(nd_range, [=](sycl::nd_item<3> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_id = item.get_global_id(0);
-            const Index ftr_id = item.get_global_id(1);
-            // const Index bin_id = item.get_global_id(1) % bin_count;
-            const Index local_id = item.get_local_id(2);
+            const Index local_id = item.get_local_id(1);
             Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
             const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
             const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
-            const Index ts_ftr_id = selected_ftr_list_ptr[node_id * ftr_count + ftr_id];
-            // auto& global_scalar = scalars[node_id * ftr_count * bin_count + ftr_id * bin_count + bin_id];
-
-            // if (local_id == 0) {
-            //     global_scalar.clear();
-            // }
-            // Clean global scalars before computing
-            for (Index bin_id = local_id; bin_id < bin_count; bin_id += local_size) {
-                scalars[node_id * ftr_count * bin_count + ftr_id * bin_count + bin_id].clear();
-            }
-            item.barrier(sycl::access::fence_space::local_space);
             split_smp_t sp_hlp;
             // Check node impurity
             if (!sp_hlp.is_valid_impurity(node_imp_list_ptr, node_id, imp_threshold, row_count)) {
                 return;
             }
+            if (row_count < 2 * min_obs_leaf) {
+                return;
+            }
             hist_type_t* const local_hist =
                 hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            hist_type_t* const best_hist_ptr =
+                best_hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
             Float* const local_weight =
                 l_weight.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            // Clean hist
-            // for (Index hist_id = local_id; hist_id < hist_prop_count; hist_id += local_size) {
-            //     local_hist[hist_id] = 0;
-            // }
-            // item.barrier(sycl::access::fence_space::local_space);
-            for (Index bin_ofs = 0; bin_ofs < bin_count; bin_ofs += bin_block) {
-                for (Index hist_id = local_id; hist_id < bin_block * hist_prop_count; hist_id += local_size) {
-                    local_hist[hist_id] = 0;
-                }
-                item.barrier(sycl::access::fence_space::local_space);
-                for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                    const Index id = tree_order_ptr[row_ofs + row_idx];
-                    const Index bin = data_ptr[id * column_count + ts_ftr_id];
-                    const Float response = response_ptr[id];
-                    for (Index bin_id = bin_ofs; (bin_id < (bin_ofs + bin_block)) && bin_id < bin_count;
-                         ++bin_id) {
-                        if (bin_id >= bin) {
-                            if constexpr (std::is_same_v<Task, task::classification>) {
-                                const Index response_int = static_cast<Index>(response);
-                                sycl::atomic_ref<Index,
-                                                 sycl::memory_order_relaxed,
-                                                 sycl::memory_scope_work_group,
-                                                 sycl::access::address_space::local_space>
-                                    hist_resp(hist[(bin_id % bin_block) * hist_prop_count + response_int]);
-                                hist_resp += 1;
-                            }
-                            else {
-                                sycl::atomic_ref<Float,
-                                                 sycl::memory_order_relaxed,
-                                                 sycl::memory_scope_work_group,
-                                                 sycl::access::address_space::local_space>
-                                    hist_count(hist[(bin_id % bin_block) * hist_prop_count + 0]);
-                                sycl::atomic_ref<Float,
-                                                 sycl::memory_order_relaxed,
-                                                 sycl::memory_scope_work_group,
-                                                 sycl::access::address_space::local_space>
-                                    hist_sum(hist[(bin_id % bin_block) * hist_prop_count + 1]);
-                                hist_count += 1;
-                                hist_sum += response;
-                            }
-                            if (is_weighted) {
-                                sycl::atomic_ref<Float,
-                                                 sycl::memory_order_relaxed,
-                                                 sycl::memory_scope_work_group,
-                                                 sycl::access::address_space::local_space>
-                                    hist_weight(l_weight[bin_id % bin_block]);
-                                hist_weight += weights_ptr[id];
-                            }
-                        }
+
+            split_info_t bs;
+            if (local_id == 0) {
+                bs.init_clear(best_hist_ptr, hist_prop_count);
+            }
+            item.barrier(sycl::access::fence_space::local_space);
+
+            for (Index ftr_id = 0; ftr_id < ftr_count; ++ftr_id) {
+                const Index ts_ftr_id = selected_ftr_list_ptr[node_id * ftr_count + ftr_id];
+                for (Index bin_ofs = 0; bin_ofs < bin_count; bin_ofs += bin_block) {
+                    for (Index i = local_id; i < bin_block * hist_prop_count; i += local_size) {
+                        local_hist[i] = 0;
                     }
-                }
-                if constexpr (std::is_same_v<Task, task::regression>) {
                     item.barrier(sycl::access::fence_space::local_space);
                     for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
                         const Index id = tree_order_ptr[row_ofs + row_idx];
                         const Index bin = data_ptr[id * column_count + ts_ftr_id];
                         const Float response = response_ptr[id];
-                        for (Index bin_id = bin_ofs; (bin_id < (bin_ofs + bin_block)) && bin_id < bin_count;
+                        for (Index bin_id = bin_ofs;
+                             bin_id < (bin_ofs + bin_block) && bin_id < bin_count;
                              ++bin_id) {
+                            const Index loc_bin_pos = (bin_id % bin_block) * hist_prop_count;
                             if (bin_id >= bin) {
-                                sycl::atomic_ref<Float,
-                                                 sycl::memory_order_relaxed,
-                                                 sycl::memory_scope_work_group,
-                                                 sycl::access::address_space::local_space>
-                                    hist_mse(local_hist[(bin_id % bin_block) * hist_prop_count + 2]);
-                                const auto mean = local_hist[1] / local_hist[0];
-                                const auto mse = (response - mean) * (response - mean);
-                                hist_mse += mse;
+                                if constexpr (std::is_same_v<Task, task::classification>) {
+                                    const Index response_int = static_cast<Index>(response);
+                                    sycl::atomic_ref<Index,
+                                                     sycl::memory_order_relaxed,
+                                                     sycl::memory_scope_work_group,
+                                                     sycl::access::address_space::local_space>
+                                        hist_resp(hist[loc_bin_pos + response_int]);
+                                    hist_resp += 1;
+                                }
+                                else {
+                                    sycl::atomic_ref<Float,
+                                                     sycl::memory_order_relaxed,
+                                                     sycl::memory_scope_work_group,
+                                                     sycl::access::address_space::local_space>
+                                        hist_count(hist[loc_bin_pos + 0]);
+                                    sycl::atomic_ref<Float,
+                                                     sycl::memory_order_relaxed,
+                                                     sycl::memory_scope_work_group,
+                                                     sycl::access::address_space::local_space>
+                                        hist_sum(hist[loc_bin_pos + 1]);
+                                    hist_count += 1;
+                                    hist_sum += response;
+                                }
+                                if (is_weighted) {
+                                    sycl::atomic_ref<Float,
+                                                     sycl::memory_order_relaxed,
+                                                     sycl::memory_scope_work_group,
+                                                     sycl::access::address_space::local_space>
+                                        hist_weight(l_weight[bin_id % bin_block]);
+                                    hist_weight += weights_ptr[id];
+                                }
                             }
                         }
                     }
-                }
-                item.barrier(sycl::access::fence_space::local_space);
-                if (local_id < bin_block && (local_id + bin_ofs) < bin_count) {
-                    const auto bin_id = local_id + bin_ofs;
-                    auto& global_scalar =
-                        scalars[node_id * ftr_count * bin_count + ftr_id * bin_count + bin_id];
-                    split_info_t ts;
-                    ts.init(local_hist + local_id * hist_prop_count, hist_prop_count);
-                    ts.clear_scalar();
-                    split_scalar_t& split_scal = ts.scalars;
-                    split_scal.ftr_id = ts_ftr_id;
-                    split_scal.ftr_bin = bin_id;
-                    split_scal.left_count = 0;
-                    if (is_weighted) {
-                        split_scal.left_weight_sum = local_weight[local_id];
-                    }
-                    if constexpr (std::is_same_v<Task, task::classification>) {
-                        for (Index idx = 0; idx < hist_prop_count; ++idx) {
-                            split_scal.left_count += local_hist[local_id * hist_prop_count + idx];
+                    if constexpr (std::is_same_v<Task, task::regression>) {
+                        item.barrier(sycl::access::fence_space::local_space);
+                        for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+                            const Index id = tree_order_ptr[row_ofs + row_idx];
+                            const Index bin = data_ptr[id * column_count + ts_ftr_id];
+                            const Float response = response_ptr[id];
+                            for (Index bin_id = bin_ofs;
+                                 bin_id < (bin_ofs + bin_block) && bin_id < bin_count;
+                                 ++bin_id) {
+                                const Index loc_bin_pos = (bin_id % bin_block) * hist_prop_count;
+                                if (bin_id >= bin) {
+                                    sycl::atomic_ref<Float,
+                                                     sycl::memory_order_relaxed,
+                                                     sycl::memory_scope_work_group,
+                                                     sycl::access::address_space::local_space>
+                                        hist_mse(local_hist[loc_bin_pos + 2]);
+                                    const auto mean =
+                                        local_hist[loc_bin_pos + 1] / local_hist[loc_bin_pos + 0];
+                                    const auto mse = (response - mean) * (response - mean);
+                                    hist_mse += mse;
+                                }
+                            }
                         }
-                        sp_hlp.calc_imp_dec(ts,
-                                            node_ptr,
-                                            node_imp_list_ptr,
-                                            class_hist_list_ptr,
-                                            class_count,
-                                            node_id,
-                                            is_weighted);
                     }
-                    else {
-                        local_hist[local_id * hist_prop_count + 1] /= local_hist[local_id * hist_prop_count + 0];
-                        split_scal.left_count = Index(local_hist[local_id * hist_prop_count + 0]);
-                        sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id, is_weighted);
-                        local_hist[local_id * hist_prop_count + 1] *= local_hist[local_id * hist_prop_count + 0];
+                    item.barrier(sycl::access::fence_space::local_space);
+                    if (local_id == 0) {
+                        for (Index bin_id = 0; bin_id < bin_block && (bin_id + bin_ofs) < bin_count;
+                             ++bin_id) {
+                            split_info_t ts;
+                            auto bin_hist = local_hist + bin_id * hist_prop_count;
+                            ts.init(bin_hist, hist_prop_count);
+                            ts.clear_scalar();
+                            split_scalar_t& split_scal = ts.scalars;
+                            split_scal.ftr_id = ts_ftr_id;
+                            split_scal.ftr_bin = bin_id + bin_ofs;
+                            split_scal.left_count = 0;
+                            if (is_weighted) {
+                                split_scal.left_weight_sum = local_weight[bin_id];
+                            }
+                            if constexpr (std::is_same_v<Task, task::classification>) {
+                                for (Index idx = 0; idx < hist_prop_count; ++idx) {
+                                    split_scal.left_count += bin_hist[idx];
+                                }
+                                sp_hlp.calc_imp_dec(ts,
+                                                    node_ptr,
+                                                    node_imp_list_ptr,
+                                                    class_hist_list_ptr,
+                                                    class_count,
+                                                    node_id,
+                                                    is_weighted);
+                            }
+                            else {
+                                bin_hist[1] /= bin_hist[0];
+                                split_scal.left_count = Index(bin_hist[0]);
+                                sp_hlp.calc_imp_dec(ts,
+                                                    node_ptr,
+                                                    node_imp_list_ptr,
+                                                    node_id,
+                                                    is_weighted);
+                            }
+                            sp_hlp.choose_best_split(bs, ts, hist_prop_count, min_obs_leaf);
+                        }
                     }
-                    if (sp_hlp.test_split_is_best(global_scalar, split_scal, min_obs_leaf)) {
-                        global_scalar.copy(split_scal);
-                    }
+                    item.barrier(sycl::access::fence_space::local_space);
+                } // loop over bin blocks
+            } // loop over features
+            // Update global info
+            if (local_id == 0) {
+                sp_hlp.update_node_bs_info(bs,
+                                           node_ptr,
+                                           node_imp_decr_list_ptr,
+                                           node_id,
+                                           index_max,
+                                           update_imp_dec_required);
+                if constexpr (std::is_same_v<Task, task::classification>) {
+                    sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
+                                                 left_child_class_hist_list_ptr,
+                                                 bs.scalars.left_imp,
+                                                 bs.left_hist,
+                                                 node_id,
+                                                 class_count);
                 }
-                item.barrier(sycl::access::fence_space::local_space);
+                else {
+                    sp_hlp.update_left_child_imp(left_child_imp_list_ptr, bs.left_hist, node_id);
+                }
             }
         });
     });
@@ -570,135 +594,138 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     //     }
     // }
 
-    const auto merge_range =
-        bk::make_multiple_nd_range_2d({ node_count, local_size }, { 1, local_size });
-    last_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ last_event });
-        local_accessor_rw_t<hist_type_t> hist(hist_prop_count, cgh);
-        local_accessor_rw_t<split_scalar_t> best_sc(1, cgh);
-        cgh.parallel_for(merge_range, [=](sycl::nd_item<2> item) {
-            const Index node_id = item.get_global_id(0);
-            const Index local_id = item.get_local_id(1);
-            Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
-            const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
-            const Index row_count = node_ptr[impl_const_t::ind_lrc];
-            split_smp_t sp_hlp;
-            // Check node impurity
-            if (!sp_hlp.is_valid_impurity(node_imp_list_ptr, node_id, imp_threshold, row_count)) {
-                return;
-            }
-            hist_type_t* const local_hist =
-                hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            split_scalar_t* const best_sc_ptr =
-                best_sc.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            const Index total_bin_count = ftr_count * bin_count;
-            auto cur_scalars = scalars + node_id * total_bin_count;
-            auto& best_scalar = best_sc_ptr[0];
-            // Clean hist
-            for (Index hist_id = local_id; hist_id < hist_prop_count; hist_id += local_size) {
-                local_hist[hist_id] = 0;
-            }
-            if (local_id == 0) {
-                best_scalar.clear();
-                for (Index bin = 0; bin < total_bin_count; ++bin) {
-                    if (sp_hlp.test_split_is_best(best_scalar, cur_scalars[bin], min_obs_leaf)) {
-                        best_scalar.copy(cur_scalars[bin]);
-                    }
-                }
-            }
-            item.barrier(sycl::access::fence_space::local_space);
-            // Calculate hist for best split
-            const auto bin_id = best_scalar.ftr_bin;
-            const auto ts_ftr_id = best_scalar.ftr_id;
+    // const auto merge_range =
+    //     bk::make_multiple_nd_range_2d({ node_count, local_size }, { 1, local_size });
+    // last_event = queue.submit([&](sycl::handler& cgh) {
+    //     cgh.depends_on({ last_event });
+    //     local_accessor_rw_t<hist_type_t> hist(hist_prop_count, cgh);
+    //     local_accessor_rw_t<split_scalar_t> best_sc(1, cgh);
+    //     cgh.parallel_for(merge_range, [=](sycl::nd_item<2> item) {
+    //         const Index node_id = item.get_global_id(0);
+    //         const Index local_id = item.get_local_id(1);
+    //         Index* node_ptr = node_list_ptr + node_id * impl_const_t::node_prop_count_;
+    //         const Index row_ofs = node_ptr[impl_const_t::ind_ofs];
+    //         const Index row_count = node_ptr[impl_const_t::ind_lrc];
+    //         split_smp_t sp_hlp;
+    //         // Check node impurity
+    //         if (!sp_hlp.is_valid_impurity(node_imp_list_ptr, node_id, imp_threshold, row_count)) {
+    //             return;
+    //         }
+    //         hist_type_t* const local_hist =
+    //             hist.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+    //         split_scalar_t* const best_sc_ptr =
+    //             best_sc.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+    //         const Index total_bin_count = ftr_count * bin_count;
+    //         auto cur_scalars = scalars + node_id * total_bin_count;
+    //         auto& best_scalar = best_sc_ptr[0];
+    //         // Clean hist
+    //         for (Index hist_id = local_id; hist_id < hist_prop_count; hist_id += local_size) {
+    //             local_hist[hist_id] = 0;
+    //         }
+    //         if (local_id == 0) {
+    //             best_scalar.clear();
+    //             for (Index bin = 0; bin < total_bin_count; ++bin) {
+    //                 if (sp_hlp.test_split_is_best(best_scalar, cur_scalars[bin], min_obs_leaf)) {
+    //                     best_scalar.copy(cur_scalars[bin]);
+    //                 }
+    //             }
+    //         }
+    //         item.barrier(sycl::access::fence_space::local_space);
+    //         // Calculate hist for best split
+    //         const auto bin_id = best_scalar.ftr_bin;
+    //         const auto ts_ftr_id = best_scalar.ftr_id;
+    //         if (bin_id == impl_const_t::leaf_mark_ || ts_ftr_id == impl_const_t::leaf_mark_) {
+    //             return;
+    //         }
 
-            for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                const Index id = tree_order_ptr[row_ofs + row_idx];
-                const Index bin = data_ptr[id * column_count + ts_ftr_id];
-                if (bin_id >= bin) {
-                    const Float response = response_ptr[id];
-                    if constexpr (std::is_same_v<Task, task::classification>) {
-                        const Index response_int = static_cast<Index>(response);
-                        sycl::atomic_ref<Index,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_resp(hist[response_int]);
-                        hist_resp += 1;
-                    }
-                    else {
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_count(hist[0]);
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_sum(hist[1]);
-                        hist_count += 1;
-                        hist_sum += response;
-                    }
-                }
-            }
-            if constexpr (std::is_same_v<Task, task::regression>) {
-                item.barrier(sycl::access::fence_space::local_space);
-                for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                    const Index id = tree_order_ptr[row_ofs + row_idx];
-                    const Index bin = data_ptr[id * column_count + ts_ftr_id];
-                    const Float response = response_ptr[id];
-                    if (bin_id >= bin) {
-                        sycl::atomic_ref<Float,
-                                         sycl::memory_order_relaxed,
-                                         sycl::memory_scope_work_group,
-                                         sycl::access::address_space::local_space>
-                            hist_mse(local_hist[2]);
-                        const auto mean = local_hist[1] / local_hist[0];
-                        const auto mse = (response - mean) * (response - mean);
-                        hist_mse += mse;
-                    }
-                }
-            }
-            item.barrier(sycl::access::fence_space::local_space);
-            if (local_id == 0) {
-                split_info_t best_split;
-                best_split.init(local_hist, hist_prop_count);
-                best_split.scalars.copy(best_scalar);
-                // Index left_count = 0;
-                // for (Index idx = 0; idx < hist_prop_count; ++idx) {
-                //     left_count += Index(local_hist[idx]);
-                // }
-                // if (left_count != sc.left_count) {
-                //     best_split.scalars.left_count = left_count;
-                // }
-                // cur_scalars[0].copy(best_scalar);
-                // for (Index i = 0; i < hist_prop_count; ++i) {
-                //     final_hists[node_id * hist_prop_count + i] = local_hist[i];
-                // }
-                sp_hlp.update_node_bs_info(best_split,
-                                           node_ptr,
-                                           node_imp_decr_list_ptr,
-                                           node_id,
-                                           index_max,
-                                           update_imp_dec_required);
-                if constexpr (std::is_same_v<Task, task::classification>) {
-                    sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                                 left_child_class_hist_list_ptr,
-                                                 best_split.scalars.left_imp,
-                                                 best_split.left_hist,
-                                                 node_id,
-                                                 class_count);
-                }
-                else {
-                    // Finalize mean for regression
-                    local_hist[1] /= local_hist[0];
-                    sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
-                                                 best_split.left_hist,
-                                                 node_id);
-                }
-            }
-        });
-    });
+    //         for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+    //             const Index id = tree_order_ptr[row_ofs + row_idx];
+    //             const Index bin = data_ptr[id * column_count + ts_ftr_id];
+    //             if (bin_id >= bin) {
+    //                 const Float response = response_ptr[id];
+    //                 if constexpr (std::is_same_v<Task, task::classification>) {
+    //                     const Index response_int = static_cast<Index>(response);
+    //                     sycl::atomic_ref<Index,
+    //                                      sycl::memory_order_relaxed,
+    //                                      sycl::memory_scope_work_group,
+    //                                      sycl::access::address_space::local_space>
+    //                         hist_resp(hist[response_int]);
+    //                     hist_resp += 1;
+    //                 }
+    //                 else {
+    //                     sycl::atomic_ref<Float,
+    //                                      sycl::memory_order_relaxed,
+    //                                      sycl::memory_scope_work_group,
+    //                                      sycl::access::address_space::local_space>
+    //                         hist_count(hist[0]);
+    //                     sycl::atomic_ref<Float,
+    //                                      sycl::memory_order_relaxed,
+    //                                      sycl::memory_scope_work_group,
+    //                                      sycl::access::address_space::local_space>
+    //                         hist_sum(hist[1]);
+    //                     hist_count += 1;
+    //                     hist_sum += response;
+    //                 }
+    //             }
+    //         }
+    //         if constexpr (std::is_same_v<Task, task::regression>) {
+    //             item.barrier(sycl::access::fence_space::local_space);
+    //             for (Index row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+    //                 const Index id = tree_order_ptr[row_ofs + row_idx];
+    //                 const Index bin = data_ptr[id * column_count + ts_ftr_id];
+    //                 const Float response = response_ptr[id];
+    //                 if (bin_id >= bin) {
+    //                     sycl::atomic_ref<Float,
+    //                                      sycl::memory_order_relaxed,
+    //                                      sycl::memory_scope_work_group,
+    //                                      sycl::access::address_space::local_space>
+    //                         hist_mse(local_hist[2]);
+    //                     const auto mean = local_hist[1] / local_hist[0];
+    //                     const auto mse = (response - mean) * (response - mean);
+    //                     hist_mse += mse;
+    //                 }
+    //             }
+    //         }
+    //         item.barrier(sycl::access::fence_space::local_space);
+    //         if (local_id == 0) {
+    //             split_info_t best_split;
+    //             best_split.init(local_hist, hist_prop_count);
+    //             best_split.scalars.copy(best_scalar);
+    //             // Index left_count = 0;
+    //             // for (Index idx = 0; idx < hist_prop_count; ++idx) {
+    //             //     left_count += Index(local_hist[idx]);
+    //             // }
+    //             // if (left_count != sc.left_count) {
+    //             //     best_split.scalars.left_count = left_count;
+    //             // }
+    //             // cur_scalars[0].copy(best_scalar);
+    //             // for (Index i = 0; i < hist_prop_count; ++i) {
+    //             //     final_hists[node_id * hist_prop_count + i] = local_hist[i];
+    //             // }
+    //             sp_hlp.update_node_bs_info(best_split,
+    //                                        node_ptr,
+    //                                        node_imp_decr_list_ptr,
+    //                                        node_id,
+    //                                        index_max,
+    //                                        update_imp_dec_required);
+    //             if constexpr (std::is_same_v<Task, task::classification>) {
+    //                 sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
+    //                                              left_child_class_hist_list_ptr,
+    //                                              best_split.scalars.left_imp,
+    //                                              best_split.left_hist,
+    //                                              node_id,
+    //                                              class_count);
+    //             }
+    //             else {
+    //                 // Finalize mean for regression
+    //                 local_hist[1] /= local_hist[0];
+    //                 sp_hlp.update_left_child_imp(left_child_imp_list_ptr,
+    //                                              best_split.left_hist,
+    //                                              node_id);
+    //             }
+    //         }
+    //     });
+    // });
 
     // {
     //     std::cout << "-------------------------------------------------------------" << std::endl;
