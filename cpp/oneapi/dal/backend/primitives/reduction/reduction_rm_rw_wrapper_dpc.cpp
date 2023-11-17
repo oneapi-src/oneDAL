@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/reduction/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw_dpc.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -47,6 +47,11 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
     // TODO: think about `switch` operator
+    if (width >= 1) {
+        std::cout << "here" << std::endl;
+        const blocking_t kernel{ q_ };
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
+    }
     if (method == reduction_method::narrow) {
         const narrow_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);

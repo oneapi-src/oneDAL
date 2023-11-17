@@ -49,6 +49,10 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
     // TODO: think about `switch` operator
+    if (height >= 1000000) {
+        const naive_blocking_t kernel{ q_ };
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
+    }
     if (method == reduction_method::naive) {
         const naive_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);

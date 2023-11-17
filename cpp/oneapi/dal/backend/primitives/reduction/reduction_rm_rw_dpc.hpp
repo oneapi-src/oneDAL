@@ -62,6 +62,46 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
+class kernel_reduction_rm_rw_blocking;
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
+class reduction_rm_rw_blocking {
+public:
+    using kernel_t = kernel_reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>;
+    reduction_rm_rw_blocking(sycl::queue& q, std::int64_t wg);
+    reduction_rm_rw_blocking(sycl::queue& q);
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {},
+                           const bool override_init = true) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {},
+                           const bool override_init = true) const;
+
+private:
+    sycl::nd_range<2> get_range(std::int64_t height) const;
+    static kernel_t get_kernel(const Float* input,
+                               Float* output,
+                               std::int64_t width,
+                               std::int64_t stride,
+                               const BinaryOp& binary,
+                               const UnaryOp& unary,
+                               const bool override_init);
+    sycl::queue& q_;
+    const std::int64_t wg_;
+};
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_narrow;
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -107,6 +147,7 @@ class reduction_rm_rw {
 public:
     using narrow_t = reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
     using wide_t = reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
+    using blocking_t = reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>;
     reduction_rm_rw(sycl::queue& q);
     enum reduction_method { wide, narrow };
     reduction_method propose_method(std::int64_t width) const;
