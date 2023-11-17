@@ -151,17 +151,17 @@ sycl::event select_indexed(sycl::queue& q,
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     ONEDAL_ASSERT(ids.get_shape() == dst.get_shape());
-    if constexpr (std::is_same_v<Type, std::int32_t> || std::is_same_v<Type, std::int64_t>) {
-        const auto wg_size = propose_wg_size(q);
-        const auto folding = ids.get_dimension(1);
-        const auto samples = ids.get_dimension(0);
-        const auto src_len = src.get_dimension(0);
-        const auto vec_len = device_native_vector_size<Type>(q);
-        const bool perf_criteria = (vec_len * src_len) > (samples * folding);
-        if ((wg_size >= folding) && perf_criteria) {
-            return select_indexed_local(q, ids, src, dst, deps);
-        }
-    }
+    // if constexpr (std::is_same_v<Type, std::int32_t> || std::is_same_v<Type, std::int64_t>) {
+    //     const auto wg_size = propose_wg_size(q);
+    //     const auto folding = ids.get_dimension(1);
+    //     const auto samples = ids.get_dimension(0);
+    //     const auto src_len = src.get_dimension(0);
+    //     const auto vec_len = device_native_vector_size<Type>(q);
+    //     const bool perf_criteria = (vec_len * src_len) > (samples * folding);
+    //     if ((wg_size >= folding) && perf_criteria) {
+    //         return select_indexed_local(q, ids, src, dst, deps);
+    //     }
+    // }
     return select_indexed_naive(q, ids, src, dst, deps);
 }
 
