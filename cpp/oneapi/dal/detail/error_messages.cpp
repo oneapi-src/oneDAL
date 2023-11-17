@@ -148,6 +148,7 @@ MSG(archive_is_in_invalid_state,
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
+MSG(conv_tol_lt_zero, "Convergence tolerance is less than zero")
 MSG(input_data_is_empty, "Input data is empty")
 MSG(input_data_rc_neq_input_responses_rc,
     "Input data row count is not equal to input responses row count")
@@ -300,6 +301,16 @@ MSG(input_y_is_empty, "Input y is empty")
 /* Linear Regression */
 MSG(intercept_result_option_requires_intercept_flag,
     "Intercept result option requires intercept flag")
+
+/* Logistic Regression */
+MSG(class_count_neq_two,
+    "Only binary classification is supported so class count should be equal to 2")
+MSG(inverse_regularization_leq_zero, "Inverse regularization factor should be a positive number")
+MSG(l1_coef_neq_zero,
+    "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
+MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
+    "LogisticRegression is not implemented for CPU")
+MSG(unknown_optimizer, "Custom optimizers are not supported, use on of provided by the library")
 
 /* Decision Forest */
 MSG(bootstrap_is_incompatible_with_error_metric,

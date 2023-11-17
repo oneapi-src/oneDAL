@@ -23,6 +23,7 @@ ALGOS = [
     "kmeans_init",
     "knn",
     "linear_kernel",
+    "logistic_regression",
     "logloss_objective",
     "louvain",
     "minkowski_distance",

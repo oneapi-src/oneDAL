@@ -23,6 +23,8 @@
 
 #include "oneapi/dal/algo/linear_regression/common.hpp"
 #include "oneapi/dal/algo/linear_regression/train.hpp"
+#include "oneapi/dal/algo/linear_regression/partial_train.hpp"
+#include "oneapi/dal/algo/linear_regression/finalize_train.hpp"
 #include "oneapi/dal/algo/linear_regression/infer.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
@@ -215,6 +217,83 @@ public:
 
         const auto desc = this->get_descriptor();
         const auto train_res = this->train(desc, x_train, y_train);
+
+        SECTION("Checking intercept values") {
+            if (desc.get_result_options().test(result_options::intercept))
+                check_if_close(train_res.get_intercept(), this->bias_, tol);
+        }
+
+        SECTION("Checking coefficient values") {
+            if (desc.get_result_options().test(result_options::coefficients))
+                check_if_close(train_res.get_coefficients(), this->beta_, tol);
+        }
+
+        const auto infer_res = this->infer(desc, x_test, train_res.get_model());
+
+        SECTION("Checking infer results") {
+            check_if_close(infer_res.get_responses(), y_test, tol);
+        }
+    }
+    template <typename Float>
+    std::vector<dal::table> split_table_by_rows(const dal::table& t, std::int64_t split_count) {
+        ONEDAL_ASSERT(0l < split_count);
+        ONEDAL_ASSERT(split_count <= t.get_row_count());
+
+        const std::int64_t row_count = t.get_row_count();
+        const std::int64_t column_count = t.get_column_count();
+        const std::int64_t block_size_regular = row_count / split_count;
+        const std::int64_t block_size_tail = row_count % split_count;
+
+        std::vector<dal::table> result(split_count);
+
+        std::int64_t row_offset = 0;
+        for (std::int64_t i = 0; i < split_count; i++) {
+            const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+            const std::int64_t block_size = block_size_regular + tail;
+
+            const auto row_range = dal::range{ row_offset, row_offset + block_size };
+            const auto block = dal::row_accessor<const Float>{ t }.pull(row_range);
+            result[i] = dal::homogen_table::wrap(block, block_size, column_count);
+            row_offset += block_size;
+        }
+
+        return result;
+    }
+    void run_and_check_online(std::int64_t nBlocks) {
+        using namespace ::oneapi::dal::detail;
+
+        std::int64_t seed = 888;
+        double tol = 1e-2;
+
+        std::mt19937 meta_gen(seed);
+        const std::int64_t train_seed = meta_gen();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
+                                                                                 3.5,
+                                                                                 train_seed));
+        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
+
+        const std::int64_t test_seed = meta_gen();
+        const auto test_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
+                                                                                 5.5,
+                                                                                 test_seed));
+        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
+
+        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
+        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
+
+        check_table_dimensions(x_train, y_train, x_test, y_test);
+
+        const auto desc = this->get_descriptor();
+        dal::linear_regression::partial_train_result<> partial_result;
+        auto input_table_x = split_table_by_rows<double>(x_train, nBlocks);
+        auto input_table_y = split_table_by_rows<double>(y_train, nBlocks);
+        for (std::int64_t i = 0; i < nBlocks; i++) {
+            partial_result =
+                this->partial_train(desc, partial_result, input_table_x[i], input_table_y[i]);
+        }
+        auto train_res = this->finalize_train(desc, partial_result);
 
         SECTION("Checking intercept values") {
             if (desc.get_result_options().test(result_options::intercept))
