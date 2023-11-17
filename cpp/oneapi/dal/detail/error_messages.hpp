@@ -134,7 +134,6 @@ public:
     MSG(zero_based_indexing_is_not_supported);
     MSG(object_does_not_provide_read_access_to_csr);
     MSG(pull_column_interface_is_not_implemented);
-    MSG(invalid_table_kind);
 
     /* Ranges */
     MSG(invalid_range_of_rows);

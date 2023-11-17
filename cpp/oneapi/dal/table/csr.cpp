@@ -18,12 +18,16 @@
 #include "oneapi/dal/table/detail/table_kinds.hpp"
 #include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/backend/csr_table_impl.hpp"
-#include "oneapi/dal/table/csr_accessor.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
 
-using msg = dal::detail::error_messages;
+static std::shared_ptr<detail::csr_table_iface> get_csr_iface(const table& other) {
+    if (const auto csr_iface = detail::get_csr_table_iface(other)) {
+        return csr_iface;
+    }
+    return std::make_shared<backend::csr_table_impl>();
+}
 
 std::int64_t csr_table::kind() {
     return detail::get_csr_table_kind();
@@ -39,26 +43,9 @@ sparse_indexing csr_table::get_indexing() const {
     return impl.get_indexing();
 }
 
-csr_table::csr_table(const table& other) {
-    if (other.get_kind() == dal::csr_table::kind()) {
-        const auto casted_table = static_cast<csr_table>(other);
-        const auto& dtype = casted_table.get_metadata().get_data_type(0);
-        const auto column_count = casted_table.get_column_count();
-        const auto [data, col_indices, row_offsets] =
-            csr_accessor<const float>(casted_table).pull({ 0, -1 });
-        const auto casted_data = detail::reinterpret_array_cast<byte_t>(data);
-        const auto indexing = casted_table.get_indexing();
-        table::init_impl(new backend::csr_table_impl{ casted_data,
-                                                      col_indices,
-                                                      row_offsets,
-                                                      column_count,
-                                                      dtype,
-                                                      indexing });
-    }
-    else {
-        throw invalid_argument{ msg::invalid_table_kind() };
-    }
-}
+csr_table::csr_table() : csr_table(new backend::csr_table_impl{}) {}
+
+csr_table::csr_table(const table& other) : csr_table(get_csr_iface(other)) {}
 
 const void* csr_table::get_data() const {
     const auto& impl = detail::cast_impl<const detail::csr_table_iface>(*this);
