@@ -28,8 +28,10 @@ namespace pr = dal::backend::primitives;
 
 inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
-    auto max_sg_size = bk::device_max_wg_size(queue);
-    return bk::down_pow2(std::min(column_count, max_sg_size));
+    if (column_count > 64) {
+        return 64;
+    }
+    return column_count > 32 ? 32 : 16;
 }
 
 template <typename Float, bool use_weights>
