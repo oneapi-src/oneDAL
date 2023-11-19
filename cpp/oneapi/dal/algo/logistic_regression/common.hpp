@@ -208,7 +208,7 @@ public:
     }
 
     /// Defines number of classes.
-    double get_class_count() const {
+    std::int64_t get_class_count() const {
         return base_t::get_class_count();
     }
 
