@@ -165,8 +165,8 @@ namespace v1 {
 ///                     be :expr:`method::dense_batch`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::classification`.
-/// @tparam Optimizer   Tag-type that specifies type of the optimizer used by algorithm.
-///                     Can be :expr:`optimizer::newton_cg`.
+/// @tparam Optimizer   The descriptor of the optimizer used for minimization. Can
+///                     be :expr:`newton_cg::descriptor`
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,

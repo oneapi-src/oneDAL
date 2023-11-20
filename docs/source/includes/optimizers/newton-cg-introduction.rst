@@ -14,4 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Newton-CG introduction
+Newton-CG optimizer minimizes convex function iteratively using its gradient and hessian-product operator.
+
+.. |c_math| replace::   :ref:`dense <newton_cg_c_math>`
+.. |c_dense| replace::  :ref:`dense <newton_cg_c_math_dense>`
+
+=============  ===============  =========
+**Operation**  **Computational  methods**
+-------------  --------------------------
+|c_math|       |c_dense|
+=============  ===============  =========

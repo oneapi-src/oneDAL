@@ -14,13 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. highlight:: cpp
-.. default-domain:: cpp
+==========
+Optimizers
+==========
 
-.. _alg_newton_cg:
+This chapter describes programming interfaces of optimizers implemented in |short_name|:
 
-=========
-Newton-CG
-=========
+.. toctree::
+   :titlesonly:
 
-.. include::  ../../../includes/logistic-regression/newton-cg-introduction.rst
+   newton-cg.rst

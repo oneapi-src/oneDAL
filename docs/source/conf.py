@@ -200,14 +200,15 @@ nitpick_ignore = [
     ('cpp:identifier', 'logloss_objective'),
     ('cpp:identifier', 'logloss_objective::descriptor'),
     # logistic_regression
+    ('cpp:identifier', 'newton_cg'),
     ('cpp:identifier', 'oneapi::dal::newton_cg'),
+    ('cpp:identifier', 'oneapi::dal::newton_cg::descriptor<Float>'),
     ('cpp:identifier', 'oneapi::dal::logistic_regression'),
     ('cpp:identifier', 'logistic_regression::descriptor'),
     ('cpp:identifier', 'logistic_regression::train_result'),
     ('cpp:identifier', 'logistic_regression::train_input'),
     ('cpp:identifier', 'logistic_regression::infer_result'),
     ('cpp:identifier', 'logistic_regression::infer_input'),
-    ('cpp:identifier', 'logistic_regression::optimizer'),
     # pca
     ('cpp:identifier', 'pca'),
     ('cpp:identifier', 'pca::descriptor'),

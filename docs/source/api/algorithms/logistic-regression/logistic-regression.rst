@@ -85,11 +85,11 @@ Operation
 
    Preconditions
       | :expr:`input.data.has_data == true`
-      | :expr:`responses.data.has_data == true`
+      | :expr:`input.responses.data.has_data == true`
       | :expr:`input.data.row_count == input.responses.row_count`
       | :expr:`input.responses.column_count == 1`
-      | :expr: `desc.inverse_regularization > 0.0`
-      | :expr: `desc.class_count == 2`
+      | :expr:`desc.inverse_regularization > 0.0`
+      | :expr:`desc.class_count == 2`
    Postconditions
 
 .. _logreg_i_api:

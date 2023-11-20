@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2023 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,30 +14,36 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _dg_algorithms:
+.. default-domain:: cpp
 
-Algorithms
-==========
+.. _alg_newton_cg:
 
-The Algorithms component consists of classes that implement algorithms
-for data analysis (data mining) and data modeling (training and prediction).
-These algorithms include matrix decompositions, clustering, classification,
-and regression algorithms, as well as association rules discovery.
+===================
+Newton-CG optimizer
+===================
+
+.. include::  ../../../includes/optimizers/newton-cg-introduction.rst
+
+------------------------
+Mathematical formulation
+------------------------
+
+.. _newton_cg_c_math:
+
+Computing
+---------
 
 
-.. toctree::
-   :maxdepth: 2
+.. _newton_cg_c_math_dense:
 
-   clustering/index.rst
-   covariance/index.rst
-   decomposition/index.rst
-   ensembles/index.rst
-   graph/index.rst
-   kernel-functions/index.rst
-   logistic-regression/index.rst
-   nearest-neighbors/index.rst
-   objective-function/index.rst
-   optimizers/index.rst
-   pairwise-distances/index.rst
-   statistics/index.rst
-   svm/index.rst
+Computation method: *dense*
+---------------------------
+The method defines Newton-CG optimizer, which is used in other algorithms
+for the convex optimization. There are no separate computation mode to minimize
+function manually.
+
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: Newton-CG optimizer <api_newton_cg>`.

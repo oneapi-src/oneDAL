@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2023 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. highlight:: cpp
 .. default-domain:: cpp
 
 .. _api_newton_cg:
 
-=========
-Newton-CG
-=========
-
-.. include::  ../../../includes/logistic-regression/newton-cg-introduction.rst
+===================
+Newton-CG optimizer
+===================
 
 ------------------------
 Mathematical formulation
