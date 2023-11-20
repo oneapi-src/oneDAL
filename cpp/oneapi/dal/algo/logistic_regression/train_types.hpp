@@ -79,8 +79,6 @@ public:
     /// and :literal:`responses` property values
     train_input(const table& data, const table& responses);
 
-    //train_input(const table& data);
-
     /// The training set X
     /// @remark default = table{}
     const table& get_data() const;
@@ -128,7 +126,7 @@ public:
         return *this;
     }
 
-    /// Table of Logistic regression intercept
+    /// Table with Logistic Regression intercept
     const table& get_intercept() const;
 
     auto& set_intercept(const table& value) {
@@ -136,7 +134,7 @@ public:
         return *this;
     }
 
-    /// Table of Logistic regression coefficients
+    /// Table with Logistic Regression coefficients
     const table& get_coefficients() const;
 
     auto& set_coefficients(const table& value) {
@@ -152,7 +150,7 @@ public:
         return *this;
     }
 
-    /// Table of Logistic regression coefficients with intercept
+    /// Table with Logistic Regression coefficients and intercept
     const table& get_packed_coefficients() const;
 
     auto& set_packed_coefficients(const table& value) {

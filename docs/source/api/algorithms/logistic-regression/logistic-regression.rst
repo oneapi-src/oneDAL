@@ -29,7 +29,7 @@ Logistic Regression
 Mathematical formulation
 ------------------------
 
-Refer to :ref:`Developer Guide: K-Means <alg_logreg>`.
+Refer to :ref:`Developer Guide: Logistic Regression <alg_logreg>`.
 
 ---------------------
 Programming Interface

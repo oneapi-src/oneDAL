@@ -24,3 +24,4 @@ This chapter describes programming interfaces of the Logistic Regression algorit
    :titlesonly:
 
    logistic-regression.rst
+   newton-cg.rst

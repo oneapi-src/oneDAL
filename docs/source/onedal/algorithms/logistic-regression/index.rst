@@ -25,6 +25,15 @@ This chapter describes Logistic Regression algorithm implemented in |short_name|
 
    logistic-regression.rst
 
+-----------------------------
+Supported optimizers
+-----------------------------
+
+.. toctree::
+   :titlesonly:
+
+   newton-cg.rst
+
 .. rubric:: Examples: Logistic Regression
 
 .. include:: ../../../includes/logistic-regression/logistic-regression-examples.rst
