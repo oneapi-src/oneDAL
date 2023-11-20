@@ -60,7 +60,7 @@ struct get_core_wide_kernel {
         std::int32_t* cores_ptr = cores.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
+            std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
