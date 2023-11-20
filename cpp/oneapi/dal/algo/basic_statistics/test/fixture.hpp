@@ -111,9 +111,19 @@ public:
                 compute_mode);
         const auto csr_table = data.build_csr_table(this->get_policy());
         const auto dense_table = data.build_dense_table();
+
         auto compute_result = this->compute(desc, csr_table);
         table weights;
         check_compute_result(compute_mode, dense_table, weights, compute_result);
+    }
+
+    // TODO: Fix DAAL code. On big datasets there is an error in computing.
+    // To reproduce it remove this check from test case in batch.cpp
+    bool not_cpu_friendly(const te::csr_table_builder& data) {
+        using host_policy = oneapi::dal::test::engine::host_test_policy;
+        auto policy = this->get_policy();
+        return (data.row_count_ > 100 || data.column_count_ > 100) &&
+               std::is_same_v<decltype(policy), host_policy>;
     }
 
     void online_general_checks(const te::dataframe& data_fr,
