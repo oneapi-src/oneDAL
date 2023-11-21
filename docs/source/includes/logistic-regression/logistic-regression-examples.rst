@@ -14,10 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. tabs::
+oneAPI DPC++
+------------
 
-  .. group-tab:: oneAPI DPC++
-
-    Batch Processing:
-
-    - :ref:`dpc_logistic_regression_dense_batch.cpp`
+Batch Processing:
+  - :ref:`dpc_logistic_regression_dense_batch.cpp`
