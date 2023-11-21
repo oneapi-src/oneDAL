@@ -14,9 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-The Logistic Regression algorithm solves :capterm:`classification` problem and can be used to predict 
-not only class labels but also probabilities of objects belonging 
-to each of the classes.
+The Logistic Regression algorithm solves the :capterm:`classification` problem and predicts
+class labels and probabilities of objects belonging to each class.
 
 .. |t_math| replace:: :ref:`Training <logreg_t_math>`
 .. |t_dense_batch| replace:: :ref:`dense_batch <logreg_t_math_dense_batch>`

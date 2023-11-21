@@ -18,7 +18,7 @@
 Optimizers
 ==========
 
-This chapter describes programming interfaces of optimizers implemented in |short_name|:
+This chapter describes the programming interfaces of optimizers implemented in |short_name|.
 
 .. toctree::
    :titlesonly:

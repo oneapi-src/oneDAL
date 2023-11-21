@@ -125,8 +125,8 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-    /// Creates a new instance of the class with the given :literal:`l1_regularization_coefficient`,
-    /// :literal:`l2_regularization_coefficient` and :literal:`fit_intercept` property values.
+    /// Creates a new instance of the class with the given :literal:`tol`
+    /// and :literal:`maxiter` property values.
     explicit descriptor(double tol = 1e-4, std::int64_t maxiter = 100) {
         set_tolerance(tol);
         set_max_iteration(maxiter);

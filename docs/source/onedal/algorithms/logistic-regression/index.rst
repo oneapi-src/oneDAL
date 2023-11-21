@@ -18,7 +18,7 @@
 Logistic Regression
 ===================
 
-This chapter describes Logistic Regression algorithm implemented in |short_name|:
+This chapter describes the Logistic Regression algorithm implemented in |short_name|.
 
 .. toctree::
    :titlesonly:

@@ -31,7 +31,7 @@ namespace v1 {
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
-/// Alias tag-type for regression task.
+/// Alias tag-type for classification task
 using by_default = classification;
 } // namespace v1
 
@@ -45,7 +45,7 @@ namespace v1 {
 /// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
 
-/// Alias tag-type for dense_batch method.
+/// Alias tag-type for the dense_batch method
 using by_default = dense_batch;
 } // namespace v1
 
@@ -188,12 +188,14 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    /// and :literal:`C`
     explicit descriptor(bool compute_intercept = true, double C = 1.0)
             : base_t(compute_intercept,
                      C,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
 
-    /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    /// Creates a new instance of the class with the given :literal:`compute_intercept`,
+    /// :literal:`C` and :literal:`optimizer`
     explicit descriptor(bool compute_intercept, double C, const optimizer_t& optimizer)
             : base_t(compute_intercept,
                      C,

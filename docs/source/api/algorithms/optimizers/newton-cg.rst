@@ -19,11 +19,13 @@
 .. _api_newton_cg:
 
 ===================
-Newton-CG optimizer
+Newton-CG Optimizer
 ===================
 
+.. include::  ../../../includes/optimizers/newton-cg-introduction.rst
+
 ------------------------
-Mathematical formulation
+Mathematical Formulation
 ------------------------
 
 Refer to :ref:`Developer Guide: Newton-CG <alg_newton_cg>`.
@@ -31,17 +33,17 @@ Refer to :ref:`Developer Guide: Newton-CG <alg_newton_cg>`.
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section are declared in the
+All types and functions are declared in the
 ``oneapi::dal::newton_cg`` namespace.
 
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::newton_cg::descriptor
 
-Method tags
+Method Tags
 ~~~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::newton_cg::method
 
-Task tags
+Task Tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::newton_cg::task

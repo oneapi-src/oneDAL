@@ -35,11 +35,11 @@ Refer to :ref:`Developer Guide: Logistic Regression <alg_logreg>`.
 Programming Interface
 ---------------------
 
-All types and functions in this section are declared in the
-``oneapi::dal::logistic_regression`` namespace and be available via inclusion of the
+All types and functions are declared in the
+``oneapi::dal::logistic_regression`` namespace and available via the inclusion of the
 ``oneapi/dal/algo/logistic_regression.hpp`` header file.
 
-Result options
+Result Options
 --------------
 .. onedal_class:: oneapi::dal::logistic_regression::result_option_id
 
@@ -47,11 +47,11 @@ Descriptor
 ----------
 .. onedal_class:: oneapi::dal::logistic_regression::descriptor
 
-Method tags
+Method Tags
 ~~~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::logistic_regression::method
 
-Task tags
+Task Tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::logistic_regression::task
 

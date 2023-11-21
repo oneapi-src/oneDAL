@@ -134,7 +134,7 @@ public:
         return *this;
     }
 
-    /// Table with Logistic Regression coefficients
+    /// Table of Logistic Regression coefficients
     const table& get_coefficients() const;
 
     auto& set_coefficients(const table& value) {
@@ -150,7 +150,7 @@ public:
         return *this;
     }
 
-    /// Table with Logistic Regression coefficients and intercept
+    /// Table of Logistic Regression coefficients and intercept
     const table& get_packed_coefficients() const;
 
     auto& set_packed_coefficients(const table& value) {
