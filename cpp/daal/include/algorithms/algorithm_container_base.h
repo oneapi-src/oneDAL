@@ -156,7 +156,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<mode>(daalEnv), _in(0), _pres(0), _res(0), _par(0) {}
+    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = nullptr) : AlgorithmContainer<mode>(daalEnv), _in(nullptr), _pres(nullptr), _res(nullptr), _par(nullptr), _hpar(nullptr) {}
 
     virtual ~AlgorithmContainerImpl() {}
 
