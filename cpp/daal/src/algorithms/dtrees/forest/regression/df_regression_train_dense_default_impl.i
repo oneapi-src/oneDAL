@@ -456,7 +456,7 @@ public:
 
 public:
     RespHelperBase(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t dummy)
-        : OrderedRespHelperBest<algorithmFPType, cpu>(indexedFeatures, dummy)
+        : OrderedRespHelperBest<algorithmFPType, cpu>(indexedFeatures, dummy), engineImpl(nullptr)
     {}
     virtual bool init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample,
                       const NumericTable * weights) DAAL_C11_OVERRIDE;
