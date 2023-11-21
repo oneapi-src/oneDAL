@@ -14,8 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <memory>
+#include <sycl/sycl.hpp>
 #include <iostream>
+#include <memory>
+
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
 
 #include "example_util/utils.hpp"
 
@@ -28,7 +33,10 @@
 namespace dal = oneapi::dal;
 
 template <typename Type = float>
-dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::int64_t step = 1l) {
+dal::array<Type> get_arange(sycl::queue& queue,
+                            std::int64_t count,
+                            std::int64_t first = 0l,
+                            std::int64_t step = 1l) {
     auto* const raw_data = new Type[count];
 
     for (std::int64_t i = 0l; i < count; ++i) {
@@ -37,36 +45,40 @@ dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::in
     }
 
     // Let's create an array using raw pointer and deleter
-    return dal::array<Type>(raw_data,
-                            count, //
-                            [](Type* const ptr) -> void {
-                                delete[] ptr;
-                            });
+    auto on_host = dal::array<Type>(raw_data,
+                                    count, //
+                                    [](Type* const ptr) -> void {
+                                        delete[] ptr;
+                                    });
+
+    return to_device(queue, on_host);
 }
 
 template <typename Type = float>
-dal::chunked_array<Type> get_chunked_arange(std::int64_t count, std::int64_t chunk_count = 2l) {
+dal::chunked_array<Type> get_chunked_arange(sycl::queue& queue,
+                                            std::int64_t count,
+                                            std::int64_t chunk_count = 2l) {
     dal::chunked_array<Type> chunked_array(chunk_count);
 
     std::int64_t min_count = count / chunk_count;
     for (std::int64_t i = 0l; i != chunk_count; ++i) {
         std::int64_t first = i * min_count;
         std::int64_t local_count = (i + 1 == chunk_count) ? (count - first) : min_count;
-        auto chunk = get_arange<Type>(local_count, first);
+        auto chunk = get_arange<Type>(queue, local_count, first);
         chunked_array.set_chunk(i, chunk);
     }
 
     return chunked_array;
 }
 
-int main(int argc, char** argv) {
+void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 24;
 
-    auto column_1 = get_chunked_arange<float>(row_count, 1);
-    auto column_2 = get_chunked_arange<double>(row_count, 2);
-    auto column_3 = get_chunked_arange<std::int8_t>(row_count, 3);
-    auto column_4 = get_chunked_arange<std::int16_t>(row_count, 4);
-    auto column_5 = get_chunked_arange<std::uint32_t>(row_count, 5);
+    auto column_1 = get_chunked_arange<float>(queue, row_count, 1);
+    auto column_2 = get_chunked_arange<double>(queue, row_count, 2);
+    auto column_3 = get_chunked_arange<std::int8_t>(queue, row_count, 3);
+    auto column_4 = get_chunked_arange<std::int16_t>(queue, row_count, 4);
+    auto column_5 = get_chunked_arange<std::uint32_t>(queue, row_count, 5);
 
     dal::table test_table = dal::heterogen_table::wrap( //
         column_1,
@@ -83,9 +95,20 @@ int main(int argc, char** argv) {
 
     dal::row_accessor<const double> accessor{ test_table };
 
-    dal::array<double> slice = accessor.pull({ 3l, 17l });
+    dal::array<double> slice = accessor.pull(queue, { 3l, 17l });
 
-    std::cout << "Slice of elements: " << slice << std::endl;
+    dal::array<double> on_host = to_host(slice);
+    std::cout << "Slice of elements: " << on_host << std::endl;
+}
+
+int main(int argc, char** argv) {
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
+    }
 
     return 0;
 }

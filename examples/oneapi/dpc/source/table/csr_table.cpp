@@ -27,7 +27,9 @@
 #include "oneapi/dal/table/csr_accessor.hpp"
 
 template <typename Index = std::int64_t>
-dal::array<Index> generate_offsets(std::int64_t row_count, std::int64_t column_count) {
+dal::array<Index> generate_offsets(sycl::queue& queue,
+                                   std::int64_t row_count,
+                                   std::int64_t column_count) {
     const std::int64_t offset_count = row_count + 1l;
     Index* const raw_data = new Index[offset_count];
 
@@ -37,15 +39,20 @@ dal::array<Index> generate_offsets(std::int64_t row_count, std::int64_t column_c
 
     std::partial_sum(raw_data, raw_data + offset_count, raw_data);
 
-    return dal::array<Index>(raw_data,
-                             offset_count, //
-                             [](Index* const ptr) -> void {
-                                 delete[] ptr;
-                             });
+    auto on_host = dal::array<Index>(raw_data,
+                                     offset_count, //
+                                     [](Index* const ptr) -> void {
+                                         delete[] ptr;
+                                     });
+
+    return to_device(queue, on_host);
 }
 
 template <typename Index = std::int64_t>
-dal::array<Index> generate_indices(std::int64_t column_count, const dal::array<Index>& offsets) {
+dal::array<Index> generate_indices(sycl::queue& queue,
+                                   std::int64_t column_count,
+                                   const dal::array<Index>& offsets_on_device) {
+    dal::array<Index> offsets = to_host(offsets_on_device);
     const std::int64_t offset_count = offsets.get_count();
     const std::int64_t row_count = offset_count - 1l;
     const std::int64_t element_count = offsets[row_count];
@@ -65,15 +72,17 @@ dal::array<Index> generate_indices(std::int64_t column_count, const dal::array<I
         std::sort(raw_data + first, raw_data + last);
     }
 
-    return dal::array<Index>(raw_data,
-                             element_count, //
-                             [](Index* const ptr) -> void {
-                                 delete[] ptr;
-                             });
+    auto on_host = dal::array<Index>(raw_data,
+                                     element_count, //
+                                     [](Index* const ptr) -> void {
+                                         delete[] ptr;
+                                     });
+
+    return to_device(queue, on_host);
 }
 
 template <typename Type = float, typename Index = std::int64_t>
-dal::array<Type> generate_data(const dal::array<Index>& offsets) {
+dal::array<Type> generate_data(sycl::queue& queue, const dal::array<Index>& offsets) {
     const std::int64_t offset_count = offsets.get_count();
     const std::int64_t element_count = offsets[offset_count - 1];
 
@@ -83,20 +92,22 @@ dal::array<Type> generate_data(const dal::array<Index>& offsets) {
         raw_data[i] = static_cast<Type>(element_count - i);
     }
 
-    return dal::array<Type>(raw_data,
-                            element_count, //
-                            [](Type* const ptr) -> void {
-                                delete[] ptr;
-                            });
+    auto on_host = dal::array<Type>(raw_data,
+                                    element_count, //
+                                    [](Type* const ptr) -> void {
+                                        delete[] ptr;
+                                    });
+
+    return to_device(queue, on_host);
 }
 
-int main(int argc, char** argv) {
+void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 10;
 
-    auto offsets = generate_offsets(row_count, column_count);
-    auto indices = generate_indices(column_count, offsets);
-    auto data = generate_data(offsets);
+    auto offsets = generate_offsets(queue, row_count, column_count);
+    auto indices = generate_indices(queue, column_count, offsets);
+    auto data = generate_data(queue, offsets);
 
     dal::csr_table test_table = dal::csr_table::wrap(data, //
                                                      indices,
@@ -112,11 +123,26 @@ int main(int argc, char** argv) {
 
     dal::csr_accessor<const double> accessor{ test_table };
 
-    const auto [slice_data, slice_indices, slice_offsets] = accessor.pull({ 1, 3 });
+    const auto [slice_data, slice_indices, slice_offsets] = accessor.pull(queue, { 1, 3 });
 
-    std::cout << "Slice of elements (compressed): " << slice_data << '\n';
-    std::cout << "Slice of indices (compressed): " << slice_indices << '\n';
-    std::cout << "Slice of offsets: " << slice_offsets << std::endl;
+    dal::array<double> data_on_host = to_host(slice_data);
+    std::cout << "Slice of elements (compressed): " << data_on_host << '\n';
+
+    dal::array<std::int64_t> indices_on_host = to_host(slice_indices);
+    std::cout << "Slice of indices (compressed): " << indices_on_host << '\n';
+
+    dal::array<std::int64_t> offsets_on_host = to_host(slice_offsets);
+    std::cout << "Slice of offsets: " << offsets_on_host << std::endl;
+}
+
+int main(int argc, char** argv) {
+    for (auto d : list_devices()) {
+        std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
+                  << ", " << d.get_info<sycl::info::device::name>() << "\n"
+                  << std::endl;
+        auto q = sycl::queue{ d };
+        run(q);
+    }
 
     return 0;
 }

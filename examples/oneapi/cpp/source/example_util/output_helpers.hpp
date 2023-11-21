@@ -31,8 +31,7 @@ std::ostream &operator<<(std::ostream &stream, const oneapi::dal::array<Type> &a
         stream << "An empty array" << std::endl;
     }
 
-    constexpr std::int32_t precision =
-        std::is_floating_point_v<Type> ? 3 : 0;
+    constexpr std::int32_t precision = std::is_floating_point_v<Type> ? 3 : 0;
 
     stream << std::setw(10);
     stream << std::setprecision(precision);
@@ -42,7 +41,7 @@ std::ostream &operator<<(std::ostream &stream, const oneapi::dal::array<Type> &a
     }
 
     return stream;
-} 
+}
 
 std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) {
     if (!table.has_data())
