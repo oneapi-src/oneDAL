@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+//#include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::pca::backend {
 

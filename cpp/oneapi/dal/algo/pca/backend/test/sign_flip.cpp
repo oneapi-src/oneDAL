@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/algo/pca/sign_flip.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::pca::backend::test {

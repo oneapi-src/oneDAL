@@ -16,7 +16,6 @@
 
 #include <daal/src/algorithms/pca/transform/pca_transform_kernel.h>
 
-#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"

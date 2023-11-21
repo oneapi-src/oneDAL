@@ -17,7 +17,6 @@
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 #include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 
-#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -38,28 +37,28 @@ namespace daal_pca = daal::algorithms::pca;
 namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
-using daal_hyperparameters_t = daal_pca::internal::Hyperparameter;
+using daal_hyperparameters_t = daal_cov::internal::Hyperparameter;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
-template <typename Float, typename Task>
-static daal_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
-    using daal_pca::internal::HyperparameterId;
+// template <typename Float, typename Task>
+// static daal_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
+//     using daal_pca::internal::HyperparameterId;
 
-    const std::int64_t block = params.get_cpu_macro_block();
+//     const std::int64_t block = params.get_cpu_macro_block();
 
-    daal_hyperparameters_t daal_hyperparameter;
-    auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
-    interop::status_to_exception(status);
+//     daal_hyperparameters_t daal_hyperparameter;
+//     auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
+//     interop::status_to_exception(status);
 
-    return daal_hyperparameter;
-}
+//     return daal_hyperparameter;
+// }
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const detail::descriptor_base<Task>& desc,
-                                 const detail::train_parameters<Task>& params,
+                                 const detail::descriptor_base<task::dim_reduction>& desc,
+                                 const detail::train_parameters<task::dim_reduction>& params,
                                  const table& data) {
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
@@ -95,7 +94,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
-    const daal_hyperparameters_t& hp = convert_parameters<Float, Task>(params);
+    //const daal_hyperparameters_t& hp = convert_parameters<Float, task::dim_reduction>(params);
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
@@ -110,8 +109,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         *daal_eigenvectors,
         *daal_eigenvalues,
         *daal_means,
-        *daal_variances,
-        &hp));
+        *daal_variances));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         const auto mdl = model_t{}.set_eigenvectors(
@@ -134,8 +132,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float>
 static result_t train(const context_cpu& ctx,
-                      const detail::descriptor_base<Task>& desc,
-                      const detail::train_parameters<Task>& params,
+                      const detail::descriptor_base<task::dim_reduction>& desc,
+                      const detail::train_parameters<task::dim_reduction>& params,
                       const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, params, input.get_data());
 }

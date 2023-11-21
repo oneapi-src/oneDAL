@@ -35,16 +35,16 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
 
     train_parameters<Task> select_parameters(const Policy& ctx,
                                              const descriptor_base<Task>& desc,
-                                             const compute_input<Task>& input) const {
+                                             const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>),
             KERNEL_UNIVERSAL_SPMD_GPU(parameters::train_parameters_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
-    compute_result<Task> operator()(const Policy& ctx,
-                                    const descriptor_base<Task>& desc,
-                                    const compute_input<Task>& input) const {
+    train_result<Task> operator()(const Policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
         const auto params = select_parameters(ctx, desc, input);
         return implementation(ctx, desc, params, input);
     }
@@ -53,7 +53,7 @@ private:
     inline auto implementation(const Policy& ctx,
                                const descriptor_base<Task>& desc,
                                const train_parameters<Task>& params,
-                               const compute_input<Task>& input) const {
+                               const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>),
             KERNEL_UNIVERSAL_SPMD_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;

@@ -16,7 +16,6 @@
 
 #include <daal/src/algorithms/pca/pca_dense_svd_online_kernel.h>
 
-#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/partial_train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 

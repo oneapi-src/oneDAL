@@ -17,7 +17,6 @@
 #include <daal/src/algorithms/pca/pca_dense_svd_batch_kernel.h>
 #include <daal/include/algorithms/normalization/zscore_types.h>
 
-#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
