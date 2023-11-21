@@ -65,8 +65,8 @@ public:
         double var; //impurity is a variance
         Histogramm hist;
 
-        ImpurityData() {}
-        ImpurityData(size_t nClasses) : hist(nClasses), var(0) {}
+        ImpurityData(): hist(), var(0.0) {}
+        ImpurityData(size_t nClasses) : hist(nClasses), var(0.0) {}
         algorithmFPType value() const { return var; }
         void init(size_t nClasses)
         {
