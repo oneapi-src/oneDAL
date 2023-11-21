@@ -929,8 +929,8 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         double improvement;
         algorithmFPType leftWeights;
         algorithmFPType totalWeights;
-        typename DataHelper::ImpurityData impurityLeft;
-        typename DataHelper::ImpurityData impurityRight;
+        typename DataHelper::ImpurityData impurityLeft {};
+        typename DataHelper::ImpurityData impurityRight {};
         typename DataHelper::NodeType::Split * node;
 
         WorkItem()
