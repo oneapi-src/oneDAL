@@ -41,7 +41,7 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-using parameters_t = detail::compute_parameters<task_t>;
+using parameters_t = detail::train_parameters<task_t>;
 
 template <typename Float>
 auto compute_sums(sycl::queue& q,

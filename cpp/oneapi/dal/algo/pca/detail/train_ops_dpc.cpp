@@ -28,17 +28,17 @@ template <typename Policy, typename Float, typename Method, typename Task>
 struct train_ops_dispatcher<Policy, Float, Method, Task> {
     train_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& desc,
-                                  const compute_parameters<Task>& params,
+                                  const train_parameters<Task>& params,
                                   const train_input<Task>& input) const {
         return implementation(ctx, desc, params, input);
     }
 
-    compute_parameters<Task> select_parameters(const Policy& ctx,
-                                               const descriptor_base<Task>& desc,
-                                               const compute_input<Task>& input) const {
+    train_parameters<Task> select_parameters(const Policy& ctx,
+                                             const descriptor_base<Task>& desc,
+                                             const compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
-            KERNEL_SINGLE_NODE_CPU(parameters::compute_parameters_cpu<Float, Method, Task>),
-            KERNEL_UNIVERSAL_SPMD_GPU(parameters::compute_parameters_gpu<Float, Method, Task>)>;
+            KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>),
+            KERNEL_UNIVERSAL_SPMD_GPU(parameters::train_parameters_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
@@ -52,7 +52,7 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
 private:
     inline auto implementation(const Policy& ctx,
                                const descriptor_base<Task>& desc,
-                               const compute_parameters<Task>& params,
+                               const train_parameters<Task>& params,
                                const compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>),

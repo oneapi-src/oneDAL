@@ -38,7 +38,7 @@ using model_t = model<task::dim_reduction>;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
-using parameters_t = detail::compute_parameters<task::dim_reduction>;
+using parameters_t = detail::train_parameters<task::dim_reduction>;
 
 template <typename Float>
 static result_t train(const context_gpu& ctx,

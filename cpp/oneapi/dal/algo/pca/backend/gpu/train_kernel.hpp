@@ -25,7 +25,7 @@ template <typename Float, typename Method, typename Task>
 struct train_kernel_gpu {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
-                                  const detail::compute_parameters<Task>& params,
+                                  const detail::train_parameters<Task>& params,
                                   const train_input<Task>& input) const;
 };
 

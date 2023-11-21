@@ -135,7 +135,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 template <typename Float>
 static result_t train(const context_cpu& ctx,
                       const detail::descriptor_base<Task>& desc,
-                      const detail::compute_parameters<Task>& params,
+                      const detail::train_parameters<Task>& params,
                       const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, params, input.get_data());
 }

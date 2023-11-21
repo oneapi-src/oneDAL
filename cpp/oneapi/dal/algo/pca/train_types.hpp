@@ -34,7 +34,7 @@ struct train_parameters_impl;
 template <typename Task>
 class partial_train_result_impl;
 
-template <typename Task = task::by_default>
+template <typename Task = task::dim_reduction>
 class train_parameters : public base {
 public:
     explicit train_parameters();

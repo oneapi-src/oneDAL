@@ -71,16 +71,16 @@ detail::v1::train_parameters<Task>::train_parameters()
 /// @tparam Task    The variant of the computations.
 ///                 Covariance algorithm supports only :expr:`compute`.
 template <typename Task>
-std::int64_t train_parameters<Task>::get_cpu_macro_block() const {
+std::int64_t detail::v1::train_parameters<Task>::get_cpu_macro_block() const {
     return impl_->cpu_macro_block;
 }
 
 template <typename Task>
-void train_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
+void detail::v1::train_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
     impl_->cpu_macro_block = val;
 }
 
-template class ONEDAL_EXPORT train_parameters<task::dim_reduction>;
+template class ONEDAL_EXPORT detail::v1::train_parameters<task::dim_reduction>;
 
 using detail::v1::train_input_impl;
 using detail::v1::train_result_impl;
