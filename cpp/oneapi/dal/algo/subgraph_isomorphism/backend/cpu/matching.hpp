@@ -175,6 +175,7 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
     hlocal_stack.init(solution_length - 1, target_vertex_count);
 
     if (target->bit_representation) {
+        temporary_list_size = 0;
         temporary_list = nullptr;
     }
     else {
