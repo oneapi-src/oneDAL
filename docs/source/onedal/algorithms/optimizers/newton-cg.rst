@@ -33,13 +33,21 @@ Mathematical formulation
 Computing
 ---------
 
+Newton-CG optimizer also known as the hessian-free optimizer is used to minimize convex function 
+without calculating the hessian matrix but using a hessian product matrix operator. The descent direction
+in the Newton method is calculated using the formula :math:`d_k = -H_k^{-1} g_k` where :math:`g_k, H_k` are
+the gradient and hessian matrix of the loss function on the :math:`k`-th iteration. In Newton-CG method
+Conjugate Gradients solver is used to find the approximate solution to the equation :math:`H_k d_k = -g_k`.
+Conjugate Gradients solver can find solution to the system of linear equations :math:`Ax = b` taking 
+vector :math:`b` and functor :math:`f(p) = Ap` as input.  
+
 
 .. _newton_cg_c_math_dense:
 
 Computation method: *dense*
 ---------------------------
-The method defines Newton-CG optimizer, which is used in other algorithms
-for the convex optimization. There are no separate computation mode to minimize
+The method defines the Newton-CG optimizer, which is used in other algorithms
+for convex optimization. There are no separate computation modes to minimize
 function manually.
 
 ---------------------

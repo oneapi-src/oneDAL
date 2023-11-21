@@ -19,13 +19,13 @@ not only class labels but also probabilities of objects belonging
 to each of the classes.
 
 .. |t_math| replace:: :ref:`Training <logreg_t_math>`
-.. |t_dense_batch| replace:: :ref:`Dense batch <logreg_t_math_dense_batch>`
+.. |t_dense_batch| replace:: :ref:`dense_batch <logreg_t_math_dense_batch>`
 .. |t_input| replace:: :ref:`train_input <logreg_t_api_input>`
 .. |t_result| replace:: :ref:`train_result <logreg_t_api_result>`
 .. |t_op| replace:: :ref:`train(...) <logreg_t_api>`
 
 .. |i_math| replace:: :ref:`Inference <logreg_i_math>`
-.. |i_dense_batch| replace:: :ref:`Dense batch <logreg_i_math_dense_batch>`
+.. |i_dense_batch| replace:: :ref:`dense_batch <logreg_i_math_dense_batch>`
 .. |i_input| replace:: :ref:`infer_input <logreg_i_api_input>`
 .. |i_result| replace:: :ref:`infer_result <logreg_i_api_result>`
 .. |i_op| replace:: :ref:`infer(...) <logreg_i_api>`

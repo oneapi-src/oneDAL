@@ -42,9 +42,10 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes :ref:`dense batch <dense_batch>` computational method.
+/// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
 
+/// Alias tag-type for dense_batch method.
 using by_default = dense_batch;
 } // namespace v1
 
@@ -80,6 +81,7 @@ const inline result_option_id intercept = detail::get_intercept_id();
 /// Return the coefficients to use in logistic regression
 const inline result_option_id coefficients = detail::get_coefficients_id();
 
+/// Return the number of iterations made by optimizer
 const inline result_option_id iterations_count = detail::get_iterations_count_id();
 
 } // namespace result_options

@@ -39,6 +39,10 @@ All types and functions in this section are declared in the
 ``oneapi::dal::logistic_regression`` namespace and be available via inclusion of the
 ``oneapi/dal/algo/logistic_regression.hpp`` header file.
 
+Result options
+--------------
+.. onedal_class:: oneapi::dal::logistic_regression::result_option_id
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::logistic_regression::descriptor
@@ -91,6 +95,12 @@ Operation
       | :expr:`desc.inverse_regularization > 0.0`
       | :expr:`desc.class_count == 2`
    Postconditions
+      | :expr:`result.coefficients.row_count = 1`
+      | :expr:`result.coefficients.column_count = input.data.column_count`
+      | :expr:`result.intercept.row_count = 1`
+      | :expr:`result.intercept.column_count = 1`
+      | :expr:`result.packed_coefficients.row_count = 1`
+      | :expr:`result.packed_coefficients.column_count = input.data.column_count + 1`
 
 .. _logreg_i_api:
 
@@ -120,8 +130,10 @@ Operation
    :param input: Input data for the inference operation
 
    Preconditions
-
+      | :expr:`input.data.has_data == true`
    Postconditions
+      | :expr:`result.responses.column_count == 1`
+      | :expr:`result.responses.row_count == input.data.row_count`
 
 
 --------
