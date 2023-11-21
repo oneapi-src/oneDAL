@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014 Intel Corporation
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,23 @@
 # limitations under the License.
 #===============================================================================
 
-ifeq ($(PLAT),)
-    PLAT:=$(shell bash dev/make/identify_os.sh)
-endif
+#++
+#  Visual Studio definitions for makefile
+#--
 
-ifeq (help,$(MAKECMDGOALS))
-    PLAT:=win32e
-endif
+PLATs.vc = win32e
 
-TARGETs = x86_64
-TARGET ?= x86_64
+CMPLRDIRSUFF.vc = _vc
 
-$(if $(filter $(TARGETs),$(TARGET)),,$(error TARGET must be one of $(TARGETs)))
+CORE.SERV.COMPILER.vc = generic
 
-include dev/make/$(TARGET)/makefile.mk
+-Zl.vc = -Zl
+-DEBC.vc = -DEBUG -Z7
+
+# Disable C4661 because of false positives
+COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
+
+p4_OPT.vc   =
+mc3_OPT.vc  =
+avx2_OPT.vc = -arch:AVX2
+skx_OPT.vc  = -arch:AVX2

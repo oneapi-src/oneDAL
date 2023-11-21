@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014 Intel Corporation
+# Copyright 2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,33 @@
 # limitations under the License.
 #===============================================================================
 
-ifeq ($(PLAT),)
-    PLAT:=$(shell bash dev/make/identify_os.sh)
-endif
+#++
+#  Intel compiler defenitions for makefile
+#--
 
-ifeq (help,$(MAKECMDGOALS))
-    PLAT:=win32e
-endif
+PLATs.icx = lnx32e mac32e
 
-TARGETs = x86_64
-TARGET ?= x86_64
+CMPLRDIRSUFF.icx = _icx
 
-$(if $(filter $(TARGETs),$(TARGET)),,$(error TARGET must be one of $(TARGETs)))
+CORE.SERV.COMPILER.icx = generic
 
-include dev/make/$(TARGET)/makefile.mk
+-Zl.icx =  -no-intel-lib=libirc
+-DEBC.icx = -g
+
+COMPILER.lnx.icx = icpx -m64 \
+                     -Werror -Wreturn-type
+
+
+link.dynamic.lnx.icx = icpx -m64
+
+pedantic.opts.icx = -pedantic \
+                      -Wall \
+                      -Wextra \
+                      -Wno-unused-parameter
+
+pedantic.opts.lnx.icx = $(pedantic.opts.icx)
+
+p4_OPT.icx   = $(-Q)march=nocona
+mc3_OPT.icx  = $(-Q)march=nehalem
+avx2_OPT.icx = $(-Q)march=haswell
+skx_OPT.icx  = $(-Q)march=skx
