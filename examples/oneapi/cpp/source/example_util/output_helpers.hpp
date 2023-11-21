@@ -23,6 +23,27 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
+template <typename Type>
+std::ostream &operator<<(std::ostream &stream, const oneapi::dal::array<Type> &array) {
+    const std::int64_t count = array.get_count();
+
+    if (count < std::int64_t(1)) {
+        stream << "An empty array" << std::endl;
+    }
+
+    constexpr std::int32_t precision =
+        std::is_floating_point_v<Type> ? 3 : 0;
+
+    stream << std::setw(10);
+    stream << std::setprecision(precision);
+    stream << std::setiosflags(std::ios::fixed);
+    for (std::int64_t i = 0l; i < count; ++i) {
+        stream << array[i] << ' ';
+    }
+
+    return stream;
+} 
+
 std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) {
     if (!table.has_data())
         return stream;
