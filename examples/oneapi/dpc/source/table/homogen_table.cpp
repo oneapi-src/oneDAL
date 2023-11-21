@@ -67,7 +67,7 @@ void run(sycl::queue& queue) {
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
     const bool is_homogen = test_table.get_kind() == dal::homogen_table::kind();
-    std::cout << "Is table kind equal to homogen: " << is_homogen << '\n';
+    std::cout << "Is homogeneous table: " << is_homogen << '\n';
 
     dal::row_accessor<const double> accessor{ test_table };
 

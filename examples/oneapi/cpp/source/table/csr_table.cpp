@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
     const bool is_heterogen = test_table.get_kind() == dal::csr_table::kind();
-    std::cout << "Is table kind equal to csr: " << is_heterogen << '\n';
+    std::cout << "Is CSR table: " << is_heterogen << '\n';
 
     dal::csr_accessor<const double> accessor{ test_table };
 
