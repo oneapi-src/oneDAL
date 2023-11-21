@@ -51,9 +51,41 @@ public:
     std::vector<table> auxiliary_tables;
 };
 
+/// Structure that contains all the hyperparameters of the covariance algorithm.
+///
+/// @tparam Task    The variant of the computations.
+///                 Covariance algorithm supports only :expr:`compute`.
+template <typename Task>
+struct detail::v1::train_parameters_impl : public base {
+    /// To compute the variance-covariance matrix input data set is being split into blocks of rows.
+    /// This value defines the default number of rows in the block on CPU.
+    std::int64_t cpu_macro_block = 140l;
+};
+
+template <typename Task>
+detail::v1::train_parameters<Task>::train_parameters()
+        : impl_(new detail::v1::train_parameters_impl<Task>{}) {}
+
+/// Choose the number of rows in the data block used in variance-covariance matrix computations on CPU.
+///
+/// @tparam Task    The variant of the computations.
+///                 Covariance algorithm supports only :expr:`compute`.
+template <typename Task>
+std::int64_t train_parameters<Task>::get_cpu_macro_block() const {
+    return impl_->cpu_macro_block;
+}
+
+template <typename Task>
+void train_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
+    impl_->cpu_macro_block = val;
+}
+
+template class ONEDAL_EXPORT train_parameters<task::dim_reduction>;
+
 using detail::v1::train_input_impl;
 using detail::v1::train_result_impl;
 using detail::v1::partial_train_result_impl;
+using detail::v1::train_parameters;
 
 namespace v1 {
 

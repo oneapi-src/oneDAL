@@ -41,6 +41,7 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
+using parameters_t = detail::compute_parameters<task_t>;
 
 template <typename Float>
 auto compute_sums(sycl::queue& q,
@@ -151,7 +152,9 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 }
 
 template <typename Float>
-result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
+result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc,
+                                                  const parameters_t& params,
+                                                  const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
     std::int64_t row_count = data.get_row_count();

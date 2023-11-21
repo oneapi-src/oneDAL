@@ -34,12 +34,13 @@ class train_kernel_cov_impl {
     using input_t = train_input<task::dim_reduction>;
     using result_t = train_result<task::dim_reduction>;
     using descriptor_t = detail::descriptor_base<task::dim_reduction>;
+    using parameters_t = detail::compute_parameters<task::dim_reduction>;
 
 public:
     train_kernel_cov_impl(const bk::context_gpu& ctx)
             : q_(ctx.get_queue()),
               comm_(ctx.get_communicator()) {}
-    result_t operator()(const descriptor_t& desc, const input_t& input);
+    result_t operator()(const descriptor_t& desc, const parameters_t& params, const input_t& input);
 
 private:
     sycl::queue q_;
