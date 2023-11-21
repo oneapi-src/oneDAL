@@ -27,6 +27,8 @@
 
 namespace dal = oneapi::dal;
 
+// Generating a sequence of numbers
+// allocated on host
 template <typename Type = float>
 dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::int64_t step = 1l) {
     auto* const raw_data = new Type[count];
@@ -44,6 +46,8 @@ dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::in
                             });
 }
 
+// Generating a chunked array on host
+// and with a specified number of chunks
 template <typename Type = float>
 dal::chunked_array<Type> get_chunked_arange(std::int64_t count, std::int64_t chunk_count = 2l) {
     dal::chunked_array<Type> chunked_array(chunk_count);
@@ -62,12 +66,16 @@ dal::chunked_array<Type> get_chunked_arange(std::int64_t count, std::int64_t chu
 int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 24;
 
+    // Generating data on host with different types and
+    // different number of chunks
     auto column_1 = get_chunked_arange<float>(row_count, 1);
     auto column_2 = get_chunked_arange<double>(row_count, 2);
     auto column_3 = get_chunked_arange<std::int8_t>(row_count, 3);
     auto column_4 = get_chunked_arange<std::int16_t>(row_count, 4);
     auto column_5 = get_chunked_arange<std::uint32_t>(row_count, 5);
 
+    // Wrapping different columns into a single non-typed
+    // heterogenerous table
     dal::table test_table = dal::heterogen_table::wrap( //
         column_1,
         column_2,
@@ -75,14 +83,16 @@ int main(int argc, char** argv) {
         column_4,
         column_5);
 
+    // Some sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
+    // Checking type of an abstract table
     const bool is_heterogen = test_table.get_kind() == dal::heterogen_table::kind();
     std::cout << "Is heterogeneous table: " << is_heterogen << '\n';
 
+    // Extracting row slice of data on host
     dal::row_accessor<const double> accessor{ test_table };
-
     dal::array<double> slice = accessor.pull({ 3l, 17l });
 
     std::cout << "Slice of elements: " << slice << std::endl;

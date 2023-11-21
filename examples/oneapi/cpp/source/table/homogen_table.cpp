@@ -38,6 +38,7 @@ dal::table get_table(std::int64_t row_count, std::int64_t column_count) {
                                      delete[] ptr;
                                  });
 
+    // Filling array with some structured data
     for (std::int64_t row = 0l; row < row_count; ++row) {
         for (std::int64_t col = 0l; col < column_count; ++col) {
             const std::int64_t idx = row * column_count + col;
@@ -52,16 +53,19 @@ int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
 
+    // Generating table on host
     const dal::table test_table = get_table(row_count, column_count);
 
+    // Some sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
+    // Checking type of an abstract table
     const bool is_homogen = test_table.get_kind() == dal::homogen_table::kind();
     std::cout << "Is homogeneous table: " << is_homogen << '\n';
 
+    // Extracting row slice of data on host
     dal::row_accessor<const double> accessor{ test_table };
-
     dal::array<double> slice = accessor.pull({ 1l, 3l });
 
     std::cout << "Slice of elements: " << slice << std::endl;

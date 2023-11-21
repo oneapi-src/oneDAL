@@ -26,6 +26,9 @@
 
 #include "oneapi/dal/table/csr_accessor.hpp"
 
+// Generating offsets expecting that table
+// should have various amount of data
+// in each row
 template <typename Index = std::int64_t>
 dal::array<Index> generate_offsets(std::int64_t row_count, std::int64_t column_count) {
     const std::int64_t offset_count = row_count + 1l;
@@ -44,6 +47,8 @@ dal::array<Index> generate_offsets(std::int64_t row_count, std::int64_t column_c
                              });
 }
 
+// Generating indices knowing from `offsets` array
+// how many we should element should be in each row
 template <typename Index = std::int64_t>
 dal::array<Index> generate_indices(std::int64_t column_count, const dal::array<Index>& offsets) {
     const std::int64_t offset_count = offsets.get_count();
@@ -72,6 +77,7 @@ dal::array<Index> generate_indices(std::int64_t column_count, const dal::array<I
                              });
 }
 
+// Generating data for the table in determenistic way
 template <typename Type = float, typename Index = std::int64_t>
 dal::array<Type> generate_data(const dal::array<Index>& offsets) {
     const std::int64_t offset_count = offsets.get_count();
@@ -94,26 +100,31 @@ int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 10;
 
+    // Generating data on host
     auto offsets = generate_offsets(row_count, column_count);
     auto indices = generate_indices(column_count, offsets);
     auto data = generate_data(offsets);
 
+    // Wrapping previously generated pieces of data
     dal::csr_table test_table = dal::csr_table::wrap(data, //
                                                      indices,
                                                      offsets,
                                                      column_count,
                                                      dal::sparse_indexing::zero_based);
 
+    // Some sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
-    const bool is_heterogen = test_table.get_kind() == dal::csr_table::kind();
-    std::cout << "Is CSR table: " << is_heterogen << '\n';
+    // Checking type of an abstract table
+    const bool is_csr = test_table.get_kind() == dal::csr_table::kind();
+    std::cout << "Is CSR table: " << is_csr << '\n';
 
+    // Extracting CSR slice of data on host
     dal::csr_accessor<const double> accessor{ test_table };
+    auto [slice_data, slice_indices, slice_offsets] = accessor.pull({ 1, 3 });
 
-    const auto [slice_data, slice_indices, slice_offsets] = accessor.pull({ 1, 3 });
-
+    // Printing components of slice: data, indices, offsets
     std::cout << "Slice of elements (compressed): " << slice_data << '\n';
     std::cout << "Slice of indices (compressed): " << slice_indices << '\n';
     std::cout << "Slice of offsets: " << slice_offsets << std::endl;

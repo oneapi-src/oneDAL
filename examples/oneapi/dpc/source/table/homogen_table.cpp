@@ -36,6 +36,7 @@ namespace dal = oneapi::dal;
 template <typename Type = float>
 dal::table get_table(sycl::queue& queue, std::int64_t row_count, std::int64_t column_count) {
     const std::int64_t elem_count = row_count * column_count;
+    // Generating data on host first & allocating memory for it
     auto* const raw_data = new Type[elem_count];
 
     // Let's create an array using raw pointer and deleter
@@ -45,6 +46,7 @@ dal::table get_table(sycl::queue& queue, std::int64_t row_count, std::int64_t co
                                      delete[] ptr;
                                  });
 
+    // Filling array with some structured data
     for (std::int64_t row = 0l; row < row_count; ++row) {
         for (std::int64_t col = 0l; col < column_count; ++col) {
             const std::int64_t idx = row * column_count + col;
@@ -52,8 +54,10 @@ dal::table get_table(sycl::queue& queue, std::int64_t row_count, std::int64_t co
         }
     }
 
-    auto array = to_device(queue, data);
+    // Moving data to be device readable
+    dal::array<Type> array = to_device(queue, data);
 
+    // Wrapping data on device to homogeneous table
     return dal::homogen_table::wrap(array, row_count, column_count);
 }
 
@@ -61,22 +65,28 @@ void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
 
+    // Generating table on device
     const dal::table test_table = get_table(queue, row_count, column_count);
 
+    // Some sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
+    // Checking type of an abstract table
     const bool is_homogen = test_table.get_kind() == dal::homogen_table::kind();
     std::cout << "Is homogeneous table: " << is_homogen << '\n';
 
-    dal::row_accessor<const double> accessor{ test_table };
+    // Extracting row slice of data on device
+    dal::row_accessor<const float> accessor{ test_table };
+    dal::array<float> slice = accessor.pull(queue, { 1l, 3l });
 
-    dal::array<double> slice = accessor.pull(queue, { 1l, 3l });
-
+    // Moving data to be readable on CPU
+    dal::array<float> on_host = to_host(slice);
     std::cout << "Slice of elements: " << slice << std::endl;
 }
 
 int main(int argc, char** argv) {
+    // Going throw different devices
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
