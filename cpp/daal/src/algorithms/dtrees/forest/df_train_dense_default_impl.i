@@ -384,6 +384,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     const size_t nCols = x->getNumberOfColumns();
     TVector<BinIndexType, cpu, ScalableAllocator<cpu> > binIndexVector;
     BinIndexType * binIndex = nullptr;
+    int burn = 400; //magic number for MT2203 samples
 
     if (indexedFeatures)
     {
@@ -438,6 +439,16 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         dtrees::internal::Tree * pTree = nullptr;
         numElems[i]                    = 0;
         auto engineImpl                = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[i].get());
+        if (technique == engines::internal::family)
+        {
+            // The MT2203 engine is the only family engine in oneDAL.
+            // The family of MT2203 engines have correlated random 
+            // numbers in the first 400. Thus, 400 samples are burned
+            // to guarantee uniformity.
+            RNGsInst<int, cpu> rng;
+            int temp = 0;
+            for(int i=0;i < burn; i++) rng.uniformBits32(1, &temp, engineImpl->getState());
+        }
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
         services::Status s = task->run(engineImpl, pTree, numElems[i]);
         DAAL_CHECK_STATUS_THR(s);
