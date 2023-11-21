@@ -537,7 +537,7 @@ public:
 
 public:
     RespHelperBase(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses)
-        : UnorderedRespHelperBest<algorithmFPType, cpu>(indexedFeatures, nClasses)
+        : UnorderedRespHelperBest<algorithmFPType, cpu>(indexedFeatures, nClasses), engineImpl(nullptr)
     {}
 
     virtual bool init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample,
