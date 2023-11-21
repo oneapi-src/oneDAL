@@ -445,7 +445,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
             // The family of MT2203 engines have correlated random
             // numbers in the first 400. Thus, 400 samples are burned
             // to guarantee uniformity.
-            RNGsInst<int, cpu> rng;
+            RNGsInst<unsigned int, cpu> rng;
             services::internal::TArray<unsigned int, cpu> temp(burn);
             rng.uniformBits32(burn, &temp, engineImpl->getState());
         }
