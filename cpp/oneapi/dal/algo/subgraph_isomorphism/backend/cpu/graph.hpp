@@ -116,6 +116,8 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
           allocator(byte_alloc),
           p_vertex_attribute(nullptr),
           p_edges_attribute(nullptr),
+          p_edges_bit(nullptr),
+          p_edges_list(nullptr),
           vertex_count_(t.get_vertex_count()),
           edge_count_(t.get_edge_count()) {
     switch (storage_scheme) {
