@@ -92,7 +92,7 @@ void graph<Cpu>::allocate_arrays() {
 
     if (bit_representation) {
         const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count_);
-
+        p_edges_list = nullptr;
         p_edges_bit = allocator.template allocate<std::uint8_t*>(vertex_count_);
         for (std::int64_t i = 0; i < vertex_count_; ++i) {
             p_edges_bit[i] = allocator.template allocate<std::uint8_t>(bit_array_size);
@@ -100,6 +100,7 @@ void graph<Cpu>::allocate_arrays() {
         }
     }
     else {
+        p_edges_bit = nullptr;
         p_edges_list = allocator.template allocate<std::int64_t*>(vertex_count_);
         for (std::int64_t i = 0; i < vertex_count_; i++) {
             p_edges_list[i] = nullptr;
@@ -116,8 +117,6 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
           allocator(byte_alloc),
           p_vertex_attribute(nullptr),
           p_edges_attribute(nullptr),
-          p_edges_bit(nullptr),
-          p_edges_list(nullptr),
           vertex_count_(t.get_vertex_count()),
           edge_count_(t.get_edge_count()) {
     switch (storage_scheme) {
