@@ -182,7 +182,7 @@ public:
     using naive_blocking_t = reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>;
 
     reduction_rm_cw(sycl::queue& q);
-    enum reduction_method { naive = 0, naive_local = 1, atomic = 2 };
+    enum reduction_method { naive = 0, naive_local = 1, atomic = 2, naive_blocking = 3 };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(reduction_method method,
                            const Float* input,

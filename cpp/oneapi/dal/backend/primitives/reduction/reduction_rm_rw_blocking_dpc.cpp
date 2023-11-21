@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -96,19 +96,17 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const bool override_init) const {
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        const auto block_size = propose_block_size<Float>(q_, height);
-        const bk::uniform_blocking blocking(height, block_size);
-
+        const auto block_size = propose_block_size<Float>(q_, width);
+        const bk::uniform_blocking blocking(width, block_size);
         std::vector<sycl::event> events(blocking.get_block_count());
         for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
              ++block_index) {
             const auto first_column = blocking.get_block_start_index(block_index);
             const auto last_column = blocking.get_block_end_index(block_index);
             const auto curr_block = last_column - first_column;
-            ONEDAL_ASSERT(curr_block > 0);
-            const auto range = get_range(curr_block);
+            const auto range = get_range(height);
             const auto kernel =
-                get_kernel(input, output, height, stride, binary, unary, override_init);
+                get_kernel(input, output, curr_block, stride, binary, unary, override_init);
             h.parallel_for<kernel_t>(range, kernel);
         }
     });

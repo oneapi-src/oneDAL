@@ -149,7 +149,7 @@ public:
     using wide_t = reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
     using blocking_t = reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>;
     reduction_rm_rw(sycl::queue& q);
-    enum reduction_method { wide, narrow };
+    enum reduction_method { wide, narrow, blocking };
     reduction_method propose_method(std::int64_t width) const;
     sycl::event operator()(reduction_method method,
                            const Float* input,

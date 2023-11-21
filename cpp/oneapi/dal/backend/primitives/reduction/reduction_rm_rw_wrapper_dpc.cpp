@@ -47,8 +47,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
     // TODO: think about `switch` operator
+    //temporary for full testing
     if (width >= 1) {
-        std::cout << "here" << std::endl;
         const blocking_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
     }

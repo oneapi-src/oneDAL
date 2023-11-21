@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/reduction/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend::primitives {
 namespace bk = dal::backend;
 template <typename Float>
@@ -102,19 +102,17 @@ sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()
     ONEDAL_ASSERT(0 <= width && width <= stride);
     auto event = q_.submit([&, this](sycl::handler& h) {
         h.depends_on(deps);
-        const auto block_size = propose_block_size<Float>(q_, width);
-        const bk::uniform_blocking blocking(width, block_size);
-
+        const auto block_size = propose_block_size<Float>(q_, height);
+        const bk::uniform_blocking blocking(height, block_size);
         std::vector<sycl::event> events(blocking.get_block_count());
         for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
              ++block_index) {
-            const auto first_column = blocking.get_block_start_index(block_index);
-            const auto last_column = blocking.get_block_end_index(block_index);
-            const auto curr_block = last_column - first_column;
-            ONEDAL_ASSERT(curr_block > 0);
-            const auto range = get_range(curr_block);
+            const auto first_row = blocking.get_block_start_index(block_index);
+            const auto last_row = blocking.get_block_end_index(block_index);
+            const auto curr_block = first_row - last_row;
+            const auto range = get_range(width);
             const auto kernel =
-                get_kernel(input, output, height, stride, binary, unary, override_init);
+                get_kernel(input, output, curr_block, stride, binary, unary, override_init);
             h.parallel_for<kernel_t>(range, kernel);
         }
     });
