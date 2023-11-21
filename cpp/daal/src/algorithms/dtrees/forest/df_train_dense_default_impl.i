@@ -447,7 +447,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
             // to guarantee uniformity.
             RNGsInst<unsigned int, cpu> rng;
             services::internal::TArray<unsigned int, cpu> temp(burn);
-            rng.uniformBits32(burn, temp, engineImpl->getState());
+            rng.uniformBits32(burn, temp.get(), engineImpl->getState());
         }
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
         services::Status s = task->run(engineImpl, pTree, numElems[i]);
