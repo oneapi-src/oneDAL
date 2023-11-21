@@ -373,9 +373,9 @@ struct split_smp {
         bool bs_eq_imp = float_eq(ts_sc.imp_dec, bs_sc.imp_dec);
         bool bs_greater_ftr = ts_sc.ftr_id < bs_sc.ftr_id;
         bool bs_eq_ftr = bs_sc.ftr_id == ts_sc.ftr_id;
-        bool bs_less_bin = ts_sc.ftr_bin < bs_sc.ftr_bin;
+        bool bs_greater_bin = ts_sc.ftr_bin < bs_sc.ftr_bin;
         bool is_best = bs_unassigned || bs_less_imp;
-        is_best = is_best || (bs_eq_imp && (bs_greater_ftr || (bs_eq_ftr && bs_less_bin)));
+        is_best = is_best || (bs_eq_imp && (bs_greater_ftr || (bs_eq_ftr && bs_greater_bin)));
         return is_best && valid_imp_dec && valid_lcount && valid_rcount;
     }
 
@@ -385,7 +385,7 @@ struct split_smp {
                                   Index hist_elem_count,
                                   Index min_obs_in_leaf_node) {
         if (test_split_is_best(bs, ts, min_obs_in_leaf_node)) {
-            bs.scalars = ts.scalars;
+            bs.scalars.copy(ts.scalars);
 
             for (Index i = 0; i < hist_elem_count; ++i) {
                 bs.left_hist[i] = ts.left_hist[i];
