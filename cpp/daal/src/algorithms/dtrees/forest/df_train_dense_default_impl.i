@@ -1114,7 +1114,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
     /* zero-based index of best split */
     int64_t iBestSplit               = -1;
     int64_t idxFeatureValueBestSplit = -1;
-    typename DataHelper::TSplitData split;
+    typename DataHelper::TSplitData split {};
     /* RNG for sample drawing */
     RNGsInst<IndexType, cpu> rng;
     /* index for swapping samples in Fisher-Yates sampling */
