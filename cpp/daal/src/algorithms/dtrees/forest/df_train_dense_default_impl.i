@@ -446,8 +446,8 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
             // numbers in the first 400. Thus, 400 samples are burned
             // to guarantee uniformity.
             RNGsInst<int, cpu> rng;
-            int temp = 0;
-            for (int i = 0; i < burn; i++) rng.uniformBits32(1, &temp, engineImpl->getState());
+            services::internal::TArray<unsigned int, cpu> temp(burn);
+            rng.uniformBits32(burn, &temp, engineImpl->getState());
         }
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
         services::Status s = task->run(engineImpl, pTree, numElems[i]);
