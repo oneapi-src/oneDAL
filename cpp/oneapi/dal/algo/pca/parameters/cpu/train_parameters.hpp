@@ -27,6 +27,12 @@ struct ONEDAL_EXPORT train_parameters_cpu {
     params_t operator()(const dal::backend::context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const train_input<Task>& input) const;
+    params_t operator()(const dal::backend::context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const;
+    params_t operator()(const dal::backend::context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const;
 };
 
 } // namespace oneapi::dal::pca::parameters

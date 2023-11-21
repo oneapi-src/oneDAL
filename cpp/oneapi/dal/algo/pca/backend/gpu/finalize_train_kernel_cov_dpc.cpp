@@ -85,6 +85,7 @@ auto compute_correlation(sycl::queue& q,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_t& desc,
+                                const detail::train_parameters<Task>& params,
                                 const partial_train_result<Task>& input) {
     auto& q = ctx.get_queue();
 
@@ -132,8 +133,9 @@ template <typename Float>
 struct finalize_train_kernel_gpu<Float, method::cov, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
-        return train<Float, task::dim_reduction>(ctx, desc, input);
+        return train<Float, task::dim_reduction>(ctx, desc, params, input);
     }
 };
 

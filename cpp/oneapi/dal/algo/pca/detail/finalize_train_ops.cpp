@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/algo/pca/parameters/cpu/train_parameters.hpp"
 #include "oneapi/dal/algo/pca/detail/finalize_train_ops.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/finalize_train_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -23,15 +24,38 @@ namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct finalize_train_ops_dispatcher<Policy, Float, Method, Task> {
-    train_result<Task> operator()(const Policy& policy,
+    train_result<Task> operator()(const Policy& ctx,
+                                  const descriptor_base<Task>& desc,
+                                  const train_parameters<Task>& params,
+                                  const partial_train_result<Task>& input) const {
+        return implementation(ctx, desc, params, input);
+    }
+
+    train_parameters<Task> select_parameters(const Policy& ctx,
+                                             const descriptor_base<Task>& desc,
+                                             const partial_train_result<Task>& input) const {
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
+            KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t{}(ctx, desc, input);
+    }
+
+    train_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const partial_train_result<Task>& input) const {
+        const auto params = select_parameters(ctx, desc, input);
+        return implementation(ctx, desc, params, input);
+    }
+
+private:
+    inline auto implementation(const Policy& ctx,
+                               const descriptor_base<Task>& desc,
+                               const train_parameters<Task>& params,
+                               const partial_train_result<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::finalize_train_kernel_cpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t()(policy, desc, input);
+        return kernel_dispatcher_t{}(ctx, desc, params, input);
     }
 };
-
 #define INSTANTIATE(F, M, T) \
     template struct ONEDAL_EXPORT finalize_train_ops_dispatcher<dal::detail::host_policy, F, M, T>;
 

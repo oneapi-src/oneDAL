@@ -44,6 +44,7 @@ template <typename Float>
 struct partial_train_kernel_gpu<Float, method::svd, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task_t>& params,
                         const input_t& input) const {
         throw unimplemented(
             dal::detail::error_messages::pca_svd_based_method_is_not_implemented_for_gpu());

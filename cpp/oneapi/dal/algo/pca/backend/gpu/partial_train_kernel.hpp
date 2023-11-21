@@ -18,13 +18,17 @@
 
 #include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/util/common.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
 namespace oneapi::dal::pca::backend {
 
 template <typename Float, typename Method, typename Task>
 struct partial_train_kernel_gpu {
     partial_train_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                          const detail::descriptor_base<Task>& params,
+                                          const detail::descriptor_base<Task>& desc,
+                                          const detail::train_parameters<Task>& params,
                                           const partial_train_input<Task>& input) const;
 };
 

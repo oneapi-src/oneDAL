@@ -46,6 +46,7 @@ template <typename Float>
 static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
+    const detail::train_parameters<task_t>& params,
     const partial_train_input<task::dim_reduction>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
@@ -124,8 +125,9 @@ template <typename Float>
 static partial_train_result<task_t> partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
+    const detail::train_parameters<task_t>& params,
     const partial_train_input<task::dim_reduction>& input) {
-    return call_daal_kernel_partial_train<Float>(ctx, desc, input);
+    return call_daal_kernel_partial_train<Float>(ctx, desc, params, input);
 }
 
 template <typename Float>
@@ -133,8 +135,9 @@ struct partial_train_kernel_cpu<Float, method::cov, task::dim_reduction> {
     partial_train_result<task_t> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
+        const detail::train_parameters<task_t>& params,
         const partial_train_input<task::dim_reduction>& input) const {
-        return partial_train<Float>(ctx, desc, input);
+        return partial_train<Float>(ctx, desc, params, input);
     }
 };
 

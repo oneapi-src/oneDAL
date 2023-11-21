@@ -69,6 +69,20 @@ struct train_parameters_cpu<Float, method::cov, Task> {
 
         return params_t{}.set_cpu_macro_block(block);
     }
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const {
+        const auto block = propose_block_size<Float>(ctx, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const {
+        const auto block = propose_block_size<Float>(ctx, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
 };
 
 template struct ONEDAL_EXPORT train_parameters_cpu<float, method::cov, task::dim_reduction>;

@@ -60,6 +60,7 @@ struct detail::v1::train_parameters_impl : public base {
     /// To compute the variance-covariance matrix input data set is being split into blocks of rows.
     /// This value defines the default number of rows in the block on CPU.
     std::int64_t cpu_macro_block = 140l;
+    std::int64_t gpu_macro_block = 16'384l;
 };
 
 template <typename Task>
@@ -78,6 +79,16 @@ std::int64_t detail::v1::train_parameters<Task>::get_cpu_macro_block() const {
 template <typename Task>
 void detail::v1::train_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
     impl_->cpu_macro_block = val;
+}
+
+template <typename Task>
+std::int64_t detail::v1::train_parameters<Task>::get_gpu_macro_block() const {
+    return impl_->gpu_macro_block;
+}
+
+template <typename Task>
+void detail::v1::train_parameters<Task>::set_gpu_macro_block_impl(std::int64_t val) {
+    impl_->gpu_macro_block = val;
 }
 
 template class ONEDAL_EXPORT detail::v1::train_parameters<task::dim_reduction>;

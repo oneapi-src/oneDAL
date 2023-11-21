@@ -38,9 +38,11 @@ template <typename Float, daal::CpuType Cpu>
 using daal_svd_kernel_t = daal_pca::internal::PCASVDOnlineKernel<Float, Cpu>;
 
 template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
-                                                          const descriptor_t& desc,
-                                                          const partial_train_result<Task>& input) {
+static train_result<task::dim_reduction> call_daal_kernel_finalize_train(
+    const context_cpu& ctx,
+    const descriptor_t& desc,
+    const detail::train_parameters<task::dim_reduction>& params,
+    const partial_train_result<task::dim_reduction>& input) {
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
@@ -89,10 +91,12 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
 }
 
 template <typename Float, typename Task>
-static train_result<Task> finalize_train(const context_cpu& ctx,
-                                         const descriptor_t& desc,
-                                         const partial_train_result<Task>& input) {
-    return call_daal_kernel_finalize_train<Float>(ctx, desc, input);
+static train_result<Task> finalize_train(
+    const context_cpu& ctx,
+    const descriptor_t& desc,
+    const detail::train_parameters<task::dim_reduction>& params,
+    const partial_train_result<task::dim_reduction>& input) {
+    return call_daal_kernel_finalize_train<Float, task::dim_reduction>(ctx, desc, params, input);
 }
 
 template <typename Float>
@@ -100,8 +104,9 @@ struct finalize_train_kernel_cpu<Float, method::svd, task::dim_reduction> {
     train_result<task::dim_reduction> operator()(
         const context_cpu& ctx,
         const descriptor_t& desc,
+        const detail::train_parameters<task::dim_reduction>& params,
         const partial_train_result<task::dim_reduction>& input) const {
-        return finalize_train<Float, task::dim_reduction>(ctx, desc, input);
+        return finalize_train<Float, task::dim_reduction>(ctx, desc, params, input);
     }
 };
 

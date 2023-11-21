@@ -30,6 +30,11 @@ namespace oneapi::dal::pca::parameters {
 
 using dal::backend::context_gpu;
 
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t f, const std::int64_t r) {
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
+}
 template <typename Float, typename Task>
 struct train_parameters_gpu<Float, method::cov, Task> {
     using params_t = detail::train_parameters<Task>;
@@ -37,6 +42,24 @@ struct train_parameters_gpu<Float, method::cov, Task> {
                         const detail::descriptor_base<Task>& desc,
                         const train_input<Task>& input) const {
         return params_t{};
+    }
+    params_t operator()(const context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const {
+        const auto& queue = ctx.get_queue();
+
+        const auto block = propose_block_size<Float>(queue, 100, 100);
+
+        return params_t{}.set_gpu_macro_block(block);
+    }
+    params_t operator()(const context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const {
+        const auto& queue = ctx.get_queue();
+
+        const auto block = propose_block_size<Float>(queue, 100, 100);
+
+        return params_t{}.set_gpu_macro_block(block);
     }
 };
 

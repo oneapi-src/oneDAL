@@ -47,8 +47,15 @@ public:
         return *this;
     }
 
+    std::int64_t get_gpu_macro_block() const;
+    auto& set_gpu_macro_block(std::int64_t val) {
+        set_gpu_macro_block_impl(val);
+        return *this;
+    }
+
 private:
     void set_cpu_macro_block_impl(std::int64_t val);
+    void set_gpu_macro_block_impl(std::int64_t val);
     dal::detail::pimpl<train_parameters_impl<Task>> impl_;
 };
 
