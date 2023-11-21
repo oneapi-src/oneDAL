@@ -38,10 +38,10 @@ class detail::v1::model_impl : public SVM_SERIALIZABLE(Task,
 public:
     table support_vectors;
     table coeffs;
-    double bias;
+    double bias = 0.0;
     table biases;
-    double first_class_response;
-    double second_class_response;
+    double first_class_response = 0.0;
+    double second_class_response = 0.0;
     std::int64_t class_count = 2;
 
     model_impl() = default;
