@@ -27,7 +27,7 @@
 #include "oneapi/dal/table/csr_accessor.hpp"
 
 // Generate offsets expecting the table
-// should have various amount of data
+// to have various amounts of data
 // in each row
 template <typename Index = std::int64_t>
 dal::array<Index> generate_offsets(std::int64_t row_count, std::int64_t column_count) {
