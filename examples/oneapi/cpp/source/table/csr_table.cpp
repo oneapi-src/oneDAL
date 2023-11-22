@@ -47,7 +47,7 @@ dal::array<Index> generate_offsets(std::int64_t row_count, std::int64_t column_c
                              });
 }
 
-// Generating indices knowing from `offsets` array
+// Generate indices knowing, from the `offsets` array,
 // how many elements should be in each row
 template <typename Index = std::int64_t>
 dal::array<Index> generate_indices(std::int64_t column_count, const dal::array<Index>& offsets) {
