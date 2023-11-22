@@ -14,37 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. highlight:: cpp
-.. default-domain:: cpp
+The Newton-CG optimizer minimizes the convex function iteratively using its gradient and hessian-product operator.
 
-.. _api_logloss:
+.. |c_math| replace::   :ref:`dense <newton_cg_c_math>`
+.. |c_dense| replace::  :ref:`dense <newton_cg_c_math_dense>`
 
-==================
-Logistic Loss
-==================
-
-.. include::  ../../../includes/objective-function/logloss-introduction.rst
-
-------------------------
-Mathematical formulation
-------------------------
-
-Refer to :ref:`Developer Guide: Logistic Loss <alg_logloss>`.
-
----------------------
-Programming Interface
----------------------
-All types and functions in this section are declared in the
-``oneapi::dal::logloss_objective`` namespace.
-
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::logloss_objective::descriptor
-
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::method
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::task
+=============  ===============  =========
+**Operation**  **Computational  methods**
+-------------  --------------------------
+|c_math|       |c_dense|
+=============  ===============  =========
