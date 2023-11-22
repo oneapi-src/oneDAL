@@ -32,7 +32,7 @@
 
 namespace dal = oneapi::dal;
 
-// Generating a sequence of numbers
+// Generate a sequence of numbers
 // allocated on a specified device
 template <typename Type = float>
 dal::array<Type> get_arange(sycl::queue& queue,
@@ -46,7 +46,7 @@ dal::array<Type> get_arange(sycl::queue& queue,
         raw_data[i] = static_cast<Type>(value);
     }
 
-    // Let's create an array using raw pointer and deleter
+    // Create an array using raw pointer and delete[ ]
     auto on_host = dal::array<Type>(raw_data,
                                     count, //
                                     [](Type* const ptr) -> void {
@@ -56,8 +56,8 @@ dal::array<Type> get_arange(sycl::queue& queue,
     return to_device(queue, on_host);
 }
 
-// Generating a chunked array on a specified queue
-// and with a specified number of chunks
+// Generate a chunked array on a specified queue
+// with a specified number of chunks
 template <typename Type = float>
 dal::chunked_array<Type> get_chunked_arange(sycl::queue& queue,
                                             std::int64_t count,
@@ -78,16 +78,16 @@ dal::chunked_array<Type> get_chunked_arange(sycl::queue& queue,
 void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 24;
 
-    // Generating data on device with different types and
-    // different number of chunks
+    // Generate data on the device with different types and
+    // numbers of chunks
     auto column_1 = get_chunked_arange<float>(queue, row_count, 1);
     auto column_2 = get_chunked_arange<float>(queue, row_count, 2);
     auto column_3 = get_chunked_arange<std::int8_t>(queue, row_count, 3);
     auto column_4 = get_chunked_arange<std::int16_t>(queue, row_count, 4);
     auto column_5 = get_chunked_arange<std::uint32_t>(queue, row_count, 5);
 
-    // Wrapping different columns into a single non-typed
-    // heterogenerous table
+    // Wrap different columns into a single non-typed
+    // heterogeneous table
     dal::table test_table = dal::heterogen_table::wrap( //
         column_1,
         column_2,
@@ -95,25 +95,25 @@ void run(sycl::queue& queue) {
         column_4,
         column_5);
 
-    // Some sanity checks for the table shape
+    // Sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
-    // Checking type of an abstract table
+    // Check the type of abstract table
     const bool is_heterogen = test_table.get_kind() == dal::heterogen_table::kind();
     std::cout << "Is heterogeneous table: " << is_heterogen << '\n';
 
-    // Extracting row slice of data on device
+    // Extract row slice of data on the device
     dal::row_accessor<const float> accessor{ test_table };
     dal::array<float> slice = accessor.pull(queue, { 3l, 17l });
 
-    // Moving data to be readable on CPU
+    // Move data to be readable on CPU
     dal::array<float> on_host = to_host(slice);
     std::cout << "Slice of elements: " << on_host << std::endl;
 }
 
 int main(int argc, char** argv) {
-    // Going throw different devices
+    // Go through different devices
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"

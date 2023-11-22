@@ -36,17 +36,17 @@ namespace dal = oneapi::dal;
 template <typename Type = float>
 dal::table get_table(sycl::queue& queue, std::int64_t row_count, std::int64_t column_count) {
     const std::int64_t elem_count = row_count * column_count;
-    // Generating data on host first & allocating memory for it
+    // Generate data on host, then allocate memory for it
     auto* const raw_data = new Type[elem_count];
 
-    // Let's create an array using raw pointer and deleter
+    // Create an array using raw pointer and delete[ ]
     auto data = dal::array<Type>(raw_data,
                                  elem_count, //
                                  [](Type* const ptr) -> void {
                                      delete[] ptr;
                                  });
 
-    // Filling array with some structured data
+    // Fill array with structured data
     for (std::int64_t row = 0l; row < row_count; ++row) {
         for (std::int64_t col = 0l; col < column_count; ++col) {
             const std::int64_t idx = row * column_count + col;
@@ -54,10 +54,10 @@ dal::table get_table(sycl::queue& queue, std::int64_t row_count, std::int64_t co
         }
     }
 
-    // Moving data to be device readable
+    // Move data to be device-readable
     dal::array<Type> array = to_device(queue, data);
 
-    // Wrapping data on device to homogeneous table
+    // Wrap data on the device to the homogeneous table
     return dal::homogen_table::wrap(array, row_count, column_count);
 }
 
@@ -65,7 +65,7 @@ void run(sycl::queue& queue) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
 
-    // Generating table on device
+    // Generate table on device
     const dal::table test_table = get_table(queue, row_count, column_count);
 
     // Sanity checks for the table shape
