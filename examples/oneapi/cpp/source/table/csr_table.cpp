@@ -26,7 +26,7 @@
 
 #include "oneapi/dal/table/csr_accessor.hpp"
 
-// Generating offsets expecting that table
+// Generate offsets expecting the table
 // should have various amount of data
 // in each row
 template <typename Index = std::int64_t>
