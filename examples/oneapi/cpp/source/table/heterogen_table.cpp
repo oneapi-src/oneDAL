@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     auto column_4 = get_chunked_arange<std::int16_t>(row_count, 4);
     auto column_5 = get_chunked_arange<std::uint32_t>(row_count, 5);
 
-    // Wrapping different columns into a single non-typed
+    // Wrap different columns into a single non-typed
     // heterogeneous table
     dal::table test_table = dal::heterogen_table::wrap( //
         column_1,
