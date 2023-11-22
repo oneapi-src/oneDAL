@@ -27,7 +27,7 @@
 
 namespace dal = oneapi::dal;
 
-// Generating a sequence of numbers
+// Generate a sequence of numbers
 // allocated on host
 template <typename Type = float>
 dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::int64_t step = 1l) {
