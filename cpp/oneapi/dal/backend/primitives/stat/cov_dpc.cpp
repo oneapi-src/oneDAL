@@ -67,10 +67,8 @@ inline sycl::event compute_covariance(sycl::queue& q,
     const std::int64_t n = row_count;
     const std::int64_t p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    Float multiplier = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
-    if (bias) {
-        multiplier = inv_n;
-    }
+    const Float inv_n1 = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float multiplier = bias ? inv_n : inv_n1;
     const Float* sums_ptr = sums.get_data();
     Float* cov_ptr = cov.get_mutable_data();
 
@@ -251,10 +249,9 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    Float multiplier = (n > 1) ? Float(n - 1) : Float(1);
-    if (bias) {
-        multiplier = Float(n);
-    }
+    const Float unbiased_multiplier = (n > 1) ? Float(n - 1) : Float(1);
+    const Float biased_multiplier = Float(n);
+    const Float multiplier = bias ? biased_multiplier : unbiased_multiplier;
 
     const Float* cov_ptr = cov.get_data();
 
@@ -296,10 +293,9 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    Float multiplier = (n > 1) ? Float(n - 1) : Float(1);
-    if (bias) {
-        multiplier = Float(n);
-    }
+    const Float unbiased_multiplier = (n > 1) ? Float(n - 1) : Float(1);
+    const Float biased_multiplier = Float(n);
+    const Float multiplier = bias ? biased_multiplier : unbiased_multiplier;
     const Float* tmp_ptr = tmp.get_data();
     Float* corr_ptr = corr.get_mutable_data();
     const Float* cov_ptr = cov.get_data();

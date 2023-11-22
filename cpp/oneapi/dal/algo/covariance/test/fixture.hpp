@@ -94,9 +94,9 @@ public:
         check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov biased")
-        cov_desc =
-            covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
-                covariance::result_options::cov_matrix).set_bias(true);
+        cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                       .set_result_options(covariance::result_options::cov_matrix)
+                       .set_bias(true);
         INFO("run compute optional: cov biased");
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
@@ -239,7 +239,9 @@ public:
         check_compute_result(cov_desc, data, compute_result);
     }
 
-    void check_compute_result(const covariance::descriptor<Float, Method>& desc, const table& data, const covariance::compute_result<>& result) {
+    void check_compute_result(const covariance::descriptor<Float, Method>& desc,
+                              const table& data,
+                              const covariance::compute_result<>& result) {
         if (result.get_result_options().test(result_options::cov_matrix)) {
             const auto cov_matrix = result.get_cov_matrix();
             INFO("check if cov matrix table shape is expected")
@@ -295,7 +297,9 @@ public:
         return reference_means;
     }
 
-    void check_cov_matrix_values(const covariance::descriptor<Float, Method>& desc, const table& data, const table& cov_matrix) {
+    void check_cov_matrix_values(const covariance::descriptor<Float, Method>& desc,
+                                 const table& data,
+                                 const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(desc, data);
         const auto data_matrix = la::matrix<double>::wrap(cov_matrix);
         const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
@@ -303,7 +307,8 @@ public:
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cov(const covariance::descriptor<Float, Method>& desc, const table& data) {
+    la::matrix<double> compute_reference_cov(const covariance::descriptor<Float, Method>& desc,
+                                             const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count_data = data_matrix.get_row_count();
         const auto column_count_data = data_matrix.get_column_count();
@@ -326,14 +331,17 @@ public:
         }
         return reference_cov;
     }
-    void check_cor_matrix_values(const covariance::descriptor<Float, Method>& desc, const table& data, const table& cor_matrix) {
+    void check_cor_matrix_values(const covariance::descriptor<Float, Method>& desc,
+                                 const table& data,
+                                 const table& cor_matrix) {
         const auto reference_cor = compute_reference_cor(desc, data);
         const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cor, cor_matrix);
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cor(const covariance::descriptor<Float, Method>& desc, const table& data) {
+    la::matrix<double> compute_reference_cor(const covariance::descriptor<Float, Method>& desc,
+                                             const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = compute_reference_means(data);

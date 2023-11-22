@@ -31,7 +31,8 @@ int main(int argc, char const *argv[]) {
 
     auto result = dal::compute(cov_desc, input);
 
-    std::cout << "Maximum likelihood covariance estimation:\n" << result.get_cov_matrix() << std::endl;
+    std::cout << "Maximum likelihood covariance estimation:\n"
+              << result.get_cov_matrix() << std::endl;
 
     return 0;
 }

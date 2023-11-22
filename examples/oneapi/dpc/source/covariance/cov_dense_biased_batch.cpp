@@ -37,7 +37,8 @@ void run(sycl::queue &q) {
 
     auto result = dal::compute(q, cov_desc, input);
 
-    std::cout << "Maximum likelihood covariance estimation:\n" << result.get_cov_matrix() << std::endl;
+    std::cout << "Maximum likelihood covariance estimation:\n"
+              << result.get_cov_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

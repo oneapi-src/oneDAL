@@ -104,7 +104,8 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, false, { copy_event });
+    const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
@@ -124,7 +125,8 @@ auto compute_correlation_from_covariance(sycl::queue& q,
 
     auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
 
-    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, false, deps);
+    const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, bias, deps);
 
     return std::make_tuple(corr, corr_event);
 }
