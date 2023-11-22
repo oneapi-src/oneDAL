@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
     dal::csr_accessor<const double> accessor{ test_table };
     auto [slice_data, slice_indices, slice_offsets] = accessor.pull({ 1, 3 });
 
-    // Printing components of slice: data, indices, offsets
+    // Print components of slice: data, indices, offsets
     std::cout << "Slice of elements (compressed): " << slice_data << '\n';
     std::cout << "Slice of indices (compressed): " << slice_indices << '\n';
     std::cout << "Slice of offsets: " << slice_offsets << std::endl;
