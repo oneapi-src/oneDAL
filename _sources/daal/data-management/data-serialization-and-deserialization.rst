@@ -24,13 +24,7 @@ device failure.
 
 The InputDataArchive class provides interfaces for creation of a
 serialized object archive. The OutputDataArchive class provides
-interfaces for deserialization of an object from the archive. To
-reduce network traffic, memory, or persistent storage footprint, you
-can compress data objects during serialization and decompress them
-back during deserialization. To this end, provide Compressor and
-Decompressor objects as arguments for InputDataArchive and
-OutputDataArchive constructors respectively. For details of
-compression and decompression, see :ref:`data_compression`.
+interfaces for deserialization of an object from the archive.
 
 A general structure of an archive is as follows:
 
@@ -54,9 +48,4 @@ Examples
 ********
 
 C++: :cpp_example:`serialization/serialization.cpp`
-
-Java: 
- .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-- :java_example:`serialization/SerializationExample.java`
 

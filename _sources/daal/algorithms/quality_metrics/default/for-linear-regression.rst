@@ -348,12 +348,3 @@ Examples
 
     - :cpp_example:`lin_reg_metrics_dense_batch.cpp <quality_metrics/lin_reg_metrics_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`LinRegMetricsDenseBatch.java <quality_metrics/LinRegMetricsDenseBatch.java>`

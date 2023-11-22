@@ -43,7 +43,7 @@ a storage that:
    possible to create a new array from another one without any data copies.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 The following listing provides a brief introduction to the array API and an example of basic
