@@ -54,7 +54,7 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
                 "-no-canonical-prefixes",
             ]
         if compiler_id == "icpx":
-            flags = flags + ["-fsycl"] + ["-fno-canonical-system-headers"]+["-no-canonical-prefixes"]
+            flags = flags + ["-fsycl"] + ["-fno-canonical-system-headers"]+["-no-canonical-prefixes"] + ["-H"]
         if compiler_id == "icpx" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]

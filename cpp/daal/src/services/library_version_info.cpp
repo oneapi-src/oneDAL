@@ -27,7 +27,7 @@
 #include "services/env_detect.h"
 
 #ifndef DAAL_REF // temporary!!! should depend both on BACKEND and TARGETARCH
-    #include "mkl_daal.h"
+    #include <mkl.h>
 static const char * cpu_long_names[] = { "Generic",
                                          "Supplemental Streaming SIMD Extensions 3",
                                          "Intel(R) Streaming SIMD Extensions 4.2",

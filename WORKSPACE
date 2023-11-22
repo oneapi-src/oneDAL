@@ -33,14 +33,16 @@ opencl_repo(
 load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo")
 micromkl_repo(
     name = "micromkl",
-    root_env_var = "MKLFPKROOT",
+#    root_env_var = "MKLFPKROOT",
+    root_env_var = "MKLROOT",
     url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20221214.tgz",
     sha256 = "34001657cfe7127ff0de9d6bf0cb4d9fc4d0be1037e5615f8c899c7193a8be8b",
 )
 
 micromkl_dpc_repo(
     name = "micromkl_dpc",
-    root_env_var = "MKLGPUFPKROOT",
+#    root_env_var = "MKLGPUFPKROOT",
+    root_env_var = "MKLROOT",
     url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20221214.tgz",
     sha256 = "1bd9e3ef850d95d1ee00e0f04943c8ed2490175fca6a7b331cab91a124ab301e",
 )

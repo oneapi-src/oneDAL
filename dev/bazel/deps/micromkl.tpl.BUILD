@@ -2,14 +2,29 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "headers",
-    hdrs = glob(["include/*.h", "%{os}/include/*.h"]),
-    includes = [ "include", "%{os}/include" ],
+    hdrs = glob([
+        "include/*.h",
+        "include/oneapi/*.hpp",
+        "include/oneapi/mkl/*.hpp",
+        "include/oneapi/mkl/blas/*.hpp",
+        "include/oneapi/mkl/vm/*.hpp",
+        "include/oneapi/mkl/rng/*.hpp",
+        "include/oneapi/mkl/rng/detail/*.hpp"
+    ]),
+    includes = [
+        "include",
+        "include/oneapi",
+        "include/oneapi/mkl",
+        "include/oneapi/mkl/blas",
+        "include/oneapi/mkl/vm",
+        "include/oneapi/mkl/rng",
+        "include/oneapi/mkl/rng/detail" ],
 )
 
 cc_library(
     name = "vml_ipp",
     srcs = [
-        "%{os}/lib/libdaal_vmlipp_core.a",
+        "lib/intel64/libmkl_intel_thread.a",
     ],
     deps = [
         ":headers",
@@ -19,7 +34,7 @@ cc_library(
 cc_library(
     name = "mkl_thr",
     srcs = [
-        "%{os}/lib/libdaal_mkl_thread.a",
+        "lib/intel64/libmkl_intel_thread.a",
     ],
     deps = [
         ":headers",
