@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
                                                      column_count,
                                                      dal::sparse_indexing::zero_based);
 
-    // Some sanity checks for the table shape
+    // Sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
