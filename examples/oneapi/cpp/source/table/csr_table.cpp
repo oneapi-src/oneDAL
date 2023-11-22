@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 10;
 
-    // Generating data on host
+    // Generate data on the host
     auto offsets = generate_offsets(row_count, column_count);
     auto indices = generate_indices(column_count, offsets);
     auto data = generate_data(offsets);
