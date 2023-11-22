@@ -79,7 +79,6 @@ struct ColIndexTask
             {
                 s |= entry.allocBorders();
                 DAAL_CHECK(s, s);
-                entry.min           = index[0].key;
                 entry.binBorders[0] = index[nRows - 1].key;
             }
 
@@ -109,7 +108,6 @@ struct ColIndexTask
 
             IndexType iUnique    = 0;
             algorithmFPType prev = index[0].key;
-            entry.min            = prev;
             entry.binBorders[0]  = prev;
 
             for (size_t i = 1; i < nRows; ++i)
@@ -210,8 +208,6 @@ services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::assignIndexA
                                                                                                IndexType * aRes, size_t nBins, size_t nRows)
 {
     const typename super::FeatureIdx * index = this->_index.get();
-
-    entry.min = index[0].key;
 
     if (nBins == 1)
     {

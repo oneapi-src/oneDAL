@@ -1010,7 +1010,7 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const In
 {
     //randomly select a histogram split index
     algorithmFPType fidx   = 0;
-    algorithmFPType minval = minidx ? this->indexedFeatures().binRightBorder(iFeature, minidx - 1) : this->indexedFeatures().min(iFeature);
+    algorithmFPType minval = this->indexedFeatures().binRightBorder(iFeature, minidx);
     algorithmFPType maxval = this->indexedFeatures().binRightBorder(iFeature, maxidx);
     size_t mid;
     size_t l   = minidx;
@@ -1021,7 +1021,7 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const In
     while (l < idx)
     {
         mid = l + (idx - l) / 2;
-        if (this->indexedFeatures().binRightBorder(iFeature, idx) > fidx)
+        if (this->indexedFeatures().binRightBorder(iFeature, mid) > fidx)
         {
             idx = mid;
         }
@@ -1030,7 +1030,7 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const In
             l = mid + 1;
         }
     }
-    return idx;
+    return idx-1;
 }
 
 template <typename algorithmFPType, CpuType cpu>
