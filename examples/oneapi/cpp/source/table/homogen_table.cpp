@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     // Generate table on host
     const dal::table test_table = get_table(row_count, column_count);
 
-    // Some sanity checks for the table shape
+    // Sanity checks for the table shape
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
