@@ -86,7 +86,7 @@ void run(sycl::queue& queue) {
 }
 
 int main(int argc, char** argv) {
-    // Going throw different devices
+    // Go through different devices
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
