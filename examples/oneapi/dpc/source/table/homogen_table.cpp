@@ -72,7 +72,7 @@ void run(sycl::queue& queue) {
     std::cout << "Number of rows in table: " << test_table.get_row_count() << '\n';
     std::cout << "Number of columns in table: " << test_table.get_column_count() << '\n';
 
-    // Checking type of an abstract table
+    // Check the type of abstract table
     const bool is_homogen = test_table.get_kind() == dal::homogen_table::kind();
     std::cout << "Is homogeneous table: " << is_homogen << '\n';
 
