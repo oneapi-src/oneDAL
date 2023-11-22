@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 24;
 
     // Generate data on the host with different types and
-    // different number of chunks
+    // different numbers of chunks
     auto column_1 = get_chunked_arange<float>(row_count, 1);
     auto column_2 = get_chunked_arange<double>(row_count, 2);
     auto column_3 = get_chunked_arange<std::int8_t>(row_count, 3);
