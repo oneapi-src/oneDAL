@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     const bool is_homogen = test_table.get_kind() == dal::homogen_table::kind();
     std::cout << "Is homogeneous table: " << is_homogen << '\n';
 
-    // Extracting row slice of data on host
+    // Extract row slice of data on the host
     dal::row_accessor<const double> accessor{ test_table };
     dal::array<double> slice = accessor.pull({ 1l, 3l });
 
