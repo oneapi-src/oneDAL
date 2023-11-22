@@ -66,7 +66,7 @@ dal::chunked_array<Type> get_chunked_arange(std::int64_t count, std::int64_t chu
 int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 24;
 
-    // Generating data on host with different types and
+    // Generate data on the host with different types and
     // different number of chunks
     auto column_1 = get_chunked_arange<float>(row_count, 1);
     auto column_2 = get_chunked_arange<double>(row_count, 2);
