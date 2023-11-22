@@ -14,37 +14,36 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. highlight:: cpp
 .. default-domain:: cpp
 
-.. _api_logloss:
+.. _api_newton_cg:
 
-==================
-Logistic Loss
-==================
+===================
+Newton-CG Optimizer
+===================
 
-.. include::  ../../../includes/objective-function/logloss-introduction.rst
+.. include::  ../../../includes/optimizers/newton-cg-introduction.rst
 
 ------------------------
-Mathematical formulation
+Mathematical Formulation
 ------------------------
 
-Refer to :ref:`Developer Guide: Logistic Loss <alg_logloss>`.
+Refer to :ref:`Developer Guide: Newton-CG <alg_newton_cg>`.
 
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section are declared in the
-``oneapi::dal::logloss_objective`` namespace.
+All types and functions are declared in the
+``oneapi::dal::newton_cg`` namespace.
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::logloss_objective::descriptor
+.. onedal_class:: oneapi::dal::newton_cg::descriptor
 
-Method tags
+Method Tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::method
+.. onedal_tags_namespace:: oneapi::dal::newton_cg::method
 
-Task tags
+Task Tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::logloss_objective::task
+.. onedal_tags_namespace:: oneapi::dal::newton_cg::task
