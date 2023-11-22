@@ -38,7 +38,7 @@ dal::table get_table(std::int64_t row_count, std::int64_t column_count) {
                                      delete[] ptr;
                                  });
 
-    // Filling array with some structured data
+    // Fill array with structured data
     for (std::int64_t row = 0l; row < row_count; ++row) {
         for (std::int64_t col = 0l; col < column_count; ++col) {
             const std::int64_t idx = row * column_count + col;
