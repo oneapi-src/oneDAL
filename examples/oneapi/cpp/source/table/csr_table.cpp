@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
     const bool is_csr = test_table.get_kind() == dal::csr_table::kind();
     std::cout << "Is CSR table: " << is_csr << '\n';
 
-    // Extracting CSR slice of data on host
+    // Extract CSR slice of data on the host
     dal::csr_accessor<const double> accessor{ test_table };
     auto [slice_data, slice_indices, slice_offsets] = accessor.pull({ 1, 3 });
 
