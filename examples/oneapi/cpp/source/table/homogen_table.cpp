@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 3;
 
-    // Generating table on host
+    // Generate table on host
     const dal::table test_table = get_table(row_count, column_count);
 
     // Some sanity checks for the table shape
