@@ -405,7 +405,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
             const Index ftr_position = node_id * ftr_count + ftr_id;
-            const auto ftr_hist = hists_ptr + ftr_position * hist_prop_count;
+            hist_type_t* const ftr_hist = hists_ptr + ftr_position * hist_prop_count;
 
             const Index ts_ftr_id = selected_ftr_list_ptr[ftr_position];
 
@@ -474,11 +474,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 else {
                     // Regression case
                     const Index work_size = local_size / act_bin_block;
-                    Index count = 0;
-                    Float sum = 0;
-                    Float weight = 0;
                     if (local_id < work_size * act_bin_block) {
+                        Index count = 0;
+                        Float sum = 0;
+                        Float weight = 0;
                         const Index bin_id = local_id % act_bin_block;
+                        const Index loc_bin_pos = bin_id * hist_prop_count;
                         for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
                              row_idx += work_size) {
                             const Index id = tree_order_ptr[row_ofs + row_idx];
@@ -492,7 +493,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                 }
                             }
                         }
-                        Index loc_bin_pos = bin_id * hist_prop_count;
                         sycl::atomic_ref<Float,
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
@@ -611,9 +611,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             split_smp_t sp_hlp;
             // Check node impurity
             if (!sp_hlp.is_valid_impurity(node_imp_list_ptr, node_id, imp_threshold, row_count)) {
-                return;
-            }
-            if (row_count < 2 * min_obs_leaf) {
                 return;
             }
             auto node_splits = splits_ptr + node_id * ftr_count;
