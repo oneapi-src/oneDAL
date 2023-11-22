@@ -46,7 +46,7 @@ dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::in
                             });
 }
 
-// Generating a chunked array on host
+// Generate a chunked array on host
 // with a specified number of chunks
 template <typename Type = float>
 dal::chunked_array<Type> get_chunked_arange(std::int64_t count, std::int64_t chunk_count = 2l) {
