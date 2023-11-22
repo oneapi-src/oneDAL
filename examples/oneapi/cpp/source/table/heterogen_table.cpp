@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     const bool is_heterogen = test_table.get_kind() == dal::heterogen_table::kind();
     std::cout << "Is heterogeneous table: " << is_heterogen << '\n';
 
-    // Extracting row slice of data on host
+    // Extract row slice of data on the host
     dal::row_accessor<const double> accessor{ test_table };
     dal::array<double> slice = accessor.pull({ 3l, 17l });
 
