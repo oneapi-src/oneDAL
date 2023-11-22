@@ -76,7 +76,7 @@ void run(sycl::queue& queue) {
     const bool is_homogen = test_table.get_kind() == dal::homogen_table::kind();
     std::cout << "Is homogeneous table: " << is_homogen << '\n';
 
-    // Extracting row slice of data on device
+    // Extract row slice of data on the device
     dal::row_accessor<const float> accessor{ test_table };
     dal::array<float> slice = accessor.pull(queue, { 1l, 3l });
 
