@@ -1940,8 +1940,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
         }
 
         for (Index level = 0; node_count > 0; ++level) {
-            // std::cout << "level=" << level << std::endl;
-            // if (level > 2) break;
             auto node_list = level_node_lists[level];
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
 

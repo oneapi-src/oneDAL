@@ -405,13 +405,15 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
             const Index ftr_position = node_id * ftr_count + ftr_id;
+            const auto ftr_hist = hists_ptr + ftr_position * hist_prop_count;
+
             const Index ts_ftr_id = selected_ftr_list_ptr[ftr_position];
 
             if (local_id == 0) {
                 splits_ptr[ftr_position].clear();
             }
+
             for (Index idx = local_id; idx < hist_prop_count; idx += local_size) {
-                auto ftr_hist = hists_ptr + ftr_position * hist_prop_count;
                 ftr_hist[idx] = 0;
             }
 
@@ -585,15 +587,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     split_scalar_t& block_split = local_scalars[0];
                     if (sp_hlp.test_split_is_best(best_split, block_split, min_obs_leaf)) {
                         const Index best_id = block_split.ftr_bin - bin_ofs;
-                        auto cur_ftr_hist = hists_ptr + ftr_position * hist_prop_count;
                         best_split.copy(block_split);
-                        Index check_sum = 0;
                         for (Index idx = 0; idx < hist_prop_count; ++idx) {
-                            cur_ftr_hist[idx] = local_hist[best_id * hist_prop_count + idx];
-                            check_sum += cur_ftr_hist[idx];
-                        }
-                        if (check_sum != best_split.left_count) {
-                            best_split.ftr_bin = -2;
+                            ftr_hist[idx] = local_hist[best_id * hist_prop_count + idx];
                         }
                     }
                 }
@@ -601,33 +597,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             }
         });
     });
-
-    // {
-    //     auto host_splits = best_ftr_splits.to_host(queue, { last_event });
-    //     auto host_splits_ptr = host_splits.get_data();
-    //     auto host_hists = best_ftr_hists.to_host(queue, {last_event});
-    //     auto host_hists_ptr = host_hists.get_data();
-    //     for (Index node_id = 0; node_id < node_count; ++node_id) {
-    //         for (Index ftr_id = 0; ftr_id < ftr_count; ++ftr_id) {
-    //             const split_scalar_t& scal = host_splits_ptr[node_id * ftr_count + ftr_id];
-    //             const auto cur_hist = host_hists_ptr + (node_id * ftr_count + ftr_id) * hist_prop_count;
-    //             Index hist_left_sum = 0;
-    //             for (Index idx = 0; idx < hist_prop_count; ++idx) {
-    //                 hist_left_sum += cur_hist[idx];
-    //             }
-    //             if (std::is_same_v<Task, task::classification> && scal.ftr_bin == -2) {
-    //                 std::cout << "----------- node_id:" << node_id << std::endl;
-    //                 std::cout << "AaAAAAAAAAAAAA ";
-    //                 std::cout << "ftr_id = " << scal.ftr_id << " bin=" << scal.ftr_bin << " imp_dec=" << scal.imp_dec << " left_count=" << scal.left_count << " hist_left_sum=" << hist_left_sum << std::endl;
-    //                 std::cout << "HISSST:" << std::endl;
-    //                 for (Index idx = 0; idx < hist_prop_count; ++idx) {
-    //                     std::cout << cur_hist[idx] << " ";
-    //                 }
-    //                 std::cout << std::endl;
-    //             }
-    //         }
-    //     }
-    // }
 
     const auto merge_range =
         bk::make_multiple_nd_range_2d({ node_count, local_size }, { 1, local_size });
@@ -654,6 +623,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             ftr_indices[local_id] = local_id;
             item.barrier(sycl::access::fence_space::local_space);
 
+            // Select best split inside one working item
             for (Index ftr_id = local_id; ftr_id < ftr_count; ftr_id += local_size) {
                 split_scalar_t& s1 = node_splits[local_id];
                 split_scalar_t& s2 = node_splits[ftr_id];
@@ -663,6 +633,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
             }
 
+            // Select best split among working group
             for (Index i = local_size / 2; i > 0; i >>= 1) {
                 item.barrier(sycl::access::fence_space::local_space);
                 if (local_id < i && (local_id + i) < ftr_count) {
@@ -675,7 +646,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
             }
 
-            if (local_id == 0 && node_splits[0].ftr_bin >= 0) {
+            // Assign best split mong all features to global result
+            if (local_id == 0) {
                 split_info_t bs;
                 bs.scalars.copy(node_splits[0]);
                 const auto hist =
@@ -701,19 +673,6 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             }
         });
     });
-
-    // {
-    //     std::cout << "============ BEST: =========" << std::endl;
-    //     auto host_splits = best_ftr_splits.to_host(queue, { last_event });
-    //     auto host_splits_ptr = host_splits.get_data();
-    //     for (Index node_id = 0; node_id < node_count; ++node_id) {
-    //         std::cout << "----------- node_id: " << node_id << " ------------" << std::endl;
-    //         for (Index ftr_id = 0; ftr_id < 1; ++ftr_id) {
-    //             const split_scalar_t& scal = host_splits_ptr[node_id * ftr_count + ftr_id];
-    //             std::cout << "ftr_id = " << scal.ftr_id << " bin=" << scal.ftr_bin << " imp_dec=" << scal.imp_dec << " left_count=" << scal.left_count << std::endl;
-    //         }
-    //     }
-    // }
 
     last_event.wait_and_throw();
     return last_event;
