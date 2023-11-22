@@ -77,7 +77,7 @@ dal::array<Index> generate_indices(std::int64_t column_count, const dal::array<I
                              });
 }
 
-// Generating data for the table in determenistic way
+// Generating data for the table in deterministic way
 template <typename Type = float, typename Index = std::int64_t>
 dal::array<Type> generate_data(const dal::array<Index>& offsets) {
     const std::int64_t offset_count = offsets.get_count();
