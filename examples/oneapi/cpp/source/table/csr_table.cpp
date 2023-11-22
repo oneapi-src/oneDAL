@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     auto indices = generate_indices(column_count, offsets);
     auto data = generate_data(offsets);
 
-    // Wrapping previously generated pieces of data
+    // Wrap previously generated data
     dal::csr_table test_table = dal::csr_table::wrap(data, //
                                                      indices,
                                                      offsets,
