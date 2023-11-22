@@ -80,7 +80,7 @@ void run(sycl::queue& queue) {
     dal::row_accessor<const float> accessor{ test_table };
     dal::array<float> slice = accessor.pull(queue, { 1l, 3l });
 
-    // Moving data to be readable on CPU
+    // Move data to be readable on CPU
     dal::array<float> on_host = to_host(slice);
     std::cout << "Slice of elements: " << slice << std::endl;
 }
