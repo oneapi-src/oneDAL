@@ -877,7 +877,7 @@ size_t OrderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const Inde
             l = mid + 1;
         }
     }
-    return idx-1;
+    return idx - 1;
 }
 
 template <typename algorithmFPType, CpuType cpu>
