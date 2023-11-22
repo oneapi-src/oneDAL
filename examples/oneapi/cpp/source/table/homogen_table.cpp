@@ -31,7 +31,7 @@ dal::table get_table(std::int64_t row_count, std::int64_t column_count) {
     const std::int64_t elem_count = row_count * column_count;
     auto* const raw_data = new Type[elem_count];
 
-    // Let's create an array using raw pointer and deleter
+    // Create an array using raw pointer and delete[ ]
     auto data = dal::array<Type>(raw_data,
                                  elem_count, //
                                  [](Type* const ptr) -> void {
