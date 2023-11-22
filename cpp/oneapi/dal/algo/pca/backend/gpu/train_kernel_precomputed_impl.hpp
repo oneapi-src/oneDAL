@@ -37,7 +37,9 @@ class train_kernel_precomputed_impl {
 
 public:
     train_kernel_precomputed_impl(const bk::context_gpu& ctx) : q_(ctx.get_queue()) {}
-    result_t operator()(const descriptor_t& desc, const input_t& input);
+    result_t operator()(const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
+                        const input_t& input);
 
 private:
     sycl::queue q_;

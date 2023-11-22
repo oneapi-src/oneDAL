@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/pca/sign_flip.hpp"
+//#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::backend {
@@ -117,7 +117,9 @@ static train_result<Task> train(const context_gpu& ctx,
         }
 
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            //eigvecs.to_device(q);
+            //sign_flip(q,eigvecs);
+            //eigvecs.to_host(q);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(

@@ -22,7 +22,8 @@ template <typename Float>
 struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
     train_result<task::dim_reduction> operator()(
         const dal::backend::context_gpu& ctx,
-        const detail::descriptor_base<task::dim_reduction>& params,
+        const detail::descriptor_base<task::dim_reduction>& desc,
+        const detail::train_parameters<task::dim_reduction>& params,
         const train_input<task::dim_reduction>& input) const {
         throw unimplemented(
             dal::detail::error_messages::pca_svd_based_method_is_not_implemented_for_gpu());

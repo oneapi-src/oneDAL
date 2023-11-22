@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/pca/sign_flip.hpp"
+#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 namespace oneapi::dal::pca::backend {
 

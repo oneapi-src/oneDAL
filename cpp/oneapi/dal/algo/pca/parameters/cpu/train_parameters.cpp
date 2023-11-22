@@ -85,7 +85,71 @@ struct train_parameters_cpu<Float, method::cov, Task> {
     }
 };
 
+template <typename Float, typename Task>
+struct train_parameters_cpu<Float, method::svd, Task> {
+    using params_t = detail::train_parameters<Task>;
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const train_input<Task>& input) const {
+        const auto& x = input.get_data();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const {
+        const auto block = propose_block_size<Float>(ctx, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const {
+        const auto block = propose_block_size<Float>(ctx, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+};
+
+template <typename Float, typename Task>
+struct train_parameters_cpu<Float, method::precomputed, Task> {
+    using params_t = detail::train_parameters<Task>;
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const train_input<Task>& input) const {
+        const auto& x = input.get_data();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const {
+        const auto block = propose_block_size<Float>(ctx, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const {
+        const auto block = propose_block_size<Float>(ctx, 100);
+
+        return params_t{}.set_cpu_macro_block(block);
+    }
+};
+
 template struct ONEDAL_EXPORT train_parameters_cpu<float, method::cov, task::dim_reduction>;
 template struct ONEDAL_EXPORT train_parameters_cpu<double, method::cov, task::dim_reduction>;
-
+template struct ONEDAL_EXPORT train_parameters_cpu<float, method::precomputed, task::dim_reduction>;
+template struct ONEDAL_EXPORT
+    train_parameters_cpu<double, method::precomputed, task::dim_reduction>;
+template struct ONEDAL_EXPORT train_parameters_cpu<float, method::svd, task::dim_reduction>;
+template struct ONEDAL_EXPORT train_parameters_cpu<double, method::svd, task::dim_reduction>;
 } // namespace oneapi::dal::pca::parameters

@@ -42,6 +42,7 @@ struct train_ops {
     using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
+
     using input_t = train_input<task_t>;
     using param_t = train_parameters<task_t>;
     using result_t = train_result<task_t>;
@@ -95,7 +96,6 @@ struct train_ops {
         check_parameters_ranges(params, input);
         const auto result =
             train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
-        train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, params, input);
         check_postconditions(desc, input, result);
         return result;
     }

@@ -11,6 +11,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo/pca:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
+        "@onedal//cpp/oneapi/dal/backend/primitives:sign_flip",
         "@onedal//cpp/oneapi/dal/backend/primitives:stat",
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],

@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_precomputed_impl.hpp"
 
-#include "oneapi/dal/algo/pca/sign_flip.hpp"
+#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -40,16 +40,20 @@ using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 template <typename Float>
-static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return train_kernel_precomputed_impl<Float>(ctx)(desc, input);
+static result_t train(const context_gpu& ctx,
+                      const descriptor_t& desc,
+                      const detail::train_parameters<task::dim_reduction>& params,
+                      const input_t& input) {
+    return train_kernel_precomputed_impl<Float>(ctx)(desc, params, input);
 }
 
 template <typename Float>
 struct train_kernel_gpu<Float, method::precomputed, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float>(ctx, desc, params, input);
     }
 };
 

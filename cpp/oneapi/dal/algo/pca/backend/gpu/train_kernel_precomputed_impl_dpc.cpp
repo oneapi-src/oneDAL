@@ -24,7 +24,7 @@
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 
-#include "oneapi/dal/algo/pca/sign_flip.hpp"
+//#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -78,8 +78,10 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 }
 
 template <typename Float>
-result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& desc,
-                                                          const input_t& input) {
+result_t train_kernel_precomputed_impl<Float>::operator()(
+    const descriptor_t& desc,
+    const detail::train_parameters<task::dim_reduction>& params,
+    const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
     ONEDAL_ASSERT(data.get_column_count() > 0);
@@ -104,7 +106,9 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
         }
 
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            //eigvecs.to_device(q_);
+            //sign_flip(q_,eigvecs);
+            //eigvecs.to_host(q_);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(

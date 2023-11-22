@@ -23,8 +23,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-
-#include "oneapi/dal/algo/pca/sign_flip.hpp"
+//#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -212,7 +211,9 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc,
         }
 
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            //eigvecs.to_device(q_);
+            //sign_flip(q_,eigvecs);
+            //eigvecs.to_host(q_);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(

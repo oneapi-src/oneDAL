@@ -41,6 +41,7 @@ using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::bat
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
+                                 const detail::train_parameters<task::dim_reduction>& params,
                                  const table& data) {
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
@@ -95,16 +96,20 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+static result_t train(const context_cpu& ctx,
+                      const descriptor_t& desc,
+                      const detail::train_parameters<task::dim_reduction>& params,
+                      const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, params, input.get_data());
 }
 
 template <typename Float>
 struct train_kernel_cpu<Float, method::precomputed, task::dim_reduction> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float>(ctx, desc, params, input);
     }
 };
 
