@@ -38,7 +38,7 @@ dal::array<Type> get_arange(std::int64_t count, std::int64_t first = 0l, std::in
         raw_data[i] = static_cast<Type>(value);
     }
 
-    // Let's create an array using raw pointer and deleter
+    // Create an array using raw pointer and delete[ ]
     return dal::array<Type>(raw_data,
                             count, //
                             [](Type* const ptr) -> void {
