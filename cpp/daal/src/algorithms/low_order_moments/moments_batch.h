@@ -63,7 +63,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     {
         for (size_t i = 0; i < lastResultId + 1; i++)
         {
-            Argument::set(i, internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
+            Argument::set(i, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
             DAAL_CHECK_STATUS_VAR(s);
         }
     }
@@ -100,7 +100,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     {
         for (size_t i = 0; i < lastResultId + 1; i++)
         {
-            Argument::set(i, internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
+            Argument::set(i, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
             DAAL_CHECK_STATUS_VAR(s);
         }
     }

@@ -27,6 +27,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include <daal/src/algorithms/low_order_moments/moments_online.h>
+#include <daal/src/algorithms/low_order_moments/moments_batch.h>
 #include <daal/src/algorithms/low_order_moments/low_order_moments_kernel.h>
 
 namespace oneapi::dal::basic_statistics::backend {
