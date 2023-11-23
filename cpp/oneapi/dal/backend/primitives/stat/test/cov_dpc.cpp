@@ -248,7 +248,12 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
                                     float_t(0),
                                     { gemm_event_cov });
     pr::means(this->get_queue(), data.get_dimension(0), sums, means, { gemm_event_corr });
-    auto cov_event = pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, bias, { gemm_event_corr });
+    auto cov_event = pr::covariance(this->get_queue(),
+                                    data.get_dimension(0),
+                                    sums,
+                                    cov,
+                                    bias,
+                                    { gemm_event_corr });
     pr::variances(this->get_queue(), cov, vars, { cov_event }).wait_and_throw();
     correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr })
         .wait_and_throw();
@@ -298,8 +303,12 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     auto gemm_event_corr =
         pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0), {});
 
-    auto cov_event =
-        pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, bias, { gemm_event_cov });
+    auto cov_event = pr::covariance(this->get_queue(),
+                                    data.get_dimension(0),
+                                    sums,
+                                    cov,
+                                    bias,
+                                    { gemm_event_cov });
     auto var_event = pr::variances(this->get_queue(), cov, vars, { cov_event });
     auto corr_event =
         correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr });
