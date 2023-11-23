@@ -55,7 +55,7 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
-    const bool deterministic = false;
+    const bool deterministic = true;
     const auto pca_desc = this->get_descriptor(component_count, deterministic);
     const auto gold_data = this->get_gold_data();
 
@@ -68,10 +68,10 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
         this->check_eigenvalues(gold_eigenvalues, eigenvalues);
     }
 
-    // INFO("check eigenvectors") {
-    //     const auto gold_eigenvectors = this->get_gold_eigenvectors();
-    //     this->check_eigenvectors(gold_eigenvectors, eigenvectors);
-    // }
+    INFO("check eigenvectors") {
+        const auto gold_eigenvectors = this->get_gold_eigenvectors();
+        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
+    }
 }
 
 TEMPLATE_LIST_TEST_M(pca_batch_test,
@@ -98,7 +98,7 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
-    const bool deterministic = false;
+    const bool deterministic = true;
     const auto pca_desc = this->get_descriptor(component_count, deterministic);
     const auto gold_data = this->get_gold_cor();
 
@@ -112,10 +112,10 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
         this->check_eigenvalues(gold_eigenvalues, eigenvalues);
     }
 
-    // INFO("check eigenvectors") {
-    //     const auto gold_eigenvectors = this->get_gold_eigenvectors();
-    //     this->check_eigenvectors(gold_eigenvectors, eigenvectors);
-    // }
+    INFO("check eigenvectors") {
+        const auto gold_eigenvectors = this->get_gold_eigenvectors();
+        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
+    }
 }
 
 } // namespace oneapi::dal::pca::test

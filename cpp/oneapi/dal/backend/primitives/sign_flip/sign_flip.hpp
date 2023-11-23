@@ -33,7 +33,7 @@ namespace oneapi::dal::backend::primitives {
 /// @param[out] corr  The [p x p] correlation matrix
 /// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
-sycl::event sign_flip(sycl::queue q, ndview<Float, 2>& eigvecs, const event_vector& deps = {});
+sycl::event sign_flip(sycl::queue& q, ndview<Float, 2>& eigvecs, const event_vector& deps = {});
 
 #endif
 

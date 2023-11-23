@@ -75,9 +75,22 @@ inline sycl::event sign_flip_impl(sycl::queue q,
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>(row_count), [=](sycl::id<1> idx) {
             const std::int64_t i = idx[0];
-            sign_flip_vector(eigvecs + i * column_count, column_count);
+
+            std::int64_t max_index = 0;
+            for (std::int64_t j = 1; j < column_count; ++j) {
+                if (std::fabs(eigvecs[i * column_count + j]) >
+                    std::fabs(eigvecs[i * column_count + max_index])) {
+                    max_index = j;
+                }
+            }
+            if (eigvecs[i * column_count + max_index] < 0) {
+                for (std::int64_t j = 0; j < column_count; ++j) {
+                    eigvecs[i * column_count + j] = -eigvecs[i * column_count + j];
+                }
+            }
         });
     });
+
     return update_event;
 }
 
