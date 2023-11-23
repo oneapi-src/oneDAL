@@ -28,7 +28,7 @@ The ``row_accessor`` class provides a read-only access to the rows of the
 <homogeneous data>` array.
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/data-management/row-accessor-usage-example.rst

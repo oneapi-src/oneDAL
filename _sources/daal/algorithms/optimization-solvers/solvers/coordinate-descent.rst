@@ -120,10 +120,3 @@ Examples
 
     - :cpp_example:`cd_dense_batch.cpp <optimization_solvers/cd_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    - :java_example:`CDDenseBatch.java <optimization_solvers/CDDenseBatch.java>`

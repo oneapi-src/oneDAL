@@ -126,21 +126,6 @@ Examples
 
     - :cpp_example:`impl_als_csr_distr.cpp <implicit_als/impl_als_csr_distr.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`ImplAlsDenseBatch.java <implicit_als/ImplAlsDenseBatch.java>`
-    - :java_example:`ImplAlsCSRBatch.java <implicit_als/ImplAlsCSRBatch.java>`
-
-    Distributed Processing:
-
-    - :java_example:`ImplAlsCSRDistr.java <implicit_als/ImplAlsCSRDistr.java>`
-
   .. tab:: Python*
 
     Batch Processing:

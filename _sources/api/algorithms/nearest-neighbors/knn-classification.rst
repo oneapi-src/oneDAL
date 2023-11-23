@@ -134,7 +134,7 @@ Operation
      | :expr:`result.labels[i] < desc.class_count`
 
 -------------
-Usage example
+Usage Example
 -------------
 
 .. include:: ../../../includes/nearest-neighbors/knn-usage-examples.rst

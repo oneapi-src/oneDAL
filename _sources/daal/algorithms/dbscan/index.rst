@@ -88,26 +88,6 @@ Examples
 
    - :cpp_example:`dbscan_dense_distr.cpp <dbscan/dbscan_dense_distr.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-   Batch Processing:
-
-   - :java_example:`DBSCANDenseBatch.java <dbscan/DBSCANDenseBatch.java>`
-
-   Distributed Processing:
-
-   - :java_example:`DBSCANDenseDistr.java <dbscan/DBSCANDenseDistr.java>`
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`dbscan_batch.py`
-
   .. tab:: Python*
 
    Batch Processing:

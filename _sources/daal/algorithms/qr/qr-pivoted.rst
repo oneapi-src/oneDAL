@@ -143,15 +143,6 @@ Examples
 
     - :cpp_example:`pivoted_qr_dense_batch.cpp <pivoted_qr/pivoted_qr_dense_batch.cpp>`
 
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    - :java_example:`PivotedQRDenseBatch.java <pivoted_qr/PivotedQRDenseBatch.java>`
 
   .. tab:: Python*
 

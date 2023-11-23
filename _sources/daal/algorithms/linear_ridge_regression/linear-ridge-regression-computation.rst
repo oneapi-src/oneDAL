@@ -451,37 +451,6 @@ Examples
     - :cpp_example:`lin_reg_qr_dense_distr.cpp <linear_regression/>`
     - :cpp_example:`ridge_reg_norm_eq_dense_distr.cpp <ridge_regression/>`
 
-
-  .. tab:: Java*
-
-
-
-   .. note:: The Java interfaces are deprecated in the oneDAL library and may no longer be supported in future releases.
-
-    Batch Processing:
-
-    -  :java_example:`LinRegNormEqDenseBatch.java <linear_regression/LinRegNormEqDenseBatch.java>`
-    -  :java_example:`LinRegQRDenseBatch.java <linear_regression/LinRegQRDenseBatch.java>`
-    -  :java_example:`RidgeRegNormEqDenseBatch.java <ridge_regression/RidgeRegNormEqDenseBatch.java>`
-
-    Online Processing:
-
-    - :java_example:`LinRegNormEqDenseOnline.java <linear_regression/LinRegNormEqDenseOnline.java>`
-    - :java_example:`LinRegQRDenseOnline.java <linear_regression/LinRegQRDenseOnline.java>`
-    - :java_example:`RidgeRegNormEqDenseOnline.java <ridge_regression/RidgeRegNormEqDenseOnline.java>`
-
-    Distributed Processing:
-
-    - :java_example:`LinRegNormEqDenseDistr.java <linear_regression/>`
-    - :java_example:`LinRegQRDenseDistr.java <linear_regression/>`
-    - :java_example:`RidgeRegNormEqDenseDistr.java <ridge_regression/>`
-
-  .. tab:: Python* with DPC++ support
-
-    Batch Processing:
-
-    - :daal4py_sycl_example:`linear_regression_batch.py`
-
   .. tab:: Python*
 
     Batch Processing:
