@@ -9,7 +9,7 @@ cc_library(
 cc_library(
     name = "mkl_dpc",
     srcs = [
-        "lib/libdaal_sycl.a",
+        "lib/intel64/libmkl_sycl.a",
     ],
     deps = [
         ":headers",

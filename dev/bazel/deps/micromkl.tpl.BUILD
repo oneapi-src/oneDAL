@@ -24,7 +24,7 @@ cc_library(
 cc_library(
     name = "vml_ipp",
     srcs = [
-        "lib/intel64/libmkl_intel_thread.a",
+        "lib/intel64/libmkl_tbb_thread.a",
     ],
     deps = [
         ":headers",
@@ -34,7 +34,7 @@ cc_library(
 cc_library(
     name = "mkl_thr",
     srcs = [
-        "lib/intel64/libmkl_intel_thread.a",
+        "lib/intel64/libmkl_tbb_thread.a",
     ],
     deps = [
         ":headers",
