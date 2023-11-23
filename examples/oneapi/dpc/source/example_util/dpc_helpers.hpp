@@ -19,6 +19,9 @@
 #include <vector>
 #include <sycl/sycl.hpp>
 
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/array_utils.hpp"
+
 void try_add_device(std::vector<sycl::device>& devices, int (*selector)(const sycl::device&)) {
     try {
         devices.push_back(sycl::ext::oneapi::detail::select_device(selector));

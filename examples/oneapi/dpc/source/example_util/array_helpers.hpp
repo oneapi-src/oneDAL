@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,20 @@
 
 #pragma once
 
-#include "example_util/dpc_helpers.hpp"
-#include "example_util/input_helpers.hpp"
-#include "example_util/output_helpers.hpp"
-#include "example_util/array_helpers.hpp"
+#include <sycl/sycl.hpp>
+
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/array_utils.hpp"
+
+template <typename Type>
+inline auto to_host(const oneapi::dal::array<Type>& array) {
+    oneapi::dal::detail::default_host_policy policy{};
+    return oneapi::dal::detail::copy(policy, array);
+}
+
+template <typename Type>
+inline auto to_device(sycl::queue& queue, const oneapi::dal::array<Type>& array) {
+    oneapi::dal::detail::data_parallel_policy policy{ queue };
+    return oneapi::dal::detail::copy(policy, array);
+}
