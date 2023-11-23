@@ -20,6 +20,8 @@
 #include <iostream>
 
 #include "example_util/dpc_helpers.hpp"
+#include "example_util/array_helpers.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/common.hpp"
 
