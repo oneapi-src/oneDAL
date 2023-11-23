@@ -37,7 +37,7 @@ class detail::v1::train_result_impl : public base {
 public:
     model<Task> trained_model;
     table eigenvalues;
-    table vt;
+    table u;
     table variances;
     table means;
     result_option_id result_options;
@@ -117,8 +117,8 @@ const table& train_result<Task>::get_eigenvectors() const {
 }
 
 template <typename Task>
-const table& train_result<Task>::get_vt() const {
-    return impl_->vt;
+const table& train_result<Task>::get_u() const {
+    return impl_->u;
 }
 
 template <typename Task>
@@ -159,7 +159,7 @@ void train_result<Task>::set_variances_impl(const table& value) {
 }
 
 template <typename Task>
-void train_result<Task>::set_vt_impl(const table& value) {
+void train_result<Task>::set_u_impl(const table& value) {
     impl_->vt = value;
 }
 
