@@ -14,13 +14,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <sycl/sycl.hpp>
-#include <iostream>
-#include <memory>
-
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
 #endif
+
+#include <memory>
+#include <iostream>
+
+#include <sycl/sycl.hpp>
 
 #include "example_util/utils.hpp"
 

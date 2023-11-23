@@ -14,6 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef ONEDAL_DATA_PARALLEL
+#define ONEDAL_DATA_PARALLEL
+#endif
+
 #include <memory>
 #include <numeric>
 #include <iostream>
