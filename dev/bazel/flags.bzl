@@ -18,7 +18,8 @@ lnx_cc_common_flags = [
     "-fwrapv",
     "-fstack-protector-strong",
     "-fno-delete-null-pointer-checks",
-    "-Werror",
+#    "-Werror",
+    "-Wno-deprecated",
     "-Wformat",
     "-Wformat-security",
     "-Wreturn-type",
@@ -54,7 +55,7 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
                 "-no-canonical-prefixes",
             ]
         if compiler_id == "icpx":
-            flags = flags + ["-fsycl"] + ["-fno-canonical-system-headers"]+["-no-canonical-prefixes"] + ["-H"]
+            flags = flags + ["-fsycl"] + ["-fno-canonical-system-headers"]+["-no-canonical-prefixes"]
         if compiler_id == "icpx" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]

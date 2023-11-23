@@ -51,7 +51,7 @@ DAAL_EXPORT daal::services::LibraryVersionInfo::LibraryVersionInfo()
       name(PRODUCT_NAME_STR),
 #ifndef DAAL_REF
       //    fpk_serv_cpuisknm might be instantiated from backed like other MKL functions
-      processor(cpu_long_names[daal::services::Environment::getInstance()->getCpuId() + 2 * fpk_serv_cpuisknm()])
+      processor(cpu_long_names[daal::services::Environment::getInstance()->getCpuId()])
 #else
       processor(cpu_long_names[0])
 #endif
