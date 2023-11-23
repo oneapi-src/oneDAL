@@ -22,18 +22,6 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/detail/array_utils.hpp"
 
-template <typename Type>
-inline auto to_host(const oneapi::dal::array<Type>& array) {
-    oneapi::dal::detail::default_host_policy policy{};
-    return oneapi::dal::detail::copy(policy, array);
-}
-
-template <typename Type>
-inline auto to_device(sycl::queue& queue, const oneapi::dal::array<Type>& array) {
-    oneapi::dal::detail::data_parallel_policy policy{ queue };
-    return oneapi::dal::detail::copy(policy, array);
-}
-
 void try_add_device(std::vector<sycl::device>& devices, int (*selector)(const sycl::device&)) {
     try {
         devices.push_back(sycl::ext::oneapi::detail::select_device(selector));
