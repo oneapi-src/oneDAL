@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,16 +22,12 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/// Computes correlation matrix from covariance matrix
+/// Makes sign-flip techique for data
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
 /// @param[in]  queue The queue
-/// @param[in]  row_count  The number of rows
-/// @param[in]  sums  The [p] sums computed along each column of the data
-/// @param[out] cov   The [p x p] covariance matrix
-/// @param[out] corr  The [p x p] correlation matrix
-/// @param[out] tmp   The [p] temporary buffer
+/// @param[in]  eigvecs  The data to sign-flip
 template <typename Float>
 sycl::event sign_flip(sycl::queue& q, ndview<Float, 2>& eigvecs, const event_vector& deps = {});
 

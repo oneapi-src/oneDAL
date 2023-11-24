@@ -72,14 +72,22 @@ struct train_parameters_cpu<Float, method::cov, Task> {
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx, 100);
+        const auto& x = input.get_data();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_result<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx, 100);
+        const auto& x = input.get_partial_crossproduct();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }
@@ -102,14 +110,22 @@ struct train_parameters_cpu<Float, method::svd, Task> {
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx, 100);
+        const auto& x = input.get_data();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_result<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx, 100);
+        const auto& x = input.get_partial_crossproduct();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }
@@ -132,14 +148,22 @@ struct train_parameters_cpu<Float, method::precomputed, Task> {
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx, 100);
+        const auto& x = input.get_data();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_result<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx, 100);
+        const auto& x = input.get_partial_crossproduct();
+
+        const auto row_count = x.get_row_count();
+
+        const auto block = propose_block_size<Float>(ctx, row_count);
 
         return params_t{}.set_cpu_macro_block(block);
     }

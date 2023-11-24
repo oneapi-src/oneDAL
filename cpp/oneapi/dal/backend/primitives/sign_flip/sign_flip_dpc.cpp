@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,50 +15,10 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/sign_flip/sign_flip.hpp"
-#include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/loops.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include <sycl/ext/oneapi/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
-
-template <typename Float>
-inline Float abs(Float x) {
-    return (x >= Float(0)) ? x : -x;
-}
-
-template <typename Float>
-inline Float max_by_abs(Float* x, std::int64_t count) {
-    ONEDAL_ASSERT(x);
-    ONEDAL_ASSERT(count > 0);
-
-    Float max = x[0];
-    Float abs_max = abs(x[0]);
-
-    for (std::int64_t i = 0; i < count; i++) {
-        const Float x_abs = abs(x[i]);
-        if (x_abs > abs_max) {
-            abs_max = x_abs;
-            max = x[i];
-        }
-    }
-
-    return max;
-}
-
-template <typename Float>
-inline void sign_flip_vector(Float* x, std::int64_t count) {
-    ONEDAL_ASSERT(x);
-    ONEDAL_ASSERT(count > 0);
-
-    const Float max_signed = max_by_abs(x, count);
-
-    if (max_signed < 0) {
-        for (std::int64_t i = 0; i < count; i++) {
-            x[i] = -x[i];
-        }
-    }
-}
 
 template <typename Float>
 inline sycl::event sign_flip_impl(sycl::queue q,

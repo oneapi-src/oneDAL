@@ -211,9 +211,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc,
         }
         sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
-            //eigvecs.to_device(q_);
             sign_flip_event = pr::sign_flip(q_, eigvecs, { corr_event });
-            //eigvecs.to_host(q_);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(

@@ -41,14 +41,28 @@ struct train_parameters_gpu<Float, method::cov, Task> {
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const train_input<Task>& input) const {
-        return params_t{};
+        const auto& queue = ctx.get_queue();
+
+        const auto& x_train = input.get_data();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
+
+        return params_t{}.set_gpu_macro_block(block);
     }
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
         const auto& queue = ctx.get_queue();
 
-        const auto block = propose_block_size<Float>(queue, 100, 100);
+        const auto& x_train = input.get_data();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
 
         return params_t{}.set_gpu_macro_block(block);
     }
@@ -57,7 +71,12 @@ struct train_parameters_gpu<Float, method::cov, Task> {
                         const partial_train_result<Task>& input) const {
         const auto& queue = ctx.get_queue();
 
-        const auto block = propose_block_size<Float>(queue, 100, 100);
+        const auto& x_train = input.get_partial_crossproduct();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
 
         return params_t{}.set_gpu_macro_block(block);
     }
@@ -69,14 +88,28 @@ struct train_parameters_gpu<Float, method::svd, Task> {
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const train_input<Task>& input) const {
-        return params_t{};
+        const auto& queue = ctx.get_queue();
+
+        const auto& x_train = input.get_data();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
+
+        return params_t{}.set_gpu_macro_block(block);
     }
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
         const auto& queue = ctx.get_queue();
 
-        const auto block = propose_block_size<Float>(queue, 100, 100);
+        const auto& x_train = input.get_data();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
 
         return params_t{}.set_gpu_macro_block(block);
     }
@@ -85,7 +118,12 @@ struct train_parameters_gpu<Float, method::svd, Task> {
                         const partial_train_result<Task>& input) const {
         const auto& queue = ctx.get_queue();
 
-        const auto block = propose_block_size<Float>(queue, 100, 100);
+        const auto& x_train = input.get_partial_crossproduct();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
 
         return params_t{}.set_gpu_macro_block(block);
     }
@@ -97,14 +135,28 @@ struct train_parameters_gpu<Float, method::precomputed, Task> {
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const train_input<Task>& input) const {
-        return params_t{};
+        const auto& queue = ctx.get_queue();
+
+        const auto& x_train = input.get_data();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
+
+        return params_t{}.set_gpu_macro_block(block);
     }
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const partial_train_input<Task>& input) const {
         const auto& queue = ctx.get_queue();
 
-        const auto block = propose_block_size<Float>(queue, 100, 100);
+        const auto& x_train = input.get_data();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
 
         return params_t{}.set_gpu_macro_block(block);
     }
@@ -113,7 +165,12 @@ struct train_parameters_gpu<Float, method::precomputed, Task> {
                         const partial_train_result<Task>& input) const {
         const auto& queue = ctx.get_queue();
 
-        const auto block = propose_block_size<Float>(queue, 100, 100);
+        const auto& x_train = input.get_partial_crossproduct();
+
+        const auto f_count = x_train.get_column_count();
+        const auto r_count = x_train.get_column_count();
+
+        const auto block = propose_block_size<Float>(queue, f_count, r_count);
 
         return params_t{}.set_gpu_macro_block(block);
     }
