@@ -493,22 +493,22 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             }
                         }
                         sycl::atomic_ref<Float,
-                                            sycl::memory_order_relaxed,
-                                            sycl::memory_scope_work_group,
-                                            sycl::access::address_space::local_space>
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
                             hist_count(hist[loc_bin_pos + 0]);
                         sycl::atomic_ref<Float,
-                                            sycl::memory_order_relaxed,
-                                            sycl::memory_scope_work_group,
-                                            sycl::access::address_space::local_space>
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
                             hist_sum(hist[loc_bin_pos + 1]);
                         hist_count += count;
                         hist_sum += sum;
                         if (is_weighted) {
                             sycl::atomic_ref<Float,
-                                                sycl::memory_order_relaxed,
-                                                sycl::memory_scope_work_group,
-                                                sycl::access::address_space::local_space>
+                                             sycl::memory_order_relaxed,
+                                             sycl::memory_scope_work_group,
+                                             sycl::access::address_space::local_space>
                                 hist_weight(l_weight[bin_id]);
                             hist_weight += weight;
                         }
@@ -534,9 +534,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             }
                         }
                         sycl::atomic_ref<Float,
-                                            sycl::memory_order_relaxed,
-                                            sycl::memory_scope_work_group,
-                                            sycl::access::address_space::local_space>
+                                         sycl::memory_order_relaxed,
+                                         sycl::memory_scope_work_group,
+                                         sycl::access::address_space::local_space>
                             hist_mse(hist[loc_bin_pos + 2]);
                         hist_mse += mse;
                     }
