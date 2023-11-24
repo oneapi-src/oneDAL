@@ -33,7 +33,10 @@ public:
 template <typename Task>
 class detail::v1::infer_result_impl : public base {
 public:
+    //TODO: disucc naming of components
     table transformed_data;
+    table singular_values;
+    table explained_variances;
 };
 
 using detail::v1::infer_input_impl;
@@ -76,6 +79,26 @@ const table& infer_result<Task>::get_transformed_data() const {
 template <typename Task>
 void infer_result<Task>::set_transformed_data_impl(const table& value) {
     impl_->transformed_data = value;
+}
+
+template <typename Task>
+const table& infer_result<Task>::get_singular_values() const {
+    return impl_->singular_values;
+}
+
+template <typename Task>
+void infer_result<Task>::set_singular_values_impl(const table& value) {
+    impl_->singular_values = value;
+}
+
+template <typename Task>
+const table& infer_result<Task>::get_explained_variances() const {
+    return impl_->explained_variances;
+}
+
+template <typename Task>
+void infer_result<Task>::set_explained_variances_impl(const table& value) {
+    impl_->explained_variances = value;
 }
 
 template class ONEDAL_EXPORT infer_input<task::dim_reduction>;

@@ -71,16 +71,20 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
-    if (desc.is_normalized() == true) {
-        dtype = daal_pca::internal::normalizedDataset;
+    //TODO: investigate opportunity to change default behavior
+    if (desc.is_scaled() == false && desc.do_scale() == true) {
+        dtype = daal_pca::internal::nonNormalizedDataset;
     }
 
     auto norm_alg = get_normalization_algorithm<Float>();
     norm_alg->input.set(daal_zscore::data, daal_data);
     norm_alg->parameter().resultsToCompute |= daal_zscore::mean;
     norm_alg->parameter().resultsToCompute |= daal_zscore::variance;
-
     daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
+    if (desc.do_mean_centering() == true && desc.do_scale() == false) {
+        norm_alg->parameter().doScale = false;
+        parameter.doScale = false;
+    }
     parameter.isDeterministic = desc.get_deterministic();
     parameter.normalization = norm_alg;
     parameter.resultsToCompute =
@@ -95,15 +99,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                 *daal_eigenvectors.get(),
                                                                 *daal_means.get(),
                                                                 *daal_variances.get()));
-
+    model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        const auto mdl = model_t{}.set_eigenvectors(
-            homogen_table::wrap(arr_eigvec, component_count, column_count));
-        result.set_model(mdl);
+        model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+        model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
@@ -111,7 +114,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
-
+    result.set_model(model);
     return result;
 }
 

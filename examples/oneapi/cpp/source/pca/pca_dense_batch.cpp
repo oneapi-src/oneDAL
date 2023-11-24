@@ -37,6 +37,8 @@ void run(const dal::table& x_train, const std::string& method_name) {
     const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
+
+    std::cout << "Singular Values:\n" << result_infer.get_singular_values() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {

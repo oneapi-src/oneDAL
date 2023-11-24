@@ -126,8 +126,9 @@ public:
 
     descriptor_base();
     bool whiten() const;
-    bool mean_centering() const;
-    bool is_normalized() const;
+    bool do_mean_centering() const;
+    bool is_scaled() const;
+    bool do_scale() const;
     bool is_mean_centered() const;
     bool get_deterministic() const;
     std::int64_t get_component_count() const;
@@ -136,8 +137,9 @@ public:
 
 protected:
     void set_whiten_impl(bool value);
-    void set_mean_centering_impl(bool value);
-    void set_is_normalized_impl(bool value);
+    void set_do_mean_centering_impl(bool value);
+    void set_is_scaled_impl(bool value);
+    void set_do_scale_impl(bool value);
     void set_is_mean_centered_impl(bool value);
     void set_deterministic_impl(bool value);
     void set_component_count_impl(std::int64_t value);
@@ -223,21 +225,29 @@ public:
         return *this;
     }
 
-    bool mean_centering() const {
-        return base_t::mean_centering();
+    bool do_mean_centering() const {
+        return base_t::do_mean_centering();
     }
 
-    auto& set_mean_centering(bool value) {
-        base_t::set_mean_centering_impl(value);
+    auto& set_do_mean_centering(bool value) {
+        base_t::set_do_mean_centering_impl(value);
         return *this;
     }
 
-    bool is_normalized() const {
-        return base_t::is_normalized();
+    bool is_scaled() const {
+        return base_t::is_scaled();
     }
 
-    auto& set_is_normalized(bool value) {
-        base_t::set_is_normalized_impl(value);
+    auto& set_is_scaled(bool value) {
+        base_t::set_is_scaled_impl(value);
+        return *this;
+    }
+    bool do_scale() const {
+        return base_t::do_scale();
+    }
+
+    auto& set_do_scale(bool value) {
+        base_t::set_do_scale_impl(value);
         return *this;
     }
     bool is_mean_centered() const {
@@ -282,9 +292,32 @@ public:
         set_eigenvectors_impl(value);
         return *this;
     }
+    const table& get_means() const;
+
+    auto& set_means(const table& value) {
+        set_means_impl(value);
+        return *this;
+    }
+
+    const table& get_variances() const;
+
+    auto& set_variances(const table& value) {
+        set_variances_impl(value);
+        return *this;
+    }
+
+    const table& get_eigenvalues() const;
+
+    auto& set_eigenvalues(const table& value) {
+        set_eigenvalues_impl(value);
+        return *this;
+    }
 
 protected:
     void set_eigenvectors_impl(const table&);
+    void set_means_impl(const table&);
+    void set_variances_impl(const table&);
+    void set_eigenvalues_impl(const table&);
 
 private:
     void serialize(dal::detail::output_archive& ar) const;

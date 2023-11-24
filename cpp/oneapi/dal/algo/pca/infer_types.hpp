@@ -96,9 +96,24 @@ public:
         set_transformed_data_impl(value);
         return *this;
     }
+    const table& get_singular_values() const;
+
+    auto& set_singular_values(const table& value) {
+        set_singular_values_impl(value);
+        return *this;
+    }
+
+    const table& get_explained_variances() const;
+
+    auto& set_explained_variances(const table& value) {
+        set_explained_variances_impl(value);
+        return *this;
+    }
 
 protected:
     void set_transformed_data_impl(const table&);
+    void set_singular_values_impl(const table&);
+    void set_explained_variances_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;

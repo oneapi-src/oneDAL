@@ -67,8 +67,9 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     }
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
-    if (desc.is_normalized() == true) {
-        dtype = daal_pca::internal::normalizedDataset;
+    //TODO: investigate opportunity to change default behavior
+    if (desc.is_scaled() == false && desc.do_scale() == true) {
+        dtype = daal_pca::internal::nonNormalizedDataset;
     }
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
