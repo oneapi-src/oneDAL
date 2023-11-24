@@ -65,7 +65,11 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
             interop::copy_to_daal_homogen_table<Float>(input.get_auxiliary_table(i));
         decomposeCollection->push_back(daal_crossproduct);
     }
+
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
+    if (desc.is_normalized() == true) {
+        dtype = daal_pca::internal::normalizedDataset;
+    }
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
                                                                            dtype,

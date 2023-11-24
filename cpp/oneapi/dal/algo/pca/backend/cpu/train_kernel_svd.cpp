@@ -71,6 +71,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
+    if (desc.is_normalized() == true) {
+        dtype = daal_pca::internal::normalizedDataset;
+    }
 
     auto norm_alg = get_normalization_algorithm<Float>();
     norm_alg->input.set(daal_zscore::data, daal_data);

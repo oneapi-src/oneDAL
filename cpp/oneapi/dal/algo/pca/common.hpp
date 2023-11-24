@@ -125,13 +125,20 @@ public:
     using task_t = Task;
 
     descriptor_base();
-
+    bool whiten() const;
+    bool mean_centering() const;
+    bool is_normalized() const;
+    bool is_mean_centered() const;
     bool get_deterministic() const;
     std::int64_t get_component_count() const;
 
     result_option_id get_result_options() const;
 
 protected:
+    void set_whiten_impl(bool value);
+    void set_mean_centering_impl(bool value);
+    void set_is_normalized_impl(bool value);
+    void set_is_mean_centered_impl(bool value);
     void set_deterministic_impl(bool value);
     void set_component_count_impl(std::int64_t value);
     void set_result_options_impl(const result_option_id& value);
@@ -207,7 +214,40 @@ public:
         base_t::set_deterministic_impl(value);
         return *this;
     }
+    bool whiten() const {
+        return base_t::whiten();
+    }
 
+    auto& set_whiten(bool value) {
+        base_t::set_whiten_impl(value);
+        return *this;
+    }
+
+    bool mean_centering() const {
+        return base_t::mean_centering();
+    }
+
+    auto& set_mean_centering(bool value) {
+        base_t::set_mean_centering_impl(value);
+        return *this;
+    }
+
+    bool is_normalized() const {
+        return base_t::is_normalized();
+    }
+
+    auto& set_is_normalized(bool value) {
+        base_t::set_is_normalized_impl(value);
+        return *this;
+    }
+    bool is_mean_centered() const {
+        return base_t::is_mean_centered();
+    }
+
+    auto& set_is_mean_centered(bool value) {
+        base_t::set_is_mean_centered_impl(value);
+        return *this;
+    }
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {
         return base_t::get_result_options();

@@ -54,6 +54,10 @@ class descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
+    bool whiten = false;
+    bool mean_centering = false;
+    bool is_normalized = false;
+    bool is_mean_centered = false;
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -82,6 +86,23 @@ std::int64_t descriptor_base<Task>::get_component_count() const {
 template <typename Task>
 bool descriptor_base<Task>::get_deterministic() const {
     return impl_->deterministic;
+}
+
+template <typename Task>
+bool descriptor_base<Task>::is_normalized() const {
+    return impl_->is_normalized;
+}
+template <typename Task>
+bool descriptor_base<Task>::whiten() const {
+    return impl_->whiten;
+}
+template <typename Task>
+bool descriptor_base<Task>::mean_centering() const {
+    return impl_->mean_centering;
+}
+template <typename Task>
+bool descriptor_base<Task>::is_mean_centered() const {
+    return impl_->is_mean_centered;
 }
 
 template <typename Task>
