@@ -113,15 +113,18 @@ public:
     typedef algorithms::pca::Result ResultType;
 
     /** Default constructor */
-    Batch() { initialize(); }
+    Batch() : daal::algorithms::Analysis<batch>() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
-
+    Batch(const Batch & other) : input(other.input), parameter(other.parameter)
+    {
+        initialize();
+        _hpar = other.daal::algorithms::Analysis<batch>::_hpar;
+    }
     ~Batch() {}
 
     /**
@@ -172,9 +175,10 @@ protected:
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _ac   = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in   = &input;
+        _par  = &parameter;
+        _hpar = nullptr;
         _result.reset(new ResultType());
     }
 

@@ -26,6 +26,7 @@
 
 #include "src/algorithms/kernel.h"
 #include "algorithms/pca/pca_batch.h"
+//#include "src/algorithms/pca/pca_hyperparameter_impl.h"
 #include "src/algorithms/pca/pca_dense_correlation_batch_kernel.h"
 #include "src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h"
 #include "services/internal/sycl/execution_context.h"
@@ -73,7 +74,8 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
     Result * result = static_cast<Result *>(_res);
     interface3::BatchParameter<algorithmFPType, correlationDense> * parameter =
         static_cast<interface3::BatchParameter<algorithmFPType, correlationDense> *>(_par);
-    services::Environment::env & env = *_env;
+    const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);
+    daal::services::Environment::env & env          = *_env;
 
     data_management::NumericTablePtr data         = input->get(pca::data);
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
@@ -93,13 +95,13 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
     {
         __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, input->isCorrelation(),
                            parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute, *eigenvectors, *eigenvalues,
-                           *means, *variances);
+                           *means, *variances, hyperparameter);
     }
     else
     {
         return ((internal::PCACorrelationKernelBatchUCAPI<algorithmFPType> *)(_kernel))
             ->compute(input->isCorrelation(), parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute,
-                      *eigenvectors, *eigenvalues, *means, *variances);
+                      *eigenvectors, *eigenvalues, *means, *variances, hyperparameter);
     }
 }
 

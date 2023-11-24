@@ -133,15 +133,18 @@ public:
     typedef algorithms::pca::PartialResult<correlationDense> PartialResultType;
 
     /** Default constructor */
-    Online() { initialize(); }
+    Online() : daal::algorithms::Analysis<online>() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, correlationDense> & other) : input(other.input), parameter(other.parameter) { initialize(); }
-
+    Online(const Online<algorithmFPType, correlationDense> & other) : input(other.input), parameter(other.parameter)
+    {
+        initialize();
+        _hpar = other.daal::algorithms::Analysis<online>::_hpar;
+    }
     ~Online() {}
 
     /**
@@ -231,9 +234,10 @@ protected:
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, correlationDense)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _ac   = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, correlationDense)(&_env);
+        _in   = &input;
+        _par  = &parameter;
+        _hpar = nullptr;
         _partialResult.reset(new PartialResult<correlationDense>());
         _result.reset(new ResultType());
     }
@@ -259,15 +263,18 @@ public:
     typedef algorithms::pca::PartialResult<svdDense> PartialResultType;
 
     /** Default constructor */
-    Online() { initialize(); }
+    Online() : daal::algorithms::Analysis<online>() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, svdDense> & other) : input(other.input), parameter(other.parameter) { initialize(); }
-
+    Online(const Online<algorithmFPType, svdDense> & other) : input(other.input), parameter(other.parameter)
+    {
+        initialize();
+        _hpar = other.daal::algorithms::Analysis<online>::_hpar;
+    }
     ~Online() {}
 
     /**
@@ -354,9 +361,10 @@ protected:
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, svdDense)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _ac   = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, svdDense)(&_env);
+        _in   = &input;
+        _par  = &parameter;
+        _hpar = nullptr;
         _partialResult.reset(new PartialResult<svdDense>());
         _result.reset(new ResultType());
     }
