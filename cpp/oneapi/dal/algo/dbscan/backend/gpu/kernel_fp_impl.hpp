@@ -78,36 +78,29 @@ struct get_core_wide_kernel {
                     //TODO:investigate optimizations without hardcoded split
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
-                        for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
+                        Float distance = Float(0);
+                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
                             sum += val * val;
-                        }
-                        Float distance_check =
-                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                        if (distance_check > epsilon) {
-                            continue;
-                        }
-                        for (std::int64_t i = column_count / 2 + local_id; i < column_count;
-                             i += local_size) {
-                            Float val = data_ptr[(block_start + wg_id) * column_count + i] -
-                                        data_ptr[j * column_count + i];
-                            sum += val * val;
-                        }
-                        Float distance =
-                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                        if (distance > epsilon) {
-                            continue;
-                        }
-                        count += use_weights ? weights_ptr[j] : count_type(1);
-                        if (count >= min_observations) {
-                            if (local_id == 0) {
-                                cores_ptr[wg_id] = count_type(1);
+
+                            distance =
+                                sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                            if (distance > epsilon) {
+                                break;
                             }
-                            break;
                         }
-                        if (row_count - j + count < min_observations) {
-                            break;
+                        if (distance < epsilon) {
+                            count += use_weights ? weights_ptr[j] : count_type(1);
+                            if (count >= min_observations) {
+                                if (local_id == 0) {
+                                    cores_ptr[wg_id] = count_type(1);
+                                }
+                                break;
+                            }
+                            if (row_count - j + count < min_observations) {
+                                break;
+                            }
                         }
                     }
                 });
