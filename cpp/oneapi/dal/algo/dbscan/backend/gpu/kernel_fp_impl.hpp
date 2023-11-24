@@ -75,6 +75,7 @@ struct get_core_wide_kernel {
                     const std::uint32_t local_size = sg.get_local_range()[0];
 
                     count_type count = 0;
+                    //TODO:investigate optimizations without hardcoded split
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
                         for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
