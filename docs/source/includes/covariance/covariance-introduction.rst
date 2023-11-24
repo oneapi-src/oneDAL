@@ -18,11 +18,11 @@ In statistics, covariance and correlation are two of the most fundamental measur
 The covariance and the correlation represent the joint variability of any two features.
 The correlation is dimensionless, while the covariance is measured in units obtained by multiplying the units of the two features.
 Another important distinction is that covariance can be affected by the higher variance of one feature, while
-correalation removes the effect of the variances by normalizing the covariance of two features by their square-root of variances.
+correlation removes the effect of the variances by normalizing the covariance of two features by their square-root of variances.
 Their usage is application-dependent. The covariance algorithm computes the following:
 
 - Means
-- Covariance
+- Covariance (sample and estimated by maximum likelihood method)
 - Correlation
 
 .. |c_math| replace::   :ref:`dense <covariance_c_math>`
@@ -31,8 +31,8 @@ Their usage is application-dependent. The covariance algorithm computes the foll
 .. |c_result| replace:: :ref:`compute_result <covariance_c_api_result>`
 .. |c_op| replace::     :ref:`compute(...) <covariance_c_api>`
 
-=============  ===============  =========  =============  ===========
-**Operation**  **Computational  methods**  **Programming  Interface**
--------------  --------------------------  --------------------------
-|c_math|       |c_dense|        |c_op|     |c_input|      |c_result|
-=============  ===============  =========  =============  ===========
+=============  ==========================  ======== =========== ============
+**Operation**  **Computational  methods**     **Programming  Interface**
+-------------  --------------------------  ---------------------------------
+  |c_math|             |c_dense|            |c_op|   |c_input|   |c_result|
+=============  ==========================  ======== =========== ============
