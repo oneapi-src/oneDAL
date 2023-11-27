@@ -64,22 +64,18 @@ struct get_core_wide_kernel {
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
-                    auto sg = item.get_sub_group();
-                    const std::uint32_t sg_id = sg.get_group_id()[0];
-                    if (sg_id > 0)
-                        return;
-                    const std::uint32_t wg_id = item.get_global_id(1);
-                    if (wg_id >= block_size)
-                        return;
-                    const std::uint32_t local_id = sg.get_local_id();
-                    const std::uint32_t local_size = sg.get_local_range()[0];
+                    auto sg = item.get_group();
+
+                    const std::uint32_t row_id = item.get_global_id(1);
+
+                    const std::uint32_t local_id = item.get_local_id(0);
 
                     count_type count = 0;
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
                         Float distance = Float(0);
-                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
-                            Float val = data_ptr[(block_start + wg_id) * column_count + i] -
+                        for (std::int64_t i = local_id; i < column_count; i += wg_size) {
+                            Float val = data_ptr[(block_start + row_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
                             sum += val * val;
 
@@ -89,11 +85,11 @@ struct get_core_wide_kernel {
                                 break;
                             }
                         }
-                        if (distance < epsilon) {
+                        if (distance <= epsilon) {
                             count += use_weights ? weights_ptr[j] : count_type(1);
                             if (count >= min_observations) {
                                 if (local_id == 0) {
-                                    cores_ptr[wg_id] = count_type(1);
+                                    cores_ptr[row_id] = count_type(1);
                                 }
                                 break;
                             }
