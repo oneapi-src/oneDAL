@@ -77,7 +77,7 @@ struct get_core_wide_kernel {
                         for (std::int64_t i = local_id; i < column_count; i += wg_size) {
                             Float val = data_ptr[(block_start + row_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
-                            sum += val * val;
+                            sum = val * val;
 
                             distance +=
                                 sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
