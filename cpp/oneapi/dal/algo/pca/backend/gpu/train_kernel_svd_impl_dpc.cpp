@@ -100,6 +100,41 @@ auto compute_mean_centered_data(sycl::queue& q,
 }
 
 template <typename Float>
+auto compute_variances(sycl::queue& q,
+                       const pr::ndview<Float, 2>& cov,
+                       const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_vars, q);
+    ONEDAL_ASSERT(cov.has_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+
+    auto column_count = cov.get_dimension(0);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto vars_event = pr::variances(q, cov, vars, deps);
+    return std::make_tuple(vars, vars_event);
+}
+
+template <typename Float>
+auto compute_covariance(sycl::queue& q,
+                        std::int64_t row_count,
+                        const pr::ndview<Float, 2>& xtx,
+                        const pr::ndarray<Float, 1>& sums,
+                        const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_covariance, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(xtx.has_data());
+    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
+
+    const std::int64_t column_count = xtx.get_dimension(1);
+
+    auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    auto copy_event = copy(q, cov, xtx, { deps });
+
+    auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
+    return std::make_tuple(cov, cov_event);
+}
+template <typename Float>
 auto slice_data(sycl::queue& q,
                 const pr::ndview<Float, 2>& data,
                 std::int64_t component_count,
@@ -122,18 +157,37 @@ auto slice_data(sycl::queue& q,
     return std::make_tuple(data_to_compute, event);
 }
 
+template <typename Float>
+auto compute_singular_values(sycl::queue& q,
+                             const pr::ndview<Float, 1>& data,
+                             std::int64_t row_count,
+                             std::int64_t column_count,
+                             const bk::event_vector& deps = {}) {
+    auto data_to_compute = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
+    auto data_ptr = data.get_data();
+    auto event = q.submit([&](sycl::handler& h) {
+        const auto range = bk::make_range_1d(column_count);
+        h.parallel_for(range, [=](sycl::id<1> id) {
+            data_to_compute_ptr[id] = sqrt((row_count - 1) * data_ptr[id]);
+        });
+    });
+    return std::make_tuple(data_to_compute, event);
+}
+
 template <typename Float, pr::ndorder order>
 auto svd_decomposition(sycl::queue& queue,
                        pr::ndview<Float, 2, order>& data,
-                       std::int64_t component_count) {
+                       std::int64_t component_count,
+                       const bk::event_vector& deps = {}) {
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto U = pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, alloc::device);
+    auto U = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
-    auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
+    auto S = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
 
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
@@ -146,8 +200,8 @@ auto svd_decomposition(sycl::queue& queue,
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
         gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
-                                                                            column_count,
                                                                             row_count,
+                                                                            column_count,
                                                                             data_ptr,
                                                                             lda,
                                                                             S_ptr,
@@ -155,7 +209,7 @@ auto svd_decomposition(sycl::queue& queue,
                                                                             ldu,
                                                                             V_T_ptr,
                                                                             ldvt,
-                                                                            {});
+                                                                            { deps });
     }
     return std::make_tuple(U, S, V_T, gesvd_event);
 }
@@ -164,7 +218,7 @@ template <typename Float>
 result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
-
+    const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(data.get_column_count() > 0);
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
@@ -173,19 +227,31 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto [data_to_compute, compute_event] = compute_mean_centered_data(q_, data_nd, {});
+    auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+    auto [sums, sums_event] = compute_sums(q_, data_nd, {});
+    sycl::event gemm_event;
+    {
+        ONEDAL_PROFILER_TASK(gemm, q_);
+        gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0), { sums_event });
+        gemm_event.wait_and_throw();
+    }
+
+    auto [cov, cov_event] = compute_covariance(q_, row_count, xtx, sums, { gemm_event });
 
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [U, S, V_T, gesvd_event] = svd_decomposition(q_, data_to_compute, component_count);
+        auto [U, S, V_T, gesvd_event] = svd_decomposition(q_, cov, component_count, { cov_event });
 
         if (desc.get_result_options().test(result_options::eigenvalues)) {
+            auto [singular_values, sv_event] =
+                compute_singular_values(q_, S, row_count, column_count, { gesvd_event });
             result.set_eigenvalues(
-                homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
+                homogen_table::wrap(singular_values.flatten(q_, { gesvd_event }), 1, column_count));
         }
 
         sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
+            //TODO: fix signs for the first row
             sign_flip_event = sign_flip(q_, U, { gesvd_event });
         }
 

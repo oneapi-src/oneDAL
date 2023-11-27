@@ -201,7 +201,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
                                        result_options::eigenvalues)) {
         auto [corr, corr_event] =
             compute_correlation_from_covariance(q_, rows_count_global, cov, { gemm_event });
-
+        //TODO: if provide cov matrix, it will be aligned with scikit
         auto [eigvecs, eigvals] =
             compute_eigenvectors(q_, std::move(corr), component_count, { corr_event });
         if (desc.get_result_options().test(result_options::eigenvalues)) {

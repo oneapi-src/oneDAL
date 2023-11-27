@@ -160,7 +160,7 @@ void train_result<Task>::set_variances_impl(const table& value) {
 
 template <typename Task>
 void train_result<Task>::set_u_impl(const table& value) {
-    impl_->vt = value;
+    impl_->u = value;
 }
 
 template <typename Task>
