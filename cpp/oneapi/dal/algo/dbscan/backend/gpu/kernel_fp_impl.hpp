@@ -28,8 +28,8 @@ namespace pr = dal::backend::primitives;
 
 inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
-    // TODO optimization/dispatching
-    return column_count > 32 ? 32 : 16;
+    auto max_sg_size = bk::device_max_wg_size(queue);
+    return bk::down_pow2(std::min(column_count, max_sg_size));
 }
 
 template <typename Float, bool use_weights>
@@ -75,7 +75,6 @@ struct get_core_wide_kernel {
                     const std::uint32_t local_size = sg.get_local_range()[0];
 
                     count_type count = 0;
-                    //TODO:investigate optimizations without hardcoded split
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
                         Float distance = Float(0);
@@ -253,7 +252,7 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
-    std::int64_t wg_size = get_recommended_wg_size(queue);
+    std::int64_t wg_size = get_recommended_wg_size(queue, block_size);
     auto full_deps = deps + bk::event_vector{ start_index_event };
     auto index_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(full_deps);
