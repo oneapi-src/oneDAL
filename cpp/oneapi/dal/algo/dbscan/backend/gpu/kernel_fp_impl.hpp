@@ -60,7 +60,7 @@ struct get_core_wide_kernel {
         std::int32_t* cores_ptr = cores.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+            const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -72,15 +72,16 @@ struct get_core_wide_kernel {
 
                     count_type count = 0;
                     for (std::int64_t j = 0; j < row_count; j++) {
-                        Float sum = Float(0);
+                        //Float sum = Float(0);
                         Float distance = Float(0);
                         for (std::int64_t i = local_id; i < column_count; i += wg_size) {
                             Float val = data_ptr[(block_start + row_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
-                            sum = val * val;
+                            //sum = val * val;
 
-                            distance +=
-                                sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                            distance += sycl::reduce_over_group(sg,
+                                                                val * val,
+                                                                sycl::ext::oneapi::plus<Float>());
                             if (distance > epsilon) {
                                 break;
                             }
@@ -93,7 +94,7 @@ struct get_core_wide_kernel {
                                 }
                                 break;
                             }
-                            if (row_count - j + count < min_observations) {
+                            if (!use_weights && (row_count - j + count < min_observations)) {
                                 break;
                             }
                         }
@@ -151,7 +152,7 @@ struct get_core_narrow_kernel {
                         cores_ptr[idx] = count_type(1);
                         break;
                     }
-                    if (row_count - j + count < min_observations) {
+                    if (!use_weights && (row_count - j + count < min_observations)) {
                         break;
                     }
                 }
@@ -248,7 +249,7 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
-    std::int64_t wg_size = get_recommended_wg_size(queue, block_size);
+    const std::int64_t wg_size = get_recommended_wg_size(queue, block_size);
     auto full_deps = deps + bk::event_vector{ start_index_event };
     auto index_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(full_deps);
@@ -358,7 +359,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     std::int32_t* responses_ptr = responses.get_mutable_data();
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+        const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
         cgh.parallel_for(
             bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
