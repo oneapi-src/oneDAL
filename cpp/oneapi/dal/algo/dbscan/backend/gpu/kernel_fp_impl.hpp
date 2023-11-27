@@ -79,7 +79,7 @@ struct get_core_wide_kernel {
                                         data_ptr[j * column_count + i];
                             sum += val * val;
 
-                            distance =
+                            distance +=
                                 sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                             if (distance > epsilon) {
                                 break;
