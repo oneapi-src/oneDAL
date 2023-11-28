@@ -31,19 +31,24 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("pca_normalized.csv");
-    const std::int64_t nBlocks = 10;
+    const std::int64_t nBlocks = 2;
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 
     dal::pca::partial_train_result<> partial_result;
-    const auto pca_desc = dal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
+    const auto pca_desc =
+        dal::pca::descriptor<>().set_component_count(5).set_deterministic(true).set_do_scale(false);
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
     for (std::int64_t i = 0; i < nBlocks; i++) {
         partial_result = dal::partial_train(pca_desc, partial_result, input_table[i]);
     }
-    auto result = dal::finalize_train(pca_desc, partial_result);
+    auto result_train = dal::finalize_train(pca_desc, partial_result);
 
-    const auto result_infer = dal::infer(q, pca_desc, result.get_model(), x_train);
+    std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
+
+    std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
+
+    const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }

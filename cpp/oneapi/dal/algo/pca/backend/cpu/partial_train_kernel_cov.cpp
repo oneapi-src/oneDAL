@@ -53,6 +53,9 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
+    if (desc.do_scale() == false && desc.do_mean_centering() == true) {
+        daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
+    }
     const auto data = input.get_data();
     ONEDAL_ASSERT(data.has_data());
     const auto daal_data = interop::convert_to_daal_table<Float>(data);

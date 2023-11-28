@@ -52,11 +52,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
+    auto arr_singular_values = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
+    const auto daal_singular_values =
+        interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
@@ -64,13 +67,12 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
-
+    const std::int64_t row_count = data.get_row_count();
     daal_cov::internal::Hyperparameter daal_hyperparameter;
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
     if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
-        const std::int64_t row_count = data.get_row_count();
         if (5000 < row_count && row_count <= 50000) {
             blockSize = 1024;
         }
@@ -106,7 +108,18 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
-        result.set_singular_values(homogen_table::wrap(arr_eigval, 1, component_count));
+        {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_pca_cor_kernel_t<Float, cpu_type>().computeSingularValues(
+                    *daal_eigenvalues,
+                    *daal_singular_values,
+                    row_count);
+            });
+
+            interop::status_to_exception(status);
+        }
+        result.set_singular_values(homogen_table::wrap(arr_singular_values, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));

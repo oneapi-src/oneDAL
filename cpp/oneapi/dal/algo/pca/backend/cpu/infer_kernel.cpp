@@ -63,11 +63,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                       nullptr,
                                                                       nullptr,
                                                                       *daal_result));
-    result_t result;
-    result.set_transformed_data(
+    return result_t{}.set_transformed_data(
         dal::detail::homogen_table_builder{}.reset(arr_result, row_count, component_count).build());
-
-    return result;
 }
 
 template <typename Float>

@@ -43,6 +43,27 @@ namespace internal
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::internal;
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::computeSingularValues(const data_management::NumericTable & eigenvalues,
+                                                                                          data_management::NumericTable & singular_values,
+                                                                                          size_t nRows)
+{
+    const size_t nComponents = eigenvalues.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
+    DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
+    const algorithmFPType * eigenValuesArray = eigenvalues_block.get();
+    WriteRows<algorithmFPType, cpu> fullEigenvalues(singular_values, 0, nComponents);
+    DAAL_CHECK_MALLOC(fullEigenvalues.get());
+    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
+
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        fullEigenvaluesArray[i] = sqrt((nRows - 1) * eigenValuesArray[i]);
+    }
+    return services::Status();
+}
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(bool isCorrelation, const data_management::NumericTable & dataTable,
                                                                             covariance::BatchImpl * covarianceAlg,

@@ -89,7 +89,9 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         interop::convert_to_daal_homogen_table(arr_cor_matrix, column_count, column_count);
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
-
+    if (desc.do_scale() == false && desc.do_mean_centering() == true) {
+        daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
+    }
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_compute<Float, daal_cov_kernel_t>(
             ctx,
