@@ -55,10 +55,10 @@ public:
     std::int64_t component_count = -1;
     bool deterministic = false;
     bool whiten = false;
-    bool do_mean_centering = false;
+    bool do_mean_centering = true;
     bool is_scaled = false;
     bool is_mean_centered = false;
-    bool do_scale = false;
+    bool do_scale = true;
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -66,22 +66,13 @@ template <typename Task>
 class model_impl : public ONEDAL_SERIALIZABLE(pca_dim_reduction_model_impl_id) {
 public:
     table eigenvectors;
-    table pMeans;
-    table pVariances;
-    table eigenvalues;
 
     void serialize(dal::detail::output_archive& ar) const override {
         ar(eigenvectors);
-        ar(pMeans);
-        ar(pVariances);
-        ar(eigenvalues);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         ar(eigenvectors);
-        ar(pMeans);
-        ar(pVariances);
-        ar(eigenvalues);
     }
 };
 
@@ -132,6 +123,22 @@ template <typename Task>
 void descriptor_base<Task>::set_deterministic_impl(bool value) {
     impl_->deterministic = value;
 }
+template <typename Task>
+void descriptor_base<Task>::set_do_mean_centering_impl(bool value) {
+    impl_->do_mean_centering = value;
+}
+template <typename Task>
+void descriptor_base<Task>::set_do_scale_impl(bool value) {
+    impl_->do_scale = value;
+}
+template <typename Task>
+void descriptor_base<Task>::set_is_scaled_impl(bool value) {
+    impl_->is_scaled = value;
+}
+template <typename Task>
+void descriptor_base<Task>::set_is_mean_centered_impl(bool value) {
+    impl_->is_mean_centered = value;
+}
 
 template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
@@ -167,36 +174,6 @@ const table& model<Task>::get_eigenvectors() const {
 template <typename Task>
 void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
-}
-
-template <typename Task>
-const table& model<Task>::get_means() const {
-    return impl_->pMeans;
-}
-
-template <typename Task>
-void model<Task>::set_means_impl(const table& value) {
-    impl_->pMeans = value;
-}
-
-template <typename Task>
-const table& model<Task>::get_variances() const {
-    return impl_->pVariances;
-}
-
-template <typename Task>
-void model<Task>::set_variances_impl(const table& value) {
-    impl_->pVariances = value;
-}
-
-template <typename Task>
-const table& model<Task>::get_eigenvalues() const {
-    return impl_->eigenvalues;
-}
-
-template <typename Task>
-void model<Task>::set_eigenvalues_impl(const table& value) {
-    impl_->eigenvalues = value;
 }
 
 template <typename Task>

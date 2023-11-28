@@ -39,6 +39,8 @@ public:
     table eigenvalues;
     table variances;
     table means;
+    table singular_values;
+    table explained_variances;
     result_option_id result_options;
 };
 
@@ -132,6 +134,16 @@ const table& train_result<Task>::get_means() const {
 }
 
 template <typename Task>
+const table& train_result<Task>::get_singular_values() const {
+    return impl_->singular_values;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_explained_variances() const {
+    return impl_->explained_variances;
+}
+
+template <typename Task>
 void train_result<Task>::set_model_impl(const model<Task>& value) {
     impl_->trained_model = value;
 }
@@ -158,6 +170,16 @@ void train_result<Task>::set_means_impl(const table& value) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     impl_->means = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_singular_values_impl(const table& value) {
+    impl_->singular_values = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_explained_variances_impl(const table& value) {
+    impl_->explained_variances = value;
 }
 
 template <typename Task>

@@ -51,8 +51,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors = interop::convert_to_daal_table<Float>(model.get_eigenvectors());
-    const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
-    const auto daal_eigenvalues = interop::convert_to_daal_table<Float>(model.get_eigenvalues());
 
     const auto daal_result =
         interop::convert_to_daal_homogen_table(arr_result, row_count, component_count);
@@ -68,7 +66,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     result_t result;
     result.set_transformed_data(
         dal::detail::homogen_table_builder{}.reset(arr_result, row_count, component_count).build());
-    result.set_singular_values(model.get_eigenvalues());
 
     return result;
 }

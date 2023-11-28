@@ -199,11 +199,17 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     }
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [corr, corr_event] =
-            compute_correlation_from_covariance(q_, rows_count_global, cov, { gemm_event });
-
-        auto [eigvecs, eigvals] =
-            compute_eigenvectors_on_host(q_, std::move(corr), component_count, { corr_event });
+        auto data_to_compute = cov;
+        if (desc.do_scale() == true && desc.do_mean_centering() == true) {
+            auto [corr, corr_event] =
+                compute_correlation_from_covariance(q_, rows_count_global, cov, { cov_event });
+            corr_event.wait_and_throw();
+            data_to_compute = corr;
+        }
+        auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
+                                                               std::move(data_to_compute),
+                                                               component_count,
+                                                               { cov_event });
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }

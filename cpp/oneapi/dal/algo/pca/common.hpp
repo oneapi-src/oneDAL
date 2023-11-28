@@ -299,25 +299,12 @@ public:
         return *this;
     }
 
-    const table& get_variances() const;
-
-    auto& set_variances(const table& value) {
-        set_variances_impl(value);
-        return *this;
-    }
-
-    const table& get_eigenvalues() const;
-
-    auto& set_eigenvalues(const table& value) {
-        set_eigenvalues_impl(value);
-        return *this;
-    }
-
 protected:
     void set_eigenvectors_impl(const table&);
     void set_means_impl(const table&);
     void set_variances_impl(const table&);
     void set_eigenvalues_impl(const table&);
+    void set_singular_values_impl(const table&);
 
 private:
     void serialize(dal::detail::output_archive& ar) const;

@@ -108,7 +108,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-
+        if (covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));

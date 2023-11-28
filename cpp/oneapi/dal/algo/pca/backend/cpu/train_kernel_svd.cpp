@@ -72,8 +72,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
     //TODO: investigate opportunity to change default behavior
-    if (desc.is_scaled() == false && desc.do_scale() == true) {
-        dtype = daal_pca::internal::nonNormalizedDataset;
+    if (desc.is_scaled() == true && desc.is_mean_centered() == true) {
+        dtype = daal_pca::internal::normalizedDataset;
     }
 
     auto norm_alg = get_normalization_algorithm<Float>();
@@ -81,6 +81,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     norm_alg->parameter().resultsToCompute |= daal_zscore::mean;
     norm_alg->parameter().resultsToCompute |= daal_zscore::variance;
     daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
+    norm_alg->parameter().doScale = true;
+    parameter.doScale = true;
     if (desc.do_mean_centering() == true && desc.do_scale() == false) {
         norm_alg->parameter().doScale = false;
         parameter.doScale = false;
@@ -106,7 +108,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
-        model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+        result.set_singular_values(homogen_table::wrap(arr_eigval, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
