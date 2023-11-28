@@ -19,6 +19,8 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/misc.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 #include <oneapi/mkl.hpp>
@@ -30,15 +32,26 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 sycl::event set_csr_data(sycl::queue& queue,
-                         oneapi::mkl::sparse::matrix_handle_t handle,
+                         sparse_matrix_handle &handle,
+                         const std::int64_t row_count,
                          const std::int64_t column_count,
                          dal::sparse_indexing indexing,
                          dal::array<Float> &data,
                          dal::array<std::int64_t> &column_indices,
                          dal::array<std::int64_t> &row_offsets,
-                         const event_vector& deps = {});
+                         const std::vector<sycl::event> &deps = {});
+
+template <typename Float>
+sycl::event set_csr_data(sycl::queue& queue,
+                         sparse_matrix_handle &handle,
+                         const std::int64_t row_count,
+                         const std::int64_t column_count,
+                         dal::sparse_indexing indexing,
+                         const Float * data,
+                         const std::int64_t * column_indices,
+                         const std::int64_t * row_offsets,
+                         const std::vector<sycl::event> &deps = {});
 
 #endif // ifdef ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives
-
