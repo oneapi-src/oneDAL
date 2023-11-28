@@ -52,7 +52,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::computeSingu
     const size_t nComponents = eigenvalues.getNumberOfColumns();
     ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
     DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
-    const algorithmFPType * eigenValuesArray = eigenvalues_block.get();
+    const algorithmFPType * const eigenValuesArray = eigenvalues_block.get();
     WriteRows<algorithmFPType, cpu> fullEigenvalues(singular_values, 0, nComponents);
     DAAL_CHECK_MALLOC(fullEigenvalues.get());
     algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
@@ -129,7 +129,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-        if (covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix)
+        //if (covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));

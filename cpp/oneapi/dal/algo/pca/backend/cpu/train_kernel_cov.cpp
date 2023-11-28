@@ -80,10 +80,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
-    covariance_alg.parameter.outputMatrixType = daal_cov::covarianceMatrix;
-    if (desc.do_scale() == true && desc.do_mean_centering() == true) {
-        covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
-    }
+    // covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
+    // if (desc.do_scale() == true && desc.do_mean_centering() == true) {
+    //     covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
+    // }
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
