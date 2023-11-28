@@ -301,10 +301,9 @@ public:
     }
 
     void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
-        //TODO: temporary workaround
-        //const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        //const double diff = te::rel_error(reference.get_variances(), variances, tol);
-        //CHECK(diff < tol);
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double diff = te::rel_error(reference.get_variances(), variances, tol);
+        CHECK(diff < tol);
     }
 
     void check_eigenvalues(const table& reference, const table& eigenvalues) {

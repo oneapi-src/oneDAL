@@ -23,11 +23,9 @@ namespace dal = oneapi::dal;
 
 template <typename Method>
 void run(const dal::table& x_train, const std::string& method_name) {
-    const auto pca_desc = dal::pca::descriptor<float, Method>()
-                              .set_component_count(5)
-                              .set_deterministic(true)
-                              .set_do_scale(false);
-    const std::int64_t nBlocks = 2;
+    const auto pca_desc =
+        dal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
+    const std::int64_t nBlocks = 10;
 
     dal::pca::partial_train_result<> partial_result;
     std::cout << method_name << "\n" << std::endl;
