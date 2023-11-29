@@ -68,7 +68,7 @@ struct get_core_wide_kernel {
             cgh.depends_on(deps);
             const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
             const std::int64_t block_split_size =
-                get_recommended_block_size(queue, column_count, wg_size);
+                get_recommended_block_size_count(queue, column_count, wg_size);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -85,14 +85,14 @@ struct get_core_wide_kernel {
                     count_type count = 0;
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
-                        std::int64_t count = 0;
+                        std::int64_t count_iter = 0;
                         for (std::int64_t i = local_id; i < column_count; i += local_size) {
-                            count++;
+                            count_iter++;
                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
                             sum += val * val;
-                            if (count % block_split_size == 0 &&
-                                local_size * count <= column_count) {
+                            if (count_iter % block_split_size == 0 &&
+                                local_size * count_iter <= column_count) {
                                 Float distance_check =
                                     sycl::reduce_over_group(sg,
                                                             sum,
