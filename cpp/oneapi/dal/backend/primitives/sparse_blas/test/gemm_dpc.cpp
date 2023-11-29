@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 
-#include "oneapi/dal/backend/primitives/sparse_blas/set_csr_data.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::test {

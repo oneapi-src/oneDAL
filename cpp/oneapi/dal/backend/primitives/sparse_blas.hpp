@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,5 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/common.hpp"
-
-namespace oneapi::dal::backend::primitives {
-
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans,   /* do not transpose the matrix */
-    trans       /* transpose the matrix */
-};
-
-}
+#include "oneapi/dal/backend/primitives/sparse_blas/set_csr_data.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/gemm.hpp"
