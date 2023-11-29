@@ -22,6 +22,8 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace pca = oneapi::dal::pca;
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, method::svd));
+using pca_types_cov = COMBINE_TYPES((float, double), (pca::method::cov));
+using pca_types_svd = COMBINE_TYPES((float, double), (pca::method::svd));
 using pca_types_precomputed = COMBINE_TYPES((float, double), (method::precomputed));
 
 template <typename TestType>
@@ -50,7 +52,33 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
 TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca on gold data",
                      "[pca][integration][batch][gold]",
-                     pca_types) {
+                     pca_types_svd) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const std::int64_t component_count = 0;
+    const bool deterministic = true;
+    const auto pca_desc = this->get_descriptor(component_count, deterministic);
+    const auto gold_data = this->get_gold_data();
+
+    const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
+    const auto eigenvalues = pca_result.get_singular_values();
+    const auto eigenvectors = pca_result.get_eigenvectors();
+
+    INFO("check eigenvalues") {
+        const auto gold_eigenvalues = this->get_gold_eigenvalues();
+        this->check_eigenvalues(gold_eigenvalues, eigenvalues);
+    }
+
+    INFO("check eigenvectors") {
+        const auto gold_eigenvectors = this->get_gold_eigenvectors();
+        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
+    }
+}
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca on gold data",
+                     "[pca][integration][batch][gold]",
+                     pca_types_cov) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
@@ -73,7 +101,6 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
     }
 }
-
 TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca common flow higgs",
                      "[external-dataset][pca][integration][batch]",

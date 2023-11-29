@@ -27,7 +27,7 @@ void run(const dal::table& x_train, const std::string& method_name) {
                               .set_component_count(5)
                               .set_deterministic(true)
                               .set_do_scale(false)
-                              .set_whiten(true);
+                              .set_whiten(false);
 
     const auto result_train = dal::train(pca_desc, x_train);
 

@@ -65,16 +65,16 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                           daal_eigenvalues.get(),
                                                                           *daal_result));
     }
-    // if (!desc.whiten()&& !desc.do_scale() && desc.do_mean_centering()) {
-    //     interop::status_to_exception(
-    //         interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
-    //                                                                       *daal_data,
-    //                                                                       *daal_eigenvectors,
-    //                                                                       daal_means.get(),
-    //                                                                       nullptr,
-    //                                                                       nullptr,
-    //                                                                       *daal_result));
-    // }
+    else if (!desc.do_scale() && desc.do_mean_centering()) {
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
+                                                                          *daal_data,
+                                                                          *daal_eigenvectors,
+                                                                          daal_means.get(),
+                                                                          nullptr,
+                                                                          nullptr,
+                                                                          *daal_result));
+    }
     else {
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,

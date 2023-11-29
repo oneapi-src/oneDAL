@@ -44,6 +44,8 @@ template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
+    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
+    // const auto daal_behavior = desc.do_scale() && desc.do_mean_centering();
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
@@ -82,9 +84,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
-    covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
-    if (!desc.do_scale() && desc.do_mean_centering()) {
-        covariance_alg.parameter.outputMatrixType = daal_cov::covarianceMatrix;
+
+    if (sklearn_behavior) {
+        covariance_alg.parameter.doCorrForPca = false;
     }
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =

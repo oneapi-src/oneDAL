@@ -29,7 +29,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-
+#include <iostream>
 #include "src/externals/service_profiler.h"
 
 namespace daal
@@ -152,8 +152,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-        //TODO: investiagte why it ruins tests
-        if (covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix)
+        if (covarianceAlg->parameter.doCorrForPca)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
