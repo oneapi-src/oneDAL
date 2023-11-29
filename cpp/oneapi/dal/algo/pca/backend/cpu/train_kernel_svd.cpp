@@ -51,6 +51,7 @@ template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
+    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
@@ -58,17 +59,22 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
-    auto arr_eigval = array<Float>::empty(1 * component_count);
+    auto arr_singular_values = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
-
+    auto arr_eigval = array<Float>::empty(1 * component_count);
+    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
-    const auto daal_eigenvalues =
-        interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
+    const auto daal_singular_values =
+        interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
+    const auto daal_eigenvalues =
+        interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
+    const auto daal_explained_variances_ratio =
+        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
     //TODO: investigate opportunity to change default behavior
@@ -97,7 +103,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                 dtype,
                                                                 *daal_data.get(),
                                                                 &parameter,
-                                                                *daal_eigenvalues.get(),
+                                                                *daal_singular_values.get(),
                                                                 *daal_eigenvectors.get(),
                                                                 *daal_means.get(),
                                                                 *daal_variances.get()));
@@ -107,15 +113,42 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
+        result.set_singular_values(homogen_table::wrap(arr_singular_values, 1, component_count));
+        {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_pca_svd_kernel_t<Float, cpu_type>().computeEigenValues(
+                    *daal_singular_values,
+                    *daal_eigenvalues,
+                    row_count);
+            });
+
+            interop::status_to_exception(status);
+        }
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
-        result.set_singular_values(homogen_table::wrap(arr_eigval, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
+        {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_pca_svd_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
+                    *daal_eigenvalues,
+                    *daal_explained_variances_ratio,
+                    row_count);
+            });
+
+            interop::status_to_exception(status);
+        }
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
+    model.set_means(homogen_table::wrap(arr_means, 1, column_count));
+    model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+    result.set_model(model);
     result.set_model(model);
     return result;
 }

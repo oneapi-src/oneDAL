@@ -53,6 +53,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_singular_values = array<Float>::empty(1 * component_count);
+    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -64,7 +65,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
-
+    const auto daal_explained_variances_ratio =
+        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
     const std::int64_t row_count = data.get_row_count();
@@ -80,10 +82,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
-    // covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
-    // if (desc.do_scale() == true && desc.do_mean_centering() == true) {
-    //     covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
-    // }
+    covariance_alg.parameter.outputMatrixType = daal_cov::correlationMatrix;
+    if (!desc.do_scale() && desc.do_mean_centering()) {
+        covariance_alg.parameter.outputMatrixType = daal_cov::covarianceMatrix;
+    }
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
@@ -99,11 +101,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         *daal_eigenvalues,
         *daal_means,
         *daal_variances));
-
+    model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        const auto mdl = model_t{}.set_eigenvectors(
-            homogen_table::wrap(arr_eigvec, component_count, column_count));
-        result.set_model(mdl);
+        model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
@@ -123,11 +123,26 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
+        {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_pca_cor_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
+                    *daal_eigenvalues,
+                    *daal_explained_variances_ratio,
+                    row_count);
+            });
+
+            interop::status_to_exception(status);
+        }
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
     }
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
-
+    model.set_means(homogen_table::wrap(arr_means, 1, column_count));
+    model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+    result.set_model(model);
     return result;
 }
 

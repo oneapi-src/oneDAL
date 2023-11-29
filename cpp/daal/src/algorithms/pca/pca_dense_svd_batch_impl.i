@@ -43,6 +43,48 @@ using namespace daal::data_management;
 using namespace daal::internal;
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::computeEigenValues(const data_management::NumericTable & singular_values,
+                                                                                            data_management::NumericTable & eigenvalues, size_t nRows)
+{
+    const size_t nComponents = singular_values.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(singular_values), 0, nComponents);
+    DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
+    const algorithmFPType * const eigenValuesArray = eigenvalues_block.get();
+    WriteRows<algorithmFPType, cpu> fullEigenvalues(eigenvalues, 0, nComponents);
+    DAAL_CHECK_MALLOC(fullEigenvalues.get());
+    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
+
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        fullEigenvaluesArray[i] = eigenValuesArray[i] * eigenValuesArray[i] / (nRows - 1);
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::computeExplainedVariancesRatio(
+    const data_management::NumericTable & eigenvalues, data_management::NumericTable & explained_varainces_ratio, size_t nRows)
+{
+    const size_t nComponents = eigenvalues.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
+    DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
+    const algorithmFPType * const eigenValuesArray = eigenvalues_block.get();
+    WriteRows<algorithmFPType, cpu> fullEigenvalues(explained_varainces_ratio, 0, nComponents);
+    DAAL_CHECK_MALLOC(fullEigenvalues.get());
+    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
+    algorithmFPType sum                    = 0;
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        sum += eigenValuesArray[i];
+    }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        fullEigenvaluesArray[i] = eigenValuesArray[i] / sum;
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute(InputDataType type, const NumericTablePtr & data,
                                                                                  NumericTable & eigenvalues, NumericTable & eigenvectors)
 {

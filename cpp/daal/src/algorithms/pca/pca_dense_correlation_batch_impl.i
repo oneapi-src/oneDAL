@@ -29,7 +29,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-
+#include <iostream>
 #include "src/externals/service_profiler.h"
 
 namespace daal
@@ -43,6 +43,29 @@ namespace internal
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::internal;
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::computeExplainedVariancesRatio(
+    const data_management::NumericTable & eigenvalues, data_management::NumericTable & explained_varainces_ratio, size_t nRows)
+{
+    const size_t nComponents = eigenvalues.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
+    DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
+    const algorithmFPType * const eigenValuesArray = eigenvalues_block.get();
+    WriteRows<algorithmFPType, cpu> fullEigenvalues(explained_varainces_ratio, 0, nComponents);
+    DAAL_CHECK_MALLOC(fullEigenvalues.get());
+    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
+    algorithmFPType sum                    = 0;
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        sum += eigenValuesArray[i];
+    }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        fullEigenvaluesArray[i] = eigenValuesArray[i] / sum;
+    }
+    return services::Status();
+}
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::computeSingularValues(const data_management::NumericTable & eigenvalues,
@@ -129,8 +152,9 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-        //if (covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix)
+        if (covarianceAlg->parameter.outputMatrixType == covariance::correlationMatrix)
         {
+            std::cout << "i am here" << std::endl;
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
         }

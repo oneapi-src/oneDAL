@@ -292,9 +292,24 @@ public:
         set_eigenvectors_impl(value);
         return *this;
     }
+    const table& get_means() const;
+
+    auto& set_means(const table& value) {
+        set_means_impl(value);
+        return *this;
+    }
+
+    const table& get_eigenvalues() const;
+
+    auto& set_eigenvalues(const table& value) {
+        set_eigenvalues_impl(value);
+        return *this;
+    }
 
 protected:
     void set_eigenvectors_impl(const table&);
+    void set_means_impl(const table&);
+    void set_eigenvalues_impl(const table&);
 
 private:
     void serialize(dal::detail::output_archive& ar) const;

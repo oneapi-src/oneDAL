@@ -26,7 +26,8 @@ void run(const dal::table& x_train, const std::string& method_name) {
     const auto pca_desc = dal::pca::descriptor<float, Method>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_do_scale(false);
+                              .set_do_scale(false)
+                              .set_whiten(true);
 
     const auto result_train = dal::train(pca_desc, x_train);
 
@@ -36,11 +37,17 @@ void run(const dal::table& x_train, const std::string& method_name) {
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
+    std::cout << "Singular Values:\n" << result_train.get_singular_values() << std::endl;
+
+    std::cout << "Variances:\n" << result_train.get_variances() << std::endl;
+
+    std::cout << "Means:\n" << result_train.get_means() << std::endl;
+
+    std::cout << "Explained variances ratio:\n"
+              << result_train.get_explained_variances_ratio() << std::endl;
     const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
-
-    std::cout << "Singular Values:\n" << result_train.get_singular_values() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {

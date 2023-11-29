@@ -139,10 +139,10 @@ public:
     /// A $1 \\times r$ table that contains the mean values for the first :literal:`r`
     /// features.
     /// @remark default = table{}
-    const table& get_explained_variances() const;
+    const table& get_explained_variances_ratio() const;
 
-    auto& set_explained_variances(const table& value) {
-        set_singular_values_impl(value);
+    auto& set_explained_variances_ratio(const table& value) {
+        set_explained_variances_ratio_impl(value);
         return *this;
     }
     /// Result options that indicates availability of the properties
@@ -160,7 +160,7 @@ protected:
     void set_eigenvectors_impl(const table&);
     void set_variances_impl(const table&);
     void set_means_impl(const table&);
-    void set_explained_variances_impl(const table&);
+    void set_explained_variances_ratio_impl(const table&);
     void set_singular_values_impl(const table&);
     void set_result_options_impl(const result_option_id&);
 

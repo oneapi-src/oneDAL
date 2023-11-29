@@ -40,7 +40,7 @@ public:
     table variances;
     table means;
     table singular_values;
-    table explained_variances;
+    table explained_variances_ratio;
     result_option_id result_options;
 };
 
@@ -139,8 +139,8 @@ const table& train_result<Task>::get_singular_values() const {
 }
 
 template <typename Task>
-const table& train_result<Task>::get_explained_variances() const {
-    return impl_->explained_variances;
+const table& train_result<Task>::get_explained_variances_ratio() const {
+    return impl_->explained_variances_ratio;
 }
 
 template <typename Task>
@@ -178,8 +178,8 @@ void train_result<Task>::set_singular_values_impl(const table& value) {
 }
 
 template <typename Task>
-void train_result<Task>::set_explained_variances_impl(const table& value) {
-    impl_->explained_variances = value;
+void train_result<Task>::set_explained_variances_ratio_impl(const table& value) {
+    impl_->explained_variances_ratio = value;
 }
 
 template <typename Task>

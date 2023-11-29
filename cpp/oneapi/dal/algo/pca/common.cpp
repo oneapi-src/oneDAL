@@ -66,13 +66,18 @@ template <typename Task>
 class model_impl : public ONEDAL_SERIALIZABLE(pca_dim_reduction_model_impl_id) {
 public:
     table eigenvectors;
-
+    table pMeans;
+    table eigenvalues;
     void serialize(dal::detail::output_archive& ar) const override {
         ar(eigenvectors);
+        ar(pMeans);
+        ar(eigenvalues);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         ar(eigenvectors);
+        ar(pMeans);
+        ar(eigenvalues);
     }
 };
 
@@ -139,7 +144,10 @@ template <typename Task>
 void descriptor_base<Task>::set_is_mean_centered_impl(bool value) {
     impl_->is_mean_centered = value;
 }
-
+template <typename Task>
+void descriptor_base<Task>::set_whiten_impl(bool value) {
+    impl_->whiten = value;
+}
 template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
@@ -175,7 +183,25 @@ template <typename Task>
 void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
+template <typename Task>
+const table& model<Task>::get_means() const {
+    return impl_->pMeans;
+}
 
+template <typename Task>
+void model<Task>::set_means_impl(const table& value) {
+    impl_->pMeans = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_eigenvalues() const {
+    return impl_->eigenvalues;
+}
+
+template <typename Task>
+void model<Task>::set_eigenvalues_impl(const table& value) {
+    impl_->eigenvalues = value;
+}
 template <typename Task>
 void model<Task>::serialize(dal::detail::output_archive& ar) const {
     dal::detail::serialize_polymorphic_shared(impl_, ar);
