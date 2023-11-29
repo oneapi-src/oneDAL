@@ -143,13 +143,49 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-
     auto host_corr = corr.to_host(q, deps);
     pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
 
     return std::make_tuple(eigvecs, eigvals);
 }
 
+template <typename Float>
+auto compute_singular_values_on_host(sycl::queue& q,
+                                     pr::ndarray<Float, 1> eigenvalues,
+                                     std::int64_t row_count,
+                                     const dal::backend::event_vector& deps = {}) {
+    const std::int64_t component_count = eigenvalues.get_dimension(0);
+
+    auto singular_values = pr::ndarray<Float, 1>::empty(component_count);
+
+    auto eigvals_ptr = eigenvalues.get_data();
+    auto singular_values_ptr = singular_values.get_mutable_data();
+    for (std::int64_t i = 0; i < component_count; i++) {
+        singular_values_ptr[i] = sqrt((row_count - 1) * eigvals_ptr[i]);
+    }
+    return singular_values;
+}
+
+template <typename Float>
+auto compute_explained_variances_on_host(sycl::queue& q,
+                                         pr::ndarray<Float, 1> eigenvalues,
+                                         std::int64_t row_count,
+                                         const dal::backend::event_vector& deps = {}) {
+    const std::int64_t component_count = eigenvalues.get_dimension(0);
+
+    auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
+
+    auto eigvals_ptr = eigenvalues.get_data();
+    auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
+    std::int64_t sum = 0;
+    for (std::int64_t i = 0; i < component_count; i++) {
+        sum += eigvals_ptr[i];
+    }
+    for (std::int64_t i = 0; i < component_count; i++) {
+        explained_variances_ratio_ptr[i] = eigvals_ptr[i] / sum;
+    }
+    return explained_variances_ratio;
+}
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
@@ -185,10 +221,11 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
         comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     }
-
+    model_t model;
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_), 1, column_count));
+        model.set_means(homogen_table::wrap(means.flatten(q_), 1, column_count));
     }
 
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
@@ -212,18 +249,26 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
                                                                { cov_event });
         if (desc.get_result_options().test(result_options::eigenvalues)) {
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+            model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+            auto singular_values =
+                compute_singular_values_on_host(q_, eigvals, row_count, { cov_event });
+            result.set_singular_values(
+                homogen_table::wrap(singular_values.flatten(), 1, component_count));
+            auto explained_variances_ratio =
+                compute_explained_variances_on_host(q_, eigvals, row_count, { cov_event });
+            result.set_explained_variances_ratio(
+                homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
         }
 
         if (desc.get_deterministic()) {
             sign_flip(eigvecs);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
-            const auto model = model_t{}.set_eigenvectors(
+            model.set_eigenvectors(
                 homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-            result.set_model(model);
         }
     }
-
+    result.set_model(model);
     return result;
 }
 

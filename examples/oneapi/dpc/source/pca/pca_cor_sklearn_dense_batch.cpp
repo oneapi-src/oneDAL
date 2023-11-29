@@ -34,8 +34,11 @@ void run(sycl::queue& q) {
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 
-    const auto pca_desc =
-        dal::pca::descriptor<>().set_component_count(5).set_deterministic(true).set_do_scale(false);
+    const auto pca_desc = dal::pca::descriptor<>()
+                              .set_component_count(5)
+                              .set_deterministic(true)
+                              .set_do_scale(false)
+                              .set_whiten(true);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
@@ -44,6 +47,13 @@ void run(sycl::queue& q) {
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
     std::cout << "Singular Values:\n" << result_train.get_singular_values() << std::endl;
+
+    std::cout << "Variances:\n" << result_train.get_variances() << std::endl;
+
+    std::cout << "Means:\n" << result_train.get_means() << std::endl;
+
+    std::cout << "Explained variances ratio:\n"
+              << result_train.get_explained_variances_ratio() << std::endl;
 
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
