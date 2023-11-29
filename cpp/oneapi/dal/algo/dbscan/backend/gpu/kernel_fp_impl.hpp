@@ -28,8 +28,8 @@ namespace pr = dal::backend::primitives;
 
 inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
-    std::int64_t max_sg_size = 128; //1024 works slow
-    return bk::down_pow2(std::min(column_count, max_sg_size));
+    // TODO optimization/dispatching
+    return column_count > 32 ? 32 : 16;
 }
 
 inline std::int64_t get_recommended_block_size_count(const sycl::queue& queue,
