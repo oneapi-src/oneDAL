@@ -28,8 +28,14 @@ namespace pr = dal::backend::primitives;
 
 inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
-    auto max_sg_size = bk::device_max_wg_size(queue);
-    return bk::down_pow2(std::min(column_count, max_sg_size));
+    // TODO optimization/dispatching
+    return column_count > 32 ? 32 : 16;
+}
+
+inline std::int64_t get_recommended_block_size_count(const sycl::queue& queue,
+                                                     std::int64_t column_count = 0,
+                                                     std::int64_t wg_size = 0) {
+    return 1;
 }
 
 template <typename Float, bool use_weights>
@@ -61,6 +67,8 @@ struct get_core_wide_kernel {
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+            const std::int64_t block_split_size =
+                get_recommended_block_size(queue, column_count, wg_size);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -77,21 +85,22 @@ struct get_core_wide_kernel {
                     count_type count = 0;
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
-                        for (std::int64_t i = local_id; i < column_count / 2; i += local_size) {
+                        std::int64_t count = 0;
+                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                            count++;
                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
                             sum += val * val;
-                        }
-                        Float distance_check =
-                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                        if (distance_check > epsilon) {
-                            continue;
-                        }
-                        for (std::int64_t i = column_count / 2 + local_id; i < column_count;
-                             i += local_size) {
-                            Float val = data_ptr[(block_start + wg_id) * column_count + i] -
-                                        data_ptr[j * column_count + i];
-                            sum += val * val;
+                            if (count % block_split_size == 0 &&
+                                local_size * count <= column_count) {
+                                Float distance_check =
+                                    sycl::reduce_over_group(sg,
+                                                            sum,
+                                                            sycl::ext::oneapi::plus<Float>());
+                                if (distance_check > epsilon) {
+                                    break;
+                                }
+                            }
                         }
                         Float distance =
                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
