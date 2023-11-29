@@ -35,7 +35,7 @@ inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
 inline std::int64_t get_recommended_block_size_count(const sycl::queue& queue,
                                                      std::int64_t column_count = 0,
                                                      std::int64_t wg_size = 0) {
-    return column_count / wg_size;
+    return 1;
 }
 
 template <typename Float, bool use_weights>
