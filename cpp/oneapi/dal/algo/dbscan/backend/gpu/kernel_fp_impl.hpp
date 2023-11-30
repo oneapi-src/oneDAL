@@ -32,9 +32,10 @@ inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
     return column_count > 32 ? 32 : 16;
 }
 
-inline std::int64_t get_recommended_block_size_count(const sycl::queue& queue,
+inline std::int64_t get_recommended_check_block_size(const sycl::queue& queue,
                                                      std::int64_t column_count = 0,
                                                      std::int64_t wg_size = 0) {
+    //TODO optimiztion/dispatching for cases with column_count > 2 * wg_size
     return 1;
 }
 
@@ -68,7 +69,7 @@ struct get_core_wide_kernel {
             cgh.depends_on(deps);
             const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
             const std::int64_t block_split_size =
-                get_recommended_block_size_count(queue, column_count, wg_size);
+                get_recommended_check_block_size(queue, column_count, wg_size);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -406,7 +407,6 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                         sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                     if (distance > epsilon)
                         continue;
-
                     if (local_id == 0) {
                         responses_ptr[wg_id] = cluster_id;
                     }
