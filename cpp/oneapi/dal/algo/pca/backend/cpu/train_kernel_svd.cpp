@@ -51,6 +51,7 @@ template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
+    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
@@ -89,7 +90,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
     norm_alg->parameter().doScale = true;
     parameter.doScale = true;
-    if (desc.do_mean_centering() == true && desc.do_scale() == false) {
+    if (sklearn_behavior) {
         norm_alg->parameter().doScale = false;
         parameter.doScale = false;
     }
@@ -134,8 +135,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                 constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
                 return daal_pca_svd_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
                     *daal_eigenvalues,
-                    *daal_explained_variances_ratio,
-                    row_count);
+                    *daal_explained_variances_ratio);
             });
 
             interop::status_to_exception(status);
@@ -146,10 +146,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
-    model.set_means(homogen_table::wrap(arr_means, 1, column_count));
-    model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+    if (sklearn_behavior) {
+        model.set_means(homogen_table::wrap(arr_means, 1, column_count));
+    }
+    if (desc.whiten()) {
+        model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+    }
     result.set_model(model);
-    result.set_model(model);
+
     return result;
 }
 

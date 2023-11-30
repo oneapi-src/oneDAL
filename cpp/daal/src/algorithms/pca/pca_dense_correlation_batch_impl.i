@@ -29,7 +29,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
-#include <iostream>
+
 #include "src/externals/service_profiler.h"
 
 namespace daal
@@ -46,23 +46,23 @@ using namespace daal::internal;
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::computeExplainedVariancesRatio(
-    const data_management::NumericTable & eigenvalues, data_management::NumericTable & explained_varainces_ratio, size_t nRows)
+    const data_management::NumericTable & eigenvalues, data_management::NumericTable & explained_varainces_ratio)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
-    DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
-    const algorithmFPType * const eigenValuesArray = eigenvalues_block.get();
-    WriteRows<algorithmFPType, cpu> fullEigenvalues(explained_varainces_ratio, 0, nComponents);
-    DAAL_CHECK_MALLOC(fullEigenvalues.get());
-    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
-    algorithmFPType sum                    = 0;
+    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
+    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, nComponents);
+    DAAL_CHECK_MALLOC(ExplainedVariancesRatioBlock.get());
+    algorithmFPType * ExplainedVariancesRatioArray = ExplainedVariancesRatioBlock.get();
+    algorithmFPType sum                            = 0;
     for (size_t i = 0; i < nComponents; i++)
     {
         sum += eigenValuesArray[i];
     }
     for (size_t i = 0; i < nComponents; i++)
     {
-        fullEigenvaluesArray[i] = eigenValuesArray[i] / sum;
+        ExplainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;
     }
     return services::Status();
 }
@@ -73,16 +73,16 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::computeSingu
                                                                                           size_t nRows)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> eigenvalues_block(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
-    DAAL_CHECK_BLOCK_STATUS(eigenvalues_block);
-    const algorithmFPType * const eigenValuesArray = eigenvalues_block.get();
-    WriteRows<algorithmFPType, cpu> fullEigenvalues(singular_values, 0, nComponents);
-    DAAL_CHECK_MALLOC(fullEigenvalues.get());
-    algorithmFPType * fullEigenvaluesArray = fullEigenvalues.get();
+    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
+    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> SingularValues(singular_values, 0, nComponents);
+    DAAL_CHECK_MALLOC(SingularValues.get());
+    algorithmFPType * SingularValuesArray = SingularValues.get();
 
     for (size_t i = 0; i < nComponents; i++)
     {
-        fullEigenvaluesArray[i] = sqrt((nRows - 1) * eigenValuesArray[i]);
+        SingularValuesArray[i] = sqrt((nRows - 1) * eigenValuesArray[i]);
     }
     return services::Status();
 }

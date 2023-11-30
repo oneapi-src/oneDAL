@@ -34,15 +34,13 @@ void run(const dal::table& x_train, const std::string& method_name) {
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
 
-    std::cout << "Singular Values:\n" << result_train.get_singular_values() << std::endl;
-
     const auto result_infer = dal::infer(pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
-    const auto train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name = get_data_path("pca_sklearn.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 

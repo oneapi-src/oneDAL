@@ -45,17 +45,21 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const model_t& model) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t component_count = get_component_count(desc, data);
-
+    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
+    const auto sklearn_behavior_whiten =
+        !desc.do_scale() && desc.do_mean_centering() && desc.whiten();
     dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors = interop::convert_to_daal_table<Float>(model.get_eigenvectors());
-    const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
-    const auto daal_eigenvalues = interop::convert_to_daal_table<Float>(model.get_eigenvalues());
+
     const auto daal_result =
         interop::convert_to_daal_homogen_table(arr_result, row_count, component_count);
-    if (desc.whiten()) {
+    if (sklearn_behavior_whiten) {
+        const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
+        const auto daal_eigenvalues =
+            interop::convert_to_daal_table<Float>(model.get_eigenvalues());
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
                                                                           *daal_data,
@@ -65,7 +69,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                           daal_eigenvalues.get(),
                                                                           *daal_result));
     }
-    else if (!desc.do_scale() && desc.do_mean_centering()) {
+    else if (sklearn_behavior) {
+        const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
                                                                           *daal_data,

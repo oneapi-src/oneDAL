@@ -30,7 +30,7 @@
 namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
-    const auto train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name = get_data_path("pca_sklearn.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
 

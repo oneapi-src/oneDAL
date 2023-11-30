@@ -46,7 +46,7 @@ public:
     services::Status computeSingularValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
                                            size_t nRows);
     services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
-                                                    data_management::NumericTable & explained_variances_ratio, size_t nRows);
+                                                    data_management::NumericTable & explained_variances_ratio);
     services::Status compute(bool isCorrelation, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
                              data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues);
 
