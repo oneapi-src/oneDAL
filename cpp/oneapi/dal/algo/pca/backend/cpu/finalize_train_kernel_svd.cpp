@@ -67,8 +67,8 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     }
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
-    //TODO: investigate opportunity to change default behavior
-    if (desc.is_scaled() == true && desc.is_mean_centered() == true) {
+
+    if (desc.is_scaled() && desc.is_mean_centered()) {
         dtype = daal_pca::internal::normalizedDataset;
     }
     interop::status_to_exception(

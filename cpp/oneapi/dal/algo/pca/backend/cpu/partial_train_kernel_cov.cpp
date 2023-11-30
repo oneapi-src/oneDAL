@@ -51,9 +51,10 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
     daal_cov::Parameter daal_parameter;
+    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
-    if (desc.do_scale() == false && desc.do_mean_centering() == true) {
+    if (sklearn_behavior) {
         daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
     }
     const auto data = input.get_data();

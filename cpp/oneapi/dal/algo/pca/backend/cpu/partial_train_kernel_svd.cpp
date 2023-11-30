@@ -66,7 +66,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
-    if (desc.is_scaled() == true && desc.is_mean_centered() == true) {
+    if (desc.is_scaled() && desc.is_mean_centered()) {
         dtype = daal_pca::internal::normalizedDataset;
     }
 

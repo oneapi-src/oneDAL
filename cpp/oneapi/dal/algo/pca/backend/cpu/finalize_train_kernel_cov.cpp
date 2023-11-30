@@ -52,7 +52,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
-
+    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
 
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
@@ -89,7 +89,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         interop::convert_to_daal_homogen_table(arr_cor_matrix, column_count, column_count);
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
-    if (desc.do_scale() == false && desc.do_mean_centering() == true) {
+    if (sklearn_behavior) {
         daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
     }
     interop::status_to_exception(

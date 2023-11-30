@@ -78,8 +78,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
-    //TODO: investigate opportunity to change default behavior
-    if (desc.is_scaled() == true && desc.is_mean_centered() == true) {
+
+    if (desc.is_scaled() && desc.is_mean_centered()) {
         dtype = daal_pca::internal::normalizedDataset;
     }
 

@@ -47,10 +47,10 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
                                                                                             data_management::NumericTable & eigenvalues, size_t nRows)
 {
     const size_t nComponents = singular_values.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> SingularValuesBlock(const_cast<data_management::NumericTable &>(singular_values), 0, nComponents);
+    ReadRows<algorithmFPType, cpu> SingularValuesBlock(const_cast<data_management::NumericTable &>(singular_values), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(SingularValuesBlock);
     const algorithmFPType * const SingularValuesArray = SingularValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, nComponents);
+    WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, 1);
     DAAL_CHECK_MALLOC(EigenValuesBlock.get());
     algorithmFPType * EigenValuesArray = EigenValuesBlock.get();
 
@@ -66,10 +66,10 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     const data_management::NumericTable & eigenvalues, data_management::NumericTable & explained_varainces_ratio)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, nComponents);
+    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
     const algorithmFPType * const EigenValuesArray = EigenValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, nComponents);
+    WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, 1);
     DAAL_CHECK_MALLOC(ExplainedVariancesRatioBlock.get());
     algorithmFPType * ExplainedVariancesRatioArray = ExplainedVariancesRatioBlock.get();
     algorithmFPType sum                            = 0;
