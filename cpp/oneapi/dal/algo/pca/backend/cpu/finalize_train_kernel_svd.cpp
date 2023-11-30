@@ -42,6 +42,8 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
+    const auto normalized_input = desc.is_scaled() && desc.is_mean_centered();
+
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
@@ -68,7 +70,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
-    if (desc.is_scaled() && desc.is_mean_centered()) {
+    if (normalized_input) {
         dtype = daal_pca::internal::normalizedDataset;
     }
     interop::status_to_exception(

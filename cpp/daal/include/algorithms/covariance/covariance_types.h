@@ -260,7 +260,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     /** Default constructor */
     Parameter();
     OutputMatrixType outputMatrixType; /*!< Type of the computed matrix */
-    bool doCorrForPca = true;          /*!< Correlation from Covariance in PCA if required */
 };
 
 /**

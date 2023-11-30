@@ -106,7 +106,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     bool isCorrelation, bool isDeterministic, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
     DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
-    data_management::NumericTable & means, data_management::NumericTable & variances)
+    data_management::NumericTable & means, data_management::NumericTable & variances, bool doScale)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
@@ -152,7 +152,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-        if (covarianceAlg->parameter.doCorrForPca)
+        if (doScale)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));

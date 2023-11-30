@@ -54,8 +54,9 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_train_input<task::dim_reduction>& input) {
-    const std::int64_t component_count = input.get_data().get_column_count();
+    const auto normalized_input = desc.is_scaled() && desc.is_mean_centered();
 
+    const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
 
     const auto data = input.get_data();
@@ -66,7 +67,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
-    if (desc.is_scaled() && desc.is_mean_centered()) {
+    if (normalized_input) {
         dtype = daal_pca::internal::normalizedDataset;
     }
 

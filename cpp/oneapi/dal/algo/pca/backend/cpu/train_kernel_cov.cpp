@@ -45,31 +45,33 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
     const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
-    // const auto daal_behavior = desc.do_scale() && desc.do_mean_centering();
+    const std::int64_t row_count = data.get_row_count();
+    ONEDAL_ASSERT(row_count > 0);
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
+
     dal::detail::check_mul_overflow(column_count, component_count);
+
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
-    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
+
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
+
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
-
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
-    const auto daal_explained_variances_ratio =
-        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
+
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
-    const std::int64_t row_count = data.get_row_count();
+
     daal_cov::internal::Hyperparameter daal_hyperparameter;
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
@@ -83,8 +85,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
 
+    bool do_scale = true;
+
     if (sklearn_behavior) {
-        covariance_alg.parameter.doCorrForPca = false;
+        do_scale = false;
     }
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
@@ -100,7 +104,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         *daal_eigenvectors,
         *daal_eigenvalues,
         *daal_means,
-        *daal_variances));
+        *daal_variances,
+        do_scale));
+
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
@@ -128,6 +134,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
         if (sklearn_behavior) {
+            auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
+            const auto daal_explained_variances_ratio =
+                interop::convert_to_daal_homogen_table(arr_explained_variances_ratio,
+                                                       1,
+                                                       column_count);
             const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
                 constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
                 return daal_pca_cor_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
