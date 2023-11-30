@@ -111,9 +111,11 @@ public:
 
     descriptor_base();
 
+    bool get_bias() const;
     result_option_id get_result_options() const;
 
 protected:
+    void set_bias_impl(const bool& value);
     void set_result_options_impl(const result_option_id& value);
 
 private:
@@ -158,6 +160,16 @@ public:
 
     /// Creates a new instance of the class with the default property values.
     descriptor() = default;
+
+    /// Choose if result biased or not
+    bool get_bias() const {
+        return base_t::get_bias();
+    }
+
+    auto& set_bias(const bool& value) {
+        base_t::set_bias_impl(value);
+        return *this;
+    }
 
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {

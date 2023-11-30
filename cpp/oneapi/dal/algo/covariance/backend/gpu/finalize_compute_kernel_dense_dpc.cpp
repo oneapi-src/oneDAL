@@ -55,6 +55,7 @@ auto compute_covariance(sycl::queue& q,
                         std::int64_t row_count,
                         const pr::ndview<Float, 2>& xtx,
                         const pr::ndarray<Float, 1>& sums,
+                        bool bias,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
@@ -67,7 +68,7 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
@@ -108,6 +109,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     dal::detail::check_mul_overflow(column_count, column_count);
     dal::detail::check_mul_overflow(component_count, column_count);
 
+    auto bias = desc.get_bias();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     sycl::event event;
@@ -121,7 +123,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
         pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums);
+        auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums, bias);
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
     }

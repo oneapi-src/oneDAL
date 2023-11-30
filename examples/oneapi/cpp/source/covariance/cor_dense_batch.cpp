@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]) {
     const auto result = dal::compute(cov_desc, input);
 
     std::cout << "Means:\n" << result.get_means() << std::endl;
-    std::cout << "Cor:\n" << result.get_cor_matrix() << std::endl;
+    std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
 
     return 0;
 }
