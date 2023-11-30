@@ -76,6 +76,7 @@ auto compute_covariance(sycl::queue& q,
                         std::int64_t row_count,
                         const pr::ndview<Float, 2>& xtx,
                         const pr::ndarray<Float, 1>& sums,
+                        bool bias,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
@@ -88,7 +89,7 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, { copy_event });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
@@ -128,6 +129,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     auto rows_count_global = row_count;
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(data.get_column_count() > 0);
+    auto bias = desc.get_bias();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
@@ -159,7 +161,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, cov_event] =
-            compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
+            compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }

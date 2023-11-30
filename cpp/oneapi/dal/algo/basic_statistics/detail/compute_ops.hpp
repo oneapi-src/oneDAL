@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::basic_statistics::detail {
@@ -24,9 +25,10 @@ namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
+    using input_t = compute_input<Task>;
     compute_result<Task> operator()(const Context&,
                                     const descriptor_base<Task>&,
-                                    const compute_input<Task>&) const;
+                                    const input_t&) const;
 };
 
 template <typename Descriptor>

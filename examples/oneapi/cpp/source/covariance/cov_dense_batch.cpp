@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
 
     auto result = dal::compute(cov_desc, input);
 
-    std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
+    std::cout << "Sample covariance:\n" << result.get_cov_matrix() << std::endl;
 
     return 0;
 }

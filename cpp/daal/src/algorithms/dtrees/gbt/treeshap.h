@@ -59,13 +59,6 @@ using gbt::internal::ModelFPType;
 using FeatureTypes = algorithms::dtrees::internal::FeatureTypes;
 
 /**
- * Determine the requested version of the TreeSHAP algorithm set in the
- * environment variable SHAP_VERSION.
- * Returns fallback if SHAP_VERSION is not set.
-*/
-uint8_t getRequestedAlgorithmVersion(uint8_t fallback);
-
-/**
  * Decision Path context
 */
 struct PathElement

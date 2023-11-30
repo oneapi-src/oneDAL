@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.icc = generic
 -Zl.icc = $(if $(OS_is_win),-Zl,) -mGLOB_freestanding=TRUE -mCG_no_libirc=TRUE
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
-COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd \
+COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc --no-banner -i )icc -qopenmp-simd \
                     -Werror -Wreturn-type -diag-disable=10441
 COMPILER.lnx.icc += $(if $(COVFILE), $(-Q)m64)
 COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd -Qdiag-disable:10441

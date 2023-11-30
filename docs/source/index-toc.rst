@@ -22,8 +22,7 @@
 
    data-analytics-pipeline.rst
    system-requirements.rst
-   legal.rst
-
+   
 .. toctree::
    :caption: Get Started
    :maxdepth: 2
