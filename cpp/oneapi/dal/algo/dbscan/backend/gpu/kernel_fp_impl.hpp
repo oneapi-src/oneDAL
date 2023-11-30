@@ -26,10 +26,17 @@ namespace oneapi::dal::dbscan::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-inline std::int64_t get_recommended_sg_size(const sycl::queue& queue,
+inline std::int64_t get_recommended_wg_size(const sycl::queue& queue,
                                             std::int64_t column_count = 0) {
     // TODO optimization/dispatching
     return column_count > 32 ? 32 : 16;
+}
+
+inline std::int64_t get_recommended_check_block_size(const sycl::queue& queue,
+                                                     std::int64_t column_count = 0,
+                                                     std::int64_t wg_size = 0) {
+    //TODO optimiztion/dispatching for cases with column_count > 2 * wg_size
+    return 1;
 }
 
 template <typename Float, bool use_weights>
@@ -60,7 +67,9 @@ struct get_core_wide_kernel {
         std::int32_t* cores_ptr = cores.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
+            const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+            const std::int64_t block_split_size =
+                get_recommended_check_block_size(queue, column_count, wg_size);
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -77,22 +86,37 @@ struct get_core_wide_kernel {
                     count_type count = 0;
                     for (std::int64_t j = 0; j < row_count; j++) {
                         Float sum = Float(0);
+                        std::int64_t count_iter = 0;
                         for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                            count_iter++;
                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
                                         data_ptr[j * column_count + i];
                             sum += val * val;
+                            if (count_iter % block_split_size == 0 &&
+                                local_size * count_iter <= column_count) {
+                                Float distance_check =
+                                    sycl::reduce_over_group(sg,
+                                                            sum,
+                                                            sycl::ext::oneapi::plus<Float>());
+                                if (distance_check > epsilon) {
+                                    break;
+                                }
+                            }
                         }
                         Float distance =
                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-                        if constexpr (use_weights) {
-                            count += distance <= epsilon ? weights_ptr[j] : count_type(0);
+                        if (distance <= epsilon) {
+                            count += use_weights ? weights_ptr[j] : count_type(1);
+                            if (count >= min_observations) {
+                                if (local_id == 0) {
+                                    cores_ptr[wg_id] = count_type(1);
+                                }
+                                break;
+                            }
+                            if (!use_weights && (row_count - j + count < min_observations)) {
+                                break;
+                            }
                         }
-                        else {
-                            count += distance <= epsilon ? count_type(1) : count_type(0);
-                        }
-                    }
-                    if (local_id == 0) {
-                        cores_ptr[wg_id] = (std::int32_t)(count >= min_observations);
                     }
                 });
         });
@@ -138,14 +162,19 @@ struct get_core_narrow_kernel {
                                     data_ptr[j * column_count + i];
                         sum += val * val;
                     }
-                    if constexpr (use_weights) {
-                        count += sum <= epsilon ? weights_ptr[j] : count_type(0);
+                    if (sum > epsilon) {
+                        continue;
                     }
-                    else {
-                        count += sum <= epsilon ? count_type(1) : count_type(0);
+                    count += use_weights ? weights_ptr[j] : count_type(1);
+
+                    if (count >= min_observations) {
+                        cores_ptr[idx] = count_type(1);
+                        break;
+                    }
+                    if (!use_weights && (row_count - j + count < min_observations)) {
+                        break;
                     }
                 }
-                cores_ptr[idx] = (std::int32_t)(count >= min_observations);
             });
         });
         return event;
@@ -239,7 +268,7 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
-    std::int64_t wg_size = get_recommended_sg_size(queue);
+    const std::int64_t wg_size = get_recommended_wg_size(queue);
     auto full_deps = deps + bk::event_vector{ start_index_event };
     auto index_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(full_deps);
@@ -349,7 +378,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     std::int32_t* responses_ptr = responses.get_mutable_data();
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        std::int64_t wg_size = get_recommended_sg_size(queue, column_count);
+        const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
         cgh.parallel_for(
             bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
