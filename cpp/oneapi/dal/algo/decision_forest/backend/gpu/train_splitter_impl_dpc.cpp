@@ -472,26 +472,29 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
                 else {
                     // Regression case
+                    // NOTE: experiments shows that float local accumulator
+                    // loses precision.
+                    // Due to that fact all local accumulators are double.
                     const Index work_size = local_size / act_bin_block;
-                    if (local_id < work_size * act_bin_block) {
-                        Index count = 0;
-                        Float sum = 0;
-                        Float weight = 0;
-                        const Index bin_id = local_id % act_bin_block;
-                        const Index loc_bin_pos = bin_id * hist_prop_count;
-                        for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
-                             row_idx += work_size) {
-                            const Index id = tree_order_ptr[row_ofs + row_idx];
-                            const Index bin = data_ptr[id * column_count + ts_ftr_id];
-                            const Float response = response_ptr[id];
-                            if ((bin_id + bin_ofs) >= bin) {
-                                count++;
-                                sum += response;
-                                if (is_weighted) {
-                                    weight += weights_ptr[id];
-                                }
+                    Index count = 0;
+                    double sum = 0;
+                    Float weight = 0;
+                    const Index bin_id = local_id % act_bin_block;
+                    const Index loc_bin_pos = bin_id * hist_prop_count;
+                    for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
+                         row_idx += work_size) {
+                        const Index id = tree_order_ptr[row_ofs + row_idx];
+                        const Index bin = data_ptr[id * column_count + ts_ftr_id];
+                        const Float response = response_ptr[id];
+                        if ((bin_id + bin_ofs) >= bin) {
+                            count++;
+                            sum += response;
+                            if (is_weighted) {
+                                weight += weights_ptr[id];
                             }
                         }
+                    }
+                    if (local_id < work_size * act_bin_block) {
                         sycl::atomic_ref<Float,
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
@@ -503,7 +506,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                          sycl::access::address_space::local_space>
                             hist_sum(hist[loc_bin_pos + 1]);
                         hist_count += count;
-                        hist_sum += sum;
+                        hist_sum += static_cast<Float>(sum);
                         if (is_weighted) {
                             sycl::atomic_ref<Float,
                                              sycl::memory_order_relaxed,
@@ -513,32 +516,26 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                             hist_weight += weight;
                         }
                     }
-                }
-                // Finalize regression case by calculating MSE
-                if constexpr (std::is_same_v<Task, task::regression>) {
+                    // Finalize regression case by calculating MSE
                     item.barrier(sycl::access::fence_space::local_space);
-                    const Index work_size = local_size / act_bin_block;
-                    if (local_id < work_size * act_bin_block) {
-                        const Index bin_id = local_id % act_bin_block;
-                        const Index loc_bin_pos = bin_id * hist_prop_count;
-                        Float mse = 0;
-                        const Float mean =
-                            local_hist[loc_bin_pos + 1] / local_hist[loc_bin_pos + 0];
-                        for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
-                             row_idx += work_size) {
-                            const Index id = tree_order_ptr[row_ofs + row_idx];
-                            const Index bin = data_ptr[id * column_count + ts_ftr_id];
-                            const Float response = response_ptr[id];
-                            if ((bin_id + bin_ofs) >= bin) {
-                                mse += (response - mean) * (response - mean);
-                            }
+                    double mse = 0;
+                    const double mean = local_hist[loc_bin_pos + 1] / local_hist[loc_bin_pos + 0];
+                    for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
+                         row_idx += work_size) {
+                        const Index id = tree_order_ptr[row_ofs + row_idx];
+                        const Index bin = data_ptr[id * column_count + ts_ftr_id];
+                        const Float response = response_ptr[id];
+                        if ((bin_id + bin_ofs) >= bin) {
+                            mse += (response - mean) * (response - mean);
                         }
+                    }
+                    if (local_id < work_size * act_bin_block) {
                         sycl::atomic_ref<Float,
                                          sycl::memory_order_relaxed,
                                          sycl::memory_scope_work_group,
                                          sycl::access::address_space::local_space>
                             hist_mse(hist[loc_bin_pos + 2]);
-                        hist_mse += mse;
+                        hist_mse += static_cast<Float>(mse);
                     }
                 }
                 // Wait until histogram computing will be finished
