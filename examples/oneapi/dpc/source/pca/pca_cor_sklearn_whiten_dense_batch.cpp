@@ -38,7 +38,7 @@ void run(sycl::queue& q) {
                               .set_component_count(5)
                               .set_deterministic(true)
                               .set_do_scale(false)
-                              .set_whiten(false);
+                              .set_whiten(true);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
