@@ -26,6 +26,11 @@
 
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/pca/pca_dense_base.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_memory.h"
+#include "src/data_management/service_numeric_table.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/threading/threading.h"
 
 namespace daal
 {
@@ -35,6 +40,9 @@ namespace pca
 {
 namespace internal
 {
+using namespace daal::services::internal;
+using namespace daal::data_management;
+using namespace daal::internal;
 enum InputDataType
 {
     nonNormalizedDataset = 0, /*!< Original, non-normalized data set */
@@ -50,8 +58,54 @@ public:
     virtual ~PCASVDKernelBase() {}
 
 protected:
+    services::Status computeEigenValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
+                                        size_t nRows);
+    services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                    data_management::NumericTable & explained_variances_ratio);
     services::Status scaleSingularValues(data_management::NumericTable & eigenvaluesTable, size_t nVectors);
 };
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(const data_management::NumericTable & singular_values,
+                                                                            data_management::NumericTable & eigenvalues, size_t nRows)
+{
+    const size_t nComponents = singular_values.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> SingularValuesBlock(const_cast<data_management::NumericTable &>(singular_values), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(SingularValuesBlock);
+    const algorithmFPType * const SingularValuesArray = SingularValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, 1);
+    DAAL_CHECK_MALLOC(EigenValuesBlock.get());
+    algorithmFPType * EigenValuesArray = EigenValuesBlock.get();
+
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i] / (nRows - 1);
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                                                        data_management::NumericTable & explained_varainces_ratio)
+{
+    const size_t nComponents = eigenvalues.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
+    const algorithmFPType * const EigenValuesArray = EigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, 1);
+    DAAL_CHECK_MALLOC(ExplainedVariancesRatioBlock.get());
+    algorithmFPType * ExplainedVariancesRatioArray = ExplainedVariancesRatioBlock.get();
+    algorithmFPType sum                            = 0;
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        sum += EigenValuesArray[i];
+    }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        ExplainedVariancesRatioArray[i] = EigenValuesArray[i] / sum;
+    }
+    return services::Status();
+}
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCASVDKernelBase<algorithmFPType, cpu>::scaleSingularValues(NumericTable & eigenvaluesTable, size_t nVectors)

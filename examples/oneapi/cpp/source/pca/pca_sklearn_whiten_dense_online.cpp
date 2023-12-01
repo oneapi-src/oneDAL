@@ -27,7 +27,7 @@ void run(const dal::table& x_train, const std::string& method_name) {
                               .set_component_count(5)
                               .set_deterministic(true)
                               .set_do_scale(false)
-                              .set_whiten(false);
+                              .set_whiten(true);
     const std::int64_t nBlocks = 2;
 
     dal::pca::partial_train_result<> partial_result;

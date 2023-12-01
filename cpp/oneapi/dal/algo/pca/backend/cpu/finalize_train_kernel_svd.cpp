@@ -43,16 +43,18 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
     const auto normalized_input = desc.is_scaled() && desc.is_mean_centered();
+    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
 
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
-
+    auto rows_count_global =
+        row_accessor<const Float>(input.get_partial_n_rows()).pull({ 0, -1 })[0];
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
     daal::services::SharedPtr<DataCollection> DataCollectionPtr;
     auto arr_eigvec = array<Float>::empty(column_count * column_count);
     auto arr_eigval = array<Float>::empty(1 * column_count);
-
+    auto reshaped_eigvec = array<Float>::empty(1 * component_count);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, column_count);
     const auto daal_eigenvalues =
@@ -80,19 +82,63 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                                            *daal_eigenvalues,
                                                                            *daal_eigenvectors,
                                                                            decomposeCollection));
-
+    model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        auto reshaped_eigvec = arr_eigvec.get_slice(0, component_count * column_count);
-        const auto mdl = model_t{}.set_eigenvectors(
-            homogen_table::wrap(reshaped_eigvec, component_count, column_count));
-        result.set_model(mdl);
+        reshaped_eigvec = arr_eigvec.get_slice(0, component_count * column_count);
+        model.set_eigenvectors(homogen_table::wrap(reshaped_eigvec, component_count, column_count));
     }
 
+    auto reshaped_eigval = arr_eigval.get_slice(0, component_count);
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        auto reshaped_eigval = arr_eigval.get_slice(0, component_count);
-        result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
-    }
+        const auto daal_singular_values =
+            interop::convert_to_daal_homogen_table(reshaped_eigval, 1, component_count);
+        result.set_singular_values(homogen_table::wrap(reshaped_eigval, 1, component_count));
+        if (sklearn_behavior) {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_svd_kernel_t<Float, cpu_type>().computeEigenValues(
+                    *daal_singular_values,
+                    *daal_eigenvalues,
+                    rows_count_global);
+            });
 
+            interop::status_to_exception(status);
+            result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
+        }
+        else {
+            result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
+        }
+    }
+    // if (desc.get_result_options().test(result_options::vars)) {
+    //     result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
+    //     if (sklearn_behavior) {
+    //         auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
+    //         const auto daal_explained_variances_ratio =
+    //             interop::convert_to_daal_homogen_table(arr_explained_variances_ratio,
+    //                                                    1,
+    //                                                    column_count);
+    //         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+    //             constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+    //             return daal_svd_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
+    //                 *daal_eigenvalues,
+    //                 *daal_explained_variances_ratio);
+    //         });
+
+    //         interop::status_to_exception(status);
+    //         result.set_explained_variances_ratio(
+    //             homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
+    //     }
+    // }
+    // if (desc.get_result_options().test(result_options::means)) {
+    //     result.set_means(homogen_table::wrap(arr_means, 1, column_count));
+    // }
+    // if (sklearn_behavior) {
+    //     model.set_means(homogen_table::wrap(arr_means, 1, column_count));
+    // }
+    if (desc.whiten()) {
+        model.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
+    }
+    result.set_model(model);
     return result;
 }
 

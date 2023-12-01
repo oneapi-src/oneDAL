@@ -43,10 +43,10 @@ class PCASVDBatchKernel : public PCASVDKernelBase<algorithmFPType, cpu>
 {
 public:
     PCASVDBatchKernel() {};
-    services::Status computeEigenValues(const data_management::NumericTable & singular_values, data_management::NumericTable & eigenvalues,
-                                        size_t nRows);
-    services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
-                                                    data_management::NumericTable & explained_variances_ratio);
+    using PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues;
+
+    using PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
+
     services::Status compute(InputDataType type, const data_management::NumericTablePtr & data, data_management::NumericTable & eigenvalues,
                              data_management::NumericTable & eigenvectors);
 
