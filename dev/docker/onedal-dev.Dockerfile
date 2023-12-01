@@ -18,7 +18,7 @@ FROM ubuntu:22.04
 
 ARG workdirectory="/sources/oneDAL"
 
-ADD ../../ ${workdirectory}
+COPY . ${workdirectory}
 
 WORKDIR ${workdirectory}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include <daal/src/algorithms/low_order_moments/moments_online.h>
+#include <daal/src/algorithms/low_order_moments/moments_batch.h>
 #include <daal/src/algorithms/low_order_moments/low_order_moments_kernel.h>
 
 namespace oneapi::dal::basic_statistics::backend {
 
 using dal::backend::context_cpu;
-using method_t = method::dense;
 using task_t = task::compute;
 using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
@@ -41,18 +41,25 @@ using descriptor_t = detail::descriptor_base<task_t>;
 namespace daal_lom = daal::algorithms::low_order_moments;
 namespace interop = dal::backend::interop;
 
-template <typename Float, daal::CpuType Cpu>
-using daal_lom_batch_kernel_t =
-    daal_lom::internal::LowOrderMomentsBatchKernel<Float, daal_lom::defaultDense, Cpu>;
+template <daal_lom::Method Value>
+using daal_method_constant = std::integral_constant<daal_lom::Method, Value>;
+
+template <typename Method>
+struct to_daal_method;
+
+template <>
+struct to_daal_method<method::dense> : daal_method_constant<daal_lom::defaultDense> {};
+
+template <>
+struct to_daal_method<method::sparse> : daal_method_constant<daal_lom::fastCSR> {};
+
+template <typename Float, daal::CpuType Cpu, typename Method>
+using batch_kernel_t =
+    daal_lom::internal::LowOrderMomentsBatchKernel<Float, to_daal_method<Method>::value, Cpu>;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_lom_online_kernel_t =
     daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
-
-template <typename Method>
-constexpr daal_lom::Method get_daal_method() {
-    return daal_lom::defaultDense;
-}
 
 template <typename Float>
 std::int64_t propose_block_size(std::int64_t row_count, std::int64_t col_count) {
@@ -174,10 +181,12 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
     return result;
 }
 
-template <typename Float>
+template <typename Float, typename Method>
 result_t call_daal_kernel_without_weights(const context_cpu& ctx,
                                           const descriptor_t& desc,
                                           const table& data) {
+    auto daal_method =
+        std::is_same_v<method::dense, Method> ? daal_lom::defaultDense : daal_lom::fastCSR;
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     auto daal_parameter = daal_lom::Parameter(get_daal_estimates_to_compute(desc));
@@ -187,13 +196,14 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
     daal_input.set(daal_lom::InputId::data, daal_data);
 
     interop::status_to_exception(
-        daal_result.allocate<Float>(&daal_input, &daal_parameter, get_daal_method<method_t>()));
+        daal_result.allocate<Float>(&daal_input, &daal_parameter, daal_method));
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_lom_batch_kernel_t>(ctx,
-                                                                  daal_data.get(),
-                                                                  &daal_result,
-                                                                  &daal_parameter));
+    interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return batch_kernel_t<Float,
+                              oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
+                              Method>()
+            .compute(daal_data.get(), &daal_result, &daal_parameter);
+    }));
 
     auto result =
         get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());
@@ -201,7 +211,7 @@ result_t call_daal_kernel_without_weights(const context_cpu& ctx,
     return result;
 }
 
-template <typename Float>
+template <typename Float, typename Method>
 static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     if (input.get_weights().has_data()) {
         return call_daal_kernel_with_weights<Float>(ctx,
@@ -210,20 +220,22 @@ static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const 
                                                     input.get_weights());
     }
     else {
-        return call_daal_kernel_without_weights<Float>(ctx, desc, input.get_data());
+        return call_daal_kernel_without_weights<Float, Method>(ctx, desc, input.get_data());
     }
 }
 
-template <typename Float>
-struct compute_kernel_cpu<Float, method_t, task_t> {
+template <typename Float, typename Method>
+struct compute_kernel_cpu<Float, Method, task_t> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return compute<Float>(ctx, desc, input);
+        return compute<Float, Method>(ctx, desc, input);
     }
 };
 
-template struct compute_kernel_cpu<float, method_t, task_t>;
-template struct compute_kernel_cpu<double, method_t, task_t>;
+template struct compute_kernel_cpu<float, method::dense, task_t>;
+template struct compute_kernel_cpu<double, method::dense, task_t>;
+template struct compute_kernel_cpu<float, method::sparse, task_t>;
+template struct compute_kernel_cpu<double, method::sparse, task_t>;
 
 } // namespace oneapi::dal::basic_statistics::backend

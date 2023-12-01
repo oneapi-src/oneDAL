@@ -24,9 +24,10 @@ namespace v1 {
 
 template <typename Policy, typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<Policy, Float, Method, Task> {
+    using input_t = compute_input<Task>;
     compute_result<Task> operator()(const Policy& policy,
                                     const descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const {
+                                    const input_t& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
             KERNEL_UNIVERSAL_SPMD_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;
@@ -42,6 +43,8 @@ struct compute_ops_dispatcher<Policy, Float, Method, Task> {
 
 INSTANTIATE(float, method::dense, task::compute)
 INSTANTIATE(double, method::dense, task::compute)
+INSTANTIATE(float, method::sparse, task::compute)
+INSTANTIATE(double, method::sparse, task::compute)
 
 } // namespace v1
 } // namespace oneapi::dal::basic_statistics::detail
