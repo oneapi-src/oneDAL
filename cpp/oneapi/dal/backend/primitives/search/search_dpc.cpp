@@ -575,7 +575,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                           .get_col_slice(0, train_block_size)
                           .get_row_slice(0, query_block_size);
             {
-                ONEDAL_PROFILER_TASK(tblock.distance, this->get_queue());
+                ONEDAL_PROFILER_TASK(train_loop.distance, this->get_queue());
                 tevent = temp_objs->get_train_norms_event(tb_id);
                 ip_event = gemm(this->get_queue(),
                                 query,
@@ -591,8 +591,7 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
             auto part_dsts =
                 temp_objs->get_part_distances_block(rel_idx + 1).get_row_slice(0, query_block_size);
             {
-                ONEDAL_PROFILER_TASK(tblock.selection, this->get_queue());
-                // TODO: does complexity of this differ from others?
+                ONEDAL_PROFILER_TASK(train_loop.selection, this->get_queue());
                 selt_event = selt_objs->select_sq_l2(this->get_queue(),
                                                      qnorms,
                                                      tnorms,
@@ -602,14 +601,11 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                                                      part_inds,
                                                      { ip_event, qevent, tevent });
             }
-            {
-                ONEDAL_PROFILER_TASK(tblock.treat, this->get_queue());
-                const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
-                last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
-            }
+            const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
+            last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
         }
         {
-            ONEDAL_PROFILER_TASK(sblock.selection, this->get_queue());
+            ONEDAL_PROFILER_TASK(selection_loop.selection, this->get_queue());
             dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
             const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
             auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
@@ -620,18 +616,13 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                                       temp_objs->get_out_indices(),
                                       { last_event });
         }
-        {
-            ONEDAL_PROFILER_TASK(sblock.select_indexed, this->get_queue());
-            inds_event = this->select_indexed(temp_objs->get_part_indices(),
-                                              temp_objs->get_out_indices(),
-                                              { selt_event });
-        }
-        {
-            ONEDAL_PROFILER_TASK(sblock.copy, this->get_queue());
-            auto part_indcs = temp_objs->get_part_indices_block(0);
-            last_event =
-                copy(this->get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
-        }
+        inds_event = this->select_indexed(temp_objs->get_part_indices(),
+                                            temp_objs->get_out_indices(),
+                                            { selt_event });
+
+        auto part_indcs = temp_objs->get_part_indices_block(0);
+        last_event =
+            copy(this->get_queue(), part_indcs, temp_objs->get_out_indices(), { inds_event });
     }
     return last_event;
 }
