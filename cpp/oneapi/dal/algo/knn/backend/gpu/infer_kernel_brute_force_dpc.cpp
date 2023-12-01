@@ -143,7 +143,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_distances = array<Float>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_distances =
                 pr::ndview<Float, 2>::wrap_mutable(part_distances,
-                                                { infer_row_count, 2 * neighbor_count });
+                                                   { infer_row_count, 2 * neighbor_count });
         }
         auto part_indices = array<idx_t>{};
         auto wrapped_part_indices = pr::ndview<idx_t, 2>{};
@@ -152,7 +152,7 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_indices = array<idx_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_indices =
                 pr::ndview<idx_t, 2>::wrap_mutable(part_indices,
-                                                { infer_row_count, 2 * neighbor_count });
+                                                   { infer_row_count, 2 * neighbor_count });
         }
         auto part_responses = array<res_t>{};
         auto wrapped_part_responses = pr::ndview<res_t, 2>{};
@@ -163,13 +163,13 @@ static infer_result<Task> kernel(const descriptor_t<Task>& desc,
             part_responses = array<res_t>::empty(queue, part_length, sycl::usm::alloc::device);
             wrapped_part_responses =
                 pr::ndview<res_t, 2>::wrap_mutable(part_responses,
-                                                { infer_row_count, 2 * neighbor_count });
+                                                   { infer_row_count, 2 * neighbor_count });
             intermediate_responses = array<res_t>::empty(queue,
-                                                        infer_row_count * neighbor_count,
-                                                        sycl::usm::alloc::device);
+                                                         infer_row_count * neighbor_count,
+                                                         sycl::usm::alloc::device);
             wrapped_intermediate_responses =
                 pr::ndview<res_t, 2>::wrap_mutable(intermediate_responses,
-                                                { infer_row_count, neighbor_count });
+                                                   { infer_row_count, neighbor_count });
         }
         bf_kernel_distr(queue,
                         comm,

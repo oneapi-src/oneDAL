@@ -195,6 +195,7 @@ public:
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
+        ONEDAL_PROFILER_TASK(query_loop.callback, queue_);
         sycl::event copy_actual_dist_event, copy_current_dist_event, copy_actual_indc_event,
             copy_current_indc_event, copy_actual_resp_event, copy_current_resp_event;
         const auto& bounds = this->block_bounds(qb_id);
@@ -209,16 +210,8 @@ public:
         auto current_min_resp_dest = part_responses_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
                                          .get_row_slice(first, last);
 
-        sycl::event treat_event, final_event, selt_event;
-        {
-            ONEDAL_PROFILER_TASK(qblock.select_indexed1, queue_);
-            // TODO: investigate why this is strangely expensive
-            copy_current_resp_event = pr::select_indexed(queue_,
-                                                         inp_indices,
-                                                         train_responses_,
-                                                         current_min_resp_dest,
-                                                         deps);
-        }
+        copy_current_resp_event =
+            pr::select_indexed(queue_, inp_indices, train_responses_, current_min_resp_dest, deps);
 
         const pr::ndshape<2> typical_blocking(last - first, 2 * k_neighbors_);
         auto select = selc_t(queue_, typical_blocking, k_neighbors_);
@@ -229,43 +222,37 @@ public:
 
         // add global offset value to input indices
         ONEDAL_ASSERT(global_index_offset_ != -1);
+        auto treat_event = pr::treat_indices(queue_,
+                                             inp_indices,
+                                             global_index_offset_,
+                                             { copy_current_resp_event });
+
+        auto actual_min_dist_copy_dest =
+            part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_dist_dest = part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
+                                         .get_row_slice(first, last);
+        copy_actual_dist_event =
+            pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, { treat_event });
+        copy_current_dist_event =
+            pr::copy(queue_, current_min_dist_dest, inp_distances, { treat_event });
+
+        auto actual_min_indc_copy_dest =
+            part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        auto current_min_indc_dest =
+            part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_).get_row_slice(first, last);
+        copy_actual_indc_event =
+            pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, { treat_event });
+        copy_current_indc_event =
+            pr::copy(queue_, current_min_indc_dest, inp_indices, { treat_event });
+
+        auto actual_min_resp_copy_dest =
+            part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
+        copy_actual_resp_event =
+            pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
+
+        sycl::event selt_event;
         {
-            ONEDAL_PROFILER_TASK(qblock.treat, queue_);
-            treat_event = pr::treat_indices(queue_,
-                                            inp_indices,
-                                            global_index_offset_,
-                                            { copy_current_resp_event });
-        }
-
-        {
-            ONEDAL_PROFILER_TASK(qblock.copy, queue_);
-            auto actual_min_dist_copy_dest =
-                part_distances_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-            auto current_min_dist_dest =
-                part_distances_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
-                    .get_row_slice(first, last);
-            copy_actual_dist_event =
-                pr::copy(queue_, actual_min_dist_copy_dest, min_dist_dest, { treat_event });
-            copy_current_dist_event =
-                pr::copy(queue_, current_min_dist_dest, inp_distances, { treat_event });
-
-            auto actual_min_indc_copy_dest =
-                part_indices_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-            auto current_min_indc_dest = part_indices_.get_col_slice(k_neighbors_, 2 * k_neighbors_)
-                                             .get_row_slice(first, last);
-            copy_actual_indc_event =
-                pr::copy(queue_, actual_min_indc_copy_dest, min_indc_dest, { treat_event });
-            copy_current_indc_event =
-                pr::copy(queue_, current_min_indc_dest, inp_indices, { treat_event });
-
-            auto actual_min_resp_copy_dest =
-                part_responses_.get_col_slice(0, k_neighbors_).get_row_slice(first, last);
-            copy_actual_resp_event =
-                pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
-        }
-
-        {
-            ONEDAL_PROFILER_TASK(qblock.selection, queue_);
+            ONEDAL_PROFILER_TASK(query_loop.selection, queue_);
             auto kselect_block = part_distances_.get_row_slice(first, last);
             selt_event = select(queue_,
                                 kselect_block,
@@ -279,28 +266,21 @@ public:
                                   copy_actual_resp_event,
                                   copy_current_resp_event });
         }
-        {
-            ONEDAL_PROFILER_TASK(qblock.select_indexed2, queue_);
-            auto resps_event = select_indexed(queue_,
-                                              min_indc_dest,
-                                              part_responses_.get_row_slice(first, last),
-                                              min_resp_dest,
-                                              { selt_event });
-            final_event = select_indexed(queue_,
-                                         min_indc_dest,
-                                         part_indices_.get_row_slice(first, last),
-                                         min_indc_dest,
-                                         { resps_event });
-        }
-        {
-            ONEDAL_PROFILER_TASK(qblock.last, queue_);
-            if (last_iteration_) {
-                if (this->compute_sqrt_) {
-                    final_event =
-                        copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { final_event });
-                }
-                final_event = this->output_responses(bounds, indices_, distances_, { final_event });
+        auto resps_event = select_indexed(queue_,
+                                          min_indc_dest,
+                                          part_responses_.get_row_slice(first, last),
+                                          min_resp_dest,
+                                          { selt_event });
+        auto final_event = select_indexed(queue_,
+                                          min_indc_dest,
+                                          part_indices_.get_row_slice(first, last),
+                                          min_indc_dest,
+                                          { resps_event });
+        if (last_iteration_) {
+            if (this->compute_sqrt_) {
+                final_event = copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { final_event });
             }
+            final_event = this->output_responses(bounds, indices_, distances_, { final_event });
         }
         return final_event;
     }
@@ -512,12 +492,9 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     auto rank_count = comm.get_rank_count();
     auto block_size = propose_distributed_block_size<Float>(queue, fcount);
     auto node_sample_counts = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
-    {
-        ONEDAL_PROFILER_TASK(extra.allgather, queue);
-        comm.allgather(tcount, node_sample_counts.flatten()).wait();
-    }
 
-    // TODO: event here?
+    comm.allgather(tcount, node_sample_counts.flatten()).wait();
+
     // auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
     std::int64_t max_tcount = 0;
     for (std::int32_t index = 0; index < node_sample_counts.get_count(); ++index) {
@@ -546,45 +523,41 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     const auto tbcount = pr::propose_train_block<Float>(queue, fcount);
 
     knn_callback_distr<Float, Task> callback(queue, comm, ropts, qbcount, qcount, kcount);
-    sycl::event next_event;
-    {
-        ONEDAL_PROFILER_TASK(extra.callbacksetup, queue);
 
-        callback.set_distances(distances);
-        callback.set_part_distances(part_distances);
-        callback.set_responses(qresps);
-        callback.set_part_responses(part_responses);
-        callback.set_intermediate_responses(intermediate_responses);
-        callback.set_indices(indices);
-        callback.set_part_indices(part_indices);
+    callback.set_distances(distances);
+    callback.set_part_distances(part_distances);
+    callback.set_responses(qresps);
+    callback.set_part_responses(part_responses);
+    callback.set_intermediate_responses(intermediate_responses);
+    callback.set_indices(indices);
+    callback.set_part_indices(part_indices);
 
-        next_event = callback.reset_dists_inds(deps);
+    auto next_event = callback.reset_dists_inds(deps);
 
-        if constexpr (std::is_same_v<Task, task::classification>) {
-            if (desc.get_result_options().test(result_options::responses) &&
-                (desc.get_voting_mode() == voting_mode::uniform)) {
-                callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
-            }
-
-            if (desc.get_result_options().test(result_options::responses) &&
-                (desc.get_voting_mode() == voting_mode::distance)) {
-                callback.set_distance_voting(
-                    std::move(pr::make_distance_voting<Float>(queue, qbcount, ccount)));
-            }
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::uniform)) {
+            callback.set_uniform_voting(std::move(pr::make_uniform_voting(queue, qbcount, kcount)));
         }
 
-        if constexpr (std::is_same_v<Task, task::regression>) {
-            if (desc.get_result_options().test(result_options::responses) &&
-                (desc.get_voting_mode() == voting_mode::uniform)) {
-                callback.set_uniform_regression(
-                    std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
-            }
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::distance)) {
+            callback.set_distance_voting(
+                std::move(pr::make_distance_voting<Float>(queue, qbcount, ccount)));
+        }
+    }
 
-            if (desc.get_result_options().test(result_options::responses) &&
-                (desc.get_voting_mode() == voting_mode::distance)) {
-                callback.set_distance_regression(
-                    std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
-            }
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::uniform)) {
+            callback.set_uniform_regression(
+                std::move(pr::make_uniform_regression<res_t>(queue, qbcount, kcount)));
+        }
+
+        if (desc.get_result_options().test(result_options::responses) &&
+            (desc.get_voting_mode() == voting_mode::distance)) {
+            callback.set_distance_regression(
+                std::move(pr::make_distance_regression<Float>(queue, qbcount, kcount)));
         }
     }
 
@@ -636,7 +609,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         if (relative_block_idx == block_count - 1) {
             callback.set_last_iteration(true);
         }
-        // TODO: CAN THIS BE REMOVED FROM LOOP
         if (is_cosine_distance) {
             using dst_t = pr::cosine_distance<Float>;
             using search_t = pr::search_engine<Float, dst_t, torder>;
@@ -676,7 +648,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
         }
 
         if (relative_block_idx < block_count - 1) {
-            ONEDAL_PROFILER_TASK(dblock.sendrecvreplace, queue);
+            ONEDAL_PROFILER_TASK(distributed_loop.sendrecv_replace, queue);
             auto send_count = current_block.get_count();
             ONEDAL_ASSERT(send_count >= 0);
             ONEDAL_ASSERT(send_count <= de::limits<int>::max());

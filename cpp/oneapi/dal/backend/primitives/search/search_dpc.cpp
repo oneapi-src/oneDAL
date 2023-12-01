@@ -617,8 +617,8 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
                                       { last_event });
         }
         inds_event = this->select_indexed(temp_objs->get_part_indices(),
-                                            temp_objs->get_out_indices(),
-                                            { selt_event });
+                                          temp_objs->get_out_indices(),
+                                          { selt_event });
 
         auto part_indcs = temp_objs->get_part_indices_block(0);
         last_event =
