@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -26,8 +25,6 @@ sycl::event select_indexed(sycl::queue& q,
                            const ndview<Type, 2>& src,
                            ndview<Type, 2>& dst,
                            const event_vector& deps) {
-    ONEDAL_PROFILER_TASK(select_indexed.si2d, q);
-    // std::cout << "ids, src, dst: " << ids.get_dimension(0) << "," << ids.get_dimension(1) << " " << src.get_dimension(0) << "," << src.get_dimension(1) << " " << dst.get_dimension(0) << "," << dst.get_dimension(1) << " " << std::endl;
     ONEDAL_ASSERT(ids.has_data());
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
@@ -57,7 +54,6 @@ sycl::event select_indexed_naive(sycl::queue& q,
                                  const ndview<Type, 1>& src,
                                  ndview<Type, 2>& dst,
                                  const event_vector& deps) {
-    ONEDAL_PROFILER_TASK(select_indexed.naive1d, q);
     const ndshape<2> shape = ids.get_shape();
     const auto range = make_range_2d(shape[0], shape[1]);
     const auto* const ids_ptr = ids.get_data();
@@ -80,7 +76,6 @@ sycl::event select_indexed_local(sycl::queue& q,
                                  const ndview<Type, 1>& src,
                                  ndview<Type, 2>& dst,
                                  const event_vector& deps) {
-    ONEDAL_PROFILER_TASK(select_indexed.local1d, q);
     constexpr Type first_bit = Type(1) << (8 * sizeof(Type) - 1);
     const auto* const ids_ptr = ids.get_data();
     const auto* const src_ptr = src.get_data();
@@ -146,11 +141,11 @@ sycl::event select_indexed(sycl::queue& q,
                            const ndview<Type, 1>& src,
                            ndview<Type, 2>& dst,
                            const event_vector& deps) {
-    // std::cout << "ids, src, dst: " << ids.get_dimension(0) << "," << ids.get_dimension(1) << " " << src.get_dimension(0) << " " << dst.get_dimension(0) << "," << dst.get_dimension(1) << " " << std::endl;
     ONEDAL_ASSERT(ids.has_data());
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     ONEDAL_ASSERT(ids.get_shape() == dst.get_shape());
+    // TODO: investigate poorly performing select_indexed_local
     // if constexpr (std::is_same_v<Type, std::int32_t> || std::is_same_v<Type, std::int64_t>) {
     //     const auto wg_size = propose_wg_size(q);
     //     const auto folding = ids.get_dimension(1);
