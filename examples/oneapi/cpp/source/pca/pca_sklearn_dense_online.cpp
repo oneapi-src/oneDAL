@@ -60,8 +60,9 @@ int main(int argc, char const* argv[]) {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    run<dal::pca::method::cov>(x_train, "Training method: Covariance");
-    run<dal::pca::method::svd>(x_train, "Training method: SVD");
+    run<dal::pca::method::cov>(x_train, "Training method: Covariance, Whiten: false", false);
+    run<dal::pca::method::cov>(x_train, "Training method: Covariance, Whiten: true", true);
+    // run<dal::pca::method::svd>(x_train, "Training method: SVD");
 
     return 0;
 }

@@ -40,12 +40,20 @@ void run(const dal::table& x_train, const std::string& method_name) {
 }
 
 int main(int argc, char const* argv[]) {
-    const auto train_data_file_name = get_data_path("pca_sklearn.csv");
+    const auto train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name_precomputed = get_data_path("pca_normalized.csv");
+    const auto cov_data_file_name = get_data_path("precomputed_covariance.csv");
+    const auto cor_data_file_name = get_data_path("precomputed_correlation.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
+    const auto cov_train = dal::read<dal::table>(dal::csv::data_source{ cov_data_file_name });
+    const auto cor_train = dal::read<dal::table>(dal::csv::data_source{ cor_data_file_name });
+
     run<dal::pca::method::cov>(x_train, "Training method: Covariance");
     run<dal::pca::method::svd>(x_train, "Training method: SVD");
+    run<dal::pca::method::precomputed>(cov_train, "PCA precomputed method with covariance matrix");
+    run<dal::pca::method::precomputed>(cor_train, "PCA precomputed method with correlation matrix");
 
     return 0;
 }
