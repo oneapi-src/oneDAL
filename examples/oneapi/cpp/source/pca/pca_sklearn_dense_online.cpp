@@ -22,12 +22,12 @@
 namespace dal = oneapi::dal;
 
 template <typename Method>
-void run(const dal::table& x_train, const std::string& method_name) {
+void run(const dal::table& x_train, const std::string& method_name, bool whiten) {
     const auto pca_desc = dal::pca::descriptor<float, Method>()
                               .set_component_count(5)
                               .set_deterministic(true)
                               .set_do_scale(false)
-                              .set_whiten(false);
+                              .set_whiten(whiten);
     const std::int64_t nBlocks = 2;
 
     dal::pca::partial_train_result<> partial_result;
@@ -62,7 +62,8 @@ int main(int argc, char const* argv[]) {
 
     run<dal::pca::method::cov>(x_train, "Training method: Covariance, Whiten: false", false);
     run<dal::pca::method::cov>(x_train, "Training method: Covariance, Whiten: true", true);
-    // run<dal::pca::method::svd>(x_train, "Training method: SVD");
+    run<dal::pca::method::svd>(x_train, "Training method: SVD, Whiten: false", false);
+    run<dal::pca::method::svd>(x_train, "Training method: SVD, Whiten: true", true);
 
     return 0;
 }
