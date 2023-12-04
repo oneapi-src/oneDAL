@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/misc.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
@@ -46,6 +46,13 @@ sycl::event set_csr_data(sycl::queue& queue,
                          const Float * data,
                          const std::int64_t * column_indices,
                          const std::int64_t * row_offsets,
+                         const std::vector<sycl::event> &deps = {});
+
+template <typename Float>
+sycl::event set_csr_data(sycl::queue& queue,
+                         sparse_matrix_handle &handle,
+                         dal::csr_table &table,
+                         const sycl::usm::alloc& alloc,
                          const std::vector<sycl::event> &deps = {});
 
 #endif // ifdef ONEDAL_DATA_PARALLEL
