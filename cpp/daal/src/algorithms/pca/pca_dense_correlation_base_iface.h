@@ -43,6 +43,8 @@ public:
                                                            data_management::NumericTable & eigenvalues)                     = 0;
     virtual services::Status computeSingularValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
                                                    size_t nRows)                                                            = 0;
+    virtual services::Status computeVariancesFromCov(const data_management::NumericTable & correlation,
+                                                     data_management::NumericTable & variances)                             = 0;
     virtual services::Status computeSingularValuesNormalized(const data_management::NumericTable & eigenvalues,
                                                              data_management::NumericTable & singular_values, size_t nRows) = 0;
     virtual services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,

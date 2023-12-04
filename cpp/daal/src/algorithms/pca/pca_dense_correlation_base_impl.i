@@ -54,6 +54,13 @@ void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algo
 }
 
 template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov(const data_management::NumericTable & correlation,
+                                                                                   data_management::NumericTable & variances)
+{
+    return services::Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovarianceTable(NumericTable & covariance) const
 {
     size_t nFeatures = covariance.getNumberOfRows();
