@@ -76,6 +76,8 @@ ONEDAL_EXPORT result_option_id get_eigenvectors_id();
 ONEDAL_EXPORT result_option_id get_eigenvalues_id();
 ONEDAL_EXPORT result_option_id get_variances_id();
 ONEDAL_EXPORT result_option_id get_means_id();
+ONEDAL_EXPORT result_option_id get_singular_values_id();
+ONEDAL_EXPORT result_option_id get_explained_variances_ratio_id();
 
 } // namespace detail
 
@@ -91,7 +93,11 @@ const inline result_option_id eigenvalues = detail::get_eigenvalues_id();
 const inline result_option_id vars = detail::get_variances_id();
 /// Return means
 const inline result_option_id means = detail::get_means_id();
-
+/// Return singular values
+const inline result_option_id singular_values = detail::get_singular_values_id();
+/// Return means
+const inline result_option_id explained_variances_ratio =
+    detail::get_explained_variances_ratio_id();
 } // namespace result_options
 
 namespace detail {
@@ -298,7 +304,12 @@ public:
         set_means_impl(value);
         return *this;
     }
+    const table& get_variances() const;
 
+    auto& set_variances(const table& value) {
+        set_variances_impl(value);
+        return *this;
+    }
     const table& get_eigenvalues() const;
 
     auto& set_eigenvalues(const table& value) {
@@ -309,6 +320,7 @@ public:
 protected:
     void set_eigenvectors_impl(const table&);
     void set_means_impl(const table&);
+    void set_variances_impl(const table&);
     void set_eigenvalues_impl(const table&);
 
 private:

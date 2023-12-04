@@ -132,6 +132,26 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues
 }
 
 template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValuesNormalized(const data_management::NumericTable & eigenvalues,
+                                                                                           data_management::NumericTable & singular_values,
+                                                                                           size_t nRows)
+{
+    const size_t nComponents = eigenvalues.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> SingularValues(singular_values, 0, 1);
+    DAAL_CHECK_MALLOC(SingularValues.get());
+    algorithmFPType * SingularValuesArray = SingularValues.get();
+
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        SingularValuesArray[i] = sqrt(eigenValuesArray[i]);
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
                                                                                           data_management::NumericTable & explained_varainces_ratio)
 {

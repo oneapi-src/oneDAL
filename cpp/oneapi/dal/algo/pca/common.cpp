@@ -37,6 +37,14 @@ result_option_id get_means_id() {
     return result_option_id{ result_option_id::make_by_index(3) };
 }
 
+result_option_id get_singular_values_id() {
+    return result_option_id{ result_option_id::make_by_index(4) };
+}
+
+result_option_id get_explained_variances_ratio_id() {
+    return result_option_id{ result_option_id::make_by_index(5) };
+}
+
 template <typename Task>
 result_option_id get_default_result_options() {
     return result_option_id{};
@@ -44,7 +52,8 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::dim_reduction>() {
-    return get_eigenvectors_id() | get_eigenvalues_id() | get_variances_id() | get_means_id();
+    return get_eigenvectors_id() | get_eigenvalues_id() | get_variances_id() | get_means_id() |
+           get_singular_values_id() | get_explained_variances_ratio_id();
 }
 
 namespace v1 {
@@ -67,16 +76,19 @@ class model_impl : public ONEDAL_SERIALIZABLE(pca_dim_reduction_model_impl_id) {
 public:
     table eigenvectors;
     table pMeans;
+    table pVariances;
     table eigenvalues;
     void serialize(dal::detail::output_archive& ar) const override {
         ar(eigenvectors);
         ar(pMeans);
+        ar(pVariances);
         ar(eigenvalues);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         ar(eigenvectors);
         ar(pMeans);
+        ar(pVariances);
         ar(eigenvalues);
     }
 };
@@ -191,6 +203,16 @@ const table& model<Task>::get_means() const {
 template <typename Task>
 void model<Task>::set_means_impl(const table& value) {
     impl_->pMeans = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_variances() const {
+    return impl_->pVariances;
+}
+
+template <typename Task>
+void model<Task>::set_variances_impl(const table& value) {
+    impl_->pVariances = value;
 }
 
 template <typename Task>

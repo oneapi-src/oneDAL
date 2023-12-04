@@ -135,11 +135,17 @@ const table& train_result<Task>::get_means() const {
 
 template <typename Task>
 const table& train_result<Task>::get_singular_values() const {
+    if (!get_result_options().test(result_options::singular_values)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     return impl_->singular_values;
 }
 
 template <typename Task>
 const table& train_result<Task>::get_explained_variances_ratio() const {
+    if (!get_result_options().test(result_options::explained_variances_ratio)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     return impl_->explained_variances_ratio;
 }
 
@@ -174,11 +180,17 @@ void train_result<Task>::set_means_impl(const table& value) {
 
 template <typename Task>
 void train_result<Task>::set_singular_values_impl(const table& value) {
+    if (!get_result_options().test(result_options::singular_values)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->singular_values = value;
 }
 
 template <typename Task>
 void train_result<Task>::set_explained_variances_ratio_impl(const table& value) {
+    if (!get_result_options().test(result_options::explained_variances_ratio)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->explained_variances_ratio = value;
 }
 

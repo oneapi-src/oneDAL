@@ -47,6 +47,8 @@ public:
 
     using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues;
 
+    using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValuesNormalized;
+
     using PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
 
     services::Status compute(const data_management::NumericTablePtr & pData, PartialResult<correlationDense> * partialResult,
