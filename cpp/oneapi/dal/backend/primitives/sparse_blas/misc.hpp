@@ -29,4 +29,4 @@ inline constexpr mkl::index_base sparse_indexing_to_mkl(const sparse_indexing in
     return (indexing == sparse_indexing::zero_based) ? mkl::index_base::zero : mkl::index_base::one;
 }
 
-}
+} // namespace oneapi::dal::backend::primitives

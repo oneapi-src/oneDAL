@@ -35,4 +35,4 @@ public:
 private:
     detail::pimpl<sparse_matrix_handle_iface> impl_;
 };
-}
+} // namespace oneapi::dal::backend::primitives

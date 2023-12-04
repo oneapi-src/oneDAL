@@ -23,13 +23,12 @@ namespace oneapi::dal::backend::primitives {
 template <typename Float, ndorder bo, ndorder co>
 sycl::event gemm(sycl::queue& queue,
                  transpose transpose_a,
-                 sparse_matrix_handle &a,
+                 sparse_matrix_handle& a,
                  const ndview<Float, 2, bo>& b,
                  ndview<Float, 2, co>& c,
                  const Float alpha,
                  const Float beta,
-                 const std::vector<sycl::event> &dependencies) {
-
+                 const std::vector<sycl::event>& dependencies) {
     ONEDAL_ASSERT(b.get_dimension(1) == c.get_dimension(1));
     ONEDAL_ASSERT(c.has_mutable_data());
 
@@ -39,7 +38,7 @@ sycl::event gemm(sycl::queue& queue,
                              f_order_as_transposed(bo),
                              alpha,
                              dal::detail::get_impl(a).handle,
-                             const_cast<Float *>(b.get_data()),
+                             const_cast<Float*>(b.get_data()),
                              b.get_dimension(1),
                              b.get_leading_stride(),
                              beta,
@@ -48,18 +47,18 @@ sycl::event gemm(sycl::queue& queue,
                              dependencies);
 }
 
-#define INSTANTIATE(F, bo, co)                                                      \
-    template ONEDAL_EXPORT sycl::event gemm<F, bo, co>(sycl::queue& queue,          \
-                                                       transpose transpose_a,       \
-                                                       sparse_matrix_handle &a,     \
-                                                       const ndview<F, 2, bo>& b,   \
-                                                       ndview<F, 2, co>& c,         \
-                                                       const F alpha,               \
-                                                       const F beta,                \
-                                                       const std::vector<sycl::event> &deps);
+#define INSTANTIATE(F, bo, co)                                                    \
+    template ONEDAL_EXPORT sycl::event gemm<F, bo, co>(sycl::queue & queue,       \
+                                                       transpose transpose_a,     \
+                                                       sparse_matrix_handle & a,  \
+                                                       const ndview<F, 2, bo>& b, \
+                                                       ndview<F, 2, co>& c,       \
+                                                       const F alpha,             \
+                                                       const F beta,              \
+                                                       const std::vector<sycl::event>& deps);
 
-#define INSTANTIATE_FLOAT(bo, co)   \
-    INSTANTIATE(float, bo, co)      \
+#define INSTANTIATE_FLOAT(bo, co) \
+    INSTANTIATE(float, bo, co)    \
     INSTANTIATE(double, bo, co)
 
 INSTANTIATE_FLOAT(ndorder::c, ndorder::c)

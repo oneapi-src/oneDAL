@@ -30,4 +30,4 @@ public:
     oneapi::mkl::sparse::matrix_handle_t handle;
 };
 
-}
+} // namespace oneapi::dal::backend::primitives

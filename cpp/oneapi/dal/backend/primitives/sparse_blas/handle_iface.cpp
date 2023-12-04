@@ -26,4 +26,4 @@ sparse_matrix_handle_iface::~sparse_matrix_handle_iface() {
     oneapi::mkl::sparse::release_matrix_handle(&handle);
 }
 
-}
+} // namespace oneapi::dal::backend::primitives

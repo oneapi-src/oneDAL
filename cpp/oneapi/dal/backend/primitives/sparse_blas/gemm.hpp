@@ -61,12 +61,12 @@ namespace oneapi::dal::backend::primitives {
 template <typename Float, ndorder bo, ndorder co>
 sycl::event gemm(sycl::queue& queue,
                  transpose transpose_a,
-                 sparse_matrix_handle &a,
+                 sparse_matrix_handle& a,
                  const ndview<Float, 2, bo>& b,
                  ndview<Float, 2, co>& c,
                  const Float alpha,
                  const Float beta,
-                 const std::vector<sycl::event> &dependencies = {});
+                 const std::vector<sycl::event>& dependencies = {});
 
 /// Computes a sparse-dense matrix product:
 ///         C = op(A) * B
@@ -100,10 +100,10 @@ sycl::event gemm(sycl::queue& queue,
 template <typename Float, ndorder bo, ndorder co>
 sycl::event gemm(sycl::queue& queue,
                  transpose transpose_a,
-                 sparse_matrix_handle &a,
+                 sparse_matrix_handle& a,
                  const ndview<Float, 2, bo>& b,
                  ndview<Float, 2, co>& c,
-                 const std::vector<sycl::event> &dependencies = {}) {
+                 const std::vector<sycl::event>& dependencies = {}) {
     return gemm<Float>(queue, transpose_a, a, b, c, Float(1), Float(0), dependencies);
 }
 

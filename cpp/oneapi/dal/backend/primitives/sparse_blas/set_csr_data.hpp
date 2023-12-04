@@ -27,7 +27,7 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float>
-sycl::event set_csr_data(sycl::queue& queue,
+sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          const std::int64_t row_count,
                          const std::int64_t column_count,
@@ -38,21 +38,21 @@ sycl::event set_csr_data(sycl::queue& queue,
                          const std::vector<sycl::event> &deps = {});
 
 template <typename Float>
-sycl::event set_csr_data(sycl::queue& queue,
+sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          const std::int64_t row_count,
                          const std::int64_t column_count,
                          dal::sparse_indexing indexing,
-                         const Float * data,
-                         const std::int64_t * column_indices,
-                         const std::int64_t * row_offsets,
+                         const Float *data,
+                         const std::int64_t *column_indices,
+                         const std::int64_t *row_offsets,
                          const std::vector<sycl::event> &deps = {});
 
 template <typename Float>
-sycl::event set_csr_data(sycl::queue& queue,
+sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          dal::csr_table &table,
-                         const sycl::usm::alloc& alloc,
+                         const sycl::usm::alloc &alloc,
                          const std::vector<sycl::event> &deps = {});
 
 #endif // ifdef ONEDAL_DATA_PARALLEL

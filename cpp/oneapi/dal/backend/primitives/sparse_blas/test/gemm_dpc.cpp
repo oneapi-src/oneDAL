@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-
 #include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
@@ -75,14 +74,14 @@ public:
         return ndarray<float_t, 2, co>::empty(this->get_queue(), { m_, p_ });
     }
 
-    void test_gemm(sparse_matrix_handle &a) {
+    void test_gemm(sparse_matrix_handle& a) {
         auto c = C();
 
         if (bo == ndorder::c) {
             auto [b, b_e] = B();
             gemm(this->get_queue(), trans_a, a, b, c, { b_e }).wait_and_throw();
         }
-/*        else {
+        /*        else {
             auto [bt, bt_e] = Bt();
             gemm(this->get_queue(), trans_a, a, bt.t(), c, { bt_e }).wait_and_throw();
         }
@@ -96,7 +95,7 @@ public:
 
         const float_t* mat_ptr = mat.get_data();
         for (std::int64_t i = 0; i < mat.get_count(); i++) {
-            const std::int64_t result = k_/2;
+            const std::int64_t result = k_ / 2;
             if (std::int64_t(mat_ptr[i]) != result) {
                 CAPTURE(i, mat_ptr[i]);
                 for (int k = 0; k < k_; k++) {
@@ -128,17 +127,21 @@ private:
     std::int64_t p_;
 };
 
-using gemm_types = COMBINE_TYPES((float, double),
-                                 (transpose_nontrans, transpose_trans),
-                                 (c_order /*, f_order */),  /// oneMKL 2024.0 throws 'unimplemented' exception when the matrix B is transposed
-                                 (c_order /*, f_order */));
+using gemm_types = COMBINE_TYPES(
+    (float, double),
+    (transpose_nontrans, transpose_trans),
+    (c_order /*, f_order */), /// oneMKL 2024.0 throws 'unimplemented' exception when the matrix B is transposed
+    (c_order /*, f_order */));
 
 /// Tests dal::csr_accessor class on a fixed data table:
 ///     | 1,  0,  1,  0 |
 /// A = | 0,  1,  0,  1 |
 ///     | 1,  0,  1,  0 |
 ///     | 0,  1,  0,  1 |
-TEMPLATE_LIST_TEST_M(sparse_gemm_test, "ones matrix sparse CSR gemm on small sizes", "[csr][gemm][small]", gemm_types) {
+TEMPLATE_LIST_TEST_M(sparse_gemm_test,
+                     "ones matrix sparse CSR gemm on small sizes",
+                     "[csr][gemm][small]",
+                     gemm_types) {
     // DPC++ Sparse GEMM from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 
@@ -171,11 +174,16 @@ TEMPLATE_LIST_TEST_M(sparse_gemm_test, "ones matrix sparse CSR gemm on small siz
 
     sparse_matrix_handle handle;
 
-    set_csr_data(q, handle, row_count, column_count, sparse_indexing::one_based,
-        data,
-        column_indices,
-        row_offsets,
-        {data_event, column_indices_event, row_offsets_event} ).wait();
+    set_csr_data(q,
+                 handle,
+                 row_count,
+                 column_count,
+                 sparse_indexing::one_based,
+                 data,
+                 column_indices,
+                 row_offsets,
+                 { data_event, column_indices_event, row_offsets_event })
+        .wait();
 
     this->generate_dimensions();
     this->test_gemm(handle);
@@ -185,4 +193,4 @@ TEMPLATE_LIST_TEST_M(sparse_gemm_test, "ones matrix sparse CSR gemm on small siz
     sycl::free(row_offsets, q);
 }
 
-}
+} // namespace oneapi::dal::backend::primitives::test

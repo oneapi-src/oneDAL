@@ -22,7 +22,7 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-sycl::event set_csr_data(sycl::queue& queue,
+sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          const std::int64_t row_count,
                          const std::int64_t column_count,
@@ -30,58 +30,51 @@ sycl::event set_csr_data(sycl::queue& queue,
                          dal::array<Float> &data,
                          dal::array<std::int64_t> &column_indices,
                          dal::array<std::int64_t> &row_offsets,
-                         const std::vector<sycl::event> &deps)
-{
-    return oneapi::mkl::sparse::set_csr_data(
-        queue,
-        dal::detail::get_impl(handle).handle,
-        row_count,
-        column_count,
-        sparse_indexing_to_mkl(indexing),
-        const_cast<std::int64_t *>(row_offsets.get_data()),
-        const_cast<std::int64_t *>(column_indices.get_data()),
-        const_cast<Float *>(data.get_data()),
-        deps);
+                         const std::vector<sycl::event> &deps) {
+    return oneapi::mkl::sparse::set_csr_data(queue,
+                                             dal::detail::get_impl(handle).handle,
+                                             row_count,
+                                             column_count,
+                                             sparse_indexing_to_mkl(indexing),
+                                             const_cast<std::int64_t *>(row_offsets.get_data()),
+                                             const_cast<std::int64_t *>(column_indices.get_data()),
+                                             const_cast<Float *>(data.get_data()),
+                                             deps);
 }
 
 template <typename Float>
-sycl::event set_csr_data(sycl::queue& queue,
+sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          const std::int64_t row_count,
                          const std::int64_t column_count,
                          dal::sparse_indexing indexing,
-                         const Float * data,
-                         const std::int64_t * column_indices,
-                         const std::int64_t * row_offsets,
-                         const std::vector<sycl::event> &deps)
-{
-    return oneapi::mkl::sparse::set_csr_data(
-        queue,
-        dal::detail::get_impl(handle).handle,
-        row_count,
-        column_count,
-        sparse_indexing_to_mkl(indexing),
-        const_cast<std::int64_t *>(row_offsets),
-        const_cast<std::int64_t *>(column_indices),
-        const_cast<Float *>(data),
-        deps);
+                         const Float *data,
+                         const std::int64_t *column_indices,
+                         const std::int64_t *row_offsets,
+                         const std::vector<sycl::event> &deps) {
+    return oneapi::mkl::sparse::set_csr_data(queue,
+                                             dal::detail::get_impl(handle).handle,
+                                             row_count,
+                                             column_count,
+                                             sparse_indexing_to_mkl(indexing),
+                                             const_cast<std::int64_t *>(row_offsets),
+                                             const_cast<std::int64_t *>(column_indices),
+                                             const_cast<Float *>(data),
+                                             deps);
 }
 
 template <typename Float>
-sycl::event set_csr_data(sycl::queue& queue,
+sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          dal::csr_table &table,
-                         const sycl::usm::alloc& alloc,
+                         const sycl::usm::alloc &alloc,
                          const std::vector<sycl::event> &deps) {
     const std::int64_t row_count = table.get_row_count();
     const std::int64_t column_count = table.get_column_count();
     const dal::sparse_indexing indexing = table.get_indexing();
 
-    const auto [data_array, cidx_array, ridx_array] = csr_accessor<const Float>(table).pull(
-                queue,
-                { 0, row_count },
-                indexing,
-                alloc);
+    const auto [data_array, cidx_array, ridx_array] =
+        csr_accessor<const Float>(table).pull(queue, { 0, row_count }, indexing, alloc);
 
     return set_csr_data(queue,
                         handle,
@@ -94,33 +87,32 @@ sycl::event set_csr_data(sycl::queue& queue,
                         deps);
 }
 
-#define INSTANTIATE(F)                                                                              \
-    template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue& queue,                          \
-                                                       sparse_matrix_handle &handle,                \
-                                                       const std::int64_t row_count,                \
-                                                       const std::int64_t column_count,             \
-                                                       dal::sparse_indexing indexing,               \
-                                                       dal::array<F> &data,                         \
-                                                       dal::array<std::int64_t> &column_indices,    \
-                                                       dal::array<std::int64_t> &row_offsets,       \
-                                                       const std::vector<sycl::event> &deps);       \
-                                                                                                    \
-    template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue& queue,                          \
-                                                       sparse_matrix_handle &handle,                \
-                                                       const std::int64_t row_count,                \
-                                                       const std::int64_t column_count,             \
-                                                       dal::sparse_indexing indexing,               \
-                                                       const F * data,                              \
-                                                       const std::int64_t * column_indices,         \
-                                                       const std::int64_t * row_offsets,            \
-                                                       const std::vector<sycl::event> &deps);       \
-                                                                                                    \
-    template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue& queue,                          \
-                                                       sparse_matrix_handle &handle,                \
-                                                       dal::csr_table &table,                       \
-                                                       const sycl::usm::alloc& alloc,               \
+#define INSTANTIATE(F)                                                                           \
+    template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue & queue,                      \
+                                                       sparse_matrix_handle & handle,            \
+                                                       const std::int64_t row_count,             \
+                                                       const std::int64_t column_count,          \
+                                                       dal::sparse_indexing indexing,            \
+                                                       dal::array<F> &data,                      \
+                                                       dal::array<std::int64_t> &column_indices, \
+                                                       dal::array<std::int64_t> &row_offsets,    \
+                                                       const std::vector<sycl::event> &deps);    \
+                                                                                                 \
+    template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue & queue,                      \
+                                                       sparse_matrix_handle & handle,            \
+                                                       const std::int64_t row_count,             \
+                                                       const std::int64_t column_count,          \
+                                                       dal::sparse_indexing indexing,            \
+                                                       const F *data,                            \
+                                                       const std::int64_t *column_indices,       \
+                                                       const std::int64_t *row_offsets,          \
+                                                       const std::vector<sycl::event> &deps);    \
+                                                                                                 \
+    template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue & queue,                      \
+                                                       sparse_matrix_handle & handle,            \
+                                                       dal::csr_table & table,                   \
+                                                       const sycl::usm::alloc &alloc,            \
                                                        const std::vector<sycl::event> &deps);
-
 
 INSTANTIATE(float)
 INSTANTIATE(double)

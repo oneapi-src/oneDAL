@@ -21,4 +21,4 @@ namespace oneapi::dal::backend::primitives {
 
 sparse_matrix_handle::sparse_matrix_handle() : impl_(new sparse_matrix_handle_iface()) {}
 
-}
+} // namespace oneapi::dal::backend::primitives

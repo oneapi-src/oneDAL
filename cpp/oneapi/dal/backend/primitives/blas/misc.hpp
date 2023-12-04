@@ -27,12 +27,14 @@ namespace mkl = oneapi::mkl;
 #ifdef ONEDAL_DATA_PARALLEL
 /// Convert oneDAL `ndorder` to oneMKL `layout`
 inline constexpr mkl::layout order_as_layout(ndorder order) {
-    return (order == ndorder::c) ? mkl::layout::R /* row-major */ : mkl::layout::C /* column-major */;
+    return (order == ndorder::c) ? mkl::layout::R /* row-major */
+                                 : mkl::layout::C /* column-major */;
 }
 
 /// Convert oneDAL `transpose` to oneMKL `transpose`
 inline constexpr mkl::transpose transpose_to_mkl(primitives::transpose trans) {
-    return (trans == primitives::transpose::trans) ? mkl::transpose::trans : mkl::transpose::nontrans;
+    return (trans == primitives::transpose::trans) ? mkl::transpose::trans
+                                                   : mkl::transpose::nontrans;
 }
 
 inline constexpr mkl::transpose f_order_as_transposed(ndorder order) {
@@ -42,7 +44,6 @@ inline constexpr mkl::transpose f_order_as_transposed(ndorder order) {
 inline constexpr mkl::transpose c_order_as_transposed(ndorder order) {
     return (order == ndorder::c) ? mkl::transpose::trans : mkl::transpose::nontrans;
 }
-
 
 inline constexpr mkl::uplo flip_uplo(mkl::uplo order) {
     constexpr auto upper = mkl::uplo::upper;
