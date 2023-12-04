@@ -34,15 +34,15 @@ load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo
 micromkl_repo(
     name = "micromkl",
     root_env_var = "MKLFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20221214.tgz",
-    sha256 = "34001657cfe7127ff0de9d6bf0cb4d9fc4d0be1037e5615f8c899c7193a8be8b",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20230413.tgz",
+    sha256 = "e99dd6fb18f1fda382c53373262d1bb44c1b58aa6edff94cfb0e9d8dcd3395ed",
 )
 
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20221214.tgz",
-    sha256 = "1bd9e3ef850d95d1ee00e0f04943c8ed2490175fca6a7b331cab91a124ab301e",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20231019.tgz",
+    sha256 = "c0321dc22c7353e0ec1a8fa98cf61b5142bc8bca0985ae7c83dbc8a295573360",
 )
 
 load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
