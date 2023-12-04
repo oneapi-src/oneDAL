@@ -371,7 +371,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
 
     auto device = queue.get_device();
     std::int64_t device_local_mem_size =
-        device.get_info<sycl::info::device::local_mem_size>() * 0.7;
+        device.get_info<sycl::info::device::local_mem_size>() * 0.8;
     std::int64_t hist_size = hist_prop_count * sizeof(hist_type_t);
     std::int64_t bin_mem_size = hist_size + sizeof(Float) + sizeof(split_scalar_t);
     std::int64_t possible_block_size = device_local_mem_size / bin_mem_size;
@@ -477,7 +477,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     // Due to that fact all local accumulators are double.
                     const Index work_size = local_size / act_bin_block;
                     Index count = 0;
-                    double sum = 0;
+                    Float sum = 0;
                     Float weight = 0;
                     const Index bin_id = local_id % act_bin_block;
                     const Index loc_bin_pos = bin_id * hist_prop_count;
@@ -518,8 +518,8 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     }
                     // Finalize regression case by calculating MSE
                     item.barrier(sycl::access::fence_space::local_space);
-                    double mse = 0;
-                    const double mean = local_hist[loc_bin_pos + 1] / local_hist[loc_bin_pos + 0];
+                    Float mse = 0;
+                    const Float mean = local_hist[loc_bin_pos + 1] / local_hist[loc_bin_pos + 0];
                     for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
                          row_idx += work_size) {
                         const Index id = tree_order_ptr[row_ofs + row_idx];
