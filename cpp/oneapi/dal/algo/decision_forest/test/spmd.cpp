@@ -122,7 +122,7 @@ public:
     train_result_t train_spmd_weighted_base_checks(const descriptor_t& desc,
                                                    const te::dataframe& data,
                                                    const te::table_id& data_table_id) {
-        const auto x = data.get_table(data_table_id, range(0, -2));
+        const auto x = data.get_table(data_table_id, range(0, -1));
         const auto y =
             data.get_table(data_table_id,
                            range(data.get_column_count() - 2, data.get_column_count() - 1));
@@ -437,7 +437,7 @@ DF_SPMD_CLS_TEST("df cls base check with non default params") {
     auto desc = this->get_default_descriptor();
 
     desc.set_tree_count(tree_count_val);
-    desc.set_min_observations_in_leaf_node(2);
+    desc.set_min_observations_in_leaf_node(1);
     desc.set_variable_importance_mode(variable_importance_mode_val);
     desc.set_error_metric_mode(error_metric_mode_val);
     desc.set_infer_mode(infer_mode_val);
