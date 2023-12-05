@@ -93,15 +93,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                           daal_variances.get(),
                                                                           daal_eigenvalues.get(),
                                                                           *daal_result));
-        //todo: investigate whats the correct way, new or previous
-        // interop::status_to_exception(
-        //     interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
-        //                                                                   *daal_data,
-        //                                                                   *daal_eigenvectors,
-        //                                                                   nullptr,
-        //                                                                   nullptr,
-        //                                                                   nullptr,
-        //                                                                   *daal_result));
     }
     return result_t{}.set_transformed_data(
         dal::detail::homogen_table_builder{}.reset(arr_result, row_count, component_count).build());
