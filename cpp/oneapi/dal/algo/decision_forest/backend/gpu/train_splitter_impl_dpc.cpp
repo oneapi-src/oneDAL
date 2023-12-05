@@ -376,6 +376,16 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     std::int64_t bin_mem_size = hist_size + sizeof(Float) + sizeof(split_scalar_t);
     std::int64_t possible_block_size = device_local_mem_size / bin_mem_size;
 
+    if constexpr (std::is_same_v<Task, task::regression>) {
+        // Need to align block size to wg size for old GPU generations
+        possible_block_size = std::min<Index>(possible_block_size, bk::device_max_wg_size(queue));
+    }
+
+    if (possible_block_size <= 0) {
+        // Not enough memory to build at least one histogram
+        throw domain_error(msg::not_enough_local_memory_for_hist());
+    }
+
     const Index bin_block = std::min<Index>(possible_block_size, bin_count);
 
     const Index local_size = bk::device_max_wg_size(queue);
@@ -472,12 +482,9 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                 }
                 else {
                     // Regression case
-                    // NOTE: experiments shows that float local accumulator
-                    // loses precision.
-                    // Due to that fact all local accumulators are double.
                     const Index work_size = local_size / act_bin_block;
                     Index count = 0;
-                    Float sum = 0;
+                    double sum = 0;
                     Float weight = 0;
                     const Index bin_id = local_id % act_bin_block;
                     const Index loc_bin_pos = bin_id * hist_prop_count;
@@ -518,7 +525,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                     }
                     // Finalize regression case by calculating MSE
                     item.barrier(sycl::access::fence_space::local_space);
-                    Float mse = 0;
+                    double mse = 0;
                     const Float mean = local_hist[loc_bin_pos + 1] / local_hist[loc_bin_pos + 0];
                     for (Index row_idx = local_id / act_bin_block; row_idx < row_count;
                          row_idx += work_size) {
