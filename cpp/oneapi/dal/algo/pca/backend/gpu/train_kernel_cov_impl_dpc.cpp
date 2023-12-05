@@ -248,6 +248,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
             corr_event.wait_and_throw();
             data_to_compute = corr;
         }
+        //todo: fix for compute exaplained variances ratio
         auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
                                                                std::move(data_to_compute),
                                                                component_count,

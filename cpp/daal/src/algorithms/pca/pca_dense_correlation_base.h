@@ -52,8 +52,6 @@ protected:
 
     services::Status computeVariancesFromCov(const data_management::NumericTable & correlation,
                                              data_management::NumericTable & variances) DAAL_C11_OVERRIDE;
-    services::Status computeSingularValuesNormalized(const data_management::NumericTable & eigenvalues,
-                                                     data_management::NumericTable & singular_values, size_t nRows) DAAL_C11_OVERRIDE;
     services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
                                                     data_management::NumericTable & explained_variances_ratio) DAAL_C11_OVERRIDE;
     services::Status signFlipEigenvectors(NumericTable & eigenvectors) const DAAL_C11_OVERRIDE;

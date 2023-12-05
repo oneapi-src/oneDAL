@@ -54,9 +54,23 @@ void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algo
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov(const data_management::NumericTable & correlation,
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov(const data_management::NumericTable & covariance,
                                                                                    data_management::NumericTable & variances)
 {
+    size_t nFeatures = covariance.getNumberOfRows();
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
+    ReadRows<algorithmFPType, cpu> covarianceBlock(const_cast<data_management::NumericTable &>(covariance), 0, nFeatures);
+    DAAL_CHECK_BLOCK_STATUS(covarianceBlock);
+    const algorithmFPType * covarianceArray = covarianceBlock.get();
+
+    WriteRows<algorithmFPType, cpu> Variances(variances, 0, 1);
+    DAAL_CHECK_MALLOC(Variances.get());
+    algorithmFPType * VariancesArray = Variances.get();
+
+    for (size_t i = 0; i < nFeatures; i++)
+    {
+        VariancesArray[i] = covarianceArray[i * nFeatures + i];
+    }
     return services::Status();
 }
 
@@ -134,26 +148,6 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues
     for (size_t i = 0; i < nComponents; i++)
     {
         SingularValuesArray[i] = sqrt((nRows - 1) * eigenValuesArray[i]);
-    }
-    return services::Status();
-}
-
-template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValuesNormalized(const data_management::NumericTable & eigenvalues,
-                                                                                           data_management::NumericTable & singular_values,
-                                                                                           size_t nRows)
-{
-    const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
-    const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> SingularValues(singular_values, 0, 1);
-    DAAL_CHECK_MALLOC(SingularValues.get());
-    algorithmFPType * SingularValuesArray = SingularValues.get();
-
-    for (size_t i = 0; i < nComponents; i++)
-    {
-        SingularValuesArray[i] = sqrt(eigenValuesArray[i]);
     }
     return services::Status();
 }

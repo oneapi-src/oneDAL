@@ -60,8 +60,6 @@ public:
 protected:
     services::Status computeEigenValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
                                         size_t nRows);
-    services::Status computeEigenValuesNormalized(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
-                                                  size_t nRows);
     services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
                                                     data_management::NumericTable & explained_variances_ratio);
     services::Status scaleSingularValues(data_management::NumericTable & eigenvaluesTable, size_t nVectors);
@@ -82,25 +80,6 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(cons
     for (size_t i = 0; i < nComponents; i++)
     {
         EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i] / (nRows - 1);
-    }
-    return services::Status();
-}
-
-template <typename algorithmFPType, CpuType cpu>
-services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValuesNormalized(const data_management::NumericTable & singular_values,
-                                                                                      data_management::NumericTable & eigenvalues, size_t nRows)
-{
-    const size_t nComponents = singular_values.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> SingularValuesBlock(const_cast<data_management::NumericTable &>(singular_values), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(SingularValuesBlock);
-    const algorithmFPType * const SingularValuesArray = SingularValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, 1);
-    DAAL_CHECK_MALLOC(EigenValuesBlock.get());
-    algorithmFPType * EigenValuesArray = EigenValuesBlock.get();
-
-    for (size_t i = 0; i < nComponents; i++)
-    {
-        EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i];
     }
     return services::Status();
 }

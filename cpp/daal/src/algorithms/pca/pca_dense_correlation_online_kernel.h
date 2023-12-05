@@ -47,8 +47,6 @@ public:
 
     using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues;
 
-    using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValuesNormalized;
-
     using PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov;
 
     using PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;

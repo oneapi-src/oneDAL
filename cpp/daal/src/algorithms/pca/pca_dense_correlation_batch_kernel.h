@@ -45,8 +45,6 @@ public:
 
     using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues;
 
-    using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValuesNormalized;
-
     using PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
 
     services::Status compute(bool isCorrelation, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
