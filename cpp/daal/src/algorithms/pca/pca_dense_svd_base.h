@@ -61,6 +61,7 @@ protected:
     services::Status computeEigenValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
                                         size_t nRows);
     services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                    const data_management::NumericTable & variances,
                                                     data_management::NumericTable & explained_variances_ratio);
     services::Status scaleSingularValues(data_management::NumericTable & eigenvaluesTable, size_t nVectors);
 };
@@ -86,6 +87,7 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(cons
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                                                        const data_management::NumericTable & variances,
                                                                                         data_management::NumericTable & explained_varainces_ratio)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();

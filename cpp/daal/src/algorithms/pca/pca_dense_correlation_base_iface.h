@@ -46,6 +46,7 @@ public:
     virtual services::Status computeVariancesFromCov(const data_management::NumericTable & correlation,
                                                      data_management::NumericTable & variances)                        = 0;
     virtual services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                            const data_management::NumericTable & variances,
                                                             data_management::NumericTable & explained_variances_ratio) = 0;
     virtual services::Status signFlipEigenvectors(NumericTable & eigenvectors) const                                   = 0;
     virtual services::Status fillTable(NumericTable & table, algorithmFPType val) const                                = 0;

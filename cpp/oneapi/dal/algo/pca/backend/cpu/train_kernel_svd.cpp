@@ -153,6 +153,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
             constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
             return daal_pca_svd_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
                 *daal_eigenvalues,
+                *daal_variances,
                 *daal_explained_variances_ratio);
         });
 

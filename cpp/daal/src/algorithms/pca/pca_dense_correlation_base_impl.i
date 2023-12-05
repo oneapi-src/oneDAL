@@ -154,20 +154,27 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                                                          const data_management::NumericTable & variances,
                                                                                           data_management::NumericTable & explained_varainces_ratio)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
+    const size_t nColumns    = variances.getNumberOfColumns();
+
     ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
     const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
+    ReadRows<algorithmFPType, cpu> VariancesBlock(const_cast<data_management::NumericTable &>(variances), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(VariancesBlock);
+    const algorithmFPType * const VariancesBlockArray = VariancesBlock.get();
     WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, 1);
     DAAL_CHECK_MALLOC(ExplainedVariancesRatioBlock.get());
     algorithmFPType * ExplainedVariancesRatioArray = ExplainedVariancesRatioBlock.get();
     algorithmFPType sum                            = 0;
-    for (size_t i = 0; i < nComponents; i++)
+    for (size_t i = 0; i < nColumns; i++)
     {
-        sum += eigenValuesArray[i];
+        sum += VariancesBlockArray[i];
     }
+
     for (size_t i = 0; i < nComponents; i++)
     {
         ExplainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;

@@ -171,16 +171,18 @@ auto compute_singular_values_on_host(sycl::queue& q,
 template <typename Float>
 auto compute_explained_variances_on_host(sycl::queue& q,
                                          pr::ndarray<Float, 1> eigenvalues,
+                                         pr::ndarray<Float, 1> vars,
                                          const dal::backend::event_vector& deps = {}) {
     const std::int64_t component_count = eigenvalues.get_dimension(0);
-
+    const std::int64_t column_count = vars.get_dimension(0);
     auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
 
     auto eigvals_ptr = eigenvalues.get_data();
+    auto vars_ptr = vars.get_data();
     auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
     Float sum = 0;
-    for (std::int64_t i = 0; i < component_count; i++) {
-        sum += eigvals_ptr[i];
+    for (std::int64_t i = 0; i < column_count; i++) {
+        sum += vars_ptr[i];
     }
     for (std::int64_t i = 0; i < component_count; i++) {
         explained_variances_ratio_ptr[i] = eigvals_ptr[i] / sum;
@@ -231,11 +233,11 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     }
 
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
-    if (desc.get_result_options().test(result_options::vars)) {
-        auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
-        vars_event.wait_and_throw();
-        result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
-    }
+
+    auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
+    vars_event.wait_and_throw();
+    result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
         auto data_to_compute = cov;
@@ -248,7 +250,6 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
             corr_event.wait_and_throw();
             data_to_compute = corr;
         }
-        //todo: fix for compute exaplained variances ratio
         auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
                                                                std::move(data_to_compute),
                                                                component_count,
@@ -264,8 +265,12 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
                 homogen_table::wrap(singular_values.flatten(), 1, component_count));
         }
         if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+            auto vars_host = vars.to_host(q_);
             auto explained_variances_ratio =
-                compute_explained_variances_on_host(q_, eigvals, { cov_event, corr_event });
+                compute_explained_variances_on_host(q_,
+                                                    eigvals,
+                                                    vars_host,
+                                                    { cov_event, corr_event });
             result.set_explained_variances_ratio(
                 homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
         }
