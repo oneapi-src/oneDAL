@@ -75,13 +75,14 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
         static_cast<interface3::BatchParameter<algorithmFPType, correlationDense> *>(_par);
     services::Environment::env & env = *_env;
 
-    data_management::NumericTablePtr data         = input->get(pca::data);
-    data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
-    data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
-    data_management::NumericTablePtr means        = result->get(pca::means);
-    data_management::NumericTablePtr variances    = result->get(pca::variances);
-
-    auto covarianceAlgorithm = parameter->covariance;
+    data_management::NumericTablePtr data                      = input->get(pca::data);
+    data_management::NumericTablePtr eigenvalues               = result->get(pca::eigenvalues);
+    data_management::NumericTablePtr eigenvectors              = result->get(pca::eigenvectors);
+    data_management::NumericTablePtr means                     = result->get(pca::means);
+    data_management::NumericTablePtr variances                 = result->get(pca::variances);
+    data_management::NumericTablePtr singular_values           = result->get(pca::singular_values);
+    data_management::NumericTablePtr explained_variances_ratio = result->get(pca::explained_variances_ratio);
+    auto covarianceAlgorithm                                   = parameter->covariance;
     covarianceAlgorithm->input.set(covariance::data, data);
 
     if (parameter->resultsToCompute & mean)
@@ -91,9 +92,9 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
 
     if (deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, input->isCorrelation(),
-                           parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute, *eigenvectors, *eigenvalues,
-                           *means, *variances);
+        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, *data,
+                           covarianceAlgorithm.get(), *eigenvectors, *eigenvalues, *means, *variances, *singular_values, *explained_variances_ratio,
+                           parameter);
     }
     else
     {

@@ -85,13 +85,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         const auto daal_eigenvalues =
             interop::convert_to_daal_table<Float>(model.get_eigenvalues());
         const auto daal_variances = interop::convert_to_daal_table<Float>(model.get_variances());
+        //todo: temporary fix for align cpu and gpu results
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
                                                                           *daal_data,
                                                                           *daal_eigenvectors,
                                                                           daal_means.get(),
-                                                                          daal_variances.get(),
-                                                                          daal_eigenvalues.get(),
+                                                                          nullptr,
+                                                                          nullptr,
                                                                           *daal_result));
     }
     return result_t{}.set_transformed_data(

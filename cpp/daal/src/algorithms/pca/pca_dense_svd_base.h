@@ -88,23 +88,23 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(cons
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
                                                                                         const data_management::NumericTable & variances,
-                                                                                        data_management::NumericTable & explained_varainces_ratio)
+                                                                                        data_management::NumericTable & explained_variances_ratio)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
-    const algorithmFPType * const EigenValuesArray = EigenValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, 1);
-    DAAL_CHECK_MALLOC(ExplainedVariancesRatioBlock.get());
-    algorithmFPType * ExplainedVariancesRatioArray = ExplainedVariancesRatioBlock.get();
+    ReadRows<algorithmFPType, cpu> eigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(eigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = eigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> explainedVariancesRatioBlock(explained_variances_ratio, 0, 1);
+    DAAL_CHECK_MALLOC(explainedVariancesRatioBlock.get());
+    algorithmFPType * explainedVariancesRatioArray = explainedVariancesRatioBlock.get();
     algorithmFPType sum                            = 0;
     for (size_t i = 0; i < nComponents; i++)
     {
-        sum += EigenValuesArray[i];
+        sum += eigenValuesArray[i];
     }
     for (size_t i = 0; i < nComponents; i++)
     {
-        ExplainedVariancesRatioArray[i] = EigenValuesArray[i] / sum;
+        explainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;
     }
     return services::Status();
 }

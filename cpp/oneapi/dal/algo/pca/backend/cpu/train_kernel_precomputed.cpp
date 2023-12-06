@@ -53,6 +53,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
+
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
@@ -60,24 +61,28 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
-
+    daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
+    daal_pca_parameter.isDeterministic = desc.get_deterministic();
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
 
     constexpr bool is_correlation = true;
     constexpr std::uint64_t results_to_compute = std::uint64_t(daal_pca::eigenvalue);
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
-        ctx,
-        is_correlation,
-        desc.get_deterministic(),
-        *daal_data,
-        &covariance_alg,
-        static_cast<DAAL_UINT64>(results_to_compute),
-        *daal_eigenvectors,
-        *daal_eigenvalues,
-        *daal_means,
-        *daal_variances));
+    daal_pca_parameter.resultsToCompute = static_cast<DAAL_UINT64>(results_to_compute);
+    daal_pca_parameter.isCorrelation = is_correlation;
+    //todo: temporary fix with providin gvariances instead unavailable metrics
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
+                                                                *daal_data,
+                                                                &covariance_alg,
+                                                                *daal_eigenvectors,
+                                                                *daal_eigenvalues,
+                                                                *daal_means,
+                                                                *daal_variances,
+                                                                *daal_variances,
+                                                                *daal_variances,
+                                                                &daal_pca_parameter));
 
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));

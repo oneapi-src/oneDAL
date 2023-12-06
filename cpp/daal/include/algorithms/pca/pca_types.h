@@ -130,10 +130,12 @@ enum PartialSVDCollectionResultId
     */
 enum ResultId
 {
-    eigenvalues,  /*!< Eigenvalues of the correlation matrix */
-    eigenvectors, /*!< Eigenvectors of the correlation matrix */
-    means,        /*!< Mean values */
-    variances,    /*!< Variances */
+    eigenvalues,               /*!< Eigenvalues of the correlation matrix */
+    eigenvectors,              /*!< Eigenvectors of the correlation matrix */
+    means,                     /*!< Mean values */
+    variances,                 /*!< Variances */
+    singular_values,           /*!< Singular Values */
+    explained_variances_ratio, /*!< Explained Variances Ratio */
     lastResultId = variances
 };
 
@@ -673,6 +675,7 @@ public:
     size_t nComponents;           /*!< number of components for reduced implementation */
     bool isDeterministic;         /*!< sign flip if required */
     bool doScale;                 /*!< scaling if required */
+    bool isCorrelation;           /*!< correlation is provided */
 };
 
 /**

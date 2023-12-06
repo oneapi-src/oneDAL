@@ -63,13 +63,13 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromC
     DAAL_CHECK_BLOCK_STATUS(covarianceBlock);
     const algorithmFPType * covarianceArray = covarianceBlock.get();
 
-    WriteRows<algorithmFPType, cpu> Variances(variances, 0, 1);
-    DAAL_CHECK_MALLOC(Variances.get());
-    algorithmFPType * VariancesArray = Variances.get();
+    WriteRows<algorithmFPType, cpu> variancesBlock(variances, 0, 1);
+    DAAL_CHECK_MALLOC(variancesBlock.get());
+    algorithmFPType * variancesArray = variancesBlock.get();
 
     for (size_t i = 0; i < nFeatures; i++)
     {
-        VariancesArray[i] = covarianceArray[i * nFeatures + i];
+        variancesArray[i] = covarianceArray[i * nFeatures + i];
     }
     return services::Status();
 }
@@ -138,46 +138,47 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues
                                                                                  data_management::NumericTable & singular_values, size_t nRows)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
-    const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> SingularValues(singular_values, 0, 1);
-    DAAL_CHECK_MALLOC(SingularValues.get());
-    algorithmFPType * SingularValuesArray = SingularValues.get();
+    ReadRows<algorithmFPType, cpu> eigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(eigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = eigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> singularValuesBlock(singular_values, 0, 1);
+    DAAL_CHECK_MALLOC(singularValuesBlock.get());
+    algorithmFPType * singularValuesArray = singularValuesBlock.get();
 
     for (size_t i = 0; i < nComponents; i++)
     {
-        SingularValuesArray[i] = sqrt((nRows - 1) * eigenValuesArray[i]);
+        singularValuesArray[i] = sqrt((nRows - 1) * eigenValuesArray[i]);
     }
+    //Math::vSqrt(nComponents, singularValuesArray, singularValuesArray);
     return services::Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
                                                                                           const data_management::NumericTable & variances,
-                                                                                          data_management::NumericTable & explained_varainces_ratio)
+                                                                                          data_management::NumericTable & explained_variances_ratio)
 {
     const size_t nComponents = eigenvalues.getNumberOfColumns();
     const size_t nColumns    = variances.getNumberOfColumns();
 
-    ReadRows<algorithmFPType, cpu> EigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(EigenValuesBlock);
-    const algorithmFPType * const eigenValuesArray = EigenValuesBlock.get();
-    ReadRows<algorithmFPType, cpu> VariancesBlock(const_cast<data_management::NumericTable &>(variances), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(VariancesBlock);
-    const algorithmFPType * const VariancesBlockArray = VariancesBlock.get();
-    WriteRows<algorithmFPType, cpu> ExplainedVariancesRatioBlock(explained_varainces_ratio, 0, 1);
-    DAAL_CHECK_MALLOC(ExplainedVariancesRatioBlock.get());
-    algorithmFPType * ExplainedVariancesRatioArray = ExplainedVariancesRatioBlock.get();
+    ReadRows<algorithmFPType, cpu> eigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(eigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = eigenValuesBlock.get();
+    ReadRows<algorithmFPType, cpu> variancesBlock(const_cast<data_management::NumericTable &>(variances), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(variancesBlock);
+    const algorithmFPType * const variancesBlockArray = variancesBlock.get();
+    WriteRows<algorithmFPType, cpu> explainedVariancesRatioBlock(explained_variances_ratio, 0, 1);
+    DAAL_CHECK_MALLOC(explainedVariancesRatioBlock.get());
+    algorithmFPType * explainedVariancesRatioArray = explainedVariancesRatioBlock.get();
     algorithmFPType sum                            = 0;
     for (size_t i = 0; i < nColumns; i++)
     {
-        sum += VariancesBlockArray[i];
+        sum += variancesBlockArray[i];
     }
-
+    if (sum <= 0) return services::Status(services::ErrorIncorrectEigenValuesSum);
     for (size_t i = 0; i < nComponents; i++)
     {
-        ExplainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;
+        explainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;
     }
     return services::Status();
 }

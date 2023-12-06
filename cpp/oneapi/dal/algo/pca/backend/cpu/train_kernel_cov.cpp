@@ -59,6 +59,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
+    auto arr_singular_values = array<Float>::empty(1 * component_count);
+    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
@@ -68,6 +70,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
+    const auto daal_singular_values =
+        interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
+    const auto daal_explained_variances_ratio =
+        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, component_count);
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
@@ -84,28 +90,28 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
-
-    bool do_scale = true;
-
+    daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
+    daal_pca_parameter.isDeterministic = desc.get_deterministic();
     if (sklearn_behavior) {
-        do_scale = false;
+        daal_pca_parameter.doScale = false;
     }
     constexpr bool is_correlation = false;
     constexpr std::uint64_t results_to_compute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
-        ctx,
-        is_correlation,
-        desc.get_deterministic(),
-        *daal_data,
-        &covariance_alg,
-        static_cast<DAAL_UINT64>(results_to_compute),
-        *daal_eigenvectors,
-        *daal_eigenvalues,
-        *daal_means,
-        *daal_variances,
-        do_scale));
+    daal_pca_parameter.resultsToCompute = static_cast<DAAL_UINT64>(results_to_compute);
+    daal_pca_parameter.isCorrelation = is_correlation;
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
+                                                                *daal_data,
+                                                                &covariance_alg,
+                                                                *daal_eigenvectors,
+                                                                *daal_eigenvalues,
+                                                                *daal_means,
+                                                                *daal_variances,
+                                                                *daal_singular_values,
+                                                                *daal_explained_variances_ratio,
+                                                                &daal_pca_parameter));
 
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
@@ -118,36 +124,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
 
     if (desc.get_result_options().test(result_options::singular_values)) {
-        auto arr_singular_values = array<Float>::empty(1 * component_count);
-        const auto daal_singular_values =
-            interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeSingularValues(
-                *daal_eigenvalues,
-                *daal_singular_values,
-                row_count);
-        });
-
-        interop::status_to_exception(status);
         result.set_singular_values(homogen_table::wrap(arr_singular_values, 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-        auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
-        const auto daal_explained_variances_ratio =
-            interop::convert_to_daal_homogen_table(arr_explained_variances_ratio,
-                                                   1,
-                                                   component_count);
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
-                *daal_eigenvalues,
-                *daal_variances,
-                *daal_explained_variances_ratio);
-        });
-
-        interop::status_to_exception(status);
         result.set_explained_variances_ratio(
             homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
     }
