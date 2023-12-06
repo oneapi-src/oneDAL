@@ -20,7 +20,7 @@
 
       Batch Processing:
 
-      - :ref:`dpc_pca_cor_dense_batch.cpp`
+      - :ref:`dpc_pca_dense_batch.cpp`
 
    .. group-tab:: oneAPI C++
 
