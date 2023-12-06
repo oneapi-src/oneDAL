@@ -45,12 +45,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
     const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
+
     const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(row_count > 0);
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
+
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
     dal::detail::check_mul_overflow(column_count, component_count);
@@ -63,7 +65,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
@@ -90,28 +91,27 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
+
     daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
     daal_pca_parameter.isDeterministic = desc.get_deterministic();
     if (sklearn_behavior) {
         daal_pca_parameter.doScale = false;
     }
-    constexpr bool is_correlation = false;
-    constexpr std::uint64_t results_to_compute =
-        std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
+    daal_pca_parameter.resultsToCompute = static_cast<DAAL_UINT64>(
+        std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue));
+    daal_pca_parameter.isCorrelation = false;
 
-    daal_pca_parameter.resultsToCompute = static_cast<DAAL_UINT64>(results_to_compute);
-    daal_pca_parameter.isCorrelation = is_correlation;
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                                *daal_data,
-                                                                &covariance_alg,
-                                                                *daal_eigenvectors,
-                                                                *daal_eigenvalues,
-                                                                *daal_means,
-                                                                *daal_variances,
-                                                                *daal_singular_values,
-                                                                *daal_explained_variances_ratio,
-                                                                &daal_pca_parameter));
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
+        ctx,
+        daal_data.get(),
+        &covariance_alg,
+        daal_eigenvectors.get(),
+        daal_eigenvalues.get(),
+        daal_means.get(),
+        daal_variances.get(),
+        daal_singular_values.get(),
+        daal_explained_variances_ratio.get(),
+        &daal_pca_parameter));
 
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {

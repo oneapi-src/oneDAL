@@ -49,7 +49,7 @@ public:
 
     using PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov;
 
-    using PCACorrelationBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
+    using PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
 
     services::Status compute(const data_management::NumericTablePtr & pData, PartialResult<correlationDense> * partialResult,
                              const OnlineParameter<algorithmFPType, correlationDense> * parameter);

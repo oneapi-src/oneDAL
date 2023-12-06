@@ -81,16 +81,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                           *daal_result));
     }
     else {
-        const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
-        const auto daal_eigenvalues =
-            interop::convert_to_daal_table<Float>(model.get_eigenvalues());
-        const auto daal_variances = interop::convert_to_daal_table<Float>(model.get_variances());
-        //todo: temporary fix for align cpu and gpu results
+        //TODO: investigate whats the best option
+        // const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
+        // const auto daal_eigenvalues =
+        //     interop::convert_to_daal_table<Float>(model.get_eigenvalues());
+        // const auto daal_variances = interop::convert_to_daal_table<Float>(model.get_variances());
+
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
                                                                           *daal_data,
                                                                           *daal_eigenvectors,
-                                                                          daal_means.get(),
+                                                                          nullptr,
                                                                           nullptr,
                                                                           nullptr,
                                                                           *daal_result));

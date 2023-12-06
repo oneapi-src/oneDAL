@@ -47,8 +47,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
+
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     dal::detail::check_mul_overflow(column_count, component_count);
+
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
@@ -61,27 +63,26 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
-    daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
-    daal_pca_parameter.isDeterministic = desc.get_deterministic();
+
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
 
-    constexpr bool is_correlation = true;
-    constexpr std::uint64_t results_to_compute = std::uint64_t(daal_pca::eigenvalue);
-
-    daal_pca_parameter.resultsToCompute = static_cast<DAAL_UINT64>(results_to_compute);
-    daal_pca_parameter.isCorrelation = is_correlation;
-    //todo: temporary fix with providin gvariances instead unavailable metrics
+    daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
+    daal_pca_parameter.isDeterministic = desc.get_deterministic();
+    daal_pca_parameter.resultsToCompute =
+        static_cast<DAAL_UINT64>(std::uint64_t(daal_pca::eigenvalue));
+    daal_pca_parameter.isCorrelation = true;
+    //todo: getting segfault with nullptrs
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                                *daal_data,
+                                                                daal_data.get(),
                                                                 &covariance_alg,
-                                                                *daal_eigenvectors,
-                                                                *daal_eigenvalues,
-                                                                *daal_means,
-                                                                *daal_variances,
-                                                                *daal_variances,
-                                                                *daal_variances,
+                                                                daal_eigenvectors.get(),
+                                                                daal_eigenvalues.get(),
+                                                                daal_means.get(),
+                                                                daal_variances.get(),
+                                                                nullptr,
+                                                                nullptr,
                                                                 &daal_pca_parameter));
 
     if (desc.get_result_options().test(result_options::vars)) {

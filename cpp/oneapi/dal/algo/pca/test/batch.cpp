@@ -75,6 +75,7 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
     }
 }
+
 TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca on gold data",
                      "[pca][integration][batch][gold]",

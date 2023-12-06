@@ -49,7 +49,10 @@ int main(int argc, char const* argv[]) {
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
     run<dal::pca::method::cov>(x_train, "Training method: Covariance");
-    run<dal::pca::method::svd>(x_train, "Training method: SVD");
+    //TODO: refactor online SVD kernel to save variances and means
+    run<dal::pca::method::svd>(
+        x_train,
+        "Training method: SVD, transformed data could be computed inconsistency");
 
     return 0;
 }

@@ -55,14 +55,12 @@ class PCASVDKernelBase : public PCADenseBase<algorithmFPType, cpu>
 {
 public:
     PCASVDKernelBase() {}
+    using PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
     virtual ~PCASVDKernelBase() {}
 
 protected:
     services::Status computeEigenValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
                                         size_t nRows);
-    services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
-                                                    const data_management::NumericTable & variances,
-                                                    data_management::NumericTable & explained_variances_ratio);
     services::Status scaleSingularValues(data_management::NumericTable & eigenvaluesTable, size_t nVectors);
 };
 
@@ -81,30 +79,6 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(cons
     for (size_t i = 0; i < nComponents; i++)
     {
         EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i] / (nRows - 1);
-    }
-    return services::Status();
-}
-
-template <typename algorithmFPType, CpuType cpu>
-services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
-                                                                                        const data_management::NumericTable & variances,
-                                                                                        data_management::NumericTable & explained_variances_ratio)
-{
-    const size_t nComponents = eigenvalues.getNumberOfColumns();
-    ReadRows<algorithmFPType, cpu> eigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(eigenValuesBlock);
-    const algorithmFPType * const eigenValuesArray = eigenValuesBlock.get();
-    WriteRows<algorithmFPType, cpu> explainedVariancesRatioBlock(explained_variances_ratio, 0, 1);
-    DAAL_CHECK_MALLOC(explainedVariancesRatioBlock.get());
-    algorithmFPType * explainedVariancesRatioArray = explainedVariancesRatioBlock.get();
-    algorithmFPType sum                            = 0;
-    for (size_t i = 0; i < nComponents; i++)
-    {
-        sum += eigenValuesArray[i];
-    }
-    for (size_t i = 0; i < nComponents; i++)
-    {
-        explainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;
     }
     return services::Status();
 }

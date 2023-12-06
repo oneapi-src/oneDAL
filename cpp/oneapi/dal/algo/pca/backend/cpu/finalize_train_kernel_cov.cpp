@@ -116,6 +116,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         interop::status_to_exception(status);
     }
     model_t model;
+
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }
@@ -152,7 +153,6 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         });
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
         model.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
-        //todo: investigate work case for variances + variances_ratio
         if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
             auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
             const auto daal_explained_variances_ratio =

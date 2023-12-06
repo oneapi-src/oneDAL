@@ -92,9 +92,9 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
 
     if (deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, *data,
-                           covarianceAlgorithm.get(), *eigenvectors, *eigenvalues, *means, *variances, *singular_values, *explained_variances_ratio,
-                           parameter);
+        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, input->isCorrelation(),
+                           parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute, *eigenvectors, *eigenvalues,
+                           *means, *variances);
     }
     else
     {

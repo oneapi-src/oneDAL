@@ -29,19 +29,23 @@
 
 namespace dal = oneapi::dal;
 
-void run(sycl::queue& q) {
-    const auto train_data_file_name = get_data_path("pca_sklearn.csv");
+template <typename Method>
+void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name, bool whiten) {
+    const std::int64_t nBlocks = 10;
 
-    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-
+    dal::pca::partial_train_result<> partial_result;
     const auto pca_desc = dal::pca::descriptor<>()
                               .set_component_count(5)
                               .set_deterministic(true)
                               .set_do_scale(false)
-                              .set_whiten(true);
+                              .set_whiten(whiten);
+    auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
-    const auto result_train = dal::train(q, pca_desc, x_train);
-
+    for (std::int64_t i = 0; i < nBlocks; i++) {
+        partial_result = dal::partial_train(q, pca_desc, partial_result, input_table[i]);
+    }
+    auto result_train = dal::finalize_train(q, pca_desc, partial_result);
+    std::cout << method_name << "\n" << std::endl;
     std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
@@ -61,12 +65,23 @@ void run(sycl::queue& q) {
 }
 
 int main(int argc, char const* argv[]) {
+    const auto train_data_file_name = get_data_path("pca_sklearn.csv");
+
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
+
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run(q);
+        run<dal::pca::method::cov>(q,
+                                   x_train,
+                                   "Training method: Online Covariance Whiten:false",
+                                   false);
+        run<dal::pca::method::cov>(q,
+                                   x_train,
+                                   "Training method: Online Covariance Whiten:true",
+                                   true);
     }
     return 0;
 }

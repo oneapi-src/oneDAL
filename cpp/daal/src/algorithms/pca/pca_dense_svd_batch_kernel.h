@@ -45,7 +45,7 @@ public:
     PCASVDBatchKernel() {};
     using PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues;
 
-    using PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
+    using PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
 
     services::Status compute(InputDataType type, const data_management::NumericTablePtr & data, data_management::NumericTable & eigenvalues,
                              data_management::NumericTable & eigenvectors);

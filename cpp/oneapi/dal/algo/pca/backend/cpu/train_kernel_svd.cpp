@@ -91,6 +91,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     norm_alg->input.set(daal_zscore::data, daal_data);
     norm_alg->parameter().resultsToCompute |= daal_zscore::mean;
     norm_alg->parameter().resultsToCompute |= daal_zscore::variance;
+
     daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
 
     norm_alg->parameter().doScale = true;
@@ -134,7 +135,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         });
 
         interop::status_to_exception(status);
-        //todo: will be fixed after adding a function for singular values computation on normalized data
         if (sklearn_behavior) {
             result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
             model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
