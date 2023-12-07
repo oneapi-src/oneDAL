@@ -226,6 +226,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     }
     model_t model;
+
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_), 1, column_count));
@@ -235,53 +236,48 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
 
     auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
-    vars_event.wait_and_throw();
-    result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+    if (desc.get_result_options().test(result_options::vars)) {
+        vars_event.wait_and_throw();
+        result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+    }
+    auto data_to_compute = cov;
+    sycl::event corr_event;
+    if (desc.do_scale()) {
+        auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+        std::tie(corr, corr_event) =
+            compute_correlation_from_covariance(q_, rows_count_global, cov, { cov_event });
+        corr_event.wait_and_throw();
+        data_to_compute = corr;
+    }
 
-    if (desc.get_result_options().test(result_options::eigenvectors |
-                                       result_options::eigenvalues)) {
-        auto data_to_compute = cov;
-        sycl::event corr_event;
-        if (desc.do_scale()) {
-            auto corr =
-                pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-            std::tie(corr, corr_event) =
-                compute_correlation_from_covariance(q_, rows_count_global, cov, { cov_event });
-            corr_event.wait_and_throw();
-            data_to_compute = corr;
-        }
-        auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
-                                                               std::move(data_to_compute),
-                                                               component_count,
-                                                               { cov_event, corr_event });
-        if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
-            model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
-        }
-        if (desc.get_result_options().test(result_options::singular_values)) {
-            auto singular_values =
-                compute_singular_values_on_host(q_, eigvals, row_count, { cov_event });
-            result.set_singular_values(
-                homogen_table::wrap(singular_values.flatten(), 1, component_count));
-        }
-        if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-            auto vars_host = vars.to_host(q_);
-            auto explained_variances_ratio =
-                compute_explained_variances_on_host(q_,
-                                                    eigvals,
-                                                    vars_host,
-                                                    { cov_event, corr_event });
-            result.set_explained_variances_ratio(
-                homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
-        }
+    auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
+                                                           std::move(data_to_compute),
+                                                           component_count,
+                                                           { cov_event, corr_event });
+    if (desc.get_result_options().test(result_options::eigenvalues)) {
+        result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+        model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+    }
+    if (desc.get_result_options().test(result_options::singular_values)) {
+        auto singular_values =
+            compute_singular_values_on_host(q_, eigvals, row_count, { cov_event });
+        result.set_singular_values(
+            homogen_table::wrap(singular_values.flatten(), 1, component_count));
+    }
+    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+        auto vars_host = vars.to_host(q_);
+        auto explained_variances_ratio =
+            compute_explained_variances_on_host(q_, eigvals, vars_host, { cov_event, corr_event });
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    }
 
-        if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
-        }
-        if (desc.get_result_options().test(result_options::eigenvectors)) {
-            model.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-        }
+    if (desc.get_deterministic()) {
+        sign_flip(eigvecs);
+    }
+    if (desc.get_result_options().test(result_options::eigenvectors)) {
+        model.set_eigenvectors(
+            homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
     }
 
     result.set_model(model);

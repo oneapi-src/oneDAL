@@ -70,7 +70,7 @@ int main(int argc, char const* argv[]) {
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run<dal::pca::method::cov>(q, x_train, "Training method: Online Covariance");
+        run<dal::pca::method::cov>(q, x_train, "Training method: Online Correlation");
     }
     return 0;
 }

@@ -57,8 +57,6 @@ int main(int argc, char const* argv[]) {
 
     run<dal::pca::method::cov>(x_train, "Training method: Covariance, Whiten: false", false);
     run<dal::pca::method::cov>(x_train, "Training method: Covariance, Whiten: true", true);
-    run<dal::pca::method::svd>(x_train, "Training method: SVD, Whiten: false", false);
-    run<dal::pca::method::svd>(x_train, "Training method: SVD, Whiten: true", true);
 
     return 0;
 }
