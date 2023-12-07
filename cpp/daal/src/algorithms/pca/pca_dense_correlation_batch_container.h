@@ -75,14 +75,13 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
         static_cast<interface3::BatchParameter<algorithmFPType, correlationDense> *>(_par);
     services::Environment::env & env = *_env;
 
-    data_management::NumericTablePtr data                      = input->get(pca::data);
-    data_management::NumericTablePtr eigenvalues               = result->get(pca::eigenvalues);
-    data_management::NumericTablePtr eigenvectors              = result->get(pca::eigenvectors);
-    data_management::NumericTablePtr means                     = result->get(pca::means);
-    data_management::NumericTablePtr variances                 = result->get(pca::variances);
-    data_management::NumericTablePtr singular_values           = result->get(pca::singular_values);
-    data_management::NumericTablePtr explained_variances_ratio = result->get(pca::explained_variances_ratio);
-    auto covarianceAlgorithm                                   = parameter->covariance;
+    data_management::NumericTablePtr data         = input->get(pca::data);
+    data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
+    data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
+    data_management::NumericTablePtr means        = result->get(pca::means);
+    data_management::NumericTablePtr variances    = result->get(pca::variances);
+
+    auto covarianceAlgorithm = parameter->covariance;
     covarianceAlgorithm->input.set(covariance::data, data);
 
     if (parameter->resultsToCompute & mean)
