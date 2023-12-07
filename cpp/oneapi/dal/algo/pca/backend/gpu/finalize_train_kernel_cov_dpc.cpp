@@ -217,7 +217,7 @@ static train_result<Task> train(const context_gpu& ctx,
     auto [vars, vars_event] = compute_variances(q, cov, { cov_event });
     if (desc.get_result_options().test(result_options::vars)) {
         vars_event.wait_and_throw();
-        result.set_variances(homogen_table::wrap(vars.flatten(), 1, column_count));
+        result.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
     }
     auto data_to_compute = cov;
 
