@@ -130,12 +130,10 @@ enum PartialSVDCollectionResultId
     */
 enum ResultId
 {
-    eigenvalues,               /*!< Eigenvalues of the correlation matrix */
-    eigenvectors,              /*!< Eigenvectors of the correlation matrix */
-    means,                     /*!< Mean values */
-    variances,                 /*!< Variances */
-    singular_values,           /*!< Singular Values */
-    explained_variances_ratio, /*!< Explained Variances Ratio */
+    eigenvalues,  /*!< Eigenvalues of the correlation matrix */
+    eigenvectors, /*!< Eigenvectors of the correlation matrix */
+    means,        /*!< Mean values */
+    variances,    /*!< Variances */
     lastResultId = variances
 };
 

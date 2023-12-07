@@ -26,11 +26,6 @@
 
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/pca/pca_dense_base.h"
-#include "src/externals/service_math.h"
-#include "src/externals/service_memory.h"
-#include "src/data_management/service_numeric_table.h"
-#include "src/algorithms/service_error_handling.h"
-#include "src/threading/threading.h"
 
 namespace daal
 {
@@ -75,7 +70,7 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(cons
     WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, 1);
     DAAL_CHECK_MALLOC(EigenValuesBlock.get());
     algorithmFPType * EigenValuesArray = EigenValuesBlock.get();
-
+    if ((nRows - 1) <= 0) return services::Status(services::ErrorIncorrectEigenValuesSum);
     for (size_t i = 0; i < nComponents; i++)
     {
         EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i] / (nRows - 1);

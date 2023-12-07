@@ -26,11 +26,7 @@
 
 #include "src/algorithms/kernel.h"
 #include "src/algorithms/pca/pca_dense_base_iface.h"
-#include "src/externals/service_math.h"
-#include "src/externals/service_memory.h"
-#include "src/data_management/service_numeric_table.h"
-#include "src/algorithms/service_error_handling.h"
-#include "src/threading/threading.h"
+
 namespace daal
 {
 namespace algorithms
