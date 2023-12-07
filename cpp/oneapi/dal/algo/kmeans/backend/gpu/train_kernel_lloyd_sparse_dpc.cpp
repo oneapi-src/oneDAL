@@ -501,7 +501,7 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
     }
 };
 
-template struct train_kernel_gpu<float, method::lloyd_dense, task::clustering>;
-template struct train_kernel_gpu<double, method::lloyd_dense, task::clustering>;
+template struct train_kernel_gpu<float, method::lloyd_sparse, task::clustering>;
+template struct train_kernel_gpu<double, method::lloyd_sparse, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend
