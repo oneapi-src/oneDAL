@@ -69,7 +69,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_singular_values = array<Float>::empty(1 * component_count);
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
-
+    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
+    const auto daal_explained_variances_ratio =
+        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     const auto daal_eigenvectors =
@@ -92,30 +94,32 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     norm_alg->parameter().resultsToCompute |= daal_zscore::mean;
     norm_alg->parameter().resultsToCompute |= daal_zscore::variance;
 
-    daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
+    daal_pca::BatchParameter<Float, daal_pca::svdDense> daal_pca_parameter;
 
     norm_alg->parameter().doScale = true;
-    parameter.doScale = true;
+    daal_pca_parameter.doScale = true;
 
     if (sklearn_behavior) {
         norm_alg->parameter().doScale = false;
-        parameter.doScale = false;
+        daal_pca_parameter.doScale = false;
     }
 
-    parameter.isDeterministic = desc.get_deterministic();
-    parameter.normalization = norm_alg;
-    parameter.resultsToCompute =
+    daal_pca_parameter.isDeterministic = desc.get_deterministic();
+    daal_pca_parameter.normalization = norm_alg;
+    daal_pca_parameter.resultsToCompute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_pca_svd_kernel_t>(ctx,
-                                                                dtype,
-                                                                *daal_data.get(),
-                                                                &parameter,
-                                                                *daal_singular_values.get(),
-                                                                *daal_eigenvectors.get(),
-                                                                *daal_means.get(),
-                                                                *daal_variances.get()));
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_svd_kernel_t>(
+        ctx,
+        dtype,
+        *daal_data,
+        *daal_eigenvectors,
+        *daal_singular_values,
+        *daal_means,
+        *daal_variances,
+        daal_eigenvalues.get(),
+        daal_explained_variances_ratio.get(),
+        &daal_pca_parameter));
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
@@ -126,38 +130,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_svd_kernel_t<Float, cpu_type>().computeEigenValues(
-                *daal_singular_values,
-                *daal_eigenvalues,
-                row_count);
-        });
-
-        interop::status_to_exception(status);
-        if (sklearn_behavior) {
-            result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
-            model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
-        }
-        else {
-            result.set_eigenvalues(homogen_table::wrap(arr_singular_values, 1, component_count));
-            model.set_eigenvalues(homogen_table::wrap(arr_singular_values, 1, component_count));
-        }
+        result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
+        model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-        auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
-        const auto daal_explained_variances_ratio =
-            interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_svd_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
-                *daal_eigenvalues,
-                *daal_variances,
-                *daal_explained_variances_ratio);
-        });
-
-        interop::status_to_exception(status);
         result.set_explained_variances_ratio(
             homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
     }

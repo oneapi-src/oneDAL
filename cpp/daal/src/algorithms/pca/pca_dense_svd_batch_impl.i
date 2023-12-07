@@ -113,6 +113,29 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     return status;
 }
 
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute(
+    InputDataType type, data_management::NumericTable & data, data_management::NumericTable & eigenvectors,
+    data_management::NumericTable & singular_values, data_management::NumericTable & means, data_management::NumericTable & variances,
+    data_management::NumericTable * eigenvalues, data_management::NumericTable * explained_variances_ratio, const ParameterType * parameter)
+{
+    Status status;
+    this->compute(type, data, parameter, singular_values, eigenvectors, means, variances);
+    if (eigenvalues != nullptr && parameter->doScale == false)
+    {
+        DAAL_CHECK_STATUS(status, this->computeEigenValues(singular_values, *eigenvalues, data.getNumberOfRows()));
+    }
+    else
+    {
+        DAAL_CHECK_STATUS(status, this->copyTable(singular_values, *eigenvalues));
+    }
+    if (explained_variances_ratio != nullptr)
+    {
+        DAAL_CHECK_STATUS(status, this->computeExplainedVariancesRatio(*eigenvalues, variances, *explained_variances_ratio));
+    }
+    return status;
+}
+
 /********************* tls_data_t class *******************************************************/
 template <typename algorithmFPType, CpuType cpu>
 struct tls_data_t

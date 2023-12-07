@@ -72,15 +72,15 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_pca_parameter.resultsToCompute =
         static_cast<DAAL_UINT64>(std::uint64_t(daal_pca::eigenvalue));
     daal_pca_parameter.isCorrelation = true;
-    //todo: getting segfault with nullptrs
+
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                                daal_data.get(),
+                                                                *daal_data,
                                                                 &covariance_alg,
-                                                                daal_eigenvectors.get(),
-                                                                daal_eigenvalues.get(),
-                                                                daal_means.get(),
-                                                                daal_variances.get(),
+                                                                *daal_eigenvectors,
+                                                                *daal_eigenvalues,
+                                                                *daal_means,
+                                                                *daal_variances,
                                                                 nullptr,
                                                                 nullptr,
                                                                 &daal_pca_parameter));

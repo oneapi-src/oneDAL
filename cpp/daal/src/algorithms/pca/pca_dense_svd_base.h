@@ -70,7 +70,7 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(cons
     WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, 1);
     DAAL_CHECK_MALLOC(EigenValuesBlock.get());
     algorithmFPType * EigenValuesArray = EigenValuesBlock.get();
-    if ((nRows - 1) <= 0) return services::Status(services::ErrorIncorrectEigenValuesSum);
+    if ((nRows - 1) <= 0) return services::Status(services::ErrorIncorrectSingularValuesDenominator);
     for (size_t i = 0; i < nComponents; i++)
     {
         EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i] / (nRows - 1);

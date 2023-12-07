@@ -63,7 +63,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     bool isCorrelation, bool isDeterministic, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
     DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
-    data_management::NumericTable & means, data_management::NumericTable & variances)
+    data_management::NumericTable & means, data_management::NumericTable & variances, bool doScale)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
@@ -109,7 +109,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-
+        if (doScale)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
@@ -131,92 +131,25 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
 }
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
-    const data_management::NumericTable * dataTable, covariance::BatchImpl * covarianceAlg, data_management::NumericTable * eigenvectors,
-    data_management::NumericTable * eigenvalues, data_management::NumericTable * means, data_management::NumericTable * variances,
+    const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg, data_management::NumericTable & eigenvectors,
+    data_management::NumericTable & eigenvalues, data_management::NumericTable & means, data_management::NumericTable & variances,
     data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     services::Status status;
-    if (parameter->isCorrelation)
+    this->compute(parameter->isCorrelation, parameter->isDeterministic, dataTable, covarianceAlg, parameter->resultsToCompute, eigenvectors,
+                  eigenvalues, means, variances, parameter->doScale);
+    if (singular_values != nullptr)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
-        if (parameter->resultsToCompute & mean)
-        {
-            DAAL_CHECK_STATUS(status, this->fillTable(*means, (algorithmFPType)0));
-        }
-
-        if (parameter->resultsToCompute & variance)
-        {
-            DAAL_CHECK_STATUS(status, this->fillTable(*variances, (algorithmFPType)1));
-        }
-
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeEigenvalues);
-            DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(*dataTable, *eigenvectors, *eigenvalues));
-        }
-        if (singular_values != nullptr)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
-            DAAL_CHECK_STATUS(status, this->fillTable(*singular_values, (algorithmFPType)1));
-        }
-        if (explained_variances_ratio != nullptr)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeExplainedVariancesRatio);
-            DAAL_CHECK_STATUS(status, this->fillTable(*explained_variances_ratio, (algorithmFPType)1));
-        }
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
+        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, dataTable.getNumberOfRows()));
     }
-    else
+    if (explained_variances_ratio != nullptr)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
-
-        DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.covariance);
-            DAAL_CHECK_STATUS(status, covarianceAlg->computeNoThrow());
-        }
-
-        auto pCovarianceTable          = covarianceAlg->getResult()->get(covariance::covariance);
-        NumericTable & covarianceTable = *pCovarianceTable;
-        if (parameter->resultsToCompute & mean)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
-            DAAL_CHECK_STATUS(status, this->copyTable(*covarianceAlg->getResult()->get(covariance::mean), *means));
-        }
-
-        if (parameter->resultsToCompute & variance)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
-            DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, *variances));
-        }
-        if (parameter->doScale)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
-            DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
-        }
-
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.computeEigenvalues);
-            DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(covarianceTable, *eigenvectors, *eigenvalues));
-        }
-        if (singular_values != nullptr)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
-            DAAL_CHECK_STATUS(status, this->computeSingularValues(*eigenvalues, *singular_values, dataTable->getNumberOfRows()));
-        }
-        if (explained_variances_ratio != nullptr)
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeExplainedVariancesRatio);
-            DAAL_CHECK_STATUS(status, this->computeExplainedVariancesRatio(*eigenvalues, *variances, *explained_variances_ratio));
-        }
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeExplainedVariancesRatio);
+        DAAL_CHECK_STATUS(status, this->computeExplainedVariancesRatio(eigenvalues, variances, *explained_variances_ratio));
     }
-
-    if (parameter->isDeterministic)
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.signFlipEigenvectors);
-        DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(*eigenvectors));
-    }
-
     return status;
 }
 

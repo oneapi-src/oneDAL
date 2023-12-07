@@ -53,6 +53,10 @@ public:
     services::Status compute(InputDataType type, data_management::NumericTable & data, const ParameterType * parameter,
                              data_management::NumericTable & eigenvalues, data_management::NumericTable & eigenvectors,
                              data_management::NumericTable & means, data_management::NumericTable & variances);
+    services::Status compute(InputDataType type, data_management::NumericTable & data, data_management::NumericTable & eigenvectors,
+                             data_management::NumericTable & singular_values, data_management::NumericTable & means,
+                             data_management::NumericTable & variances, data_management::NumericTable * eigenvalues,
+                             data_management::NumericTable * explained_variances_ratio, const ParameterType * parameter);
 
 protected:
     services::Status normalizeDataset(const data_management::NumericTablePtr & data, data_management::NumericTablePtr & normalizedData);

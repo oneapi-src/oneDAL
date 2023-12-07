@@ -103,12 +103,12 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
         ctx,
-        daal_data.get(),
+        *daal_data,
         &covariance_alg,
-        daal_eigenvectors.get(),
-        daal_eigenvalues.get(),
-        daal_means.get(),
-        daal_variances.get(),
+        *daal_eigenvectors,
+        *daal_eigenvalues,
+        *daal_means,
+        *daal_variances,
         daal_singular_values.get(),
         daal_explained_variances_ratio.get(),
         &daal_pca_parameter));
