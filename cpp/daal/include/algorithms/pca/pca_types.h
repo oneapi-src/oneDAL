@@ -673,6 +673,7 @@ public:
     size_t nComponents;           /*!< number of components for reduced implementation */
     bool isDeterministic;         /*!< sign flip if required */
     bool doScale;                 /*!< scaling if required */
+    bool isCorrelation;           /*!< correlation is provided */
 };
 
 /**

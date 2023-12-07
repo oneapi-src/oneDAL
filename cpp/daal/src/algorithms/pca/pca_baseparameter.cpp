@@ -31,7 +31,7 @@ namespace pca
 {
 namespace interface3
 {
-BaseBatchParameter::BaseBatchParameter() : resultsToCompute(none), nComponents(0), isDeterministic(false), doScale(true) {}
+BaseBatchParameter::BaseBatchParameter() : resultsToCompute(none), nComponents(0), isDeterministic(false), doScale(true), isCorrelation(false) {}
 } // namespace interface3
 } // namespace pca
 } // namespace algorithms
