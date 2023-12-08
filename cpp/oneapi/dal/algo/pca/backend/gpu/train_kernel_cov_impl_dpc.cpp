@@ -191,7 +191,6 @@ auto compute_explained_variances_on_host(sycl::queue& q,
 }
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
-    // const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
     std::int64_t row_count = data.get_row_count();
@@ -239,6 +238,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     if (desc.get_result_options().test(result_options::vars)) {
         vars_event.wait_and_throw();
         result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+        model.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
     }
     auto data_to_compute = cov;
     sycl::event corr_event;

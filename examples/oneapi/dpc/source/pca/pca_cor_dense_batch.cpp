@@ -30,8 +30,9 @@
 namespace dal = oneapi::dal;
 
 template <typename Method>
-void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name) {
-    const auto pca_desc = dal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
+void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name, bool whiten) {
+    const auto pca_desc =
+        dal::pca::descriptor<>().set_component_count(5).set_deterministic(true).set_whiten(whiten);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
 
@@ -65,7 +66,8 @@ int main(int argc, char const* argv[]) {
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run<dal::pca::method::cov>(q, x_train, "Training method: Correlation");
+        run<dal::pca::method::cov>(q, x_train, "Training method: Correlation Whiten:false", false);
+        run<dal::pca::method::cov>(q, x_train, "Training method: Correlation Whiten:false", true);
     }
     return 0;
 }

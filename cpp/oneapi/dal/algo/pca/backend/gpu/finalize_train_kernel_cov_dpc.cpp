@@ -218,6 +218,7 @@ static train_result<Task> train(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::vars)) {
         vars_event.wait_and_throw();
         result.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
+        model.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
     }
     auto data_to_compute = cov;
 
@@ -238,6 +239,7 @@ static train_result<Task> train(const context_gpu& ctx,
         result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
     }
+
     if (desc.get_result_options().test(result_options::singular_values)) {
         auto singular_values =
             compute_singular_values_on_host(q, eigvals, rows_count_global, { cov_event });
@@ -256,12 +258,14 @@ static train_result<Task> train(const context_gpu& ctx,
     if (desc.get_deterministic()) {
         sign_flip(eigvecs);
     }
+
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         model.set_eigenvectors(
             homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
     }
 
     result.set_model(model);
+
     return result;
 }
 

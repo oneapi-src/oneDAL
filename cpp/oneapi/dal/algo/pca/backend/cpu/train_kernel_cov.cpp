@@ -100,31 +100,20 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_pca_parameter.isCorrelation = false;
     if (sklearn_behavior) {
         daal_pca_parameter.doScale = false;
-        interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
-            ctx,
-            *daal_data,
-            &covariance_alg,
-            *daal_eigenvectors,
-            *daal_eigenvalues,
-            *daal_means,
-            *daal_variances,
-            daal_singular_values.get(),
-            daal_explained_variances_ratio.get(),
-            &daal_pca_parameter));
     }
-    else {
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(ctx,
-                                                                    *daal_data,
-                                                                    &covariance_alg,
-                                                                    *daal_eigenvectors,
-                                                                    *daal_eigenvalues,
-                                                                    *daal_means,
-                                                                    *daal_variances,
-                                                                    nullptr,
-                                                                    nullptr,
-                                                                    &daal_pca_parameter));
-    }
+
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
+        ctx,
+        *daal_data,
+        &covariance_alg,
+        *daal_eigenvectors,
+        *daal_eigenvalues,
+        *daal_means,
+        *daal_variances,
+        daal_singular_values.get(),
+        daal_explained_variances_ratio.get(),
+        &daal_pca_parameter));
+
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
@@ -135,14 +124,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
 
-    // if (desc.get_result_options().test(result_options::singular_values)) {
-    //     result.set_singular_values(homogen_table::wrap(arr_singular_values, 1, component_count));
-    // }
+    if (desc.get_result_options().test(result_options::singular_values)) {
+        result.set_singular_values(homogen_table::wrap(arr_singular_values, 1, component_count));
+    }
 
-    // if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-    //     result.set_explained_variances_ratio(
-    //         homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
-    // }
+    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
+    }
 
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));

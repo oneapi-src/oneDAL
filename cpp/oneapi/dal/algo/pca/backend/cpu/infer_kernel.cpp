@@ -48,6 +48,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
     const auto sklearn_behavior_whiten =
         !desc.do_scale() && desc.do_mean_centering() && desc.whiten();
+    const auto daal_behavior_whiten = desc.do_scale() && desc.do_mean_centering() && desc.whiten();
     dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);
 
@@ -80,19 +81,30 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                           nullptr,
                                                                           *daal_result));
     }
-    else {
-        //TODO: investigate whats the best option
-        // const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
-        // const auto daal_eigenvalues =
-        //     interop::convert_to_daal_table<Float>(model.get_eigenvalues());
-        // const auto daal_variances = interop::convert_to_daal_table<Float>(model.get_variances());
+    else if (daal_behavior_whiten) {
+        const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
+        const auto daal_eigenvalues =
+            interop::convert_to_daal_table<Float>(model.get_eigenvalues());
+        const auto daal_variances = interop::convert_to_daal_table<Float>(model.get_variances());
 
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
                                                                           *daal_data,
                                                                           *daal_eigenvectors,
-                                                                          nullptr,
-                                                                          nullptr,
+                                                                          daal_means.get(),
+                                                                          daal_variances.get(),
+                                                                          daal_eigenvalues.get(),
+                                                                          *daal_result));
+    }
+    else {
+        const auto daal_means = interop::convert_to_daal_table<Float>(model.get_means());
+        const auto daal_variances = interop::convert_to_daal_table<Float>(model.get_variances());
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_pca_transform_kernel_t>(ctx,
+                                                                          *daal_data,
+                                                                          *daal_eigenvectors,
+                                                                          daal_means.get(),
+                                                                          daal_variances.get(),
                                                                           nullptr,
                                                                           *daal_result));
     }
