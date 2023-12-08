@@ -215,8 +215,8 @@ static train_result<Task> train(const context_gpu& ctx,
     auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums, {});
 
     auto [vars, vars_event] = compute_variances(q, cov, { cov_event });
+    vars_event.wait_and_throw();
     if (desc.get_result_options().test(result_options::vars)) {
-        vars_event.wait_and_throw();
         result.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
         model.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
     }
@@ -234,7 +234,7 @@ static train_result<Task> train(const context_gpu& ctx,
     auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q,
                                                            std::move(data_to_compute),
                                                            component_count,
-                                                           { vars_event });
+                                                           { corr_event, vars_event, cov_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
@@ -242,7 +242,10 @@ static train_result<Task> train(const context_gpu& ctx,
 
     if (desc.get_result_options().test(result_options::singular_values)) {
         auto singular_values =
-            compute_singular_values_on_host(q, eigvals, rows_count_global, { cov_event });
+            compute_singular_values_on_host(q,
+                                            eigvals,
+                                            rows_count_global,
+                                            { corr_event, vars_event, cov_event });
         result.set_singular_values(
             homogen_table::wrap(singular_values.flatten(), 1, component_count));
     }
@@ -250,7 +253,10 @@ static train_result<Task> train(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
         auto vars_host = vars.to_host(q);
         auto explained_variances_ratio =
-            compute_explained_variances_on_host(q, eigvals, vars_host, { cov_event });
+            compute_explained_variances_on_host(q,
+                                                eigvals,
+                                                vars_host,
+                                                { corr_event, vars_event, cov_event });
         result.set_explained_variances_ratio(
             homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
     }
