@@ -27,6 +27,7 @@ ifeq (help,$(MAKECMDGOALS))
 endif
 
 attr.lnx32e = lnx intel64 lin
+attr.lnxarm = lnx arm lin
 attr.mac32e = mac intel64
 attr.win32e = win intel64 win
 
@@ -57,6 +58,9 @@ COMPILERs = icc icx gnu clang vc
 COMPILER ?= icc
 
 BACKEND_CONFIG ?= mkl
+ARCH = $(patsubst lnx%,%,$(PLAT))
+
+ARCH_is_$(ARCH)            := yes
 
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
@@ -91,7 +95,7 @@ endif
 DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 endif
 
-include dev/make/cmplr.$(COMPILER).$(BACKEND_CONFIG).mk
+include dev/make/cmplr.$(COMPILER).$(BACKEND_CONFIG).$(ARCH).mk
 include dev/make/cmplr.dpcpp.mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
