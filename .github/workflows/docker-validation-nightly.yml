@@ -5,7 +5,7 @@ on:
     - cron: "0 23 * * *"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
@@ -13,7 +13,7 @@ on:
       - .ci/scripts
   push:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
