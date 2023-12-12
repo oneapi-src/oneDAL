@@ -38,6 +38,14 @@ struct transpose_tag {
 using transpose_nontrans = transpose_tag<transpose::nontrans>;
 using transpose_trans = transpose_tag<transpose::trans>;
 
+template <sparse_indexing indexing>
+struct indexing_tag {
+    static constexpr sparse_indexing value = indexing;
+};
+
+using indexing_zero_based = indexing_tag<sparse_indexing::zero_based>;
+using indexing_one_based = indexing_tag<sparse_indexing::one_based>;
+
 template <typename Param>
 class sparse_gemm_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
@@ -45,6 +53,7 @@ public:
     static constexpr transpose trans_a = std::tuple_element_t<1, Param>::value;
     static constexpr ndorder bo = std::tuple_element_t<2, Param>::value;
     static constexpr ndorder co = std::tuple_element_t<3, Param>::value;
+    static constexpr sparse_indexing indexing = std::tuple_element_t<4, Param>::value;
 
     sparse_gemm_test() {
         m_ = 0;
@@ -53,59 +62,148 @@ public:
     }
 
     void generate_dimensions() {
-        m_ = GENERATE(4);
-        k_ = GENERATE(4);
-        p_ = GENERATE(2); // GENERATE(2, 4, 8);
+        m_ = GENERATE(4, 7, 100, 2000);
+        k_ = GENERATE(4, 16, 31, 200);
+        p_ = GENERATE(8, 15, 300, 1500);
+        alloc_ = sycl::usm::alloc::device;
         CAPTURE(m_, k_, p_);
+    }
+
+    /// Generate sparse CSR matrix A of the format:
+    /// | 1  0  1  0  ... |
+    /// | 0  1  0  1  ... |
+    /// | 1  0  1  0  ... |
+    /// | 0  1  0  1  ... |
+    /// | ............... |
+    auto A(sparse_matrix_handle& a) {
+        check_if_initialized();
+        auto& q = this->get_queue();
+
+        /// Revert dimensions in the transposed case
+        const std::int64_t local_m = trans_a == transpose::nontrans ? m_ : k_;
+        const std::int64_t local_k = trans_a == transpose::nontrans ? k_ : m_;
+
+        const std::int64_t value_count_in_odd_rows = (local_k + 1) / 2;
+        const std::int64_t value_count_in_even_rows = local_k / 2;
+        const std::int64_t odd_rows_count = (local_m + 1) / 2;
+        const std::int64_t even_rows_count = local_m / 2;
+        const std::int64_t element_count = value_count_in_odd_rows * odd_rows_count +
+                                           value_count_in_even_rows * even_rows_count;
+
+        data_ary_ = dal::array<float_t>::empty(q, element_count, alloc_);
+        column_indices_ary_ = dal::array<std::int64_t>::empty(q, element_count, alloc_);
+        row_offsets_ary_ = dal::array<std::int64_t>::empty(q, local_m + 1, alloc_);
+
+        float_t * data = data_ary_.get_mutable_data();
+
+        /// Initialize data values
+        auto data_event = q.submit([&](sycl::handler& cgh) {
+            cgh.parallel_for(sycl::range<1>(element_count), [=] (sycl::id<1> i) {
+                data[i] = 1.0f;
+            });
+        });
+
+        constexpr std::int64_t indexing_offset = (indexing == sparse_indexing::zero_based ? 0 : 1);
+
+        auto column_indices_host_ary = dal::array<std::int64_t>::empty(element_count);
+        std::int64_t * column_indices_host = column_indices_host_ary.get_mutable_data();
+
+        /// Initialize column indices of the even rows
+        for (std::int64_t i = 0; i < local_k; i += 2) {
+            const std::int64_t column_index = i + indexing_offset;
+            for (std::int64_t j = i / 2; j < element_count; j += local_k) {
+                column_indices_host[j] = column_index;
+            }
+        }
+        /// Initialize column indices of the odd rows
+        for (std::int64_t i = 1; i < local_k; i += 2) {
+            const std::int64_t column_index = i + indexing_offset;
+            for (std::int64_t j = value_count_in_odd_rows + i / 2; j < element_count; j += local_k) {
+                column_indices_host[j] = column_index;
+            }
+        }
+
+        auto row_offsets_host_ary = dal::array<std::int64_t>::empty(local_m + 1);
+        std::int64_t * row_offsets_host = row_offsets_host_ary.get_mutable_data();
+
+        /// Initialize row offsets of the even rows
+        for(std::int64_t i = 0; i < local_m + 1; i += 2) {
+            row_offsets_host[i] = (i / 2) * local_k + indexing_offset;
+        }
+        /// Initialize row offsets of the odd rows
+        for(std::int64_t i = 1; i < local_m + 1; i += 2) {
+            row_offsets_host[i] = value_count_in_odd_rows + (i / 2) * local_k + indexing_offset;
+        }
+
+        std::int64_t * column_indices = column_indices_ary_.get_mutable_data();
+        auto column_indices_event = q.submit([&](sycl::handler& cgh) {
+            cgh.memcpy(column_indices, column_indices_host, element_count * sizeof(std::int64_t));
+        });
+
+        std::int64_t * row_offsets = row_offsets_ary_.get_mutable_data();
+        auto row_offsets_event = q.submit([&](sycl::handler& cgh) {
+            cgh.memcpy(row_offsets, row_offsets_host, (local_m + 1) * sizeof(std::int64_t));
+        });
+
+        return set_csr_data(q,
+                            a,
+                            local_m,
+                            local_k,
+                            indexing,
+                            data,
+                            column_indices,
+                            row_offsets,
+                            { data_event, column_indices_event, row_offsets_event });
     }
 
     auto B() {
         check_if_initialized();
-        return ndarray<float_t, 2, bo>::ones(this->get_queue(), { k_, p_ });
-    }
-
-    auto Bt() {
-        check_if_initialized();
-        return ndarray<float_t, 2, bo>::ones(this->get_queue(), { p_, k_ });
+        if (bo == ndorder::c) {
+            return ndarray<float_t, 2, bo>::ones(this->get_queue(), { k_, p_ }, alloc_);
+        }
+        return ndarray<float_t, 2, bo>::ones(this->get_queue(), { p_, k_ }, alloc_);
     }
 
     auto C() {
         check_if_initialized();
-        return ndarray<float_t, 2, co>::empty(this->get_queue(), { m_, p_ });
+        if (co == ndorder::c) {
+            return ndarray<float_t, 2, co>::empty(this->get_queue(), { m_, p_ }, alloc_);
+        }
+        return ndarray<float_t, 2, co>::empty(this->get_queue(), { p_, m_ }, alloc_);
     }
 
-    void test_gemm(sparse_matrix_handle& a) {
+    void test_gemm() {
+        sparse_matrix_handle a;
+        auto a_e = A(a);
+        auto [b, b_e] = B();
         auto c = C();
 
-        if (bo == ndorder::c) {
-            auto [b, b_e] = B();
-            gemm(this->get_queue(), trans_a, a, b, c, { b_e }).wait_and_throw();
-        }
-        /*        else {
-            auto [bt, bt_e] = Bt();
-            gemm(this->get_queue(), trans_a, a, bt.t(), c, { bt_e }).wait_and_throw();
-        }
-*/
-        check_ones_matrix(c);
+        gemm(this->get_queue(), trans_a, a, b, c, { a_e, b_e }).wait_and_throw();
+
+        check_matmul(c);
     }
 
-    void check_ones_matrix(const ndarray<float_t, 2, co>& mat) {
+    void check_matmul(const ndarray<float_t, 2, co>& mat) {
         check_if_initialized();
-        REQUIRE(mat.get_shape() == ndshape<2>{ k_, p_ });
+        REQUIRE(mat.get_shape() == ndshape<2>{ m_, p_ });
 
-        const float_t* mat_ptr = mat.get_data();
-        for (std::int64_t i = 0; i < mat.get_count(); i++) {
-            const std::int64_t result = k_ / 2;
-            if (std::int64_t(mat_ptr[i]) != result) {
-                CAPTURE(i, mat_ptr[i]);
-                for (int k = 0; k < k_; k++) {
-                    for (int j = 0; j < p_; j++) {
-                        std::cout << mat_ptr[k * p_ + j] << ", ";
-                    }
-                    std::cout << std::endl;
+        auto mat_host = mat.to_host(this->get_queue());
+        const float_t* mat_ptr = mat_host.get_data();
+        const std::int64_t result_even = (k_ + 1) / 2;    // even rows result
+        const std::int64_t result_odd = k_ / 2;           // odd rows result
+
+        for (std::int64_t i = 0; i < m_; i += 2) {
+            for (std::int64_t j = 0; j < p_; j++) {
+                if (std::int64_t(mat_ptr[i * p_ + j]) != result_even) {
+                    CAPTURE(i * p_ + j, mat_ptr[i * p_ + j]);
                 }
-                std::cout << std::endl;
-                FAIL();
+            }
+        }
+        for (std::int64_t i = 1; i < m_; i += 2) {
+            for (std::int64_t j = 0; j < p_; j++) {
+                if (std::int64_t(mat_ptr[i * p_ + j]) != result_odd) {
+                    CAPTURE(i * p_ + j, mat_ptr[i * p_ + j]);
+                }
             }
         }
         SUCCEED();
@@ -125,72 +223,34 @@ private:
     std::int64_t m_;
     std::int64_t k_;
     std::int64_t p_;
+
+    /// Sparse matrix A
+    dal::array<float_t> data_ary_;
+    dal::array<std::int64_t> column_indices_ary_;
+    dal::array<std::int64_t> row_offsets_ary_;
+
+    sycl::usm::alloc alloc_;
 };
 
 using gemm_types = COMBINE_TYPES(
     (float, double),
     (transpose_nontrans, transpose_trans),
     (c_order /*, f_order */), /// oneMKL 2024.0 throws 'unimplemented' exception when the matrix B is transposed
-    (c_order /*, f_order */));
+    (c_order /*, f_order */),
+    (indexing_zero_based, indexing_one_based));
 
-/// Tests dal::csr_accessor class on a fixed data table:
-///     | 1,  0,  1,  0 |
-/// A = | 0,  1,  0,  1 |
-///     | 1,  0,  1,  0 |
-///     | 0,  1,  0,  1 |
 TEMPLATE_LIST_TEST_M(sparse_gemm_test,
-                     "ones matrix sparse CSR gemm on small sizes",
-                     "[csr][gemm][small]",
+                     "ones matrix sparse CSR gemm",
+                     "[csr][gemm]",
                      gemm_types) {
     // DPC++ Sparse GEMM from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
     SKIP_IF(this->not_float64_friendly());
-    auto& q = this->get_queue();
-    constexpr std::int64_t row_count{ 4 };
-    constexpr std::int64_t column_count{ 4 };
-    constexpr std::int64_t element_count{ 8 };
-
-    const float data_host[] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
-    const std::int64_t column_indices_host[] = { 1, 3, 2, 4, 1, 3, 2, 4 };
-    const std::int64_t row_offsets_host[] = { 1, 3, 5, 7, 9 };
-
-    auto* const data = sycl::malloc_device<float>(element_count, q);
-    auto* const column_indices = sycl::malloc_device<std::int64_t>(element_count, q);
-    auto* const row_offsets = sycl::malloc_device<std::int64_t>(row_count + 1, q);
-
-    auto data_event = q.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(data, data_host, element_count * sizeof(float));
-    });
-
-    auto column_indices_event = q.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(column_indices, column_indices_host, element_count * sizeof(std::int64_t));
-    });
-
-    auto row_offsets_event = q.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(row_offsets, row_offsets_host, (row_count + 1) * sizeof(std::int64_t));
-    });
-
-    sparse_matrix_handle handle;
-
-    set_csr_data(q,
-                 handle,
-                 row_count,
-                 column_count,
-                 sparse_indexing::one_based,
-                 data,
-                 column_indices,
-                 row_offsets,
-                 { data_event, column_indices_event, row_offsets_event })
-        .wait();
 
     this->generate_dimensions();
-    this->test_gemm(handle);
-
-    sycl::free(data, q);
-    sycl::free(column_indices, q);
-    sycl::free(row_offsets, q);
+    this->test_gemm();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

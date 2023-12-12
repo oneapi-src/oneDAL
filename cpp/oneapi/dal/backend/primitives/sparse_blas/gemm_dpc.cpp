@@ -18,6 +18,8 @@
 #include "oneapi/dal/backend/primitives/sparse_blas/gemm.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/handle_iface.hpp"
 
+#include <iostream>
+
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float, ndorder bo, ndorder co>
@@ -32,19 +34,38 @@ sycl::event gemm(sycl::queue& queue,
     ONEDAL_ASSERT(b.get_dimension(1) == c.get_dimension(1));
     ONEDAL_ASSERT(c.has_mutable_data());
 
-    return mkl::sparse::gemm(queue,
-                             order_as_layout(co),
-                             transpose_to_mkl(transpose_a),
-                             f_order_as_transposed(bo),
-                             alpha,
-                             dal::detail::get_impl(a).handle,
-                             const_cast<Float*>(b.get_data()),
-                             b.get_dimension(1),
-                             b.get_leading_stride(),
-                             beta,
-                             c.get_mutable_data(),
-                             c.get_leading_stride(),
-                             dependencies);
+    if (co == ndorder::c) {
+        return mkl::sparse::gemm(queue,
+                                order_as_layout(co),
+                                transpose_to_mkl(transpose_a),
+                                f_order_as_transposed(bo),
+                                alpha,
+                                dal::detail::get_impl(a).handle,
+                                const_cast<Float*>(b.get_data()),
+                                b.get_dimension(1),
+                                b.get_leading_stride(),
+                                beta,
+                                c.get_mutable_data(),
+                                c.get_leading_stride(),
+                                dependencies);
+    }
+    else {
+        return mkl::sparse::gemm(queue,
+                                 order_as_layout(co),
+                                 transpose_to_mkl(transpose_a),
+                                 c_order_as_transposed(bo),
+                                 alpha,
+                                 dal::detail::get_impl(a).handle,
+                                 const_cast<Float*>(b.get_data()),
+                                 b.get_dimension(1),
+                                 b.get_leading_stride(),
+                                 beta,
+                                 c.get_mutable_data(),
+                                 c.get_leading_stride(),
+                                 dependencies);
+    }
+    ONEDAL_ASSERT(false);
+    return sycl::event();
 }
 
 #define INSTANTIATE(F, bo, co)                                                    \
