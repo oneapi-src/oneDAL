@@ -29,7 +29,7 @@ CORE.SERV.COMPILER.gnu = generic
 -DEBC.gnu = -g
 
 COMPILER.all.gnu =  ${CXX} -march=native -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
+                    -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
 
 link.dynamic.all.gnu = ${CXX} -march=native
 

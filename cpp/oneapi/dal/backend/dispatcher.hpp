@@ -291,8 +291,9 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 
     [[maybe_unused]] const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
     #ifdef __ARM_ARCH
-    ONEDAL_IF_CPU_DISPATCH_A8SVE(
-        if (test_cpu_extension(cpu_ex, cpu_extension::sve)) { return op(cpu_dispatch_sve{}); })
+    ONEDAL_IF_CPU_DISPATCH_A8SVE(if (test_cpu_extension(cpu_ex, cpu_extension::sve)) {
+        return op(cpu_dispatch_sve{}); 
+    })
     
     #else
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {

@@ -29,7 +29,7 @@ CORE.SERV.COMPILER.clang = generic
 -DEBC.clang = -g
 
 COMPILER.lnx.clang= clang++ -march=armv8-a+sve \
-                     -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
+                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
 # Linker flags
 link.dynamic.lnx.clang = clang++ -march=armv8-a+sve
 

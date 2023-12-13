@@ -19,7 +19,7 @@ set(DAL_ROOT_REL_PATH "../../..")
 set(INC_REL_PATH "include")
 set(LIB_REL_PATH "lib")
 set(DLL_REL_PATH "redist")
-set(SUB_DIR "intel64")
+set(SUB_DIR "${SUB_DIR}")
 
 # Parse version info if possible
 if (NOT "$ENV{DALROOT}" STREQUAL "")
@@ -53,5 +53,15 @@ file(MAKE_DIRECTORY ${config_install_dir})
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../templates/oneDALConfig.cmake.in ${config_install_dir}/oneDALConfig.cmake @ONLY)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../templates/oneDALConfigVersion.cmake.in ${config_install_dir}/oneDALConfigVersion.cmake @ONLY)
+
+set(FILE_PATH ${config_install_dir}/oneDALConfig.cmake)
+# Read the content of the input file
+file(READ "${FILE_PATH}" INPUT_CONTENT)
+
+# Perform string substitution
+string(REPLACE "lib/intel64" "lib/${SUB_DIR}" MODIFIED_CONTENT "${INPUT_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${FILE_PATH}" "${MODIFIED_CONTENT}")
 
 message(STATUS "oneDALConfig files were created in ${INSTALL_DIR}")

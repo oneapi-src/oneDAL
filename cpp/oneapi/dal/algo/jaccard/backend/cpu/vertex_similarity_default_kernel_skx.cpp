@@ -30,11 +30,18 @@
 namespace oneapi::dal::preview::jaccard::backend {
 
 #ifdef __ARM_ARCH
-template vertex_similarity_result<task::all_vertex_pairs> jaccard_sve<
-    dal::backend::cpu_dispatch_sve>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
-                                    const dal::preview::detail::topology<std::int32_t>& t,
-                                    void* result_ptr);
+template vertex_similarity_result<task::all_vertex_pairs> jaccard_sve<dal::backend::cpu_dispatch_sve>(
+    const detail::descriptor_base<task::all_vertex_pairs>& desc,
+    const dal::preview::detail::topology<std::int32_t>& t,
+    void* result_ptr);
+#else
+template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<dal::backend::cpu_dispatch_avx512>(
+    const detail::descriptor_base<task::all_vertex_pairs>& desc,
+    const dal::preview::detail::topology<std::int32_t>& t,
+    void* result_ptr);
+#endif
 
+#ifdef __ARM_ARCH
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_sve>(
     const detail::descriptor_base<task::all_vertex_pairs>& desc,
@@ -43,11 +50,6 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispa
     return jaccard_sve<dal::backend::cpu_dispatch_sve>(desc, t, result_ptr);
 }
 #else
-template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
-    dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
-                                       const dal::preview::detail::topology<std::int32_t>& t,
-                                       void* result_ptr);
-
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::all_vertex_pairs>& desc,
@@ -55,6 +57,6 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispa
     void* result_ptr) {
     return jaccard_avx512<dal::backend::cpu_dispatch_avx512>(desc, t, result_ptr);
 }
-
 #endif
+
 } // namespace oneapi::dal::preview::jaccard::backend

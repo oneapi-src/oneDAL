@@ -40,9 +40,9 @@ using namespace preview::backend;
 
 template <typename Cpu>
 #ifdef __ARM_ARCH
-vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
-#else
 vertex_similarity_result<task::all_vertex_pairs> jaccard_sve(
+#else
+vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
 #endif
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
     const dal::preview::detail::topology<std::int32_t> &t,

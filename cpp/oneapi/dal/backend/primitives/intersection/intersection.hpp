@@ -16,7 +16,7 @@
 
 #pragma once
 
-#ifndef _ARM_ARCH
+#ifndef __ARM_ARCH
     #include <immintrin.h>
 #endif
 

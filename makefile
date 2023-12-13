@@ -553,9 +553,7 @@ $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
 
-ifeq ($(ARCH_is_arm),yes)
-$(call containing,_a8sve, $(CORE.objs_a)): COPT += $(a8sve_OPT) -DDAAL_CPU=sve
-else
+ifneq ($(ARCH_is_arm),yes)
 $(call containing,_nrh, $(CORE.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
 $(call containing,_neh, $(CORE.objs_a)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
 $(call containing,_hsw, $(CORE.objs_a)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
@@ -574,9 +572,7 @@ $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
 
-ifeq ($(ARCH_is_arm),yes)
-$(call containing,_a8sve, $(CORE.objs_a)): COPT += $(a8sve_OPT) -DDAAL_CPU=sve
-else
+ifneq ($(ARCH_is_arm),yes)
 $(call containing,_nrh, $(CORE.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
 $(call containing,_neh, $(CORE.objs_y)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
 $(call containing,_hsw, $(CORE.objs_y)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
@@ -746,7 +742,7 @@ endef
 
 $(ONEAPI.dispatcher_cpu): | $(dir $(ONEAPI.dispatcher_cpu))/.
 ifeq ($(ARCH_is_arm),yes)
-  $(if $(filter a8sve,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_A8SVE" >> $@)
+	$(if $(filter sve,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
 else
 	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
 	$(if $(filter avx2,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX2" >> $@)
