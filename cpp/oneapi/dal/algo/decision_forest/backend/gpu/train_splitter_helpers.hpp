@@ -156,11 +156,47 @@ inline bool float_gt(Float a, Float b) {
 }
 
 template <typename Float, typename Index, typename Task>
+struct split_scalar {
+    using impl_const_t = impl_const<Index, Task>;
+    Index ftr_id;
+    Index ftr_bin;
+    Index left_count;
+    Index right_count;
+    Float left_imp;
+    Float right_imp;
+    Float imp_dec;
+    Float left_weight_sum;
+
+    void clear() {
+        ftr_id = impl_const_t::leaf_mark_;
+        ftr_bin = impl_const_t::leaf_mark_;
+        left_count = 0;
+        right_count = 0;
+        left_imp = Float(0);
+        right_imp = Float(0);
+        imp_dec = -de::limits<Float>::max();
+        left_weight_sum = Float(0);
+    }
+
+    void copy(const split_scalar& other) {
+        ftr_id = other.ftr_id;
+        ftr_bin = other.ftr_bin;
+        left_count = other.left_count;
+        right_count = other.right_count;
+        left_imp = other.left_imp;
+        right_imp = other.right_imp;
+        imp_dec = other.imp_dec;
+        left_weight_sum = other.left_weight_sum;
+    }
+};
+
+template <typename Float, typename Index, typename Task>
 struct split_info {
     using task_t = Task;
     using impl_const_t = impl_const<Index, task_t>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using byte_t = std::uint8_t;
+    using split_scalar_t = split_scalar<Float, Index, Task>;
     static constexpr Index cache_buf_int_size = 3; // ftr_id, ftr_bin, left_count
     static constexpr Index cache_buf_float_size = 2; // left_imp, and imp_dec
 
@@ -180,25 +216,13 @@ struct split_info {
         hist_prop_count = in_hist_prop_count;
     }
 
-    inline void init_clear(sycl::nd_item<2>& item,
-                           hist_type_t* in_left_hist,
-                           Index in_hist_prop_count) {
+    inline void init_clear(hist_type_t* in_left_hist, Index in_hist_prop_count) {
         init(in_left_hist, in_hist_prop_count);
         clear();
     }
 
     inline void clear_scalar() {
-        ftr_id = impl_const_t::leaf_mark_;
-        ftr_bin = impl_const_t::leaf_mark_;
-        left_count = 0;
-        right_count = 0;
-        left_imp = Float(0);
-        right_imp = Float(0);
-        imp_dec = -de::limits<Float>::max();
-    }
-
-    inline void clear_hist(sycl::nd_item<2>& item) {
-        fill_with_group(item, left_hist, hist_prop_count, hist_type_t(0));
+        scalars.clear();
     }
 
     inline void clear_hist() {
@@ -212,79 +236,7 @@ struct split_info {
         clear_hist();
     }
 
-    inline byte_t* store_without_hist(byte_t* buf_ptr, Index idx, Index total_block_count) {
-        Index* index_buf_ptr = get_buf_ptr<Index>(&buf_ptr, total_block_count * cache_buf_int_size);
-        Float* float_buf_ptr =
-            get_buf_ptr<Float>(&buf_ptr, total_block_count * cache_buf_float_size);
-
-        Index* ftr_id_ptr = index_buf_ptr + idx * cache_buf_int_size + 0;
-        Index* ftr_bin_ptr = index_buf_ptr + idx * cache_buf_int_size + 1;
-        Index* left_count_ptr = index_buf_ptr + idx * cache_buf_int_size + 2;
-
-        Float* left_imp_ptr = float_buf_ptr + idx * cache_buf_float_size + 0;
-        Float* imp_dec_ptr = float_buf_ptr + idx * cache_buf_float_size + 1;
-
-        ftr_id_ptr[0] = ftr_id;
-        ftr_bin_ptr[0] = ftr_bin;
-        left_count_ptr[0] = left_count;
-        left_imp_ptr[0] = left_imp;
-        imp_dec_ptr[0] = imp_dec;
-
-        return buf_ptr;
-    }
-
-    inline byte_t* load_without_hist(byte_t* buf_ptr, Index idx, Index total_block_count) {
-        Index* index_buf_ptr = get_buf_ptr<Index>(&buf_ptr, total_block_count * cache_buf_int_size);
-        Float* float_buf_ptr =
-            get_buf_ptr<Float>(&buf_ptr, total_block_count * cache_buf_float_size);
-
-        Index* ftr_id_ptr = index_buf_ptr + idx * cache_buf_int_size + 0;
-        Index* ftr_bin_ptr = index_buf_ptr + idx * cache_buf_int_size + 1;
-        Index* left_count_ptr = index_buf_ptr + idx * cache_buf_int_size + 2;
-
-        Float* left_imp_ptr = float_buf_ptr + idx * cache_buf_float_size + 0;
-        Float* imp_dec_ptr = float_buf_ptr + idx * cache_buf_float_size + 1;
-
-        ftr_id = ftr_id_ptr[0];
-        ftr_bin = ftr_bin_ptr[0];
-        left_count = left_count_ptr[0];
-        left_imp = left_imp_ptr[0];
-        imp_dec = imp_dec_ptr[0];
-
-        return buf_ptr;
-    }
-
-    inline void store(byte_t* buf_ptr, Index idx, Index total_block_count) {
-        buf_ptr = store_without_hist(buf_ptr, idx, total_block_count);
-        hist_type_t* hist_buf_ptr =
-            get_buf_ptr<hist_type_t>(&buf_ptr, total_block_count * hist_prop_count);
-        hist_type_t* hist_ptr = hist_buf_ptr + idx * hist_prop_count;
-
-        for (Index i = 0; i < hist_prop_count; ++i) {
-            hist_ptr[i] = left_hist[i];
-        }
-    }
-
-    inline void load(byte_t* buf_ptr, Index idx, Index total_block_count) {
-        buf_ptr = load_without_hist(buf_ptr, idx, total_block_count);
-        hist_type_t* hist_buf_ptr =
-            get_buf_ptr<hist_type_t>(&buf_ptr, total_block_count * hist_prop_count);
-
-        left_hist = hist_buf_ptr + idx * hist_prop_count;
-    }
-
-    inline void set_left_hist_ptr(hist_type_t* hist_ptr) {
-        left_hist = hist_ptr;
-    }
-
-    Index ftr_id;
-    Index ftr_bin;
-    Index left_count;
-    Index right_count;
-    Float left_imp;
-    Float right_imp;
-    Float imp_dec;
-
+    split_scalar_t scalars;
     hist_type_t* left_hist;
     Index hist_prop_count;
 };
@@ -295,6 +247,7 @@ struct split_smp {
     using impl_const_t = impl_const<Index, task_t>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using split_info_t = split_info<Float, Index, Task>;
+    using split_scalar_t = split_scalar<Float, Index, Task>;
 
     // classififcation version
     inline void merge_bin_hist(Index& left_count_,
@@ -317,46 +270,72 @@ struct split_smp {
                              const Float* imp_list_ptr_,
                              const hist_type_t* node_class_hist_list_ptr_,
                              Index class_count,
-                             Index node_id) {
+                             Index node_id,
+                             bool is_weighted) {
         Index node_row_count = node_ptr[impl_const_t::ind_grc];
         const Float* node_imp_ptr = imp_list_ptr_ + node_id * impl_const_t::node_imp_prop_count_;
         Float node_imp = node_imp_ptr[0];
         const Index* node_class_hist_ptr = node_class_hist_list_ptr_ + node_id * class_count;
+        split_scalar_t& sc = si.scalars;
 
-        si.right_count = node_row_count - si.left_count;
+        sc.right_count = node_row_count - sc.left_count;
 
-        const Float divL = (0 < si.left_count)
-                               ? Float(1) / (Float(si.left_count) * Float(si.left_count))
+        const Float divL = (0 < sc.left_count)
+                               ? Float(1) / (Float(sc.left_count) * Float(sc.left_count))
                                : Float(0);
-        const Float divR = (0 < si.right_count)
-                               ? Float(1) / (Float(si.right_count) * Float(si.right_count))
+        const Float divR = (0 < sc.right_count)
+                               ? Float(1) / (Float(sc.right_count) * Float(sc.right_count))
                                : Float(0);
 
-        si.left_imp = Float(1);
-        si.right_imp = Float(1);
+        sc.left_imp = Float(1);
+        sc.right_imp = Float(1);
 
         for (Index class_id = 0; class_id < class_count; ++class_id) {
-            si.left_imp -= Float(si.left_hist[class_id]) * Float(si.left_hist[class_id]) * divL;
-            si.right_imp -= Float(node_class_hist_ptr[class_id] - si.left_hist[class_id]) *
+            sc.left_imp -= Float(si.left_hist[class_id]) * Float(si.left_hist[class_id]) * divL;
+            sc.right_imp -= Float(node_class_hist_ptr[class_id] - si.left_hist[class_id]) *
                             Float(node_class_hist_ptr[class_id] - si.left_hist[class_id]) * divR;
         }
 
-        si.left_imp = sycl::max(si.left_imp, Float(0));
-        si.right_imp = sycl::max(si.right_imp, Float(0));
+        sc.left_imp = sycl::max(sc.left_imp, Float(0));
+        sc.right_imp = sycl::max(sc.right_imp, Float(0));
 
-        si.imp_dec =
-            node_imp - (Float(si.left_count) * si.left_imp + Float(si.right_count) * si.right_imp) /
+        sc.imp_dec =
+            node_imp - (Float(sc.left_count) * sc.left_imp + Float(sc.right_count) * sc.right_imp) /
                            Float(node_row_count);
+        if (sc.left_count > 0 && is_weighted) {
+            sc.imp_dec /= (sc.left_weight_sum / sc.left_count);
+        }
+    }
+
+    // Check if node impurity valid. True if valid
+    inline bool is_valid_impurity(const Float* node_imp_list_ptr,
+                                  Index node_id,
+                                  Float imp_threshold,
+                                  Index row_count) {
+        Float node_imp = Float(0);
+        if constexpr (std::is_same_v<task_t, task::classification>) {
+            const Float* node_imp_ptr =
+                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
+            node_imp = node_imp_ptr[0];
+        }
+        else {
+            const Float* node_imp_ptr =
+                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
+            node_imp = node_imp_ptr[1] / Float(row_count);
+        }
+        return !float_eq(node_imp, Float(0)) && node_imp >= imp_threshold;
     }
 
     // regression version
     inline void calc_imp_dec(split_info_t& si,
                              const Index* node_ptr,
                              const Float* imp_list_ptr,
-                             Index node_id) {
+                             Index node_id,
+                             bool is_weighted) {
         constexpr Index buff_size = impl_const_t::node_imp_prop_count_ + 1;
         Index node_row_count = node_ptr[impl_const_t::ind_grc];
-        si.left_count = static_cast<Index>(si.left_hist[0]);
+        split_scalar_t& sc = si.scalars;
+        sc.left_count = static_cast<Index>(si.left_hist[0]);
 
         const Float* node_imp_ptr = imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
 
@@ -368,59 +347,45 @@ struct split_smp {
         // getting hist for right part
         sub_stat<Float, Index, task_t>(&right_hist[0], &si.left_hist[0], &node_hist[0], buff_size);
 
-        si.right_count = node_row_count - si.left_count;
-        si.imp_dec = node_imp_ptr[1] - (si.left_hist[2] + right_hist[2]);
+        sc.right_count = node_row_count - sc.left_count;
+        sc.imp_dec = node_imp_ptr[1] - (si.left_hist[2] + right_hist[2]);
+        if (sc.left_count > 0 && is_weighted) {
+            sc.imp_dec *= (sc.left_weight_sum / sc.left_count);
+        }
     }
 
     inline bool test_split_is_best(const split_info_t& bs,
                                    const split_info_t& ts,
-                                   Index node_id,
-                                   Float node_imp,
-                                   Float impurity_threshold,
                                    Index min_observations_in_leaf_node) {
-        return (
-            Float(0) < ts.imp_dec && !float_eq(node_imp, Float(0)) &&
-            node_imp >= impurity_threshold &&
-            (bs.ftr_bin == impl_const_t::leaf_mark_ || float_gt(ts.imp_dec, bs.imp_dec) ||
-             (float_eq(ts.imp_dec, bs.imp_dec) &&
-              (ts.ftr_id < bs.ftr_id || (bs.ftr_id == ts.ftr_id && ts.ftr_bin < bs.ftr_bin)))) &&
-            ts.left_count >= min_observations_in_leaf_node &&
-            ts.right_count >= min_observations_in_leaf_node);
+        const split_scalar_t& ts_sc = ts.scalars;
+        const split_scalar_t& bs_sc = bs.scalars;
+        return test_split_is_best(bs_sc, ts_sc, min_observations_in_leaf_node);
+    }
+
+    inline bool test_split_is_best(const split_scalar_t& bs_sc,
+                                   const split_scalar_t& ts_sc,
+                                   Index min_observations_in_leaf_node) {
+        bool valid_imp_dec = Float(0) < ts_sc.imp_dec;
+        bool valid_rcount = ts_sc.right_count >= min_observations_in_leaf_node;
+        bool valid_lcount = ts_sc.left_count >= min_observations_in_leaf_node;
+        bool bs_unassigned = bs_sc.ftr_bin == impl_const_t::leaf_mark_;
+        bool bs_less_imp = float_gt(ts_sc.imp_dec, bs_sc.imp_dec);
+        bool bs_eq_imp = float_eq(ts_sc.imp_dec, bs_sc.imp_dec);
+        bool bs_greater_ftr = ts_sc.ftr_id < bs_sc.ftr_id;
+        bool bs_eq_ftr = bs_sc.ftr_id == ts_sc.ftr_id;
+        bool bs_greater_bin = ts_sc.ftr_bin < bs_sc.ftr_bin;
+        bool is_best = bs_unassigned || bs_less_imp;
+        is_best = is_best || (bs_eq_imp && (bs_greater_ftr || (bs_eq_ftr && bs_greater_bin)));
+        return is_best && valid_imp_dec && valid_lcount && valid_rcount;
     }
 
     // universal
     inline void choose_best_split(split_info_t& bs,
                                   const split_info_t& ts,
-                                  const Float* node_imp_list_ptr,
                                   Index hist_elem_count,
-                                  Index node_id,
-                                  Float impurity_threshold,
-                                  Index min_observations_in_leaf_node) {
-        // TODO move check for imp 0 to node split func
-        Float node_imp = Float(0);
-        if constexpr (std::is_same_v<task_t, task::classification>) {
-            const Float* node_imp_ptr =
-                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
-            node_imp = node_imp_ptr[0];
-        }
-        else {
-            const Float* node_imp_ptr =
-                node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
-            node_imp = node_imp_ptr[1] / Float(ts.left_count + ts.right_count);
-        }
-
-        if (test_split_is_best(bs,
-                               ts,
-                               node_id,
-                               node_imp,
-                               impurity_threshold,
-                               min_observations_in_leaf_node)) {
-            bs.ftr_id = ts.ftr_id;
-            bs.ftr_bin = ts.ftr_bin;
-            bs.imp_dec = ts.imp_dec;
-
-            bs.left_count = ts.left_count;
-            bs.left_imp = ts.left_imp;
+                                  Index min_obs_in_leaf_node) {
+        if (test_split_is_best(bs, ts, min_obs_in_leaf_node)) {
+            bs.scalars.copy(ts.scalars);
 
             for (Index i = 0; i < hist_elem_count; ++i) {
                 bs.left_hist[i] = ts.left_hist[i];
@@ -461,46 +426,21 @@ struct split_smp {
                                     Index node_id,
                                     Index index_max,
                                     bool update_imp_dec_required) {
+        const split_scalar_t& bs_sc = bs.scalars;
         node_ptr[impl_const_t::ind_fid] =
-            (bs.ftr_id == index_max) ? impl_const_t::leaf_mark_ : bs.ftr_id;
+            (bs_sc.ftr_id == index_max) ? impl_const_t::leaf_mark_ : bs_sc.ftr_id;
         node_ptr[impl_const_t::ind_bin] =
-            (bs.ftr_bin == index_max) ? impl_const_t::leaf_mark_ : bs.ftr_bin;
-        node_ptr[impl_const_t::ind_lch_grc] = bs.left_count;
+            (bs_sc.ftr_bin == index_max) ? impl_const_t::leaf_mark_ : bs_sc.ftr_bin;
+        node_ptr[impl_const_t::ind_lch_grc] = bs_sc.left_count;
 
         if (update_imp_dec_required) {
             if constexpr (std::is_same_v<task_t, task::classification>) {
-                node_imp_decr_ptr[node_id] = bs.imp_dec;
+                node_imp_decr_ptr[node_id] = bs_sc.imp_dec;
             }
             else {
-                node_imp_decr_ptr[node_id] = bs.imp_dec / node_ptr[impl_const_t::ind_grc];
+                node_imp_decr_ptr[node_id] = bs_sc.imp_dec / node_ptr[impl_const_t::ind_grc];
             }
         }
-    }
-
-    inline bool my_split_is_best_for_sbg(sycl::nd_item<2>& item,
-                                         split_info_t& bs,
-                                         Index* node_ptr,
-                                         Index node_id,
-                                         Index index_max) {
-        auto sbg = item.get_sub_group();
-        const Index sub_group_local_id = sbg.get_local_id();
-
-        const Float best_imp_dec = sycl::reduce_over_group(sbg, bs.imp_dec, maximum<Float>());
-
-        const Index imp_dec_is_best = float_eq(best_imp_dec, bs.imp_dec);
-
-        const Index best_ftr_id =
-            sycl::reduce_over_group(sbg, imp_dec_is_best ? bs.ftr_id : index_max, minimum<Index>());
-        const Index best_ftr_val = sycl::reduce_over_group(
-            sbg,
-            (best_ftr_id == bs.ftr_id && imp_dec_is_best) ? bs.ftr_bin : index_max,
-            minimum<Index>());
-
-        const bool none_split_found_by_sbg =
-            ((impl_const_t::leaf_mark_ == best_ftr_id) && (0 == sub_group_local_id));
-        const bool my_split_is_best = (impl_const_t::leaf_mark_ != best_ftr_id &&
-                                       bs.ftr_id == best_ftr_id && bs.ftr_bin == best_ftr_val);
-        return (none_split_found_by_sbg || my_split_is_best);
     }
 };
 

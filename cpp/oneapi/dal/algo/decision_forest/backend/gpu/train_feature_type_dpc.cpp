@@ -449,6 +449,7 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(const table& tbl,
     for (Index i = 0; i < column_count_; i++) {
         last_event =
             store_column(column_bin_vec_[i], full_data_nd_, i, column_count_, { last_event });
+        last_event.wait_and_throw();
         bin_offsets[i] = total;
         entries_[i].offset_ = total;
         total += entries_[i].bin_count_;
