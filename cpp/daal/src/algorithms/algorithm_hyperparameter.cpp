@@ -65,11 +65,17 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
     }
 
 protected:
+    
+    #ifdef __ARM_ARCH
+        #define CPU_ARG sve
+    #else
+        #define CPU_ARG sse2
+    #endif
     /** Stores integer hyperparameters of the algorithm */
-    HashTable<sse2, uint32_t, DAAL_INT64> _iHT;
+    HashTable<CPU_ARG, uint32_t, DAAL_INT64> _iHT;
 
     /** Stores floating point hyperparameters of the algorithm */
-    HashTable<sse2, uint32_t, double> _dHT;
+    HashTable<CPU_ARG, uint32_t, double> _dHT;
 };
 
 } // namespace internal

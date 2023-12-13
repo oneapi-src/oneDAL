@@ -37,12 +37,21 @@
 namespace oneapi::dal::backend {
 
 detail::cpu_extension detect_top_cpu_extension();
-
+#ifdef __ARM_ARCH
+struct cpu_dispatch_sve {};
+#else
 struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
+#endif
 
+#ifdef __ARM_ARCH
+using cpu_dispatch_default = cpu_dispatch_sve;
+
+#define __CPU_TAG_ARMV8SVE__ oneapi::dal::backend::cpu_dispatch_sve
+
+#else
 using cpu_dispatch_default = cpu_dispatch_sse2;
 
 #define __CPU_TAG_SSE2__    oneapi::dal::backend::cpu_dispatch_sse2
@@ -50,6 +59,8 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 #define __CPU_TAG_AVX2__    oneapi::dal::backend::cpu_dispatch_avx2
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
+
+#endif
 
 template <typename MemoryAccessKind>
 class communicator_provider : public base {
@@ -279,6 +290,11 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     using detail::cpu_extension;
 
     [[maybe_unused]] const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
+    #ifdef __ARM_ARCH
+    ONEDAL_IF_CPU_DISPATCH_A8SVE(
+        if (test_cpu_extension(cpu_ex, cpu_extension::sve)) { return op(cpu_dispatch_sve{}); })
+    
+    #else
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return op(cpu_dispatch_avx512{});
     })
@@ -286,6 +302,8 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
         if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
     ONEDAL_IF_CPU_DISPATCH_SSE42(
         if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
+    #endif
+
     return op(cpu_dispatch_default{});
 }
 

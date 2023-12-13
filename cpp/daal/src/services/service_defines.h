@@ -33,7 +33,11 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int);
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd);
 bool daal_check_is_intel_cpu();
 
-#define DAAL_BASE_CPU daal::sse2
+#ifdef __ARM_ARCH
+    #define DAAL_BASE_CPU daal::sve
+#else
+    #define DAAL_BASE_CPU daal::sse2
+#endif
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
@@ -117,18 +121,26 @@ enum DataFormat
 } // namespace daal
 
 /* CPU comparison macro */
-#define __sse2__   (0)
-#define __sse42__  (2)
-#define __avx2__   (4)
-#define __avx512__ (6)
+#ifdef __ARM_ARCH
+    #define __sve__ (0)
+#else
+    #define __sse2__   (0)
+    #define __sse42__  (2)
+    #define __avx2__   (4)
+    #define __avx512__ (6)
+#endif
 
 #define __float__  (0)
 #define __double__ (1)
 
-#define CPU_sse2   __sse2__
-#define CPU_sse42  __sse42__
-#define CPU_avx2   __avx2__
-#define CPU_avx512 __avx512__
+#ifdef __ARM_ARCH
+    #define CPU_sve __sve__
+#else
+    #define CPU_sse2   __sse2__
+    #define CPU_sse42  __sse42__
+    #define CPU_avx2   __avx2__
+    #define CPU_avx512 __avx512__
+#endif
 
 #define FPTYPE_float  __float__
 #define FPTYPE_double __double__
@@ -314,6 +326,10 @@ typedef union
 #define DAAL_MAX_STRING_SIZE 4096
 
 #define COMPUTE_DAAL_VERSION(majorVersion, minorVersion, updateVersion) (majorVersion * 10000 + minorVersion * 100 + updateVersion)
+
+// #ifdef __ARM_ARCH
+//     #include <arm_sve.h>
+// #endif
 
 #if defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER)
     #include <immintrin.h>

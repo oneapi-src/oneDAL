@@ -21,7 +21,11 @@
 //--
 */
 
-#include <immintrin.h>
+#ifdef __ARM_ARCH
+    #include <arm_sve.h>
+#else
+    #include <immintrin.h>
+#endif
 
 #include "services/env_detect.h"
 #include "services/daal_defines.h"
@@ -41,6 +45,28 @@
 void __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
 
+#if defined(__ARM_ARCH)
+DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
+{
+    return 0;
+}
+
+DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
+{
+    return daal::sve;
+}
+
+void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
+{
+    // TODO: ARM implementation for cpuid
+}
+
+bool daal_check_is_intel_cpu()
+{
+    return false;
+}
+
+#else
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 {
 #if defined(_MSC_VER)
@@ -207,3 +233,4 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 
     return daal::sse2;
 }
+#endif

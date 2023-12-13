@@ -24,6 +24,9 @@
 #ifndef __KERNEL_CONFIG_H__
 #define __KERNEL_CONFIG_H__
 
-#include "src/algorithms/kernel_inst_x86.h"
-
+#ifdef __ARM_ARCH
+    #include "src/algorithms/kernel_inst_arm.h"
+#else
+    #include "src/algorithms/kernel_inst_x86.h"
+#endif
 #endif

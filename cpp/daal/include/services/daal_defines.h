@@ -65,6 +65,8 @@
 #if !defined(DAAL_INT)
     #if defined(_WIN64) || defined(__x86_64__)
         #define DAAL_INT __int64
+    #elif defined(__aarch64__)
+        #define DAAL_INT __int64
     #else
         #define DAAL_INT __int32
     #endif

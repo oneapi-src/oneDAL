@@ -16,8 +16,9 @@
 
 #pragma once
 
+#ifndef __ARM_ARCH
 #include <immintrin.h>
-
+#endif
 #include <daal/src/services/service_defines.h>
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
@@ -38,7 +39,11 @@ namespace oneapi::dal::preview::jaccard::backend {
 using namespace preview::backend;
 
 template <typename Cpu>
+#ifdef __ARM_ARCH
 vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
+#else
+vertex_similarity_result<task::all_vertex_pairs> jaccard_sve(
+#endif
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
     const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr) {

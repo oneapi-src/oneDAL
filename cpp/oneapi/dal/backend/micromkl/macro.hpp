@@ -50,8 +50,12 @@
     FUNC_CPU_DECL(nominal_cpu, prefix, name, argdecl)                     \
     DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, argdecl, argcall)
 
+#ifdef __ARM_ARCH
+#define FUNC_V8SVE(...) EXPAND(FUNC_CPU(sve, sve, __VA_ARGS__))
+#else
 #define FUNC_AVX512(...) EXPAND(FUNC_CPU(avx512, avx512, __VA_ARGS__))
 #define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
+#endif
 
 #ifdef __APPLE__
 #define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, avx2, __VA_ARGS__))
@@ -61,12 +65,18 @@
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
 #endif
 
+#ifdef __ARM_ARCH
+#define FUNC(prefix, name, argdecl, argcall)  \
+    DISPATCH_FUNC_DECL(prefix, name, argdecl) \
+    FUNC_V8SVE(prefix, name, argdecl, argcall)
+#else
 #define FUNC(prefix, name, argdecl, argcall)    \
     DISPATCH_FUNC_DECL(prefix, name, argdecl)   \
     FUNC_AVX512(prefix, name, argdecl, argcall) \
     FUNC_AVX2(prefix, name, argdecl, argcall)   \
     FUNC_SSE42(prefix, name, argdecl, argcall)  \
     FUNC_SSE2(prefix, name, argdecl, argcall)
+#endif
 
 #ifdef ONEDAL_REF
 #define FUNC_DECL(prefix, floatabr, name, argdecl, argcall) \
@@ -82,6 +92,12 @@
 
 #define INSTANTIATE_CPU(cpu, name, Float, argdecl) \
     template void name<DISPATCH_ID_NAME(cpu), Float> argdecl(Float);
+
+#ifdef ONEDAL_CPU_DISPATCH_A8SVE
+#define INSTANTIATE_V8SVE(...) EXPAND(INSTANTIATE_CPU(sve, __VA_ARGS__))
+#else
+#define INSTANTIATE_V8SVE(...)
+#endif
 
 #ifdef ONEDAL_CPU_DISPATCH_AVX512
 #define INSTANTIATE_AVX512(...) EXPAND(INSTANTIATE_CPU(avx512, __VA_ARGS__))
@@ -103,11 +119,15 @@
 
 #define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
 
+#ifdef __ARM_ARCH
+#define INSTANTIATE_FLOAT(name, Float, argdecl) INSTANTIATE_V8SVE(name, Float, argdecl)
+#else
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
     INSTANTIATE_AVX512(name, Float, argdecl)    \
     INSTANTIATE_AVX2(name, Float, argdecl)      \
     INSTANTIATE_SSE42(name, Float, argdecl)     \
     INSTANTIATE_SSE2(name, Float, argdecl)
+#endif
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \
     FUNC_DECL(prefix, s, name, fargdecl(float), fargcall)                   \

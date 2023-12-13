@@ -19,6 +19,7 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
+struct cpu_dispatch_sve {};
 struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx2 {};
@@ -28,6 +29,7 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 
 } // namespace v1
 
+using v1::cpu_dispatch_sve;
 using v1::cpu_dispatch_sse2;
 using v1::cpu_dispatch_sse42;
 using v1::cpu_dispatch_avx2;

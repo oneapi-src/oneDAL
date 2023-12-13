@@ -135,8 +135,14 @@ static inline size_t getBlockSize(size_t nrows)
     return 140;
 }
 
+#ifdef __ARM_ARCH
+#define CPU_TYPE sve
+#else
+#define CPU_TYPE avx512
+#endif
+
 template <>
-inline size_t getBlockSize<avx512>(size_t nrows)
+inline size_t getBlockSize<CPU_TYPE>(size_t nrows)
 {
     return (nrows > 5000 && nrows <= 50000) ? 1024 : 140;
 }

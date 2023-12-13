@@ -61,10 +61,14 @@ inline constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::va
 
 enum class cpu_extension : uint64_t {
     none = 0U,
+    #ifdef __ARM_ARCH
+    sve = 1U << 1,
+    #else
     sse2 = 1U << 0,
     sse42 = 1U << 2,
     avx2 = 1U << 4,
     avx512 = 1U << 5
+    #endif
 };
 
 class ONEDAL_EXPORT default_host_policy {};
