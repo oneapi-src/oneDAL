@@ -59,6 +59,14 @@ create_package() {
         dynamic_lib_path=lib/intel64
         static_lib_path=lib/intel64
         lib_prefix=libonedal
+    elif [ ${platform} = "lnxarm" ]; then
+        platform=linux-aarch64
+        tbb_platform=linux
+        rls_prefix=${rls_dir}/daal/latest
+        dynamic_lib_path=lib/arm
+        static_lib_path=lib/arm
+        lib_prefix=libonedal
+
     elif [ ${platform} = "mac32e" ]; then
         platform=osx-x64
         tbb_platform=osx
@@ -100,6 +108,9 @@ create_package() {
         # extension of libraries
         if [ "${platform}" = "linux-x64" ]; then
             dl_postfix=.so.${major_binary_version}.${minor_binary_version}
+            sl_postfix=.a
+        elif [ "${platform}" = "linux-aarch64" ]; then
+            dl_postfix=.${major_binary_version}.${minor_binary_version}.dylib
             sl_postfix=.a
         elif [ "${platform}" = "osx-x64" ]; then
             dl_postfix=.${major_binary_version}.${minor_binary_version}.dylib

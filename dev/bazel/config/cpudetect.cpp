@@ -14,7 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef __ARM_ARCH
 #include <immintrin.h>
+#endif
 
 #if defined(_MSC_VER)
 #if (_MSC_FULL_VER >= 160040219)
@@ -154,20 +156,25 @@ int check_sse42_features() {
 }
 
 std::string detect_cpu() {
-    try_enable_avx512f_on_macos();
 
-    if (check_avx512_features()) {
-        return "avx512";
-    }
-    else if (check_avx2_features()) {
-        return "avx2";
-    }
-    else if (check_sse42_features()) {
-        return "sse42";
-    }
-    else {
-        return "sse2";
-    }
+    #ifdef __ARM_ARCH
+        return "sve";
+    #else
+        try_enable_avx512f_on_macos();
+
+        if (check_avx512_features()) {
+            return "avx512";
+        }
+        else if (check_avx2_features()) {
+            return "avx2";
+        }
+        else if (check_sse42_features()) {
+            return "sse42";
+        }
+        else {
+            return "sse2";
+        }
+    #endif
 }
 
 int main(int argc, char const *argv[]) {

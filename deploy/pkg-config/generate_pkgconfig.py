@@ -19,6 +19,20 @@ import sys
 import glob
 import argparse
 from sys import platform
+import platform as plt
+
+def detect_cpu_architecture():
+    """
+    Detect CPU architecture
+    """
+    architecture = plt.machine()
+    if architecture == 'x86_64':
+        return 'x86'
+    elif architecture.startswith('arm') or architecture == 'aarch64':
+        return 'aarch64'
+    else:
+        sys.stderr.write("Unknown Architecture Detected. Only x86_64 and aarch64 supported.")
+        sys.exit(1)
 
 LIBS_PAR_STAT, LIBS_PAR_DYN = [], []
 
@@ -47,7 +61,10 @@ RESULT_PKG_CONFIGS = {
 
 if platform in ["linux2", "linux"]:
     PREF_LIB = "lib"
-    LIBDIR = 'lib/intel64'
+    if detect_cpu_architecture()=='x86':
+        LIBDIR = 'lib/intel64'
+    else:
+        LIBDIR = 'lib/arm'
     SUFF_DYN_LIB = ".so"
     SUFF_STAT_LIB = ".a"
     TBB_LIBS = "-ltbb -ltbbmalloc"

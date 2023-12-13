@@ -60,7 +60,14 @@ proc ModulesHelp { } {
 
 # Set intermediate variables
 set dalroot "$componentroot"
-set daal_target_arch "intel64"
+set daalroot "$componentroot/$modulefilever"
+if {[string equal [info machine] "aarch64"]} {
+    set daal_target_arch "arm"
+} else {
+    set daal_target_arch "intel64"
+}
+
+module-whatis "Intel(R) oneAPI Data Analytics Library for $daal_target_arch."
 
 # Setup environment variables
 setenv          DAL_MAJOR_BINARY   1

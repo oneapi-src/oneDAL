@@ -223,6 +223,15 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
+if [[ "$(uname -m)" == "x86_64" ]]; then
+    SUB_DIR="intel64"
+elif [[ "$(uname -m)" == "aarch64" ]]; then
+    SUB_DIR="arm"
+else
+    echo "Unsupported CPU architecture"
+    exit 1
+fi
+
 if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
 # case "${my_script_path}" in
   # *"env"*)
@@ -239,8 +248,8 @@ if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
       export LD_LIBRARY_PATH="$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     else
       export CPATH="$__daal_tmp_dir/include${CPATH+:${CPATH}}"
-      export LIBRARY_PATH="$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}"
-      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
+      export LIBRARY_PATH="$__daal_tmp_dir/lib/$SUB_DIR${LIBRARY_PATH+:${LIBRARY_PATH}}"
+      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$SUB_DIR${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     fi
   # ;;
 else   # must be a consolidated layout
