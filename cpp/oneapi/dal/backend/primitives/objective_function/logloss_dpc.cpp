@@ -697,14 +697,14 @@ logloss_function<Float>::logloss_function(sycl::queue q,
 
 template <typename Float>
 logloss_function<Float>::logloss_function(sycl::queue q,
-                     comm_t comm,
-                     const table& data,
-                     const ndview<std::int32_t, 1>& labels,
-                     Float L2,
-                     bool fit_intercept,
-                     std::int64_t bsz)
-    : q_(q),
-        comm_(comm),
+                                          comm_t comm,
+                                          const table& data,
+                                          const ndview<std::int32_t, 1>& labels,
+                                          Float L2,
+                                          bool fit_intercept,
+                                          std::int64_t bsz)
+        : q_(q),
+          comm_(comm),
           data_(data),
           labels_(labels),
           n_(data.get_row_count()),
@@ -721,7 +721,6 @@ logloss_function<Float>::logloss_function(sycl::queue q,
     gradient_ = ndarray<Float, 1>::empty(q_, { dimension_ }, sycl::usm::alloc::device);
     buffer_ = ndarray<Float, 1>::empty(q_, { p_ + 2 }, sycl::usm::alloc::device);
 }
-
 
 template <typename Float>
 event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
@@ -790,7 +789,8 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
         //last_iter_e.wait_and_throw();
         {
             ONEDAL_PROFILER_TASK(gradient_allreduce);
-            auto gradient_arr = dal::array<Float>::wrap(q_, gradient_.get_mutable_data(), gradient_.get_count());
+            auto gradient_arr =
+                dal::array<Float>::wrap(q_, gradient_.get_mutable_data(), gradient_.get_count());
             comm_.allreduce(gradient_arr).wait();
         }
         {

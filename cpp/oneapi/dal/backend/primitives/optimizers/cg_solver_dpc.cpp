@@ -92,8 +92,10 @@ sycl::event cg_solve(sycl::queue& queue,
 
     for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
         if (sqrt(r_norm) < threshold) {
+            // TODO check that r_norms are the same across diferent devices
             break;
         }
+
         auto compute_matmul_event =
             mul_operator(conj_vector, buffer, { compute_conj_event }); // compute A p_i
         dot_product<Float>(queue, conj_vector, buffer, tmp_ptr, &alpha, { compute_matmul_event })

@@ -201,8 +201,8 @@ protected:
     array<std::int32_t> resp_;
 };
 
-using lr_types = COMBINE_TYPES((double),
-                               (logistic_regression::method::dense_batch),
-                               (logistic_regression::task::classification));
+using log_reg_types = COMBINE_TYPES((double),
+                                    (logistic_regression::method::dense_batch),
+                                    (logistic_regression::task::classification));
 
 } // namespace oneapi::dal::logistic_regression::test

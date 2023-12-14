@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-
 #include "fixture.hpp"
 
 namespace oneapi::dal::backend::primitives::test {

@@ -34,7 +34,7 @@ public:
     using train_result_t = typename base_t::train_result_t;
 };
 
-TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LR common flow", "[lr][batch]", lr_types) {
+TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LogReg common flow", "[logreg][batch]", log_reg_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_input(true, 0.5);
@@ -43,9 +43,9 @@ TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LR common flow", "[lr][batch]", lr_typ
 }
 
 TEMPLATE_LIST_TEST_M(log_reg_batch_test,
-                     "LR common flow - no fit intercept",
-                     "[lr][batch]",
-                     lr_types) {
+                     "LogReg common flow - no fit intercept",
+                     "[logreg][batch]",
+                     log_reg_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_input(false, 0.5);

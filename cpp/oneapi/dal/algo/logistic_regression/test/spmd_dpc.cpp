@@ -14,24 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "spmd_fixture.hpp"
+#include "oneapi/dal/algo/logistic_regression/test/spmd_fixture.hpp"
 
-namespace oneapi::dal::backend::primitives::test {
+namespace oneapi::dal::logistic_regression::test {
 
-TEMPLATE_TEST_M(logloss_spmd_test, "spmd test - double", "[logloss spmd]", double) {
-    SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(log_reg_spmd_test, "LogReg common flow", "[lr][spmd]", log_reg_types) {
     SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_spmd(-1, 1.0, true);
-    this->run_spmd(-1, 1.0, false);
+    SKIP_IF(this->not_float64_friendly());
+
+    this->gen_input(true, 0.5);
+    this->set_rank_count(2);
+
+    this->run_test();
 }
 
-TEMPLATE_TEST_M(logloss_spmd_test, "spmd test - float", "[logloss spmd]", float) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_spmd(-1, 1.0, true);
-    this->run_spmd(-1, 1.0, false);
-}
-
-} // namespace oneapi::dal::backend::primitives::test
+} // namespace oneapi::dal::logistic_regression::test

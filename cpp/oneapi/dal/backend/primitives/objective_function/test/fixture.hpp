@@ -379,7 +379,7 @@ public:
                           const ndview<float_t, 1>& probabilities,
                           const ndview<float_t, 1>& params,
                           const ndview<std::int32_t, 1>& labels,
-                          ndview<double, 1>& out_der,
+                          ndview<float_t, 1>& out_der,
                           float_t L1,
                           float_t L2,
                           bool fit_intercept) {
@@ -405,7 +405,7 @@ public:
 
     void naive_hessian(const ndview<float_t, 2>& data_host,
                        const ndview<float_t, 1>& probabilities_host,
-                       ndview<double, 2>& out_hessian,
+                       ndview<float_t, 2>& out_hessian,
                        float_t L2,
                        bool fit_intercept) {
         const std::int64_t n = data_host.get_dimension(0);
@@ -446,7 +446,7 @@ public:
                                  const float_t atol = 1e-3) {
         const std::int64_t dim = params.get_dimension(0);
         auto out_derivative =
-            ndarray<double, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::host);
+            ndarray<float_t, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::host);
 
         naive_derivative(data,
                          probabilities,
@@ -471,7 +471,7 @@ public:
                               const float_t atol = 1e-3) {
         const std::int64_t p = data.get_dimension(1);
         auto out_hessian =
-            ndarray<double, 2>::empty(this->get_queue(), { p + 1, p + 1 }, sycl::usm::alloc::host);
+            ndarray<float_t, 2>::empty(this->get_queue(), { p + 1, p + 1 }, sycl::usm::alloc::host);
 
         naive_hessian(data, probabilities, out_hessian, L2, fit_intercept);
 
