@@ -47,7 +47,7 @@ PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
-optimizations=${optimizations:-avx2}
+optimizations=$(if [ "${ARCH}" == "arm" ]; then echo "${optimizations:-sve}"; else echo "${optimizations:-avx2}"; fi)
 backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
 
@@ -97,7 +97,14 @@ elif [ "${backend_config}" == "ref" ]; then
 else
     echo "Not supported backend env"
 fi
-$(pwd)/dev/download_tbb.sh
+
+# Tbb setup
+if [ "${ARCH}" == "arm" ]; then
+    $(pwd)/.ci/env/tbb.sh
+else
+    $(pwd)/dev/download_tbb.sh
+fi
+
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \

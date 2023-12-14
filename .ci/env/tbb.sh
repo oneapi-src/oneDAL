@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Copyright 2023 Intel Corporation
+# Copyright 2023-24 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,27 @@
 # limitations under the License.
 #===============================================================================
 
-os=$(uname)
-if [ "${os}" = "Linux" ]; then
-   if [ $(uname -m) = "aarch64" ]; then
-    echo lnxarm
-  else
-    echo lnx32e
-  fi
-elif [ "${os}" = "Darwin" ]; then
-  echo mac32e
-elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
-  echo win32e
-else
-  echo "UnknownOS"
-fi
+sudo apt-get update
+sudo apt-get install build-essential gcc gfortran cmake
+git clone https://github.com/oneapi-src/oneTBB.git
+CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
+pushd oneTBB
+  git checkout v2021.11.0
+  mkdir build
+  pushd build
+    cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb  .. 
+    make -j${CoreCount} 
+    make install
+  popd
+popd
+rm -rf oneTBB
+
+pushd __deps/tbb
+    mkdir -p lnx
+    mv lib/ lnx/
+    mv include/ lnx/ 
+    pushd lnx
+        mkdir -p lib/arm/gcc4.8
+        mv lib/libtbb* lib/arm/gcc4.8
+    popd
+popd 
