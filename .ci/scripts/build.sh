@@ -99,12 +99,8 @@ else
     echo "Not supported backend env"
 fi
 
-# Tbb setup
-if [ "${ARCH}" == "arm" ]; then
-    $(pwd)/.ci/env/tbb.sh
-else
-    $(pwd)/dev/download_tbb.sh
-fi
+#TBB setup
+$(pwd)/dev/download_tbb.sh
 
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \

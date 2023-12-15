@@ -16,7 +16,7 @@
 #===============================================================================
 
 #++
-#  Clang defenitions for makefile
+#  Clang definitions for makefile
 #--
 
 PLATs.clang = lnxarm

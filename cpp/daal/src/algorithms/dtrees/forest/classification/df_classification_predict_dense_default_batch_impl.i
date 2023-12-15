@@ -948,9 +948,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     daal::SafeStatus safeStat;
     const size_t nRowsOfRes        = _data->getNumberOfRows();
     #ifdef __ARM_ARCH
-        const size_t blockSize = cpu == sve ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+        const size_t blockSize  = cpu == sve ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
     #else
-        const size_t blockSize         = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+        const size_t blockSize  = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
     #endif
     const size_t nBlocks           = nRowsOfRes / blockSize;
     const size_t residualSize      = nRowsOfRes - nBlocks * blockSize;

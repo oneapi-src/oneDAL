@@ -15,7 +15,7 @@
 #===============================================================================
 
 #++
-#  g++ defenitions for makefile
+#  g++ definitions for makefile
 #--
 
 PLATs.gnu = lnxarm
