@@ -38,6 +38,21 @@ All types and functions in this section are declared in the
 ``oneapi::dal::pca`` namespace and be available via inclusion of the
 ``oneapi/dal/algo/pca.hpp`` header file.
 
+Enum classes
+++++++++++++
+
+`normalization`
+~~~~~~~~~~~~~~~~~~~
+
+normalization::none
+   No normalization is necessary or data is not normalized.
+
+normalization::mean_center
+   Just mean centered is necessary, or data is already centered.
+
+normalization::zscore
+   Normalization is necessary, or data is already normalized.
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::pca::descriptor
