@@ -474,8 +474,8 @@ sycl::event search_engine_base<Float, Distance, Impl, torder>::do_search(
             const auto st_idx = get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
         }
-        dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
-        const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
+        const std::int64_t sblock_size = end_tb - start_tb;
+        const std::int64_t cols = dal::detail::check_mul_overflow(k_neighbors, sblock_size);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
         auto selt_event = (*selt_objs)(this->get_queue(),
                                        dists,
@@ -606,8 +606,8 @@ sycl::event search_engine<Float, squared_l2_distance<Float>, torder>::do_search(
         }
         {
             ONEDAL_PROFILER_TASK(selection_loop.selection, this->get_queue());
-            dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
-            const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
+            const std::int64_t sblock_size = end_tb - start_tb;
+            const std::int64_t cols = dal::detail::check_mul_overflow(k_neighbors, sblock_size);
             auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
             selt_event = (*selt_objs)(this->get_queue(),
                                       dists,
@@ -722,8 +722,8 @@ sycl::event search_engine<Float, cosine_distance<Float>, torder>::do_search(
             const auto st_idx = this->get_train_blocking().get_block_start_index(tb_id);
             last_event = treat_indices(this->get_queue(), part_inds, st_idx, { selt_event });
         }
-        dal::detail::check_mul_overflow(k_neighbors, (1 + end_tb - start_tb));
-        const std::int64_t cols = k_neighbors * (1 + end_tb - start_tb);
+        const std::int64_t sblock_size = end_tb - start_tb;
+        const std::int64_t cols = dal::detail::check_mul_overflow(k_neighbors, sblock_size);
         auto dists = temp_objs->get_part_distances().get_col_slice(0, cols);
         auto selt_event = (*selt_objs)(this->get_queue(),
                                        dists,

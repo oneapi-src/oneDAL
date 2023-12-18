@@ -497,7 +497,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     // auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
     std::int64_t max_tcount = 0;
-    for (std::int32_t index = 0; index < node_sample_counts.get_count(); ++index) {
+    for (std::int64_t index = 0; index < node_sample_counts.get_count(); ++index) {
         max_tcount = std::max(node_sample_counts.at(index), max_tcount);
     }
     block_size = std::min(max_tcount, block_size);
@@ -652,21 +652,17 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
             auto send_count = current_block.get_count();
             ONEDAL_ASSERT(send_count >= 0);
             ONEDAL_ASSERT(send_count <= de::limits<int>::max());
-            comm.sendrecv_replace(array<Float>::wrap(queue,
-                                                     current_block.get_mutable_data(),
-                                                     send_count,
-                                                     { next_event }),
-                                  prev_node,
-                                  next_node)
-                .wait();
+            auto send_train_block = array<Float>::wrap(queue,
+                                                       current_block.get_mutable_data(),
+                                                       send_count,
+                                                       { next_event });
+            comm.sendrecv_replace(send_train_block, prev_node, next_node).wait();
             train_block_queue.emplace_back(current_block);
-            comm.sendrecv_replace(array<res_t>::wrap(queue,
-                                                     current_tresps.get_mutable_data(),
-                                                     current_tresps.get_count(),
-                                                     { next_event }),
-                                  prev_node,
-                                  next_node)
-                .wait();
+            auto send_resps_block = array<res_t>::wrap(queue,
+                                                       current_tresps.get_mutable_data(),
+                                                       current_tresps.get_count(),
+                                                       { next_event });
+            comm.sendrecv_replace(send_resps_block, prev_node, next_node).wait();
             tresps_queue.emplace_back(current_tresps);
         }
     }
