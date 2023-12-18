@@ -233,12 +233,10 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
         comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     }
-    model_t model;
 
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
-        model.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
 
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
@@ -247,7 +245,6 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(
             homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
-        model.set_variances(homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
     auto data_to_compute = cov;
     sycl::event corr_event;
@@ -265,7 +262,6 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
                                                            { cov_event, corr_event, vars_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
-        model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
     }
     if (desc.get_result_options().test(result_options::singular_values)) {
         auto singular_values =
@@ -291,11 +287,10 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         sign_flip(eigvecs);
     }
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        model.set_eigenvectors(
+        result.set_eigenvectors(
             homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
     }
 
-    result.set_model(model);
     return result;
 }
 

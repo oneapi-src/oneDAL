@@ -67,7 +67,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
 
-    daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
+    daal::algorithms::pca::BaseBatchParameter daal_pca_parameter;
 
     daal_pca_parameter.isDeterministic = desc.get_deterministic();
 
@@ -92,9 +92,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        const auto mdl = model_t{}.set_eigenvectors(
-            homogen_table::wrap(arr_eigvec, component_count, column_count));
-        result.set_model(mdl);
+        result.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {

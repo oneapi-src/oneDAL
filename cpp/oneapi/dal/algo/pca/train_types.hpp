@@ -89,6 +89,10 @@ public:
     /// @invariant :expr:`eigenvectors == model.eigenvectors`
     const table& get_eigenvectors() const;
 
+    auto& set_eigenvectors(const table& value) {
+        set_eigenvectors_impl(value);
+        return *this;
+    }
     /// The trained PCA model
     /// @remark default = model<Task>{}
     const model<Task>& get_model() const;

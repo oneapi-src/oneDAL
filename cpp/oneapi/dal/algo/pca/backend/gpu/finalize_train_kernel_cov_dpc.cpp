@@ -178,6 +178,7 @@ auto compute_explained_variances_on_host(sycl::queue& q,
     for (std::int64_t i = 0; i < column_count; i++) {
         sum += vars_ptr[i];
     }
+    ONEDAL_ASSERT(sum > 0);
     for (std::int64_t i = 0; i < component_count; i++) {
         explained_variances_ratio_ptr[i] = eigvals_ptr[i] / sum;
     }
@@ -188,7 +189,7 @@ static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_t& desc,
                                 const partial_train_result<Task>& input) {
     auto& q = ctx.get_queue();
-    model_t model;
+
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
@@ -207,7 +208,6 @@ static train_result<Task> train(const context_gpu& ctx,
         auto [means, means_event] = compute_means(q, rows_count_global, sums, {});
         means_event.wait_and_throw();
         result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
-        model.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
     }
 
     const auto xtx =
@@ -218,7 +218,6 @@ static train_result<Task> train(const context_gpu& ctx,
     vars_event.wait_and_throw();
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
-        model.set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
     }
     auto data_to_compute = cov;
 
@@ -237,7 +236,6 @@ static train_result<Task> train(const context_gpu& ctx,
                                                            { corr_event, vars_event, cov_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
-        model.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::singular_values)) {
@@ -266,11 +264,9 @@ static train_result<Task> train(const context_gpu& ctx,
     }
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        model.set_eigenvectors(
+        result.set_eigenvectors(
             homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
     }
-
-    result.set_model(model);
 
     return result;
 }

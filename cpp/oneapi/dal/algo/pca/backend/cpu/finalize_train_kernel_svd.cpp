@@ -85,7 +85,8 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         reshaped_eigvec = arr_eigvec.get_slice(0, component_count * column_count);
-        model.set_eigenvectors(homogen_table::wrap(reshaped_eigvec, component_count, column_count));
+        result.set_eigenvectors(
+            homogen_table::wrap(reshaped_eigvec, component_count, column_count));
     }
 
     auto reshaped_eigval = arr_eigval.get_slice(0, component_count);
@@ -111,9 +112,9 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     }
 
     if (desc.whiten()) {
-        model.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
+        result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
     }
-    result.set_model(model);
+
     return result;
 }
 

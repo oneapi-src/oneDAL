@@ -93,7 +93,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
     covariance_alg.setHyperparameter(&daal_hyperparameter);
 
-    daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
+    daal::algorithms::pca::BaseBatchParameter daal_pca_parameter;
 
     daal_pca_parameter.isDeterministic = desc.get_deterministic();
 
@@ -120,12 +120,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
+        result.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
-        model.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::singular_values)) {
@@ -139,14 +138,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
-        model.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
-        model.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
 
-    result.set_model(model);
     return result;
 }
 

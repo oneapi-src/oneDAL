@@ -107,9 +107,8 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
             sign_flip(eigvecs);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
-            const auto model = model_t{}.set_eigenvectors(
+            result.set_eigenvectors(
                 homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-            result.set_model(model);
         }
     }
 
