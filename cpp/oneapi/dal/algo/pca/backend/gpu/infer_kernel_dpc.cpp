@@ -124,8 +124,10 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     dal::detail::check_mul_overflow(row_count, component_count);
 
     const auto data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
+
     auto data_to_xtx = data_nd;
-    if (desc.do_mean_centering()) {
+
+    if (desc.do_mean_centering() && model.get_means().has_data()) {
         const auto means = model.get_means();
         const auto means_nd = pr::table2ndarray_1d<Float>(queue, means, sycl::usm::alloc::device);
         auto [mean_centered_data_nd, mean_centered_event] =
@@ -134,7 +136,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
         data_to_xtx = mean_centered_data_nd;
     }
 
-    if (desc.do_scale()) {
+    if (desc.do_scale() && model.get_variances().has_data()) {
         const auto variances = model.get_variances();
         const auto variances_nd =
             pr::table2ndarray_1d<Float>(queue, variances, sycl::usm::alloc::device);
@@ -158,7 +160,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     }
 
     auto transformed_data = res_nd;
-    if (desc.whiten()) {
+    if (desc.whiten() && model.get_eigenvalues().has_data()) {
         const auto eigenvalues = model.get_eigenvalues();
         const auto eigenvalues_nd =
             pr::table2ndarray_1d<Float>(queue, eigenvalues, sycl::usm::alloc::device);
@@ -168,11 +170,10 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
         transformed_data = whitened_data_nd;
     }
 
-    const auto res_array = transformed_data.flatten(queue, { gemm_event });
-
-    auto res_table = homogen_table::wrap(res_array, row_count, component_count);
-
-    return result_t{}.set_transformed_data(res_table);
+    return result_t{}.set_transformed_data(
+        homogen_table::wrap(transformed_data.flatten(queue, { gemm_event }),
+                            row_count,
+                            component_count));
 }
 
 template <typename Float>
