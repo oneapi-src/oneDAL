@@ -188,6 +188,7 @@ public:
     MSG(invalid_value_for_min_bin_size);
     MSG(invalid_value_for_observations_per_tree_fraction);
     MSG(not_enough_memory_to_build_one_tree);
+    MSG(not_enough_local_memory_for_hist);
     MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */
