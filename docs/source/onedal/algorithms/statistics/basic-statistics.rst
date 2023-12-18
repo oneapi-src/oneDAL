@@ -78,6 +78,12 @@ Programming Interface
 Refer to :ref:`API Reference: Basic statistics <api_basic_statistics>`.
 
 ----------------
+Online mode
+----------------
+
+The algorithm supports online mode.
+
+----------------
 Distributed mode
 ----------------
 

@@ -167,6 +167,12 @@ Programming Interface
 Refer to :ref:`API Reference: Principal Components Analysis <api_pca>`.
 
 ----------------
+Online mode
+----------------
+
+The algorithm supports online mode.
+
+----------------
 Distributed mode
 ----------------
 

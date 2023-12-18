@@ -67,6 +67,12 @@ Programming Interface
 Refer to :ref:`API Reference: Covariance <api_covariance>`.
 
 ----------------
+Online mode
+----------------
+
+The algorithm supports online mode.
+
+----------------
 Distributed mode
 ----------------
 
