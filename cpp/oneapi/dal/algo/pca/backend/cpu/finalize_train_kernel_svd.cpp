@@ -42,9 +42,6 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
-    const auto normalized_input = desc.is_scaled() && desc.is_mean_centered();
-    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
-
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
@@ -72,7 +69,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
-    if (normalized_input) {
+    if (desc.get_data_normalization() == normalization::zscore) {
         dtype = daal_pca::internal::normalizedDataset;
     }
     interop::status_to_exception(
@@ -94,7 +91,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         const auto daal_singular_values =
             interop::convert_to_daal_homogen_table(reshaped_eigval, 1, component_count);
         result.set_singular_values(homogen_table::wrap(reshaped_eigval, 1, component_count));
-        if (sklearn_behavior) {
+        if (desc.get_normalization_mode() == normalization::mean_center) {
             const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
                 constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
                 return daal_svd_kernel_t<Float, cpu_type>().computeEigenValues(

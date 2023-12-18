@@ -45,10 +45,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const model_t& model) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t component_count = get_component_count(desc, data);
-    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
-    const auto sklearn_behavior_whiten =
-        !desc.do_scale() && desc.do_mean_centering() && desc.whiten();
-    const auto daal_behavior_whiten = desc.do_scale() && desc.do_mean_centering() && desc.whiten();
+    const auto sklearn_behavior = desc.get_normalization_mode() == normalization::mean_center;
+    const auto sklearn_behavior_whiten = sklearn_behavior && desc.whiten();
+    const auto daal_behavior_whiten =
+        desc.get_normalization_mode() == normalization::zscore && desc.whiten();
     dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);
 

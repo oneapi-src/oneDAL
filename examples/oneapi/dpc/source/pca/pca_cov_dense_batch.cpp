@@ -34,7 +34,7 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
     const auto pca_desc = dal::pca::descriptor<>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_do_scale(false)
+                              .set_normalization_mode(oneapi::dal::pca::normalization::mean_center)
                               .set_whiten(whiten);
 
     const auto result_train = dal::train(q, pca_desc, x_train);

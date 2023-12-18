@@ -222,7 +222,7 @@ static train_result<Task> train(const context_gpu& ctx,
     auto data_to_compute = cov;
 
     sycl::event corr_event;
-    if (desc.do_scale()) {
+    if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
         std::tie(corr, corr_event) =
             compute_correlation_from_covariance(q, rows_count_global, cov, { cov_event });

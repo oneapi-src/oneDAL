@@ -249,7 +249,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     }
     auto data_to_compute = cov;
     sycl::event corr_event;
-    if (desc.do_scale()) {
+    if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
         std::tie(corr, corr_event) =
             compute_correlation_from_covariance(q_, rows_count_global, cov, { cov_event });

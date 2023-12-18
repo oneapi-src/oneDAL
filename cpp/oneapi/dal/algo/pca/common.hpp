@@ -61,6 +61,18 @@ using v1::by_default;
 
 } // namespace method
 
+namespace v1 {
+/// Normalization modes
+enum class normalization {
+    /// No normalization is necessary or data is not normalized
+    none,
+    /// Just mean centered is necessary, or data is already centered
+    mean_center,
+    /// Normalization is necessary, or data is already normalized
+    zscore
+};
+} // namespace v1
+using v1::normalization;
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
 class result_option_id : public result_option_id_base {
@@ -132,23 +144,18 @@ public:
 
     descriptor_base();
     bool whiten() const;
-    bool do_mean_centering() const;
-    bool is_scaled() const;
-    bool do_scale() const;
-    bool is_mean_centered() const;
     bool get_deterministic() const;
     std::int64_t get_component_count() const;
-
+    normalization get_normalization_mode() const;
+    normalization get_data_normalization() const;
     result_option_id get_result_options() const;
 
 protected:
     void set_whiten_impl(bool value);
-    void set_do_mean_centering_impl(bool value);
-    void set_is_scaled_impl(bool value);
-    void set_do_scale_impl(bool value);
-    void set_is_mean_centered_impl(bool value);
     void set_deterministic_impl(bool value);
     void set_component_count_impl(std::int64_t value);
+    void set_normalization_mode_impl(normalization value);
+    void set_data_normalization_impl(normalization value);
     void set_result_options_impl(const result_option_id& value);
 
 private:
@@ -231,39 +238,26 @@ public:
         return *this;
     }
 
-    bool do_mean_centering() const {
-        return base_t::do_mean_centering();
+    /// @remark default = normalization::zscore
+    normalization get_normalization_mode() const {
+        return base_t::get_normalization_mode();
     }
 
-    auto& set_do_mean_centering(bool value) {
-        base_t::set_do_mean_centering_impl(value);
+    auto& set_normalization_mode(normalization value) {
+        base_t::set_normalization_mode_impl(value);
         return *this;
     }
 
-    bool is_scaled() const {
-        return base_t::is_scaled();
+    /// @remark default = normalization::zscore
+    normalization get_data_normalization() const {
+        return base_t::get_data_normalization();
     }
 
-    auto& set_is_scaled(bool value) {
-        base_t::set_is_scaled_impl(value);
+    auto& set_data_normalization(normalization value) {
+        base_t::set_data_normalization_impl(value);
         return *this;
-    }
-    bool do_scale() const {
-        return base_t::do_scale();
     }
 
-    auto& set_do_scale(bool value) {
-        base_t::set_do_scale_impl(value);
-        return *this;
-    }
-    bool is_mean_centered() const {
-        return base_t::is_mean_centered();
-    }
-
-    auto& set_is_mean_centered(bool value) {
-        base_t::set_is_mean_centered_impl(value);
-        return *this;
-    }
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {
         return base_t::get_result_options();

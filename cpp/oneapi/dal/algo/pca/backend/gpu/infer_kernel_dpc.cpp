@@ -136,14 +136,15 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     copy_event.wait_and_throw();
 
     sycl::event mean_centered_event;
-    if (desc.do_mean_centering() && model.get_means().has_data()) {
+    if (desc.get_normalization_mode() != normalization::none && model.get_means().has_data()) {
         const auto means = model.get_means();
         const auto means_nd = pr::table2ndarray_1d<Float>(queue, means, alloc::device);
         mean_centered_event = get_centered(queue, data_to_xtx, means_nd, { copy_event });
     }
 
     sycl::event scaled_event;
-    if (desc.do_scale() && model.get_variances().has_data()) {
+    if (desc.get_normalization_mode() == normalization::zscore &&
+        model.get_variances().has_data()) {
         const auto variances = model.get_variances();
         const auto variances_nd = pr::table2ndarray_1d<Float>(queue, variances, alloc::device);
         scaled_event = get_scaled(queue, data_to_xtx, variances_nd, { mean_centered_event });

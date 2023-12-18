@@ -44,8 +44,6 @@ template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
-    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
-
     const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(row_count > 0);
     const std::int64_t column_count = data.get_column_count();
@@ -102,7 +100,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     daal_pca_parameter.isCorrelation = false;
 
-    if (sklearn_behavior) {
+    if (desc.get_normalization_mode() == normalization::mean_center) {
         daal_pca_parameter.doScale = false;
     }
 

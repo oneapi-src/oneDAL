@@ -49,7 +49,6 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
-    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
@@ -99,7 +98,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
-    if (sklearn_behavior) {
+    if (desc.get_normalization_mode() == normalization::mean_center) {
         daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
     }
     interop::status_to_exception(

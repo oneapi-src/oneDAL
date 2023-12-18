@@ -26,7 +26,7 @@ void run(const dal::table& x_train, const std::string& method_name, bool whiten)
     const auto pca_desc = dal::pca::descriptor<float, Method>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_do_scale(false)
+                              .set_normalization_mode(oneapi::dal::pca::normalization::mean_center)
                               .set_whiten(whiten);
     const std::int64_t nBlocks = 2;
 

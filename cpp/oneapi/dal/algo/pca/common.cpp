@@ -64,10 +64,8 @@ public:
     std::int64_t component_count = -1;
     bool deterministic = false;
     bool whiten = false;
-    bool do_mean_centering = true;
-    bool is_scaled = false;
-    bool is_mean_centered = false;
-    bool do_scale = true;
+    normalization normalization_mode = normalization::zscore;
+    normalization data_normalization = normalization::none;
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -107,25 +105,18 @@ bool descriptor_base<Task>::get_deterministic() const {
 }
 
 template <typename Task>
-bool descriptor_base<Task>::do_scale() const {
-    return impl_->do_scale;
-}
-
-template <typename Task>
-bool descriptor_base<Task>::is_scaled() const {
-    return impl_->is_scaled;
-}
-template <typename Task>
 bool descriptor_base<Task>::whiten() const {
     return impl_->whiten;
 }
+
 template <typename Task>
-bool descriptor_base<Task>::do_mean_centering() const {
-    return impl_->do_mean_centering;
+normalization descriptor_base<Task>::get_normalization_mode() const {
+    return impl_->normalization_mode;
 }
+
 template <typename Task>
-bool descriptor_base<Task>::is_mean_centered() const {
-    return impl_->is_mean_centered;
+normalization descriptor_base<Task>::get_data_normalization() const {
+    return impl_->data_normalization;
 }
 
 template <typename Task>
@@ -140,22 +131,16 @@ template <typename Task>
 void descriptor_base<Task>::set_deterministic_impl(bool value) {
     impl_->deterministic = value;
 }
+
 template <typename Task>
-void descriptor_base<Task>::set_do_mean_centering_impl(bool value) {
-    impl_->do_mean_centering = value;
+void descriptor_base<Task>::set_normalization_mode_impl(normalization value) {
+    impl_->normalization_mode = value;
 }
 template <typename Task>
-void descriptor_base<Task>::set_do_scale_impl(bool value) {
-    impl_->do_scale = value;
+void descriptor_base<Task>::set_data_normalization_impl(normalization value) {
+    impl_->data_normalization = value;
 }
-template <typename Task>
-void descriptor_base<Task>::set_is_scaled_impl(bool value) {
-    impl_->is_scaled = value;
-}
-template <typename Task>
-void descriptor_base<Task>::set_is_mean_centered_impl(bool value) {
-    impl_->is_mean_centered = value;
-}
+
 template <typename Task>
 void descriptor_base<Task>::set_whiten_impl(bool value) {
     impl_->whiten = value;

@@ -51,9 +51,6 @@ template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
-    const auto sklearn_behavior = !desc.do_scale() && desc.do_mean_centering();
-    const auto normalized_input = desc.is_scaled() && desc.is_mean_centered();
-
     const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(row_count > 0);
     const std::int64_t column_count = data.get_column_count();
@@ -85,7 +82,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
-    if (normalized_input) {
+    if (desc.get_data_normalization() == normalization::zscore) {
         dtype = daal_pca::internal::normalizedDataset;
     }
 
@@ -99,7 +96,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     norm_alg->parameter().doScale = true;
     daal_pca_parameter.doScale = true;
 
-    if (sklearn_behavior) {
+    if (desc.get_normalization_mode() == normalization::mean_center) {
         norm_alg->parameter().doScale = false;
         daal_pca_parameter.doScale = false;
     }
