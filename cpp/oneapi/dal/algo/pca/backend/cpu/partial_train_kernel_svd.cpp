@@ -65,7 +65,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
 
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
 
-    daal_pca::internal::InputDataType dtype = daal_pca::internal::normalizedDataset;
+    daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
     if (normalized_input) {
         dtype = daal_pca::internal::normalizedDataset;

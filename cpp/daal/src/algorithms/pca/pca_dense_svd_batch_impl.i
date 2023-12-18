@@ -100,6 +100,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
             DAAL_CHECK_STATUS(status, this->copyTable(zvariances, variances));
         }
     }
+
     DAAL_CHECK_STATUS(status, this->decompose(normalizedData, eigenvalues, eigenvectors));
     if (parameter->doScale)
     {

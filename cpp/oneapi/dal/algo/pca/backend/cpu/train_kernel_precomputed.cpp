@@ -68,9 +68,12 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     covariance_alg.input.set(daal_cov::data, daal_data);
 
     daal::algorithms::pca::interface3::BaseBatchParameter daal_pca_parameter;
+
     daal_pca_parameter.isDeterministic = desc.get_deterministic();
+
     daal_pca_parameter.resultsToCompute =
         static_cast<DAAL_UINT64>(std::uint64_t(daal_pca::eigenvalue));
+
     daal_pca_parameter.isCorrelation = true;
 
     interop::status_to_exception(

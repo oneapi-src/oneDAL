@@ -133,6 +133,7 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::copyVarianceFromCovar
     }
     return services::Status();
 }
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues(const data_management::NumericTable & eigenvalues,
                                                                                  data_management::NumericTable & singular_values, size_t nRows)

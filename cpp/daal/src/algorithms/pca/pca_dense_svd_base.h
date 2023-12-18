@@ -38,6 +38,7 @@ namespace internal
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::internal;
+
 enum InputDataType
 {
     nonNormalizedDataset = 0, /*!< Original, non-normalized data set */

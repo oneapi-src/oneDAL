@@ -120,7 +120,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_eigenvalues.get(),
         daal_explained_variances_ratio.get(),
         &daal_pca_parameter));
+
     model_t model;
+
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         model.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }

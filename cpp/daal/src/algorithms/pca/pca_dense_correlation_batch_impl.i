@@ -129,6 +129,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
 
     return status;
 }
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg, data_management::NumericTable & eigenvectors,

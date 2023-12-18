@@ -43,9 +43,11 @@ class PCASVDOnlineKernel : public PCASVDKernelBase<algorithmFPType, cpu>
 {
 public:
     PCASVDOnlineKernel() {}
+
     using PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues;
 
     using PCASVDKernelBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
+
     services::Status compute(InputDataType type, const data_management::NumericTablePtr & data, data_management::NumericTable & nObservations,
                              data_management::NumericTable & auxiliaryTable, data_management::NumericTable & sumSVD,
                              data_management::NumericTable & sumSquaresSVD);

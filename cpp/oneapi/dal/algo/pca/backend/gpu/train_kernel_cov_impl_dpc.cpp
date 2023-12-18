@@ -156,12 +156,16 @@ auto compute_singular_values_on_host(sycl::queue& q,
                                      pr::ndarray<Float, 1> eigenvalues,
                                      std::int64_t row_count,
                                      const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_singular_values_on_host);
+    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
+
     const std::int64_t component_count = eigenvalues.get_dimension(0);
 
     auto singular_values = pr::ndarray<Float, 1>::empty(component_count);
 
     auto eigvals_ptr = eigenvalues.get_data();
     auto singular_values_ptr = singular_values.get_mutable_data();
+
     for (std::int64_t i = 0; i < component_count; i++) {
         singular_values_ptr[i] = sqrt((row_count - 1) * eigvals_ptr[i]);
     }
@@ -173,6 +177,9 @@ auto compute_explained_variances_on_host(sycl::queue& q,
                                          pr::ndarray<Float, 1> eigenvalues,
                                          pr::ndarray<Float, 1> vars,
                                          const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_explained_variances_on_host);
+    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
+
     const std::int64_t component_count = eigenvalues.get_dimension(0);
     const std::int64_t column_count = vars.get_dimension(0);
     auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
@@ -180,6 +187,7 @@ auto compute_explained_variances_on_host(sycl::queue& q,
     auto eigvals_ptr = eigenvalues.get_data();
     auto vars_ptr = vars.get_data();
     auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
+
     Float sum = 0;
     for (std::int64_t i = 0; i < column_count; i++) {
         sum += vars_ptr[i];
@@ -189,6 +197,7 @@ auto compute_explained_variances_on_host(sycl::queue& q,
     }
     return explained_variances_ratio;
 }
+
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
@@ -228,18 +237,17 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
-        means_event.wait_and_throw();
-        result.set_means(homogen_table::wrap(means.flatten(q_), 1, column_count));
-        model.set_means(homogen_table::wrap(means.flatten(q_), 1, column_count));
+        result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
+        model.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
 
     auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
 
     auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
-    vars_event.wait_and_throw();
     if (desc.get_result_options().test(result_options::vars)) {
-        result.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
-        model.set_variances(homogen_table::wrap(vars.flatten(q_), 1, column_count));
+        result.set_variances(
+            homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
+        model.set_variances(homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
     auto data_to_compute = cov;
     sycl::event corr_event;
