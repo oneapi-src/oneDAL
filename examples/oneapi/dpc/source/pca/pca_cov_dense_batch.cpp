@@ -28,13 +28,13 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 template <typename Method>
 void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name, bool whiten) {
-    const auto pca_desc = dal::pca::descriptor<>()
+    const auto pca_desc = pca::descriptor<>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_normalization_mode(oneapi::dal::pca::normalization::mean_center)
+                              .set_normalization_mode(pca::normalization::mean_center)
                               .set_whiten(whiten);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
@@ -67,8 +67,8 @@ int main(int argc, char const* argv[]) {
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run<dal::pca::method::cov>(q, x_train, "Training method: Covariance Whiten:false", false);
-        run<dal::pca::method::cov>(q, x_train, "Training method: Covariance Whiten:true", true);
+        run<pca::method::cov>(q, x_train, "Training method: Covariance Whiten:false", false);
+        run<pca::method::cov>(q, x_train, "Training method: Covariance Whiten:true", true);
     }
     return 0;
 }

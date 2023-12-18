@@ -28,13 +28,13 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 template <typename Method>
 void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name) {
     const std::int64_t nBlocks = 10;
 
-    dal::pca::partial_train_result<> partial_result;
-    const auto pca_desc = dal::pca::descriptor<>().set_component_count(5).set_deterministic(true);
+    pca::partial_train_result<> partial_result;
+    const auto pca_desc = pca::descriptor<>().set_component_count(5).set_deterministic(true);
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
     for (std::int64_t i = 0; i < nBlocks; i++) {
@@ -70,7 +70,7 @@ int main(int argc, char const* argv[]) {
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run<dal::pca::method::cov>(q, x_train, "Training method: Online Correlation");
+        run<pca::method::cov>(q, x_train, "Training method: Online Correlation");
     }
     return 0;
 }

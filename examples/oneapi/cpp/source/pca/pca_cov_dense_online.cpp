@@ -20,17 +20,17 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 template <typename Method>
 void run(const dal::table& x_train, const std::string& method_name, bool whiten) {
-    const auto pca_desc = dal::pca::descriptor<float, Method>()
+    const auto pca_desc = pca::descriptor<float, Method>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_normalization_mode(oneapi::dal::pca::normalization::mean_center)
+                              .set_normalization_mode(pca::normalization::mean_center)
                               .set_whiten(whiten);
     const std::int64_t nBlocks = 2;
 
-    dal::pca::partial_train_result<> partial_result;
+    pca::partial_train_result<> partial_result;
     std::cout << method_name << "\n" << std::endl;
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
@@ -60,8 +60,8 @@ int main(int argc, char const* argv[]) {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    run<dal::pca::method::cov>(x_train, "Training method: Online Covariance, Whiten: false", false);
-    run<dal::pca::method::cov>(x_train, "Training method: Online Covariance, Whiten: true", true);
+    run<pca::method::cov>(x_train, "Training method: Online Covariance, Whiten: false", false);
+    run<pca::method::cov>(x_train, "Training method: Online Covariance, Whiten: true", true);
     //Disabled due to unavailable to replicate sklearn behavior in online SVD method
     //run<dal::pca::method::svd>(x_train, "Training method: SVD, Whiten: false", false);
     //run<dal::pca::method::svd>(x_train, "Training method: SVD, Whiten: true", true);

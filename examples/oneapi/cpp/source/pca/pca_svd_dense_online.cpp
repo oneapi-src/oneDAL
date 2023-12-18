@@ -20,14 +20,14 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 template <typename Method>
 void run(const dal::table& x_train, const std::string& method_name) {
     const auto pca_desc =
-        dal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
+        pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
     const std::int64_t nBlocks = 10;
 
-    dal::pca::partial_train_result<> partial_result;
+    pca::partial_train_result<> partial_result;
     std::cout << method_name << "\n" << std::endl;
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
@@ -48,7 +48,7 @@ int main(int argc, char const* argv[]) {
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
-    run<dal::pca::method::svd>(x_train, "Training method: SVD");
+    run<pca::method::svd>(x_train, "Training method: SVD");
 
     return 0;
 }

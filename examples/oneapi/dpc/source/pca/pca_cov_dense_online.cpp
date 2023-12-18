@@ -28,16 +28,16 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 template <typename Method>
 void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name, bool whiten) {
     const std::int64_t nBlocks = 10;
 
-    dal::pca::partial_train_result<> partial_result;
-    const auto pca_desc = dal::pca::descriptor<>()
+    pca::partial_train_result<> partial_result;
+    const auto pca_desc = pca::descriptor<>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_normalization_mode(oneapi::dal::pca::normalization::mean_center)
+                              .set_normalization_mode(pca::normalization::mean_center)
                               .set_whiten(whiten);
     auto input_table = split_table_by_rows<double>(x_train, nBlocks);
 
@@ -74,14 +74,8 @@ int main(int argc, char const* argv[]) {
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run<dal::pca::method::cov>(q,
-                                   x_train,
-                                   "Training method: Online Covariance Whiten:false",
-                                   false);
-        run<dal::pca::method::cov>(q,
-                                   x_train,
-                                   "Training method: Online Covariance Whiten:true",
-                                   true);
+        run<pca::method::cov>(q, x_train, "Training method: Online Covariance Whiten:false", false);
+        run<pca::method::cov>(q, x_train, "Training method: Online Covariance Whiten:true", true);
     }
     return 0;
 }
