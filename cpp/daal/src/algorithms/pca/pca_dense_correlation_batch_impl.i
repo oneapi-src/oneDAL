@@ -88,6 +88,8 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     }
     else
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
+
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.covariance);
@@ -99,7 +101,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
         if (resultsToCompute & mean)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
-            DAAL_CHECK_STATUS(status, this->copyTable(covarianceTable, means));
+            DAAL_CHECK_STATUS(status, this->copyTable(*covarianceAlg->getResult()->get(covariance::mean), means));
         }
 
         if (resultsToCompute & variance)
@@ -134,7 +136,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     data_management::NumericTable & eigenvalues, data_management::NumericTable & means, data_management::NumericTable & variances,
     data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(pca.compute.total);
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     services::Status status;
     this->compute(parameter->isCorrelation, parameter->isDeterministic, dataTable, covarianceAlg, parameter->resultsToCompute, eigenvectors,
