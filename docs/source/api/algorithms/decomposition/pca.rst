@@ -42,7 +42,7 @@ Enum classes
 ++++++++++++
 
 `normalization`
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 normalization::none
    No normalization is necessary or data is not normalized.
