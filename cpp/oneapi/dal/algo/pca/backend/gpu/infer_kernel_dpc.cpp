@@ -37,23 +37,19 @@ using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 template <typename Float>
 auto get_centered(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
+                  pr::ndview<Float, 2>& data,
                   const pr::ndview<Float, 1>& means,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_centered_data, q);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto centered_data =
-        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
-    auto copy_event = copy(q, centered_data, data, { deps });
-
-    auto centered_data_ptr = centered_data.get_mutable_data();
+    auto centered_data_ptr = data.get_mutable_data();
     auto means_ptr = means.get_data();
 
     auto centered_event = q.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(row_count, column_count);
-        h.depends_on(copy_event);
+        h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
             const std::int64_t i = id[0];
             const std::int64_t j = id[1];
@@ -61,64 +57,60 @@ auto get_centered(sycl::queue& q,
                 centered_data_ptr[i * column_count + j] - means_ptr[j];
         });
     });
-    return std::make_tuple(centered_data, centered_event);
+    return centered_event;
 }
 
 template <typename Float>
 auto get_scaled(sycl::queue& q,
-                const pr::ndview<Float, 2>& data,
+                pr::ndview<Float, 2>& data,
                 const pr::ndview<Float, 1>& variances,
                 const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_scaled_data, q);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto scaled_data = pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
-    auto copy_event = copy(q, scaled_data, data, { deps });
-
-    auto scaled_data_ptr = scaled_data.get_mutable_data();
+    auto scaled_data_ptr = data.get_mutable_data();
     auto variances_ptr = variances.get_data();
 
     auto scaled_event = q.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(row_count, column_count);
-        h.depends_on(copy_event);
+        h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
             const std::int64_t i = id[0];
             const std::int64_t j = id[1];
-            scaled_data_ptr[i * column_count + j] =
-                scaled_data_ptr[i * column_count + j] * (1 / sqrt(variances_ptr[j]));
+            Float sqrt_var = sycl::sqrt(variances_ptr[j]);
+            Float inv_var = sqrt_var == 0 ? 0 : 1 / sqrt_var;
+            scaled_data_ptr[i * column_count + j] = scaled_data_ptr[i * column_count + j] * inv_var;
         });
     });
-    return std::make_tuple(scaled_data, scaled_event);
+    return scaled_event;
 }
 
 template <typename Float>
 auto get_whitened(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
+                  pr::ndview<Float, 2>& data,
                   const pr::ndview<Float, 1>& eigenvalues,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_whitened_data, q);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto whitened_data =
-        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
-    auto copy_event = copy(q, whitened_data, data, { deps });
-
-    auto whitened_data_ptr = whitened_data.get_mutable_data();
+    auto whitened_data_ptr = data.get_mutable_data();
     auto eigenvalues_ptr = eigenvalues.get_data();
 
     auto whitened_event = q.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(row_count, column_count);
-        h.depends_on(copy_event);
+        h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
             const std::int64_t i = id[0];
             const std::int64_t j = id[1];
+            Float sqrt_eigenvalue = sycl::sqrt(eigenvalues_ptr[j]);
+            Float inv_eigenvalue = sqrt_eigenvalue == 0 ? 0 : 1 / sqrt_eigenvalue;
             whitened_data_ptr[i * column_count + j] =
-                whitened_data_ptr[i * column_count + j] * (1 / sqrt(eigenvalues_ptr[j]));
+                whitened_data_ptr[i * column_count + j] * inv_eigenvalue;
         });
     });
-    return std::make_tuple(whitened_data, whitened_event);
+    return whitened_event;
 }
 
 template <typename Float>
@@ -132,27 +124,29 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t component_count = get_component_count(desc, data);
+    const std::int64_t column_count = data.get_column_count();
 
     dal::detail::check_mul_overflow(row_count, component_count);
 
     const auto data_nd = pr::table2ndarray<Float>(queue, data, alloc::device);
+    auto data_to_xtx =
+        pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, alloc::device);
 
-    auto data_to_xtx = data_nd;
+    auto copy_event = copy(queue, data_to_xtx, data_nd, {});
+    copy_event.wait_and_throw();
 
+    sycl::event mean_centered_event;
     if (desc.do_mean_centering() && model.get_means().has_data()) {
         const auto means = model.get_means();
         const auto means_nd = pr::table2ndarray_1d<Float>(queue, means, alloc::device);
-        auto [mean_centered_data_nd, mean_centered_event] = get_centered(queue, data_nd, means_nd);
-        mean_centered_event.wait_and_throw();
-        data_to_xtx = mean_centered_data_nd;
+        mean_centered_event = get_centered(queue, data_to_xtx, means_nd, { copy_event });
     }
 
+    sycl::event scaled_event;
     if (desc.do_scale() && model.get_variances().has_data()) {
         const auto variances = model.get_variances();
         const auto variances_nd = pr::table2ndarray_1d<Float>(queue, variances, alloc::device);
-        auto [scaled_data_nd, scaled_event] = get_scaled(queue, data_to_xtx, variances_nd);
-        scaled_event.wait_and_throw();
-        data_to_xtx = scaled_data_nd;
+        scaled_event = get_scaled(queue, data_to_xtx, variances_nd, { mean_centered_event });
     }
 
     const auto eigenvectors_nd = pr::table2ndarray<Float>(queue, eigenvectors, alloc::device);
@@ -162,26 +156,25 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, queue);
-        gemm_event =
-            pr::gemm(queue, data_to_xtx, eigenvectors_nd.t(), res_nd, Float(1.0), Float(0.0), {});
+        gemm_event = pr::gemm(queue,
+                              data_to_xtx,
+                              eigenvectors_nd.t(),
+                              res_nd,
+                              Float(1.0),
+                              Float(0.0),
+                              { scaled_event });
         gemm_event.wait_and_throw();
     }
 
-    auto transformed_data = res_nd;
-
+    sycl::event whiten_event;
     if (desc.whiten() && model.get_eigenvalues().has_data()) {
         const auto eigenvalues = model.get_eigenvalues();
         const auto eigenvalues_nd = pr::table2ndarray_1d<Float>(queue, eigenvalues, alloc::device);
-        auto [whitened_data_nd, whiten_event] =
-            get_whitened(queue, res_nd, eigenvalues_nd, { gemm_event });
-        whiten_event.wait_and_throw();
-        transformed_data = whitened_data_nd;
+        whiten_event = get_whitened(queue, res_nd, eigenvalues_nd, { gemm_event });
     }
 
     return result_t{}.set_transformed_data(
-        homogen_table::wrap(transformed_data.flatten(queue, { gemm_event }),
-                            row_count,
-                            component_count));
+        homogen_table::wrap(res_nd.flatten(queue, { whiten_event }), row_count, component_count));
 }
 
 template <typename Float>

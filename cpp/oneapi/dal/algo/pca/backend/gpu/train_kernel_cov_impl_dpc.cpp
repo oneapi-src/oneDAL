@@ -192,6 +192,7 @@ auto compute_explained_variances_on_host(sycl::queue& q,
     for (std::int64_t i = 0; i < column_count; i++) {
         sum += vars_ptr[i];
     }
+    ONEDAL_ASSERT(sum > 0);
     for (std::int64_t i = 0; i < component_count; i++) {
         explained_variances_ratio_ptr[i] = eigvals_ptr[i] / sum;
     }
