@@ -154,6 +154,42 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     return status;
 }
 
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
+    const data_management::NumericTable & dataTable, data_management::NumericTable & covarianceTable, data_management::NumericTable & eigenvectors,
+    data_management::NumericTable & eigenvalues, data_management::NumericTable & means, data_management::NumericTable & variances,
+    data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+
+    services::Status status;
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
+        DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
+    }
+
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.computeEigenvalues);
+        DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(covarianceTable, eigenvectors, eigenvalues));
+    }
+    if (parameter->isDeterministic)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.signFlipEigenvectors);
+        DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
+    }
+    if (singular_values != nullptr)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
+        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, dataTable.getNumberOfRows()));
+    }
+    if (explained_variances_ratio != nullptr)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeExplainedVariancesRatio);
+        DAAL_CHECK_STATUS(status, this->computeExplainedVariancesRatio(eigenvalues, variances, *explained_variances_ratio));
+    }
+    return status;
+}
+
 } // namespace internal
 } // namespace pca
 } // namespace algorithms

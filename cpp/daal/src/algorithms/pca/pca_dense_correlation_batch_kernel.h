@@ -60,6 +60,11 @@ public:
                              data_management::NumericTable & means, data_management::NumericTable & variances,
                              data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio,
                              const BaseBatchParameter * parameter);
+    services::Status compute(const data_management::NumericTable & dataTable, data_management::NumericTable & cov_table,
+                             data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
+                             data_management::NumericTable & means, data_management::NumericTable & variances,
+                             data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio,
+                             const BaseBatchParameter * parameter);
 };
 
 } // namespace internal
