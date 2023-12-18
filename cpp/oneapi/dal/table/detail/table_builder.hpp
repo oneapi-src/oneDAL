@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/heterogen.hpp"
 #include "oneapi/dal/table/detail/homogen_utils.hpp"
@@ -39,14 +40,17 @@ private:
     pimpl<table_builder_iface> impl_;
 };
 
+/// Builds homogeneous table from the provided data
 class ONEDAL_EXPORT homogen_table_builder : public table_builder {
 public:
     homogen_table_builder();
 
+    /// Builds homogeneous table
     homogen_table build() {
         return detail::make_private<homogen_table>(get_impl().build_homogen());
     }
 
+    /// Reset the
     auto& reset(homogen_table&& t) {
         const homogen_table local_table = std::move(t);
 
@@ -127,9 +131,38 @@ private:
     }
 };
 
+/// Builds compressed sparse rows (CSR) table
+class ONEDAL_EXPORT csr_table_builder : public table_builder {
+public:
+    csr_table_builder();
+
+    csr_table build() {
+        return detail::make_private<csr_table>(get_impl().build_csr());
+    }
+
+    template <typename Data>
+    auto& reset(const dal::array<Data>& data,
+                const dal::array<std::int64_t>& column_indices,
+                const dal::array<std::int64_t>& row_offsets,
+                std::int64_t row_count,
+                std::int64_t column_count,
+                sparse_indexing indexing) {
+        const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
+        get_impl().set_data_type(detail::make_data_type<Data>());
+        get_impl().reset(byte_data, column_indices, row_offsets, row_count, column_count, indexing);
+        return *this;
+    }
+
+private:
+    csr_table_builder_iface& get_impl() {
+        return cast_impl<csr_table_builder_iface>(*this);
+    }
+};
+
 } // namespace v1
 
 using v1::table_builder;
 using v1::homogen_table_builder;
+using v1::csr_table_builder;
 
 } // namespace oneapi::dal::detail
