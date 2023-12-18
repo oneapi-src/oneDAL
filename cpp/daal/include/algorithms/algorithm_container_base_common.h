@@ -108,10 +108,10 @@ private:
     #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
         algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 #else
-    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                  \
-        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) \
-                                                        DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
-                                                            DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                \
+        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(                              \
+                                                         ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) \
+                                                         DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 #endif
 
 /** @} */

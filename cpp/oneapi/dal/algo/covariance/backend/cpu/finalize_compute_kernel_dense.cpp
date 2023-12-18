@@ -24,7 +24,6 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-
 #ifdef __ARM_ARCH
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
 #else

@@ -82,11 +82,11 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 {
     initNumberOfThreads();
 
-    #ifdef __ARM_ARCH
+#ifdef __ARM_ARCH
     int host_cpuid = __daal_serv_cpu_detect(daal::services::Environment::sve);
-    #else
+#else
     int host_cpuid = __daal_serv_cpu_detect(daal::services::Environment::avx512);
-    #endif
+#endif
 
     if (!_env.cpuid_init_flag)
     {
@@ -96,11 +96,11 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 
             if (cpuid > host_cpuid)
             {
-                #ifdef __ARM_ARCH
+#ifdef __ARM_ARCH
                 _cpu_detect(daal::services::Environment::sve);
-                #else
+#else
                 _cpu_detect(daal::services::Environment::avx512);
-                #endif
+#endif
             }
             else
             {

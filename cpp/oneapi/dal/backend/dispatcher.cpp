@@ -38,25 +38,25 @@ void context_cpu::global_init() {
 inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     using detail::cpu_extension;
     switch (cpu) {
-        #ifdef __ARM_ARCH
+#ifdef __ARM_ARCH
         case daal::sve: return cpu_extension::sve;
-        #else
+#else
         case daal::sse2: return cpu_extension::sse2;
         case daal::sse42: return cpu_extension::sse42;
         case daal::avx2: return cpu_extension::avx2;
         case daal::avx512: return cpu_extension::avx512;
-        #endif
+#endif
     }
     return cpu_extension::none;
 }
 
 detail::cpu_extension detect_top_cpu_extension() {
     if (!__daal_serv_cpu_extensions_available()) {
-        #ifdef __ARM_ARCH
+#ifdef __ARM_ARCH
         return detail::cpu_extension::sve;
-        #else
+#else
         return detail::cpu_extension::sse2;
-        #endif
+#endif
     }
     const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);
     return from_daal_cpu_type(daal_cpu);

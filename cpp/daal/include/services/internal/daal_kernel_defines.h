@@ -52,7 +52,6 @@ case cpuType:                                                                   
     break;                                                                                      \
 }
 
-
 #ifdef __ARM_ARCH
     #if defined(DAAL_KERNEL_SVE)
         #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID

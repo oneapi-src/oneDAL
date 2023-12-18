@@ -18,7 +18,7 @@
 #pragma once
 
 #ifndef __ARM_ARCH
-    #include <immintrin.h>
+#include <immintrin.h>
 #endif
 
 #include <daal/src/services/service_defines.h>

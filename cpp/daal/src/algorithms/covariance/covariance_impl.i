@@ -137,9 +137,9 @@ static inline size_t getBlockSize(size_t nrows)
 }
 
 #ifdef __ARM_ARCH
-#define CPU_TYPE sve
+    #define CPU_TYPE sve
 #else
-#define CPU_TYPE avx512
+    #define CPU_TYPE avx512
 #endif
 
 template <>
