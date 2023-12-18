@@ -56,7 +56,7 @@ endif
 endif
 
 BACKEND_CONFIG ?= mkl
-ARCH = $(patsubst lnx%,%,$(PLAT))
+ARCH = $(if $(filter lnxarm,$(PLAT)),arm,32e)
 
 ARCH_is_$(ARCH)            := yes
 
