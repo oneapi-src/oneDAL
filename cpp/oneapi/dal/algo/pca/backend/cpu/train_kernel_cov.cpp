@@ -76,20 +76,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);
-
-    daal_cov::internal::Hyperparameter daal_hyperparameter;
-    /// the logic of block size calculation is copied from DAAL,
-    /// to be changed to passing the values from the performance model
-    std::int64_t blockSize = 140;
-    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
-        if (5000 < row_count && row_count <= 50000) {
-            blockSize = 1024;
-        }
-    }
-
-    interop::status_to_exception(
-        daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
-    covariance_alg.setHyperparameter(&daal_hyperparameter);
+    covariance_alg.parameter.outputMatrixType = daal::algorithms::covariance::covarianceMatrix;
 
     daal::algorithms::pca::BaseBatchParameter daal_pca_parameter;
 
@@ -116,7 +103,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_explained_variances_ratio.get(),
         &daal_pca_parameter));
 
-    model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         result.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
     }
@@ -137,6 +123,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
+
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
