@@ -31,7 +31,7 @@ namespace v1 {
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
-/// Alias tag-type for regression task.
+/// Alias tag-type for classification task
 using by_default = classification;
 } // namespace v1
 
@@ -42,9 +42,10 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes :ref:`dense batch <dense_batch>` computational method.
+/// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
 
+/// Alias tag-type for the dense_batch method
 using by_default = dense_batch;
 } // namespace v1
 
@@ -80,6 +81,7 @@ const inline result_option_id intercept = detail::get_intercept_id();
 /// Return the coefficients to use in logistic regression
 const inline result_option_id coefficients = detail::get_coefficients_id();
 
+/// Return the number of iterations made by optimizer
 const inline result_option_id iterations_count = detail::get_iterations_count_id();
 
 } // namespace result_options
@@ -165,8 +167,8 @@ namespace v1 {
 ///                     be :expr:`method::dense_batch`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::classification`.
-/// @tparam Optimizer   Tag-type that specifies type of the optimizer used by algorithm.
-///                     Can be :expr:`optimizer::newton_cg`.
+/// @tparam Optimizer   The descriptor of the optimizer used for minimization. Can
+///                     be :expr:`newton_cg::descriptor`
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -186,12 +188,14 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    /// and :literal:`C`
     explicit descriptor(bool compute_intercept = true, double C = 1.0)
             : base_t(compute_intercept,
                      C,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
 
-    /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    /// Creates a new instance of the class with the given :literal:`compute_intercept`,
+    /// :literal:`C` and :literal:`optimizer`
     explicit descriptor(bool compute_intercept, double C, const optimizer_t& optimizer)
             : base_t(compute_intercept,
                      C,
@@ -208,7 +212,7 @@ public:
     }
 
     /// Defines number of classes.
-    double get_class_count() const {
+    std::int64_t get_class_count() const {
         return base_t::get_class_count();
     }
 

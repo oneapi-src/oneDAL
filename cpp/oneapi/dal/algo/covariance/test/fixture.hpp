@@ -83,7 +83,7 @@ public:
                 covariance::result_options::means);
         INFO("run compute optional: cov cor means");
         auto compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov")
         cov_desc =
@@ -91,7 +91,15 @@ public:
                 covariance::result_options::cov_matrix);
         INFO("run compute optional: cov");
         compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
+
+        INFO("create descriptor cov biased")
+        cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                       .set_result_options(covariance::result_options::cov_matrix)
+                       .set_bias(true);
+        INFO("run compute optional: cov biased");
+        compute_result = this->compute(cov_desc, data);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cor")
         cov_desc =
@@ -99,7 +107,7 @@ public:
                 covariance::result_options::cor_matrix);
         INFO("run compute optional: cor");
         compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor means")
         cov_desc =
@@ -107,7 +115,7 @@ public:
                 covariance::result_options::means);
         INFO("run compute optional: means");
         compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov cor")
         cov_desc =
@@ -115,7 +123,7 @@ public:
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix);
         INFO("run compute optional: cov cor");
         compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov means")
         cov_desc =
@@ -123,7 +131,7 @@ public:
                 covariance::result_options::cov_matrix | covariance::result_options::means);
         INFO("run compute optional: cov means");
         compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cor means")
         cov_desc =
@@ -131,7 +139,7 @@ public:
                 covariance::result_options::cor_matrix | covariance::result_options::means);
         INFO("run compute optional: cor means");
         compute_result = this->compute(cov_desc, data);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
     }
 
     void online_general_checks(const te::dataframe& input,
@@ -150,7 +158,7 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         auto compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov")
         cov_desc =
@@ -163,7 +171,7 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cor")
         cov_desc =
@@ -176,7 +184,7 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor means")
         cov_desc =
@@ -189,7 +197,7 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov cor")
         cov_desc =
@@ -202,7 +210,7 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cov means")
         cov_desc =
@@ -215,7 +223,7 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
 
         INFO("create descriptor cor means")
         cov_desc =
@@ -228,10 +236,12 @@ public:
             partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
         }
         compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(data, compute_result);
+        check_compute_result(cov_desc, data, compute_result);
     }
 
-    void check_compute_result(const table& data, const covariance::compute_result<>& result) {
+    void check_compute_result(const covariance::descriptor<Float, Method>& desc,
+                              const table& data,
+                              const covariance::compute_result<>& result) {
         if (result.get_result_options().test(result_options::cov_matrix)) {
             const auto cov_matrix = result.get_cov_matrix();
             INFO("check if cov matrix table shape is expected")
@@ -240,7 +250,7 @@ public:
             INFO("check if there is no NaN in cov matrix table")
             REQUIRE(te::has_no_nans(cov_matrix));
             INFO("check if cov matrix values are expected")
-            check_cov_matrix_values(data, cov_matrix);
+            check_cov_matrix_values(desc, data, cov_matrix);
         }
         if (result.get_result_options().test(result_options::cor_matrix)) {
             const auto cor_matrix = result.get_cor_matrix();
@@ -250,7 +260,7 @@ public:
             INFO("check if there is no NaN in cor matrix table")
             REQUIRE(te::has_no_nans(cor_matrix));
             INFO("check if cor matrix values are expected")
-            check_cor_matrix_values(data, cor_matrix);
+            check_cor_matrix_values(desc, data, cor_matrix);
         }
         if (result.get_result_options().test(result_options::means)) {
             const auto means = result.get_means();
@@ -287,21 +297,28 @@ public:
         return reference_means;
     }
 
-    void check_cov_matrix_values(const table& data, const table& cov_matrix) {
-        const auto reference_cov = compute_reference_cov(data);
+    void check_cov_matrix_values(const covariance::descriptor<Float, Method>& desc,
+                                 const table& data,
+                                 const table& cov_matrix) {
+        const auto reference_cov = compute_reference_cov(desc, data);
         const auto data_matrix = la::matrix<double>::wrap(cov_matrix);
         const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cov, cov_matrix);
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cov(const table& data) {
+    la::matrix<double> compute_reference_cov(const covariance::descriptor<Float, Method>& desc,
+                                             const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count_data = data_matrix.get_row_count();
         const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = compute_reference_means(data);
         auto reference_cov =
             la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
+        auto multiplier = 1 / static_cast<double>(row_count_data - 1);
+        if (desc.get_bias()) {
+            multiplier = 1 / static_cast<double>(row_count_data);
+        }
         for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
                 double elem = 0;
@@ -309,23 +326,26 @@ public:
                     elem += (data_matrix.get(k, i) - reference_means.get(0, i)) *
                             (data_matrix.get(k, j) - reference_means.get(0, j));
                 }
-                reference_cov.set(i, j) = elem * (1 / static_cast<double>(row_count_data - 1));
+                reference_cov.set(i, j) = elem * multiplier;
             }
         }
         return reference_cov;
     }
-    void check_cor_matrix_values(const table& data, const table& cor_matrix) {
-        const auto reference_cor = compute_reference_cor(data);
+    void check_cor_matrix_values(const covariance::descriptor<Float, Method>& desc,
+                                 const table& data,
+                                 const table& cor_matrix) {
+        const auto reference_cor = compute_reference_cor(desc, data);
         const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference_cor, cor_matrix);
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cor(const table& data) {
+    la::matrix<double> compute_reference_cor(const covariance::descriptor<Float, Method>& desc,
+                                             const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = compute_reference_means(data);
-        auto reference_cov = compute_reference_cov(data);
+        auto reference_cov = compute_reference_cov(desc, data);
         auto reference_cor =
             la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
         for (std::int64_t i = 0; i < column_count_data; i++) {
