@@ -43,8 +43,12 @@ class PCACorrelationKernel<batch, algorithmFPType, cpu> : public PCACorrelationB
 public:
     explicit PCACorrelationKernel() {};
 
+    using PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEigenvalues;
+
     using PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues;
+
     using PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov;
+
     using PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
 
     services::Status compute(bool isCorrelation, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,

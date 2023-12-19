@@ -36,13 +36,18 @@ using descriptor_t = detail::descriptor_base<task_t>;
 namespace daal_pca = daal::algorithms::pca;
 namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
+namespace daal_covariance = daal::algorithms::covariance;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_cov_kernel_t =
     daal_cov::internal::CovarianceDenseBatchKernel<Float, daal_cov::Method::defaultDense, Cpu>;
 
+
+
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
+
+
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -106,6 +111,30 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                             daal_cov_matrix.get(),
                                                             daal_means.get(),
                                                             &daal_parameter));
+        {
+        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+            return daal_pca_cor_kernel_t<Float, cpu_type>().computeCorrelationEigenvalues(
+                *daal_cov_matrix,
+                *daal_eigenvectors,
+                *daal_eigenvalues);
+        });
+
+        interop::status_to_exception(status);
+    }
+
+    {
+        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+            return daal_pca_cor_kernel_t<Float, cpu_type>().computeSingularValues(
+                *daal_eigenvalues,
+                *daal_singular_values,
+                row_count);
+        });
+
+        interop::status_to_exception(status);
+    }
+
     {
         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
             constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
@@ -115,18 +144,18 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         });
         interop::status_to_exception(status);
     }
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
-        ctx,
-        *daal_cov_matrix,
-        &covariance_alg,
-        *daal_eigenvectors,
-        *daal_eigenvalues,
-        *daal_means,
-        *daal_variances,
-        daal_singular_values.get(),
-        daal_explained_variances_ratio.get(),
-        &daal_pca_parameter,
-        row_count));
+
+    {
+        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+            return daal_pca_cor_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
+                *daal_eigenvalues,
+                *daal_variances,
+                *daal_explained_variances_ratio);
+        });
+
+        interop::status_to_exception(status);
+    }
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         result.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
