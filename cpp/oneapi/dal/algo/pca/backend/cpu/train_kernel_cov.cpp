@@ -81,8 +81,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, component_count);
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
-    covariance_alg.input.set(daal_cov::data, daal_data);
-    covariance_alg.parameter.outputMatrixType = daal::algorithms::covariance::covarianceMatrix;
+
+    covariance_alg.parameter.outputMatrixType = daal::algorithms::covariance::correlationMatrix;
 
     daal::algorithms::pca::BaseBatchParameter daal_pca_parameter;
 

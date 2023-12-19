@@ -32,7 +32,7 @@
 #include "src/algorithms/covariance/covariance_kernel.h"
 #include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
 #include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
-#include <iostream>
+
 #undef __DAAL_CONCAT
 #define __DAAL_CONCAT(x, y) x##y
 
@@ -77,7 +77,7 @@
     {                                                                                                                                          \
         Result * result = static_cast<Result *>(_res);                                                                                         \
         Input * input   = static_cast<Input *>(_in);                                                                                           \
-        std::cout << "here1" << std::endl;                                                                                                     \
+                                                                                                                                               \
         NumericTable * dataTable = input->get(data).get();                                                                                     \
         NumericTable * covTable  = result->get(covariance).get();                                                                              \
         NumericTable * meanTable = result->get(mean).get();                                                                                    \
@@ -107,7 +107,7 @@
                                                                                                                                                    \
         auto & context    = services::internal::getDefaultContext();                                                                               \
         auto & deviceInfo = context.getInfoDevice();                                                                                               \
-        std::cout << "here2" << std::endl;                                                                                                         \
+                                                                                                                                                   \
         if (deviceInfo.isCpu)                                                                                                                      \
         {                                                                                                                                          \
             __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, dataTable, covTable, meanTable, \
