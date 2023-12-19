@@ -785,6 +785,8 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
     }
 
     if (comm_.get_rank_count() > 1) {
+        // std::cout << "Current rank: " << comm_.get_rank() << std::endl;
+
         sycl::event::wait_and_throw(last_iter_e);
         //last_iter_e.wait_and_throw();
         {
