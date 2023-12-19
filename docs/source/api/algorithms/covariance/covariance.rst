@@ -59,7 +59,6 @@ Input
 ~~~~~
 .. onedal_class:: oneapi::dal::covariance::compute_input
 
-
 .. _covariance_c_api_result:
 
 Result
@@ -71,6 +70,44 @@ Operation
 .. function:: template <typename Descriptor> \
               covariance::compute_result compute(const Descriptor& desc, \
                                       const covariance::compute_input& input)
+
+   :param desc: Covariance algorithm descriptor :expr:`covariance::descriptor`
+   :param input: Input data for the computing operation
+
+   Preconditions
+      | :expr:`input.data.is_empty == false`
+
+.. _covariance_p_api:
+
+Partial Training :expr:`partial_compute(...)`
+-----------------------------
+.. _covariance_p_api_input:
+
+Input
+~~~~~
+.. onedal_class:: oneapi::dal::covariance::partial_input
+
+.. _covariance_p_api_result:
+
+Result
+~~~~~~
+.. onedal_class:: oneapi::dal::covariance::partial_result
+
+Operations
+~~~~~~~~~
+.. function:: template <typename Descriptor> \
+              covariance::partial_result partial_compute(const Descriptor& desc, \
+                                      const covariance::partial_compute_input& input)
+
+   :param desc: Covariance algorithm descriptor :expr:`covariance::descriptor`
+   :param input: Input data for the computing operation
+
+   Preconditions
+      | :expr:`input.data.is_empty == false`
+
+.. function:: template <typename Descriptor> \
+              covariance::compute_result finalize_compute(const Descriptor& desc, \
+                                      const covariance::partial_compute_result& input)
 
    :param desc: Covariance algorithm descriptor :expr:`covariance::descriptor`
    :param input: Input data for the computing operation
