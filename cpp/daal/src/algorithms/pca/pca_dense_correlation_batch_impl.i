@@ -71,15 +71,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     if (isCorrelation)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
-        if (resultsToCompute & mean)
-        {
-            DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0));
-        }
-
-        if (resultsToCompute & variance)
-        {
-            DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1));
-        }
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeEigenvalues);
@@ -134,17 +125,19 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg, data_management::NumericTable & eigenvectors,
     data_management::NumericTable & eigenvalues, data_management::NumericTable & means, data_management::NumericTable & variances,
-    data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter)
+    data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter,
+    std::int64_t row_count)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     services::Status status;
     this->compute(parameter->isCorrelation, parameter->isDeterministic, dataTable, covarianceAlg, parameter->resultsToCompute, eigenvectors,
                   eigenvalues, means, variances, parameter->doScale);
+
     if (singular_values != nullptr)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
-        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, dataTable.getNumberOfRows()));
+        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, row_count));
     }
     if (explained_variances_ratio != nullptr)
     {

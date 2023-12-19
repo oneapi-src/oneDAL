@@ -16,7 +16,7 @@
 
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 #include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
-
+#include "daal/src/algorithms/covariance/covariance_kernel.h"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -38,6 +38,10 @@ namespace daal_cov = daal::algorithms::covariance;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
+using daal_cov_kernel_t =
+    daal_cov::internal::CovarianceDenseBatchKernel<Float, daal_cov::Method::defaultDense, Cpu>;
+
+template <typename Float, daal::CpuType Cpu>
 using daal_pca_cor_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
 template <typename Float>
@@ -52,6 +56,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     ONEDAL_ASSERT(component_count > 0);
 
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
+    daal_cov::Parameter daal_parameter;
+    daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
     dal::detail::check_mul_overflow(column_count, component_count);
 
@@ -85,15 +91,33 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_pca_parameter.resultsToCompute = static_cast<DAAL_UINT64>(
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue));
 
-    daal_pca_parameter.isCorrelation = false;
+    daal_pca_parameter.isCorrelation = true;
 
     if (desc.get_normalization_mode() == normalization::mean_center) {
         daal_pca_parameter.doScale = false;
+        daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
     }
-
+    auto arr_cov_matrix = array<Float>::empty(column_count * column_count);
+    const auto daal_cov_matrix =
+        interop::convert_to_daal_homogen_table(arr_cov_matrix, column_count, column_count);
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_cov_kernel_t>(ctx,
+                                                            daal_data.get(),
+                                                            daal_cov_matrix.get(),
+                                                            daal_means.get(),
+                                                            &daal_parameter));
+    {
+        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+            return daal_pca_cor_kernel_t<Float, cpu_type>().computeVariancesFromCov(
+                *daal_cov_matrix,
+                *daal_variances);
+        });
+        interop::status_to_exception(status);
+    }
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_pca_cor_kernel_t>(
         ctx,
-        *daal_data,
+        *daal_cov_matrix,
         &covariance_alg,
         *daal_eigenvectors,
         *daal_eigenvalues,
@@ -101,7 +125,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         *daal_variances,
         daal_singular_values.get(),
         daal_explained_variances_ratio.get(),
-        &daal_pca_parameter));
+        &daal_pca_parameter,
+        row_count));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         result.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
