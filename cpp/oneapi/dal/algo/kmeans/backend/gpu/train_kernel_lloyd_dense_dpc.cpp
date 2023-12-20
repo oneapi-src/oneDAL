@@ -107,8 +107,8 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         auto& comm = ctx.get_communicator();
-
         const auto data = input.get_data();
+        ONEDAL_ASSERT(data.get_kind() != dal::csr_table::kind());
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
         const std::int64_t cluster_count = params.get_cluster_count();

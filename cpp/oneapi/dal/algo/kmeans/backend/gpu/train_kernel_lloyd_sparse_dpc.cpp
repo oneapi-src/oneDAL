@@ -142,8 +142,8 @@ sycl::event compute_data_squares(sycl::queue& q,
 template <typename Float>
 sycl::event custom_spgemm(sycl::queue& q,
                           const csr_table& data,
-                          const pr::ndarray<Float, 2> b,
-                          pr::ndarray<Float, 2> c,
+                          const pr::ndarray<Float, 2>& b,
+                          pr::ndarray<Float, 2>& c,
                           const Float alpha,
                           const Float beta,
                           const event_vector& deps = {}) {
@@ -151,6 +151,8 @@ sycl::event custom_spgemm(sycl::queue& q,
     const auto reduce_dim = data.get_column_count();
     const auto b_row_count = b.get_dimension(0);
     ONEDAL_ASSERT(data.get_column_count() == b.get_dimension(1));
+    ONEDAL_ASSERT(c.get_dimension(0) == a_row_count);
+    ONEDAL_ASSERT(c.get_dimension(1) == b_row_count);
 
     auto [values, column_indices, row_offsets] =
         csr_accessor<const Float>(data).pull(q,
@@ -200,8 +202,8 @@ sycl::event assign_clusters(sycl::queue& q,
                             const pr::ndarray<Float, 1>& data_squares,
                             const pr::ndarray<Float, 2>& centroids,
                             const pr::ndarray<Float, 1>& centroid_squares,
-                            const pr::ndarray<Float, 2>& distances,
-                            pr::ndarray<std::int32_t, 1>& responses,
+                            pr::ndarray<Float, 2>& distances,
+                            pr::ndarray<std::int32_t, 2>& responses,
                             pr::ndarray<Float, 2>& closest_dists,
                             const event_vector& deps = {}) {
     auto [values, column_indices, row_offsets] =
@@ -209,7 +211,6 @@ sycl::event assign_clusters(sycl::queue& q,
                                              { 0, -1 },
                                              sparse_indexing::zero_based,
                                              sycl::usm::alloc::device);
-    auto centroids_ptr = centroids.get_data();
     auto data_squares_ptr = data_squares.get_data();
     auto cent_squares_ptr = centroid_squares.get_data();
     auto responses_ptr = responses.get_mutable_data();
@@ -227,9 +228,9 @@ sycl::event assign_clusters(sycl::queue& q,
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ row_count, local_size }, { 1, local_size });
 
-    auto event = q.submit([&](sycl::handler cgh) {
+    auto event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ dist_event });
-        cgh.parallel_for([=](auto item) {
+        cgh.parallel_for(nd_range, [=](auto item) {
             const auto row_idx = item.get_global_id(0);
             const auto local_id = item.get_local_id(1);
             auto min_dist = std::numeric_limits<Float>::max();
@@ -246,11 +247,11 @@ sycl::event assign_clusters(sycl::queue& q,
             const Float closest = sycl::reduce_over_group(item.get_group(),
                                                           min_dist,
                                                           sycl::ext::oneapi::minimum<Float>());
-            const std::int32_t dist_idx = closest == min_dist ? min_idx : 0;
+            const std::int32_t dist_idx = closest == min_dist ? min_idx : std::numeric_limits<std::int32_t>::max();
             const std::int32_t closest_id =
                 sycl::reduce_over_group(item.get_group(),
                                         dist_idx,
-                                        sycl::ext::oneapi::plus<Float>());
+                                        sycl::ext::oneapi::minimum<std::int32_t>());
             if (local_id == 0) {
                 responses_ptr[row_idx] = closest_id;
                 closest_dists_ptr[row_idx] = closest + data_squares_ptr[row_idx];
@@ -260,9 +261,8 @@ sycl::event assign_clusters(sycl::queue& q,
     return event;
 }
 
-template <typename Float>
 std::int32_t count_clusters(sycl::queue& q,
-                            const pr::ndarray<std::int32_t, 1>& responses,
+                            const pr::ndarray<std::int32_t, 2>& responses,
                             pr::ndarray<std::int32_t, 1>& cluster_counts,
                             const event_vector& deps = {}) {
     auto device_cluster_count = pr::ndarray<std::int32_t, 1>::empty(q, 1, sycl::usm::alloc::device);
@@ -281,7 +281,7 @@ std::int32_t count_clusters(sycl::queue& q,
             std::int32_t* const counts =
                 local_clust_counts.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
             const auto local_id = it.get_local_id(0);
-            if (local_id < num_cluster) {
+            if (static_cast<std::int64_t>(local_id) < num_cluster) {
                 counts[local_id] = 0;
             }
             it.barrier();
@@ -295,7 +295,7 @@ std::int32_t count_clusters(sycl::queue& q,
                 cl_count += 1;
             }
             it.barrier();
-            if (local_id < num_cluster) {
+            if (static_cast<std::int64_t>(local_id) < num_cluster) {
                 cluster_count_glob[local_id] = counts[local_id];
             }
             if (local_id == 0) {
@@ -309,19 +309,20 @@ std::int32_t count_clusters(sycl::queue& q,
             }
         });
     });
-    auto host_empty_cluster_count = device_cluster_count.to_host(q, { event });
+    auto host_empty_cluster_count = device_cluster_count.to_host(q, { event }).get_data();
     return host_empty_cluster_count[0];
 }
 
 template <typename Float>
 Float calc_objective_function(sycl::queue& q,
-                              const pr::ndarray<Float, 1>& dists,
+                              const pr::ndarray<Float, 2>& dists,
                               const event_vector& deps = {}) {
     auto res = pr::ndarray<Float, 1>::empty(q, 1, sycl::usm::alloc::device);
     auto res_ptr = res.get_mutable_data();
     const auto row_count = dists.get_dimension(0);
     const auto dists_ptr = dists.get_data();
-    const auto local_size = bk::device_max_wg_size(q);
+    const auto local_size =
+        std::min<std::int32_t>(bk::device_max_wg_size(q), bk::down_pow2(row_count));
     const auto range = bk::make_multiple_nd_range_1d(local_size, local_size);
 
     auto event = q.submit([&](sycl::handler& cgh) {
@@ -347,7 +348,7 @@ Float calc_objective_function(sycl::queue& q,
 template <typename Float>
 sycl::event update_centroids(sycl::queue& q,
                              const csr_table& data,
-                             const pr::ndarray<std::int32_t, 1>& responses,
+                             const pr::ndarray<std::int32_t, 2>& responses,
                              pr::ndarray<Float, 2>& centroids,
                              const pr::ndarray<std::int32_t, 1> cluster_counts,
                              const event_vector& deps = {}) {
@@ -362,7 +363,7 @@ sycl::event update_centroids(sycl::queue& q,
     const auto row_count = data.get_row_count();
     const auto data_ptr = values.get_data();
     const auto row_ofs_ptr = row_offsets.get_data();
-    const auto col_ind_ptr = column_indices.get_geta();
+    const auto col_ind_ptr = column_indices.get_data();
     const auto counts_ptr = cluster_counts.get_data();
 
     const auto local_size = bk::device_max_wg_size(q);
@@ -378,11 +379,11 @@ sycl::event update_centroids(sycl::queue& q,
 
             Float acc = 0;
             for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                if (resp_ptr[row_idx == cluster_id]) {
+                if (resp_ptr[row_idx] == static_cast<std::int32_t>(cluster_id)) {
                     const auto start = row_ofs_ptr[row_idx];
                     const auto end = row_ofs_ptr[row_idx + 1];
                     for (std::int32_t data_idx = start; data_idx < end; data_idx++) {
-                        if (col_ind_ptr[data_idx] == col_idx) {
+                        if (col_ind_ptr[data_idx] == static_cast<std::int64_t>(col_idx)) {
                             acc += data_ptr[data_idx];
                         }
                     }
@@ -392,7 +393,7 @@ sycl::event update_centroids(sycl::queue& q,
                 sycl::reduce_over_group(it.get_group(), acc, sycl::ext::oneapi::plus<Float>());
             if (local_id == 0) {
                 centroids_ptr[cluster_id * column_count + col_idx] =
-                    final_component / counts_ptr[cluster_id];
+                    counts_ptr[cluster_id] > 0 ? final_component / counts_ptr[cluster_id] : 0;
             }
         });
     });
@@ -405,7 +406,7 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         // auto& comm = ctx.get_communicator();
-
+        ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
@@ -458,9 +459,10 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                                 arr_responses,
                                                 arr_closest_distances,
                                                 { centroid_squares_event });
-            auto empty_count =
-                count_clusters(queue, arr_responses, cluster_counts, { assign_event });
-            auto objective_function = calc_objective_function(queue, distances, { assign_event });
+            // auto empty_count =
+            count_clusters(queue, arr_responses, cluster_counts, { assign_event });
+            auto objective_function =
+                calc_objective_function(queue, arr_closest_distances, { assign_event });
             auto update_event = update_centroids(queue,
                                                  data,
                                                  arr_responses,
@@ -488,7 +490,8 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                             arr_responses,
                                             arr_closest_distances,
                                             { centroid_squares_event });
-        auto objective_function = calc_objective_function(queue, distances, { assign_event });
+        auto objective_function =
+            calc_objective_function(queue, arr_closest_distances, { assign_event });
 
         model<task::clustering> model;
         model.set_centroids(
