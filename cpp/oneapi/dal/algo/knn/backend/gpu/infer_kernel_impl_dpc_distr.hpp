@@ -250,11 +250,11 @@ public:
         copy_actual_resp_event =
             pr::copy(queue_, actual_min_resp_copy_dest, min_resp_dest, { treat_event });
 
-        sycl::event selt_event;
+        sycl::event select_event;
         {
             ONEDAL_PROFILER_TASK(query_loop.selection, queue_);
             auto kselect_block = part_distances_.get_row_slice(first, last);
-            selt_event = select(queue_,
+            select_event = select(queue_,
                                 kselect_block,
                                 k_neighbors_,
                                 min_dist_dest,
@@ -266,23 +266,25 @@ public:
                                   copy_actual_resp_event,
                                   copy_current_resp_event });
         }
-        auto resps_event = select_indexed(queue_,
+        auto select_resp_event = select_indexed(queue_,
                                           min_indc_dest,
                                           part_responses_.get_row_slice(first, last),
                                           min_resp_dest,
-                                          { selt_event });
-        auto final_event = select_indexed(queue_,
+                                          { select_event });
+        auto select_indc_event = select_indexed(queue_,
                                           min_indc_dest,
                                           part_indices_.get_row_slice(first, last),
                                           min_indc_dest,
-                                          { resps_event });
+                                          { select_resp_event });
         if (last_iteration_) {
+            sycl::event copy_sqrt_event;
             if (this->compute_sqrt_) {
-                final_event = copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { final_event });
+                copy_sqrt_event = copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { select_indc_event });
             }
-            final_event = this->output_responses(bounds, indices_, distances_, { final_event });
+            auto final_event = this->output_responses(bounds, indices_, distances_, { select_indc_event, copy_sqrt_event });
+            return final_event;
         }
-        return final_event;
+        return select_indc_event;
     }
 
 protected:
@@ -456,7 +458,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
     // Input arrays test section
     ONEDAL_ASSERT(train.has_data());
     ONEDAL_ASSERT(query.has_data());
-    auto tcount = train.get_row_count();
+    const auto tcount = train.get_row_count();
     const auto qcount = query.get_dimension(0);
     const auto fcount = train.get_column_count();
     const auto kcount = desc.get_neighbor_count();
@@ -495,7 +497,7 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
     comm.allgather(tcount, node_sample_counts.flatten()).wait();
 
-    // auto [max_tcount, _] = pr::argmax(queue, node_sample_counts);
+    // TODO: implement max/min for ndarray
     std::int64_t max_tcount = 0;
     for (std::int64_t index = 0; index < node_sample_counts.get_count(); ++index) {
         max_tcount = std::max(node_sample_counts.at(index), max_tcount);
