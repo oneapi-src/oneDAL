@@ -125,8 +125,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg, data_management::NumericTable & eigenvectors,
     data_management::NumericTable & eigenvalues, data_management::NumericTable & means, data_management::NumericTable & variances,
-    data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter,
-    std::int64_t row_count)
+    data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
@@ -137,7 +136,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     if (singular_values != nullptr)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
-        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, row_count));
+        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, dataTable.getNumberOfRows()));
     }
     if (explained_variances_ratio != nullptr)
     {

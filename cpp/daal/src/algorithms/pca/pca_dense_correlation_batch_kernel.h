@@ -63,7 +63,7 @@ public:
                              data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
                              data_management::NumericTable & means, data_management::NumericTable & variances,
                              data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio,
-                             const BaseBatchParameter * parameter, std::int64_t row_count = 100);
+                             const BaseBatchParameter * parameter);
 };
 
 } // namespace internal
