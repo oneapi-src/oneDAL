@@ -47,7 +47,8 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(bool isCorrelation, const data_management::NumericTable & dataTable,
                                                                             covariance::BatchImpl * covarianceAlg,
                                                                             data_management::NumericTable & eigenvectors,
-                                                                            data_management::NumericTable & eigenvalues)
+                                                                            data_management::NumericTable & eigenvalues,
+                                                                            const Hyperparameter * hyperparameter)
 {
     if (isCorrelation) return this->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues);
     DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
@@ -62,7 +63,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     bool isCorrelation, bool isDeterministic, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
     DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
-    data_management::NumericTable & means, data_management::NumericTable & variances)
+    data_management::NumericTable & means, data_management::NumericTable & variances, const Hyperparameter * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 

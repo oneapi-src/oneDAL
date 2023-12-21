@@ -53,10 +53,11 @@ services::Status DistributedContainer<step2Master, algorithmFPType, correlationD
     PartialResult<correlationDense> * partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
     DistributedParameter<step2Master, algorithmFPType, correlationDense> * parameter =
         static_cast<DistributedParameter<step2Master, algorithmFPType, correlationDense> *>(_par);
-    services::Environment::env & env = *_env;
+    const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);
+    daal::services::Environment::env & env          = *_env;
 
     services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(distributed, algorithmFPType),
-                                                   compute, input, partialResult, parameter);
+                                                   compute, input, partialResult, parameter, hyperparameter);
 
     input->get(partialResults)->clear();
     return s;
@@ -73,10 +74,11 @@ services::Status DistributedContainer<step2Master, algorithmFPType, correlationD
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    services::Environment::env & env = *_env;
+    const internal::Hyperparameter * hyperparameter = static_cast<const internal::Hyperparameter *>(_hpar);
+    daal::services::Environment::env & env          = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(distributed, algorithmFPType), finalize, partialResult, parameter,
-                       *eigenvectors, *eigenvalues);
+                       *eigenvectors, *eigenvalues, hyperparameter);
 }
 
 } // namespace pca

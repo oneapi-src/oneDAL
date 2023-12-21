@@ -8,6 +8,7 @@ load("@onedal//dev/bazel:dal.bzl",
 PARAMETRIZED_ALGOS = [
     "covariance",
     "linear_regression",
+    "pca",
 ]
 
 ALGOS = [
@@ -28,7 +29,6 @@ ALGOS = [
     "louvain",
     "minkowski_distance",
     "objective_function",
-    "pca",
     "polynomial_kernel",
     "rbf_kernel",
     "sigmoid_kernel",

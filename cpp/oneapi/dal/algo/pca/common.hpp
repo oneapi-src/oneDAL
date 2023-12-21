@@ -255,6 +255,15 @@ private:
 
 } // namespace v1
 
+template <typename Descriptor>
+inline std::int64_t get_component_count(const Descriptor& desc, const table& data) {
+    ONEDAL_ASSERT(desc.get_component_count() >= 0);
+    if (desc.get_component_count() == 0) {
+        return data.get_column_count();
+    }
+    return desc.get_component_count();
+}
+
 using v1::descriptor;
 using v1::model;
 

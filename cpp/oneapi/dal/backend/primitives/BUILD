@@ -43,6 +43,7 @@ dal_collect_modules(
         "rng",
         "search",
         "selection",
+        "sign_flip",
         "sort",
         "stat",
         "voting",

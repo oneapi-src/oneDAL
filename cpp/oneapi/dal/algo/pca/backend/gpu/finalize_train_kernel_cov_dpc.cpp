@@ -15,12 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/finalize_train_kernel.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::pca::backend {
@@ -53,7 +53,7 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
     auto host_corr = corr.to_host(q, deps);
     pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
+    eigvecs = eigvecs.to_device(q, deps);
     return std::make_tuple(eigvecs, eigvals);
 }
 
@@ -85,6 +85,7 @@ auto compute_correlation(sycl::queue& q,
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_t& desc,
+                                const detail::train_parameters<Task>& params,
                                 const partial_train_result<Task>& input) {
     auto& q = ctx.get_queue();
 
@@ -115,12 +116,15 @@ static train_result<Task> train(const context_gpu& ctx,
             result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
         }
 
+        sycl::event sign_flip_event;
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            sign_flip_event = pr::sign_flip(q, eigvecs, { corr_event });
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+                homogen_table::wrap(eigvecs.flatten(q, { sign_flip_event }),
+                                    component_count,
+                                    column_count));
             result.set_model(model);
         }
     }
@@ -132,8 +136,9 @@ template <typename Float>
 struct finalize_train_kernel_gpu<Float, method::cov, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
-        return train<Float, task::dim_reduction>(ctx, desc, input);
+        return train<Float, task::dim_reduction>(ctx, desc, params, input);
     }
 };
 

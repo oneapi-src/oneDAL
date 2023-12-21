@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-namespace oneapi::dal::pca::backend {
+namespace oneapi::dal::backend::primitives {
 
-template <typename Cpu, typename Float>
-void sign_flip_impl(Float* eigvecs, std::int64_t row_count, std::int64_t column_count);
+#ifdef ONEDAL_DATA_PARALLEL
 
+/// Makes sign-flip techique for data
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  eigvecs  The data to sign-flip
 template <typename Float>
-void sign_flip(dal::backend::primitives::ndview<Float, 2>& eigvecs) {
-    using dal::backend::context_cpu;
-    using dal::backend::dispatch_by_cpu;
+sycl::event sign_flip(sycl::queue& q, ndview<Float, 2>& eigvecs, const event_vector& deps = {});
 
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        sign_flip_impl<decltype(cpu)>(eigvecs.get_mutable_data(),
-                                      eigvecs.get_dimension(0),
-                                      eigvecs.get_dimension(1));
-    });
-}
+#endif
 
-} // namespace oneapi::dal::pca::backend
+} // namespace oneapi::dal::backend::primitives

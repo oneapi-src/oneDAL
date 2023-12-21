@@ -151,9 +151,11 @@ auto update_partial_results(sycl::queue& q,
 }
 
 template <typename Float, typename Task>
-static partial_train_result<Task> partial_train(const context_gpu& ctx,
-                                                const descriptor_t& desc,
-                                                const partial_train_input<Task>& input) {
+static partial_train_result<Task> partial_train(
+    const context_gpu& ctx,
+    const descriptor_t& desc,
+    const detail::train_parameters<task::dim_reduction>& params,
+    const partial_train_input<task::dim_reduction>& input) {
     auto& q = ctx.get_queue();
 
     const auto data = input.get_data();
@@ -218,8 +220,9 @@ template <typename Float>
 struct partial_train_kernel_gpu<Float, method::cov, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
-        return partial_train<Float, task::dim_reduction>(ctx, desc, input);
+        return partial_train<Float, task::dim_reduction>(ctx, desc, params, input);
     }
 };
 

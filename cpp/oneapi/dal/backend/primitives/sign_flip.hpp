@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,17 +16,4 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/pca/common.hpp"
-
-namespace oneapi::dal::pca::backend {
-
-template <typename Descriptor>
-inline std::int64_t get_component_count(const Descriptor& desc, const table& data) {
-    ONEDAL_ASSERT(desc.get_component_count() >= 0);
-    if (desc.get_component_count() == 0) {
-        return data.get_column_count();
-    }
-    return desc.get_component_count();
-}
-
-} // namespace oneapi::dal::pca::backend
+#include "oneapi/dal/backend/primitives/sign_flip/sign_flip.hpp"

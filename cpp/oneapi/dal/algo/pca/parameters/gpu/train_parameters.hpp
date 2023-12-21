@@ -19,14 +19,20 @@
 #include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::pca::backend {
+namespace oneapi::dal::pca::parameters {
 
 template <typename Float, typename Method, typename Task>
-struct finalize_train_kernel_cpu {
-    train_result<Task> operator()(const dal::backend::context_cpu& ctx,
-                                  const detail::descriptor_base<Task>& desc,
-                                  const detail::train_parameters<Task>& params,
-                                  const partial_train_result<Task>& input) const;
+struct ONEDAL_EXPORT train_parameters_gpu {
+    using params_t = detail::train_parameters<Task>;
+    params_t operator()(const dal::backend::context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const train_input<Task>& input) const;
+    params_t operator()(const dal::backend::context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_input<Task>& input) const;
+    params_t operator()(const dal::backend::context_gpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const partial_train_result<Task>& input) const;
 };
 
-} // namespace oneapi::dal::pca::backend
+} // namespace oneapi::dal::pca::parameters

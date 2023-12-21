@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"

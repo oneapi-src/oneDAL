@@ -43,12 +43,13 @@ class PCACorrelationKernel<batch, algorithmFPType, cpu> : public PCACorrelationB
 public:
     explicit PCACorrelationKernel() {};
     services::Status compute(bool isCorrelation, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
-                             data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues);
+                             data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
+                             const Hyperparameter * hyperparameter);
 
     services::Status compute(bool isCorrelation, bool isDeterministic, const data_management::NumericTable & dataTable,
                              covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors,
                              data_management::NumericTable & eigenvalues, data_management::NumericTable & means,
-                             data_management::NumericTable & variances);
+                             data_management::NumericTable & variances, const Hyperparameter * hyperparameter);
 };
 
 } // namespace internal

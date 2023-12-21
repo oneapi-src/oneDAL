@@ -15,12 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/finalize_train_kernel.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/backend/primitives/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 namespace oneapi::dal::pca::backend {
 
@@ -39,6 +39,7 @@ template <typename Float>
 struct finalize_train_kernel_gpu<Float, method::svd, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
         throw unimplemented(
             dal::detail::error_messages::pca_svd_based_method_is_not_implemented_for_gpu());
