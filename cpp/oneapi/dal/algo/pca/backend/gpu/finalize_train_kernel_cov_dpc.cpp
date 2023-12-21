@@ -156,8 +156,9 @@ auto compute_singular_values_on_host(sycl::queue& q,
 
     auto eigvals_ptr = eigenvalues.get_data();
     auto singular_values_ptr = singular_values.get_mutable_data();
+    const Float factor = row_count - 1;
     for (std::int64_t i = 0; i < component_count; i++) {
-        singular_values_ptr[i] = sqrt((row_count - 1) * eigvals_ptr[i]);
+        singular_values_ptr[i] = std::sqrt(factor * eigvals_ptr[i]);
     }
     return singular_values;
 }

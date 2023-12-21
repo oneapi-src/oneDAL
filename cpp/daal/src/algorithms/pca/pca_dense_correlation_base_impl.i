@@ -67,7 +67,7 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromC
     DAAL_CHECK_MALLOC(variancesBlock.get());
     algorithmFPType * variancesArray = variancesBlock.get();
 
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         variancesArray[i] = covarianceArray[i * nFeatures + i];
     }
@@ -88,12 +88,12 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
     algorithmFPType * covarianceArray = covarianceBlock.get();
 
     algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         diagInvSqrts[i] = 1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]);
     }
 
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         for (size_t j = 0; j < i; j++)
         {
@@ -103,7 +103,7 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
     }
 
     /* Copy results into symmetric upper triangle */
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         for (size_t j = 0; j < i; j++)
         {
@@ -146,10 +146,10 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues
     WriteRows<algorithmFPType, cpu> singularValuesBlock(singular_values, 0, 1);
     DAAL_CHECK_MALLOC(singularValuesBlock.get());
     algorithmFPType * singularValuesArray = singularValuesBlock.get();
-
-    for (size_t i = 0; i < nComponents; i++)
+    const algorithmFPType factor          = nRows - 1;
+    for (size_t i = 0ul; i < nComponents; ++i)
     {
-        singularValuesArray[i] = (nRows - 1) * eigenValuesArray[i];
+        singularValuesArray[i] = factor * eigenValuesArray[i];
     }
     Math::vSqrt(nComponents, singularValuesArray, singularValuesArray);
     return services::Status();

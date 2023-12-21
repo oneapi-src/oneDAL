@@ -49,7 +49,10 @@ services::Status PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRa
     {
         sum += variancesBlockArray[i];
     }
-    if (sum <= 0) return services::Status(services::ErrorIncorrectEigenValuesSum);
+    if (sum <= algorithmFPType(0))
+    {
+        return services::Status(services::ErrorIncorrectEigenValuesSum);
+    }
     for (size_t i = 0; i < nComponents; i++)
     {
         explainedVariancesRatioArray[i] = eigenValuesArray[i] / sum;
