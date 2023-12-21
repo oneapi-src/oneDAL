@@ -79,7 +79,6 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                                            *daal_eigenvalues,
                                                                            *daal_eigenvectors,
                                                                            decomposeCollection));
-    model_t model;
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         reshaped_eigvec = arr_eigvec.get_slice(0, component_count * column_count);
         result.set_eigenvectors(
