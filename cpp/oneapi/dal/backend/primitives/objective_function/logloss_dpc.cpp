@@ -640,10 +640,12 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
     }
 
     if (comm_.get_rank_count() > 1) {
-        sycl::event::wait_and_throw(last_iter_deps);
         {
             ONEDAL_PROFILER_TASK(hessp_allreduce);
-            auto hessp_arr = dal::array<Float>::wrap(q_, out.get_mutable_data(), out.get_count());
+            auto hessp_arr = dal::array<Float>::wrap(q_,
+                                                     out.get_mutable_data(),
+                                                     out.get_count(),
+                                                     last_iter_deps);
             comm_.allreduce(hessp_arr).wait();
         }
     }
@@ -714,8 +716,6 @@ logloss_function<Float>::logloss_function(sycl::queue q,
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz),
           hessp_(q, comm, data, L2, fit_intercept, bsz_),
           dimension_(fit_intercept ? p_ + 1 : p_) {
-    // std::cout << "Rank" << std::endl;
-    // std::cout << comm_.get_rank() << std::endl;
     ONEDAL_ASSERT(labels.get_dimension(0) == n_);
     probabilities_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
     gradient_ = ndarray<Float, 1>::empty(q_, { dimension_ }, sycl::usm::alloc::device);
@@ -785,14 +785,12 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
     }
 
     if (comm_.get_rank_count() > 1) {
-        // std::cout << "Current rank: " << comm_.get_rank() << std::endl;
-
-        sycl::event::wait_and_throw(last_iter_e);
-        //last_iter_e.wait_and_throw();
         {
             ONEDAL_PROFILER_TASK(gradient_allreduce);
-            auto gradient_arr =
-                dal::array<Float>::wrap(q_, gradient_.get_mutable_data(), gradient_.get_count());
+            auto gradient_arr = dal::array<Float>::wrap(q_,
+                                                        gradient_.get_mutable_data(),
+                                                        gradient_.get_count(),
+                                                        last_iter_e);
             comm_.allreduce(gradient_arr).wait();
         }
         {

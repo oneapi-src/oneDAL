@@ -43,15 +43,13 @@ public:
         for (std::int64_t i = 0; i < split_count; i++) {
             const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
             const std::int64_t block_size = block_size_regular + tail;
-            // std::cout << i << ": " << row_offset << " " << block_size << std::endl;
-            REQUIRE(block_size > 0);
+            REQUIRE(0l < block_size);
             const auto row_range = range{ row_offset, row_offset + block_size };
             const auto block = te::get_table_block<float_t>(this->get_policy(), data, row_range);
             const auto labels_range = labels.get_slice(row_offset, row_offset + block_size);
             result[i].first = homogen_table::wrap(block, block_size, column_count);
             result[i].second = labels_range;
             row_offset += block_size;
-            // std::cout << "---" << std::endl;
         }
         return result;
     }
@@ -63,14 +61,11 @@ public:
                                                         double L2,
                                                         bool fit_intercept) {
         auto input = split_input_data(data, labels, thr_cnt);
-        // std::cout << "data splited succcessfully" << std::endl;
-        // std::cout << input.size() << " " << thr_cnt << std::endl;
 
         std::vector<logloss_function<float_t>> funcs;
         funcs.reserve(thr_cnt);
 
         for (int i = 0; i < thr_cnt; ++i) {
-            // std::cout << "Functor " << i << std::endl;
             auto functor = logloss_function<float_t>(this->get_queue(),
                                                      comm,
                                                      input[i].first,
@@ -78,7 +73,6 @@ public:
                                                      float_t(L2),
                                                      fit_intercept);
             funcs.push_back(functor);
-            // std::cout << "after push_back" << std::endl;
         }
         return funcs;
     }
@@ -101,12 +95,9 @@ public:
 
         // logloss_function has different regularization so we need to multiply it by 2 to allign with other implementations
         auto funcs = get_functors(comm, thr_cnt, this->data_, labels_gpu, L2 * 2, fit_intercept);
-        // std::cout << funcs.size() << std::endl;
         std::int64_t num_checks = 5;
 
         std::vector<ndarray<float_t, 1>> vecs_host(num_checks), vecs_gpu(num_checks);
-        //vecs_host.reserve(num_checks);
-        //vecs_gpu.r
         rng<float_t> rn_gen;
         for (std::int64_t ij = 0; ij < num_checks; ++ij) {
             engine eng(2007 + dim * num_checks + ij);
@@ -132,25 +123,6 @@ public:
         });
 
         REQUIRE(results.size() == dal::detail::integral_cast<std::size_t>(thr_cnt));
-
-        // for (std::int64_t i = 0; i < thr_cnt; ++i) {
-
-        //     // std::cout << "Value " << i << ": " << std::get<0>(results[i]) << std::endl;
-        //     auto grad_host = std::get<1>(results[i]).to_host(this->get_queue());
-        //     std::cout << "Gradient " << i << ": ";
-        //     for (int j = 0; j < dim; ++j) {
-        //         std::cout << grad_host.at(j) << " ";
-        //     }
-        //     std::cout << std::endl;
-        //     for (int ij = 0; ij < num_checks; ++ij){
-        //         auto res_host = std::get<2>(results[i])[ij].to_host(this->get_queue());
-        //         std::cout << "Hessp " << i << " vec " << ij << ":" << std::endl;
-        //         for (int j = 0; j < dim; ++j) {
-        //             std::cout << res_host.at(j) << " ";
-        //         }
-        //         std::cout << std::endl;
-        //     }
-        // }
 
         auto data_array = row_accessor<const float_t>{ this->data_ }.pull(this->get_queue());
         auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { this->n_, this->p_ });
@@ -180,15 +152,9 @@ public:
                                float_t(0.0),
                                float_t(L2),
                                fit_intercept);
-        // std::cout << "Gth value: " << logloss_gth << std::endl;
         for (std::int64_t k = 0; k < thr_cnt; ++k) {
             this->check_val(std::get<0>(results[k]), logloss_gth, rtol, atol);
         }
-        // std::cout << "Gth gradient: " << std::endl;
-        // for (int i = 0; i < dim; ++i) {
-        //     std::cout << grad_gth.at(i) << " ";
-        // }
-        // std::cout << std::endl;
 
         for (int k = 0; k < thr_cnt; ++k) {
             auto grad_host = std::get<1>(results[k]).to_host(this->get_queue());
@@ -202,16 +168,13 @@ public:
         const std::int64_t st = fit_intercept ? 0 : 1;
 
         for (std::int64_t ij = 0; ij < num_checks; ++ij) {
-            // std::cout << "Gth hessp vector " << ij << ": ";
             for (std::int64_t i = st; i < this->p_ + 1; ++i) {
                 float_t correct = 0;
                 for (std::int64_t j = st; j < this->p_ + 1; ++j) {
                     correct += vecs_host[ij].at(j - st) * hess_gth.at(i, j);
                 }
-                // std::cout << correct << " ";
                 hessp_gth.at(i - st) = correct;
             }
-            // std::cout << std::endl;
 
             for (std::int64_t k = 0; k < thr_cnt; ++k) {
                 auto hessp_host = std::get<2>(results[k])[ij].to_host(this->get_queue());
