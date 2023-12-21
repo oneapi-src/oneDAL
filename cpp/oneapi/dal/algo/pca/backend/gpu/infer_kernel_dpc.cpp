@@ -51,8 +51,8 @@ auto get_centered(sycl::queue& q,
         const auto range = bk::make_range_2d(row_count, column_count);
         h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
+            const std::size_t i = id[0];
+            const std::size_t j = id[1];
             centered_data_ptr[i * column_count + j] =
                 centered_data_ptr[i * column_count + j] - means_ptr[j];
         });
@@ -76,10 +76,11 @@ auto get_scaled(sycl::queue& q,
         const auto range = bk::make_range_2d(row_count, column_count);
         h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            Float sqrt_var = sycl::sqrt(variances_ptr[j]);
-            Float inv_var = sqrt_var == 0 ? 0 : 1 / sqrt_var;
+            const std::size_t i = id[0];
+            const std::size_t j = id[1];
+            const Float sqrt_var = sycl::sqrt(variances_ptr[j]);
+            const Float inv_var =
+                sqrt_var < std::numeric_limits<Float>::epsilon() ? 0 : 1 / sqrt_var;
             scaled_data_ptr[i * column_count + j] = scaled_data_ptr[i * column_count + j] * inv_var;
         });
     });
@@ -102,10 +103,11 @@ auto get_whitened(sycl::queue& q,
         const auto range = bk::make_range_2d(row_count, column_count);
         h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            Float sqrt_eigenvalue = sycl::sqrt(eigenvalues_ptr[j]);
-            Float inv_eigenvalue = sqrt_eigenvalue == 0 ? 0 : 1 / sqrt_eigenvalue;
+            const std::size_t i = id[0];
+            const std::size_t j = id[1];
+            const Float sqrt_eigenvalue = sycl::sqrt(eigenvalues_ptr[j]);
+            Float inv_eigenvalue =
+                sqrt_eigenvalue < std::numeric_limits<Float>::epsilon() ? 0 : 1 / sqrt_eigenvalue;
             whitened_data_ptr[i * column_count + j] =
                 whitened_data_ptr[i * column_count + j] * inv_eigenvalue;
         });

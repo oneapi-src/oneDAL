@@ -48,7 +48,7 @@ auto compute_sums(sycl::queue& q,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_sums, q);
     ONEDAL_ASSERT(data.has_data());
-    ONEDAL_ASSERT(data.get_dimension(1) > 0);
+    ONEDAL_ASSERT(0 < data.get_dimension(1));
 
     const std::int64_t column_count = data.get_dimension(1);
     auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
@@ -104,7 +104,7 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+    constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
     auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
@@ -167,7 +167,7 @@ auto compute_singular_values_on_host(sycl::queue& q,
     auto singular_values_ptr = singular_values.get_mutable_data();
 
     const Float factor = row_count - 1;
-    for (std::int64_t i = 0; i < component_count; i++) {
+    for (std::int64_t i = 0; i < component_count; ++i) {
         singular_values_ptr[i] = std::sqrt(factor * eigvals_ptr[i]);
     }
     return singular_values;
@@ -190,12 +190,13 @@ auto compute_explained_variances_on_host(sycl::queue& q,
     auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
 
     Float sum = 0;
-    for (std::int64_t i = 0; i < column_count; i++) {
+    for (std::int64_t i = 0; i < column_count; ++i) {
         sum += vars_ptr[i];
     }
     ONEDAL_ASSERT(sum > 0);
-    for (std::int64_t i = 0; i < component_count; i++) {
-        explained_variances_ratio_ptr[i] = eigvals_ptr[i] / sum;
+    const Float inverse_sum = 1.0 / sum;
+    for (std::int64_t i = 0; i < component_count; ++i) {
+        explained_variances_ratio_ptr[i] = eigvals_ptr[i] * inverse_sum;
     }
     return explained_variances_ratio;
 }
@@ -251,7 +252,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     auto data_to_compute = cov;
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
-        auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+        pr::ndarray<Float, 2> corr{};
         std::tie(corr, corr_event) =
             compute_correlation_from_covariance(q_, rows_count_global, cov, { cov_event });
         corr_event.wait_and_throw();
