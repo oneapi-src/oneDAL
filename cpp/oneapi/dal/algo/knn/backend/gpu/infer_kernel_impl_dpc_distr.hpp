@@ -599,7 +599,6 @@ sycl::event bf_kernel_distr(sycl::queue& queue,
 
         auto sc = current_block.get_dimension(0);
         ONEDAL_ASSERT(sc >= actual_rows_in_block);
-        // TODO: add tests for curr_k = actual_rows_in_block
         auto curr_k = std::min(actual_rows_in_block, kcount);
         auto actual_current_block = current_block.get_row_slice(0, actual_rows_in_block);
         auto actual_current_tresps = current_tresps_1d.get_slice(0, actual_rows_in_block);
