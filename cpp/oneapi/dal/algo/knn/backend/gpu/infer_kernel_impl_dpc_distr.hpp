@@ -255,33 +255,37 @@ public:
             ONEDAL_PROFILER_TASK(query_loop.selection, queue_);
             auto kselect_block = part_distances_.get_row_slice(first, last);
             select_event = select(queue_,
-                                kselect_block,
-                                k_neighbors_,
-                                min_dist_dest,
-                                min_indc_dest,
-                                { copy_actual_dist_event,
-                                  copy_current_dist_event,
-                                  copy_actual_indc_event,
-                                  copy_current_indc_event,
-                                  copy_actual_resp_event,
-                                  copy_current_resp_event });
+                                  kselect_block,
+                                  k_neighbors_,
+                                  min_dist_dest,
+                                  min_indc_dest,
+                                  { copy_actual_dist_event,
+                                    copy_current_dist_event,
+                                    copy_actual_indc_event,
+                                    copy_current_indc_event,
+                                    copy_actual_resp_event,
+                                    copy_current_resp_event });
         }
         auto select_resp_event = select_indexed(queue_,
-                                          min_indc_dest,
-                                          part_responses_.get_row_slice(first, last),
-                                          min_resp_dest,
-                                          { select_event });
+                                                min_indc_dest,
+                                                part_responses_.get_row_slice(first, last),
+                                                min_resp_dest,
+                                                { select_event });
         auto select_indc_event = select_indexed(queue_,
-                                          min_indc_dest,
-                                          part_indices_.get_row_slice(first, last),
-                                          min_indc_dest,
-                                          { select_resp_event });
+                                                min_indc_dest,
+                                                part_indices_.get_row_slice(first, last),
+                                                min_indc_dest,
+                                                { select_resp_event });
         if (last_iteration_) {
             sycl::event copy_sqrt_event;
             if (this->compute_sqrt_) {
-                copy_sqrt_event = copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { select_indc_event });
+                copy_sqrt_event =
+                    copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { select_indc_event });
             }
-            auto final_event = this->output_responses(bounds, indices_, distances_, { select_indc_event, copy_sqrt_event });
+            auto final_event = this->output_responses(bounds,
+                                                      indices_,
+                                                      distances_,
+                                                      { select_indc_event, copy_sqrt_event });
             return final_event;
         }
         return select_indc_event;
