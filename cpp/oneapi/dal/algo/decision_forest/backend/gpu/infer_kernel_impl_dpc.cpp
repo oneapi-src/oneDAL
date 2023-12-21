@@ -37,6 +37,10 @@ template <typename Float, typename Index, typename Task>
 void infer_kernel_impl<Float, Index, Task>::validate_input(const descriptor_t& desc,
                                                            const model_t& model,
                                                            const table& data) const {
+    if (data.get_row_count() == 0) {
+        throw domain_error(msg::invalid_range_of_rows());
+    }
+
     if (data.get_row_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
     }

@@ -58,13 +58,27 @@ public:
         const auto split_responses = te::split_table_by_rows<float_t>(this->get_policy(),
                                                                       input.get_responses(),
                                                                       split_count);
+        bool is_weighted = input.get_weights().get_row_count() > 0;
+
+        std::vector<table> split_weights;
+        if (is_weighted) {
+            split_weights = te::split_table_by_rows<float_t>(this->get_policy(),
+                                                             input.get_weights(),
+                                                             split_count);
+        }
 
         std::vector<train_input_t> split_input;
         split_input.reserve(split_count);
 
         for (std::int64_t i = 0; i < split_count; i++) {
-            split_input.push_back( //
-                train_input_t{ split_data[i], split_responses[i] });
+            if (is_weighted) {
+                split_input.push_back( //
+                    train_input_t{ split_data[i], split_responses[i], split_weights[i] });
+            }
+            else {
+                split_input.push_back( //
+                    train_input_t{ split_data[i], split_responses[i] });
+            }
         }
 
         return split_input;
@@ -108,7 +122,7 @@ public:
     train_result_t train_spmd_weighted_base_checks(const descriptor_t& desc,
                                                    const te::dataframe& data,
                                                    const te::table_id& data_table_id) {
-        const auto x = data.get_table(data_table_id, range(0, -2));
+        const auto x = data.get_table(data_table_id, range(0, -1));
         const auto y =
             data.get_table(data_table_id,
                            range(data.get_column_count() - 2, data.get_column_count() - 1));
@@ -390,7 +404,6 @@ DF_SPMD_CLS_TEST("df cls base check with default params and train weights") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
-
     const auto [data, data_test, class_count, checker_list] =
         this->get_cls_dataframe_weighted_base();
 
@@ -409,7 +422,6 @@ DF_SPMD_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
-
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
     const std::int64_t tree_count_val = GENERATE_COPY(10, 50);
@@ -425,7 +437,7 @@ DF_SPMD_CLS_TEST("df cls base check with non default params") {
     auto desc = this->get_default_descriptor();
 
     desc.set_tree_count(tree_count_val);
-    desc.set_min_observations_in_leaf_node(2);
+    desc.set_min_observations_in_leaf_node(1);
     desc.set_variable_importance_mode(variable_importance_mode_val);
     desc.set_error_metric_mode(error_metric_mode_val);
     desc.set_infer_mode(infer_mode_val);
