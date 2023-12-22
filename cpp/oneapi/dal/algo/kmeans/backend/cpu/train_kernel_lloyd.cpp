@@ -35,15 +35,47 @@ namespace daal_kmeans = daal::algorithms::kmeans;
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 
-template <typename Float, daal::CpuType Cpu>
-using daal_kmeans_lloyd_dense_kernel_t =
-    daal_kmeans::internal::KMeansBatchKernel<daal_kmeans::lloydDense, Float, Cpu>;
+template <daal_kmeans::Method Value>
+using daal_method_constant = std::integral_constant<daal_kmeans::Method, Value>;
 
-template <typename Float, daal::CpuType Cpu>
-using daal_kmeans_init_plus_plus_dense_kernel_t =
-    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
+template <daal_kmeans_init::Method Value>
+using daal_init_method_constant = std::integral_constant<daal_kmeans_init::Method, Value>;
 
-template <typename Float>
+template <typename Method>
+struct to_daal_method;
+
+template <>
+struct to_daal_method<method::lloyd_dense> : daal_method_constant<daal_kmeans::lloydDense> {};
+
+template <>
+struct to_daal_method<method::lloyd_sparse> : daal_method_constant<daal_kmeans::lloydCSR> {};
+
+template <typename Method>
+struct to_daal_init_method;
+
+template <>
+struct to_daal_init_method<method::lloyd_dense> : daal_init_method_constant<daal_kmeans_init::plusPlusDense> {};
+
+template <>
+struct to_daal_init_method<method::lloyd_sparse> : daal_init_method_constant<daal_kmeans_init::plusPlusCSR> {};
+
+// template <typename Float, daal::CpuType Cpu, typename Method>
+// using batch_kernel_t =
+//     daal_lom::internal::LowOrderMomentsBatchKernel<Float, to_daal_method<Method>::value, Cpu>;
+
+// template <typename Float, daal::CpuType Cpu>
+// using daal_lom_online_kernel_t =
+//     daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
+
+template <typename Float, daal::CpuType Cpu, typename Method>
+using batch_kernel_t =
+    daal_kmeans::internal::KMeansBatchKernel<to_daal_method<Method>::value, Float, Cpu>;
+
+template <typename Float, daal::CpuType Cpu, typename Method>
+using init_kernel_t =
+    daal_kmeans_init::internal::KMeansInitKernel<to_daal_init_method<Method>::value, Float, Cpu>;
+
+template <typename Float, typename Method>
 static daal::data_management::NumericTablePtr get_initial_centroids(
     const context_cpu& ctx,
     const descriptor_t& desc,
@@ -67,15 +99,21 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
             daal_initial_centroids.get()
         };
 
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
-                ctx,
-                init_len_input,
-                init_input,
-                init_len_output,
-                init_output,
-                &par,
-                *(par.engine)));
+        // interop::status_to_exception(
+        //     interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
+        //         ctx,
+        //         init_len_input,
+        //         init_input,
+        //         init_len_output,
+        //         init_output,
+        //         &par,
+        //         *(par.engine)));
+        interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            return init_kernel_t<Float,
+                                oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
+                                Method>()
+                .compute(init_len_input, init_input, init_len_output, init_output, &par, *(par.engine));
+        }));
     }
     else {
         daal_initial_centroids = interop::convert_to_daal_table<Float>(initial_centroids);
@@ -83,7 +121,7 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
     return daal_initial_centroids;
 }
 
-template <typename Float, typename Task>
+template <typename Float, typename Task, typename Method>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const table& data,
@@ -99,7 +137,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                dal::detail::integral_cast<std::size_t>(max_iteration_count));
     par.accuracyThreshold = accuracy_threshold;
 
-    auto daal_initial_centroids = get_initial_centroids<Float>(ctx, desc, data, initial_centroids);
+    auto daal_initial_centroids = get_initial_centroids<Float, Method>(ctx, desc, data, initial_centroids);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
@@ -125,11 +163,17 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                        daal_objective_function_value.get(),
                                                        daal_iteration_count.get() };
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-                                                                           input,
-                                                                           output,
-                                                                           &par));
+    // interop::status_to_exception(
+    //     interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+    //                                                                        input,
+    //                                                                        output,
+    //                                                                        &par));
+    interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return batch_kernel_t<Float,
+                            oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
+                            Method>()
+            .compute(input, output, &par);
+    }));
 
     return train_result<Task>()
         .set_responses(
@@ -142,26 +186,28 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                             .build()));
 }
 
-template <typename Float, typename Task>
+template <typename Float, typename Task, typename Method>
 static train_result<Task> train(const context_cpu& ctx,
                                 const descriptor_t& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx,
+    return call_daal_kernel<Float, Task, Method>(ctx,
                                          desc,
                                          input.get_data(),
                                          input.get_initial_centroids());
 }
 
-template <typename Float>
-struct train_kernel_cpu<Float, method::lloyd_dense, task::clustering> {
+template <typename Float, typename Method>
+struct train_kernel_cpu<Float, Method, task::clustering> {
     train_result<task::clustering> operator()(const context_cpu& ctx,
                                               const descriptor_t& desc,
                                               const train_input<task::clustering>& input) const {
-        return train<Float, task::clustering>(ctx, desc, input);
+        return train<Float, task::clustering, Method>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, method::lloyd_dense, task::clustering>;
 template struct train_kernel_cpu<double, method::lloyd_dense, task::clustering>;
+template struct train_kernel_cpu<float, method::lloyd_sparse, task::clustering>;
+template struct train_kernel_cpu<double, method::lloyd_sparse, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend

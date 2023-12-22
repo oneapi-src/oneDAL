@@ -347,6 +347,7 @@ Float calc_objective_function(sycl::queue& q,
 
 template <typename Float>
 sycl::event update_centroids(sycl::queue& q,
+                             const bk::communicator<spmd::device_memory_access::usm>& comm,
                              const csr_table& data,
                              const pr::ndarray<std::int32_t, 2>& responses,
                              pr::ndarray<Float, 2>& centroids,
@@ -370,7 +371,7 @@ sycl::event update_centroids(sycl::queue& q,
     const auto num_clusters = centroids.get_dimension(0);
     const auto range = bk::make_multiple_nd_range_3d({ num_clusters, column_count, local_size },
                                                      { 1, 1, local_size });
-    return q.submit([&](sycl::handler& cgh) {
+    auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](auto it) {
             const auto cluster_id = it.get_global_id(0);
@@ -391,12 +392,39 @@ sycl::event update_centroids(sycl::queue& q,
             }
             const auto final_component =
                 sycl::reduce_over_group(it.get_group(), acc, sycl::ext::oneapi::plus<Float>());
-            if (local_id == 0) {
-                centroids_ptr[cluster_id * column_count + col_idx] =
-                    counts_ptr[cluster_id] > 0 ? final_component / counts_ptr[cluster_id] : 0;
+            if (local_id == 0 && counts_ptr[cluster_id] > 0) {
+                centroids_ptr[cluster_id * column_count + col_idx] = final_component;
             }
         });
     });
+    {
+        // Cluster counters over all ranks in case of distributed computing
+        auto count_reduce_event = comm.allreduce(cluster_counts.flatten(q, { deps }));
+        count_reduce_event.wait();
+    }
+    {
+        // Reduce centroids over all ranks in of distributed computing
+        auto centroids_reduce_event =
+            comm.allreduce(centroids.flatten(q, { centroids_sum_event }));
+        centroids_reduce_event.wait();
+    }
+
+    const auto finalize_range = bk::make_multiple_nd_range_2d({ num_clusters, local_size}, {1, local_size});
+    auto finalize_centroids = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(centroids_sum_event);
+        cgh.parallel_for(finalize_range, [=](auto it) {
+            const auto cluster_id = it.get_global_id(0);
+            const auto local_id = it.get_local_id(1);
+            const auto cent_count = counts_ptr[cluster_id];
+            if (cent_count == 0) {
+                return;
+            }
+            for (std::int32_t col_idx = local_id; col_idx < column_count; col_idx += local_size) {
+                centroids_ptr[cluster_id * column_count + col_idx] /= cent_count;
+            }
+        });
+    });
+    return finalize_centroids;
 }
 
 template <typename Float>
@@ -405,12 +433,11 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        // auto& comm = ctx.get_communicator();
+        auto& comm = ctx.get_communicator();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
-        // const std::int64_t nonzero_count = data.get_non_zero_count();
         const std::int64_t cluster_count = params.get_cluster_count();
         const std::int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
@@ -459,11 +486,16 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                                 arr_responses,
                                                 arr_closest_distances,
                                                 { centroid_squares_event });
-            // auto empty_count =
             count_clusters(queue, arr_responses, cluster_counts, { assign_event });
             auto objective_function =
                 calc_objective_function(queue, arr_closest_distances, { assign_event });
+            {
+                // Reduce objective function value over all ranks
+                auto obj_func_reduce_event = comm.allreduce(objective_function);
+                obj_func_reduce_event.wait();
+            }
             auto update_event = update_centroids(queue,
+                                                comm,
                                                  data,
                                                  arr_responses,
                                                  arr_centroids,
@@ -492,6 +524,11 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                             { centroid_squares_event });
         auto objective_function =
             calc_objective_function(queue, arr_closest_distances, { assign_event });
+        {
+            // Reduce objective function value over all ranks
+            auto obj_func_reduce_event = comm.allreduce(objective_function);
+            obj_func_reduce_event.wait();
+        }
 
         model<task::clustering> model;
         model.set_centroids(
