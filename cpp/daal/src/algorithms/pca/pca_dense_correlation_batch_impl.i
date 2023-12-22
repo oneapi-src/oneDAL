@@ -71,6 +71,15 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     if (isCorrelation)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
+        if (resultsToCompute & mean)
+        {
+            DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0));
+        }
+
+        if (resultsToCompute & variance)
+        {
+            DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1));
+        }
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeEigenvalues);

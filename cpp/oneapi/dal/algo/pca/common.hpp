@@ -248,7 +248,7 @@ public:
         return *this;
     }
 
-    /// @remark default = normalization::zscore
+    /// @remark default = normalization::none
     normalization get_data_normalization() const {
         return base_t::get_data_normalization();
     }

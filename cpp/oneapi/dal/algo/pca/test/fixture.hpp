@@ -192,8 +192,8 @@ public:
         INFO("check if means are expected")
         check_means(bs, means);
 
-        // INFO("check if variances are expected")
-        // check_variances(bs, variances);
+        INFO("check if variances are expected")
+        check_variances(bs, variances);
     }
 
     void check_train_result_online(const pca::descriptor<Float, Method>& desc,
