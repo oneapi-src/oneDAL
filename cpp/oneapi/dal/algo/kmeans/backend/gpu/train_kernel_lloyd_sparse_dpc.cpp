@@ -392,6 +392,7 @@ sycl::event update_centroids(sycl::queue& q,
             }
             const auto final_component =
                 sycl::reduce_over_group(it.get_group(), acc, sycl::ext::oneapi::plus<Float>());
+            // if count for cluster is zero, the centroid will remain as previous one
             if (local_id == 0 && counts_ptr[cluster_id] > 0) {
                 centroids_ptr[cluster_id * column_count + col_idx] = final_component;
             }

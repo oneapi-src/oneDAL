@@ -59,14 +59,6 @@ struct to_daal_init_method<method::lloyd_dense> : daal_init_method_constant<daal
 template <>
 struct to_daal_init_method<method::lloyd_sparse> : daal_init_method_constant<daal_kmeans_init::plusPlusCSR> {};
 
-// template <typename Float, daal::CpuType Cpu, typename Method>
-// using batch_kernel_t =
-//     daal_lom::internal::LowOrderMomentsBatchKernel<Float, to_daal_method<Method>::value, Cpu>;
-
-// template <typename Float, daal::CpuType Cpu>
-// using daal_lom_online_kernel_t =
-//     daal_lom::internal::LowOrderMomentsOnlineKernel<Float, daal_lom::defaultDense, Cpu>;
-
 template <typename Float, daal::CpuType Cpu, typename Method>
 using batch_kernel_t =
     daal_kmeans::internal::KMeansBatchKernel<to_daal_method<Method>::value, Float, Cpu>;
@@ -99,15 +91,6 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
             daal_initial_centroids.get()
         };
 
-        // interop::status_to_exception(
-        //     interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
-        //         ctx,
-        //         init_len_input,
-        //         init_input,
-        //         init_len_output,
-        //         init_output,
-        //         &par,
-        //         *(par.engine)));
         interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
             return init_kernel_t<Float,
                                 oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
@@ -163,11 +146,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                        daal_objective_function_value.get(),
                                                        daal_iteration_count.get() };
 
-    // interop::status_to_exception(
-    //     interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-    //                                                                        input,
-    //                                                                        output,
-    //                                                                        &par));
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
         return batch_kernel_t<Float,
                             oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
