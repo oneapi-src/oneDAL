@@ -51,8 +51,12 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
     daal_cov::Parameter daal_parameter;
+
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
+    if (desc.get_normalization_mode() == normalization::mean_center) {
+        daal_parameter.outputMatrixType = daal_cov::covarianceMatrix;
+    }
     const auto data = input.get_data();
     ONEDAL_ASSERT(data.has_data());
     const auto daal_data = interop::convert_to_daal_table<Float>(data);

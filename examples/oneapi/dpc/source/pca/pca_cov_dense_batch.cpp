@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2022 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,21 +29,28 @@
 
 namespace dal = oneapi::dal;
 namespace pca = dal::pca;
-void run(sycl::queue& q) {
-    const auto train_data_file_name = get_data_path("precomputed_correlation.csv");
-
-    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    using float_t = float;
-    using method_t = pca::method::precomputed;
-    using task_t = pca::task::dim_reduction;
-    using descriptor_t = pca::descriptor<float_t, method_t, task_t>;
-    const auto pca_desc = descriptor_t().set_component_count(5).set_deterministic(true);
+template <typename Method>
+void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name, bool whiten) {
+    const auto pca_desc = pca::descriptor<>()
+                              .set_component_count(5)
+                              .set_deterministic(true)
+                              .set_normalization_mode(pca::normalization::mean_center)
+                              .set_whiten(whiten);
 
     const auto result_train = dal::train(q, pca_desc, x_train);
-
+    std::cout << method_name << "\n" << std::endl;
     std::cout << "Eigenvectors:\n" << result_train.get_eigenvectors() << std::endl;
 
     std::cout << "Eigenvalues:\n" << result_train.get_eigenvalues() << std::endl;
+
+    std::cout << "Singular Values:\n" << result_train.get_singular_values() << std::endl;
+
+    std::cout << "Variances:\n" << result_train.get_variances() << std::endl;
+
+    std::cout << "Means:\n" << result_train.get_means() << std::endl;
+
+    std::cout << "Explained variances ratio:\n"
+              << result_train.get_explained_variances_ratio() << std::endl;
 
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
@@ -51,12 +58,17 @@ void run(sycl::queue& q) {
 }
 
 int main(int argc, char const* argv[]) {
+    const auto train_data_file_name = get_data_path("pca_non_normalized.csv");
+
+    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
+
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run(q);
+        run<pca::method::cov>(q, x_train, "Training method: Covariance Whiten:false", false);
+        run<pca::method::cov>(q, x_train, "Training method: Covariance Whiten:true", true);
     }
     return 0;
 }

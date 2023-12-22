@@ -61,6 +61,18 @@ using v1::by_default;
 
 } // namespace method
 
+namespace v1 {
+/// Normalization modes
+enum class normalization {
+    /// No normalization is necessary or data is not normalized
+    none,
+    /// Just mean centered is necessary, or data is already centered
+    mean_center,
+    /// Normalization is necessary, or data is already normalized
+    zscore
+};
+} // namespace v1
+using v1::normalization;
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
 class result_option_id : public result_option_id_base {
@@ -76,6 +88,8 @@ ONEDAL_EXPORT result_option_id get_eigenvectors_id();
 ONEDAL_EXPORT result_option_id get_eigenvalues_id();
 ONEDAL_EXPORT result_option_id get_variances_id();
 ONEDAL_EXPORT result_option_id get_means_id();
+ONEDAL_EXPORT result_option_id get_singular_values_id();
+ONEDAL_EXPORT result_option_id get_explained_variances_ratio_id();
 
 } // namespace detail
 
@@ -91,7 +105,11 @@ const inline result_option_id eigenvalues = detail::get_eigenvalues_id();
 const inline result_option_id vars = detail::get_variances_id();
 /// Return means
 const inline result_option_id means = detail::get_means_id();
-
+/// Return singular values
+const inline result_option_id singular_values = detail::get_singular_values_id();
+/// Return means
+const inline result_option_id explained_variances_ratio =
+    detail::get_explained_variances_ratio_id();
 } // namespace result_options
 
 namespace detail {
@@ -125,15 +143,19 @@ public:
     using task_t = Task;
 
     descriptor_base();
-
+    bool whiten() const;
     bool get_deterministic() const;
     std::int64_t get_component_count() const;
-
+    normalization get_normalization_mode() const;
+    normalization get_data_normalization() const;
     result_option_id get_result_options() const;
 
 protected:
+    void set_whiten_impl(bool value);
     void set_deterministic_impl(bool value);
     void set_component_count_impl(std::int64_t value);
+    void set_normalization_mode_impl(normalization value);
+    void set_data_normalization_impl(normalization value);
     void set_result_options_impl(const result_option_id& value);
 
 private:
@@ -207,6 +229,34 @@ public:
         base_t::set_deterministic_impl(value);
         return *this;
     }
+    bool whiten() const {
+        return base_t::whiten();
+    }
+
+    auto& set_whiten(bool value) {
+        base_t::set_whiten_impl(value);
+        return *this;
+    }
+
+    /// @remark default = normalization::zscore
+    normalization get_normalization_mode() const {
+        return base_t::get_normalization_mode();
+    }
+
+    auto& set_normalization_mode(normalization value) {
+        base_t::set_normalization_mode_impl(value);
+        return *this;
+    }
+
+    /// @remark default = normalization::none
+    normalization get_data_normalization() const {
+        return base_t::get_data_normalization();
+    }
+
+    auto& set_data_normalization(normalization value) {
+        base_t::set_data_normalization_impl(value);
+        return *this;
+    }
 
     /// Choose which results should be computed and returned.
     result_option_id get_result_options() const {
@@ -242,9 +292,30 @@ public:
         set_eigenvectors_impl(value);
         return *this;
     }
+    const table& get_means() const;
+
+    auto& set_means(const table& value) {
+        set_means_impl(value);
+        return *this;
+    }
+    const table& get_variances() const;
+
+    auto& set_variances(const table& value) {
+        set_variances_impl(value);
+        return *this;
+    }
+    const table& get_eigenvalues() const;
+
+    auto& set_eigenvalues(const table& value) {
+        set_eigenvalues_impl(value);
+        return *this;
+    }
 
 protected:
     void set_eigenvectors_impl(const table&);
+    void set_means_impl(const table&);
+    void set_variances_impl(const table&);
+    void set_eigenvalues_impl(const table&);
 
 private:
     void serialize(dal::detail::output_archive& ar) const;

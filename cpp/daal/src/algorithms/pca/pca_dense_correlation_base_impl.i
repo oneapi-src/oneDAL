@@ -54,6 +54,27 @@ void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algo
 }
 
 template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeVariancesFromCov(const data_management::NumericTable & covariance,
+                                                                                   data_management::NumericTable & variances)
+{
+    size_t nFeatures = covariance.getNumberOfRows();
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
+    ReadRows<algorithmFPType, cpu> covarianceBlock(const_cast<data_management::NumericTable &>(covariance), 0, nFeatures);
+    DAAL_CHECK_BLOCK_STATUS(covarianceBlock);
+    const algorithmFPType * covarianceArray = covarianceBlock.get();
+
+    WriteRows<algorithmFPType, cpu> variancesBlock(variances, 0, 1);
+    DAAL_CHECK_MALLOC(variancesBlock.get());
+    algorithmFPType * variancesArray = variancesBlock.get();
+
+    for (size_t i = 0ul; i < nFeatures; ++i)
+    {
+        variancesArray[i] = covarianceArray[i * nFeatures + i];
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovarianceTable(NumericTable & covariance) const
 {
     size_t nFeatures = covariance.getNumberOfRows();
@@ -67,12 +88,12 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
     algorithmFPType * covarianceArray = covarianceBlock.get();
 
     algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         diagInvSqrts[i] = 1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]);
     }
 
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         for (size_t j = 0; j < i; j++)
         {
@@ -82,7 +103,7 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
     }
 
     /* Copy results into symmetric upper triangle */
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0ul; i < nFeatures; ++i)
     {
         for (size_t j = 0; j < i; j++)
         {
@@ -110,6 +131,27 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::copyVarianceFromCovar
     {
         destData[id] = covarianceArray[id * (nFeatures + 1)];
     }
+    return services::Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationBase<algorithmFPType, cpu>::computeSingularValues(const data_management::NumericTable & eigenvalues,
+                                                                                 data_management::NumericTable & singular_values, size_t nRows)
+{
+    typedef daal::internal::MathInst<algorithmFPType, cpu> Math;
+    const size_t nComponents = eigenvalues.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> eigenValuesBlock(const_cast<data_management::NumericTable &>(eigenvalues), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(eigenValuesBlock);
+    const algorithmFPType * const eigenValuesArray = eigenValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> singularValuesBlock(singular_values, 0, 1);
+    DAAL_CHECK_MALLOC(singularValuesBlock.get());
+    algorithmFPType * singularValuesArray = singularValuesBlock.get();
+    const algorithmFPType factor          = nRows - 1;
+    for (size_t i = 0ul; i < nComponents; ++i)
+    {
+        singularValuesArray[i] = factor * eigenValuesArray[i];
+    }
+    Math::vSqrt(nComponents, singularValuesArray, singularValuesArray);
     return services::Status();
 }
 
