@@ -34,11 +34,6 @@ public:
     using task_t = task::dim_reduction;
     using descriptor_t = descriptor<float_t, method_t, task_t>;
 
-    bool not_available_on_device() {
-        return this->get_policy().is_gpu() && (!std::is_same_v<method_t, method::cov>)&&(
-                                                  !std::is_same_v<method_t, method::precomputed>);
-    }
-
     auto get_descriptor() {
         return descriptor_t{};
     }
@@ -92,13 +87,12 @@ public:
 };
 
 using pca_types = COMBINE_TYPES((float, double), (method::cov, method::svd));
-
+//TODO: fix, it sporadically fails on cov method as well
 TEMPLATE_LIST_TEST_M(pca_serialization_test,
                      "serialize/deserialize pca model",
                      "[pca]",
                      pca_types) {
     SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->not_available_on_device());
     this->run_test();
 }
 
