@@ -291,8 +291,8 @@ public:
     }
 
     void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input, std::int64_t max_iter_count, float_t accuracy_threshold) {
-        const table data = input.get_data(this->get_policy());
         const table initial_centroids = input.get_initial_centroids();
+        const table data = input.get_data(this->get_policy());
         REQUIRE(data.get_kind() == csr_table::kind());
         auto desc = this->get_descriptor(input.n_components_, max_iter_count, accuracy_threshold);
         INFO("KMeans sparse training");

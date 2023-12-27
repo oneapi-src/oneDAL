@@ -214,14 +214,14 @@ struct csr_make_blobs {
     const dal::array<Float> data_;
     const dal::array<Index> column_indices_;
     const dal::array<Index> row_offsets_;
-    const Float centroid_fill_value = 10.0f;
-    const Float min_val = -2.0f;
-    const Float max_val = 2.0f;
+    const Float centroid_fill_value = 6.0f;
+    const Float min_val = -1.0f;
+    const Float max_val = 1.0f;
 
     csr_make_blobs(Index n_components,
                    Index row_count,
                    Index column_count,
-                   float nnz_fraction = 0.1,
+                   float nnz_fraction = 0.05,
                    sparse_indexing indexing = sparse_indexing::one_based,
                    Index seed = 42)
             : row_count_(row_count),
@@ -260,7 +260,7 @@ struct csr_make_blobs {
                 // Check if this index already has taken
                 bool is_filled = false;
                 for (Index data_idx = row_offs_ptr[cent_idx] - indexing_shift;
-                     data_idx < row_val_count;
+                     data_idx < fill_count;
                      ++data_idx) {
                     if (col_indices_ptr[data_idx] == col_idx) {
                         is_filled = true;
@@ -269,7 +269,7 @@ struct csr_make_blobs {
                 }
                 // Fill the column
                 if (!is_filled) {
-                    data_ptr[fill_count] = centroid_fill_value * cent_idx;
+                    data_ptr[fill_count] = centroid_fill_value * (cent_idx + 1);
                     col_indices_ptr[fill_count] = col_idx;
                     fill_count++;
                     row_val_count++;
