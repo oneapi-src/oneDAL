@@ -42,21 +42,6 @@ using result_t = partial_compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
-auto compute_sums(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
-                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_sums, q);
-    ONEDAL_ASSERT(data.has_data());
-
-    const std::int64_t column_count = data.get_dimension(1);
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto reduce_event =
-        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-
-    return std::make_tuple(sums, reduce_event);
-}
-
-template <typename Float>
 auto compute_crossproduct(sycl::queue& q,
                           const pr::ndview<Float, 2>& data,
                           const dal::backend::event_vector& deps = {}) {
@@ -168,7 +153,13 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
-    auto [sums, sums_event] = compute_sums(q, data_nd);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    sycl::event sums_event;
+    {
+        ONEDAL_PROFILER_TASK(compute_sums, q);
+        sums_event =
+            pr::reduce_by_columns(q, data_nd, sums, pr::sum<Float>{}, pr::identity<Float>{}, {});
+    }
 
     auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd, { sums_event });
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();

@@ -17,6 +17,7 @@
 #include "oneapi/dal/backend/primitives/stat/cov.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/loops.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include <sycl/ext/oneapi/experimental/builtins.hpp>
 
@@ -218,17 +219,15 @@ sycl::event correlation(sycl::queue& q,
                         std::int64_t row_count,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
-                        ndview<Float, 1>& tmp,
                         const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
+    auto tmp = ndarray<Float, 1>::empty(q, { corr.get_dimension(0) }, sycl::usm::alloc::device);
     auto prepare_event = prepare_correlation(q, row_count, sums, corr, tmp, deps);
     auto finalize_event = finalize_correlation(q, row_count, sums, tmp, corr, { prepare_event });
     return finalize_event;
@@ -377,7 +376,6 @@ INSTANTIATE_COR_FROM_COV(double)
                                                       std::int64_t,        \
                                                       const ndview<F, 1>&, \
                                                       ndview<F, 2>&,       \
-                                                      ndview<F, 1>&,       \
                                                       const event_vector&);
 
 INSTANTIATE_COR(float)
