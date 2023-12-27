@@ -137,6 +137,7 @@ sycl::event compute_data_squares(sycl::queue& q,
 }
 
 // Temporary function, TODO: replace this call with spgemm call
+// TODO: need to add dimensions integer overflow
 template <typename Float>
 sycl::event custom_spgemm(sycl::queue& q,
                           const dal::array<Float>& values,
@@ -506,7 +507,6 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
             }
             auto update_event = update_centroids(queue,
                                                  comm,
-                                                 //  data,
                                                  values,
                                                  column_indices,
                                                  row_offsets,
