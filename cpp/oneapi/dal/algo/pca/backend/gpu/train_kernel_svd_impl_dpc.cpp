@@ -42,6 +42,28 @@ using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
+auto compute_correlation_from_covariance(sycl::queue& q,
+                                         std::int64_t row_count,
+                                         const pr::ndview<Float, 2>& cov,
+                                         const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(cov.has_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+
+    const std::int64_t column_count = cov.get_dimension(1);
+
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+
+    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, bias, deps);
+
+    return std::make_tuple(corr, corr_event);
+}
+
+template <typename Float>
 auto slice_data(sycl::queue& q,
                 const pr::ndview<Float, 2>& data,
                 std::int64_t component_count,
@@ -134,17 +156,17 @@ auto svd_decomposition(sycl::queue& queue,
     sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
-                                                                            row_count,
-                                                                            column_count,
-                                                                            data_ptr,
-                                                                            lda,
-                                                                            S_ptr,
-                                                                            U_ptr,
-                                                                            ldu,
-                                                                            V_T_ptr,
-                                                                            ldvt,
-                                                                            { deps });
+        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
+                                                                          row_count,
+                                                                          column_count,
+                                                                          data_ptr,
+                                                                          lda,
+                                                                          S_ptr,
+                                                                          U_ptr,
+                                                                          ldu,
+                                                                          V_T_ptr,
+                                                                          ldvt,
+                                                                          { deps });
     }
     return std::make_tuple(U, S, V_T, gesvd_event);
 }
@@ -211,7 +233,17 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         result.set_variances(
             homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
-    auto [U, S, V_T, gesvd_event] = svd_decomposition(q_, cov, component_count, { vars_event });
+    auto data_to_compute = cov;
+    sycl::event corr_event;
+    if (desc.get_normalization_mode() == normalization::zscore) {
+        pr::ndarray<Float, 2> corr{};
+        std::tie(corr, corr_event) =
+            compute_correlation_from_covariance(q_, row_count, cov, { cov_event });
+        corr_event.wait_and_throw();
+        data_to_compute = corr;
+    }
+    auto [U, S, V_T, gesvd_event] =
+        svd_decomposition(q_, data_to_compute, component_count, { vars_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
             homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
@@ -219,8 +251,14 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     if (desc.get_result_options().test(result_options::singular_values)) {
         auto [singular_values, sv_event] =
             compute_singular_values(q_, S, row_count, column_count, { gesvd_event });
-        result.set_singular_values(
-            homogen_table::wrap(singular_values.flatten(q_, { gesvd_event }), 1, column_count));
+        if (desc.get_normalization_mode() == normalization::zscore) {
+            result.set_singular_values(
+                homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
+        }
+        else {
+            result.set_singular_values(
+                homogen_table::wrap(singular_values.flatten(q_, { gesvd_event }), 1, column_count));
+        }
     }
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
         auto vars_host = vars.to_host(q_);
@@ -233,10 +271,10 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         result.set_explained_variances_ratio(
             homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
     }
-    //todo: after fixing an MKL issue with gesvd, it should be correctly replaced by VT
+    //todo: after fix an MKL issue with gesvd, it should be correctly replaced by VT
     auto V_T_host = U.to_host(q_);
     if (desc.get_deterministic()) {
-        //todo: after fixin an MKL issue with gesvd, signs should be computed with U matrix
+        //todo: after fix an MKL issue with gesvd, signs should be computed with U matrix
         sign_flip(V_T_host);
     }
     auto V_T_sign_flipped = V_T_host.to_device(q_);
