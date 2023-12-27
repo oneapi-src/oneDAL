@@ -213,7 +213,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
-
+    dal::detail::check_mul_overflow(column_count, component_count);
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     {

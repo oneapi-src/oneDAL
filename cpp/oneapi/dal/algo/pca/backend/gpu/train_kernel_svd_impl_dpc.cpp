@@ -175,6 +175,7 @@ auto compute_explained_variances_on_host(sycl::queue& q,
     }
     return explained_variances_ratio;
 }
+
 template <typename Float, pr::ndorder order>
 auto svd_decomposition(sycl::queue& queue,
                        pr::ndview<Float, 2, order>& data,
@@ -213,7 +214,7 @@ auto svd_decomposition(sycl::queue& queue,
     }
     return std::make_tuple(U, S, V_T, gesvd_event);
 }
-//TODO: move all additional computation out of here
+
 template <typename Float>
 result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
@@ -225,6 +226,8 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
+    dal::detail::check_mul_overflow(column_count, component_count);
+
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
@@ -247,39 +250,41 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         result.set_variances(
             homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
-    if (desc.get_result_options().test(result_options::eigenvectors |
-                                       result_options::eigenvalues)) {
-        auto [U, S, V_T, gesvd_event] = svd_decomposition(q_, cov, component_count, { vars_event });
+    auto [U, S, V_T, gesvd_event] = svd_decomposition(q_, cov, component_count, { vars_event });
+    if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
             homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
-
+    }
+    if (desc.get_result_options().test(result_options::singular_values)) {
         auto [singular_values, sv_event] =
             compute_singular_values(q_, S, row_count, column_count, { gesvd_event });
         result.set_singular_values(
             homogen_table::wrap(singular_values.flatten(q_, { gesvd_event }), 1, column_count));
-
-        if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-            auto vars_host = vars.to_host(q_);
-            auto eigvals_host = S.to_host(q_);
-            auto explained_variances_ratio =
-                compute_explained_variances_on_host(q_,
-                                                    eigvals_host,
-                                                    vars_host,
-                                                    { sv_event, gesvd_event, vars_event });
-            result.set_explained_variances_ratio(
-                homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
-        }
-        auto U_host = U.to_host(q_);
-        if (desc.get_deterministic()) {
-            sign_flip(U_host);
-        }
-        if (desc.get_result_options().test(result_options::eigenvectors)) {
-            auto [sliced_data, event] =
-                slice_data(q_, U, component_count, column_count, { cov_event });
-            result.set_eigenvectors(homogen_table::wrap(sliced_data.flatten(q_, { event }),
-                                                        sliced_data.get_dimension(0),
-                                                        sliced_data.get_dimension(1)));
-        }
+    }
+    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+        auto vars_host = vars.to_host(q_);
+        auto eigvals_host = S.to_host(q_);
+        auto explained_variances_ratio =
+            compute_explained_variances_on_host(q_,
+                                                eigvals_host,
+                                                vars_host,
+                                                { gesvd_event, vars_event });
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    }
+    //todo: after fixing an MKL issue with gesvd, it should be correctly replaced by VT
+    auto V_T_host = U.to_host(q_);
+    if (desc.get_deterministic()) {
+        //todo: after fixin an MKL issue with gesvd, signs should be computed with U matrix
+        sign_flip(V_T_host);
+    }
+    auto V_T_sign_flipped = V_T_host.to_device(q_);
+    if (desc.get_result_options().test(result_options::eigenvectors)) {
+        auto [sliced_data, event] =
+            slice_data(q_, V_T_sign_flipped, component_count, column_count, { cov_event });
+        result.set_eigenvectors(homogen_table::wrap(sliced_data.flatten(q_, { event }),
+                                                    sliced_data.get_dimension(0),
+                                                    sliced_data.get_dimension(1)));
     }
 
     return result;

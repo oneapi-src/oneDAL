@@ -56,7 +56,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const partial_train_input<task::dim_reduction>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
     const auto input_ = input.get_prev();
-
+    dal::detail::check_mul_overflow(component_count, component_count);
     const auto data = input.get_data();
     ONEDAL_ASSERT(data.has_data());
     const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);

@@ -52,6 +52,7 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const auto input_ = input.get_prev();
     daal_cov::Parameter daal_parameter;
 
+    dal::detail::check_mul_overflow(component_count, component_count);
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
     if (desc.get_normalization_mode() == normalization::mean_center) {
