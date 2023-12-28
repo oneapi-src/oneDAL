@@ -58,8 +58,10 @@ public:
             acc = binary_.native(acc, unary_(inp_row[col_idx]));
         }
         // WG reduction
-        auto grp = it.get_group();
-        output_[col_idx] = sycl::reduce_over_group(grp, acc, binary_.native);
+        output_[col_idx] = sycl::reduce_over_group( //
+            it.get_group(),
+            acc,
+            binary_.native);
     }
 
 private:
@@ -97,8 +99,8 @@ sycl::event reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const bool override_init) const {
     auto event = q_.submit([&, this](sycl::handler& h) {
         h.depends_on(deps);
-        const auto block_size = propose_block_size<Float>(q_, height);
-        const bk::uniform_blocking blocking(height, block_size);
+        const auto block_size = propose_block_size<Float>(q_, width);
+        const bk::uniform_blocking blocking(width, block_size);
         std::vector<sycl::event> events(blocking.get_block_count());
         for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
              ++block_index) {
@@ -107,7 +109,7 @@ sycl::event reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::operator()(
             const auto curr_block = last_column - first_column;
             const auto range = get_range(curr_block);
             const auto kernel =
-                get_kernel(input, output, curr_block, stride, binary, unary, override_init);
+                get_kernel(input, output, height, stride, binary, unary, override_init);
             h.parallel_for<kernel_t>(range, kernel);
         }
     });

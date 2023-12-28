@@ -39,8 +39,8 @@ public:
 
     void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
-        const auto loc_idx = it.get_global_id(1);
         const auto col_idx = it.get_global_id(0);
+        const auto loc_idx = it.get_global_id(1);
         const auto range = it.get_global_range(1);
         // Exclusive for EU
         Float acc = (override_init_ || (loc_idx != 0)) ? //

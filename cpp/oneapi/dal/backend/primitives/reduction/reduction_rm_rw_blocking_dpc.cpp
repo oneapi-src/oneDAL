@@ -96,8 +96,8 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const bool override_init) const {
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        const auto block_size = propose_block_size<Float>(q_, width);
-        const bk::uniform_blocking blocking(width, block_size);
+        const auto block_size = propose_block_size<Float>(q_, height);
+        const bk::uniform_blocking blocking(height, block_size);
         std::vector<sycl::event> events(blocking.get_block_count());
         for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
              ++block_index) {
@@ -106,7 +106,7 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
             const auto curr_block = last_row - first_row;
             const auto range = get_range(curr_block);
             const auto kernel =
-                get_kernel(input, output, curr_block, stride, binary, unary, override_init);
+                get_kernel(input, output, width, stride, binary, unary, override_init);
             h.parallel_for<kernel_t>(range, kernel);
         }
     });
