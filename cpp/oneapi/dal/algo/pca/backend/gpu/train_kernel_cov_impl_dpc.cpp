@@ -43,28 +43,6 @@ using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
-auto compute_correlation_from_covariance(sycl::queue& q,
-                                         std::int64_t row_count,
-                                         const pr::ndview<Float, 2>& cov,
-                                         const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(cov.has_data());
-    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
-    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-
-    const std::int64_t column_count = cov.get_dimension(1);
-
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-
-    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-    const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
-    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, bias, deps);
-
-    return std::make_tuple(corr, corr_event);
-}
-
-template <typename Float>
 auto compute_eigenvectors_on_host(sycl::queue& q,
                                   pr::ndarray<Float, 2>&& corr,
                                   std::int64_t component_count,
@@ -215,12 +193,13 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     }
 
     auto data_to_compute = cov;
+
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
-        pr::ndarray<Float, 2> corr{};
-        std::tie(corr, corr_event) =
-            compute_correlation_from_covariance(q_, rows_count_global, cov, { cov_event });
-        corr_event.wait_and_throw();
+        auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
+
+        corr_event = pr::correlation_from_covariance(q_, row_count, cov, corr, bias, { cov_event });
+
         data_to_compute = corr;
     }
 
