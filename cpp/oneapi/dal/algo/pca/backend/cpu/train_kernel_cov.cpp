@@ -53,6 +53,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     dal::detail::check_mul_overflow(column_count, component_count);
 
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
@@ -62,7 +64,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_singular_values = array<Float>::empty(1 * component_count);
     auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
@@ -136,6 +137,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
+
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }

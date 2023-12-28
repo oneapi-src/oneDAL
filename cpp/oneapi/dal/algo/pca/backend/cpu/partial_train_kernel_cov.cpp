@@ -74,8 +74,10 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
             blockSize = 1024;
         }
     }
+
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
+
     if (has_nobs_data) {
         auto daal_crossproduct =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_crossproduct());

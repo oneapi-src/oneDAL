@@ -165,6 +165,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(arr_eigval, 1, component_count));
     }
+
     if (desc.get_result_options().test(result_options::singular_values)) {
         result.set_singular_values(homogen_table::wrap(arr_singular_values, 1, component_count));
     }
@@ -172,6 +173,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
+
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
         result.set_explained_variances_ratio(
             homogen_table::wrap(arr_explained_variances_ratio, 1, component_count));
