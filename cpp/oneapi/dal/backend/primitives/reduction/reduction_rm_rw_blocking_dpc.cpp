@@ -101,10 +101,10 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
         std::vector<sycl::event> events(blocking.get_block_count());
         for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
              ++block_index) {
-            const auto first_column = blocking.get_block_start_index(block_index);
-            const auto last_column = blocking.get_block_end_index(block_index);
-            const auto curr_block = last_column - first_column;
-            const auto range = get_range(height);
+            const auto first_row = blocking.get_block_start_index(block_index);
+            const auto last_row = blocking.get_block_end_index(block_index);
+            const auto curr_block = last_row - first_row;
+            const auto range = get_range(curr_block);
             const auto kernel =
                 get_kernel(input, output, curr_block, stride, binary, unary, override_init);
             h.parallel_for<kernel_t>(range, kernel);

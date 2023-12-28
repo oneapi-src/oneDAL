@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/reduction/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
-#include <iostream>
+
 namespace oneapi::dal::backend::primitives {
 namespace bk = dal::backend;
 template <typename Float>
@@ -26,15 +26,15 @@ std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class kernel_reduction_rm_cw_naive_blocking {
+class kernel_reduction_rm_cw_blocking {
 public:
-    kernel_reduction_rm_cw_naive_blocking(const Float* input,
-                                          Float* output,
-                                          std::int64_t height,
-                                          std::int32_t lstride,
-                                          const BinaryOp& binary,
-                                          const UnaryOp& unary,
-                                          const bool override_init)
+    kernel_reduction_rm_cw_blocking(const Float* input,
+                                    Float* output,
+                                    std::int64_t height,
+                                    std::int32_t lstride,
+                                    const BinaryOp& binary,
+                                    const UnaryOp& unary,
+                                    const bool override_init)
             : input_{ input },
               output_{ output },
               unary_{ unary },
@@ -45,10 +45,11 @@ public:
 
     void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
-        const auto loc_idx = it.get_global_id(1);
         const auto col_idx = it.get_global_id(0);
+        const auto loc_idx = it.get_global_id(1);
         const auto range = it.get_global_range(1);
         // Exclusive for EU
+        //const Float* const inp_col = input_ + lstride_ * col_idx;
         Float acc = (override_init_ || (loc_idx != 0)) ? //
                         binary_.init_value
                                                        : output_[col_idx];
@@ -57,10 +58,8 @@ public:
             acc = binary_.native(acc, unary_(inp_row[col_idx]));
         }
         // WG reduction
-        output_[col_idx] = sycl::reduce_over_group( //
-            it.get_group(),
-            acc,
-            binary_.native);
+        auto grp = it.get_group();
+        output_[col_idx] = sycl::reduce_over_group(grp, acc, binary_.native);
     }
 
 private:
@@ -74,21 +73,19 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_blocking(
-    sycl::queue& q,
-    std::int64_t wg)
+reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::reduction_rm_cw_blocking(sycl::queue& q,
+                                                                             std::int64_t wg)
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_blocking(
-    sycl::queue& q)
-        : reduction_rm_cw_naive_blocking(q, propose_wg_size(q)) {}
+reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::reduction_rm_cw_blocking(sycl::queue& q)
+        : reduction_rm_cw_blocking(q, propose_wg_size(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()(
+sycl::event reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     std::int64_t width,
@@ -98,8 +95,6 @@ sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()
     const UnaryOp& unary,
     const event_vector& deps,
     const bool override_init) const {
-    ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
-    ONEDAL_ASSERT(0 <= width && width <= stride);
     auto event = q_.submit([&, this](sycl::handler& h) {
         h.depends_on(deps);
         const auto block_size = propose_block_size<Float>(q_, height);
@@ -107,10 +102,10 @@ sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()
         std::vector<sycl::event> events(blocking.get_block_count());
         for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
              ++block_index) {
-            const auto first_row = blocking.get_block_start_index(block_index);
-            const auto last_row = blocking.get_block_end_index(block_index);
-            const auto curr_block = first_row - last_row;
-            const auto range = get_range(width);
+            const auto first_column = blocking.get_block_start_index(block_index);
+            const auto last_column = blocking.get_block_end_index(block_index);
+            const auto curr_block = last_column - first_column;
+            const auto range = get_range(curr_block);
             const auto kernel =
                 get_kernel(input, output, curr_block, stride, binary, unary, override_init);
             h.parallel_for<kernel_t>(range, kernel);
@@ -120,7 +115,7 @@ sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()(
+sycl::event reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     std::int64_t width,
@@ -134,20 +129,20 @@ sycl::event reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::operator()
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::nd_range<2> reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::get_range(
+sycl::nd_range<2> reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::get_range(
     std::int64_t width) const {
     return make_multiple_nd_range_2d({ width, wg_ }, { 1, wg_ });
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-typename reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::kernel_t
-reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
-                                                                     Float* output,
-                                                                     std::int64_t height,
-                                                                     std::int64_t stride,
-                                                                     const BinaryOp& binary,
-                                                                     const UnaryOp& unary,
-                                                                     const bool override_init) {
+typename reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::kernel_t
+reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
+                                                               Float* output,
+                                                               std::int64_t height,
+                                                               std::int64_t stride,
+                                                               const BinaryOp& binary,
+                                                               const UnaryOp& unary,
+                                                               const bool override_init) {
     return kernel_t{ input,
                      output,
                      dal::detail::integral_cast<std::int64_t>(height),
@@ -157,7 +152,7 @@ reduction_rm_cw_naive_blocking<Float, BinaryOp, UnaryOp>::get_kernel(const Float
                      override_init };
 }
 
-#define INSTANTIATE(F, B, U) template class reduction_rm_cw_naive_blocking<F, B, U>;
+#define INSTANTIATE(F, B, U) template class reduction_rm_cw_blocking<F, B, U>;
 
 #define INSTANTIATE_FLOAT(B, U)                \
     INSTANTIATE(double, B<double>, U<double>); \
