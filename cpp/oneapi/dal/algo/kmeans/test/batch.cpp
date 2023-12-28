@@ -186,22 +186,25 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_batch_test, "KMmeans sparse default cases", "[kmeans][batch]", kmeans_types) {
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "KMmeans sparse default cases",
+                     "[kmeans][batch]",
+                     kmeans_types) {
     SKIP_IF(!this->is_sparse_method());
-    
+
     SECTION("cluster=5") {
         auto input = oneapi::dal::test::engine::csr_make_blobs(5, 50, 20);
-        this->test_on_sparse_data(input, 10, 0.01);
+        this->test_on_sparse_data(input, 10, 0.01, true);
     }
 
     SECTION("cluster=16") {
         auto input = oneapi::dal::test::engine::csr_make_blobs(16, 200, 100);
-        this->test_on_sparse_data(input, 10, 0.01);
+        this->test_on_sparse_data(input, 10, 0.01, true);
     }
 
     SECTION("cluster=128") {
         auto input = oneapi::dal::test::engine::csr_make_blobs(128, 100000, 200);
-        this->test_on_sparse_data(input, 10, 0.01);
+        this->test_on_sparse_data(input, 10, 0.01, true);
     }
 }
 

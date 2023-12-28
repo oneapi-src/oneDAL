@@ -47,6 +47,7 @@ template <typename Float, daal::CpuType Cpu>
 using daal_kmeans_init_plus_plus_csr_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusCSR, Float, Cpu>;
 
+// Initializes centroids randomly on CPU if it was not set by user.
 template <typename Float>
 static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,
                                                    const descriptor_t& params,
@@ -268,6 +269,8 @@ sycl::event assign_clusters(sycl::queue& q,
     return event;
 }
 
+// Counts the number of points for each cluster.
+// Result is cluster_counts array and returning value is the number of empty clusters.
 std::int32_t count_clusters(sycl::queue& q,
                             const pr::ndarray<std::int32_t, 2>& responses,
                             pr::ndarray<std::int32_t, 1>& cluster_counts,
@@ -320,6 +323,7 @@ std::int32_t count_clusters(sycl::queue& q,
     return host_empty_cluster_count[0];
 }
 
+// Calculates an objective function, which is sum of all distances from points to centroid.
 template <typename Float>
 Float calc_objective_function(sycl::queue& q,
                               const pr::ndarray<Float, 2>& dists,
@@ -351,6 +355,9 @@ Float calc_objective_function(sycl::queue& q,
     return host_res.get_data()[0];
 }
 
+// Updates centroids based on new responses and cluster counts.
+// New centroid is a mean among all points in cluster.
+// If cluster is empty, centroid remains the same as in previous iteration.
 template <typename Float>
 sycl::event update_centroids(sycl::queue& q,
                              const bk::communicator<spmd::device_memory_access::usm>& comm,

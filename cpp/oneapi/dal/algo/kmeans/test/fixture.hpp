@@ -35,7 +35,8 @@ namespace oneapi::dal::kmeans::test {
 namespace te = dal::test::engine;
 namespace la = dal::test::engine::linalg;
 
-using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense, kmeans::method::lloyd_sparse));
+using kmeans_types = COMBINE_TYPES((float, double),
+                                   (kmeans::method::lloyd_dense, kmeans::method::lloyd_sparse));
 
 template <typename TestType, typename Derived>
 class kmeans_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -290,14 +291,23 @@ public:
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
 
-    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input, std::int64_t max_iter_count, float_t accuracy_threshold) {
-        const table initial_centroids = input.get_initial_centroids();
+    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
+                             std::int64_t max_iter_count,
+                             float_t accuracy_threshold,
+                             bool init_centroids) {
         const table data = input.get_data(this->get_policy());
         REQUIRE(data.get_kind() == csr_table::kind());
         auto desc = this->get_descriptor(input.n_components_, max_iter_count, accuracy_threshold);
         INFO("KMeans sparse training");
-        const auto train_result = this->train(desc, data, initial_centroids);
-        check_response_match(input.get_responses(), train_result.get_responses());
+        if (init_centroids) {
+            const table initial_centroids = input.get_initial_centroids();
+            const auto train_result = this->train(desc, data, initial_centroids);
+            check_response_match(input.get_responses(), train_result.get_responses());
+        }
+        else {
+            const auto train_result = this->train(desc, data);
+            check_response_match(input.get_responses(), train_result.get_responses());
+        }
     }
 
     void test_on_dataset(const std::string& dataset_path,
