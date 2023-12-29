@@ -47,6 +47,9 @@ protected:
                                                    data_management::NumericTable & eigenvalues) DAAL_C11_OVERRIDE;
     services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * eigenvectors, algorithmFPType * eigenvalues);
     services::Status sortEigenvectorsDescending(size_t nFeatures, algorithmFPType * eigenvectors, algorithmFPType * eigenvalues);
+    services::Status computeSingularValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & variances,
+                                           size_t nRows);
+    services::Status computeVariancesFromCov(const data_management::NumericTable & correlation, data_management::NumericTable & variances);
     services::Status signFlipEigenvectors(NumericTable & eigenvectors) const DAAL_C11_OVERRIDE;
     services::Status fillTable(NumericTable & table, algorithmFPType val) const DAAL_C11_OVERRIDE;
     services::Status copyVarianceFromCovarianceTable(NumericTable & source, NumericTable & dest) const;
