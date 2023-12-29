@@ -18,8 +18,8 @@
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/finalize_train_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -28,7 +28,6 @@ namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
-using model_t = model<task::dim_reduction>;
 
 namespace interop = dal::backend::interop;
 
@@ -90,6 +89,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         const auto daal_singular_values =
             interop::convert_to_daal_homogen_table(reshaped_eigval, 1, component_count);
         result.set_singular_values(homogen_table::wrap(reshaped_eigval, 1, component_count));
+
         if (desc.get_normalization_mode() == normalization::mean_center) {
             const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
                 constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
@@ -105,10 +105,6 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         else {
             result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
         }
-    }
-
-    if (desc.whiten()) {
-        result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
     }
 
     return result;

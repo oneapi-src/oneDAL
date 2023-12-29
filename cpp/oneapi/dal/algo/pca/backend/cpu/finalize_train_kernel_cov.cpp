@@ -20,8 +20,8 @@
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/finalize_train_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -30,9 +30,6 @@ namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
-using model_t = model<task::dim_reduction>;
-
-namespace interop = dal::backend::interop;
 
 namespace daal_pca = daal::algorithms::pca;
 namespace daal_cov = daal::algorithms::covariance;
@@ -49,52 +46,58 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx,
                                                           const descriptor_t& desc,
                                                           const partial_train_result<Task>& input) {
+    const std::int64_t row_count =
+        row_accessor<const Float>(input.get_partial_n_rows()).pull({ 0, -1 })[0];
+    ONEDAL_ASSERT(row_count > 0);
+    const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
-    const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(component_count > 0);
+
+    dal::detail::check_mul_overflow(column_count, component_count);
 
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
 
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
     auto arr_eigval = array<Float>::empty(1 * component_count);
+    auto arr_means = array<Float>::empty(column_count);
+    auto arr_cor_matrix = array<Float>::empty(column_count * column_count);
+    auto arr_vars = array<Float>::empty(1 * column_count);
+    auto arr_singular_values = array<Float>::empty(1 * component_count);
+    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
 
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
         interop::convert_to_daal_homogen_table(arr_eigval, 1, component_count);
-
-    auto rows_count_global =
-        row_accessor<const Float>(input.get_partial_n_rows()).pull({ 0, -1 })[0];
-    auto arr_means = array<Float>::empty(column_count);
+    const auto daal_cor_matrix =
+        interop::convert_to_daal_homogen_table(arr_cor_matrix, column_count, column_count);
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
+    const auto daal_singular_values =
+        interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
+
+    const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
+    const auto daal_explained_variances_ratio =
+        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
+
     daal_cov::internal::Hyperparameter daal_hyperparameter;
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
     if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
-        const std::int64_t row_count = rows_count_global;
         if (5000 < row_count && row_count <= 50000) {
             blockSize = 1024;
         }
     }
     interop::status_to_exception(
         daal_hyperparameter.set(daal_cov::internal::denseUpdateStepBlockSize, blockSize));
+
     auto daal_crossproduct =
         interop::convert_to_daal_table<Float>(input.get_partial_crossproduct());
     auto daal_sums = interop::convert_to_daal_table<Float>(input.get_partial_sum());
     const auto daal_nobs = interop::convert_to_daal_table<Float>(input.get_partial_n_rows());
 
-    auto arr_cor_matrix = array<Float>::empty(column_count * column_count);
-    const auto daal_cor_matrix =
-        interop::convert_to_daal_homogen_table(arr_cor_matrix, column_count, column_count);
-    auto arr_singular_values = array<Float>::empty(1 * component_count);
-    const auto daal_singular_values =
-        interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
-    auto arr_vars = array<Float>::empty(1 * column_count);
-    const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
-    auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
-    const auto daal_explained_variances_ratio =
-        interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);
     daal_cov::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
@@ -130,7 +133,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
             return daal_pca_cor_kernel_t<Float, cpu_type>().computeSingularValues(
                 *daal_eigenvalues,
                 *daal_singular_values,
-                rows_count_global);
+                row_count);
         });
 
         interop::status_to_exception(status);

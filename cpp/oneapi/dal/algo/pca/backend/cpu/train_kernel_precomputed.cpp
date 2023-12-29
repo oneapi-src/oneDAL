@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -26,7 +27,7 @@
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::dim_reduction>;
+
 using task_t = task::dim_reduction;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;

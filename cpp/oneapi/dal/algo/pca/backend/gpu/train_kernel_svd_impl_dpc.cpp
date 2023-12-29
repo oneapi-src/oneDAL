@@ -35,7 +35,7 @@ namespace mkl = oneapi::fpk;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
-using model_t = model<task::dim_reduction>;
+
 using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;

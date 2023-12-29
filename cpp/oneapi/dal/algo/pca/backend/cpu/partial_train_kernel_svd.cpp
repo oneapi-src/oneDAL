@@ -27,14 +27,10 @@
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::dim_reduction>;
 using task_t = task::dim_reduction;
-using input_t = train_input<task::dim_reduction>;
-using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 namespace daal_pca = daal::algorithms::pca;
-
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
