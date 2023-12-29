@@ -22,6 +22,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/profiler.hpp"
+#include <iostream>
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -50,7 +51,8 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         std::int64_t block_size_in_rows =
             std::min(row_count,
                      kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
-        dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
+        //dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
+        std::cout << "allocations" << std::endl;
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,
                                          { block_size_in_rows, cluster_count },
@@ -69,7 +71,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_objective_function =
             pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
-
+        std::cout << "assign_clusters" << std::endl;
         auto assign_event =
             kernels_fp<Float>::assign_clusters(queue,
                                                arr_data,
@@ -81,6 +83,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                arr_distance_block,
                                                arr_closest_distances,
                                                { data_squares_event, centroid_squares_event });
+        std::cout << "compute_objective_function" << std::endl;
         kernels_fp<Float>::compute_objective_function(queue,
                                                       arr_closest_distances,
                                                       arr_objective_function,

@@ -28,7 +28,7 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include <iostream>
 #include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -114,7 +114,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const std::int64_t cluster_count = params.get_cluster_count();
         const std::int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
-        dal::detail::check_mul_overflow(cluster_count, column_count);
+        //dal::detail::check_mul_overflow(cluster_count, column_count);
 
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
@@ -132,12 +132,13 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             std::min(row_count,
                      kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
 
-        dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
+        //dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
+        std::cout << "get_part_count_for_partial_centroids" << std::endl;
         std::int64_t part_count =
             kernels_fp<Float>::get_part_count_for_partial_centroids(queue,
                                                                     column_count,
                                                                     cluster_count);
-
+        std::cout << "allocations" << std::endl;
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
@@ -161,14 +162,14 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         Float prev_objective_function = de::limits<Float>::max();
         std::int64_t iter;
         sycl::event centroids_event;
-
+        std::cout << "cluster_updater loop" << std::endl;
         auto updater = cluster_updater<Float>{ queue, comm }
                            .set_cluster_count(cluster_count)
                            .set_part_count(part_count)
                            .set_data(arr_data)
                            .set_data_squares(arr_data_squares);
         updater.allocate_buffers();
-
+        std::cout << "compute_squares loop" << std::endl;
         for (iter = 0; iter < max_iteration_count; iter++) {
             auto centroid_squares_event =
                 kernels_fp<Float>::compute_squares(queue,
@@ -191,10 +192,12 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             }
             prev_objective_function = objective_function;
         }
+        std::cout << "compute_squares" << std::endl;
         auto centroid_squares_event = kernels_fp<Float>::compute_squares(queue,
                                                                          arr_centroids,
                                                                          arr_centroid_squares,
                                                                          { centroids_event });
+        std::cout << "assign_clusters" << std::endl;
         auto assign_event = kernels_fp<Float>::assign_clusters(queue,
                                                                arr_data,
                                                                arr_centroids,
@@ -205,7 +208,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                                arr_distance_block,
                                                                arr_closest_distances,
                                                                { centroid_squares_event });
-
+        std::cout << "compute_objective_function" << std::endl;
         auto objective_event = kernels_fp<Float>::compute_objective_function( //
             queue,
             arr_closest_distances,
@@ -219,7 +222,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             ONEDAL_PROFILER_TASK(allreduce_final_objective);
             comm.allreduce(final_objective_function).wait();
         }
-
+        std::cout << "Final" << std::endl;
         model<task::clustering> model;
         model.set_centroids(
             dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
