@@ -37,6 +37,17 @@ public:
         return results[0];
     }
 
+    void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) override {
+        if (n == -1 || p == -1) {
+            this->n_ = GENERATE(50, 99);
+            this->p_ = GENERATE(3, 10);
+        }
+        else {
+            this->n_ = n;
+            this->p_ = p;
+        }
+    }
+
     template <typename... Args>
     std::vector<train_input_t> split_train_input_override(std::int64_t split_count,
                                                           Args&&... args) {

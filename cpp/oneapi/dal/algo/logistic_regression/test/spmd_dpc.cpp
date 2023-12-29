@@ -18,14 +18,32 @@
 
 namespace oneapi::dal::logistic_regression::test {
 
-TEMPLATE_LIST_TEST_M(log_reg_spmd_test, "LogReg common flow", "[lr][spmd]", log_reg_types) {
+TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
+                     "LogReg common flow - fit intercept",
+                     "[lr][spmd]",
+                     log_reg_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
+    this->gen_dimensions();
     this->gen_input(true, 0.5);
-    this->set_rank_count(2);
+    this->set_rank_count(GENERATE(2, 3));
 
-    this->run_test();
+    this->run_test(1e-4, 20);
+}
+
+TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
+                     "LogReg common flow - no fit intercept",
+                     "[lr][spmd]",
+                     log_reg_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->gen_dimensions();
+    this->gen_input(false, 0.5);
+    this->set_rank_count(GENERATE(2, 3));
+
+    this->run_test(1e-4, 20);
 }
 
 } // namespace oneapi::dal::logistic_regression::test
