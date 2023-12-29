@@ -24,52 +24,6 @@ std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
     constexpr std::int64_t fsize = sizeof(Float);
     return 0x10000l * (8 / fsize);
 }
-template <typename Float, typename BinaryOp, typename UnaryOp>
-class kernel_reduction_rm_rw_blocking {
-public:
-    kernel_reduction_rm_rw_blocking(const Float* input,
-                                    Float* output,
-                                    std::int32_t width,
-                                    std::int32_t lstride,
-                                    const BinaryOp& binary,
-                                    const UnaryOp& unary,
-                                    const bool override_init)
-            : input_{ input },
-              output_{ output },
-              unary_{ unary },
-              binary_{ binary },
-              width_{ width },
-              lstride_{ lstride },
-              override_init_{ override_init } {}
-
-    void operator()(sycl::nd_item<2> it) const {
-        // Common for whole WG
-        const auto row_idx = it.get_global_id(0);
-        const auto loc_idx = it.get_local_id(1);
-        const auto range = it.get_global_range(1);
-        // It should be converted to upper type by default
-        const Float* const inp_row = input_ + lstride_ * row_idx;
-        // Exclusive for EU
-        Float acc = (override_init_ || (loc_idx != 0)) //
-                        ? binary_.init_value
-                        : output_[row_idx];
-        for (std::int32_t i = loc_idx; i < width_; i += range) {
-            acc = binary_.native(acc, unary_(inp_row[i]));
-        }
-        // WG reduction
-        auto grp = it.get_group();
-        output_[row_idx] = sycl::reduce_over_group(grp, acc, binary_.native);
-    }
-
-private:
-    const Float* const input_;
-    Float* const output_;
-    const UnaryOp unary_;
-    const BinaryOp binary_;
-    const std::int32_t width_;
-    const std::int32_t lstride_;
-    const bool override_init_;
-};
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::reduction_rm_rw_blocking(sycl::queue& q,
@@ -94,23 +48,41 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps,
     const bool override_init) const {
-    auto event = q_.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-        const auto block_size = propose_block_size<Float>(q_, height);
-        const bk::uniform_blocking blocking(height, block_size);
-        std::vector<sycl::event> events(blocking.get_block_count());
-        for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
-             ++block_index) {
-            const auto first_row = blocking.get_block_start_index(block_index);
-            const auto last_row = blocking.get_block_end_index(block_index);
-            const auto curr_block = last_row - first_row;
-            const auto range = get_range(curr_block);
-            const auto kernel =
-                get_kernel(input, output, width, stride, binary, unary, override_init);
-            h.parallel_for<kernel_t>(range, kernel);
-        }
-    });
-    return event;
+    const auto block_size = propose_block_size<Float>(q_, height);
+    const bk::uniform_blocking blocking(height, block_size);
+    std::vector<sycl::event> events(blocking.get_block_count());
+    for (std::int64_t block_index = 0; block_index < blocking.get_block_count(); ++block_index) {
+        const auto first_row = blocking.get_block_start_index(block_index);
+        const auto last_row = blocking.get_block_end_index(block_index);
+        const auto curr_block = last_row - first_row;
+        ONEDAL_ASSERT(curr_block > 0);
+
+        auto event = q_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(bk::make_multiple_nd_range_2d({ curr_block, wg_ }, { 1, wg_ }),
+                             [=](sycl::nd_item<2> it) {
+                                 // Common for whole WG
+                                 const auto row_idx = it.get_global_id(0) + first_row;
+                                 const auto loc_idx = it.get_local_id(1);
+                                 const auto range = it.get_global_range(1);
+                                 // It should be converted to upper type by default
+                                 const Float* const inp_row = input + stride * row_idx;
+                                 // Exclusive for EU
+                                 Float acc = (override_init || (loc_idx != 0)) //
+                                                 ? binary.init_value
+                                                 : output[row_idx];
+                                 for (std::int32_t i = loc_idx; i < width; i += range) {
+                                     acc = binary.native(acc, unary(inp_row[i]));
+                                 }
+                                 // WG reduction
+                                 auto grp = it.get_group();
+                                 output[row_idx] = sycl::reduce_over_group(grp, acc, binary.native);
+                             });
+        });
+
+        events.push_back(event);
+    }
+    return bk::wait_or_pass(events);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -125,32 +97,6 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
     const bool override_init) const {
     return this->
     operator()(input, output, width, height, width, binary, unary, deps, override_init);
-}
-
-template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::nd_range<2> reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::get_range(
-    std::int64_t height) const {
-    ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
-    return make_multiple_nd_range_2d({ height, wg_ }, { 1, wg_ });
-}
-
-template <typename Float, typename BinaryOp, typename UnaryOp>
-typename reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::kernel_t
-reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
-                                                               Float* output,
-                                                               std::int64_t width,
-                                                               std::int64_t stride,
-                                                               const BinaryOp& binary,
-                                                               const UnaryOp& unary,
-                                                               const bool override_init) {
-    ONEDAL_ASSERT(0 <= width && width <= stride);
-    return kernel_t{ input,
-                     output,
-                     dal::detail::integral_cast<std::int32_t>(width),
-                     dal::detail::integral_cast<std::int32_t>(stride),
-                     binary,
-                     unary,
-                     override_init };
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_rw_blocking<F, B, U>;
