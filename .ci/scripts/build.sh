@@ -48,7 +48,17 @@ PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
-optimizations=$(if [ "${ARCH}" == "arm" ]; then echo "${optimizations:-sve}"; else echo "${optimizations:-avx2}"; fi)
+if [[ "${ARCH}" == "32e" ]]
+then
+optimizations=${optimizations:-avx2}
+elif [[ "${ARCH}" == "arm" ]]
+then
+optimizations=${optimizations:-sve}
+else
+echo "Unknown architecture '${ARCH}'"
+exit 1
+fi
+
 backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
 

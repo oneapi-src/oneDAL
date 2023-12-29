@@ -224,12 +224,16 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
-if [[ "$(uname -m)" == "x86_64" ]]; then
+
+PLATFORM=$(bash dev/make/identify_os.sh)
+ARCH=${PLATFORM:3:3}
+
+if [[ "${ARCH}" == "32e" ]]; then
     SUB_DIR="intel64"
-elif [[ "$(uname -m)" == "aarch64" ]]; then
+elif [[ "${ARCH}" == "arm" ]]; then
     SUB_DIR="arm"
 else
-    echo "Unsupported CPU architecture"
+    echo "Unsupported CPU architecture '${ARCH}'"
     exit 1
 fi
 
