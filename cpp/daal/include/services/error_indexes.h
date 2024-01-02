@@ -267,6 +267,8 @@ enum ErrorID
                                                                              computation modes */
     ErrorIncorrectNComponents                               = -7805, /*!< Incorrect nComponents parameter: nComponents should be less or equal
                                                                              to number of columns in testing dataset */
+    ErrorIncorrectEigenValuesSum                            = -7806, /*!< The sum of eigenvalues is less or equal to zero */
+    ErrorIncorrectSingularValuesDenominator                 = -7807, /*!< The denominator of eigenvalues is less or equal to zero */
 
     // QR errors: -8000..-8199
     ErrorQRInternal             = -8000, /*!< QR internal error */

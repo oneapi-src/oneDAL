@@ -43,6 +43,7 @@ namespace internal
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::internal;
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(bool isCorrelation, const data_management::NumericTable & dataTable,
                                                                             covariance::BatchImpl * covarianceAlg,
@@ -62,7 +63,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
     bool isCorrelation, bool isDeterministic, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
     DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
-    data_management::NumericTable & means, data_management::NumericTable & variances)
+    data_management::NumericTable & means, data_management::NumericTable & variances, bool doScale)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
@@ -108,7 +109,7 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
-
+        if (doScale)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
             DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
@@ -126,6 +127,31 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
         DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
     }
 
+    return status;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
+    const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg, data_management::NumericTable & eigenvectors,
+    data_management::NumericTable & eigenvalues, data_management::NumericTable & means, data_management::NumericTable & variances,
+    data_management::NumericTable * singular_values, data_management::NumericTable * explained_variances_ratio, const BaseBatchParameter * parameter)
+{
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+
+    services::Status status;
+    this->compute(parameter->isCorrelation, parameter->isDeterministic, dataTable, covarianceAlg, parameter->resultsToCompute, eigenvectors,
+                  eigenvalues, means, variances, parameter->doScale);
+
+    if (singular_values != nullptr)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeSingularValues);
+        DAAL_CHECK_STATUS(status, this->computeSingularValues(eigenvalues, *singular_values, dataTable.getNumberOfRows()));
+    }
+    if (explained_variances_ratio != nullptr)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeExplainedVariancesRatio);
+        DAAL_CHECK_STATUS(status, this->computeExplainedVariancesRatio(eigenvalues, variances, *explained_variances_ratio));
+    }
     return status;
 }
 

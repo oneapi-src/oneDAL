@@ -38,6 +38,10 @@ All types and functions in this section are declared in the
 ``oneapi::dal::pca`` namespace and be available via inclusion of the
 ``oneapi/dal/algo/pca.hpp`` header file.
 
+Enum classes
+------------
+.. onedal_enumclass:: oneapi::dal::pca::normalization
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::pca::descriptor
