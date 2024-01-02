@@ -26,6 +26,12 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                                std::int64_t height) const
     -> reduction_method {
+    const std::int64_t max_loop = std::numeric_limits<std::int32_t>::max();
+    const auto range = width * height;
+    if (range >= max_loop) {
+        return reduction_method::blocking;
+    }
+
     {
         const auto fwidth = device_max_wg_size(q_);
         const auto twidth = fwidth * atomic_t::max_folding;
@@ -49,11 +55,6 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
     // TODO: think about `switch` operator
-    //temporary for full testing
-    if (height >= 1) {
-        const naive_blocking_t kernel{ q_ };
-        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
-    }
     if (method == reduction_method::naive) {
         const naive_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
@@ -64,6 +65,10 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
     }
     if (method == reduction_method::naive_local) {
         const naive_local_t kernel{ q_ };
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
+    }
+    if (method == reduction_method::blocking) {
+        const blocking_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
     }
     ONEDAL_ASSERT(false);

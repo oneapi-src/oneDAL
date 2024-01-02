@@ -23,8 +23,15 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q) : q_{ q } {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-auto reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width) const
+auto reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
+                                                               std::int64_t height) const
     -> reduction_method {
+    const std::int64_t max_loop = std::numeric_limits<std::int32_t>::max();
+    const auto range = width * height;
+    if (range >= max_loop) {
+        return reduction_method::blocking;
+    }
+
     const auto device_max_wg = device_max_wg_size(q_);
     if (width < device_max_wg) {
         return reduction_method::narrow;
@@ -47,11 +54,6 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
     // TODO: think about `switch` operator
-    //temporary for full testing
-    if (width >= 1) {
-        const blocking_t kernel{ q_ };
-        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
-    }
     if (method == reduction_method::narrow) {
         const narrow_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
@@ -59,6 +61,10 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
     if (method == reduction_method::wide) {
         const auto device_max_wg = device_max_wg_size(q_);
         const wide_t kernel{ q_, std::min(width, device_max_wg) };
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
+    }
+    if (method == reduction_method::blocking) {
+        const blocking_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
     }
     ONEDAL_ASSERT(false);
@@ -75,7 +81,7 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const UnaryOp& unary,
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
-    const auto method = propose_method(width);
+    const auto method = propose_method(width, height);
     return this->
     operator()(method, input, output, width, height, stride, binary, unary, deps, override_init);
 }
@@ -103,7 +109,7 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const UnaryOp& unary,
                                                                   const event_vector& deps,
                                                                   const bool override_init) const {
-    const auto method = propose_method(width);
+    const auto method = propose_method(width, height);
     return this->
     operator()(method, input, output, width, height, width, binary, unary, deps, override_init);
 }
