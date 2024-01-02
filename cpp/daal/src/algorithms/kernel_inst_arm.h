@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __KERNEL_INST_X86_H__
-#define __KERNEL_INST_X86_H__
+#ifndef __KERNEL_INST_ARM_H__
+#define __KERNEL_INST_ARM_H__
 
 #include "services/daal_defines.h"
 #include "src/services/service_defines.h"
