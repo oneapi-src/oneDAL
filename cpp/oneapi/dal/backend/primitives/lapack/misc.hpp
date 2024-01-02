@@ -36,14 +36,12 @@ inline constexpr mkl::jobsvd ident_jobsvd(mkl::jobsvd order) {
     constexpr auto vectorsina = mkl::jobsvd::vectorsina;
     constexpr auto novec = mkl::jobsvd::novec;
 
-    if (order == vectors)
-        return vectors;
-    else if (order == somevec)
-        return somevec;
-    else if (order == vectorsina)
-        return vectorsina;
-    else
-        return novec;
+    switch (order) {
+        case vectors: return vectors;
+        case somevec: return somevec;
+        case vectorsina: return vectorsina;
+        default: return novec;
+    }
 }
 
 } // namespace oneapi::dal::backend::primitives

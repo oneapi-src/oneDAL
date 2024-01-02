@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/finalize_train_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 
 #include "oneapi/dal/backend/primitives/lapack.hpp"
@@ -36,69 +37,8 @@ using bk::context_gpu;
 using task_t = task::dim_reduction;
 using input_t = partial_train_result<task_t>;
 using result_t = train_result<task_t>;
-using descriptor_t = detail::descriptor_base<task::dim_reduction>;
+using descriptor_t = detail::descriptor_base<task_t>;
 
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-    auto host_corr = corr.to_host(q, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
-
-template <typename Float>
-auto compute_singular_values_on_host(sycl::queue& q,
-                                     pr::ndarray<Float, 1> eigenvalues,
-                                     std::int64_t row_count,
-                                     const dal::backend::event_vector& deps = {}) {
-    const std::int64_t component_count = eigenvalues.get_dimension(0);
-
-    auto singular_values = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto eigvals_ptr = eigenvalues.get_data();
-    auto singular_values_ptr = singular_values.get_mutable_data();
-    const Float factor = row_count - 1;
-    for (std::int64_t i = 0; i < component_count; ++i) {
-        singular_values_ptr[i] = std::sqrt(factor * eigvals_ptr[i]);
-    }
-    return singular_values;
-}
-
-template <typename Float>
-auto compute_explained_variances_on_host(sycl::queue& q,
-                                         pr::ndarray<Float, 1> eigenvalues,
-                                         pr::ndarray<Float, 1> vars,
-                                         const dal::backend::event_vector& deps = {}) {
-    const std::int64_t component_count = eigenvalues.get_dimension(0);
-    const std::int64_t column_count = vars.get_dimension(0);
-    auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto eigvals_ptr = eigenvalues.get_data();
-    auto vars_ptr = vars.get_data();
-    auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
-    Float sum = 0;
-    for (std::int64_t i = 0; i < column_count; ++i) {
-        sum += vars_ptr[i];
-    }
-    ONEDAL_ASSERT(0 < sum);
-    const Float inverse_sum = 1.0 / sum;
-    for (std::int64_t i = 0; i < component_count; ++i) {
-        explained_variances_ratio_ptr[i] = eigvals_ptr[i] * inverse_sum;
-    }
-    return explained_variances_ratio;
-}
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_t& desc,
@@ -122,32 +62,16 @@ static train_result<Task> train(const context_gpu& ctx,
     sycl::event means_event;
     if (desc.get_result_options().test(result_options::means)) {
         ONEDAL_PROFILER_TASK(compute_means, q);
-        auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-        means_event = pr::means(q, rows_count_global, sums, means, {});
+        auto [means, means_event] = compute_means(q, sums, rows_count_global, {});
         result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
     }
 
     const auto xtx =
         pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
-    auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-    sycl::event copy_event;
-    {
-        ONEDAL_PROFILER_TASK(copy_xtx, q);
-        copy_event = copy(q, cov, xtx, { means_event });
-    }
+    auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums, {});
 
-    sycl::event cov_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_covariance_matrix, q);
-        cov_event = pr::covariance(q, rows_count_global, sums, cov, bias, { copy_event });
-    }
+    auto [vars, vars_event] = compute_variances(q, cov, { cov_event });
 
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    sycl::event vars_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_means, q);
-        vars_event = pr::variances(q, cov, vars, { cov_event, means_event });
-    }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(vars.flatten(q, { vars_event }), 1, column_count));
     }
@@ -205,15 +129,15 @@ static train_result<Task> train(const context_gpu& ctx,
 }
 
 template <typename Float>
-struct finalize_train_kernel_gpu<Float, method::cov, task::dim_reduction> {
+struct finalize_train_kernel_gpu<Float, method::cov, task_t> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return train<Float, task::dim_reduction>(ctx, desc, input);
+        return train<Float, task_t>(ctx, desc, input);
     }
 };
 
-template struct finalize_train_kernel_gpu<float, method::cov, task::dim_reduction>;
-template struct finalize_train_kernel_gpu<double, method::cov, task::dim_reduction>;
+template struct finalize_train_kernel_gpu<float, method::cov, task_t>;
+template struct finalize_train_kernel_gpu<double, method::cov, task_t>;
 
 } // namespace oneapi::dal::pca::backend

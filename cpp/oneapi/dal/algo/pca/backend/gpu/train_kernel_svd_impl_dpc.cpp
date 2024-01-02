@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_svd_impl.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
@@ -56,58 +57,13 @@ auto slice_data(sycl::queue& q,
     auto event = q.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(component_count, column_count);
         h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            data_to_compute_ptr[i * column_count + j] = data_ptr[i * column_count_local + j];
+            const std::int64_t row = id[0];
+            const std::int64_t column = id[1];
+            data_to_compute_ptr[row * column_count + column] =
+                data_ptr[row * column_count_local + column];
         });
     });
     return std::make_tuple(data_to_compute, event);
-}
-
-template <typename Float>
-auto compute_singular_values(sycl::queue& q,
-                             const pr::ndview<Float, 1>& data,
-                             std::int64_t row_count,
-                             std::int64_t column_count,
-                             const bk::event_vector& deps = {}) {
-    auto data_to_compute = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
-    auto data_ptr = data.get_data();
-    auto event = q.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_1d(column_count);
-        h.parallel_for(range, [=](sycl::id<1> id) {
-            data_to_compute_ptr[id] = sqrt((row_count - 1) * data_ptr[id]);
-        });
-    });
-    return std::make_tuple(data_to_compute, event);
-}
-
-template <typename Float>
-auto compute_explained_variances_on_host(sycl::queue& q,
-                                         pr::ndarray<Float, 1> eigenvalues,
-                                         pr::ndarray<Float, 1> vars,
-                                         const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_explained_variances_on_host);
-    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
-
-    const std::int64_t component_count = eigenvalues.get_dimension(0);
-    const std::int64_t column_count = vars.get_dimension(0);
-    auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto eigvals_ptr = eigenvalues.get_data();
-    auto vars_ptr = vars.get_data();
-    auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
-
-    Float sum = 0;
-    for (std::int64_t i = 0; i < column_count; ++i) {
-        sum += vars_ptr[i];
-    }
-    ONEDAL_ASSERT(sum > 0);
-    const Float inverse_sum = 1.0 / sum;
-    for (std::int64_t i = 0; i < component_count; ++i) {
-        explained_variances_ratio_ptr[i] = eigvals_ptr[i] * inverse_sum;
-    }
-    return explained_variances_ratio;
 }
 
 template <typename Float, pr::ndorder order>

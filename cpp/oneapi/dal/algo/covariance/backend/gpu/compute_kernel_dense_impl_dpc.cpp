@@ -15,11 +15,14 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/covariance/backend/gpu/compute_kernel_dense_impl.hpp"
+#include "oneapi/dal/algo/covariance/backend/gpu/misc.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
@@ -57,13 +60,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto sums = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-    sycl::event sums_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_sums, q_);
-        sums_event =
-            pr::reduce_by_columns(q_, data_nd, sums, pr::sum<Float>{}, pr::identity<Float>{}, {});
-    }
+    auto [sums, sums_event] = compute_sums(q_, data_nd);
 
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
@@ -88,42 +85,20 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto cov = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-        sycl::event copy_event;
-        {
-            ONEDAL_PROFILER_TASK(copy_cov, q_);
-            copy_event = copy(q_, cov, xtx, { sums_event, gemm_event });
-        }
-
-        sycl::event cov_event;
-        {
-            ONEDAL_PROFILER_TASK(compute_covariance_matrix, q_);
-            cov_event = pr::covariance(q_, rows_count_global, sums, cov, bias, { copy_event });
-        }
+        auto [cov, cov_event] =
+            compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
 
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::cor_matrix)) {
-        auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-
-        sycl::event copy_corr_event;
-        {
-            ONEDAL_PROFILER_TASK(copy_corr, q_);
-            copy_corr_event = copy(q_, corr, xtx, { gemm_event });
-        }
-        sycl::event corr_event;
-        {
-            ONEDAL_PROFILER_TASK(compute_covariance_matrix, q_);
-
-            corr_event = pr::correlation(q_, rows_count_global, sums, corr, { copy_corr_event });
-        }
+        auto [corr, corr_event] =
+            compute_correlation(q_, rows_count_global, xtx, sums, { gemm_event });
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        auto means = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-        auto means_event = pr::means(q_, rows_count_global, sums, means, { gemm_event });
+        auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
     return result;

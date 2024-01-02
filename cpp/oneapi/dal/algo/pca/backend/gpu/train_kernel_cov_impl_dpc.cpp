@@ -15,6 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -41,76 +43,6 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-    auto host_corr = corr.to_host(q, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
-
-template <typename Float>
-auto compute_singular_values_on_host(sycl::queue& q,
-                                     pr::ndarray<Float, 1> eigenvalues,
-                                     std::int64_t row_count,
-                                     const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_singular_values_on_host);
-    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
-
-    const std::int64_t component_count = eigenvalues.get_dimension(0);
-
-    auto singular_values = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto eigvals_ptr = eigenvalues.get_data();
-    auto singular_values_ptr = singular_values.get_mutable_data();
-
-    const Float factor = row_count - 1;
-    for (std::int64_t i = 0; i < component_count; ++i) {
-        singular_values_ptr[i] = std::sqrt(factor * eigvals_ptr[i]);
-    }
-    return singular_values;
-}
-
-template <typename Float>
-auto compute_explained_variances_on_host(sycl::queue& q,
-                                         pr::ndarray<Float, 1> eigenvalues,
-                                         pr::ndarray<Float, 1> vars,
-                                         const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_explained_variances_on_host);
-    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
-
-    const std::int64_t component_count = eigenvalues.get_dimension(0);
-    const std::int64_t column_count = vars.get_dimension(0);
-    auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto eigvals_ptr = eigenvalues.get_data();
-    auto vars_ptr = vars.get_data();
-    auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
-
-    Float sum = 0;
-    for (std::int64_t i = 0; i < column_count; ++i) {
-        sum += vars_ptr[i];
-    }
-    ONEDAL_ASSERT(sum > 0);
-    const Float inverse_sum = 1.0 / sum;
-    for (std::int64_t i = 0; i < component_count; ++i) {
-        explained_variances_ratio_ptr[i] = eigvals_ptr[i] * inverse_sum;
-    }
-    return explained_variances_ratio;
-}
 
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {

@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/partial_train_kernel.hpp"
-
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
@@ -40,115 +40,6 @@ using task_t = task::dim_reduction;
 using input_t = partial_train_input<task_t>;
 using result_t = partial_train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-
-template <typename Float>
-auto compute_sums(sycl::queue& q,
-                  const pr::ndview<Float, 2>& data,
-                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_sums, q);
-    ONEDAL_ASSERT(data.has_data());
-
-    const std::int64_t column_count = data.get_dimension(1);
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-    auto reduce_event =
-        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
-
-    return std::make_tuple(sums, reduce_event);
-}
-
-template <typename Float>
-auto compute_crossproduct(sycl::queue& q,
-                          const pr::ndview<Float, 2>& data,
-                          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_crossproduct, q);
-    ONEDAL_ASSERT(data.has_data());
-
-    const std::int64_t column_count = data.get_dimension(1);
-    auto xtx = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-    sycl::event gemm_event;
-    {
-        ONEDAL_PROFILER_TASK(gemm, q);
-        gemm_event = gemm(q, data.t(), data, xtx, Float(1.0), Float(0.0));
-        gemm_event.wait_and_throw();
-    }
-
-    return std::make_tuple(xtx, gemm_event);
-}
-
-template <typename Float>
-auto init(sycl::queue& q,
-          const std::int64_t row_count,
-          const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(init_partial_results, q);
-
-    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
-
-    auto result_nobs_ptr = result_nobs.get_mutable_data();
-
-    auto init_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<1>(1);
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<1> id) {
-            result_nobs_ptr[0] = row_count;
-        });
-    });
-
-    return std::make_tuple(result_nobs, init_event);
-}
-
-template <typename Float>
-auto update_partial_results(sycl::queue& q,
-                            const pr::ndview<Float, 2>& crossproducts,
-                            const pr::ndview<Float, 1>& sums,
-                            const pr::ndview<Float, 2>& current_crossproducts,
-                            const pr::ndview<Float, 1>& current_sums,
-                            const pr::ndview<Float, 1>& current_nobs,
-                            const std::int64_t row_count,
-                            const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(update_partial_results, q);
-
-    auto column_count = crossproducts.get_dimension(1);
-    auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
-    auto result_crossproducts =
-        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
-
-    auto result_sums_ptr = result_sums.get_mutable_data();
-    auto result_crossproducts_ptr = result_crossproducts.get_mutable_data();
-    auto result_nobs_ptr = result_nobs.get_mutable_data();
-
-    auto current_crossproducts_data = current_crossproducts.get_data();
-    auto current_sums_data = current_sums.get_data();
-    auto current_nobs_data = current_nobs.get_data();
-
-    auto crossproducts_data = crossproducts.get_data();
-    auto sums_data = sums.get_data();
-
-    auto update_event = q.submit([&](sycl::handler& cgh) {
-        const auto range = sycl::range<2>(column_count, column_count);
-
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            const std::int64_t row = id[0], col = id[1];
-
-            result_crossproducts_ptr[row * column_count + col] =
-                crossproducts_data[row * column_count + col] +
-                current_crossproducts_data[row * column_count + col];
-
-            if (static_cast<std::int64_t>(col) < column_count) {
-                result_sums_ptr[col] = sums_data[col] + current_sums_data[col];
-            }
-
-            if (row == 0 && col == 0) {
-                result_nobs_ptr[0] = row_count + current_nobs_data[0];
-            }
-        });
-    });
-
-    return std::make_tuple(result_sums, result_crossproducts, result_nobs, update_event);
-}
 
 template <typename Float, typename Task>
 static partial_train_result<Task> partial_train(const context_gpu& ctx,
@@ -215,15 +106,15 @@ static partial_train_result<Task> partial_train(const context_gpu& ctx,
 }
 
 template <typename Float>
-struct partial_train_kernel_gpu<Float, method::cov, task::dim_reduction> {
+struct partial_train_kernel_gpu<Float, method::cov, task_t> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return partial_train<Float, task::dim_reduction>(ctx, desc, input);
+        return partial_train<Float, task_t>(ctx, desc, input);
     }
 };
 
-template struct partial_train_kernel_gpu<float, method::cov, task::dim_reduction>;
-template struct partial_train_kernel_gpu<double, method::cov, task::dim_reduction>;
+template struct partial_train_kernel_gpu<float, method::cov, task_t>;
+template struct partial_train_kernel_gpu<double, method::cov, task_t>;
 
 } // namespace oneapi::dal::pca::backend
