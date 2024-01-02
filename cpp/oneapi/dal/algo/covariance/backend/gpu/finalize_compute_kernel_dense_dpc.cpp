@@ -43,18 +43,16 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     auto& q = ctx.get_queue();
 
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
-    const std::int64_t component_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
 
     dal::detail::check_mul_overflow(column_count, column_count);
-    dal::detail::check_mul_overflow(component_count, column_count);
 
     auto bias = desc.get_bias();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
-    sycl::event event;
-
     const auto nobs_host = pr::table2ndarray<Float>(q, input.get_partial_n_rows());
     auto rows_count_global = nobs_host.get_data()[0];
+    ONEDAL_ASSERT(rows_count_global > 0);
 
     const auto sums =
         pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);

@@ -51,10 +51,13 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     ONEDAL_ASSERT(input.get_data().has_data());
 
     const auto data = input.get_data();
+
+    ONEDAL_ASSERT(data.get_row_count() > 0);
     const std::int64_t row_count = data.get_row_count();
-    auto rows_count_global = row_count;
-    const std::int64_t column_count = data.get_column_count();
+
     ONEDAL_ASSERT(data.get_column_count() > 0);
+    const std::int64_t column_count = data.get_column_count();
+
     auto bias = desc.get_bias();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
@@ -79,15 +82,16 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
         ONEDAL_PROFILER_TASK(allreduce_xtx, q_);
         comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
     }
+
     {
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        auto rows_count_global = row_count;
         comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, cov_event] =
             compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
-
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }

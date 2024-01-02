@@ -76,7 +76,6 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     const auto daal_means = interop::convert_to_daal_homogen_table(arr_means, 1, column_count);
     const auto daal_singular_values =
         interop::convert_to_daal_homogen_table(arr_singular_values, 1, component_count);
-
     const auto daal_variances = interop::convert_to_daal_homogen_table(arr_vars, 1, column_count);
     const auto daal_explained_variances_ratio =
         interop::convert_to_daal_homogen_table(arr_explained_variances_ratio, 1, column_count);

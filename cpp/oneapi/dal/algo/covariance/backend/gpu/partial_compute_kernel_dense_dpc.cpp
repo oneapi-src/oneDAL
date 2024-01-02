@@ -21,13 +21,11 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-#include "oneapi/dal/backend/memory.hpp"
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/element_wise.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
@@ -48,21 +46,26 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
                                                     const partial_compute_input<Task>& input) {
     auto& q = ctx.get_queue();
 
+    ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
+
     auto result = partial_compute_result();
     const auto input_ = input.get_prev();
+
     const std::int64_t row_count = data.get_row_count();
+    ONEDAL_ASSERT(row_count > 0);
     const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = data.get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
+
     dal::detail::check_mul_overflow(row_count, column_count);
     dal::detail::check_mul_overflow(column_count, column_count);
-    dal::detail::check_mul_overflow(component_count, column_count);
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
     auto [sums, sums_event] = compute_sums(q, data_nd);
 
     auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd, { sums_event });
+
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
 
     if (has_nobs_data) {

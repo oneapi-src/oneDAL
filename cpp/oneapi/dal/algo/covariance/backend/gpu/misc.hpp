@@ -14,18 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
+
 using alloc = sycl::usm::alloc;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+//Wrapper for sums computation
 template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
@@ -42,6 +44,7 @@ auto compute_sums(sycl::queue& q,
     return std::make_tuple(sums, sums_event);
 }
 
+//Wrapper for means computation
 template <typename Float>
 auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 1>& sums,
@@ -57,6 +60,7 @@ auto compute_means(sycl::queue& q,
     return std::make_tuple(means, means_event);
 }
 
+//Wrapper for the covariance matrix computation
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         std::int64_t row_count,
@@ -79,6 +83,7 @@ auto compute_covariance(sycl::queue& q,
     return std::make_tuple(cov, cov_event);
 }
 
+//Wrapper for the correlation matrix computation
 template <typename Float>
 auto compute_correlation(sycl::queue& q,
                          std::int64_t row_count,
@@ -101,6 +106,7 @@ auto compute_correlation(sycl::queue& q,
     return std::make_tuple(corr, corr_event);
 }
 
+//Wrapper for the updating crossproduct matrix
 template <typename Float>
 auto compute_crossproduct(sycl::queue& q,
                           const pr::ndview<Float, 2>& data,
@@ -121,6 +127,7 @@ auto compute_crossproduct(sycl::queue& q,
     return std::make_tuple(xtx, gemm_event);
 }
 
+//Wrapper for the 1st iteration of online computation
 template <typename Float>
 auto init(sycl::queue& q,
           const std::int64_t row_count,
@@ -143,6 +150,7 @@ auto init(sycl::queue& q,
     return std::make_tuple(result_nobs, init_event);
 }
 
+//Wrapper for the updating partial results
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& crossproducts,
@@ -194,6 +202,7 @@ auto update_partial_results(sycl::queue& q,
 
     return std::make_tuple(result_sums, result_crossproducts, result_nobs, update_event);
 }
-}
+
+} // namespace oneapi::dal::covariance::backend
 
 #endif // ONEDAL_DATA_PARALLEL

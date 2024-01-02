@@ -43,11 +43,16 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                           const partial_train_result<Task>& input) {
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
+    ONEDAL_ASSERT(component_count > 0);
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     auto rows_count_global =
         row_accessor<const Float>(input.get_partial_n_rows()).pull({ 0, -1 })[0];
+    ONEDAL_ASSERT(rows_count_global > 0);
+
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
     daal::services::SharedPtr<DataCollection> DataCollectionPtr;
+
     auto arr_eigvec = array<Float>::empty(column_count * column_count);
     auto arr_eigval = array<Float>::empty(1 * column_count);
     auto reshaped_eigvec = array<Float>::empty(1 * component_count);
@@ -71,6 +76,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     if (desc.get_data_normalization() == normalization::zscore) {
         dtype = daal_pca::internal::normalizedDataset;
     }
+
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
                                                                            dtype,

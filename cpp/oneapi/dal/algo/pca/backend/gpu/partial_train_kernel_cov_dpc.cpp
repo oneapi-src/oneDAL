@@ -16,11 +16,11 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/partial_train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-#include "oneapi/dal/backend/memory.hpp"
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -47,15 +47,19 @@ static partial_train_result<Task> partial_train(const context_gpu& ctx,
                                                 const partial_train_input<Task>& input) {
     auto& q = ctx.get_queue();
 
+    ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
+
     auto result = partial_train_result();
     const auto input_ = input.get_prev();
+
     const std::int64_t row_count = data.get_row_count();
+    ONEDAL_ASSERT(row_count > 0);
     const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = data.get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
+
     dal::detail::check_mul_overflow(row_count, column_count);
     dal::detail::check_mul_overflow(column_count, column_count);
-    dal::detail::check_mul_overflow(component_count, column_count);
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 

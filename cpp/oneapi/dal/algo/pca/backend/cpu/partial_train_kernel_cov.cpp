@@ -43,11 +43,14 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_train_input<task::dim_reduction>& input) {
-    const std::int64_t component_count = input.get_data().get_column_count();
+    ONEDAL_ASSERT(input.get_data().has_data());
+    const std::int64_t column_count = input.get_data().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const auto input_ = input.get_prev();
+
     daal_cov::Parameter daal_parameter;
 
-    dal::detail::check_mul_overflow(component_count, component_count);
+    dal::detail::check_mul_overflow(column_count, column_count);
     daal_parameter.outputMatrixType = daal_cov::correlationMatrix;
 
     if (desc.get_normalization_mode() == normalization::mean_center) {
@@ -94,14 +97,13 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
             interop::convert_from_daal_homogen_table<Float>(daal_crossproduct));
     }
     else {
-        auto arr_crossproduct = array<Float>::zeros(component_count * component_count);
-        auto arr_sums = array<Float>::zeros(component_count);
+        auto arr_crossproduct = array<Float>::zeros(column_count * column_count);
+        auto arr_sums = array<Float>::zeros(column_count);
         auto arr_nobs_matrix = array<Float>::zeros(1 * 1);
         auto daal_crossproduct = interop::convert_to_daal_homogen_table<Float>(arr_crossproduct,
-                                                                               component_count,
-                                                                               component_count);
-        auto daal_sums =
-            interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, component_count);
+                                                                               column_count,
+                                                                               column_count);
+        auto daal_sums = interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, column_count);
         auto daal_nobs_matrix =
             interop::convert_to_daal_homogen_table<Float>(arr_nobs_matrix, 1, 1);
         interop::status_to_exception(

@@ -16,17 +16,18 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_svd_impl.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -117,56 +118,37 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
     dal::detail::check_mul_overflow(column_count, component_count);
+
     constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
 
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-    auto sums = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-    sycl::event sums_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_sums, q_);
-        sums_event =
-            pr::reduce_by_columns(q_, data_nd, sums, pr::sum<Float>{}, pr::identity<Float>{}, {});
-    }
-    sycl::event means_event;
+
+    auto [sums, sums_event] = compute_sums(q_, data_nd);
+
     if (desc.get_result_options().test(result_options::means)) {
         ONEDAL_PROFILER_TASK(compute_means, q_);
-        auto means = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-        means_event = pr::means(q_, row_count, sums, means, { sums_event });
+        auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
+
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, q_);
         gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0), { sums_event });
-        gemm_event.wait_and_throw();
     }
 
-    auto cov = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-    sycl::event copy_event;
-    {
-        ONEDAL_PROFILER_TASK(copy_xtx, q_);
-        copy_event = copy(q_, cov, xtx, { means_event, gemm_event });
-    }
+    auto [cov, cov_event] = compute_covariance(q_, row_count, xtx, sums, bias, { gemm_event });
 
-    sycl::event cov_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_covariance_matrix, q_);
-        cov_event = pr::covariance(q_, row_count, sums, cov, bias, { copy_event });
-    }
+    auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
 
-    auto vars = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-    sycl::event vars_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_means, q_);
-        vars_event = pr::variances(q_, cov, vars, { cov_event, means_event });
-    }
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(
             homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
+
     auto data_to_compute = cov;
 
     sycl::event corr_event;
@@ -179,7 +161,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     }
 
     auto [U, S, V_T, gesvd_event] =
-        svd_decomposition(q_, data_to_compute, component_count, { vars_event });
+        svd_decomposition(q_, data_to_compute, component_count, { vars_event, corr_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
             homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));

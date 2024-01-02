@@ -18,15 +18,16 @@
 #include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 

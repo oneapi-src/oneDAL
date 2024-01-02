@@ -44,13 +44,16 @@ static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_t& desc,
                                 const partial_train_result<Task>& input) {
     auto& q = ctx.get_queue();
+
     constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
+    ONEDAL_ASSERT(component_count > 0);
 
     dal::detail::check_mul_overflow(column_count, column_count);
-    dal::detail::check_mul_overflow(component_count, column_count);
 
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
@@ -59,7 +62,7 @@ static train_result<Task> train(const context_gpu& ctx,
 
     const auto sums =
         pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
-    sycl::event means_event;
+
     if (desc.get_result_options().test(result_options::means)) {
         ONEDAL_PROFILER_TASK(compute_means, q);
         auto [means, means_event] = compute_means(q, sums, rows_count_global, {});
@@ -75,15 +78,14 @@ static train_result<Task> train(const context_gpu& ctx,
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(vars.flatten(q, { vars_event }), 1, column_count));
     }
+
     auto data_to_compute = cov;
 
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
         corr_event =
             pr::correlation_from_covariance(q, rows_count_global, cov, corr, bias, { cov_event });
-
         data_to_compute = corr;
     }
 

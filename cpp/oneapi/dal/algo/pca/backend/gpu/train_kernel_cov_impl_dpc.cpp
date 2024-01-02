@@ -17,16 +17,17 @@
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 
+#include "oneapi/dal/algo/pca/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -46,27 +47,29 @@ using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
+    constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+
     ONEDAL_ASSERT(input.get_data().has_data());
     const auto data = input.get_data();
+
+    ONEDAL_ASSERT(data.get_row_count() > 0);
     std::int64_t row_count = data.get_row_count();
     auto rows_count_global = row_count;
+    ONEDAL_ASSERT(row_count > 0);
+
     ONEDAL_ASSERT(data.get_column_count() > 0);
     std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
+
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
+
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     dal::detail::check_mul_overflow(column_count, component_count);
-    constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto sums = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-    sycl::event sums_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_sums, q_);
-        sums_event =
-            pr::reduce_by_columns(q_, data_nd, sums, pr::sum<Float>{}, pr::identity<Float>{}, {});
-    }
+    auto [sums, sums_event] = compute_sums(q_, data_nd);
 
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
@@ -94,30 +97,14 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     sycl::event means_event;
     if (desc.get_result_options().test(result_options::means)) {
         ONEDAL_PROFILER_TASK(compute_means, q_);
-        auto means = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-        means_event = pr::means(q_, rows_count_global, sums, means, { gemm_event });
+        auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
 
-    auto cov = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-    sycl::event copy_event;
-    {
-        ONEDAL_PROFILER_TASK(copy_xtx, q_);
-        copy_event = copy(q_, cov, xtx, { means_event, gemm_event });
-    }
+    auto [cov, cov_event] =
+        compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
 
-    sycl::event cov_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_covariance_matrix, q_);
-        cov_event = pr::covariance(q_, rows_count_global, sums, cov, bias, { copy_event });
-    }
-
-    auto vars = pr::ndarray<Float, 1>::empty(q_, { column_count }, alloc::device);
-    sycl::event vars_event;
-    {
-        ONEDAL_PROFILER_TASK(compute_means, q_);
-        auto vars_event = pr::variances(q_, cov, vars, { cov_event, means_event });
-    }
+    auto [vars, vars_event] = compute_variances(q_, cov, { cov_event, means_event });
 
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(
@@ -129,9 +116,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-
         corr_event = pr::correlation_from_covariance(q_, row_count, cov, corr, bias, { cov_event });
-
         data_to_compute = corr;
     }
 
