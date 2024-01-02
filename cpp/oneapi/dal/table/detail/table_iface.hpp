@@ -86,6 +86,7 @@ public:
     virtual pull_column_iface* get_pull_column_iface() = 0;
     virtual push_rows_iface* get_push_rows_iface() = 0;
     virtual push_column_iface* get_push_column_iface() = 0;
+    virtual pull_csr_block_iface* get_pull_csr_block_iface() = 0;
 };
 
 class homogen_table_builder_iface : public table_builder_iface {
@@ -125,6 +126,20 @@ public:
 class heterogen_table_builder_iface : public table_builder_iface {
 public:
     virtual heterogen_table_iface* build_heterogen() = 0;
+};
+
+class csr_table_builder_iface : public table_builder_iface {
+public:
+    virtual void set_data_type(data_type dt) = 0;
+
+    virtual void reset(const dal::array<byte_t>& data,
+                       const dal::array<std::int64_t>& column_indices,
+                       const dal::array<std::int64_t>& row_offsets,
+                       std::int64_t row_count,
+                       std::int64_t column_count,
+                       sparse_indexing indexing) = 0;
+
+    virtual csr_table_iface* build_csr() = 0;
 };
 
 /// Generic table template is expected to implement all access interfaces to the table.
@@ -229,6 +244,10 @@ public:
     push_column_iface* get_push_column_iface() override {
         return this;
     }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return nullptr;
+    }
 };
 
 template <typename Derived>
@@ -248,6 +267,31 @@ public:
     push_column_iface* get_push_column_iface() override {
         return this;
     }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return this;
+    }
+};
+
+template <typename Derived>
+class csr_table_builder_template : public csr_table_builder_iface,
+                                   public pull_csr_block_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return nullptr;
+    }
+    pull_column_iface* get_pull_column_iface() override {
+        return nullptr;
+    }
+    push_rows_iface* get_push_rows_iface() override {
+        return nullptr;
+    }
+    push_column_iface* get_push_column_iface() override {
+        return nullptr;
+    }
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return this;
+    }
 };
 
 } // namespace v1
@@ -261,6 +305,8 @@ using v1::heterogen_table_template;
 using v1::csr_table_iface;
 using v1::csr_table_template;
 using v1::table_builder_iface;
+using v1::csr_table_builder_iface;
+using v1::csr_table_builder_template;
 using v1::homogen_table_builder_iface;
 using v1::homogen_table_builder_template;
 using v1::heterogen_table_builder_iface;

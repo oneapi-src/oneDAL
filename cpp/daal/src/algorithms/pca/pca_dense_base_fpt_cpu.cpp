@@ -25,7 +25,7 @@ namespace pca
 {
 namespace internal
 {
-template class PCADenseBase<DAAL_FPTYPE, DAAL_CPU>;
+template class DAAL_EXPORT PCADenseBase<DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace pca
 } // namespace algorithms

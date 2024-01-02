@@ -89,6 +89,10 @@ public:
     /// @invariant :expr:`eigenvectors == model.eigenvectors`
     const table& get_eigenvectors() const;
 
+    auto& set_eigenvectors(const table& value) {
+        set_eigenvectors_impl(value);
+        return *this;
+    }
     /// The trained PCA model
     /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
@@ -127,6 +131,24 @@ public:
         set_means_impl(value);
         return *this;
     }
+    /// A $1 \\times r$ table that contains the singular values for the first :literal:`r`
+    /// features.
+    /// @remark default = table{}
+    const table& get_singular_values() const;
+
+    auto& set_singular_values(const table& value) {
+        set_singular_values_impl(value);
+        return *this;
+    }
+    /// A $1 \\times r$ table that contains the explained variances values for the first :literal:`r`
+    /// features.
+    /// @remark default = table{}
+    const table& get_explained_variances_ratio() const;
+
+    auto& set_explained_variances_ratio(const table& value) {
+        set_explained_variances_ratio_impl(value);
+        return *this;
+    }
     /// Result options that indicates availability of the properties
     /// @remark default = default_result_options<Task>
     const result_option_id& get_result_options() const;
@@ -142,6 +164,8 @@ protected:
     void set_eigenvectors_impl(const table&);
     void set_variances_impl(const table&);
     void set_means_impl(const table&);
+    void set_explained_variances_ratio_impl(const table&);
+    void set_singular_values_impl(const table&);
     void set_result_options_impl(const result_option_id&);
 
 private:

@@ -55,7 +55,6 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const descriptor_t& desc,
     const partial_train_input<task::dim_reduction>& input) {
     const std::int64_t component_count = input.get_data().get_column_count();
-
     const auto input_ = input.get_prev();
 
     const auto data = input.get_data();
@@ -65,6 +64,11 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
 
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
+
+    if (desc.get_data_normalization() == normalization::zscore) {
+        dtype = daal_pca::internal::normalizedDataset;
+    }
+
     if (has_nobs_data) {
         auto result = update_tables(input);
         auto daal_crossproduct_svd =

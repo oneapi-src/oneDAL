@@ -36,9 +36,8 @@ template <typename Task>
 class detail::v1::train_result_impl : public base {
 public:
     model<Task> trained_model;
-    table eigenvalues;
-    table variances;
-    table means;
+    table singular_values;
+    table explained_variances_ratio;
     result_option_id result_options;
 };
 
@@ -104,7 +103,7 @@ const table& train_result<Task>::get_eigenvalues() const {
     if (!get_result_options().test(result_options::eigenvalues)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    return impl_->eigenvalues;
+    return impl_->trained_model.get_eigenvalues();
 }
 
 template <typename Task>
@@ -120,7 +119,7 @@ const table& train_result<Task>::get_variances() const {
     if (!get_result_options().test(result_options::vars)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    return impl_->variances;
+    return impl_->trained_model.get_variances();
 }
 
 template <typename Task>
@@ -128,7 +127,23 @@ const table& train_result<Task>::get_means() const {
     if (!get_result_options().test(result_options::means)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    return impl_->means;
+    return impl_->trained_model.get_means();
+}
+
+template <typename Task>
+const table& train_result<Task>::get_singular_values() const {
+    if (!get_result_options().test(result_options::singular_values)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->singular_values;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_explained_variances_ratio() const {
+    if (!get_result_options().test(result_options::explained_variances_ratio)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->explained_variances_ratio;
 }
 
 template <typename Task>
@@ -137,11 +152,19 @@ void train_result<Task>::set_model_impl(const model<Task>& value) {
 }
 
 template <typename Task>
+void train_result<Task>::set_eigenvectors_impl(const table& value) {
+    if (!get_result_options().test(result_options::eigenvectors)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->trained_model.set_eigenvectors(value);
+}
+
+template <typename Task>
 void train_result<Task>::set_eigenvalues_impl(const table& value) {
     if (!get_result_options().test(result_options::eigenvalues)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->eigenvalues = value;
+    impl_->trained_model.set_eigenvalues(value);
 }
 
 template <typename Task>
@@ -149,7 +172,7 @@ void train_result<Task>::set_variances_impl(const table& value) {
     if (!get_result_options().test(result_options::vars)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->variances = value;
+    impl_->trained_model.set_variances(value);
 }
 
 template <typename Task>
@@ -157,7 +180,23 @@ void train_result<Task>::set_means_impl(const table& value) {
     if (!get_result_options().test(result_options::means)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
-    impl_->means = value;
+    impl_->trained_model.set_means(value);
+}
+
+template <typename Task>
+void train_result<Task>::set_singular_values_impl(const table& value) {
+    if (!get_result_options().test(result_options::singular_values)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->singular_values = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_explained_variances_ratio_impl(const table& value) {
+    if (!get_result_options().test(result_options::explained_variances_ratio)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->explained_variances_ratio = value;
 }
 
 template <typename Task>
