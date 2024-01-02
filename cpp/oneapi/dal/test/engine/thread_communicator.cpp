@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
-#include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -49,7 +48,7 @@ void thread_communicator_bcast::operator()(byte_t* send_buf_usm,
     const auto send_buff_host = array<byte_t>::empty(size);
     auto send_buf = send_buff_host.get_mutable_data();
     if (ctx_.get_this_thread_rank() == root) {
-        backend::memcpy_usm2host(q, send_buf, send_buf_usm, size);
+        memcpy_usm2host(q, send_buf, send_buf_usm, size);
     }
 
     ONEDAL_ASSERT(send_buf);
@@ -76,7 +75,7 @@ void thread_communicator_bcast::operator()(byte_t* send_buf_usm,
     });
 
     if (ctx_.get_this_thread_rank() != root) {
-        backend::memcpy_host2usm(q, send_buf_usm, send_buf, size);
+        memcpy_host2usm(q, send_buf_usm, send_buf, size);
     }
 }
 
@@ -150,7 +149,7 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf_usm,
     //  Workaround for zero send_size
     const auto send_buff_host = array<byte_t>::empty(send_size > 0 ? send_size : 1);
     if (send_size > 0) {
-        backend::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf_usm, send_size);
+        memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf_usm, send_size);
     }
     const auto send_buf = send_buff_host.get_data();
 
@@ -204,7 +203,7 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf_usm,
         const std::int64_t dst_offset = dal::detail::check_mul_overflow(dtype_size, displs_host[i]);
         const std::int64_t copy_size = dal::detail::check_mul_overflow(dtype_size, recv_counts_host[i]);
         if (copy_size > 0) {
-            backend::memcpy_host2usm(q, recv_buf_usm + dst_offset, recv_buf + src_offset, copy_size);
+            memcpy_host2usm(q, recv_buf_usm + dst_offset, recv_buf + src_offset, copy_size);
         }
     }
 }
@@ -223,7 +222,7 @@ void thread_communicator_sendrecv_replace::operator()(byte_t* usm_buf,
     const auto buf = buff_host.get_mutable_data();
 
     auto q = get_queue();
-    backend::memcpy_usm2host(q, buf, usm_buf, recv_size).wait_and_throw();
+    memcpy_usm2host(q, buf, usm_buf, recv_size).wait_and_throw();
 
     send_buffers_[rank] = buffer_info{ buf, count };
     std::vector<byte_t> recv_buf(recv_size);
@@ -257,7 +256,7 @@ void thread_communicator_sendrecv_replace::operator()(byte_t* usm_buf,
         send_buffers_.clear();
         send_buffers_.resize(ctx_.get_thread_count());
     });
-    backend::memcpy_host2usm(q, usm_buf, buf, recv_size);
+    memcpy_host2usm(q, usm_buf, buf, recv_size);
 }
 
 void thread_communicator_allgather::operator()(const byte_t* send_buf,
@@ -329,7 +328,7 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf_usm,
     const auto recv_buf = recv_buf_host.get_mutable_data();
     auto q = get_queue();
 
-    backend::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf_usm, size);
+    memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf_usm, size);
     const auto send_buf = send_buff_host.get_data();
     ONEDAL_ASSERT(send_buf);
     ONEDAL_ASSERT(recv_buf);
@@ -369,7 +368,7 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf_usm,
         send_buffers_.clear();
         send_buffers_.resize(ctx_.get_thread_count());
     });
-    backend::memcpy_host2usm(q, recv_buf_usm, recv_buf_host.get_data(), size);
+    memcpy_host2usm(q, recv_buf_usm, recv_buf_host.get_data(), size);
 }
 
 template <typename Op>
@@ -536,9 +535,7 @@ auto thread_communicator_impl<MemoryAccessKind>::bcast(byte_t* send_buf,
                                                        const data_type& dtype,
                                                        std::int64_t root) -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    std::cout << "pree" << std::endl;
     bcast_(send_buf, count, dtype, root);
-    std::cout << "postt" << std::endl;
     return nullptr;
 }
 
