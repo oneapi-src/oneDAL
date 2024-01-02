@@ -54,7 +54,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     ONEDAL_ASSERT(data.get_row_count() > 0);
     const std::int64_t row_count = data.get_row_count();
-
+    auto rows_count_global = row_count;
     ONEDAL_ASSERT(data.get_column_count() > 0);
     const std::int64_t column_count = data.get_column_count();
 
@@ -85,7 +85,6 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     {
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
-        auto rows_count_global = row_count;
         comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     }
 
