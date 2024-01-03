@@ -208,17 +208,17 @@ struct csr_table_builder {
 struct csr_make_blobs {
     using Float = float;
     using Index = std::int64_t;
-    Index row_count_, column_count_, n_components_;
+    Index row_count_, column_count_, cluster_count_;
     float nonzero_fraction_;
     sparse_indexing indexing_;
     const dal::array<Float> data_;
     const dal::array<Index> column_indices_;
     const dal::array<Index> row_offsets_;
-    const Float centroid_fill_value = 6.0f;
+    const Float centroid_fill_value = 10.0f;
     const Float min_val = -1.0f;
     const Float max_val = 1.0f;
 
-    csr_make_blobs(Index n_components,
+    csr_make_blobs(Index cluster_count,
                    Index row_count,
                    Index column_count,
                    float nnz_fraction = 0.05,
@@ -226,7 +226,7 @@ struct csr_make_blobs {
                    Index seed = 42)
             : row_count_(row_count),
               column_count_(column_count),
-              n_components_(n_components),
+              cluster_count_(cluster_count),
               nonzero_fraction_(nnz_fraction),
               indexing_(indexing),
               data_(dal::array<Float>::empty(nnz_fraction * row_count * column_count)),
@@ -243,7 +243,7 @@ struct csr_make_blobs {
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> uniform_data(min_val, max_val);
         std::uniform_int_distribution<Index> uniform_indices(indexing_shift,
-                                                             column_count - indexing_shift - 1);
+                                                             column_count + indexing_shift - 1);
         // Check if it is possible to generate non-empty row
         if (row_nonzero_count < 1) {
             std::cout << "ERROR: Non-zero fraction is too small to generate rows" << std::endl;
@@ -253,7 +253,7 @@ struct csr_make_blobs {
         Index fill_count = 0;
         row_offs_ptr[0] = indexing_shift;
         // Create centroids
-        for (Index cent_idx = 0; cent_idx < n_components; ++cent_idx) {
+        for (Index cent_idx = 0; cent_idx < cluster_count; ++cent_idx) {
             Index row_val_count = 0;
             while (row_val_count < row_nonzero_count) {
                 const Index col_idx = uniform_indices(rng);
@@ -280,8 +280,8 @@ struct csr_make_blobs {
                       col_indices_ptr + row_offs_ptr[cent_idx + 1] - indexing_shift);
         }
         // Generate remaining rows adding random noise to centroids
-        for (Index row_idx = n_components; row_idx < row_count; ++row_idx) {
-            const Index centroid_id = row_idx % n_components;
+        for (Index row_idx = cluster_count; row_idx < row_count; ++row_idx) {
+            const Index centroid_id = row_idx % cluster_count;
             for (Index data_idx = row_offs_ptr[centroid_id] - indexing_shift;
                  data_idx < row_offs_ptr[centroid_id + 1] - indexing_shift;
                  ++data_idx) {
@@ -303,14 +303,14 @@ struct csr_make_blobs {
     }
 
     table get_initial_centroids() const {
-        const auto result = dal::array<float>::empty(n_components_ * column_count_);
+        const auto result = dal::array<float>::empty(cluster_count_ * column_count_);
         auto result_ptr = result.get_mutable_data();
 
         const Index shift = bool(indexing_ == sparse_indexing::one_based);
         const auto data_ptr = data_.get_data();
         const auto col_ind_ptr = column_indices_.get_data();
         const auto row_offs_ptr = row_offsets_.get_data();
-        for (Index row_idx = 0; row_idx < n_components_; ++row_idx) {
+        for (Index row_idx = 0; row_idx < cluster_count_; ++row_idx) {
             for (Index col_id = 0; col_id < column_count_; ++col_id) {
                 result_ptr[row_idx * column_count_ + col_id] = 0;
             }
@@ -321,14 +321,47 @@ struct csr_make_blobs {
                 result_ptr[row_idx * column_count_ + col_idx] = data_ptr[data_idx];
             }
         }
-        return homogen_table::wrap(result, n_components_, column_count_);
+        return homogen_table::wrap(result, cluster_count_, column_count_);
+    }
+
+    table get_result_centroids() const {
+        const auto result = dal::array<float>::empty(cluster_count_ * column_count_);
+        auto result_ptr = result.get_mutable_data();
+        const auto cluster_counts = dal::array<std::int32_t>::empty(cluster_count_);
+        auto counts_ptr = cluster_counts.get_mutable_data();
+
+        const Index shift = bool(indexing_ == sparse_indexing::one_based);
+        const auto data_ptr = data_.get_data();
+        const auto col_ind_ptr = column_indices_.get_data();
+        const auto row_offs_ptr = row_offsets_.get_data();
+        for (Index row_idx = 0; row_idx < cluster_count_; ++row_idx) {
+            counts_ptr[row_idx] = 0;
+            for (Index col_id = 0; col_id < column_count_; ++col_id) {
+                result_ptr[row_idx * column_count_ + col_id] = 0;
+            }
+        }
+        for (Index row_idx = 0; row_idx < row_count_; ++row_idx) {
+            const auto start = row_offs_ptr[row_idx] - shift;
+            const auto end = row_offs_ptr[row_idx + 1] - shift;
+            for (Index data_idx = start; data_idx < end; ++data_idx) {
+                auto col_idx = col_ind_ptr[data_idx] - shift;
+                result_ptr[(row_idx % cluster_count_) * column_count_ + col_idx] += data_ptr[data_idx];
+            }
+            counts_ptr[row_idx % cluster_count_]++;
+        }
+        for (Index row_idx = 0; row_idx < cluster_count_; ++row_idx) {
+            for (Index col_id = 0; col_id < column_count_; ++col_id) {
+                result_ptr[row_idx * column_count_ + col_id] /= counts_ptr[row_idx];
+            }
+        }
+        return homogen_table::wrap(result, cluster_count_, column_count_);
     }
 
     table get_responses() const {
         auto responses = dal::array<std::int32_t>::empty(row_count_);
         auto response_ptr = responses.get_mutable_data();
         for (std::int32_t i = 0; i < row_count_; ++i) {
-            response_ptr[i] = i % n_components_;
+            response_ptr[i] = i % cluster_count_;
         }
         return homogen_table::wrap(response_ptr, row_count_, 1);
     }

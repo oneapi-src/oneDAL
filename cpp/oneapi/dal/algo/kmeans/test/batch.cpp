@@ -194,17 +194,38 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 
     SECTION("cluster=5") {
         auto input = oneapi::dal::test::engine::csr_make_blobs(5, 50, 20);
-        this->test_on_sparse_data(input, 10, 0.01, true);
+        bool init_centroids = true;
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
     }
 
     SECTION("cluster=16") {
+        bool init_centroids = true;
         auto input = oneapi::dal::test::engine::csr_make_blobs(16, 200, 100);
-        this->test_on_sparse_data(input, 10, 0.01, true);
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
     }
 
     SECTION("cluster=128") {
+        bool init_centroids = true;
         auto input = oneapi::dal::test::engine::csr_make_blobs(128, 100000, 200);
-        this->test_on_sparse_data(input, 10, 0.01, true);
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=5") {
+        auto input = oneapi::dal::test::engine::csr_make_blobs(5, 50, 20);
+        bool init_centroids = false;
+        this->test_on_sparse_data(input, 20, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=16") {
+        bool init_centroids = false;
+        auto input = oneapi::dal::test::engine::csr_make_blobs(16, 200, 100);
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=32") {
+        bool init_centroids = false;
+        auto input = oneapi::dal::test::engine::csr_make_blobs(32, 10000, 100);
+        this->test_on_sparse_data(input, 30, 0.01, init_centroids);
     }
 }
 

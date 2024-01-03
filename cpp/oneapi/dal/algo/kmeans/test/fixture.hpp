@@ -296,8 +296,9 @@ public:
                              float_t accuracy_threshold,
                              bool init_centroids) {
         const table data = input.get_data(this->get_policy());
+        const auto cluster_count = input.cluster_count_;
         REQUIRE(data.get_kind() == csr_table::kind());
-        auto desc = this->get_descriptor(input.n_components_, max_iter_count, accuracy_threshold);
+        auto desc = this->get_descriptor(cluster_count, max_iter_count, accuracy_threshold);
         INFO("KMeans sparse training");
         if (init_centroids) {
             const table initial_centroids = input.get_initial_centroids();
@@ -306,7 +307,13 @@ public:
         }
         else {
             const auto train_result = this->train(desc, data);
-            check_response_match(input.get_responses(), train_result.get_responses());
+            const auto model = train_result.get_model();
+            auto match_map = array<float_t>::zeros(cluster_count);
+            find_match_centroids(input.get_result_centroids(),
+                                 model.get_centroids(),
+                                 input.column_count_,
+                                 match_map);
+            check_response_match(match_map, input.get_responses(), train_result.get_responses());
         }
     }
 

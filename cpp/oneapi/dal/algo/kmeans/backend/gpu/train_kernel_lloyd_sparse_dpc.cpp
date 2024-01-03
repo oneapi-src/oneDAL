@@ -409,11 +409,6 @@ sycl::event update_centroids(sycl::queue& q,
         });
     });
     {
-        // Cluster counters over all ranks in case of distributed computing
-        auto count_reduce_event = comm.allreduce(cluster_counts.flatten(q, { deps }));
-        count_reduce_event.wait();
-    }
-    {
         // Reduce centroids over all ranks in of distributed computing
         auto centroids_reduce_event = comm.allreduce(centroids.flatten(q, { centroids_sum_event }));
         centroids_reduce_event.wait();
@@ -436,6 +431,68 @@ sycl::event update_centroids(sycl::queue& q,
         });
     });
     return finalize_centroids;
+}
+
+template <typename Float>
+sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
+                                  const std::int64_t row_count,
+                                  pr::ndarray<std::int32_t, 2>& responses,
+                                  pr::ndarray<std::int32_t, 1>& cluster_counts,
+                                  pr::ndarray<Float, 2>& dists,
+                                  const event_vector& deps = {}) {
+    auto& queue = ctx.get_queue();
+    auto& comm = ctx.get_communicator();
+
+    const auto rank_count = comm.get_rank_count();
+    const auto rank = comm.get_rank();
+    const auto num_clusters = cluster_counts.get_dimension(0);
+
+    auto resp_ptr = responses.get_mutable_data();
+    auto counts_ptr = cluster_counts.get_mutable_data();
+    auto dists_ptr = dists.get_mutable_data();
+
+    const auto abs_min_val = -std::numeric_limits<Float>::max();
+
+    auto local_size = bk::device_max_wg_size(queue);
+    auto range = bk::make_multiple_nd_range_1d(local_size, local_size);
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](auto it) {
+            const auto local_id = it.get_local_id(1);
+            for (std::int64_t cluster_id = rank; cluster_id < num_clusters;
+                 cluster_id += rank_count) {
+                // no need to handle non-empty clusters
+                if (counts_ptr[cluster_id] > 0) {
+                    continue;
+                }
+                std::int64_t cand_idx = -1;
+                Float cand_dist = abs_min_val;
+                for (std::int64_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+                    const auto dist = dists_ptr[row_idx];
+                    if (dist > cand_dist) {
+                        cand_dist = dist;
+                        cand_idx = row_idx;
+                    }
+                }
+                const Float longest_dist =
+                    sycl::reduce_over_group(it.get_group(),
+                                            cand_dist,
+                                            abs_min_val,
+                                            sycl::ext::oneapi::maximum<Float>());
+                const auto id = longest_dist == cand_dist ? cand_idx : -1;
+                const auto longest_id =
+                    sycl::reduce_over_group(it.get_group(),
+                                            id,
+                                            sycl::ext::oneapi::maximum<std::int64_t>());
+                if (local_id == 0 && longest_id != -1) {
+                    resp_ptr[longest_id] = cluster_id;
+                    counts_ptr[longest_id] = 1;
+                    dists_ptr[cluster_id] = Float(0);
+                }
+            }
+        });
+    });
+    return event;
 }
 
 template <typename Float>
@@ -504,8 +561,25 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                                 arr_closest_distances,
                                                 { centroid_squares_event, last_event });
             count_clusters(queue, arr_responses, cluster_counts, { assign_event });
+
+            {
+                // Cluster counters over all ranks in case of distributed computing
+                auto count_reduce_event =
+                    comm.allreduce(cluster_counts.flatten(queue, { assign_event }));
+                count_reduce_event.wait();
+            }
+
+            auto empty_cluster_event = handle_empty_clusters(ctx,
+                                                             row_count,
+                                                             arr_responses,
+                                                             cluster_counts,
+                                                             arr_closest_distances,
+                                                             { assign_event });
+
             auto objective_function =
-                calc_objective_function(queue, arr_closest_distances, { assign_event });
+                calc_objective_function(queue,
+                                        arr_closest_distances,
+                                        { empty_cluster_event, assign_event });
 
             {
                 // Reduce objective function value over all ranks
