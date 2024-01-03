@@ -103,31 +103,31 @@ Operation
 .. _pca_i_api:
 
 Partial Training :expr:`partial_compute(...)`
------------------------------
+---------------------------------------------
 .. _pca_p_api_input:
 
 Partial Input
-~~~~~
+~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::pca::partial_compute_input
 
 .. _pca_p_api_result:
 
 Partial Result
-~~~~~~
+~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::pca::partial_compute_result
 
 Finalize Training :expr:`finalize_compute(...)`
------------------------------
+-----------------------------------------------
 .. _pca_p_api_input:
 
 Finalize Input
-~~~~~
+~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::pca::partial_compute_result
 
 .. _pca_p_api_result:
 
 Finalize Result
-~~~~~~
+~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::pca::compute_result
 
 Inference :cpp:expr:`infer(...)`

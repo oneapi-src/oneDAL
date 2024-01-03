@@ -80,29 +80,29 @@ Operation
 .. _covariance_p_api:
 
 Partial Training :expr:`partial_compute(...)`
------------------------------
+---------------------------------------------
 .. _covariance_p_api_input:
 
 Partial Input
-~~~~~
+~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::covariance::partial_compute_input
 
 .. _covariance_p_api_result:
 
 Partial Result
-~~~~~~
+~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::covariance::partial_compute_result
 
 Finalize Training :expr:`finalize_compute(...)`
------------------------------
-.. _covariance_p_api_input:
+-----------------------------------------------
+.. _covariance_f_api_input:
 
 Finalize Input
-~~~~~
+~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::covariance::partial_compute_result
 
-.. _covariance_p_api_result:
+.. _covariance_f_api_result:
 
 Finalize Result
-~~~~~~
+~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::covariance::compute_result
