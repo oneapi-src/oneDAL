@@ -173,7 +173,7 @@ private:
     thread_communicator_barrier barrier_;
     std::int64_t source_count_;
     byte_t* source_buf_;
-#ifdef ONEDAL_DATA_PARALLEL    
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue& queue_;
 #endif
 };
@@ -237,7 +237,7 @@ private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::vector<buffer_info> send_buffers_;
-#ifdef ONEDAL_DATA_PARALLEL    
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue& queue_;
 #endif
 };
@@ -249,7 +249,8 @@ public:
         std::int64_t count = 0;
     };
 #ifdef ONEDAL_DATA_PARALLEL
-    explicit thread_communicator_sendrecv_replace(thread_communicator_context& ctx, sycl::queue& queue)
+    explicit thread_communicator_sendrecv_replace(thread_communicator_context& ctx,
+                                                  sycl::queue& queue)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()),
@@ -278,7 +279,7 @@ private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::vector<buffer_info> send_buffers_;
-#ifdef ONEDAL_DATA_PARALLEL    
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue& queue_;
 #endif
 };
@@ -320,7 +321,7 @@ private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::vector<buffer_info> send_buffers_;
-#ifdef ONEDAL_DATA_PARALLEL    
+#ifdef ONEDAL_DATA_PARALLEL
     sycl::queue& queue_;
 #endif
 

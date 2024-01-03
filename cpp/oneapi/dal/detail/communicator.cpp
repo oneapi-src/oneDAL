@@ -78,12 +78,8 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
 
     {
         ONEDAL_PROFILER_TASK(comm.allgatherv_gpu, q);
-        wait_request(allgatherv(send_buf,
-                                send_count,
-                                recv_buf,
-                                recv_counts_host,
-                                displs_host,
-                                dtype));
+        wait_request(
+            allgatherv(send_buf, send_count, recv_buf, recv_counts_host, displs_host, dtype));
     }
     return nullptr;
 }
@@ -112,8 +108,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
 
     {
         ONEDAL_PROFILER_TASK(comm.allreduce_gpu, q);
-        wait_request(
-            allreduce(send_buf, recv_buf, count, dtype, op));
+        wait_request(allreduce(send_buf, recv_buf, count, dtype, op));
     }
 
     return nullptr;
@@ -144,11 +139,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
 
     {
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
-        wait_request(sendrecv_replace(buf,
-                                    count,
-                                    dtype,
-                                    destination_rank,
-                                    source_rank));
+        wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
     }
 
     return nullptr;

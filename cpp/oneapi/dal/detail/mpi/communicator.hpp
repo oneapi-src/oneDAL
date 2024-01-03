@@ -255,9 +255,9 @@ public:
                                    make_mpi_data_type(dtype),
                                    make_mpi_reduce_op(op),
                                    mpi_comm_));
-// #ifndef ONEDAL_DATA_PARALLEL
-//             memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
-// #endif
+            // #ifndef ONEDAL_DATA_PARALLEL
+            //             memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
+            // #endif
 
             // We have to copy memory after reduction, this cannot be performed
             // asynchronously in the current implementation, so we return `nullptr`
