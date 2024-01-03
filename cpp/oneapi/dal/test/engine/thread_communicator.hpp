@@ -149,10 +149,6 @@ public:
               source_count_(0),
               source_buf_(nullptr),
               queue_(queue) {}
-
-    sycl::queue& get_queue() const {
-        return queue_;
-    }
 #else
     explicit thread_communicator_bcast(thread_communicator_context& ctx)
             : ctx_(ctx),
@@ -160,6 +156,13 @@ public:
               source_count_(0),
               source_buf_(nullptr) {}
 #endif
+    auto get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return dal::detail::data_parallel_policy{ queue_ };
+#else
+        return dal::detail::default_host_policy{};
+#endif
+    }
     void operator()(byte_t* send_buf,
                     std::int64_t count,
                     const data_type& dtype,
@@ -209,16 +212,20 @@ public:
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()),
               queue_(queue) {}
-
-    sycl::queue& get_queue() const {
-        return queue_;
-    }
 #else
     explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
 #endif
+    auto get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return dal::detail::data_parallel_policy{ queue_ };
+#else
+        return dal::detail::default_host_policy{};
+#endif
+    }
+
     void operator()(const byte_t* send_buf,
                     std::int64_t send_count,
                     byte_t* recv_buf,
@@ -247,16 +254,19 @@ public:
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()),
               queue_(queue) {}
-
-    sycl::queue& get_queue() const {
-        return queue_;
-    }
 #else
     explicit thread_communicator_sendrecv_replace(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
 #endif
+    auto get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return dal::detail::data_parallel_policy{ queue_ };
+#else
+        return dal::detail::default_host_policy{};
+#endif
+    }
 
     void operator()(byte_t* buf,
                     std::int64_t count,
@@ -286,16 +296,19 @@ public:
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()),
               queue_(queue) {}
-
-    sycl::queue& get_queue() const {
-        return queue_;
-    }
 #else
     explicit thread_communicator_allreduce(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
 #endif
+    auto get_policy() const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return dal::detail::data_parallel_policy{ queue_ };
+#else
+        return dal::detail::default_host_policy{};
+#endif
+    }
 
     void operator()(const byte_t* send_buf,
                     byte_t* recv_buf,

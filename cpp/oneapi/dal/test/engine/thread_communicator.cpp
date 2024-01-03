@@ -43,12 +43,11 @@ void thread_communicator_bcast::operator()(byte_t* send_buf_usm,
 
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
-    auto q = get_queue();
 
     const auto send_buff_host = array<byte_t>::empty(size);
     auto send_buf = send_buff_host.get_mutable_data();
     if (ctx_.get_this_thread_rank() == root) {
-        detail::memcpy_usm2host(q, send_buf, send_buf_usm, size);
+        dal::detail::memcpy(dal::detail::default_host_policy{}, get_policy(), send_buf, send_buf_usm, size);
     }
 
     ONEDAL_ASSERT(send_buf);
@@ -75,7 +74,7 @@ void thread_communicator_bcast::operator()(byte_t* send_buf_usm,
     });
 
     if (ctx_.get_this_thread_rank() != root) {
-        detail::memcpy_host2usm(q, send_buf_usm, send_buf, size);
+        dal::detail::memcpy(get_policy(), dal::detail::default_host_policy{}, send_buf_usm, send_buf, size);
     }
 }
 
@@ -144,12 +143,12 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf_usm,
     const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
     const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
     const std::int64_t total_recv_size = dal::detail::check_mul_overflow(dtype_size, total_recv_count);
-    auto q = get_queue();
 
     //  Workaround for zero send_size
     const auto send_buff_host = array<byte_t>::empty(send_size > 0 ? send_size : 1);
+
     if (send_size > 0) {
-        detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf_usm, send_size);
+        dal::detail::memcpy(dal::detail::default_host_policy{}, get_policy(), send_buff_host.get_mutable_data(), send_buf_usm, send_size);
     }
     const auto send_buf = send_buff_host.get_data();
 
@@ -202,8 +201,9 @@ void thread_communicator_allgatherv::operator()(const byte_t* send_buf_usm,
         const std::int64_t src_offset = dal::detail::check_mul_overflow(dtype_size, displs_host_root_ptr[i]);
         const std::int64_t dst_offset = dal::detail::check_mul_overflow(dtype_size, displs_host[i]);
         const std::int64_t copy_size = dal::detail::check_mul_overflow(dtype_size, recv_counts_host[i]);
+
         if (copy_size > 0) {
-            detail::memcpy_host2usm(q, recv_buf_usm + dst_offset, recv_buf + src_offset, copy_size);
+            dal::detail::memcpy(get_policy(), dal::detail::default_host_policy{}, recv_buf_usm + dst_offset, recv_buf + src_offset, copy_size);
         }
     }
 }
@@ -221,8 +221,7 @@ void thread_communicator_sendrecv_replace::operator()(byte_t* usm_buf,
     const auto buff_host = array<byte_t>::empty(recv_size);
     const auto buf = buff_host.get_mutable_data();
 
-    auto q = get_queue();
-    detail::memcpy_usm2host(q, buf, usm_buf, recv_size);
+    dal::detail::memcpy(dal::detail::default_host_policy{}, get_policy(), buf, usm_buf, recv_size);
 
     send_buffers_[rank] = buffer_info{ buf, count };
     std::vector<byte_t> recv_buf(recv_size);
@@ -256,7 +255,8 @@ void thread_communicator_sendrecv_replace::operator()(byte_t* usm_buf,
         send_buffers_.clear();
         send_buffers_.resize(ctx_.get_thread_count());
     });
-    detail::memcpy_host2usm(q, usm_buf, buf, recv_size);
+
+    dal::detail::memcpy(get_policy(), dal::detail::default_host_policy{}, usm_buf, buf, recv_size);
 }
 
 void thread_communicator_allgather::operator()(const byte_t* send_buf,
@@ -326,9 +326,9 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf_usm,
     const auto send_buff_host = array<byte_t>::empty(size);
     const auto recv_buf_host = array<byte_t>::empty(size);
     const auto recv_buf = recv_buf_host.get_mutable_data();
-    auto q = get_queue();
 
-    detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf_usm, size);
+    dal::detail::memcpy(dal::detail::default_host_policy{}, get_policy(), send_buff_host.get_mutable_data(), send_buf_usm, size);
+
     const auto send_buf = send_buff_host.get_data();
     ONEDAL_ASSERT(send_buf);
     ONEDAL_ASSERT(recv_buf);
@@ -368,7 +368,8 @@ void thread_communicator_allreduce::operator()(const byte_t* send_buf_usm,
         send_buffers_.clear();
         send_buffers_.resize(ctx_.get_thread_count());
     });
-    detail::memcpy_host2usm(q, recv_buf_usm, recv_buf_host.get_data(), size);
+
+    dal::detail::memcpy(get_policy(), dal::detail::default_host_policy{}, recv_buf_usm, recv_buf_host.get_data(), size);
 }
 
 template <typename Op>
