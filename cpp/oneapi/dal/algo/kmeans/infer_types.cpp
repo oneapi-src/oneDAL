@@ -35,6 +35,7 @@ class detail::v1::infer_result_impl : public base {
 public:
     table responses;
     double objective_function_value = 0.0;
+    result_option_id options;
 };
 
 using detail::v1::infer_input_impl;
@@ -68,28 +69,51 @@ void infer_input<Task>::set_data_impl(const table& value) {
 
 template <typename Task>
 infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
+using msg = dal::detail::error_messages;
 
 template <typename Task>
 const table& infer_result<Task>::get_responses() const {
+    if (!get_result_options().test(result_options::compute_assignments)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     return impl_->responses;
 }
 
 template <typename Task>
 double infer_result<Task>::get_objective_function_value() const {
+    if (!get_result_options().test(result_options::compute_exact_objective_function)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     return impl_->objective_function_value;
 }
 
 template <typename Task>
 void infer_result<Task>::set_responses_impl(const table& value) {
+    if (!get_result_options().test(result_options::compute_assignments)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->responses = value;
 }
 
 template <typename Task>
 void infer_result<Task>::set_objective_function_value_impl(double value) {
+    if (!get_result_options().test(result_options::compute_exact_objective_function)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     if (value < 0.0) {
         throw domain_error(dal::detail::error_messages::objective_function_value_lt_zero());
     }
     impl_->objective_function_value = value;
+}
+
+template <typename Task>
+const result_option_id& infer_result<Task>::get_result_options() const {
+    return impl_->options;
+}
+
+template <typename Task>
+void infer_result<Task>::set_result_options_impl(const result_option_id& value) {
+    impl_->options = value;
 }
 
 template class ONEDAL_EXPORT infer_input<task::clustering>;
