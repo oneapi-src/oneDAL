@@ -210,8 +210,8 @@ def _declare_onedal_config_impl(repo_ctx):
         substitutions = {
             "%{auto_cpu}":         auto_cpu,
             "%{version_major}":    "2024",
-            "%{version_minor}":    "0",
-            "%{version_update}":   "1",
+            "%{version_minor}":    "1",
+            "%{version_update}":   "0",
             "%{version_build}":    utils.datestamp(repo_ctx),
             "%{version_buildrev}": "work",
             "%{version_status}":   "P",
