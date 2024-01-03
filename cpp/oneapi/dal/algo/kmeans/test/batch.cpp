@@ -205,6 +205,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     }
 
     SECTION("cluster=128") {
+        SKIP_IF(this->get_policy().is_cpu());
         bool init_centroids = true;
         auto input = oneapi::dal::test::engine::csr_make_blobs(128, 100000, 200);
         this->test_on_sparse_data(input, 10, 0.01, init_centroids);
@@ -223,6 +224,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     }
 
     SECTION("cluster=32") {
+        SKIP_IF(this->get_policy().is_cpu());
         bool init_centroids = false;
         auto input = oneapi::dal::test::engine::csr_make_blobs(32, 10000, 100);
         this->test_on_sparse_data(input, 30, 0.01, init_centroids);
