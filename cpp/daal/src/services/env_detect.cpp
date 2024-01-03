@@ -32,6 +32,12 @@
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
+#ifdef __ARM_ARCH
+    #define DAAL_HOST_CPUID daal::services::Environment::sve
+#else
+    #define DAAL_HOST_CPUID daal::services::Environment::avx512
+#endif
+
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;
 
@@ -82,11 +88,7 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 {
     initNumberOfThreads();
 
-#ifdef __ARM_ARCH
-    int host_cpuid = __daal_serv_cpu_detect(daal::services::Environment::sve);
-#else
-    int host_cpuid = __daal_serv_cpu_detect(daal::services::Environment::avx512);
-#endif
+    int host_cpuid = __daal_serv_cpu_detect(DAAL_HOST_CPUID);
 
     if (!_env.cpuid_init_flag)
     {
@@ -96,11 +98,7 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 
             if (cpuid > host_cpuid)
             {
-#ifdef __ARM_ARCH
-                _cpu_detect(daal::services::Environment::sve);
-#else
-                _cpu_detect(daal::services::Environment::avx512);
-#endif
+                _cpu_detect(DAAL_HOST_CPUID);
             }
             else
             {
