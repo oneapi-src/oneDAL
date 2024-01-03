@@ -108,18 +108,11 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard(
     return res;
 }
 
-#ifdef __ARM_ARCH
-template <>
-vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_sve>(
-    const detail::descriptor_base<task::all_vertex_pairs> &desc,
-    const dal::preview::detail::topology<std::int32_t> &t,
-    void *result_ptr);
-#else
+#ifndef __ARM_ARCH
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
     const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr);
-
 #endif
 } // namespace oneapi::dal::preview::jaccard::backend
