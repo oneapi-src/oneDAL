@@ -75,8 +75,8 @@ sycl::event reduction_rm_rw_blocking<Float, BinaryOp, UnaryOp>::operator()(
                                      acc = binary.native(acc, unary(inp_row[i]));
                                  }
                                  // WG reduction
-                                 auto grp = it.get_group();
-                                 output[row_idx] = sycl::reduce_over_group(grp, acc, binary.native);
+                                 output[row_idx] =
+                                     sycl::reduce_over_group(it.get_group(), acc, binary.native);
                              });
         });
 

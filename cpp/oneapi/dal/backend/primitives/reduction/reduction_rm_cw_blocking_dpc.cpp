@@ -66,18 +66,16 @@ sycl::event reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>::operator()(
                                  const auto loc_idx = it.get_local_id(1);
                                  const auto range = it.get_global_range(1);
                                  // It should be converted to upper type by default
-                                 Float acc = (override_init || (loc_idx != 0)) ? //
-                                                 binary.init_value
-                                                                               : output[col_idx];
+                                 Float acc = (override_init || (loc_idx != 0)) //
+                                                 ? binary.init_value
+                                                 : output[col_idx];
                                  for (std::int64_t i = loc_idx; i < height; i += range) {
                                      const Float* const inp_row = input + stride * i;
                                      acc = binary.native(acc, unary(inp_row[col_idx]));
                                  }
                                  // WG reduction
-                                 output[col_idx] = sycl::reduce_over_group( //
-                                     it.get_group(),
-                                     acc,
-                                     binary.native);
+                                 output[col_idx] =
+                                     sycl::reduce_over_group(it.get_group(), acc, binary.native);
                              });
         });
 
