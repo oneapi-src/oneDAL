@@ -26,9 +26,9 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 auto reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                                std::int64_t height) const
     -> reduction_method {
-    const std::int64_t max_loop = std::numeric_limits<std::int32_t>::max();
-    const auto range = width * height;
-    if (range >= max_loop) {
+    const std::int64_t max_loop_range = std::numeric_limits<std::int32_t>::max();
+    const std::int64_t local_range = width * height;
+    if (local_range >= max_loop_range) {
         return reduction_method::blocking;
     }
 
