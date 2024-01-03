@@ -24,6 +24,7 @@ if [ "${os}" = "Linux" ]; then
     echo lnxarm
   else
     echo "Unkown architecture: ${ARCH}"
+    exit 1
   fi
 elif [ "${os}" = "Darwin" ]; then
   echo mac32e
