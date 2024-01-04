@@ -57,10 +57,10 @@ OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 if [ "$ARCH" == arm ]; then
     full_arch=arm
-    output_dir=arm_aarch64
+    arch_dir=arm_aarch64
 else
     full_arch=intel64
-    output_dir=intel_intel64
+    arch_dir=intel_intel64
 fi
 build_system=${build_system:-cmake}
 backend=${backend:-mkl}
@@ -168,7 +168,7 @@ for link_mode in ${link_modes}; do
         fi
         output_result=
         err=
-        cmake_results_dir="_cmake_results/${output_dir}_${lib_ext}"
+        cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
         for p in ${cmake_results_dir}/*; do
             e=$(basename "$p")
             ${p} 2>&1 > ${e}.res

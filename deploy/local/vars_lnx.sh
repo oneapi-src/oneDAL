@@ -229,9 +229,9 @@ PLATFORM=$(bash dev/make/identify_os.sh)
 ARCH=${PLATFORM:3:3}
 
 if [[ "${ARCH}" == "32e" ]]; then
-    SUB_DIR="intel64"
+    ARCH_DIR="intel64"
 elif [[ "${ARCH}" == "arm" ]]; then
-    SUB_DIR="arm"
+    ARCH_DIR="arm"
 else
     echo "Unsupported CPU architecture '${ARCH}'"
     exit 1
@@ -253,8 +253,8 @@ if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
       export LD_LIBRARY_PATH="$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     else
       export CPATH="$__daal_tmp_dir/include${CPATH+:${CPATH}}"
-      export LIBRARY_PATH="$__daal_tmp_dir/lib/$SUB_DIR${LIBRARY_PATH+:${LIBRARY_PATH}}"
-      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$SUB_DIR${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
+      export LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR${LIBRARY_PATH+:${LIBRARY_PATH}}"
+      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     fi
   # ;;
 else   # must be a consolidated layout

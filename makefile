@@ -1226,15 +1226,15 @@ $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.so
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
 
 #----- cmake configs generation
-SUB_DIR=
+ARCH_DIR=
 ifeq ($(ARCH),32e)
-  SUB_DIR=intel64
+  ARCH_DIR=intel64
 else  
-  SUB_DIR=arm
+  ARCH_DIR=arm
 endif
 
 _release_cmake_configs:
-	$(if $(shell bash -c "command -v cmake"),cmake -DINSTALL_DIR=$(RELEASEDIR.lib)/cmake/oneDAL -DSUB_DIR=$(SUB_DIR) -P cmake/scripts/generate_config.cmake,echo 'cmake configs generation skipped')
+	$(if $(shell bash -c "command -v cmake"),cmake -DINSTALL_DIR=$(RELEASEDIR.lib)/cmake/oneDAL -DARCH_DIR=$(ARCH_DIR) -P cmake/scripts/generate_config.cmake,echo 'cmake configs generation skipped')
 
 #----- nuspecs generation
 _release_common: _release_nuspec
