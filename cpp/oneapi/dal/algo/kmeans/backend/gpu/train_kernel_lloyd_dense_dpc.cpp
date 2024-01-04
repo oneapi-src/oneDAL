@@ -28,7 +28,7 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -119,10 +119,8 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         std::cout << "overflow check  = " << std::endl;
         dal::detail::check_mul_overflow(cluster_count, column_count);
         std::cout << "pull data" << std::endl;
-        auto data_ptr =
-            row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+        const auto arr_data = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
         std::cout << "wrap data" << std::endl;
-        auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
 
         // TODO: Use truly-distributed algorithm for computing initial centroids.
         // The current implementation of distributed algorithm initializes centroids
