@@ -104,9 +104,9 @@ function (add_examples examples_paths)
         get_filename_component(example ${example_file_path} NAME_WE)
 
         # Detect CPU architecture
-        if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^(x86_64)")
+        if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
             set(CPU_ARCHITECTURE "intel_intel64")
-        elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^(aarch64)")
+        elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "aarch64")
             set(CPU_ARCHITECTURE "arm_aarch64")
         else()
             message(FATAL_ERROR "Unkown architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}")
