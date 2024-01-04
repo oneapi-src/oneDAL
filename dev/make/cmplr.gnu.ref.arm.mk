@@ -27,7 +27,7 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.all.gnu =  ${CXX} -march=native -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
+COMPILER.all.gnu =  ${CXX} -march=armv8-a+sve -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
 
 link.dynamic.all.gnu = ${CXX} -march=native
@@ -45,4 +45,4 @@ COMPILER.mac.gnu = $(COMPILER.all.gnu)
 link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
 pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
 
-a8sve_OPT.gnu = $(-Q)march=native
+a8sve_OPT.gnu = $(-Q)march=armv8-a+sve
