@@ -140,7 +140,8 @@ public:
         set_singular_values_impl(value);
         return *this;
     }
-    /// A $1 \\times r$ table that contains the explained variances values
+    /// A $1 \\times r$ table that contains the explained variances values for the first :literal:`r`
+    /// features.
     /// @remark default = table{}
     const table& get_explained_variances_ratio() const;
 

@@ -107,7 +107,7 @@ const inline result_option_id vars = detail::get_variances_id();
 const inline result_option_id means = detail::get_means_id();
 /// Return singular values
 const inline result_option_id singular_values = detail::get_singular_values_id();
-/// Return explained_variances_ratio
+/// Return means
 const inline result_option_id explained_variances_ratio =
     detail::get_explained_variances_ratio_id();
 } // namespace result_options
