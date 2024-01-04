@@ -40,8 +40,6 @@ variance, that is, the directions where the data is mostly spread out.
 .. |p_op| replace:: :ref:`partial_train(...) <pca_p_api>`
 
 .. |f_math| replace:: :ref:`Finalize Training <pca_f_math>`
-.. |f_input| replace:: :ref:`finalize_train_input <pca_f_api_input>`
-.. |f_result| replace:: :ref:`finalize_train_result <pca_f_api_result>`
 .. |f_op| replace:: :ref:`finalize_train(...) <pca_f_api>`
 
 =============== ============= ============= ======== =========== ============
@@ -50,5 +48,5 @@ variance, that is, the directions where the data is mostly spread out.
    |t_math|        |t_cov|       |t_svd|     |t_op|   |t_input|   |t_result|
    |i_math|        |i_cov|       |i_svd|     |i_op|   |i_input|   |i_result|
    |p_math|        |t_cov|       |t_svd|     |p_op|   |p_input|   |p_result|
-   |f_math|        |t_cov|       |t_svd|     |f_op|   |f_input|   |f_result|
+   |f_math|        |t_cov|       |t_svd|     |f_op|   |p_result|   |t_result|
 =============== ============= ============= ======== =========== ============

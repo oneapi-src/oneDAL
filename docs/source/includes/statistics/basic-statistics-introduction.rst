@@ -38,14 +38,12 @@ Basic statistics algorithm computes the following set of quantitative dataset ch
 .. |p_op| replace::     :ref:`partial_compute(...) <basic_statistics_p_api>`
 
 .. |f_math| replace::   :ref:`Finalize Computing <basic_statistics_f_math>`
-.. |f_input| replace::  :ref:`finalize_compute_input <basic_statistics_f_api_input>`
-.. |f_result| replace:: :ref:`finalize_compute_result <basic_statistics_f_api_result>`
 .. |f_op| replace::     :ref:`finalize_compute(...) <basic_statistics_f_api>`
 
-============= ============================== ============ =========== ============
-**Operation**   **Computational  methods**        **Programming  Interface**      
-------------- ------------------------------ -------------------------------------
-  |c_math|             |c_dense|                |c_op|     |c_input|   |c_result| 
-  |p_math|             |c_dense|                |p_op|     |p_input|   |p_result| 
-  |f_math|             |c_dense|                |f_op|     |f_input|   |f_result| 
-============= ============================== ============ =========== ============
+=============  ==========================  ======== =========== ============
+**Operation**  **Computational  methods**     **Programming  Interface**
+-------------  --------------------------  ---------------------------------
+  |c_math|             |c_dense|            |c_op|   |c_input |   |c_result|
+  |p_math|             |c_dense|            |p_op|   |p_input |   |p_result|
+  |f_math|             |c_dense|            |f_op|   |p_result|   |c_result|
+=============  ==========================  ======== =========== ============
