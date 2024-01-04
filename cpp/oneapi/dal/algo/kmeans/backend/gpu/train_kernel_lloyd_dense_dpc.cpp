@@ -16,7 +16,7 @@
 
 #include <tuple>
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
-
+#include <iostream>
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/cluster_updater.hpp"
@@ -107,17 +107,21 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         auto& comm = ctx.get_communicator();
-
+        std::cout << "init step in train" << std::endl;
         const auto data = input.get_data();
         const std::int64_t row_count = data.get_row_count();
+        std::cout << "row_count = " << row_count << std::endl;
         const std::int64_t column_count = data.get_column_count();
+        std::cout << "column_count = " << column_count << std::endl;
         const std::int64_t cluster_count = params.get_cluster_count();
         const std::int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
+        std::cout << "overflow check  = " << std::endl;
         dal::detail::check_mul_overflow(cluster_count, column_count);
-
+        std::cout << "pull data" << std::endl;
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+        std::cout << "wrap data" << std::endl;
         auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
 
         // TODO: Use truly-distributed algorithm for computing initial centroids.
@@ -126,13 +130,15 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         // inconsistent results between single-rank and distributed runs. To fix
         // this issue the correct distributed implementation of K-Means++ should be
         // called underneath.
+        std::cout << "get_initial centroids" << std::endl;
         auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
-
+        std::cout << "get_block_size_in_rows" << std::endl;
         std::int64_t block_size_in_rows =
             std::min(row_count,
                      kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
-
+        std::cout << "overflow check" << std::endl;
         dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
+        std::cout << "get_part_count_for_partial_centroids" << std::endl;
         std::int64_t part_count =
             kernels_fp<Float>::get_part_count_for_partial_centroids(queue,
                                                                     column_count,
@@ -142,8 +148,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
             pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+        std::cout << "compute_squares" << std::endl;
         auto data_squares_event =
             kernels_fp<Float>::compute_squares(queue, arr_data, arr_data_squares);
+        std::cout << "compute_squares finished" << std::endl;
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,
                                          { block_size_in_rows, cluster_count },
