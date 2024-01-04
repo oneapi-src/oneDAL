@@ -78,6 +78,8 @@ Operation
    Preconditions
       | :expr:`input.data.is_empty == false`
 
+.. _basic_statistics_p_api:
+
 Partial Training :expr:`partial_compute(...)`
 ---------------------------------------------
 .. _basic_statistics_p_api_input:
@@ -91,6 +93,8 @@ Partial Input
 Partial Result and Finalize Input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::basic_statistics::partial_compute_result
+
+.. _basic_statistics_f_api:
 
 Finalize Training :expr:`finalize_compute(...)`
 -----------------------------------------------

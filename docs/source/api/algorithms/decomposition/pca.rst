@@ -100,10 +100,10 @@ Operation
       | :expr:`result.model.eigenvectors.row_count == 1`
       | :expr:`result.model.eigenvectors.column_count == desc.component_count`
 
-.. _pca_i_api:
+.. _pca_p_api:
 
 Partial Training :expr:`partial_train(...)`
----------------------------------------------
+-------------------------------------------
 .. _pca_p_api_input:
 
 Partial Input
@@ -119,8 +119,10 @@ Partial Result and Finalize Input
 .. _pca_f_api:
 
 Finalize Training :expr:`finalize_train(...)`
------------------------------------------------
+---------------------------------------------
 
+
+.. _pca_i_api:
 
 Inference :cpp:expr:`infer(...)`
 ---------------------------------
