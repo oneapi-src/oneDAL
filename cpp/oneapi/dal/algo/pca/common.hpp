@@ -292,18 +292,26 @@ public:
         set_eigenvectors_impl(value);
         return *this;
     }
+    /// Means.
+    /// @remark default = table{}
     const table& get_means() const;
 
     auto& set_means(const table& value) {
         set_means_impl(value);
         return *this;
     }
+
+    /// Variances.
+    /// @remark default = table{}
     const table& get_variances() const;
 
     auto& set_variances(const table& value) {
         set_variances_impl(value);
         return *this;
     }
+
+    /// Eigenvalues.
+    /// @remark default = table{}
     const table& get_eigenvalues() const;
 
     auto& set_eigenvalues(const table& value) {

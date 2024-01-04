@@ -45,8 +45,8 @@ variance, that is, the directions where the data is mostly spread out.
 =============== ============= ============= ======== =========== ============
  **Operation**  **Computational methods**     **Programming Interface**
 --------------- --------------------------- ---------------------------------
-   |t_math|        |t_cov|       |t_svd|     |t_op|   |t_input|   |t_result|
-   |i_math|        |i_cov|       |i_svd|     |i_op|   |i_input|   |i_result|
-   |p_math|        |t_cov|       |t_svd|     |p_op|   |p_input|   |p_result|
+   |t_math|        |t_cov|       |t_svd|     |t_op|   |t_input|    |t_result|
+   |i_math|        |i_cov|       |i_svd|     |i_op|   |i_input|    |i_result|
+   |p_math|        |t_cov|       |t_svd|     |p_op|   |p_input|    |p_result|
    |f_math|        |t_cov|       |t_svd|     |f_op|   |p_result|   |t_result|
 =============== ============= ============= ======== =========== ============

@@ -37,10 +37,10 @@ Their usage is application-dependent. The covariance algorithm computes the foll
 .. |p_op| replace::     :ref:`partial_compute(...) <covariance_p_api>`
 .. |f_op| replace::     :ref:`finalize_compute(...) <covariance_f_api>`
 
-=============  ==========================  ======== =========== ============
+=============  ==========================  ======== ============ ===========
 **Operation**  **Computational  methods**     **Programming  Interface**
 -------------  --------------------------  ---------------------------------
   |c_math|             |c_dense|            |c_op|   |c_input |   |c_result|
   |p_math|             |c_dense|            |p_op|   |p_input |   |p_result|
   |f_math|             |c_dense|            |f_op|   |p_result|   |c_result|
-=============  ==========================  ======== =========== ============
+=============  ==========================  ======== ============ ===========
