@@ -111,7 +111,7 @@ create_package() {
             dl_postfix=.so.${major_binary_version}.${minor_binary_version}
             sl_postfix=.a
         elif [ "${platform}" = "linux-aarch64" ]; then
-            dl_postfix=.${major_binary_version}.${minor_binary_version}.dylib
+            dl_postfix=.so.${major_binary_version}.${minor_binary_version}
             sl_postfix=.a
         elif [ "${platform}" = "osx-x64" ]; then
             dl_postfix=.${major_binary_version}.${minor_binary_version}.dylib

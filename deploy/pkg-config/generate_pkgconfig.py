@@ -69,7 +69,7 @@ if platform in ["linux2", "linux"]:
 
     if ARCH =='x86_64':
         LIBDIR = 'lib/intel64'
-    elif ARCH == 'aarch64' :
+    elif ARCH == 'aarch64':
         LIBDIR = 'lib/arm'
     else:
         sys.stderr.write(f"Unknown CPU architecture '{ARCH}'\n")
