@@ -71,34 +71,7 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     {}
 #endif
 
-#ifdef __ARM_ARCH
-template <>
-struct intersection_local_tc<dal::backend::cpu_dispatch_sve> {
-    ONEDAL_FORCEINLINE std::int64_t operator()(const std::int32_t* neigh_u,
-                                               const std::int32_t* neigh_v,
-                                               std::int32_t n_u,
-                                               std::int32_t n_v,
-                                               std::int64_t* tc,
-                                               std::int64_t tc_size) {
-        std::int64_t total = 0;
-        std::int32_t i_u = 0, i_v = 0;
-        while (i_u < n_u && i_v < n_v) {
-            if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
-                return total;
-            }
-            if (neigh_u[i_u] == neigh_v[i_v]) {
-                total++, tc[neigh_u[i_u]]++;
-                i_u++, i_v++;
-            }
-            else if (neigh_u[i_u] < neigh_v[i_v])
-                i_u++;
-            else if (neigh_u[i_u] > neigh_v[i_v])
-                i_v++;
-        }
-        return total;
-    }
-};
-#else
+#ifndef __ARM_ARCH
 template <>
 struct intersection_local_tc<dal::backend::cpu_dispatch_avx512> {
     ONEDAL_FORCEINLINE std::int64_t operator()(const std::int32_t* neigh_u,
