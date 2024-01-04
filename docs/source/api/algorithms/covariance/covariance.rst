@@ -93,5 +93,7 @@ Partial Result and Finalize Input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::covariance::partial_compute_result
 
+.. _covariance_f_api:
+
 Finalize Training :expr:`finalize_compute(...)`
 -----------------------------------------------

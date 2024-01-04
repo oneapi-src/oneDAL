@@ -88,32 +88,9 @@ Partial Input
 
 .. _basic_statistics_p_api_result:
 
-Partial Result
-~~~~~~~~~~~~~~
+Partial Result and Finalize Input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::basic_statistics::partial_compute_result
 
 Finalize Training :expr:`finalize_compute(...)`
 -----------------------------------------------
-.. _basic_statistics_p_api_input:
-
-Finalize Input
-~~~~~~~~~~~~~~
-.. onedal_class:: oneapi::dal::basic_statistics::partial_compute_result
-
-.. _basic_statistics_p_api_result:
-
-Finalize Result
-~~~~~~~~~~~~~~~
-.. onedal_class:: oneapi::dal::basic_statistics::compute_result
-
--------------
-Usage Example
--------------
-
-.. include:: ../../../includes/statistics/basic-statistics-usage-examples.rst
-
---------
-Examples
---------
-
-.. include:: ../../../includes/statistics/basic-statistics-examples.rst

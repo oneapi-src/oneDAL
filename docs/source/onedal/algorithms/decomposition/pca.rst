@@ -43,6 +43,34 @@ The principal components can be computed with any of the following two methods:
 #. Covariance (or Correlation)
 #. Singular Value Decomposition (SVD)
 
+.. _pca_p_math:
+
+Partial Training
+----------------
+Given a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension
+:math:`p`, the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the
+training date set. The eigenvectors can be grouped into the :math:`r \times p`
+matrix :math:`T` that contains one eigenvector in each row.
+
+The principal components can be computed with any of the following two methods:
+
+#. Covariance (or Correlation)
+#. Singular Value Decomposition (SVD)
+
+.. _pca_f_math:
+
+Finalize Training
+-----------------
+Given a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension
+:math:`p`, the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the
+training date set. The eigenvectors can be grouped into the :math:`r \times p`
+matrix :math:`T` that contains one eigenvector in each row.
+
+The principal components can be computed with any of the following two methods:
+
+#. Covariance (or Correlation)
+#. Singular Value Decomposition (SVD)
+
 .. _pca_t_math_cov:
 
 Training method: *Covariance*
