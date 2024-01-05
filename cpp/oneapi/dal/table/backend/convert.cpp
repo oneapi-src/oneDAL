@@ -149,15 +149,18 @@ static sycl::event convert_vector_kernel(sycl::queue& q,
                                          std::int64_t dst_stride,
                                          std::int64_t element_count,
                                          const event_vector& deps = {}) {
+    std::cout << "convert gpu to gpu step 1" << std::endl;
     const int src_stride_int = dal::detail::integral_cast<int>(src_stride);
     const int dst_stride_int = dal::detail::integral_cast<int>(dst_stride);
     const int element_count_int = dal::detail::integral_cast<int>(element_count);
-
+    std::cout << "convert gpu to gpu step 2" << std::endl;
     const std::int64_t required_local_size = 256;
     const std::int64_t local_size = std::min(down_pow2(element_count), required_local_size);
+    std::cout << "convert gpu to gpu step 3" << std::endl;
     const auto range = make_multiple_nd_range_1d(element_count, local_size);
-
+    std::cout << "convert gpu to gpu step 4" << std::endl;
     if (src_stride == 1 && dst_stride == 1) {
+        std::cout << "convert gpu to gpu step if" << std::endl;
         return q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
@@ -170,6 +173,7 @@ static sycl::event convert_vector_kernel(sycl::queue& q,
     }
 
     else {
+        std::cout << "convert gpu to gpu step else" << std::endl;
         return q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::nd_item<1> id) {

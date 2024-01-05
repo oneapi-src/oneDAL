@@ -19,6 +19,12 @@
 #include <iostream>
 
 namespace oneapi::dal::backend {
+namespace bk = dal::backend;
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
+}
 
 sycl::event gather_device2host(sycl::queue& q,
                                void* dst_host,
@@ -100,34 +106,40 @@ sycl::event scatter_host2device(sycl::queue& q,
                                       src_host,
                                       block_count * block_size_in_bytes,
                                       deps);
+    copy_event.wait_and_throw();
+    byte_t* gathered_byte = reinterpret_cast<byte_t*>(gathered_device_unique.get());
+    byte_t* dst_byte = reinterpret_cast<byte_t*>(dst_device);
+    const auto block_size = propose_block_size<float>(q, block_count);
+    const bk::uniform_blocking blocking(block_count, block_size);
+    std::vector<sycl::event> events(blocking.get_block_count());
+    for (std::int64_t block_index = 0; block_index < blocking.get_block_count(); ++block_index) {
+        const auto first_column = blocking.get_block_start_index(block_index);
+        const auto last_column = blocking.get_block_end_index(block_index);
+        const auto curr_block = last_column - first_column;
+        ONEDAL_ASSERT(curr_block > 0);
+        auto scatter_event = q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(copy_event);
 
-    auto scatter_event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(copy_event);
+            const std::int64_t required_local_size = 256;
+            const std::int64_t local_size = std::min(down_pow2(curr_block), required_local_size);
+            const auto range = make_multiple_nd_range_1d(curr_block, local_size);
 
-        byte_t* gathered_byte = reinterpret_cast<byte_t*>(gathered_device_unique.get());
-        byte_t* dst_byte = reinterpret_cast<byte_t*>(dst_device);
-
-        const std::int64_t required_local_size = 256;
-        const std::int64_t local_size = std::min(down_pow2(block_count), required_local_size);
-        const auto range = make_multiple_nd_range_1d(block_count, local_size);
-
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const auto i = id.get_global_id();
-            if (i < block_count) {
-                // TODO: Unroll for optimization
-                for (int j = 0; j < block_size_in_bytes; j++) {
-                    dst_byte[i * dst_stride_in_bytes + j] =
-                        gathered_byte[i * block_size_in_bytes + j];
+            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+                const auto i = id.get_global_id() + first_column;
+                if (i < block_count) {
+                    // TODO: Unroll for optimization
+                    for (int j = 0; j < block_size_in_bytes; j++) {
+                        dst_byte[i * dst_stride_in_bytes + j] =
+                            gathered_byte[i * block_size_in_bytes + j];
+                    }
                 }
-            }
+            });
         });
-    });
-
+        events.push_back(scatter_event);
+    }
     // We need to wait until scatter kernel is completed to deallocate
     // `gathered_device_unique`
-    scatter_event.wait_and_throw();
-
-    return sycl::event{};
+    return bk::wait_or_pass(events);
 }
 
 } // namespace oneapi::dal::backend
