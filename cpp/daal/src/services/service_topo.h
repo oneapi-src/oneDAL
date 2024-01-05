@@ -62,8 +62,8 @@ typedef cpuset_t cpu_set_t;
             #define LNX_PTR2INT unsigned long long
             #define LNX_MY1CON  1LL
         #elif __ARM_ARCH
-            using LNX_PTR2INT                = uintptr_t;
-            constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
+using LNX_PTR2INT                = uintptr_t;
+constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
         #else
             #define LNX_PTR2INT unsigned int
             #define LNX_MY1CON  1

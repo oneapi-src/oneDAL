@@ -34,12 +34,12 @@
  */
 
 #ifdef __ARM_ARCH
-#define DAAL_KERNEL_SVE
+    #define DAAL_KERNEL_SVE
 #else
-#define DAAL_KERNEL_SSE2
-#define DAAL_KERNEL_SSE42
-#define DAAL_KERNEL_AVX2
-#define DAAL_KERNEL_AVX512
+    #define DAAL_KERNEL_SSE2
+    #define DAAL_KERNEL_SSE42
+    #define DAAL_KERNEL_AVX2
+    #define DAAL_KERNEL_AVX512
 #endif
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>

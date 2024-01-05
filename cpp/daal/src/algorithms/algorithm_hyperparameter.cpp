@@ -66,7 +66,6 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
     }
 
 protected:
-    
     /** Stores integer hyperparameters of the algorithm */
     HashTable<DAAL_BASE_CPU, uint32_t, DAAL_INT64> _iHT;
 
