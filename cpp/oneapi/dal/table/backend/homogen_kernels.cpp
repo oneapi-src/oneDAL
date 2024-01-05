@@ -17,6 +17,7 @@
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/table/backend/convert.hpp"
 #include "oneapi/dal/backend/common.hpp"
+#include <iostream>
 
 namespace oneapi::dal::backend {
 
