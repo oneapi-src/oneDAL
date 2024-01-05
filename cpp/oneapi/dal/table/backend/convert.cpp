@@ -150,9 +150,9 @@ static sycl::event convert_vector_kernel(sycl::queue& q,
                                          std::int64_t element_count,
                                          const event_vector& deps = {}) {
     std::cout << "convert gpu to gpu step 1" << std::endl;
-    const int src_stride_int = dal::detail::integral_cast<int>(src_stride);
-    const int dst_stride_int = dal::detail::integral_cast<int>(dst_stride);
-    const int element_count_int = dal::detail::integral_cast<int>(element_count);
+    const int src_stride_int = dal::detail::integral_cast<std::int64_t>(src_stride);
+    const int dst_stride_int = dal::detail::integral_cast<std::int64_t>(dst_stride);
+    const int element_count_int = dal::detail::integral_cast<std::int64_t>(element_count);
     std::cout << "convert gpu to gpu step 2" << std::endl;
     const std::int64_t required_local_size = 256;
     const std::int64_t local_size = std::min(down_pow2(element_count), required_local_size);
