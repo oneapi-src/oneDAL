@@ -29,6 +29,10 @@ result_option_id get_compute_exact_objective_function_id() {
     return result_option_id{ result_option_id::make_by_index(1) };
 }
 
+result_option_id get_compute_centroids_id() {
+    return result_option_id{ result_option_id::make_by_index(2) };
+}
+
 template <typename Task>
 result_option_id get_default_result_options() {
     return result_option_id{};
@@ -36,7 +40,8 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::clustering>() {
-    return get_compute_assignments_id() | get_compute_exact_objective_function_id();
+    return get_compute_assignments_id() | get_compute_exact_objective_function_id() |
+           get_compute_centroids_id();
 }
 
 namespace v1 {

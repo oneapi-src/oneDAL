@@ -16,7 +16,7 @@
 
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 #include <daal/src/algorithms/kmeans/kmeans_lloyd_kernel.h>
-
+#include <iostream>
 #include "oneapi/dal/algo/kmeans/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -83,6 +83,27 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
     return daal_initial_centroids;
 }
 
+inline auto get_daal_parameter_to_train(const descriptor_t& desc) {
+    const std::int64_t cluster_count = desc.get_cluster_count();
+    const std::int64_t max_iteration_count = desc.get_max_iteration_count();
+    const double accuracy_threshold = desc.get_accuracy_threshold();
+    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
+    par.accuracyThreshold = accuracy_threshold;
+    bool all_metrics = true;
+    const auto res_op = desc.get_result_options();
+    bool is_full = (res_op.test(result_options::compute_centroids) &&
+                    res_op.test(result_options::compute_exact_objective_function) &&
+                    res_op.test(result_options::compute_assignments));
+
+    if (!is_full) {
+        all_metrics = false;
+        par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeCentroids);
+    }
+
+    return std::tuple(par, all_metrics);
+}
+
 template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
@@ -90,18 +111,14 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const table& initial_centroids) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
-
     const std::int64_t cluster_count = desc.get_cluster_count();
-    const std::int64_t max_iteration_count = desc.get_max_iteration_count();
-    const double accuracy_threshold = desc.get_accuracy_threshold();
 
-    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
-                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
-    par.accuracyThreshold = accuracy_threshold;
+    auto [par, all_metrics] = get_daal_parameter_to_train(desc);
 
     auto daal_initial_centroids = get_initial_centroids<Float>(ctx, desc, data, initial_centroids);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    auto result = train_result<task::clustering>{};
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
@@ -120,26 +137,44 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal::data_management::NumericTable* input[2] = { daal_data.get(),
                                                       daal_initial_centroids.get() };
 
-    daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
-                                                       daal_responses.get(),
-                                                       daal_objective_function_value.get(),
-                                                       daal_iteration_count.get() };
+    if (all_metrics) {
+        daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
+                                                           daal_responses.get(),
+                                                           daal_objective_function_value.get(),
+                                                           daal_iteration_count.get() };
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                               input,
+                                                                               output,
+                                                                               &par));
+    }
+    else {
+        daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
+                                                           nullptr,
+                                                           nullptr,
+                                                           daal_iteration_count.get() };
+        interop::status_to_exception(
+            interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                               input,
+                                                                               output,
+                                                                               &par));
+    }
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-                                                                           input,
-                                                                           output,
-                                                                           &par));
+    if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+        result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
+    }
+    if (desc.get_result_options().test(result_options::compute_assignments)) {
+        result.set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
+    }
 
-    return train_result<Task>()
-        .set_responses(
-            dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build())
-        .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]))
-        .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]))
-        .set_model(
-            model<Task>().set_centroids(dal::detail::homogen_table_builder{}
-                                            .reset(arr_centroids, cluster_count, column_count)
-                                            .build()));
+    result.set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]));
+
+    result.set_model(
+        model<Task>().set_centroids(dal::detail::homogen_table_builder{}
+                                        .reset(arr_centroids, cluster_count, column_count)
+                                        .build()));
+    return result;
 }
 
 template <typename Float, typename Task>

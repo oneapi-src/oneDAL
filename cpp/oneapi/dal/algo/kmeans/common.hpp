@@ -66,6 +66,7 @@ namespace detail {
 
 ONEDAL_EXPORT result_option_id get_compute_assignments_id();
 ONEDAL_EXPORT result_option_id get_compute_exact_objective_function_id();
+ONEDAL_EXPORT result_option_id get_compute_centroids_id();
 
 } // namespace detail
 
@@ -78,6 +79,7 @@ const inline result_option_id compute_assignments = detail::get_compute_assignme
 /// Return objective function
 const inline result_option_id compute_exact_objective_function =
     detail::get_compute_exact_objective_function_id();
+const inline result_option_id compute_centroids = detail::get_compute_centroids_id();
 
 } // namespace result_options
 

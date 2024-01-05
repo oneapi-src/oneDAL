@@ -69,7 +69,6 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     array<int> arr_responses = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
-    array<int> arr_iteration_count = array<int>::empty(1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_initial_centroids =
@@ -77,22 +76,20 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
     const auto daal_objective_function_value =
         interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);
-    const auto daal_iteration_count =
-        interop::convert_to_daal_homogen_table(arr_iteration_count, 1, 1);
 
     daal::data_management::NumericTable* input[2] = { daal_data.get(),
                                                       daal_initial_centroids.get() };
 
-    daal::data_management::NumericTable* output[4] = { nullptr,
-                                                       daal_responses.get(),
-                                                       daal_objective_function_value.get(),
-                                                       daal_iteration_count.get() };
+    daal::data_management::NumericTable* output[2] = {
+        daal_responses.get(),
+        daal_objective_function_value.get(),
+    };
 
     interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-                                                                           input,
-                                                                           output,
-                                                                           &par));
+        interop::call_daal_infer_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                                 input,
+                                                                                 output,
+                                                                                 &par));
     if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
         result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
     }

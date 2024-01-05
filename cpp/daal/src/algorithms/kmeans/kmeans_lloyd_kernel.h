@@ -44,6 +44,7 @@ class KMeansBatchKernel : public Kernel
 {
 public:
     services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
+    services::Status infer(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
