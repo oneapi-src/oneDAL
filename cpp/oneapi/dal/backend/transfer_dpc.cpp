@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/backend/transfer.hpp"
 #include <algorithm>
+#include <iostream>
 
 namespace oneapi::dal::backend {
 
@@ -26,6 +27,7 @@ sycl::event gather_device2host(sycl::queue& q,
                                std::int64_t src_stride_in_bytes,
                                std::int64_t block_size_in_bytes,
                                const event_vector& deps) {
+    std::cout << "here gather device2host" << std::endl;
     ONEDAL_ASSERT(dst_host);
     ONEDAL_ASSERT(src_device);
     ONEDAL_ASSERT(block_count > 0);
@@ -88,7 +90,8 @@ sycl::event scatter_host2device(sycl::queue& q,
     ONEDAL_ASSERT(dst_stride_in_bytes >= block_size_in_bytes);
     ONEDAL_ASSERT(is_known_usm(q, dst_device));
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, block_count, block_size_in_bytes);
-
+    std::cout << "here scatter device2host" << std::endl;
+    std::cout << "block_count =" << block_count << std::endl;
     const auto gathered_device_unique =
         make_unique_usm_device(q, block_count * block_size_in_bytes);
 

@@ -22,7 +22,7 @@
 #include "oneapi/dal/table/backend/convert/common.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert.hpp"
 #include "oneapi/dal/table/backend/convert/copy_convert_impl.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend {
 
 template <typename Left, typename Right>
@@ -50,6 +50,7 @@ sycl::event copy_convert_impl(sycl::queue& queue,
                               const std::int64_t* out_strides,
                               const shape_t& shape,
                               const std::vector<sycl::event>& deps) {
+    std::cout << "here copy convert device2host" << std::endl;
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
 

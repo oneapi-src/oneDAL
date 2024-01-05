@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/convert.hpp"
-
+#include <iostream>
 #include <algorithm>
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
@@ -193,6 +193,7 @@ sycl::event convert_vector_device2device(sycl::queue& q,
                                          std::int64_t dst_stride,
                                          std::int64_t element_count,
                                          const event_vector& deps) {
+    std::cout << "here conver vector device2device" << std::endl;
     return dispatch_by_data_type(src_type, [&](auto src_type_id) {
         return dispatch_by_data_type(dst_type, [&](auto dst_type_id) {
             using src_t = decltype(src_type_id);

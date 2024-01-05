@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend {
 
 class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl>,
@@ -89,6 +89,7 @@ public:
     void pull_rows_template(const detail::default_host_policy& policy,
                             array<T>& block,
                             const range& rows) const {
+        std::cout << "here homogen pull template" << std::endl;
         homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind::host);
     }
 
@@ -97,6 +98,7 @@ public:
                               array<T>& block,
                               std::int64_t column_index,
                               const range& rows) const {
+        std::cout << "here homogen pull template" << std::endl;
         homogen_pull_column(policy, get_info(), data_, block, column_index, rows, alloc_kind::host);
     }
 
