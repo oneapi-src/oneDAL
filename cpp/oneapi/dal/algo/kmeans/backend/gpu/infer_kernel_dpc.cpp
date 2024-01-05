@@ -93,7 +93,9 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         }
         if (desc.get_result_options().test(result_options::compute_assignments)) {
             result.set_responses(
-                dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1));
+                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
+                                         row_count,
+                                         1));
         }
         return result;
     }

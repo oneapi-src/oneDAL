@@ -90,14 +90,11 @@ inline auto get_daal_parameter_to_train(const descriptor_t& desc) {
     daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
                                dal::detail::integral_cast<std::size_t>(max_iteration_count));
     par.accuracyThreshold = accuracy_threshold;
-    bool all_metrics = true;
     const auto res_op = desc.get_result_options();
-    bool is_full = (res_op.test(result_options::compute_centroids) &&
-                    res_op.test(result_options::compute_exact_objective_function) &&
-                    res_op.test(result_options::compute_assignments));
-
-    if (!is_full) {
-        all_metrics = false;
+    bool all_metrics = res_op.test(result_options::compute_centroids) &&
+                       res_op.test(result_options::compute_exact_objective_function) &&
+                       res_op.test(result_options::compute_assignments);
+    if (!all_metrics) {
         par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeCentroids);
     }
 

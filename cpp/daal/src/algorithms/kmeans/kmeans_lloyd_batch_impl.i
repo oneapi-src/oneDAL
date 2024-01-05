@@ -277,36 +277,14 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::infer(const NumericTable
     DAAL_SAFE_CPU_CALL((blockSize = BSHelper<method, algorithmFPType, cpu>::kmeansGetBlockSize(n, p, nClusters)), (blockSize = 512))
 
     int catFlag = 0;
-    for (size_t i = 0; i < p; i++)
-    {
-        if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
-        {
-            catFlag = 1;
-            break;
-        }
-    }
+
     TArray<algorithmFPType, cpu> catCoef(catFlag ? p : 0);
-    if (catFlag)
-    {
-        DAAL_CHECK(catCoef.get(), services::ErrorMemoryAllocationFailed);
-        for (size_t i = 0; i < p; i++)
-        {
-            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
-            {
-                catCoef[i] = par->gamma;
-            }
-            else
-            {
-                catCoef[i] = (algorithmFPType)1.0;
-            }
-        }
-    }
 
     ReadRows<algorithmFPType, cpu> mtInClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusters);
     algorithmFPType * inClusters = const_cast<algorithmFPType *>(mtInClusters.get());
 
-    if (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction)
+    if (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction)
     {
         PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, inClusters, ntData, catCoef.get(), assignmetsNT, blockSize);
     }
@@ -322,7 +300,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::infer(const NumericTable
         *mtTarget.get() = exactTargetFunc;
     }
 
-    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
+    return services::Status();
 }
 
 } // namespace internal
