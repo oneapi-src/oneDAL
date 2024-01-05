@@ -52,8 +52,7 @@ public:
     std::int64_t cluster_count = 2;
     std::int64_t max_iteration_count = 100;
     double accuracy_threshold = 0;
-    result_option_id result_options =
-        get_compute_assignments_id() | get_compute_exact_objective_function_id();
+    result_option_id result_options = get_default_result_options<Task>();
 };
 
 template <typename Task>
