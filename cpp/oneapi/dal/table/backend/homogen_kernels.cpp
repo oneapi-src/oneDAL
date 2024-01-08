@@ -98,12 +98,15 @@ static void pull_row_major_impl(const Policy& policy,
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
+
     // Overflows are checked here
     check_origin_data(origin_info, origin_data, origin_dtype_size, block_dtype_size);
+
     // Arithmetic operations are safe because block offsets do not exceed origin element count
     const std::int64_t origin_offset =
         block_info.get_row_offset() * origin_info.get_column_count() +
         block_info.get_column_offset();
+
     const bool contiguous_block_requested =
         (block_info.get_column_count() == origin_info.get_column_count()) ||
         (block_info.get_row_count() == 1);
@@ -112,6 +115,7 @@ static void pull_row_major_impl(const Policy& policy,
     const bool same_data_type = (block_dtype == origin_info.get_data_type());
     const bool block_has_enough_space = (block_data.get_count() >= block_info.get_element_count());
     const bool block_has_mutable_data = block_data.has_mutable_data();
+
     if (contiguous_block_requested && same_data_type && nocopy_alloc_kind) {
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
@@ -168,20 +172,26 @@ static void pull_column_major_impl(const Policy& policy,
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
+
     // overflows checked here
     check_origin_data(origin_info, origin_data, origin_dtype_size, block_dtype_size);
+
     // operation is safe because block offsets do not exceed origin element count
     const std::int64_t origin_offset =
         block_info.get_row_offset() + block_info.get_column_offset() * origin_info.get_row_count();
+
     const bool nocopy_alloc_kind =
         !alloc_kind_requires_copy(get_alloc_kind(origin_data), requested_alloc_kind);
     const bool block_has_enough_space = (block_data.get_count() >= block_info.get_element_count());
     const bool block_has_mutable_data = block_data.has_mutable_data();
+
     if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
         reset_array(policy, block_data, block_info.get_element_count(), requested_alloc_kind);
     }
+
     auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
     auto dst_data = block_data.get_mutable_data();
+
     backend::convert_matrix(policy,
                             src_data,
                             dst_data,
@@ -354,10 +364,12 @@ void homogen_pull_rows(const Policy& policy,
                        alloc_kind requested_alloc_kind,
                        bool preserve_mutability) {
     check_block_row_range(rows_range, origin_info.get_row_count());
+
     const block_info b_info{ rows_range.start_idx,
                              rows_range.get_element_count(origin_info.get_row_count()),
                              0,
                              origin_info.get_column_count() };
+
     override_policy(policy, origin_data, block_data, [&](auto overriden_policy) {
         pull_rows_impl(origin_info.get_layout(),
                        overriden_policy,
