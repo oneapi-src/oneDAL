@@ -52,7 +52,6 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
     Float update_norm = tol + 1;
 
     std::int64_t cur_iter_id = 0;
-
     while (cur_iter_id < maxiter) {
         cur_iter_id++;
         auto update_event_vec = f.update_x(x, true, last_iter_deps);
@@ -62,6 +61,7 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
         l1_norm(queue, gradient, tmp_gpu, &grad_norm, update_event_vec).wait_and_throw();
 
         if (grad_norm < tol) {
+            // TODO check that conditions are the same across diferent devices
             break;
         }
 
@@ -77,6 +77,7 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
         std::int32_t iter_num = 0;
         auto last_event = init_dir_event;
         while (desc < 0 && iter_num < 10) {
+            // TODO check that conditions are the same across diferent devices
             if (iter_num > 0) {
                 tol_k /= 10;
             }

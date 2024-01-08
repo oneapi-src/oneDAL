@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/logistic_regression/common.hpp"
 #include "oneapi/dal/algo/logistic_regression/train.hpp"
 #include "oneapi/dal/algo/logistic_regression/infer.hpp"
+#include "oneapi/dal/algo/newton_cg/common.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -54,15 +55,19 @@ public:
         return static_cast<Derived*>(this);
     }
 
-    auto get_descriptor() const {
+    auto get_descriptor(double tol = 1e-4, std::int64_t maxiter = 100) const {
         result_option_id resopts = result_options::coefficients;
+
+        auto optimizer_desc = dal::newton_cg::descriptor<float_t>(tol, maxiter);
+
         if (this->fit_intercept_)
             resopts = resopts | result_options::intercept;
         return logistic_regression::descriptor<float_t, method_t, task_t>(fit_intercept_, C_)
-            .set_result_options(resopts);
+            .set_result_options(resopts)
+            .set_optimizer(optimizer_desc);
     }
 
-    void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) {
+    virtual void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
             this->n_ = GENERATE(100, 200, 1000, 10000, 50000);
             this->p_ = GENERATE(10, 20, 30);
@@ -83,8 +88,6 @@ public:
     }
 
     void gen_input(bool fit_intercept = true, double C = 1.0, std::int64_t seed = 2007) {
-        this->get_impl()->gen_dimensions();
-
         this->fit_intercept_ = fit_intercept;
         this->C_ = C;
 
@@ -122,7 +125,7 @@ public:
         }
     }
 
-    void run_test() {
+    void run_test(double tol = 1e-4, std::int64_t maxiter = 100) {
         std::int64_t train_size = n_ * 0.7;
         std::int64_t test_size = n_ - train_size;
 
@@ -133,7 +136,7 @@ public:
         table y_train =
             homogen_table::wrap<std::int32_t>(y_host_.get_mutable_data(), train_size, 1);
 
-        const auto desc = this->get_descriptor();
+        const auto desc = this->get_descriptor(tol, maxiter);
         const auto train_res = this->train(desc, X_train, y_train);
         table intercept;
         array<float_t> bias_host;
@@ -201,8 +204,8 @@ protected:
     array<std::int32_t> resp_;
 };
 
-using lr_types = COMBINE_TYPES((double),
-                               (logistic_regression::method::dense_batch),
-                               (logistic_regression::task::classification));
+using log_reg_types = COMBINE_TYPES((float, double),
+                                    (logistic_regression::method::dense_batch),
+                                    (logistic_regression::task::classification));
 
 } // namespace oneapi::dal::logistic_regression::test

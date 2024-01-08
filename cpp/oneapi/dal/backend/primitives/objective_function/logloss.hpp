@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -103,10 +104,18 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 ndview<Float, 1>& out_hessian,
                                 const event_vector& deps = {});
 
+using comm_t = backend::communicator<spmd::device_memory_access::usm>;
+
 template <typename Float>
 class logloss_hessian_product : public base_matrix_operator<Float> {
 public:
     logloss_hessian_product(sycl::queue& q,
+                            const table& data,
+                            Float L2 = Float(0),
+                            bool fit_intercept = true,
+                            std::int64_t bsz = -1);
+    logloss_hessian_product(sycl::queue& q,
+                            comm_t comm,
                             const table& data,
                             Float L2 = Float(0),
                             bool fit_intercept = true,
@@ -125,6 +134,7 @@ private:
                                               const event_vector& deps);
 
     sycl::queue q_;
+    comm_t comm_;
     const table data_;
     Float L2_;
     bool fit_intercept_;
@@ -145,6 +155,13 @@ public:
                      Float L2 = 0.0,
                      bool fit_intercept = true,
                      std::int64_t bsz = -1);
+    logloss_function(sycl::queue queue,
+                     comm_t comm,
+                     const table& data,
+                     const ndview<std::int32_t, 1>& labels,
+                     Float L2 = 0.0,
+                     bool fit_intercept = true,
+                     std::int64_t bsz = -1);
     Float get_value() final;
     ndview<Float, 1>& get_gradient() final;
     base_matrix_operator<Float>& get_hessian_product() final;
@@ -155,6 +172,7 @@ public:
 
 private:
     sycl::queue q_;
+    comm_t comm_;
     const table data_;
     const ndview<std::int32_t, 1> labels_;
     const std::int64_t n_;
