@@ -97,3 +97,9 @@ Partial Result and Finalize Input
 
 Finalize Training
 -----------------
+
+-------------
+Usage Example
+-------------
+
+.. include:: ../../../includes/covariance/covariance-usage-examples.rst
