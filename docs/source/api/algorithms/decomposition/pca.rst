@@ -121,7 +121,6 @@ Partial Result and Finalize Input
 Finalize Training
 -----------------
 
-
 .. _pca_i_api:
 
 Inference :cpp:expr:`infer(...)`
