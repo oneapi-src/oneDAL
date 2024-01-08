@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include <iostream>
+
 namespace oneapi::dal {
 namespace v1 {
 
@@ -110,7 +110,6 @@ public:
     ///
     /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
     T* pull(dal::array<data_t>& block, const range& row_range = { 0, -1 }) const {
-        std::cout << "here 12131231" << std::endl;
         pull_iface_->pull_rows(detail::default_host_policy{}, block, row_range);
         return get_block_data(block);
     }
@@ -137,7 +136,6 @@ public:
             dal::array<data_t>& block,
             const range& row_range = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        std::cout << "here 999999" << std::endl;
         pull_iface_->pull_rows(detail::data_parallel_policy{ queue }, block, row_range, alloc);
         return get_block_data(block);
     }

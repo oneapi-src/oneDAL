@@ -37,7 +37,7 @@ void run(sycl::queue &q) {
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
     const auto initial_centroids =
-        dal::read<dal::table>(dal::csv::data_source{ initial_centroids_file_name });
+        dal::read<dal::table>(q, dal::csv::data_source{ initial_centroids_file_name });
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });

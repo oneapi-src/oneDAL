@@ -19,7 +19,7 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/primitives/ndshape.hpp"
-#include <iostream>
+
 namespace oneapi::dal::backend::primitives {
 
 enum class ndorder {
@@ -457,7 +457,6 @@ inline sycl::event copy(sycl::queue& q,
                         ndview<T1, 2, ord1>& dst,
                         const ndview<T2, 2, ord2>& src,
                         const event_vector& deps = {}) {
-    std::cout << "here ndarray copy device2host" << std::endl;
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     const ndshape<2> dst_shape = dst.get_shape();
@@ -518,7 +517,6 @@ inline sycl::event fill(sycl::queue& q,
                         ndview<T, 2, ord1>& dst,
                         const T& value = T{},
                         const event_vector& deps = {}) {
-    std::cout << "here fill device2host" << std::endl;
     ONEDAL_ASSERT(dst.has_mutable_data());
     sycl::event res_event;
     if constexpr (ord1 == ndorder::c) {
@@ -758,7 +756,6 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event arange(sycl::queue& q, const event_vector& deps = {}) {
-        std::cout << "here arange device2host" << std::endl;
         auto data_ptr = this->get_mutable_data();
         ONEDAL_ASSERT(is_known_usm(q, data_ptr));
         return q.submit([&](sycl::handler& cgh) {

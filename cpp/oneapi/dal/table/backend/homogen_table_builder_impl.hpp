@@ -216,7 +216,6 @@ public:
                             array<T>& block,
                             const range& rows,
                             sycl::usm::alloc alloc) const {
-        std::cout << "here homogen pull template" << std::endl;
         constexpr bool preserve_mutability = true;
         homogen_pull_rows(policy,
                           get_info(),
@@ -233,7 +232,6 @@ public:
                               std::int64_t column_index,
                               const range& rows,
                               sycl::usm::alloc alloc) const {
-        std::cout << "here homogen pull template" << std::endl;
         constexpr bool preserve_mutability = true;
         homogen_pull_column(policy,
                             get_info(),
@@ -249,7 +247,6 @@ public:
     void push_rows_template(const detail::data_parallel_policy& policy,
                             const array<T>& block,
                             const range& rows) {
-        std::cout << "here homogen pull template" << std::endl;
         homogen_push_rows(policy, get_info(), data_, block, rows);
     }
 
@@ -258,7 +255,6 @@ public:
                               const array<T>& block,
                               std::int64_t column_index,
                               const range& rows) {
-        std::cout << "here homogen pull template" << std::endl;
         homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 #endif

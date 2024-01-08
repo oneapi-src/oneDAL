@@ -23,6 +23,8 @@
 
 namespace oneapi::dal::backend {
 
+namespace bk = dal::backend;
+
 static void convert_vector(const void* src,
                            void* dst,
                            data_type src_type,
@@ -141,6 +143,12 @@ void shift_array_values(const detail::default_host_policy& policy,
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
+}
+
 template <typename Src, typename Dst>
 static sycl::event convert_vector_kernel(sycl::queue& q,
                                          const Src* src,
@@ -160,16 +168,31 @@ static sycl::event convert_vector_kernel(sycl::queue& q,
     const auto range = make_multiple_nd_range_1d(element_count, local_size);
     std::cout << "convert gpu to gpu step 4" << std::endl;
     if (src_stride == 1 && dst_stride == 1) {
-        std::cout << "convert gpu to gpu step if" << std::endl;
-        return q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-                const int i = id.get_global_id();
-                if (i < element_count_int) {
-                    dst[i] = src[i];
-                }
+        const auto block_size = propose_block_size<float>(q, element_count);
+        const bk::uniform_blocking blocking(element_count_int, block_size);
+        std::vector<sycl::event> events(blocking.get_block_count());
+        for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
+             ++block_index) {
+            const auto first_column = blocking.get_block_start_index(block_index);
+            const auto last_column = blocking.get_block_end_index(block_index);
+            const auto curr_block = last_column - first_column;
+            ONEDAL_ASSERT(curr_block > 0);
+            auto scatter_event = q.submit([&](sycl::handler& cgh) {
+                cgh.depends_on(deps);
+                const std::int64_t required_local_size = 256;
+                const std::int64_t local_size =
+                    std::min(down_pow2(curr_block), required_local_size);
+                const auto range_local = make_multiple_nd_range_1d(curr_block, local_size);
+                cgh.parallel_for(range_local, [=](sycl::nd_item<1> id) {
+                    const int i = id.get_global_id();
+                    if (i < element_count_int) {
+                        dst[i] = src[i];
+                    }
+                });
             });
-        });
+            events.push_back(scatter_event);
+        }
+        return bk::wait_or_pass(events);
     }
 
     else {
@@ -197,7 +220,6 @@ sycl::event convert_vector_device2device(sycl::queue& q,
                                          std::int64_t dst_stride,
                                          std::int64_t element_count,
                                          const event_vector& deps) {
-    std::cout << "here conver vector device2device" << std::endl;
     return dispatch_by_data_type(src_type, [&](auto src_type_id) {
         return dispatch_by_data_type(dst_type, [&](auto dst_type_id) {
             using src_t = decltype(src_type_id);

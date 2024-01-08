@@ -174,7 +174,6 @@ public:
                             array<T>& block,
                             const range& rows,
                             sycl::usm::alloc alloc) const {
-        std::cout << "here pull rows template" << std::endl;
         const alloc_kind req_alloc = alloc_kind_from_sycl(alloc);
         heterogen_pull_rows(policy, meta_, data_, block, rows, req_alloc);
     }
