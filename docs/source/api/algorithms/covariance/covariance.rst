@@ -79,8 +79,8 @@ Operation
 
 .. _covariance_p_api:
 
-Partial Training :expr:`partial_compute(...)`
----------------------------------------------
+Partial Training
+----------------
 .. _covariance_p_api_input:
 
 Partial Input
@@ -95,5 +95,5 @@ Partial Result and Finalize Input
 
 .. _covariance_f_api:
 
-Finalize Training :expr:`finalize_compute(...)`
------------------------------------------------
+Finalize Training
+-----------------

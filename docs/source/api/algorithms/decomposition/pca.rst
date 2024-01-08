@@ -102,8 +102,8 @@ Operation
 
 .. _pca_p_api:
 
-Partial Training :expr:`partial_train(...)`
--------------------------------------------
+Partial Training
+----------------
 .. _pca_p_api_input:
 
 Partial Input
@@ -118,8 +118,8 @@ Partial Result and Finalize Input
 
 .. _pca_f_api:
 
-Finalize Training :expr:`finalize_train(...)`
----------------------------------------------
+Finalize Training
+-----------------
 
 
 .. _pca_i_api:

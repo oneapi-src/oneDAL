@@ -80,8 +80,8 @@ Operation
 
 .. _basic_statistics_p_api:
 
-Partial Training :expr:`partial_compute(...)`
----------------------------------------------
+Partial Training
+----------------
 .. _basic_statistics_p_api_input:
 
 Partial Input
@@ -96,5 +96,5 @@ Partial Result and Finalize Input
 
 .. _basic_statistics_f_api:
 
-Finalize Training :expr:`finalize_compute(...)`
------------------------------------------------
+Finalize Training
+-----------------
