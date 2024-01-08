@@ -49,10 +49,10 @@ Task tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::linear_regression::task
 
-.. __linreg_t_api:
+.. _linreg_t_api:
 
-Training :expr:`train(...)`
----------------------------
+Training
+--------
 .. _linreg_t_api_input:
 
 Input
@@ -67,8 +67,8 @@ Result and Finalize Result
 
 .. _linreg_p_api:
 
-Partial Training :expr:`partial_train(...)`
----------------------------------------------
+Partial Training
+----------------
 .. _linreg_p_api_input:
 
 Partial Input
@@ -83,13 +83,13 @@ Partial Result and Finalize Input
 
 .. _linreg_f_api:
 
-Finalize Training :expr:`finalize_train(...)`
----------------------------------------------
+Finalize Training
+-----------------
 
 .. _linreg_i_api:
 
-Inference :cpp:expr:`infer(...)`
----------------------------------
+Inference
+---------
 .. _linreg_i_api_input:
 
 Input
