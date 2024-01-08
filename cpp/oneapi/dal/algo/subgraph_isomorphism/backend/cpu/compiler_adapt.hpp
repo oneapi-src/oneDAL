@@ -91,43 +91,19 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
 #ifdef __ARM_ARCH
 template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sve>(std::uint32_t a) {
-    if (a == 0)
-        return 32;
-    std::uint32_t one_bit = 0x80000000; // binary: 1000 0000 0000 0000 0000 0000 0000 0000
-    std::int32_t bit_pos = 0;
-    while ((a & one_bit) == 0) {
-        bit_pos++;
-        one_bit >>= 1;
-    }
-    return bit_pos;
+    return __builtin_clz(a);
 }
+
 template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
-    if (a == 0)
-        return 64;
-    std::uint64_t one_bit = 0x8000000000000000; // binary: 1000 ... 0000
-    std::int32_t bit_pos = 0;
-    while ((a & one_bit) == 0) {
-        bit_pos++;
-        one_bit >>= 1;
-    }
-    return bit_pos;
+    return __builtin_clzl(a);
 }
 
 template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
-    if (a == 0)
-        return 0;
-    std::uint64_t last_bit = 1;
-    std::int32_t bit_cnt = 0;
-    for (std::int32_t i = 0; i < 64; i++) {
-        if (a & last_bit) {
-            bit_cnt++;
-        }
-        a = a >> 1;
-    }
-    return bit_cnt;
+    return __builtin_popcountl(a);
 }
+
 #else
 template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sse2>(std::uint32_t a) {
