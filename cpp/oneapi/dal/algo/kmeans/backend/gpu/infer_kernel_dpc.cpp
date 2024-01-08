@@ -68,8 +68,6 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
-        auto arr_objective_function =
-            pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
         auto assign_event =
             kernels_fp<Float>::assign_clusters(queue,
@@ -83,11 +81,14 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                arr_closest_distances,
                                                { data_squares_event, centroid_squares_event });
         if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+            auto arr_objective_function =
+                pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
             kernels_fp<Float>::compute_objective_function(queue,
                                                           arr_closest_distances,
                                                           arr_objective_function,
                                                           { assign_event })
                 .wait_and_throw();
+
             result.set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
         }

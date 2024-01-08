@@ -65,33 +65,6 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     TArray<algorithmFPType, cpu> clusterS1(nClusters * p);
     DAAL_CHECK(clusterS0.get() && clusterS1.get(), services::ErrorMemoryAllocationFailed);
 
-    /* Categorial variables check and support: begin */
-    int catFlag = 0;
-    for (size_t i = 0; i < p; i++)
-    {
-        if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
-        {
-            catFlag = 1;
-            break;
-        }
-    }
-    TArray<algorithmFPType, cpu> catCoef(catFlag ? p : 0);
-    if (catFlag)
-    {
-        DAAL_CHECK(catCoef.get(), services::ErrorMemoryAllocationFailed);
-        for (size_t i = 0; i < p; i++)
-        {
-            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
-            {
-                catCoef[i] = par->gamma;
-            }
-            else
-            {
-                catCoef[i] = (algorithmFPType)1.0;
-            }
-        }
-    }
-
     ReadRows<algorithmFPType, cpu> mtInClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusters);
     algorithmFPType * inClusters = const_cast<algorithmFPType *>(mtInClusters.get());
@@ -148,8 +121,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(addNTToTaskThreaded);
             /* For the last iteration we do not need to recount of assignmets */
-            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), blockSize,
-                                                           assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr);
+            s = task->template addNTToTaskThreaded<method>(ntData, nullptr, blockSize, assignmetsNT && (kIter == nIter - 1) ? assignmetsNT : nullptr);
         }
 
         if (!s)
@@ -241,7 +213,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
     if (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction)
     {
-        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT, blockSize);
+        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, nullptr, assignmetsNT, blockSize);
     }
 
     if (par->resultsToEvaluate & computeExactObjectiveFunction)
@@ -249,7 +221,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(mtTarget);
         algorithmFPType exactTargetFunc = algorithmFPType(0);
-        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT,
+        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, clusters, ntData, nullptr, assignmetsNT,
                                                                                     exactTargetFunc, blockSize);
 
         *mtTarget.get() = exactTargetFunc;
@@ -264,21 +236,14 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansBatchKernel<method, algorithmFPType, cpu>::infer(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par)
 {
-    Status s;
     NumericTable * ntData  = const_cast<NumericTable *>(a[0]);
-    const size_t nIter     = par->maxIterations;
     const size_t n         = ntData->getNumberOfRows();
     const size_t p         = ntData->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
-    int result             = 0;
 
     NumericTable * assignmetsNT = const_cast<NumericTable *>(r[0]);
     size_t blockSize            = 0;
     DAAL_SAFE_CPU_CALL((blockSize = BSHelper<method, algorithmFPType, cpu>::kmeansGetBlockSize(n, p, nClusters)), (blockSize = 512))
-
-    int catFlag = 0;
-
-    TArray<algorithmFPType, cpu> catCoef(catFlag ? p : 0);
 
     ReadRows<algorithmFPType, cpu> mtInClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusters);
@@ -286,15 +251,15 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::infer(const NumericTable
 
     if (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction)
     {
-        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, inClusters, ntData, catCoef.get(), assignmetsNT, blockSize);
+        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, inClusters, ntData, nullptr, assignmetsNT, blockSize);
     }
 
-    WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[1]), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(mtTarget);
     if (par->resultsToEvaluate & computeExactObjectiveFunction)
     {
+        WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[1]), 0, 1);
+        DAAL_CHECK_BLOCK_STATUS(mtTarget);
         algorithmFPType exactTargetFunc = algorithmFPType(0);
-        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, inClusters, ntData, catCoef.get(), assignmetsNT,
+        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, inClusters, ntData, nullptr, assignmetsNT,
                                                                                     exactTargetFunc, blockSize);
 
         *mtTarget.get() = exactTargetFunc;

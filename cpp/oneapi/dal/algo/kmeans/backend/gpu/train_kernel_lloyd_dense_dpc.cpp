@@ -103,7 +103,7 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_t& params,
+                                              const descriptor_t& desc,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         auto& comm = ctx.get_communicator();
@@ -111,10 +111,12 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const auto data = input.get_data();
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
-        const std::int64_t cluster_count = params.get_cluster_count();
-        const std::int64_t max_iteration_count = params.get_max_iteration_count();
-        const double accuracy_threshold = params.get_accuracy_threshold();
+        const std::int64_t cluster_count = desc.get_cluster_count();
+        const std::int64_t max_iteration_count = desc.get_max_iteration_count();
+        const double accuracy_threshold = desc.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
+
+        auto result = train_result<task::clustering>{};
 
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
@@ -126,7 +128,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         // inconsistent results between single-rank and distributed runs. To fix
         // this issue the correct distributed implementation of K-Means++ should be
         // called underneath.
-        auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
+        auto arr_initial = get_initial_centroids<Float>(ctx, desc, input);
 
         std::int64_t block_size_in_rows =
             std::min(row_count,
@@ -206,28 +208,34 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                                arr_closest_distances,
                                                                { centroid_squares_event });
 
-        auto objective_event = kernels_fp<Float>::compute_objective_function( //
-            queue,
-            arr_closest_distances,
-            arr_objective_function,
-            { assign_event });
+        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+            auto objective_event = kernels_fp<Float>::compute_objective_function( //
+                queue,
+                arr_closest_distances,
+                arr_objective_function,
+                { assign_event });
 
-        Float final_objective_function =
-            arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
+            Float final_objective_function =
+                arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
 
-        {
-            ONEDAL_PROFILER_TASK(allreduce_final_objective);
-            comm.allreduce(final_objective_function).wait();
+            {
+                ONEDAL_PROFILER_TASK(allreduce_final_objective);
+                comm.allreduce(final_objective_function).wait();
+            }
+            result.set_objective_function_value(final_objective_function);
         }
 
-        model<task::clustering> model;
-        model.set_centroids(
-            dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
-        return train_result<task::clustering>()
-            .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
-            .set_iteration_count(iter)
-            .set_objective_function_value(final_objective_function)
-            .set_model(model);
+        if (desc.get_result_options().test(result_options::compute_assignments)) {
+            result.set_responses(
+                dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1));
+        }
+
+        result.set_iteration_count(iter);
+
+        result.set_model(model<task::clustering>().set_centroids(
+            dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count)));
+
+        return result;
     }
 };
 
