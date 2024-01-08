@@ -23,7 +23,7 @@
 Linear Regression
 =================
 
-.. include::  ../../../includes/covariance/linear-regression-introduction.rst
+.. include::  ../../../includes/linear-regression/linear-regression-introduction.rst
 
 ------------------------
 Mathematical formulation
