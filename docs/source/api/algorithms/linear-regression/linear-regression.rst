@@ -53,30 +53,30 @@ Task tags
 
 Training :expr:`train(...)`
 ---------------------------
-.. _linear-regression_c_api_input:
+.. _linreg_t_api_input:
 
 Input
 ~~~~~
 .. onedal_class:: oneapi::dal::linear_regression::train_input
 
-.. _linear-regression_c_api_result:
+.. _linreg_t_api_result:
 
 Result and Finalize Result
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::linear_regression::train_result
 
 
-.. _linear-regression_p_api:
+.. _linreg_p_math:
 
 Partial Training :expr:`partial_train(...)`
 ---------------------------------------------
-.. _linear-regression_p_api_input:
+.. _linreg_p_api_input:
 
 Partial Input
 ~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::linear_regression::partial_train_input
 
-.. _linear-regression_p_api_result:
+.. _linreg_p_api_result:
 
 Partial Result and Finalize Input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

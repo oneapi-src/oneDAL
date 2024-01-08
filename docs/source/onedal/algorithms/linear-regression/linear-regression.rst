@@ -14,6 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. highlight:: cpp
 .. default-domain:: cpp
 
 .. _alg_linear-regression:
@@ -22,15 +23,15 @@
 Linear Regression
 =================
 
-.. include::  ../../../includes/covariance/covariance-introduction.rst
+.. include::  ../../../includes/covariance/linear-regression-introduction.rst
 
 ------------------------
 Mathematical formulation
 ------------------------
 
-.. _covariance_c_math:
+.. _linreg_t_math:
 
-Computing
+Training
 ---------
 
 Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
@@ -53,7 +54,7 @@ The means, the covariance, and the correlation are computed with the following f
    * - Correlation matrix
      - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
 
-.. _covariance_c_math_dense:
+.. _linreg_t_math_norm_eq:
 
 Computation method: *dense*
 ---------------------------
