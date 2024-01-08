@@ -43,7 +43,7 @@ Basic statistics algorithm computes the following set of quantitative dataset ch
 =============  ==========================  ======== =========== ============
 **Operation**  **Computational  methods**     **Programming  Interface**
 -------------  --------------------------  ---------------------------------
-  |c_math|             |c_dense|            |c_op|   |c_input |   |c_result|
-  |p_math|             |c_dense|            |p_op|   |p_input |   |p_result|
+  |c_math|             |c_dense|            |c_op|   |c_input|    |c_result|
+  |p_math|             |c_dense|            |p_op|   |p_input|    |p_result|
   |f_math|             |c_dense|            |f_op|   |p_result|   |c_result|
 =============  ==========================  ======== =========== ============

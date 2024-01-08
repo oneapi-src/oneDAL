@@ -219,7 +219,6 @@ nitpick_ignore = [
     ('cpp:identifier', 'linear_regression::train_input'),
     ('cpp:identifier', 'linear_regression::infer_result'),
     ('cpp:identifier', 'linear_regression::infer_input'),
-    ('cpp:identifier', 'norm_eq'),
     # newton_cg
     ('cpp:identifier', 'newton_cg'),
     ('cpp:identifier', 'oneapi::dal::newton_cg'),
