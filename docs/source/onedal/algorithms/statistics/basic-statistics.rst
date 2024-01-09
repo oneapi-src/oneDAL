@@ -70,9 +70,9 @@ the problem is to compute the following sample characteristics for each feature 
 Partial Computing
 -----------------
 
-Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors
-:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`,
-the problem is to compute the following sample characteristics for each feature in the data set:
+Given a block of a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
+the sums is a :math:`1 \times p` matrix, the crossproduct is :math:`p \times p` square matrices.
+The sums, the crossproduct are computed with the following formulas:
 
 .. list-table::
    :widths: 20 60
@@ -81,35 +81,23 @@ the problem is to compute the following sample characteristics for each feature 
 
    * - Statistic
      - Definition
-   * - Minimum
+   * - Partial Minimum
      - :math:`min(j) = \smash{\displaystyle \min_i } \{x_{ij}\}`
-   * - Maximum
+   * - Partial Maximum
      - :math:`max(j) = \smash{\displaystyle \max_i } \{x_{ij}\}`
-   * - Sum
+   * - Partial Sum
      - :math:`s(j) = \sum_i x_{ij}`
-   * - Sum of squares
+   * - Partial Sum of squares
      - :math:`s_2(j) = \sum_i x_{ij}^2`
-   * - Means
-     - :math:`m(j) = \frac {s(j)} {n}`
-   * - Second order raw moment
-     - :math:`a_2(j) = \frac {s_2(j)} {n}`
-   * - Sum of squared difference from the means
-     - :math:`\text{SDM}(j) = \sum_i (x_{ij} - m(j))^2`
-   * - Variance
-     - :math:`k_2(j) = \frac {\text{SDM}(j) } {n - 1}`
-   * - Standard deviation
-     - :math:`\text{stdev}(j) = \sqrt {k_2(j)}`
-   * - Variation coefficient
-     - :math:`V(j) = \frac {\text{stdev}(j)} {m(j)}`
 
 .. _basic_statistics_f_math:
 
 Finalize Computing
 ------------------
 
-Given a set :math:`X` of :math:`n` :math:`p`-dimensional feature vectors
-:math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`,
-the problem is to compute the following sample characteristics for each feature in the data set:
+Given a partial result with partial products,
+the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
+The means, the covariance, and the correlation are computed with the following formulas:
 
 .. list-table::
    :widths: 20 60
@@ -118,25 +106,25 @@ the problem is to compute the following sample characteristics for each feature 
 
    * - Statistic
      - Definition
-   * - Minimum
+   * - Finalize Minimum
      - :math:`min(j) = \smash{\displaystyle \min_i } \{x_{ij}\}`
-   * - Maximum
+   * - Finalize Maximum
      - :math:`max(j) = \smash{\displaystyle \max_i } \{x_{ij}\}`
-   * - Sum
+   * - Finalize Sum
      - :math:`s(j) = \sum_i x_{ij}`
-   * - Sum of squares
+   * - Finalize Sum of squares
      - :math:`s_2(j) = \sum_i x_{ij}^2`
-   * - Means
+   * - Finalize Means
      - :math:`m(j) = \frac {s(j)} {n}`
-   * - Second order raw moment
+   * - Finalize Second order raw moment
      - :math:`a_2(j) = \frac {s_2(j)} {n}`
-   * - Sum of squared difference from the means
+   * - Finalize Sum of squared difference from the means
      - :math:`\text{SDM}(j) = \sum_i (x_{ij} - m(j))^2`
-   * - Variance
+   * - Finalize Variance
      - :math:`k_2(j) = \frac {\text{SDM}(j) } {n - 1}`
-   * - Standard deviation
+   * - Finalize Standard deviation
      - :math:`\text{stdev}(j) = \sqrt {k_2(j)}`
-   * - Variation coefficient
+   * - Finalize Variation coefficient
      - :math:`V(j) = \frac {\text{stdev}(j)} {m(j)}`
 
 .. _basic_statistics_c_math_dense:

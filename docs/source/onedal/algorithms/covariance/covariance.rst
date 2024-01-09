@@ -58,9 +58,9 @@ The means, the covariance, and the correlation are computed with the following f
 Partial Computing
 -----------------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
-the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
-The means, the covariance, and the correlation are computed with the following formulas:
+Given a block of a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
+the sums is a :math:`1 \times p` matrix, the crossproduct is :math:`p \times p` square matrices.
+The sums, the crossproduct are computed with the following formulas:
 
 .. list-table::
    :widths: 20 50
@@ -69,21 +69,17 @@ The means, the covariance, and the correlation are computed with the following f
 
    * - Statistic
      - Definition
-   * - Means
-     - :math:`M = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=\frac{1}{n}\sum _{i}{x}_{ij}`
-   * - Covariance matrix (sample)
-     - :math:`Cov = (v_{ij})`, where :math:`v_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Covariance matrix (maximum likelihood)
-     - :math:`Cov' = (v'_{ij})`, where :math:`v'_{ij}=\frac{1}{n}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Correlation matrix
-     - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
+   * - Sums
+     - :math:`S = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=sum _{i}{x}_{ij}`
+   * - Crossproduct matrix
+     - :math:`Crossproduct = (v_{ij})`
 
 .. _covariance_f_math:
 
 Finalize Computing
 ------------------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
+Given a partial result with partial products,
 the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
 The means, the covariance, and the correlation are computed with the following formulas:
 
