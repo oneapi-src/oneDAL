@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2024 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. highlight:: cpp
 .. default-domain:: cpp
 
 .. _api_linear-regression:
@@ -48,6 +49,7 @@ Method tags
 Task tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::linear_regression::task
+
 
 .. _linreg_t_api:
 

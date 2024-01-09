@@ -162,6 +162,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::train_input'),
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
+    ('cpp:identifier', 'task::search'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
     ('cpp:identifier', 'detail::enable_if_search_t<T>'),
     ('cpp:identifier', 'detail::enable_if_not_classification_t<T>'),
