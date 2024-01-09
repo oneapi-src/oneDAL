@@ -111,7 +111,7 @@ sycl::event scatter_host2device(sycl::queue& q,
             reinterpret_cast<const byte_t*>(gathered_device_unique.get());
         byte_t* const dst_byte = reinterpret_cast<byte_t*>(dst_device);
 
-        const std::int64_t required_local_size = 256;
+        const std::int64_t required_local_size = bk::device_max_wg_size(q);
         const std::int64_t local_size = std::min(down_pow2(block_count), required_local_size);
         const auto range = make_multiple_nd_range_1d(block_count, local_size);
 
@@ -165,7 +165,9 @@ sycl::event scatter_host2device_blocking(sycl::queue& q,
     const auto block_size = propose_block_size<float>(q, block_count);
     const bk::uniform_blocking blocking(block_count, block_size);
     std::vector<sycl::event> events(blocking.get_block_count());
+
     const auto block_range = blocking.get_block_count();
+
     for (std::int64_t block_index = 0; block_index < block_range; ++block_index) {
         const auto start_block = blocking.get_block_start_index(block_index);
         const auto end_block = blocking.get_block_end_index(block_index);
