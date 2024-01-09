@@ -45,6 +45,7 @@ int main(int argc, char const *argv[]) {
               << std::endl;
     std::cout << "Responses:\n" << result_train.get_responses() << std::endl;
     std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
+
     const auto result_test = dal::infer(kmeans_desc, result_train.get_model(), x_test);
 
     std::cout << "Infer result:\n" << result_test.get_responses() << std::endl;
