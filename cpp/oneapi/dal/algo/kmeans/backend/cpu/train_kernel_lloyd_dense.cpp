@@ -16,7 +16,7 @@
 
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 #include <daal/src/algorithms/kmeans/kmeans_lloyd_kernel.h>
-#include <iostream>
+
 #include "oneapi/dal/algo/kmeans/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"

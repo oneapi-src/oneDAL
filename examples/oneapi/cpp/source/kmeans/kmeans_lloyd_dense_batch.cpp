@@ -33,12 +33,10 @@ int main(int argc, char const *argv[]) {
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
-    const auto kmeans_desc =
-        dal::kmeans::descriptor<>()
-            .set_cluster_count(20)
-            .set_max_iteration_count(5)
-            .set_result_options(oneapi::dal::kmeans::result_options::compute_centroids)
-            .set_accuracy_threshold(0.001);
+    const auto kmeans_desc = dal::kmeans::descriptor<>()
+                                 .set_cluster_count(20)
+                                 .set_max_iteration_count(5)
+                                 .set_accuracy_threshold(0.001);
 
     const auto result_train = dal::train(kmeans_desc, x_train, initial_centroids);
 
@@ -47,13 +45,7 @@ int main(int argc, char const *argv[]) {
               << std::endl;
     std::cout << "Responses:\n" << result_train.get_responses() << std::endl;
     std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
-    const auto kmeans_desc_infer =
-        dal::kmeans::descriptor<>()
-            .set_cluster_count(20)
-            .set_max_iteration_count(5)
-            .set_result_options(oneapi::dal::kmeans::result_options::compute_assignments)
-            .set_accuracy_threshold(0.001);
-    const auto result_test = dal::infer(kmeans_desc_infer, result_train.get_model(), x_test);
+    const auto result_test = dal::infer(kmeans_desc, result_train.get_model(), x_test);
 
     std::cout << "Infer result:\n" << result_test.get_responses() << std::endl;
 
