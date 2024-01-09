@@ -118,10 +118,10 @@ the problem is to transform :math:`X^{'}` to the :math:`m \times r` matrix :math
 Each individual observation :math:`x^{'}_{i}` can be transformed by applying the following linear
 transformation [Lang87]_ defined by the matrix :math:`T`,
 
-.. _linreg_t_math_norm_eq:
+.. _norm_eq:
 
 Computation method: *norm_eq*
----------------------------
+-----------------------------
 The method computes means, variance-covariance, or correlation matrix for the dense data.
 This is the default and the only method supported.
 

@@ -18,7 +18,7 @@ Linear regression is a method for modeling the relationship between a dependent 
 or more explanatory variables by fitting linear equations to observed data.
 
 .. |t_math| replace:: :ref:`Training <linreg_t_math>`
-.. |t_norm_eq| replace:: :ref:`norm_eq <linreg_t_math_norm_eq>`
+.. |t_norm_eq| replace:: :ref:`norm_eq <norm_eq>`
 .. |t_input| replace:: :ref:`train_input <linreg_t_api_input>`
 .. |t_result| replace:: :ref:`train_result <linreg_t_api_result>`
 .. |t_op| replace:: :ref:`train(...) <linreg_t_api>`
