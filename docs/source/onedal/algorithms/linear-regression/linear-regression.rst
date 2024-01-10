@@ -68,7 +68,7 @@ To compute crossproduct of Linear Regression Normal Equation system method can b
 
 Inference
 ---------
-Linear regression based prediction is done for input vector |x_vector|
+Linear regression based prediction is done for input vector
 using the equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p`
 for each :math:`j=1, \ldots, k`.
 
