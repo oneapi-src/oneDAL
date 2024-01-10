@@ -71,6 +71,7 @@ Inference
 Linear regression based prediction is done for input vector |x_vector|
 using the equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p`
 for each :math:`j=1, \ldots, k`.
+
 .. _norm_eq:
 
 Computation method: *norm_eq*

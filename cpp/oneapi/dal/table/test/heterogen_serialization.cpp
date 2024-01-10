@@ -18,7 +18,7 @@
 #include "oneapi/dal/table/heterogen.hpp"
 
 #include "oneapi/dal/table/detail/metadata_utils.hpp"
-
+#include <iostream>
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/serialization.hpp"
