@@ -58,7 +58,6 @@ Model
 -----
 .. onedal_class:: oneapi::dal::pca::model
 
-
 .. _pca_t_api:
 
 Training :cpp:expr:`train(...)`
@@ -69,11 +68,10 @@ Input
 ~~~~~
 .. onedal_class:: oneapi::dal::pca::train_input
 
-
 .. _pca_t_api_result:
 
-Result
-~~~~~~
+Result and Finalize Result
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::pca::train_result
 
 Operation
@@ -130,7 +128,6 @@ Inference :cpp:expr:`infer(...)`
 Input
 ~~~~~
 .. onedal_class:: oneapi::dal::pca::infer_input
-
 
 .. _pca_i_api_result:
 

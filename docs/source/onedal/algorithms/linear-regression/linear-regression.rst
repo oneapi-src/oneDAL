@@ -34,90 +34,43 @@ Mathematical formulation
 Training
 ---------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
-the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
-The means, the covariance, and the correlation are computed with the following formulas:
+Given a set :math:`(x_{11}, \ldots, x_{1p}, y_1, \ldots, x_{n1}, \ldots, x_{np}, y_n)` of
+training data, :math:`n \gg p`. The matrix :math:`X` of size :math:`n \times p` contains
+observations :math:`x_{ij}`, :math:`i=1, \ldots, n`, :math:`j = 1, \ldots, p` of independent
+variables.
 
-.. list-table::
-   :widths: 20 50
-   :header-rows: 1
-   :align: left
-
-   * - Statistic
-     - Definition
-   * - Means
-     - :math:`M = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=\frac{1}{n}\sum _{i}{x}_{ij}`
-   * - Covariance matrix (sample)
-     - :math:`Cov = (v_{ij})`, where :math:`v_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Covariance matrix (maximum likelihood)
-     - :math:`Cov' = (v'_{ij})`, where :math:`v'_{ij}=\frac{1}{n}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Correlation matrix
-     - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-
+To estimate the coefficients :math:`(\beta_{0j}, \ldots, \beta_{pj})`
+Normal Equation system method can be used.
 
 .. _linreg_p_math:
 
 Partial Training
 ----------------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
-the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
-The means, the covariance, and the correlation are computed with the following formulas:
+Given a block :math:`(x_{11}, \ldots, x_{1p}, y_1, \ldots, x_{n1}, \ldots, x_{np}, y_n)` of
+training data, :math:`n \gg p`. The matrix :math:`X` of size :math:`n \times p` contains
+observations :math:`x_{ij}`, :math:`i=1, \ldots, n`, :math:`j = 1, \ldots, p` of independent
+variables.
 
-.. list-table::
-   :widths: 20 50
-   :header-rows: 1
-   :align: left
-
-   * - Statistic
-     - Definition
-   * - Means
-     - :math:`M = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=\frac{1}{n}\sum _{i}{x}_{ij}`
-   * - Covariance matrix (sample)
-     - :math:`Cov = (v_{ij})`, where :math:`v_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Covariance matrix (maximum likelihood)
-     - :math:`Cov' = (v'_{ij})`, where :math:`v'_{ij}=\frac{1}{n}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Correlation matrix
-     - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
+To compute crossproduct of Linear Regression Normal Equation system method can be used.
 
 .. _linreg_f_math:
 
 Finalize Training
 -----------------
 
-Given a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
-the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
-The means, the covariance, and the correlation are computed with the following formulas:
+Given a partial result with partial products.
 
-.. list-table::
-   :widths: 20 50
-   :header-rows: 1
-   :align: left
-
-   * - Statistic
-     - Definition
-   * - Means
-     - :math:`M = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=\frac{1}{n}\sum _{i}{x}_{ij}`
-   * - Covariance matrix (sample)
-     - :math:`Cov = (v_{ij})`, where :math:`v_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Covariance matrix (maximum likelihood)
-     - :math:`Cov' = (v'_{ij})`, where :math:`v'_{ij}=\frac{1}{n}\sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
-   * - Correlation matrix
-     - :math:`Cor = (c_{ij})`, where :math:`c_{ij}=\frac{v_{ij}}{\sqrt{v_{ii}\cdot v_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
+To compute crossproduct of Linear Regression Normal Equation system method can be used.
 
 
 .. _linreg_i_math:
 
 Inference
 ---------
-Given the inference data set :math:`X^{'} = \{ x^{'}_1, \ldots, x^{'}_m \}` with :math:`m` feature vectors of dimension :math:`p`,
-and the :math:`r \times p` transformation matrix :math:`T` produced at the training stage,
-the problem is to transform :math:`X^{'}` to the :math:`m \times r` matrix :math:`X^{''} = \{ x^{''}_1, \ldots, x^{''}_m \}`, where :math:`x^{''}_{i}` is an
-:math:`r`-dimensional transformed observation.
-
-Each individual observation :math:`x^{'}_{i}` can be transformed by applying the following linear
-transformation [Lang87]_ defined by the matrix :math:`T`,
-
+Linear regression based prediction is done for input vector |x_vector|
+using the equation :math:`y_j = \beta_{0j} + \beta_{1j}x_1 + \ldots + \beta_{pj}x_p`
+for each :math:`j=1, \ldots, k`.
 .. _norm_eq:
 
 Computation method: *norm_eq*

@@ -50,7 +50,6 @@ Task tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::linear_regression::task
 
-
 .. _linreg_t_api:
 
 Training
@@ -97,7 +96,6 @@ Inference
 Input
 ~~~~~
 .. onedal_class:: oneapi::dal::linear_regression::infer_input
-
 
 .. _linreg_i_api_result:
 
