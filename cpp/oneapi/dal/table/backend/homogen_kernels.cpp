@@ -96,36 +96,36 @@ static void pull_row_major_impl(const Policy& policy,
                                 array<BlockData>& block_data,
                                 alloc_kind requested_alloc_kind,
                                 bool preserve_mutability) {
-    std::cout<<"Step 1"<<std::endl;
+    std::cout << "Step 1" << std::endl;
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
-    std::cout<<"Step 2"<<std::endl;
+    std::cout << "Step 2" << std::endl;
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
-        std::cout<<"Step 3"<<std::endl;
+    std::cout << "Step 3" << std::endl;
 
     // Overflows are checked here
     check_origin_data(origin_info, origin_data, origin_dtype_size, block_dtype_size);
-    std::cout<<"Step 4"<<std::endl;
+    std::cout << "Step 4" << std::endl;
     // Arithmetic operations are safe because block offsets do not exceed origin element count
     const std::int64_t origin_offset =
         block_info.get_row_offset() * origin_info.get_column_count() +
         block_info.get_column_offset();
-    std::cout<<"Step 5"<<std::endl;
+    std::cout << "Step 5" << std::endl;
     const bool contiguous_block_requested =
         (block_info.get_column_count() == origin_info.get_column_count()) ||
         (block_info.get_row_count() == 1);
-        std::cout<<"Step 6"<<std::endl;
+    std::cout << "Step 6" << std::endl;
     const bool nocopy_alloc_kind =
         !alloc_kind_requires_copy(get_alloc_kind(origin_data), requested_alloc_kind);
-        std::cout<<nocopy_alloc_kind<<std::endl;
+    std::cout << nocopy_alloc_kind << std::endl;
     const bool same_data_type = (block_dtype == origin_info.get_data_type());
-            std::cout<<same_data_type<<std::endl;
+    std::cout << same_data_type << std::endl;
     const bool block_has_enough_space = (block_data.get_count() >= block_info.get_element_count());
-    std::cout<<block_has_enough_space<<std::endl;
+    std::cout << block_has_enough_space << std::endl;
     const bool block_has_mutable_data = block_data.has_mutable_data();
-    std::cout<<block_has_mutable_data<<std::endl;
+    std::cout << block_has_mutable_data << std::endl;
     if (contiguous_block_requested && same_data_type && nocopy_alloc_kind) {
-                std::cout<<"Step 7"<<std::endl;
+        std::cout << "Step 7" << std::endl;
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
                           block_info.get_element_count(),
@@ -133,17 +133,17 @@ static void pull_row_major_impl(const Policy& policy,
                           preserve_mutability);
     }
     else {
-                std::cout<<"Step 8"<<std::endl;
+        std::cout << "Step 8" << std::endl;
         if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
-                    std::cout<<"Step 9"<<std::endl;
+            std::cout << "Step 9" << std::endl;
             reset_array(policy, block_data, block_info.get_element_count(), requested_alloc_kind);
         }
-        std::cout<<"Step 10"<<std::endl;
+        std::cout << "Step 10" << std::endl;
         auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
         auto dst_data = block_data.get_mutable_data();
-        std::cout<<"Step 11"<<std::endl;
+        std::cout << "Step 11" << std::endl;
         if (block_info.get_column_count() > 1) {
-                std::cout<<"Step 12"<<std::endl;
+            std::cout << "Step 12" << std::endl;
             const std::int64_t subblocks_count =
                 contiguous_block_requested ? 1 : block_info.get_row_count();
             const std::int64_t subblock_size = contiguous_block_requested
