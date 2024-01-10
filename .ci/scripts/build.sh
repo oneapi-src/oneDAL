@@ -110,7 +110,13 @@ else
 fi
 
 #TBB setup
+if [[ "${ARCH}" == "32e" ]]
+then
 $(pwd)/dev/download_tbb.sh
+elif [[ "${ARCH}" == "arm" ]]
+then
+$(pwd)/.ci/env/tbb.sh
+fi
 
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
