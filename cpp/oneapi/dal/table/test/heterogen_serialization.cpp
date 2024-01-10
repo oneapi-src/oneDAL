@@ -18,7 +18,7 @@
 #include "oneapi/dal/table/heterogen.hpp"
 
 #include "oneapi/dal/table/detail/metadata_utils.hpp"
-
+#include <iostream>
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/serialization.hpp"
@@ -117,9 +117,11 @@ public:
 
     template <typename F, typename... Types>
     heterogen_table fill_table(F&& generate, const std::tuple<Types...>* = dummy) {
+        std::cout << "fill_table step 1" << std::endl;
         auto meta = get_metadata(dummy);
+        std::cout << "fill_table step 2" << std::endl;
         auto table = heterogen_table::empty(meta);
-
+        std::cout << "fill_table step 3" << std::endl;
         std::int64_t col = 0l;
         detail::apply(
             [&](const auto& type) -> void {
@@ -128,39 +130,48 @@ public:
             },
             Types{}...);
         REQUIRE(col == column_count);
-
+        std::cout << "fill_table step 4" << std::endl;
         return table;
     }
 
     template <typename T>
     chunked_array<T> generate_random_host(std::int64_t count, int seed) {
+        std::cout << "generate_random_host step 2" << std::endl;
         auto random = la::generate_uniform_matrix<T>({ count, 1l }, 0, 10, seed);
+        std::cout << "generate_random_host step 3" << std::endl;
         return chunked_array<T>(random.get_array());
     }
 
     heterogen_table get_host_backed_table(std::int64_t row_count, int seed = 7777) {
+        std::cout << "get_host_backed_table inside" << std::endl;
         auto generate = [row_count, seed, this](auto type, std::int64_t col) {
             const std::int64_t sd = seed + col;
             using type_t = std::decay_t<decltype(type)>;
             return this->generate_random_host<type_t>(row_count, sd);
         };
+        std::cout << "before fill table host" << std::endl;
         return this->fill_table(generate, dummy);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     chunked_array<T> generate_random_device(std::int64_t count, int seed) {
+        std::cout << "generate_random_device step 2" << std::endl;
         auto random = la::generate_uniform_matrix<T>({ count, 1l }, 0, 10, seed);
+        std::cout << "generate_random_device step 3" << std::endl;
         auto random_device = random.to_device(this->get_queue()).get_array();
+        std::cout << "generate_random_device step 4" << std::endl;
         return chunked_array<T>(random_device);
     }
 
     heterogen_table get_device_backed_table(std::int64_t row_count, int seed = 7777) {
+        std::cout << "get_device_backed_table inside" << std::endl;
         auto generate = [row_count, seed, this](auto type, std::int64_t col) {
             const std::int64_t sd = seed + col;
             using type_t = std::decay_t<decltype(type)>;
             return this->generate_random_device<type_t>(row_count, sd);
         };
+        std::cout << "before fill table" << std::endl;
         return this->fill_table(generate, dummy);
     }
 #endif
@@ -179,7 +190,7 @@ TEST_CASE_METHOD(empty_heterogen_table_serialization_test,
                  "Empty heterogen table",
                  "[empty][heterogen]") {
     const heterogen_table empty_table;
-
+    std::cout << "Random heterogen table - empty" << std::endl;
     this->check_table_serialization(empty_table);
 }
 
@@ -187,10 +198,11 @@ TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
                      "Random heterogen table - device",
                      "[empty][heterogen][host]",
                      heterogen_types) {
-    const std::int64_t column_count = GENERATE(1, 9, 99, 999);
-    const std::int64_t row_count = GENERATE(1, 9, 99, 999, 9'999);
+    const std::int64_t column_count = GENERATE(1, 9, 99, 999, 10000);
+    const std::int64_t row_count = GENERATE(1, 9, 99, 999, 9'999, 10000);
+    std::cout << "Random heterogen table - device" << std::endl;
     const heterogen_table original = this->get_host_backed_table(row_count, column_count);
-
+    std::cout << "get_host_backed_table" << std::endl;
     this->check_table_serialization(original);
 }
 
@@ -199,10 +211,11 @@ TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
                      "Random heterogen table - host",
                      "[empty][heterogen][device]",
                      heterogen_types) {
-    const std::int64_t column_count = GENERATE(1, 10, 101, 1'001);
-    const std::int64_t row_count = GENERATE(1, 11, 101, 1'001, 10'001);
+    const std::int64_t column_count = GENERATE(1, 10, 101, 1'001, 10000);
+    const std::int64_t row_count = GENERATE(1, 11, 101, 1'001, 10'001, 10000);
+    std::cout << "Random heterogen table - host" << std::endl;
     const heterogen_table original = this->get_device_backed_table(row_count, column_count);
-
+    std::cout << "get_device_backed_table" << std::endl;
     this->check_table_serialization(original);
 }
 #endif
