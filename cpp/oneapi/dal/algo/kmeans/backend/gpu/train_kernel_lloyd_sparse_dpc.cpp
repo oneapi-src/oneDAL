@@ -110,28 +110,31 @@ sycl::event compute_data_squares(sycl::queue& q,
                                  pr::ndarray<Float, 1>& squares) {
     const auto local_size = bk::device_max_wg_size(q);
     const auto row_count = row_offsets.get_count() - 1;
+    const std::int64_t row_block = 8 * bk::device_max_wg_size(q);
     const auto nd_range =
-        bk::make_multiple_nd_range_2d({ row_count, local_size }, { 1, local_size });
+        bk::make_multiple_nd_range_2d({ row_block, local_size }, { 1, local_size });
     const auto data_ptr = values.get_data();
     const auto row_offsets_ptr = row_offsets.get_data();
     auto squares_ptr = squares.get_mutable_data();
     return q.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(nd_range, [=](auto item) {
-            const auto row_idx = item.get_global_id(0);
+            const auto row_shift = item.get_global_id(0);
             const auto local_id = item.get_local_id(1);
             Float sum_squares = Float(0);
-            const auto row_start = row_offsets_ptr[row_idx] + local_id;
-            const auto row_end = row_offsets_ptr[row_idx + 1];
-            for (std::int64_t data_idx = row_start; data_idx < row_end; data_idx += local_size) {
-                const auto val = data_ptr[data_idx];
-                sum_squares += val * val;
-            }
-            const auto res = sycl::reduce_over_group(item.get_group(),
-                                                     sum_squares,
-                                                     Float(0),
-                                                     sycl::ext::oneapi::plus<Float>());
-            if (local_id == 0) {
-                squares_ptr[row_idx] = res;
+            for (std::int64_t row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
+                const auto row_start = row_offsets_ptr[row_idx] + local_id;
+                const auto row_end = row_offsets_ptr[row_idx + 1];
+                for (std::int64_t data_idx = row_start; data_idx < row_end; data_idx += local_size) {
+                    const auto val = data_ptr[data_idx];
+                    sum_squares += val * val;
+                }
+                const auto res = sycl::reduce_over_group(item.get_group(),
+                                                        sum_squares,
+                                                        Float(0),
+                                                        sycl::ext::oneapi::plus<Float>());
+                if (local_id == 0) {
+                    squares_ptr[row_idx] = res;
+                }
             }
         });
     });
@@ -149,11 +152,9 @@ sycl::event custom_spgemm(sycl::queue& q,
                           const Float alpha,
                           const Float beta,
                           const event_vector& deps = {}) {
-    const auto a_row_count = row_offsets.get_count() - 1;
-    const auto reduce_dim = b.get_dimension(1);
-    const auto b_row_count = b.get_dimension(0);
-    ONEDAL_ASSERT(c.get_dimension(0) == a_row_count);
-    ONEDAL_ASSERT(c.get_dimension(1) == b_row_count);
+    const size_t a_row_count = row_offsets.get_count() - 1;
+    const size_t reduce_dim = b.get_dimension(1);
+    const size_t b_row_count = b.get_dimension(0);
 
     const auto local_size =
         std::min<std::int32_t>(bk::device_max_wg_size(q), bk::down_pow2(reduce_dim));
@@ -163,30 +164,39 @@ sycl::event custom_spgemm(sycl::queue& q,
     const auto col_ind = column_indices.get_data();
     const auto b_ptr = b.get_data();
 
-    const auto nd_range = bk::make_multiple_nd_range_3d({ a_row_count, b_row_count, local_size },
+    // Compute matrix block by block to avoid integer overflow
+    const std::int64_t row_block = 8 * bk::device_max_wg_size(q);
+    const std::int64_t row_block_size = std::min<std::int64_t>(row_block, a_row_count);
+    const std::int64_t col_block_size = std::min<std::int64_t>(row_block, b_row_count);
+
+    const auto nd_range = bk::make_multiple_nd_range_3d({ row_block_size, col_block_size, local_size },
                                                         { 1, 1, local_size });
 
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](auto item) {
-            const auto row_idx = item.get_global_id(0);
-            const auto col_idx = item.get_global_id(1);
+            const auto row_shift = item.get_global_id(0);
+            const auto col_shift = item.get_global_id(1);
             const auto local_id = item.get_local_id(2);
 
-            const auto start = row_ofs[row_idx] + local_id;
-            const auto end = row_ofs[row_idx + 1];
-            Float acc = Float(0);
-            for (std::int64_t data_idx = start; data_idx < end; data_idx += local_size) {
-                const auto reduce_id = col_ind[data_idx];
-                acc += a_ptr[data_idx] * b_ptr[col_idx * reduce_dim + reduce_id];
-            }
-            const Float scalar_mul = sycl::reduce_over_group(item.get_group(),
-                                                             acc,
-                                                             Float(0),
-                                                             sycl::ext::oneapi::plus<Float>());
-            if (local_id == 0) {
-                res_ptr[row_idx * b_row_count + col_idx] =
-                    beta * res_ptr[row_idx * b_row_count + col_idx] + alpha * scalar_mul;
+            for (auto row_idx = row_shift; row_idx < a_row_count; row_idx += row_block) {
+                for (auto col_idx = col_shift; col_idx < b_row_count; col_idx += row_block) {
+                    const auto start = row_ofs[row_idx] + local_id;
+                    const auto end = row_ofs[row_idx + 1];
+                    Float acc = Float(0);
+                    for (std::int64_t data_idx = start; data_idx < end; data_idx += local_size) {
+                        const auto reduce_id = col_ind[data_idx];
+                        acc += a_ptr[data_idx] * b_ptr[col_idx * reduce_dim + reduce_id];
+                    }
+                    const Float scalar_mul = sycl::reduce_over_group(item.get_group(),
+                                                                    acc,
+                                                                    Float(0),
+                                                                    sycl::ext::oneapi::plus<Float>());
+                    if (local_id == 0) {
+                        res_ptr[row_idx * b_row_count + col_idx] =
+                            beta * res_ptr[row_idx * b_row_count + col_idx] + alpha * scalar_mul;
+                    }
+                }
             }
         });
     });
@@ -223,46 +233,49 @@ sycl::event assign_clusters(sycl::queue& q,
     const auto distances_ptr = distances.get_data();
 
     const auto cluster_count = centroids.get_dimension(0);
-    const auto row_count = row_offsets.get_count() - 1;
+    const auto row_count = static_cast<size_t>(row_offsets.get_count() - 1);
+    const std::int64_t row_block = 8 * bk::device_max_wg_size(q);
 
     const auto local_size =
         std::min<std::int64_t>(bk::device_max_wg_size(q), bk::down_pow2(cluster_count));
     const auto nd_range =
-        bk::make_multiple_nd_range_2d({ row_count, local_size }, { 1, local_size });
+        bk::make_multiple_nd_range_2d({ row_block, local_size }, { 1, local_size });
 
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ dist_event });
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](auto item) {
-            const auto row_idx = item.get_global_id(0);
+            const auto row_shift = item.get_global_id(0);
             const auto local_id = item.get_local_id(1);
             const auto max_val = std::numeric_limits<Float>::max();
             const auto max_index = std::numeric_limits<std::int32_t>::max();
-            auto min_dist = max_val;
-            auto min_idx = max_index;
-            auto row_dists = distances_ptr + row_idx * cluster_count;
-            for (std::int32_t cluster_id = local_id; cluster_id < cluster_count;
-                 cluster_id += local_size) {
-                const auto dist = cent_squares_ptr[cluster_id] + row_dists[cluster_id] +
-                                  data_squares_ptr[row_idx];
-                if (dist < min_dist) {
-                    min_dist = dist;
-                    min_idx = cluster_id;
+            for (auto row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
+                auto min_dist = max_val;
+                auto min_idx = max_index;
+                auto row_dists = distances_ptr + row_idx * cluster_count;
+                for (std::int32_t cluster_id = local_id; cluster_id < cluster_count;
+                    cluster_id += local_size) {
+                    const auto dist = cent_squares_ptr[cluster_id] + row_dists[cluster_id] +
+                                    data_squares_ptr[row_idx];
+                    if (dist < min_dist) {
+                        min_dist = dist;
+                        min_idx = cluster_id;
+                    }
                 }
-            }
-            const Float closest = sycl::reduce_over_group(item.get_group(),
-                                                          min_dist,
-                                                          max_val,
-                                                          sycl::ext::oneapi::minimum<Float>());
-            const std::int32_t dist_idx = closest == min_dist ? min_idx : max_index;
-            const std::int32_t closest_id =
-                sycl::reduce_over_group(item.get_group(),
-                                        dist_idx,
-                                        max_index,
-                                        sycl::ext::oneapi::minimum<std::int32_t>());
-            if (local_id == 0) {
-                responses_ptr[row_idx] = closest_id;
-                closest_dists_ptr[row_idx] = closest;
+                const Float closest = sycl::reduce_over_group(item.get_group(),
+                                                            min_dist,
+                                                            max_val,
+                                                            sycl::ext::oneapi::minimum<Float>());
+                const std::int32_t dist_idx = closest == min_dist ? min_idx : max_index;
+                const std::int32_t closest_id =
+                    sycl::reduce_over_group(item.get_group(),
+                                            dist_idx,
+                                            max_index,
+                                            sycl::ext::oneapi::minimum<std::int32_t>());
+                if (local_id == 0) {
+                    responses_ptr[row_idx] = closest_id;
+                    closest_dists_ptr[row_idx] = closest;
+                }
             }
         });
     });
