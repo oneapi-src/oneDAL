@@ -45,33 +45,34 @@ public:
                                 const heterogen_table& deserialized) = 0;
 
     void check_table_serialization(const heterogen_table& original) {
+        std::cout << "check_table_serialization step 1" << std::endl;
         SECTION("deserialize as exact type") {
             heterogen_table deserialized;
-
+            std::cout << "check_table_serialization step 2" << std::endl;
             SECTION("serialize as exact type") {
                 te::serialize_deserialize(original, deserialized);
             }
-
+            std::cout << "check_table_serialization step 3" << std::endl;
             SECTION("serialize as base type") {
                 table original_as_base = original;
                 te::serialize_deserialize(original_as_base, deserialized);
             }
-
+            std::cout << "check_table_serialization step 4" << std::endl;
             compare_tables(original, deserialized);
         }
-
+        std::cout << "check_table_serialization step 5" << std::endl;
         SECTION("deserialize as base type") {
             heterogen_table deserialized;
-
+            std::cout << "check_table_serialization step 6" << std::endl;
             SECTION("serialize as exact type") {
                 te::serialize_deserialize(original, deserialized);
             }
-
+            std::cout << "check_table_serialization step 7" << std::endl;
             SECTION("serialize as base type") {
                 table original_as_base = original;
                 te::serialize_deserialize(original_as_base, deserialized);
             }
-
+            std::cout << "check_table_serialization step 8" << std::endl;
             compare_tables(original, deserialized);
         }
     }
