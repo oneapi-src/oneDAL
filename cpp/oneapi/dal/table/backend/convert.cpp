@@ -15,13 +15,16 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/convert.hpp"
-
+#include <iostream>
 #include <algorithm>
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/backend/interop/data_conversion.hpp"
+#include <iostream>
 
 namespace oneapi::dal::backend {
+
+namespace bk = dal::backend;
 
 static void convert_vector(const void* src,
                            void* dst,
@@ -141,6 +144,12 @@ void shift_array_values(const detail::default_host_policy& policy,
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
+}
+
 template <typename Src, typename Dst>
 static sycl::event convert_vector_kernel(sycl::queue& q,
                                          const Src* src,
@@ -149,27 +158,46 @@ static sycl::event convert_vector_kernel(sycl::queue& q,
                                          std::int64_t dst_stride,
                                          std::int64_t element_count,
                                          const event_vector& deps = {}) {
+    std::cout << "convert gpu to gpu step 1" << std::endl;
     const int src_stride_int = dal::detail::integral_cast<int>(src_stride);
     const int dst_stride_int = dal::detail::integral_cast<int>(dst_stride);
     const int element_count_int = dal::detail::integral_cast<int>(element_count);
-
+    std::cout << "convert gpu to gpu step 2" << std::endl;
     const std::int64_t required_local_size = 256;
     const std::int64_t local_size = std::min(down_pow2(element_count), required_local_size);
+    std::cout << "convert gpu to gpu step 3" << std::endl;
     const auto range = make_multiple_nd_range_1d(element_count, local_size);
-
+    std::cout << "convert gpu to gpu step 4" << std::endl;
     if (src_stride == 1 && dst_stride == 1) {
-        return q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-                const int i = id.get_global_id();
-                if (i < element_count_int) {
-                    dst[i] = src[i];
-                }
+        const auto block_size = propose_block_size<float>(q, element_count);
+        const bk::uniform_blocking blocking(element_count_int, block_size);
+        std::vector<sycl::event> events(blocking.get_block_count());
+        for (std::int64_t block_index = 0; block_index < blocking.get_block_count();
+             ++block_index) {
+            const auto first_column = blocking.get_block_start_index(block_index);
+            const auto last_column = blocking.get_block_end_index(block_index);
+            const auto curr_block = last_column - first_column;
+            ONEDAL_ASSERT(curr_block > 0);
+            auto scatter_event = q.submit([&](sycl::handler& cgh) {
+                cgh.depends_on(deps);
+                const std::int64_t required_local_size = 256;
+                const std::int64_t local_size =
+                    std::min(down_pow2(curr_block), required_local_size);
+                const auto range_local = make_multiple_nd_range_1d(curr_block, local_size);
+                cgh.parallel_for(range_local, [=](sycl::nd_item<1> id) {
+                    const int i = id.get_global_id();
+                    if (i < element_count_int) {
+                        dst[i] = src[i];
+                    }
+                });
             });
-        });
+            events.push_back(scatter_event);
+        }
+        return bk::wait_or_pass(events);
     }
 
     else {
+        std::cout << "convert gpu to gpu step else" << std::endl;
         return q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
