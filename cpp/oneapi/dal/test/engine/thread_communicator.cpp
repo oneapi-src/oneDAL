@@ -563,7 +563,6 @@ auto thread_communicator_impl<MemoryAccessKind>::bcast(byte_t* send_buf,
                                                        const data_type& dtype,
                                                        std::int64_t root) -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    throw std::runtime_error("threadcomm bcast");
     bcast_(send_buf, count, dtype, root);
     return nullptr;
 }
@@ -576,7 +575,6 @@ auto thread_communicator_impl<MemoryAccessKind>::allgatherv(const byte_t* send_b
                                                             const std::int64_t* displs,
                                                             const data_type& dtype) -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    throw std::runtime_error("threadcomm allgatherv");
     allgatherv_(send_buf, send_count, recv_buf, recv_counts, displs, dtype);
     return nullptr;
 }
@@ -588,7 +586,6 @@ auto thread_communicator_impl<MemoryAccessKind>::allreduce(const byte_t* send_bu
                                                            const data_type& dtype,
                                                            const spmd::reduce_op& op)
     -> request_t* {
-    throw std::runtime_error("threadcomm allreduce");
     collective_operation_guard guard{ ctx_ };
     allreduce_(send_buf, recv_buf, count, dtype, op);
     return nullptr;
@@ -602,7 +599,6 @@ auto thread_communicator_impl<MemoryAccessKind>::sendrecv_replace(byte_t* buf,
                                                                   std::int64_t source_rank)
     -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    throw std::runtime_error("threadcomm sendrecv_replace");
     sendrecv_replace_(buf, count, dtype, destination_rank, source_rank);
     return nullptr;
 }

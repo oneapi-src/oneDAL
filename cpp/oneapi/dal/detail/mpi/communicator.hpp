@@ -154,7 +154,6 @@ public:
                                std::int64_t count,
                                const data_type& dtype,
                                std::int64_t root) override {
-        throw std::runtime_error("MPI bcast");
         ONEDAL_ASSERT(root >= 0);
 
         if (count == 0) {
@@ -179,7 +178,6 @@ public:
                                     const std::int64_t* recv_counts,
                                     const std::int64_t* displs,
                                     const data_type& dtype) override {
-        throw std::runtime_error("MPI allgatherv");
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_counts);
         ONEDAL_ASSERT(displs);
@@ -224,7 +222,6 @@ public:
                                    std::int64_t count,
                                    const data_type& dtype,
                                    const spmd::reduce_op& op) override {
-        throw std::runtime_error("MPI allreduce");
         if (count == 0) {
             return nullptr;
         }
@@ -274,7 +271,6 @@ public:
                                           const data_type& dtype,
                                           std::int64_t destination_rank,
                                           std::int64_t source_rank) override {
-        throw std::runtime_error("MPI sendrecv_replace");
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
 
