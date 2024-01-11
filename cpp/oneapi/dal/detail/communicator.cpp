@@ -75,6 +75,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
 
     preview::detail::check_if_pointer_matches_queue(q, send_buf);
     preview::detail::check_if_pointer_matches_queue(q, recv_buf);
+    sycl::event::wait_and_throw(deps);
 
     {
         ONEDAL_PROFILER_TASK(comm.allgatherv_gpu, q);
