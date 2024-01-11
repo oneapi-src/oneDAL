@@ -94,15 +94,15 @@ inline auto get_daal_parameter_to_train(const descriptor_t& desc) {
     par.accuracyThreshold = accuracy_threshold;
 
     const auto res_op = desc.get_result_options();
-    bool all_metrics = res_op.test(result_options::compute_centroids) &&
-                       res_op.test(result_options::compute_exact_objective_function) &&
-                       res_op.test(result_options::compute_assignments);
+    bool only_centroids = res_op.test(result_options::compute_centroids) &&
+                          !res_op.test(result_options::compute_exact_objective_function) &&
+                          !res_op.test(result_options::compute_assignments);
 
-    if (!all_metrics) {
+    if (only_centroids) {
         par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeCentroids);
     }
 
-    return std::tuple(par, all_metrics);
+    return std::tuple(par, only_centroids);
 }
 
 template <typename Float, typename Task>
@@ -114,12 +114,12 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
 
-    auto [par, all_metrics] = get_daal_parameter_to_train(desc);
+    auto [par, only_centroids] = get_daal_parameter_to_train(desc);
 
     auto daal_initial_centroids = get_initial_centroids<Float>(ctx, desc, data, initial_centroids);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    auto result = train_result<task::clustering>{};
+    auto result = train_result<Task>{};
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
 
@@ -134,7 +134,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal::data_management::NumericTable* input[2] = { daal_data.get(),
                                                       daal_initial_centroids.get() };
 
-    if (all_metrics) {
+    if (!only_centroids) {
         array<int> arr_responses = array<int>::empty(row_count);
         array<Float> arr_objective_function_value = array<Float>::empty(1);
 
