@@ -22,7 +22,7 @@
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-
+#include <iostream>
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -67,6 +67,34 @@ auto slice_data(sycl::queue& q,
     return std::make_tuple(data_to_compute, event);
 }
 
+template <typename Float>
+auto compute_mean_centered_data(sycl::queue& q,
+                                const pr::ndview<Float, 2>& data,
+                                const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_means, q);
+    const std::int64_t row_count = data.get_dimension(0);
+    const std::int64_t column_count = data.get_dimension(1);
+
+    auto [sums, sums_event] = compute_sums(q, data);
+    auto [means, means_event] = compute_means(q, sums, row_count, { sums_event });
+
+    auto data_to_compute =
+        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
+    auto copy_event = copy(q, data_to_compute, data, { deps });
+    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
+    auto means_ptr = means.get_data();
+    auto event = q.submit([&](sycl::handler& h) {
+        const auto range = bk::make_range_2d(row_count, column_count);
+        h.parallel_for(range, [=](sycl::id<2> id) {
+            const std::int64_t i = id[0];
+            const std::int64_t j = id[1];
+            data_to_compute_ptr[i * column_count + j] =
+                data_to_compute_ptr[i * column_count + j] - means_ptr[j];
+        });
+    });
+    return std::make_tuple(data_to_compute, means, event);
+}
+
 template <typename Float, pr::ndorder order>
 auto svd_decomposition(sycl::queue& queue,
                        pr::ndview<Float, 2, order>& data,
@@ -79,7 +107,7 @@ auto svd_decomposition(sycl::queue& queue,
 
     auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
 
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
@@ -87,13 +115,13 @@ auto svd_decomposition(sycl::queue& queue,
     Float* V_T_ptr = V_T.get_mutable_data();
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
-    std::int64_t ldvt = column_count;
+    std::int64_t ldvt = row_count;
     sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
         gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
-                                                                          row_count,
                                                                           column_count,
+                                                                          row_count,
                                                                           data_ptr,
                                                                           lda,
                                                                           S_ptr,
@@ -119,86 +147,46 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     ONEDAL_ASSERT(component_count > 0);
     dal::detail::check_mul_overflow(column_count, component_count);
 
-    constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
-
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-
-    auto [sums, sums_event] = compute_sums(q_, data_nd);
-
-    if (desc.get_result_options().test(result_options::means)) {
-        ONEDAL_PROFILER_TASK(compute_means, q_);
-        auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
-        result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
-    }
-
-    sycl::event gemm_event;
-    {
-        ONEDAL_PROFILER_TASK(gemm, q_);
-        gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0), { sums_event });
-    }
-
-    auto [cov, cov_event] = compute_covariance(q_, row_count, xtx, sums, bias, { gemm_event });
-
-    auto [vars, vars_event] = compute_variances(q_, cov, { cov_event });
-
-    if (desc.get_result_options().test(result_options::vars)) {
-        result.set_variances(
-            homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
-    }
-
-    auto data_to_compute = cov;
-
-    sycl::event corr_event;
-    if (desc.get_normalization_mode() == normalization::zscore) {
-        auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-
-        corr_event = pr::correlation_from_covariance(q_, row_count, cov, corr, bias, { cov_event });
-
-        data_to_compute = corr;
-    }
+    auto [data_to_compute, means, compute_event] = compute_mean_centered_data(q_, data_nd, {});
 
     auto [U, S, V_T, gesvd_event] =
-        svd_decomposition(q_, data_to_compute, component_count, { vars_event, corr_event });
-    if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(
+        svd_decomposition(q_, data_to_compute, component_count, { compute_event });
+
+    if (desc.get_result_options().test(result_options::singular_values)) {
+        result.set_singular_values(
             homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
     }
-    if (desc.get_result_options().test(result_options::singular_values)) {
-        auto [singular_values, sv_event] =
-            compute_singular_values(q_, S, row_count, column_count, { gesvd_event });
-        if (desc.get_normalization_mode() == normalization::zscore) {
-            result.set_singular_values(
-                homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
-        }
-        else {
-            result.set_singular_values(
-                homogen_table::wrap(singular_values.flatten(q_, { gesvd_event }), 1, column_count));
-        }
+    result.set_means(homogen_table::wrap(means.flatten(q_, { gesvd_event }), 1, column_count));
+    if (desc.get_result_options().test(result_options::eigenvalues)) {
+        auto S_host = S.to_host(q_);
+        auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
+        result.set_eigenvalues(homogen_table::wrap(eigenvalues.flatten(), 1, component_count));
     }
-    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-        auto vars_host = vars.to_host(q_);
-        auto eigvals_host = S.to_host(q_);
-        auto explained_variances_ratio =
-            compute_explained_variances_on_host(q_,
-                                                eigvals_host,
-                                                vars_host,
-                                                { gesvd_event, vars_event });
-        result.set_explained_variances_ratio(
-            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
-    }
-    //todo: after fix an MKL issue with gesvd, it should be correctly replaced by VT
-    auto V_T_host = U.to_host(q_);
+    // if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+    //     auto vars_host = vars.to_host(q_);
+    //     auto eigvals_host = S.to_host(q_);
+    //     auto explained_variances_ratio =
+    //         compute_explained_variances_on_host(q_,
+    //                                             eigvals_host,
+    //                                             vars_host,
+    //                                             { gesvd_event, vars_event });
+    //     result.set_explained_variances_ratio(
+    //         homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    // }
+
+    auto U_host = U.to_host(q_);
+
     if (desc.get_deterministic()) {
-        //todo: after fix an MKL issue with gesvd, signs should be computed with U matrix
-        sign_flip(V_T_host);
+        sign_flip(U_host);
     }
-    auto V_T_sign_flipped = V_T_host.to_device(q_);
+
+    auto U_host_sign_flipped = U_host.to_device(q_);
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         auto [sliced_data, event] =
-            slice_data(q_, V_T_sign_flipped, component_count, column_count, { cov_event });
+            slice_data(q_, U_host_sign_flipped, component_count, column_count, { gesvd_event });
         result.set_eigenvectors(homogen_table::wrap(sliced_data.flatten(q_, { event }),
                                                     sliced_data.get_dimension(0),
                                                     sliced_data.get_dimension(1)));

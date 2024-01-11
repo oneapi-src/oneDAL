@@ -189,6 +189,28 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
 //Wrapper for singluar values computation
 template <typename Float>
+auto compute_eigenvalues_on_device(sycl::queue& q,
+                                   pr::ndarray<Float, 1> singular_values,
+                                   std::int64_t row_count,
+                                   const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvalues_on_device);
+
+    const std::int64_t component_count = singular_values.get_dimension(0);
+
+    auto eigenvalues = pr::ndarray<Float, 1>::empty(component_count);
+
+    auto singular_values_ptr = singular_values.get_data();
+    auto eigvals_ptr = eigenvalues.get_mutable_data();
+
+    const Float factor = row_count - 1;
+    for (std::int64_t i = 0; i < component_count; ++i) {
+        eigvals_ptr[i] = singular_values_ptr[i] * singular_values_ptr[i] / factor;
+    }
+    return eigenvalues;
+}
+
+//Wrapper for singluar values computation
+template <typename Float>
 auto compute_singular_values_on_host(sycl::queue& q,
                                      pr::ndarray<Float, 1> eigenvalues,
                                      std::int64_t row_count,
