@@ -254,6 +254,39 @@ public:
         return *this;
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Reset the internal data of the builder with the provided inputs.
+    ///
+    /// @tparam Data    The type of elements in the input values block.
+    ///                 The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
+    ///                 or :expr:`std::int32_t`.
+    ///
+    /// @param data           The array of values in the CSR layout.
+    /// @param column_indices The array of column indices in the CSR layout.
+    /// @param row_offsets    The array of row offsets in the CSR layout.
+    /// @param row_count      The number of rows in the table to be built.
+    /// @param column_count   The number of columns in the table to be built.
+    /// @param indexing       The indexing scheme used to access data in the CSR layout.
+    ///                       Should be :literal:`sparse_indexing::zero_based` or
+    ///                       :literal:`sparse_indexing::one_based`.
+    /// @param dependencies   Events indicating availability of the :literal:`data` for reading or writing.
+    ///
+    /// @result Reference to the updated CSR table builder.
+    template <typename Data>
+    auto& reset(const dal::array<Data>& data,
+                const dal::array<std::int64_t>& column_indices,
+                const dal::array<std::int64_t>& row_offsets,
+                std::int64_t row_count,
+                std::int64_t column_count,
+                sparse_indexing indexing,
+                const std::vector<sycl::event>& dependencies) {
+        const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
+        get_impl().set_data_type(detail::make_data_type<Data>());
+        get_impl().reset(byte_data, column_indices, row_offsets, row_count, column_count, indexing, dependencies);
+        return *this;
+    }
+#endif
+
 private:
     csr_table_builder_iface& get_impl() {
         return cast_impl<csr_table_builder_iface>(*this);
