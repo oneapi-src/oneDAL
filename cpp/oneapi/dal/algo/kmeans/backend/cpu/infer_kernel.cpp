@@ -44,14 +44,9 @@ inline auto get_daal_parameter_to_infer(const descriptor_t& desc) {
         dal::detail::integral_cast<std::size_t>(desc.get_cluster_count()),
         dal::detail::integral_cast<std::size_t>(max_iteration_count));
 
-    if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
-        parameter.resultsToEvaluate =
-            static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments) |
-            static_cast<DAAL_UINT64>(daal_kmeans::computeExactObjectiveFunction);
-    }
-    else {
-        parameter.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
-    }
+    parameter.resultsToEvaluate =
+        static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments) |
+        static_cast<DAAL_UINT64>(daal_kmeans::computeExactObjectiveFunction);
 
     return parameter;
 }
@@ -63,7 +58,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const table& data) {
     const std::int64_t row_count = data.get_row_count();
 
-    auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
+    auto result = infer_result<Task>{};
 
     auto par = get_daal_parameter_to_infer(desc);
 
@@ -91,14 +86,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                  output,
                                                                                  &par));
 
-    if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
-        result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
-    }
+    result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
 
-    if (desc.get_result_options().test(result_options::compute_assignments)) {
-        result.set_responses(
-            dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
-    }
+    result.set_responses(
+        dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
+
     return result;
 }
 

@@ -208,27 +208,22 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                                arr_closest_distances,
                                                                { centroid_squares_event });
 
-        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
-            auto objective_event = kernels_fp<Float>::compute_objective_function( //
-                queue,
-                arr_closest_distances,
-                arr_objective_function,
-                { assign_event });
+        auto objective_event = kernels_fp<Float>::compute_objective_function( //
+            queue,
+            arr_closest_distances,
+            arr_objective_function,
+            { assign_event });
 
-            Float final_objective_function =
-                arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
+        Float final_objective_function =
+            arr_objective_function.to_host(queue, { objective_event }).get_data()[0];
 
-            {
-                ONEDAL_PROFILER_TASK(allreduce_final_objective);
-                comm.allreduce(final_objective_function).wait();
-            }
-            result.set_objective_function_value(final_objective_function);
+        {
+            ONEDAL_PROFILER_TASK(allreduce_final_objective);
+            comm.allreduce(final_objective_function).wait();
         }
+        result.set_objective_function_value(final_objective_function);
 
-        if (desc.get_result_options().test(result_options::compute_assignments)) {
-            result.set_responses(
-                dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1));
-        }
+        result.set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1));
 
         result.set_iteration_count(iter);
 

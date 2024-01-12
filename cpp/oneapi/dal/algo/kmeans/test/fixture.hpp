@@ -56,9 +56,6 @@ public:
         return descriptor_t{}
             .set_cluster_count(cluster_count)
             .set_max_iteration_count(max_iteration_count)
-            .set_result_options(result_options::compute_centroids |
-                                result_options::compute_exact_objective_function |
-                                result_options::compute_assignments)
             .set_accuracy_threshold(accuracy_threshold);
     }
 

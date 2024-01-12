@@ -93,16 +93,7 @@ inline auto get_daal_parameter_to_train(const descriptor_t& desc) {
 
     par.accuracyThreshold = accuracy_threshold;
 
-    const auto res_op = desc.get_result_options();
-    bool only_centroids = res_op.test(result_options::compute_centroids) &&
-                          !res_op.test(result_options::compute_exact_objective_function) &&
-                          !res_op.test(result_options::compute_assignments);
-
-    if (only_centroids) {
-        par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeCentroids);
-    }
-
-    return std::tuple(par, only_centroids);
+    return par;
 }
 
 template <typename Float, typename Task>
@@ -114,7 +105,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
 
-    auto [par, only_centroids] = get_daal_parameter_to_train(desc);
+    auto par = get_daal_parameter_to_train(desc);
 
     auto daal_initial_centroids = get_initial_centroids<Float>(ctx, desc, data, initial_centroids);
 
@@ -134,46 +125,27 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal::data_management::NumericTable* input[2] = { daal_data.get(),
                                                       daal_initial_centroids.get() };
 
-    if (!only_centroids) {
-        array<int> arr_responses = array<int>::empty(row_count);
-        array<Float> arr_objective_function_value = array<Float>::empty(1);
+    array<int> arr_responses = array<int>::empty(row_count);
+    array<Float> arr_objective_function_value = array<Float>::empty(1);
 
-        const auto daal_responses =
-            interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
-        const auto daal_objective_function_value =
-            interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);
+    const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
+    const auto daal_objective_function_value =
+        interop::convert_to_daal_homogen_table(arr_objective_function_value, 1, 1);
 
-        daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
-                                                           daal_responses.get(),
-                                                           daal_objective_function_value.get(),
-                                                           daal_iteration_count.get() };
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-                                                                               input,
-                                                                               output,
-                                                                               &par));
+    daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
+                                                       daal_responses.get(),
+                                                       daal_objective_function_value.get(),
+                                                       daal_iteration_count.get() };
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                           input,
+                                                                           output,
+                                                                           &par));
 
-        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
-            result.set_objective_function_value(
-                static_cast<double>(arr_objective_function_value[0]));
-        }
+    result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
 
-        if (desc.get_result_options().test(result_options::compute_assignments)) {
-            result.set_responses(
-                dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
-        }
-    }
-    else {
-        daal::data_management::NumericTable* output[4] = { daal_centroids.get(),
-                                                           nullptr,
-                                                           nullptr,
-                                                           daal_iteration_count.get() };
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-                                                                               input,
-                                                                               output,
-                                                                               &par));
-    }
+    result.set_responses(
+        dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
 
     result.set_iteration_count(static_cast<std::int64_t>(arr_iteration_count[0]));
 
