@@ -31,6 +31,7 @@
 #include "src/threading/threading.h"
 #include "services/daal_defines.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
+#include "src/algorithms/dtrees/forest/df_hyperparameter_impl.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_memory.h"
 #include "src/algorithms/dtrees/dtrees_predict_dense_default_impl.i"
@@ -56,13 +57,10 @@ namespace prediction
 {
 namespace internal
 {
+
+using namespace decision_forest::internal;
 typedef int32_t leftOrClassType; /* tree size and number of classes are fit in to 2^31 */
 typedef int32_t featureIndexType;
-#define _DEFAULT_BLOCK_SIZE                      32
-#define _DEFAULT_BLOCK_SIZE_COMMON               22
-#define _MIN_TREES_FOR_THREADING                 100
-#define _SCALE_FACTOR_FOR_VECT_PARALLEL_COMPUTE  0.3 /* scale tree size to chose whethever vectorized or not compute path in parallel mode */
-#define _MIN_NUMBER_OF_ROWS_FOR_VECT_SEQ_COMPUTE 32  /* min number of rows to be predicted by vectorized compute path in sequential mode */
 
 template <typename algorithmFPType, CpuType cpu>
 DAAL_FORCEINLINE void fillResults(const size_t nClasses, const enum VotingMethod votingMethod, const size_t blockSize, const double * const probas,
@@ -128,7 +126,12 @@ public:
           _cachedData(nullptr),
           _cachedModel(nullptr),
           _averageTreeSize(0),
-          _cachedNClasses(0)
+          _cachedNClasses(0),
+          _defaultBlockSize(0),
+          _defaultBlockSizeCommon(0),
+          _minTreesForThreading(0),
+          _minNumberOfRowsForVectSeqCompute(0),
+          _scaleFactorForVectParallelCompute(0.0)
     {}
 
     void setParams(const NumericTable * const x, NumericTable * const y, NumericTable * const prob, const dtrees::internal::ModelImpl * const m,
@@ -140,6 +143,22 @@ public:
         _model        = m;
         _nClasses     = nClasses;
         _votingMethod = votingMethod;
+    }
+
+    void setHyperparams(const size_t defaultBlockSize = 32, const size_t defaultBlockSizeCommon = 22, const size_t minTreesForThreading = 100,
+                        const size_t minNumberOfRowsForVectSeqCompute = 32, const float scaleFactorForVectParallelCompute = 0.3)
+    {
+        _defaultBlockSize                  = defaultBlockSize;
+        _defaultBlockSizeCommon            = defaultBlockSizeCommon;
+        _minTreesForThreading              = minTreesForThreading;
+        _minNumberOfRowsForVectSeqCompute  = minNumberOfRowsForVectSeqCompute;
+        _scaleFactorForVectParallelCompute = scaleFactorForVectParallelCompute;
+    }
+
+    bool assertHyperparameters()
+    {
+        return (_defaultBlockSize > 0l) && (_defaultBlockSizeCommon > 0l) && (_minTreesForThreading > 0l) && (_minNumberOfRowsForVectSeqCompute > 0l)
+               && (_scaleFactorForVectParallelCompute > 0.0f);
     }
 
     Status run(services::HostAppIface * pHostApp);
@@ -213,6 +232,11 @@ protected:
     size_t _nClasses;
     size_t _cachedNClasses;
     VotingMethod _votingMethod;
+    size_t _defaultBlockSize;
+    size_t _defaultBlockSizeCommon;
+    size_t _minTreesForThreading;
+    size_t _minNumberOfRowsForVectSeqCompute;
+    float _scaleFactorForVectParallelCompute;
     static const size_t s_cMaxClassesBufSize = 32;
     services::internal::TArray<featureIndexType, cpu> _tFI;
     services::internal::TArray<leftOrClassType, cpu> _tLC;
@@ -245,12 +269,48 @@ template <typename algorithmFPType, prediction::Method method, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * const pHostApp, const NumericTable * const x,
                                                                       const decision_forest::classification::Model * const m, NumericTable * const r,
                                                                       NumericTable * const prob, const size_t nClasses,
-                                                                      const VotingMethod votingMethod)
+                                                                      const VotingMethod votingMethod, const HyperparameterType * hyperparameter)
 {
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
     if (_task == nullptr) _task = new PredictClassificationTask<algorithmFPType, cpu>();
     _task->setParams(x, r, prob, pModel, nClasses, votingMethod);
+
+    if (hyperparameter != nullptr)
+    {
+        DAAL_INT64 defaultBlockSizeValue = 0l;
+        services::Status st              = hyperparameter->find(defaultBlockSize, defaultBlockSizeValue);
+        DAAL_CHECK(0l < defaultBlockSizeValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK_STATUS_VAR(st);
+
+        DAAL_INT64 defaultBlockSizeCommonValue = 0l;
+        st                                     = hyperparameter->find(defaultBlockSizeCommon, defaultBlockSizeCommonValue);
+        DAAL_CHECK(0l < defaultBlockSizeCommonValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK_STATUS_VAR(st);
+
+        DAAL_INT64 minTreesForThreadingValue = 0l;
+        st                                   = hyperparameter->find(minTreesForThreading, minTreesForThreadingValue);
+        DAAL_CHECK(0l < minTreesForThreadingValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK_STATUS_VAR(st);
+
+        DAAL_INT64 minNumberOfRowsForVectSeqComputeValue = 0l;
+        st = hyperparameter->find(minNumberOfRowsForVectSeqCompute, minNumberOfRowsForVectSeqComputeValue);
+        DAAL_CHECK(0l < minNumberOfRowsForVectSeqComputeValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK_STATUS_VAR(st);
+
+        double scaleFactorForVectParallelComputeValue = 0.0f;
+        st = hyperparameter->find(scaleFactorForVectParallelCompute, scaleFactorForVectParallelComputeValue);
+        DAAL_CHECK(0l < scaleFactorForVectParallelComputeValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK_STATUS_VAR(st);
+
+        _task->setHyperparams(defaultBlockSizeValue, defaultBlockSizeCommonValue, minTreesForThreadingValue, minNumberOfRowsForVectSeqComputeValue,
+                              scaleFactorForVectParallelComputeValue);
+    }
+    else
+    {
+        _task->setHyperparams();
+    }
+
     return _task->run(pHostApp);
 }
 
@@ -407,13 +467,13 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const 
     check        = fi[0] != -1;
 
     /* done for unrollig */
-    if (sizeOfBlock == _DEFAULT_BLOCK_SIZE_COMMON)
+    if (sizeOfBlock == _defaultBlockSizeCommon)
     {
-        uint32_t currentNodes[_DEFAULT_BLOCK_SIZE_COMMON];
-        bool isSplits[_DEFAULT_BLOCK_SIZE_COMMON];
-        services::internal::service_memset_seq<uint32_t, cpu>(currentNodes, uint32_t(0), _DEFAULT_BLOCK_SIZE_COMMON);
-        services::internal::service_memset_seq<bool, cpu>(isSplits, bool(1), _DEFAULT_BLOCK_SIZE_COMMON);
-        predictByTreeInternal(check, _DEFAULT_BLOCK_SIZE_COMMON, nCols, currentNodes, isSplits, x, fi, lc, fv, prob, iTree);
+        uint32_t currentNodes[_defaultBlockSizeCommon];
+        bool isSplits[_defaultBlockSizeCommon];
+        services::internal::service_memset_seq<uint32_t, cpu>(currentNodes, uint32_t(0), _defaultBlockSizeCommon);
+        services::internal::service_memset_seq<bool, cpu>(isSplits, bool(1), _defaultBlockSizeCommon);
+        predictByTreeInternal(check, _defaultBlockSizeCommon, nCols, currentNodes, isSplits, x, fi, lc, fv, prob, iTree);
     }
     else
     {
@@ -448,10 +508,10 @@ DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(co
                                                                               const leftOrClassType * const left_son, const float * const split_point,
                                                                               float * const resPtr, const size_t iTree)
 {
-    if (sizeOfBlock == _DEFAULT_BLOCK_SIZE)
+    if (sizeOfBlock == _defaultBlockSize)
     {
-        uint32_t idx[_DEFAULT_BLOCK_SIZE];
-        services::internal::service_memset_seq<uint32_t, avx512>(idx, uint32_t(0), _DEFAULT_BLOCK_SIZE);
+        uint32_t idx[_defaultBlockSize];
+        services::internal::service_memset_seq<uint32_t, avx512>(idx, uint32_t(0), _defaultBlockSize);
 
         __mmask16 isSplit = 0xffff;
 
@@ -469,7 +529,7 @@ DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(co
         {
             checkMask = 0x0000;
             size_t i  = 0;
-            for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; i += 16)
+            for (size_t i = 0; i < _defaultBlockSize; i += 16)
             {
                 __m512i idxr = _mm512_castps_si512(_mm512_loadu_ps((float *)(idx + i)));
                 __m512 sp    = _mm512_i32gather_ps(idxr, split_point, 4);
@@ -493,7 +553,7 @@ DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(co
         }
         const double * probas = _model->getProbas(iTree);
 
-        fillResults<float, avx512>(_nClasses, _votingMethod, _DEFAULT_BLOCK_SIZE, probas, left_son, idx, resPtr);
+        fillResults<float, avx512>(_nClasses, _votingMethod, _defaultBlockSize, probas, left_son, idx, resPtr);
     }
     else
     {
@@ -508,10 +568,10 @@ DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(c
                                                                                const double * const split_point, double * const resPtr,
                                                                                const size_t iTree)
 {
-    if (sizeOfBlock == _DEFAULT_BLOCK_SIZE)
+    if (sizeOfBlock == _defaultBlockSize)
     {
-        uint32_t idx[_DEFAULT_BLOCK_SIZE];
-        services::internal::service_memset_seq<uint32_t, avx512>(idx, uint32_t(0), _DEFAULT_BLOCK_SIZE);
+        uint32_t idx[_defaultBlockSize];
+        services::internal::service_memset_seq<uint32_t, avx512>(idx, uint32_t(0), _defaultBlockSize);
 
         __mmask8 isSplit = 1;
 
@@ -523,7 +583,7 @@ DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(c
         {
             checkMask = 0;
             size_t i  = 0;
-            for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; i += 8)
+            for (size_t i = 0; i < _defaultBlockSize; i += 8)
             {
                 __m256i idxr = _mm256_castps_si256(_mm256_loadu_ps((float *)(idx + i)));
                 __m512d sp   = _mm512_i32gather_pd(idxr, split_point, 8);
@@ -549,7 +609,7 @@ DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(c
 
         const double * probas = _model->getProbas(iTree);
 
-        fillResults<double, avx512>(_nClasses, _votingMethod, _DEFAULT_BLOCK_SIZE, probas, left_son, idx, resPtr);
+        fillResults<double, avx512>(_nClasses, _votingMethod, _defaultBlockSize, probas, left_son, idx, resPtr);
     }
     else
     {
@@ -946,12 +1006,12 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     algorithmFPType * const res  = resBD.get();
     algorithmFPType * const prob = probBD.get();
     daal::SafeStatus safeStat;
-    const size_t nRowsOfRes = _data->getNumberOfRows();
 #if defined(TARGET_X86_64)
-    const size_t blockSize = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+    const size_t blockSize = cpu == avx512 ? _defaultBlockSize : _defaultBlockSizeCommon;
 #elif defined(TARGET_ARM)
-    const size_t blockSize = cpu == sve ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+    const size_t blockSize = cpu == avx512 ? _defaultBlockSize : _defaultBlockSizeCommon;
 #endif
+    const size_t nRowsOfRes        = _data->getNumberOfRows();
     const size_t nBlocks           = nRowsOfRes / blockSize;
     const size_t residualSize      = nRowsOfRes - nBlocks * blockSize;
     algorithmFPType * commonBufVal = nullptr;
@@ -969,7 +1029,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, nRowsOfRes);
     DAAL_CHECK_BLOCK_STATUS(xBD);
     const algorithmFPType * const aX = xBD.get();
-    if (numberOfTrees > _MIN_TREES_FOR_THREADING)
+    if (numberOfTrees > _minTreesForThreading)
     {
         daal::static_tls<algorithmFPType *> tlsData([=]() { return service_scalable_calloc<algorithmFPType, cpu>(_nClasses * nRowsOfRes); });
 
@@ -1086,6 +1146,11 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIface * const pHostApp)
 {
+    if (!assertHyperparameters())
+    {
+        return services::Status(services::ErrorIncorrectDataRange);
+    }
+
     const auto nTreesTotal = _model->size();
     if (_cachedData != _data)
     {
@@ -1114,8 +1179,8 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
     }
 
     if (hasUnorderedFeatures
-        || (_data->getNumberOfRows() < _averageTreeSize * _SCALE_FACTOR_FOR_VECT_PARALLEL_COMPUTE && daal::threader_get_threads_number() > 1)
-        || (_data->getNumberOfRows() < _MIN_NUMBER_OF_ROWS_FOR_VECT_SEQ_COMPUTE && daal::threader_get_threads_number() == 1))
+        || (_data->getNumberOfRows() < _averageTreeSize * _scaleFactorForVectParallelCompute && daal::threader_get_threads_number() > 1)
+        || (_data->getNumberOfRows() < _minNumberOfRowsForVectSeqCompute && daal::threader_get_threads_number() == 1))
     {
         const auto treeSize = _aTree[0]->getNumberOfRows() * sizeof(dtrees::internal::DecisionTreeNode);
         DimType dim(*_data, nTreesTotal, treeSize, _nClasses);

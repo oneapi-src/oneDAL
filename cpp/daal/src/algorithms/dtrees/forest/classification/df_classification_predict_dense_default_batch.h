@@ -26,6 +26,7 @@
 #define __DF_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
 #include "algorithms/decision_forest/decision_forest_classification_predict.h"
+#include "src/algorithms/dtrees/forest/df_hyperparameter_impl.h"
 #include "src/externals/service_memory.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
@@ -47,11 +48,12 @@ namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
 class PredictClassificationTask;
-
 template <typename algorithmFpType, prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
 public:
+    typedef decision_forest::internal::Hyperparameter HyperparameterType;
+
     PredictKernel() : _task(nullptr) {};
     ~PredictKernel();
     /**
@@ -63,7 +65,8 @@ public:
      *  \param par[in]  decision forest algorithm parameters
      */
     services::Status compute(services::HostAppIface * const pHostApp, const NumericTable * a, const decision_forest::classification::Model * const m,
-                             NumericTable * const r, NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod);
+                             NumericTable * const r, NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod,
+                             const HyperparameterType * hyperparameter = nullptr);
     PredictClassificationTask<algorithmFpType, cpu> * _task;
 
 private:
