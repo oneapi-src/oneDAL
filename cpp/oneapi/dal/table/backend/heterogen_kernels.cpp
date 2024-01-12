@@ -17,7 +17,7 @@
 #include <memory>
 #include <cstddef>
 #include <numeric>
-
+#include <iostream>
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/chunked_array.hpp"
 
@@ -233,37 +233,38 @@ struct heterogen_dispatcher<detail::host_policy> {
         const auto col_count = get_column_count(meta, data);
         const auto row_count = get_row_count(col_count, meta, data);
         const auto [first, last] = rows_range.normalize_range(row_count);
-
+        std::cout << "pull_rows host step 1" << std::endl;
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
-
+        std::cout << "pull_rows host step 2" << std::endl;
         const auto block = propose_row_block_size(meta, data);
         const auto block_size = compute_full_block_size(block, meta, data);
-
+        std::cout << "pull_rows host step 3" << std::endl;
         const auto& data_types = meta.get_data_types();
         auto buff = array<dal::byte_t>::empty(block_size);
         auto buff_shape = std::make_pair(block, col_count);
         auto buff_cols = slice_buffer(buff_shape, buff, data_types);
-
+        std::cout << "pull_rows host step 4" << std::endl;
         const shape_t transposed_shape = transpose(buff_shape);
         auto buff_offs = compute_input_offsets(transposed_shape, data_types);
         auto buff_ptrs = compute_pointers</*mut=*/false>(buff, buff_offs);
-
+        std::cout << "pull_rows host step 5" << std::endl;
         constexpr Type fill_value = std::numeric_limits<Type>::max();
         auto result_count = detail::check_mul_overflow(copy_count, col_count);
         auto result = dal::array<Type>::full(result_count, fill_value);
-
+        std::cout << "pull_rows host step 6" << std::endl;
         constexpr auto type = detail::make_data_type<Type>();
         auto outp_types = array<data_type>::full(col_count, type);
         auto outp_strs = array<std::int64_t>::full(col_count, col_count);
         auto buff_strs = array<std::int64_t>::full(col_count, std::int64_t(1l));
         const shape_t transposed_strides = std::make_pair(1l, col_count);
+        std::cout << "pull_rows host step 7" << std::endl;
         auto outp_offs = compute_output_offsets(type, //
                                                 transposed_shape,
                                                 transposed_strides);
-
+        std::cout << "pull_rows host step 8" << std::endl;
         const auto block_count = (copy_count / block) + bool(copy_count % block);
-
+        std::cout << "pull_rows host step 9" << std::endl;
         for (std::int64_t b = 0l; b < block_count; ++b) {
             auto start = detail::check_mul_overflow(b, block);
             const auto f = detail::check_sum_overflow(start, first);
@@ -296,7 +297,7 @@ struct heterogen_dispatcher<detail::host_policy> {
                          outp_strs,
                          transpose(curr_shape));
         }
-
+        std::cout << "pull_rows host step 10" << std::endl;
         block_data = std::move(result);
     }
 
@@ -419,44 +420,50 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
                           const range& rows_range,
                           alloc_kind requested_alloc_kind) {
         sycl::queue& queue = policy.get_queue();
+        std::cout << "pull_rows step 1" << std::endl;
         auto host_policy = detail::host_policy::get_default();
+        std::cout << "pull_rows step 2" << std::endl;
         const auto alloc = alloc_kind_to_sycl(requested_alloc_kind);
-
+        std::cout << "pull_rows step 3" << std::endl;
         const auto col_count = get_column_count(meta, data);
+        std::cout << "pull_rows step 4" << std::endl;
         const auto row_count = get_row_count(col_count, meta, data);
+        std::cout << "pull_rows step 5" << std::endl;
         const auto [first, last] = rows_range.normalize_range(row_count);
-
+        std::cout << "pull_rows step 6" << std::endl;
         ONEDAL_ASSERT(first < last);
         const auto copy_count = last - first;
-
+        std::cout << "pull_rows step 7" << std::endl;
         const auto block = propose_row_block_size(meta, data);
         const auto block_size = compute_full_block_size(block, meta, data);
-
+        std::cout << "pull_rows step 8" << std::endl;
         const auto& data_types = meta.get_data_types();
         auto buff_shape = std::make_pair(block, col_count);
         auto buff = array<dal::byte_t>::empty(queue, block_size, alloc);
-
+        std::cout << "pull_rows step 9" << std::endl;
         auto buff_cols = slice_buffer(buff_shape, buff, data_types);
-
+        std::cout << "pull_rows step 10" << std::endl;
         const shape_t transposed_shape = transpose(buff_shape);
+        std::cout << "pull_rows step 11" << std::endl;
         auto buff_offs = compute_input_offsets(transposed_shape, data_types);
         auto buff_ptrs = compute_pointers</*mut=*/false>(buff, buff_offs);
-
+        std::cout << "pull_rows step 12" << std::endl;
         constexpr Type fill_value = std::numeric_limits<Type>::max();
         auto result_count = detail::check_mul_overflow(copy_count, col_count);
         auto result = dal::array<Type>::full(queue, result_count, fill_value, alloc);
-
+        std::cout << "pull_rows step 13" << std::endl;
         constexpr auto type = detail::make_data_type<Type>();
         auto outp_types = array<data_type>::full(col_count, type);
         auto outp_strs = array<std::int64_t>::full(col_count, col_count);
         auto buff_strs = array<std::int64_t>::full(col_count, std::int64_t(1l));
+        std::cout << "pull_rows step 14" << std::endl;
         const shape_t transposed_strides = std::make_pair(1l, col_count);
         auto outp_offs = compute_output_offsets(type, //
                                                 transposed_shape,
                                                 transposed_strides);
-
+        std::cout << "pull_rows step 15" << std::endl;
         const auto block_count = (copy_count / block) + bool(copy_count % block);
-
+        std::cout << "pull_rows step 16" << std::endl;
         sycl::event last_event;
         for (std::int64_t b = 0l; b < block_count; ++b) {
             auto start = detail::check_mul_overflow(b, block);
@@ -493,9 +500,9 @@ struct heterogen_dispatcher<detail::data_parallel_policy> {
 
             sycl::event::wait_and_throw({ last_event });
         }
-
+        std::cout << "pull_rows step 17" << std::endl;
         sycl::event::wait_and_throw({ last_event });
-
+        std::cout << "pull_rows step 18" << std::endl;
         block_data.reset(result, result.get_mutable_data(), result.get_count());
     }
 
