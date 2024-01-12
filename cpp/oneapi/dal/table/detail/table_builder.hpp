@@ -282,7 +282,13 @@ public:
                 const std::vector<sycl::event>& dependencies) {
         const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
         get_impl().set_data_type(detail::make_data_type<Data>());
-        get_impl().reset(byte_data, column_indices, row_offsets, row_count, column_count, indexing, dependencies);
+        get_impl().reset(byte_data,
+                         column_indices,
+                         row_offsets,
+                         row_count,
+                         column_count,
+                         indexing,
+                         dependencies);
         return *this;
     }
 #endif

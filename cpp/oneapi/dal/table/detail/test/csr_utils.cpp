@@ -62,15 +62,25 @@ TEST("can get original data from CSR table constructed from builder with device 
     auto row_offsets = array<std::int64_t>::empty(q, row_count + 1, sycl::usm::alloc::device);
 
     auto column_indices_event = q.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(column_indices.get_mutable_data(), column_indices_buffer, element_count * sizeof(std::int64_t));
+        cgh.memcpy(column_indices.get_mutable_data(),
+                   column_indices_buffer,
+                   element_count * sizeof(std::int64_t));
     });
 
     auto row_offsets_event = q.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(row_offsets.get_mutable_data(), row_offsets_buffer, (row_count + 1) * sizeof(std::int64_t));
+        cgh.memcpy(row_offsets.get_mutable_data(),
+                   row_offsets_buffer,
+                   (row_count + 1) * sizeof(std::int64_t));
     });
 
     auto t = csr_table_builder{}
-                 .reset(data, column_indices, row_offsets, row_count, column_count, indexing, { column_indices_event, row_offsets_event })
+                 .reset(data,
+                        column_indices,
+                        row_offsets,
+                        row_count,
+                        column_count,
+                        indexing,
+                        { column_indices_event, row_offsets_event })
                  .build();
 
     REQUIRE(t.get_data() == reinterpret_cast<const byte_t*>(data.get_data()));

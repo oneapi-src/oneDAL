@@ -25,7 +25,6 @@ namespace oneapi::dal::backend {
 
 class csr_table_builder_impl : public detail::csr_table_builder_template<csr_table_builder_impl> {
 public:
-
 #ifdef ONEDAL_DATA_PARALLEL
     csr_table_builder_impl() : dependencies_(nullptr) {
         reset();
@@ -78,17 +77,21 @@ public:
     }
 
     detail::csr_table_iface* build_csr() override {
-        csr_table_impl * new_table = nullptr;
+        csr_table_impl* new_table = nullptr;
 #ifdef ONEDAL_DATA_PARALLEL
         if (dependencies_ && data_.get_queue().has_value())
             new_table = new csr_table_impl{ detail::data_parallel_policy(data_.get_queue().value()),
-                                                 data_,         column_indices_, row_offsets_,
-                                                 column_count_, dtype_,          indexing_,
-                                                 *dependencies_ };
+                                            data_,
+                                            column_indices_,
+                                            row_offsets_,
+                                            column_count_,
+                                            dtype_,
+                                            indexing_,
+                                            *dependencies_ };
         else
 #endif
             new_table = new csr_table_impl{ data_,         column_indices_, row_offsets_,
-                                                 column_count_, dtype_,          indexing_ };
+                                            column_count_, dtype_,          indexing_ };
         reset();
         return new_table;
     }
