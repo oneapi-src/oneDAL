@@ -92,7 +92,26 @@ auto compute_mean_centered_data(sycl::queue& q,
                 data_to_compute_ptr[i * column_count + j] - means_ptr[j];
         });
     });
-    return std::make_tuple(data_to_compute, means, event);
+    auto data_to_compute_squared =
+        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
+    auto data_to_compute_squared_ptr = data_to_compute_squared.get_mutable_data();
+    auto event_ = q.submit([&](sycl::handler& h) {
+        h.depends_on(event);
+        const auto range = bk::make_range_2d(row_count, column_count);
+        h.parallel_for(range, [=](sycl::id<2> id) {
+            const std::int64_t i = id[0];
+            const std::int64_t j = id[1];
+            data_to_compute_squared_ptr[i * column_count + j] =
+                data_to_compute_ptr[i * column_count + j] *
+                data_to_compute_ptr[i * column_count + j] / (row_count - 1);
+        });
+    });
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    constexpr pr::sum<Float> binary{};
+    constexpr pr::identity<Float> unary{};
+    auto vars_event =
+        pr::reduce_by_columns(q, data_to_compute_squared, vars, binary, unary, { event_ });
+    return std::make_tuple(data_to_compute, means, vars, vars_event);
 }
 
 template <typename Float, pr::ndorder order>
@@ -150,7 +169,8 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto [data_to_compute, means, compute_event] = compute_mean_centered_data(q_, data_nd, {});
+    auto [data_to_compute, means, vars, compute_event] =
+        compute_mean_centered_data(q_, data_nd, {});
 
     auto [U, S, V_T, gesvd_event] =
         svd_decomposition(q_, data_to_compute, component_count, { compute_event });
@@ -160,22 +180,22 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
             homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
     }
     result.set_means(homogen_table::wrap(means.flatten(q_, { gesvd_event }), 1, column_count));
+    auto S_host = S.to_host(q_);
+    auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        auto S_host = S.to_host(q_);
-        auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
         result.set_eigenvalues(homogen_table::wrap(eigenvalues.flatten(), 1, component_count));
     }
-    // if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-    //     auto vars_host = vars.to_host(q_);
-    //     auto eigvals_host = S.to_host(q_);
-    //     auto explained_variances_ratio =
-    //         compute_explained_variances_on_host(q_,
-    //                                             eigvals_host,
-    //                                             vars_host,
-    //                                             { gesvd_event, vars_event });
-    //     result.set_explained_variances_ratio(
-    //         homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
-    // }
+    if (desc.get_result_options().test(result_options::vars)) {
+        result.set_variances(
+            homogen_table::wrap(vars.flatten(q_, { gesvd_event }), 1, column_count));
+    }
+    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+        auto vars_host = vars.to_host(q_);
+        auto explained_variances_ratio =
+            compute_explained_variances_on_host(q_, eigenvalues, vars_host, { gesvd_event });
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    }
 
     auto U_host = U.to_host(q_);
 
