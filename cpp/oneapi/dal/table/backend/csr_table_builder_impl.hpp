@@ -144,8 +144,26 @@ public:
                                  dal::array<std::int64_t>& column_indices,
                                  dal::array<std::int64_t>& row_offsets,
                                  const sparse_indexing& indexing,
-                                 const range& rows,
-                                 sycl::usm::alloc alloc) const {}
+                                 const range& row_range,
+                                 sycl::usm::alloc alloc) const {
+        constexpr bool preserve_mutability = true;
+
+        block_info block_info{ row_range.start_idx,
+                               row_range.get_element_count(row_count_),
+                               indexing };
+
+        csr_pull_block(policy,
+                       get_info(),
+                       block_info,
+                       data_,
+                       column_indices_,
+                       row_offsets_,
+                       data,
+                       column_indices,
+                       row_offsets,
+                       alloc_kind_from_sycl(alloc),
+                       preserve_mutability);
+    }
 #endif
 
 private:
