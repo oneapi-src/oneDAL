@@ -21,6 +21,7 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/cluster_updater.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/algo/kmeans/detail/train_init_centroids.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -60,31 +61,7 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
     daal::data_management::NumericTablePtr daal_initial_centroids;
 
     if (!input.get_initial_centroids().has_data()) {
-        // We use CPU algorithm for initialization, so input data
-        // may be copied to DAAL homogen table
-        const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
-        daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
-
-        const std::size_t init_len_input = 1;
-        daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
-
-        daal_initial_centroids =
-            interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
-        const std::size_t init_len_output = 1;
-        daal::data_management::NumericTable* init_output[init_len_output] = {
-            daal_initial_centroids.get()
-        };
-
-        const dal::backend::context_cpu cpu_ctx;
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
-                cpu_ctx,
-                init_len_input,
-                init_input,
-                init_len_output,
-                init_output,
-                &par,
-                *(par.engine)));
+        daal_initial_centroids = daal_generate_centroids<Float, method::lloyd_dense>(params, data);
         daal::data_management::BlockDescriptor<Float> block;
         daal_initial_centroids->getBlockOfRows(0,
                                                cluster_count,

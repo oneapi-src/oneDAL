@@ -36,7 +36,7 @@ namespace te = dal::test::engine;
 namespace la = dal::test::engine::linalg;
 
 using kmeans_types = COMBINE_TYPES((float, double),
-                                   (kmeans::method::lloyd_dense, kmeans::method::lloyd_sparse));
+                                   (kmeans::method::lloyd_dense, kmeans::method::lloyd_csr));
 
 template <typename TestType, typename Derived>
 class kmeans_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -66,7 +66,7 @@ public:
     }
 
     bool is_sparse_method() {
-        return std::is_same_v<method_t, kmeans::method::lloyd_sparse>;
+        return std::is_same_v<method_t, kmeans::method::lloyd_csr>;
     }
 
     void exact_checks(const table& data,

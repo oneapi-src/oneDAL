@@ -223,13 +223,16 @@ inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(const 
 
 template <typename Float>
 inline daal::data_management::CSRNumericTablePtr convert_to_daal_table(const csr_table& table) {
-    auto wrapper = wrap_by_host_csr_adapter(table);
-    if (!wrapper) {
-        return copy_to_daal_csr_table<Float>(table);
-    }
-    else {
-        return wrapper;
-    }
+    // Temporary disabled wrapper, since it has bug.
+    // TODO fix it.
+    // auto wrapper = wrap_by_host_csr_adapter(table);
+    // if (!wrapper) {
+    //     return copy_to_daal_csr_table<Float>(table);
+    // }
+    // else {
+    //     return wrapper;
+    // }
+    return copy_to_daal_csr_table<Float>(table);
 }
 
 template <typename Data>

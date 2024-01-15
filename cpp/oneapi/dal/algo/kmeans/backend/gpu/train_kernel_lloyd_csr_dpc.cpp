@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
 *******************************************************************************/
 
 #include <tuple>
-#include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/cluster_updater.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/algo/kmeans/detail/train_init_centroids.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -48,7 +48,7 @@ using daal_kmeans_init_plus_plus_csr_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusCSR, Float, Cpu>;
 
 // Initializes centroids randomly on CPU if it was not set by user.
-template <typename Float>
+template <typename Float, typename Method>
 static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,
                                                    const descriptor_t& params,
                                                    const train_input<task::clustering>& input) {
@@ -59,34 +59,8 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = params.get_cluster_count();
 
-    daal::data_management::NumericTablePtr daal_initial_centroids;
-
     if (!input.get_initial_centroids().has_data()) {
-        // We use CPU algorithm for initialization, so input data
-        // may be copied to DAAL homogen table
-        const auto daal_data = interop::copy_to_daal_csr_table<Float>(data);
-        daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
-
-        const std::size_t init_len_input = 1;
-        daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
-
-        daal_initial_centroids =
-            interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
-        const std::size_t init_len_output = 1;
-        daal::data_management::NumericTable* init_output[init_len_output] = {
-            daal_initial_centroids.get()
-        };
-
-        const dal::backend::context_cpu cpu_ctx;
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_csr_kernel_t>(
-                cpu_ctx,
-                init_len_input,
-                init_input,
-                init_len_output,
-                init_output,
-                &par,
-                *(par.engine)));
+        auto daal_initial_centroids = daal_generate_centroids<Float, Method>(params, data);
         daal::data_management::BlockDescriptor<Float> block;
         daal_initial_centroids->getBlockOfRows(0,
                                                cluster_count,
@@ -124,14 +98,15 @@ sycl::event compute_data_squares(sycl::queue& q,
             for (std::int64_t row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
                 const auto row_start = row_offsets_ptr[row_idx] + local_id;
                 const auto row_end = row_offsets_ptr[row_idx + 1];
-                for (std::int64_t data_idx = row_start; data_idx < row_end; data_idx += local_size) {
+                for (std::int64_t data_idx = row_start; data_idx < row_end;
+                     data_idx += local_size) {
                     const auto val = data_ptr[data_idx];
                     sum_squares += val * val;
                 }
                 const auto res = sycl::reduce_over_group(item.get_group(),
-                                                        sum_squares,
-                                                        Float(0),
-                                                        sycl::ext::oneapi::plus<Float>());
+                                                         sum_squares,
+                                                         Float(0),
+                                                         sycl::ext::oneapi::plus<Float>());
                 if (local_id == 0) {
                     squares_ptr[row_idx] = res;
                 }
@@ -169,8 +144,9 @@ sycl::event custom_spgemm(sycl::queue& q,
     const std::int64_t row_block_size = std::min<std::int64_t>(row_block, a_row_count);
     const std::int64_t col_block_size = std::min<std::int64_t>(row_block, b_row_count);
 
-    const auto nd_range = bk::make_multiple_nd_range_3d({ row_block_size, col_block_size, local_size },
-                                                        { 1, 1, local_size });
+    const auto nd_range =
+        bk::make_multiple_nd_range_3d({ row_block_size, col_block_size, local_size },
+                                      { 1, 1, local_size });
 
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -188,10 +164,11 @@ sycl::event custom_spgemm(sycl::queue& q,
                         const auto reduce_id = col_ind[data_idx];
                         acc += a_ptr[data_idx] * b_ptr[col_idx * reduce_dim + reduce_id];
                     }
-                    const Float scalar_mul = sycl::reduce_over_group(item.get_group(),
-                                                                    acc,
-                                                                    Float(0),
-                                                                    sycl::ext::oneapi::plus<Float>());
+                    const Float scalar_mul =
+                        sycl::reduce_over_group(item.get_group(),
+                                                acc,
+                                                Float(0),
+                                                sycl::ext::oneapi::plus<Float>());
                     if (local_id == 0) {
                         res_ptr[row_idx * b_row_count + col_idx] =
                             beta * res_ptr[row_idx * b_row_count + col_idx] + alpha * scalar_mul;
@@ -254,18 +231,18 @@ sycl::event assign_clusters(sycl::queue& q,
                 auto min_idx = max_index;
                 auto row_dists = distances_ptr + row_idx * cluster_count;
                 for (std::int32_t cluster_id = local_id; cluster_id < cluster_count;
-                    cluster_id += local_size) {
+                     cluster_id += local_size) {
                     const auto dist = cent_squares_ptr[cluster_id] + row_dists[cluster_id] +
-                                    data_squares_ptr[row_idx];
+                                      data_squares_ptr[row_idx];
                     if (dist < min_dist) {
                         min_dist = dist;
                         min_idx = cluster_id;
                     }
                 }
                 const Float closest = sycl::reduce_over_group(item.get_group(),
-                                                            min_dist,
-                                                            max_val,
-                                                            sycl::ext::oneapi::minimum<Float>());
+                                                              min_dist,
+                                                              max_val,
+                                                              sycl::ext::oneapi::minimum<Float>());
                 const std::int32_t dist_idx = closest == min_dist ? min_idx : max_index;
                 const std::int32_t closest_id =
                     sycl::reduce_over_group(item.get_group(),
@@ -509,7 +486,7 @@ sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
 }
 
 template <typename Float>
-struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
+struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
@@ -530,7 +507,7 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
                                                  sparse_indexing::zero_based,
                                                  sycl::usm::alloc::device);
 
-        auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
+        auto arr_initial = get_initial_centroids<Float, method::lloyd_csr>(ctx, params, input);
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
@@ -656,7 +633,7 @@ struct train_kernel_gpu<Float, method::lloyd_sparse, task::clustering> {
     }
 };
 
-template struct train_kernel_gpu<float, method::lloyd_sparse, task::clustering>;
-template struct train_kernel_gpu<double, method::lloyd_sparse, task::clustering>;
+template struct train_kernel_gpu<float, method::lloyd_csr, task::clustering>;
+template struct train_kernel_gpu<double, method::lloyd_csr, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend
