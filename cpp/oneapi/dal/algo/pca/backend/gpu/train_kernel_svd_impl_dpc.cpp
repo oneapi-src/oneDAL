@@ -66,7 +66,7 @@ auto slice_data(sycl::queue& q,
     });
     return std::make_tuple(data_to_compute, event);
 }
-
+//todo: add normalization+variances computation + memory usage
 template <typename Float>
 auto compute_mean_centered_data(sycl::queue& q,
                                 const pr::ndview<Float, 2>& data,
@@ -106,12 +106,13 @@ auto compute_mean_centered_data(sycl::queue& q,
     //             data_to_compute_ptr[i * column_count + j] / (row_count - 1);
     //     });
     // });
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    // auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
     // constexpr pr::sum<Float> binary{};
     // constexpr pr::identity<Float> unary{};
     // auto vars_event =
     //     pr::reduce_by_columns(q, data_to_compute_squared, vars, binary, unary, { event_ });
-    return std::make_tuple(data_to_compute, means, vars, event);
+
+    return std::make_tuple(data_to_compute, means, event);
 }
 
 template <typename Float, pr::ndorder order>
@@ -138,7 +139,7 @@ auto svd_decomposition(sycl::queue& queue,
     sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        gesvd_event = pr::gesvd<mkl::jobsvd::vectors, mkl::jobsvd::vectors>(queue,
+        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
                                                                             column_count,
                                                                             row_count,
                                                                             data_ptr,
@@ -169,8 +170,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto [data_to_compute, means, vars, compute_event] =
-        compute_mean_centered_data(q_, data_nd, {});
+    auto [data_to_compute, means, compute_event] = compute_mean_centered_data(q_, data_nd, {});
 
     auto [U, S, V_T, gesvd_event] =
         svd_decomposition(q_, data_to_compute, component_count, { compute_event });
