@@ -226,46 +226,13 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
         *mtTarget.get() = exactTargetFunc;
     }
-
-    WriteOnlyRows<int, cpu> mtIterations(*const_cast<NumericTable *>(r[3]), 0, 1);
-    DAAL_CHECK_BLOCK_STATUS(mtIterations);
-    *mtIterations.get() = kIter;
+    if (r[3])
+    {
+        WriteOnlyRows<int, cpu> mtIterations(*const_cast<NumericTable *>(r[3]), 0, 1);
+        DAAL_CHECK_BLOCK_STATUS(mtIterations);
+        *mtIterations.get() = kIter;
+    }
     return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
-}
-
-template <Method method, typename algorithmFPType, CpuType cpu>
-Status KMeansBatchKernel<method, algorithmFPType, cpu>::infer(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par)
-{
-    NumericTable * ntData  = const_cast<NumericTable *>(a[0]);
-    const size_t n         = ntData->getNumberOfRows();
-    const size_t p         = ntData->getNumberOfColumns();
-    const size_t nClusters = par->nClusters;
-
-    NumericTable * assignmetsNT = const_cast<NumericTable *>(r[0]);
-    size_t blockSize            = 0;
-    DAAL_SAFE_CPU_CALL((blockSize = BSHelper<method, algorithmFPType, cpu>::kmeansGetBlockSize(n, p, nClusters)), (blockSize = 512))
-
-    ReadRows<algorithmFPType, cpu> mtInClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
-    DAAL_CHECK_BLOCK_STATUS(mtInClusters);
-    algorithmFPType * inClusters = const_cast<algorithmFPType *>(mtInClusters.get());
-
-    if (par->resultsToEvaluate & computeAssignments || par->resultsToEvaluate & computeExactObjectiveFunction)
-    {
-        PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, inClusters, ntData, nullptr, assignmetsNT, blockSize);
-    }
-
-    if (par->resultsToEvaluate & computeExactObjectiveFunction)
-    {
-        WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[1]), 0, 1);
-        DAAL_CHECK_BLOCK_STATUS(mtTarget);
-        algorithmFPType exactTargetFunc = algorithmFPType(0);
-        PostProcessing<method, algorithmFPType, cpu>::computeExactObjectiveFunction(p, nClusters, inClusters, ntData, nullptr, assignmetsNT,
-                                                                                    exactTargetFunc, blockSize);
-
-        *mtTarget.get() = exactTargetFunc;
-    }
-
-    return services::Status();
 }
 
 } // namespace internal

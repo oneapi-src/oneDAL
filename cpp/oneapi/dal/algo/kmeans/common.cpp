@@ -20,7 +20,6 @@
 
 namespace oneapi::dal::kmeans {
 namespace detail {
-
 namespace v1 {
 
 template <typename Task>

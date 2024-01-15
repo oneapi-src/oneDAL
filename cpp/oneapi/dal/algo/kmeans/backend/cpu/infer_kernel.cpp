@@ -75,16 +75,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal::data_management::NumericTable* input[2] = { daal_data.get(),
                                                       daal_initial_centroids.get() };
 
-    daal::data_management::NumericTable* output[2] = {
-        daal_responses.get(),
-        daal_objective_function_value.get(),
-    };
+    daal::data_management::NumericTable* output[4] = { nullptr,
+                                                       daal_responses.get(),
+                                                       daal_objective_function_value.get(),
+                                                       nullptr };
 
     interop::status_to_exception(
-        interop::call_daal_infer_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
-                                                                                 input,
-                                                                                 output,
-                                                                                 &par));
+        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                           input,
+                                                                           output,
+                                                                           &par));
 
     result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
 
