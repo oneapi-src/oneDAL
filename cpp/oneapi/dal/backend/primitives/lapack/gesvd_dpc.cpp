@@ -79,10 +79,10 @@ sycl::event gesvd(sycl::queue& queue,
     constexpr auto job_vt = ident_jobsvd(jobvt);
 
     const auto scratchpad_size = mkl::lapack::gesvd_scratchpad_size<Float>(queue,
-                                                                           job_u,
-                                                                           job_vt,
-                                                                           column_count,
+                                                                           mkl::jobsvd::somevec,
+                                                                           mkl::jobsvd::somevec,
                                                                            row_count,
+                                                                           column_count,
                                                                            lda,
                                                                            ldu,
                                                                            ldvt);

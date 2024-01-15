@@ -66,53 +66,55 @@ auto slice_data(sycl::queue& q,
     });
     return std::make_tuple(data_to_compute, event);
 }
-//todo: add normalization+variances computation + memory usage
 template <typename Float>
-auto compute_mean_centered_data(sycl::queue& q,
-                                const pr::ndview<Float, 2>& data,
-                                const bk::event_vector& deps = {}) {
+auto get_centered(sycl::queue& q,
+                  pr::ndview<Float, 2>& data,
+                  const pr::ndview<Float, 1>& means,
+                  const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_centered_data, q);
+    const std::int64_t row_count = data.get_dimension(0);
+    const std::int64_t column_count = data.get_dimension(1);
+
+    auto centered_data_ptr = data.get_mutable_data();
+    auto means_ptr = means.get_data();
+
+    auto centered_event = q.submit([&](sycl::handler& h) {
+        const auto range = bk::make_range_2d(row_count, column_count);
+        h.depends_on(deps);
+        h.parallel_for(range, [=](sycl::id<2> id) {
+            const std::size_t i = id[0];
+            const std::size_t j = id[1];
+            centered_data_ptr[i * column_count + j] =
+                centered_data_ptr[i * column_count + j] - means_ptr[j];
+        });
+    });
+    return centered_event;
+}
+
+template <typename Float>
+auto get_scaled(sycl::queue& q,
+                const pr::ndview<Float, 2>& data,
+                const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_means, q);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto [sums, sums_event] = compute_sums(q, data);
-    auto [means, means_event] = compute_means(q, sums, row_count, { sums_event });
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
 
-    auto data_to_compute =
-        pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
-    auto copy_event = copy(q, data_to_compute, data, { deps });
-    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
-    auto means_ptr = means.get_data();
-    auto event = q.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_2d(row_count, column_count);
-        h.parallel_for(range, [=](sycl::id<2> id) {
+    constexpr pr::sum<Float> binary;
+    constexpr pr::square<Float> unary;
+    auto vars_event_ = pr::reduce_by_columns(q, data, vars, binary, unary, deps);
+    auto vars_ptr = vars.get_mutable_data();
+    auto vars_event = q.submit([&](sycl::handler& h) {
+        h.depends_on(vars_event_);
+        const auto range = bk::make_range_1d(column_count);
+        h.parallel_for(range, [=](sycl::id<1> id) {
             const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            data_to_compute_ptr[i * column_count + j] =
-                data_to_compute_ptr[i * column_count + j] - means_ptr[j];
+
+            vars_ptr[i] = vars_ptr[i] / (row_count - 1);
         });
     });
-    // auto data_to_compute_squared =
-    //     pr::ndarray<Float, 2>::empty(q, { row_count, column_count }, alloc::device);
-    // auto data_to_compute_squared_ptr = data_to_compute_squared.get_mutable_data();
-    // auto event_ = q.submit([&](sycl::handler& h) {
-    //     h.depends_on(event);
-    //     const auto range = bk::make_range_2d(row_count, column_count);
-    //     h.parallel_for(range, [=](sycl::id<2> id) {
-    //         const std::int64_t i = id[0];
-    //         const std::int64_t j = id[1];
-    //         data_to_compute_squared_ptr[i * column_count + j] =
-    //             data_to_compute_ptr[i * column_count + j] *
-    //             data_to_compute_ptr[i * column_count + j] / (row_count - 1);
-    //     });
-    // });
-    // auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    // constexpr pr::sum<Float> binary{};
-    // constexpr pr::identity<Float> unary{};
-    // auto vars_event =
-    //     pr::reduce_by_columns(q, data_to_compute_squared, vars, binary, unary, { event_ });
-
-    return std::make_tuple(data_to_compute, means, event);
+    return std::make_tuple(vars, vars_event);
 }
 
 template <typename Float, pr::ndorder order>
@@ -170,32 +172,44 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
-    auto [data_to_compute, means, compute_event] = compute_mean_centered_data(q_, data_nd, {});
+    auto [sums, sums_event] = compute_sums(q_, data_nd);
+    auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });
+
+    sycl::event mean_centered_event;
+    //if (desc.get_normalization_mode() == normalization::mean_center) {
+    mean_centered_event = get_centered(q_, data_nd, means, { means_event });
+    //}
+
+    auto [vars, scaled_event] = get_scaled(q_, data_nd, { mean_centered_event });
 
     auto [U, S, V_T, gesvd_event] =
-        svd_decomposition(q_, data_to_compute, component_count, { compute_event });
+        svd_decomposition(q_, data_nd, component_count, { scaled_event });
 
     if (desc.get_result_options().test(result_options::singular_values)) {
         result.set_singular_values(
             homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
     }
+
     result.set_means(homogen_table::wrap(means.flatten(q_, { gesvd_event }), 1, column_count));
+
     auto S_host = S.to_host(q_);
     auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(eigenvalues.flatten(), 1, component_count));
     }
-    // if (desc.get_result_options().test(result_options::vars)) {
-    //     result.set_variances(
-    //         homogen_table::wrap(vars.flatten(q_, { gesvd_event }), 1, column_count));
-    // }
-    // if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-    //     auto vars_host = vars.to_host(q_);
-    //     auto explained_variances_ratio =
-    //         compute_explained_variances_on_host(q_, eigenvalues, vars_host, { gesvd_event });
-    //     result.set_explained_variances_ratio(
-    //         homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
-    // }
+
+    if (desc.get_result_options().test(result_options::vars)) {
+        result.set_variances(
+            homogen_table::wrap(vars.flatten(q_, { gesvd_event }), 1, column_count));
+    }
+
+    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+        auto vars_host = vars.to_host(q_);
+        auto explained_variances_ratio =
+            compute_explained_variances_on_host(q_, eigenvalues, vars_host, { gesvd_event });
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    }
 
     auto U_host = U.to_host(q_);
 
