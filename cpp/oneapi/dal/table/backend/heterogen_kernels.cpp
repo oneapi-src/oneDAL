@@ -267,27 +267,38 @@ struct heterogen_dispatcher<detail::host_policy> {
         std::cout << "pull_rows host step 9" << std::endl;
         for (std::int64_t b = 0l; b < block_count; ++b) {
             auto start = detail::check_mul_overflow(b, block);
+            std::cout << "pull_rows loop 1" << std::endl;
             const auto f = detail::check_sum_overflow(start, first);
+            std::cout << "pull_rows loop 2" << std::endl;
             auto end = detail::check_sum_overflow(f, block);
+            std::cout << "pull_rows loop 3" << std::endl;
             const auto l = std::min(end, last);
+            std::cout << "pull_rows loop 4" << std::endl;
             const std::int64_t len = l - f;
+            std::cout << "pull_rows loop 5" << std::endl;
             ONEDAL_ASSERT(len <= block);
             ONEDAL_ASSERT(0l < len);
-
             auto slice = heterogen_row_slice({ f, l }, meta, data);
+            std::cout << "pull_rows loop 6" << std::endl;
             copy_buffer(policy, len, slice, buff_cols, data_types);
-
+            std::cout << "pull_rows loop 7" << std::endl;
             auto out_first = detail::check_mul_overflow(b, col_count);
+            std::cout << "pull_rows loop 8" << std::endl;
             auto out_block = detail::check_mul_overflow(len, col_count);
+            std::cout << "pull_rows loop 9" << std::endl;
             auto out_last = detail::check_sum_overflow(out_first, out_block);
-
+            std::cout << "pull_rows loop 10" << std::endl;
             auto curr_shape = std::make_pair(len, col_count);
+            std::cout << "pull_rows loop 11" << std::endl;
             auto out_slice = result.get_slice(out_first, out_last);
+            std::cout << "pull_rows loop 12" << std::endl;
             auto raw_slice =
                 array<dal::byte_t>(out_slice, //
                                    reinterpret_cast<dal::byte_t*>(out_slice.get_mutable_data()),
                                    detail::check_mul_overflow<std::int64_t>(len, sizeof(Type)));
+            std::cout << "pull_rows loop 13" << std::endl;
             auto outp_ptrs = compute_pointers</*mut=*/true>(raw_slice, outp_offs);
+            std::cout << "pull_rows loop 14" << std::endl;
             copy_convert(policy,
                          buff_ptrs,
                          data_types,
@@ -296,6 +307,7 @@ struct heterogen_dispatcher<detail::host_policy> {
                          outp_types,
                          outp_strs,
                          transpose(curr_shape));
+            std::cout << "pull_rows loop 15" << std::endl;
         }
         std::cout << "pull_rows host step 10" << std::endl;
         block_data = std::move(result);
