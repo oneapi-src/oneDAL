@@ -15,8 +15,10 @@
 *******************************************************************************/
 
 #include <daal/src/services/service_algo_utils.h>
+#include <daal/src/algorithms/dtrees/forest/df_hyperparameter_impl.h>
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h>
 
+#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -32,6 +34,10 @@ using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
+
+namespace daal_df = daal::algorithms::decision_forest;
+
+using daal_hyperparameters_t = daal_df::internal::Hyperparameter;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_cls_pred = daal_df::classification::prediction;
@@ -111,6 +117,31 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 template <typename Float>
 static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+}
+
+template <typename Float, typename Task>
+static daal_hyperparameters_t convert_parameters(const detail::infer_parameters<Task>& params) {
+    using daal_df::internal::HyperparameterId;
+    using daal_df::internal::DoubleHyperparameterId;
+
+    const std::int64_t block = params.get_default_block_size();
+    const std::int64_t blockCommon = params.get_default_block_size_common();
+    const std::int64_t minTrees = params.get_min_trees_for_threading();
+    const std::int64_t minRows = params.get_min_number_of_rows_for_sequential_compute();
+    const double scale = params.get_scale_factor_for_vect_parallel_compute();
+
+    daal_hyperparameters_t daal_hyperparameter;
+
+    auto status = daal_hyperparameter.set(HyperparameterId::defaultBlockSize, block);
+    status |= daal_hyperparameter.set(HyperparameterId::defaultBlockSizeCommon, blockCommon);
+    status |= daal_hyperparameter.set(HyperparameterId::minTreesForThreading, minTrees);
+    status |= daal_hyperparameter.set(HyperparameterId::minNumberOfRowsForVectSeqCompute, minRows);
+    status |=
+        daal_hyperparameter.set(DoubleHyperparameterId::scaleFactorForVectParallelCompute, scale);
+
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
 }
 
 template <typename Float>

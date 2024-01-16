@@ -300,7 +300,7 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
 
         double scaleFactorForVectParallelComputeValue = 0.0f;
         st = hyperparameter->find(scaleFactorForVectParallelCompute, scaleFactorForVectParallelComputeValue);
-        DAAL_CHECK(0l < scaleFactorForVectParallelComputeValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK(0.0f < scaleFactorForVectParallelComputeValue, services::ErrorIncorrectDataRange);
         DAAL_CHECK_STATUS_VAR(st);
 
         _task->setHyperparams(defaultBlockSizeValue, defaultBlockSizeCommonValue, minTreesForThreadingValue, minNumberOfRowsForVectSeqComputeValue,
