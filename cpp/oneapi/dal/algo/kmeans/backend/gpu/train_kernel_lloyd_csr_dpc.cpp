@@ -337,7 +337,7 @@ Float calc_objective_function(sycl::queue& q,
                               const event_vector& deps = {}) {
     pr::sum<Float> sum{};
     pr::identity<Float> ident{};
-    auto view_1d = dists.template reshape<1>(pr::ndshape<1>{dists.get_dimension(0)});
+    auto view_1d = dists.template reshape<1>(pr::ndshape<1>{ dists.get_dimension(0) });
     return pr::reduce_1d(q, view_1d, sum, ident, deps);
 }
 
@@ -428,7 +428,6 @@ sycl::event update_centroids(sycl::queue& q,
     return finalize_centroids;
 }
 
-
 /// Handling empty clusters.
 /// @param[in] ctx              GPU context structure
 /// @param[in] row_count        A number of rows in the dataset
@@ -497,7 +496,6 @@ sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
     });
     return event;
 }
-
 
 /// Main entrypoint for GPU CSR Kmeans algorithm
 /// @param[in] ctx          GPU context structure

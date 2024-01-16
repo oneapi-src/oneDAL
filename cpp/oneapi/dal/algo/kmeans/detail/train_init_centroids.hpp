@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
 
-
 namespace oneapi::dal::kmeans::backend {
 
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
@@ -34,20 +33,20 @@ template <typename Method>
 struct to_daal_init_method;
 
 template <>
-struct to_daal_init_method<method::lloyd_dense> : daal_init_method_constant<daal_kmeans_init::plusPlusDense> {};
+struct to_daal_init_method<method::lloyd_dense>
+        : daal_init_method_constant<daal_kmeans_init::plusPlusDense> {};
 
 template <>
-struct to_daal_init_method<method::lloyd_csr> : daal_init_method_constant<daal_kmeans_init::plusPlusCSR> {};
+struct to_daal_init_method<method::lloyd_csr>
+        : daal_init_method_constant<daal_kmeans_init::plusPlusCSR> {};
 
 template <typename Float, daal::CpuType Cpu, typename Method>
 using init_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<to_daal_init_method<Method>::value, Float, Cpu>;
 
 template <typename Float, typename Method, typename Table>
-static daal::data_management::NumericTablePtr daal_generate_centroids(
-    const descriptor_t& desc,
-    const Table& data) {
-
+static daal::data_management::NumericTablePtr daal_generate_centroids(const descriptor_t& desc,
+                                                                      const Table& data) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
     daal::data_management::NumericTablePtr daal_initial_centroids;
@@ -66,16 +65,24 @@ static daal::data_management::NumericTablePtr daal_generate_centroids(
     const dal::backend::context_cpu cpu_ctx;
     interop::status_to_exception(dal::backend::dispatch_by_cpu(cpu_ctx, [&](auto cpu) {
         return init_kernel_t<Float,
-                            oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
-                            Method>()
+                             oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
+                             Method>()
             .compute(init_len_input, init_input, init_len_output, init_output, &par, *(par.engine));
     }));
     return daal_initial_centroids;
 }
 
-template daal::data_management::NumericTablePtr daal_generate_centroids<float, method::lloyd_dense, table>(const descriptor_t& desc, const  table& data);
-template daal::data_management::NumericTablePtr daal_generate_centroids<double, method::lloyd_dense, table>(const descriptor_t& desc, const table& data);
-template daal::data_management::NumericTablePtr daal_generate_centroids<float, method::lloyd_csr, csr_table>(const descriptor_t& desc, const  csr_table& data);
-template daal::data_management::NumericTablePtr daal_generate_centroids<double, method::lloyd_csr, csr_table>(const descriptor_t& desc, const csr_table& data);
+template daal::data_management::NumericTablePtr
+daal_generate_centroids<float, method::lloyd_dense, table>(const descriptor_t& desc,
+                                                           const table& data);
+template daal::data_management::NumericTablePtr
+daal_generate_centroids<double, method::lloyd_dense, table>(const descriptor_t& desc,
+                                                            const table& data);
+template daal::data_management::NumericTablePtr
+daal_generate_centroids<float, method::lloyd_csr, csr_table>(const descriptor_t& desc,
+                                                             const csr_table& data);
+template daal::data_management::NumericTablePtr
+daal_generate_centroids<double, method::lloyd_csr, csr_table>(const descriptor_t& desc,
+                                                              const csr_table& data);
 
 } // namespace oneapi::dal::kmeans::backend

@@ -81,7 +81,6 @@ inline auto get_daal_parameter_to_train(const descriptor_t& desc) {
     return par;
 }
 
-
 template <typename Float, typename Task, typename Method, typename Table>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,

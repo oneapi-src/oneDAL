@@ -345,7 +345,8 @@ struct csr_make_blobs {
             const auto end = row_offs_ptr[row_idx + 1] - shift;
             for (Index data_idx = start; data_idx < end; ++data_idx) {
                 auto col_idx = col_ind_ptr[data_idx] - shift;
-                result_ptr[(row_idx % cluster_count_) * column_count_ + col_idx] += data_ptr[data_idx];
+                result_ptr[(row_idx % cluster_count_) * column_count_ + col_idx] +=
+                    data_ptr[data_idx];
             }
             counts_ptr[row_idx % cluster_count_]++;
         }
