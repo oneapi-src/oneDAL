@@ -81,6 +81,7 @@ inline auto get_daal_parameter_to_train(const descriptor_t& desc) {
     return par;
 }
 
+
 template <typename Float, typename Task, typename Method, typename Table>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
@@ -96,9 +97,10 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         get_initial_centroids<Float, Method>(ctx, desc, data, initial_centroids);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    auto result = train_result<Task>();
+    auto result = train_result<Task>{};
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
+
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
     array<int> arr_iteration_count = array<int>::empty(1);
 

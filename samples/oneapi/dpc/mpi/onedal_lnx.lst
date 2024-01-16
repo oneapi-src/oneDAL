@@ -27,4 +27,5 @@ MPI  =  basic_statistics_distr_mpi              \
         kmeans_distr_mpi                        \
         knn_bf_distr_mpi                        \
         linear_regression_distr_mpi             \
+        logistic_regression_distr_mpi           \
         pca_distr_mpi
