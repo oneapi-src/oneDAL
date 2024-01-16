@@ -34,7 +34,7 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
     const auto pca_desc = pca::descriptor<float, Method>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_normalization_mode(pca::normalization::mean_center)
+                              .set_normalization_mode(pca::normalization::zscore)
                               .set_whiten(whiten);
     const auto result_train = dal::train(q, pca_desc, x_train);
 
@@ -56,7 +56,7 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
 }
 
 int main(int argc, char const* argv[]) {
-    const auto train_data_file_name = get_data_path("pca_non_normalized.csv");
+    const auto train_data_file_name = get_data_path("pca_normalized.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 
