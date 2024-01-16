@@ -206,16 +206,23 @@ void copy_buffer(const Policy& policy,
                  const heterogen_data& sliced_data,
                  sliced_buffer& sliced_buffer,
                  const array<data_type>& data_types) {
+    std::cout << "copy buffer 1" << std::endl;
     const auto cols_count = sliced_buffer.get_count();
     ONEDAL_ASSERT(cols_count == sliced_data.get_count());
-
+    std::cout << "copy buffer 2" << std::endl;
     const data_type* const dtypes = data_types.get_data();
     array<dal::byte_t>* columns = sliced_buffer.get_mutable_data();
+    std::cout << "copy buffer 3" << std::endl;
     detail::threader_for_int64(cols_count, [&](std::int64_t col) {
+        std::cout << "copy buffer 4" << std::endl;
         const auto element_size = detail::get_data_type_size(dtypes[col]);
+        std::cout << "copy buffer 5" << std::endl;
         auto size = detail::check_mul_overflow(element_size, rows_count);
+        std::cout << "copy buffer 6" << std::endl;
         auto col_slice = columns[col].get_slice(0l, size);
+        std::cout << "copy buffer 7" << std::endl;
         detail::copy(col_slice, sliced_data[col]);
+        std::cout << "copy buffer 8" << std::endl;
     });
 }
 
