@@ -28,7 +28,7 @@
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/services/service_defines.h"
-
+#include <iostream>
 #include "src/algorithms/kmeans/kmeans_lloyd_impl.i"
 #include "src/algorithms/kmeans/kmeans_lloyd_postprocessing.h"
 
@@ -48,13 +48,18 @@ namespace internal
 template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par)
 {
+    std::cout << "DAAL kernel compute start" << std::endl;
     Status s;
-    NumericTable * ntData  = const_cast<NumericTable *>(a[0]);
-    const size_t nIter     = par->maxIterations;
-    const size_t n         = ntData->getNumberOfRows();
-    const size_t p         = ntData->getNumberOfColumns();
+    NumericTable * ntData = const_cast<NumericTable *>(a[0]);
+    const size_t nIter    = par->maxIterations;
+    std::cout << "nIter =" << nIter << std::endl;
+    const size_t n = ntData->getNumberOfRows();
+    std::cout << "getNumberOfRows =" << n << std::endl;
+    const size_t p = ntData->getNumberOfColumns();
+    std::cout << "getNumberOfColumns =" << p << std::endl;
     const size_t nClusters = par->nClusters;
-    int result             = 0;
+    std::cout << "nClusters =" << nClusters << std::endl;
+    int result = 0;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(int));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, p);
@@ -72,10 +77,11 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     WriteOnlyRows<algorithmFPType, cpu> mtClusters(const_cast<NumericTable *>(r[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusters);
     algorithmFPType * clusters = mtClusters.get();
-
+    std::cout << "compute kernel step1" << std::endl;
     TArray<algorithmFPType, cpu> tClusters;
     if (clusters == nullptr && nIter != 0)
     {
+        std::cout << "compute kernel if#1" << std::endl;
         tClusters.reset(nClusters * p);
         clusters = tClusters.get();
     }
@@ -84,10 +90,12 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     NumericTablePtr assignmentsPtr;
     if (r[1])
     {
+        std::cout << "compute kernel if#2" << std::endl;
         assignmetsNT = const_cast<NumericTable *>(r[1]);
     }
     else if (par->resultsToEvaluate & computeExactObjectiveFunction)
     {
+        std::cout << "compute kernel if#3" << std::endl;
         assignmentsPtr = HomogenNumericTableCPU<int, cpu>::create(1, n, &s);
         DAAL_CHECK_MALLOC(s);
         assignmetsNT = assignmentsPtr.get();
@@ -98,6 +106,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     TArray<double, cpu> dS1(method == defaultDense ? p : 0);
     if (method == defaultDense)
     {
+        std::cout << "compute kernel if#4" << std::endl;
         DAAL_CHECK(dS1.get(), services::ErrorMemoryAllocationFailed);
     }
 
@@ -111,9 +120,9 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
     size_t blockSize = 0;
     DAAL_SAFE_CPU_CALL((blockSize = BSHelper<method, algorithmFPType, cpu>::kmeansGetBlockSize(n, p, nClusters)), (blockSize = 512))
-
+    std::cout << "blockSize =" << blockSize << std::endl;
     size_t kIter;
-
+    std::cout << "kmeans loop start" << std::endl;
     for (kIter = 0; kIter < nIter; kIter++)
     {
         auto task = TaskKMeansLloyd<algorithmFPType, cpu>::create(p, nClusters, inClusters, blockSize);
@@ -205,19 +214,22 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         }
         inClusters = clusters;
     }
-
+    std::cout << "kmeans loop finish" << std::endl;
     if (!nIter)
     {
+        std::cout << "if !nIter" << std::endl;
         clusters = inClusters;
     }
 
     if (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction)
     {
+        std::cout << "if statement #10" << std::endl;
         PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, nullptr, assignmetsNT, blockSize);
     }
 
     if (par->resultsToEvaluate & computeExactObjectiveFunction)
     {
+        std::cout << "if statement #11" << std::endl;
         WriteOnlyRows<algorithmFPType, cpu> mtTarget(*const_cast<NumericTable *>(r[2]), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(mtTarget);
         algorithmFPType exactTargetFunc = algorithmFPType(0);
@@ -228,6 +240,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     }
     if (r[3])
     {
+        std::cout << "if statement #12" << std::endl;
         WriteOnlyRows<int, cpu> mtIterations(*const_cast<NumericTable *>(r[3]), 0, 1);
         DAAL_CHECK_BLOCK_STATUS(mtIterations);
         *mtIterations.get() = kIter;

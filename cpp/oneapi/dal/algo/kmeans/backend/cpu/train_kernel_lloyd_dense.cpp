@@ -16,7 +16,7 @@
 
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 #include <daal/src/algorithms/kmeans/kmeans_lloyd_kernel.h>
-
+#include <iostream>
 #include "oneapi/dal/algo/kmeans/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -101,6 +101,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const table& data,
                                            const table& initial_centroids) {
+    std::cout << "oneDAL start train" << std::endl;
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
@@ -136,6 +137,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                        daal_responses.get(),
                                                        daal_objective_function_value.get(),
                                                        daal_iteration_count.get() };
+    std::cout << "oneDAL calling train DAAL kernel" << std::endl;
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
                                                                            input,

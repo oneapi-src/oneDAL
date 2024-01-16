@@ -21,7 +21,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include <iostream>
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -56,6 +56,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const model<Task>& trained_model,
                                            const table& data) {
+    std::cout << "oneDAL start infer" << std::endl;
     const std::int64_t row_count = data.get_row_count();
 
     auto result = infer_result<Task>{};
@@ -79,7 +80,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                        daal_responses.get(),
                                                        daal_objective_function_value.get(),
                                                        nullptr };
-
+    std::cout << "oneDAL calling infer DAAL kernel" << std::endl;
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
                                                                            input,
