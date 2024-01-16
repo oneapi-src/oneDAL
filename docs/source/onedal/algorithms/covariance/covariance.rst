@@ -58,9 +58,9 @@ The means, the covariance, and the correlation are computed with the following f
 Partial Computing
 -----------------
 
-Given a block of a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
-the sums is a :math:`1 \times p` matrix, the crossproduct is :math:`p \times p` square matrices.
-The sums, the crossproduct are computed with the following formulas:
+Given a block of a :math:`X = \{ x_1, \ldots, x_n \}` dataset with :math:`n` feature vectors of :math:`p` dimension,
+the sums is a :math:`1 \times p` matrix, the cross product is :math:`p \times p` square matrices.
+The sums and cross product are computed with the following formulas:
 
 .. list-table::
    :widths: 20 50
@@ -71,7 +71,7 @@ The sums, the crossproduct are computed with the following formulas:
      - Definition
    * - Sums
      - :math:`S = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=sum _{i}{x}_{ij}`
-   * - Crossproduct matrix
+   * - Cross product matrix
      - :math:`Crossproduct = (v_{ij})`
 
 .. _covariance_f_math:
@@ -80,7 +80,7 @@ Finalize Computing
 ------------------
 
 Given a partial result with partial products,
-the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
+the means is a :math:`1 \times p` matrix, the covariance and correlation matrices are :math:`p \times p` square matrices.
 The means, the covariance, and the correlation are computed with the following formulas:
 
 .. list-table::

@@ -47,11 +47,11 @@ The principal components can be computed with any of the following two methods:
 
 Partial Training
 ----------------
-Given a block of a training data set :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension
-:math:`p`, the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the
-training date set.
+Given a block of a :math:`X = \{ x_1, \ldots, x_n \}` training data set with :math:`n` feature vectors of :math:`p` dimension,
+the problem is to compute :math:`r` principal directions (:math:`p`-dimensional eigenvectors [Lang87]_) of the
+training data set.
 
-The partial products can be computed with any of the following two methods:
+To compute the partial products, use any of the following two methods:
 
 #. Covariance (or Correlation)
 #. Singular Value Decomposition (SVD) (CPU only)
@@ -62,7 +62,7 @@ Finalize Training
 -----------------
 Given a partial result.
 
-The principal components can be computed with any of the following two methods:
+To compute the partial products, use any of the following two methods:
 
 #. Covariance (or Correlation)
 #. Singular Value Decomposition (SVD) (CPU only)

@@ -70,9 +70,9 @@ the problem is to compute the following sample characteristics for each feature 
 Partial Computing
 -----------------
 
-Given a block of a dataset :math:`X = \{ x_1, \ldots, x_n \}` with :math:`n` feature vectors of dimension :math:`p`,
+Given a block of a :math:`X = \{ x_1, \ldots, x_n \}` dataset  with :math:`n` feature vectors of :math:`p` dimension,
 the sums is a :math:`1 \times p` matrix, the crossproduct is :math:`p \times p` square matrices.
-The sums, the crossproduct are computed with the following formulas:
+The sums and the cross product are computed with the following formulas:
 
 .. list-table::
    :widths: 20 60
@@ -96,7 +96,7 @@ Finalize Computing
 ------------------
 
 Given a partial result with partial products,
-the means is a :math:`1 \times p` matrix, the covariance and the correlation matrices are :math:`p \times p` square matrices.
+the means is a :math:`1 \times p` matrix, the covariance and correlation matrices are :math:`p \times p` square matrices.
 The means, the covariance, and the correlation are computed with the following formulas:
 
 .. list-table::

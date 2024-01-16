@@ -26,7 +26,7 @@ Linear Regression
 .. include::  ../../../includes/linear-regression/linear-regression-introduction.rst
 
 ------------------------
-Mathematical formulation
+Mathematical Formulation
 ------------------------
 
 Refer to :ref:`Developer Guide: Linear Regression <alg_linear-regression>`.
@@ -34,15 +34,16 @@ Refer to :ref:`Developer Guide: Linear Regression <alg_linear-regression>`.
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section are declared in the
-``oneapi::dal::linear_regression`` namespace and are available via inclusion of the
+
+All types and functions from this section are declared in the
+``oneapi::dal::linear_regression`` namespace and available by including the
 ``oneapi/dal/algo/linear_regression.hpp`` header file.
 
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::linear_regression::descriptor
 
-Method tags
+Method Tags
 ~~~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::linear_regression::method
 

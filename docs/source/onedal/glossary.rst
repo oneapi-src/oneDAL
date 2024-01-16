@@ -195,8 +195,8 @@ Machine learning terms
 
     Finalize Training
         A process of creating a :capterm:`model` based on information extracted
-        from partial results. Resulting :capterm:`model` is selected in
-        accordance with some quality criteria.
+        from partial results. Resulting :capterm:`model` is selected
+        according to some quality criteria.
 
     Training set
         A :capterm:`dataset` used at the :capterm:`training` stage to create a

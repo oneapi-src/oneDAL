@@ -14,8 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Linear regression is a method for modeling the relationship between a dependent variable (which may be a vector) and one 
-or more explanatory variables by fitting linear equations to observed data.
+Linear regression is a method to model the connection between a dependent variable, which can be a vector,
+and one or more explanatory variables. This is done by fitting the linear equations to the observed data.
 
 .. |t_math| replace:: :ref:`Training <linreg_t_math>`
 .. |t_norm_eq| replace:: :ref:`norm_eq <norm_eq>`
