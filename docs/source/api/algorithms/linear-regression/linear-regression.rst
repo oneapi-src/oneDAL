@@ -47,7 +47,7 @@ Method Tags
 ~~~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::linear_regression::method
 
-Task tags
+Task Tags
 ~~~~~~~~~
 .. onedal_tags_namespace:: oneapi::dal::linear_regression::task
 
