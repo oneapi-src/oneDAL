@@ -23,6 +23,7 @@
 #include "oneapi/dal/algo/kmeans/detail/train_init_centroids.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
@@ -179,7 +180,16 @@ sycl::event custom_spgemm(sycl::queue& q,
     });
 }
 
-// Calculates distances to centroid and select closest centroid to each point
+/// Calculates distances to centroid and select closest centroid to each point
+/// @param[in] q                A sycl-queue to perform operations on device
+/// @param[in] values           A data part of csr table
+/// @param[in] column_indices   An array of column indices in csr table
+/// @param[in] row_offsets      An arrat of row offsets in csr table
+/// @param[in] data_squares     An array of data squared elementwise
+/// @param[out] distances       An array of distances of dataset to each cluster
+/// @param[out] centroids       An array of centroids with :expr:`cluster_count x column_count` dimensions
+/// @param[out] closest_dists   An array of closests distances for each data point
+/// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event assign_clusters(sycl::queue& q,
                             const dal::array<Float>& values,
@@ -261,6 +271,10 @@ sycl::event assign_clusters(sycl::queue& q,
 
 // Counts the number of points for each cluster.
 // Result is cluster_counts array and returning value is the number of empty clusters.
+/// @param[in] q                A sycl-queue to perform operations on device
+/// @param[in] responses        An array of cluster assignments
+/// @param[out] cluster_count   As a result of function call the number of data points for each cluster
+/// @param[in] deps             An event vector of dependencies for specified kernel
 std::int32_t count_clusters(sycl::queue& q,
                             const pr::ndarray<std::int32_t, 2>& responses,
                             pr::ndarray<std::int32_t, 1>& cluster_counts,
@@ -314,40 +328,31 @@ std::int32_t count_clusters(sycl::queue& q,
 }
 
 // Calculates an objective function, which is sum of all distances from points to centroid.
+/// @param[in] q                A sycl-queue to perform operations on device
+/// @param[in] dists            An array of distances for each data point to the closest cluster
+/// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 Float calc_objective_function(sycl::queue& q,
-                              const pr::ndarray<Float, 2>& dists,
+                              const pr::ndview<Float, 2>& dists,
                               const event_vector& deps = {}) {
-    auto res = pr::ndarray<Float, 1>::empty(q, 1, sycl::usm::alloc::device);
-    auto res_ptr = res.get_mutable_data();
-    const auto row_count = dists.get_dimension(0);
-    const auto dists_ptr = dists.get_data();
-    const auto local_size =
-        std::min<std::int32_t>(bk::device_max_wg_size(q), bk::down_pow2(row_count));
-    const auto range = bk::make_multiple_nd_range_1d(local_size, local_size);
-
-    auto event = q.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](auto it) {
-            const auto local_id = it.get_local_id(0);
-            Float sum = 0;
-            for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
-                sum += dists_ptr[row_idx];
-            }
-            const Float obj_func =
-                sycl::reduce_over_group(it.get_group(), sum, sycl::ext::oneapi::plus<Float>());
-            if (local_id == 0) {
-                res_ptr[0] = obj_func;
-            }
-        });
-    });
-    auto host_res = res.to_host(q, { event });
-    return host_res.get_data()[0];
+    pr::sum<Float> sum{};
+    pr::identity<Float> ident{};
+    auto view_1d = dists.template reshape<1>(pr::ndshape<1>{dists.get_dimension(0)});
+    return pr::reduce_1d(q, view_1d, sum, ident, deps);
 }
 
 // Updates centroids based on new responses and cluster counts.
 // New centroid is a mean among all points in cluster.
 // If cluster is empty, centroid remains the same as in previous iteration.
+/// @param[in] q                A sycl-queue to perform operations on device
+/// @param[in] values           A data part of csr table
+/// @param[in] column_indices   An array of column indices in csr table
+/// @param[in] row_offsets      An arrat of row offsets in csr table
+/// @param[in] column_count     A number of column in input dataset
+/// @param[in] reponses         An array of cluster assignments
+/// @param[out] centroids       An array of centroids with :expr:`cluster_count x column_count` dimensions
+/// @param[in] cluster_counts   An array of cluster counts
+/// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event update_centroids(sycl::queue& q,
                              const bk::communicator<spmd::device_memory_access::usm>& comm,
@@ -423,6 +428,14 @@ sycl::event update_centroids(sycl::queue& q,
     return finalize_centroids;
 }
 
+
+/// Handling empty clusters.
+/// @param[in] ctx              GPU context structure
+/// @param[in] row_count        A number of rows in the dataset
+/// @param[out] responses       An array of cluster assignments
+/// @param[out] cluster_counts  An array of cluster counts
+/// @param[out] dists           An array of closest distances to cluster
+/// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
                                   const std::int64_t row_count,
@@ -485,6 +498,11 @@ sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
     return event;
 }
 
+
+/// Main entrypoint for GPU CSR Kmeans algorithm
+/// @param[in] ctx          GPU context structure
+/// @param[in] params       A descriptor containing parameters for algorithm
+/// @param[in] input        A train input
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
