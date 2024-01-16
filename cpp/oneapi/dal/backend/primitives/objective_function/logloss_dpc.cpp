@@ -288,7 +288,7 @@ sycl::event add_regularization_loss(sycl::queue& q,
         const std::int64_t st_id = fit_intercept;
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + st_id];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
+            sum += L1 * sycl::fabs(param) + L2 * param * param;
         });
     });
     return q.submit([&](sycl::handler& cgh) {
@@ -326,7 +326,7 @@ sycl::event add_regularization_gradient_loss(sycl::queue& q,
         std::int64_t st_id = fit_intercept;
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + st_id];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
+            sum += L1 * sycl::fabs(param) + L2 * param * param;
             grad_ptr[idx + st_id] += L2 * 2 * param;
         });
     });
