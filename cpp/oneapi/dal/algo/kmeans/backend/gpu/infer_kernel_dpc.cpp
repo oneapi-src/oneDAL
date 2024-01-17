@@ -143,11 +143,10 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 
-        auto centroid_squares_event =
-            kernels_fp<Float>::compute_squares(queue,
-                                               arr_centroids,
-                                               arr_centroid_squares,
-                                               { data_squares_event });
+        auto centroid_squares_event = kernels_fp<Float>::compute_squares(queue,
+                                                                         arr_centroids,
+                                                                         arr_centroid_squares,
+                                                                         { data_squares_event });
         auto assign_event = assign_clusters(queue,
                                             values,
                                             column_indices,
@@ -160,9 +159,7 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                             arr_closest_distances,
                                             { data_squares_event, centroid_squares_event });
         auto objective_function =
-            calc_objective_function(queue,
-                                    arr_closest_distances,
-                                    { assign_event });
+            calc_objective_function(queue, arr_closest_distances, { assign_event });
         {
             // Reduce objective function value over all ranks
             auto obj_func_reduce_event = comm.allreduce(objective_function);
