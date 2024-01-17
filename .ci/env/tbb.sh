@@ -30,31 +30,40 @@ CC="${CC:-gcc}"
 echo "CXX is set to: $CXX"
 echo "CC is set to: $CC"
 
-TBB_VERSION=v2021.11.0
+TBB_VERSION="v2021.10.0"
+
+arch=$(uname -m)
+if [ "${arch}" == "x86_64" ]; then
+    arch_dir="intel64"
+elif [ "${arch}" == "aarch64" ]; then
+    arch_dir="arm"
+else
+    arch_dir=${arch}
+fi
 
 sudo apt-get update
 sudo apt-get install build-essential gcc gfortran cmake -y
-git clone https://github.com/oneapi-src/oneTBB.git
+git clone --depth 1 --branch ${TBB_VERSION} https://github.com/oneapi-src/oneTBB.git onetbb-src
+
 CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 
 rm -rf __deps/tbb
-pushd oneTBB
-git checkout ${TBB_VERSION}
+pushd onetbb-src
 mkdir build
 pushd build
-cmake -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb  .. 
+cmake -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb .. 
 make -j${CoreCount} 
 make install
 popd
 popd
-rm -rf oneTBB
+rm -rf onetbb-src
 
 pushd __deps/tbb
     mkdir -p lnx
     mv lib/ lnx/
     mv include/ lnx/ 
     pushd lnx
-        mkdir -p lib/arm/gcc4.8
-        mv lib/libtbb* lib/arm/gcc4.8
+        mkdir -p lib/${arch_dir}/gcc4.8
+        mv lib/libtbb* lib/${arch_dir}/gcc4.8
     popd
 popd 
