@@ -36,7 +36,6 @@ namespace pr = dal::backend::primitives;
 namespace de = dal::detail;
 namespace bk = dal::backend;
 
-
 // Initializes centroids randomly on CPU if it was not set by user.
 template <typename Float, typename Method>
 static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,
