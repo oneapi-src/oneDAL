@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 #include <immintrin.h>
 #endif
 
@@ -30,7 +30,7 @@
 
 namespace oneapi::dal::preview::jaccard::backend {
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
     dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
                                        const dal::preview::detail::topology<std::int32_t>& t,

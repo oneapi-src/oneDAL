@@ -58,10 +58,10 @@ typedef cpuset_t cpu_set_t;
 
         #define __cdecl
 
-        #ifdef __x86_64__
+        #ifdef TARGET_X86_64
             #define LNX_PTR2INT unsigned long long
             #define LNX_MY1CON  1LL
-        #elif __ARM_ARCH
+        #elif TARGET_ARM
 using LNX_PTR2INT                = uintptr_t;
 constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
         #else

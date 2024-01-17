@@ -32,10 +32,10 @@
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
-#ifdef __ARM_ARCH
-    #define DAAL_HOST_CPUID daal::services::Environment::sve
-#else
+#ifdef TARGET_X86_64
     #define DAAL_HOST_CPUID daal::services::Environment::avx512
+#elif TARGET_ARM
+    #define DAAL_HOST_CPUID daal::services::Environment::sve
 #endif
 
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;

@@ -20,26 +20,26 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-#ifdef __ARM_ARCH
-struct cpu_dispatch_sve {};
-using cpu_dispatch_default = cpu_dispatch_sve;
-#else
+#ifdef TARGET_X86_64
 struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
 using cpu_dispatch_default = cpu_dispatch_sse2;
+#elif TARGET_ARM
+struct cpu_dispatch_sve {};
+using cpu_dispatch_default = cpu_dispatch_sve;
 #endif
 
 } // namespace v1
 
-#ifdef __ARM_ARCH
-using v1::cpu_dispatch_sve;
-#else
+#ifdef TARGET_X86_64
 using v1::cpu_dispatch_sse2;
 using v1::cpu_dispatch_sse42;
 using v1::cpu_dispatch_avx2;
 using v1::cpu_dispatch_avx512;
+#elif TARGET_ARM
+using v1::cpu_dispatch_sve;
 #endif
 
 using v1::cpu_dispatch_default;

@@ -28,10 +28,10 @@
 
 #include "oneapi/dal/algo/covariance/parameters/cpu/compute_parameters.hpp"
 
-#ifdef __ARM_ARCH
-#define CPU_EXTENSION dal::detail::cpu_extension::sve
-#else
+#ifdef TARGET_X86_64
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
+#elif TARGET_ARM
+#define CPU_EXTENSION dal::detail::cpu_extension::sve
 #endif
 
 namespace oneapi::dal::covariance::parameters {

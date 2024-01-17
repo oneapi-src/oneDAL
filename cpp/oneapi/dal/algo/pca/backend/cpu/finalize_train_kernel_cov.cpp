@@ -27,10 +27,10 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#ifdef __ARM_ARCH
-#define CPU_EXTENSION dal::detail::cpu_extension::sve
-#else
+#ifdef TARGET_X86_64
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
+#elif TARGET_ARM
+#define CPU_EXTENSION dal::detail::cpu_extension::sve
 #endif
 
 namespace oneapi::dal::pca::backend {

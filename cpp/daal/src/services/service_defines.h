@@ -34,10 +34,10 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int);
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd);
 bool daal_check_is_intel_cpu();
 
-#ifdef __ARM_ARCH
-    #define DAAL_BASE_CPU daal::sve
-#else
+#ifdef TARGET_X86_64
     #define DAAL_BASE_CPU daal::sse2
+#elif TARGET_ARM
+    #define DAAL_BASE_CPU daal::sve
 #endif
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
@@ -122,25 +122,25 @@ enum DataFormat
 } // namespace daal
 
 /* CPU comparison macro */
-#ifdef __ARM_ARCH
-    #define __sve__ (0)
-#else
+#ifdef TARGET_X86_64
     #define __sse2__   (0)
     #define __sse42__  (2)
     #define __avx2__   (4)
     #define __avx512__ (6)
+#elif TARGET_ARM
+    #define __sve__ (0)
 #endif
 
 #define __float__  (0)
 #define __double__ (1)
 
-#ifdef __ARM_ARCH
-    #define CPU_sve __sve__
-#else
+#ifdef TARGET_X86_64
     #define CPU_sse2   __sse2__
     #define CPU_sse42  __sse42__
     #define CPU_avx2   __avx2__
     #define CPU_avx512 __avx512__
+#elif TARGET_ARM
+    #define CPU_sve __sve__
 #endif
 
 #define FPTYPE_float  __float__

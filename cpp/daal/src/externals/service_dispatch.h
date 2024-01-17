@@ -27,24 +27,9 @@
 
 #include "services/internal/daal_kernel_defines.h"
 
-#ifdef __ARM_ARCH
-    #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                           \
-        switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))            \
-        {                                                                                                      \
-            DAAL_KERNEL_SVE_ONLY_CODE(case daal::CpuType::sve : func(daal::CpuType::sve, __VA_ARGS__); break;) \
-        }
 
-    #define DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(func, ...)                                                           \
-        services::Status st;                                                                                        \
-        int cpuid = daal::sve;                                                                                      \
-        DAAL_SAFE_CPU_CALL((cpuid = daal::services::Environment::getInstance()->getCpuId()), (cpuid = daal::sve))   \
-        switch (static_cast<daal::CpuType>(cpuid))                                                                  \
-        {                                                                                                           \
-            DAAL_KERNEL_SVE_ONLY_CODE(case daal::CpuType::sve : st = func(daal::CpuType::sve, __VA_ARGS__); break;) \
-        }                                                                                                           \
-        services::throwIfPossible(st);
 
-#else
+#ifdef TARGET_X86_64
     #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                                    \
         switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))                     \
         {                                                                                                               \
@@ -65,6 +50,22 @@
             DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512 : st = func(daal::CpuType::avx512, __VA_ARGS__); break;) \
             DAAL_EXPAND(default : st = func(daal::CpuType::sse2, __VA_ARGS__); break;)                                       \
         }                                                                                                                    \
+        services::throwIfPossible(st);
+#elif TARGET_ARM
+    #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                           \
+        switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))            \
+        {                                                                                                      \
+            DAAL_KERNEL_SVE_ONLY_CODE(case daal::CpuType::sve : func(daal::CpuType::sve, __VA_ARGS__); break;) \
+        }
+
+    #define DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(func, ...)                                                           \
+        services::Status st;                                                                                        \
+        int cpuid = daal::sve;                                                                                      \
+        DAAL_SAFE_CPU_CALL((cpuid = daal::services::Environment::getInstance()->getCpuId()), (cpuid = daal::sve))   \
+        switch (static_cast<daal::CpuType>(cpuid))                                                                  \
+        {                                                                                                           \
+            DAAL_KERNEL_SVE_ONLY_CODE(case daal::CpuType::sve : st = func(daal::CpuType::sve, __VA_ARGS__); break;) \
+        }                                                                                                           \
         services::throwIfPossible(st);
 #endif
 #endif

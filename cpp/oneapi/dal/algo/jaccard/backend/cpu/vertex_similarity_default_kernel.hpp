@@ -108,7 +108,7 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard(
     return res;
 }
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,

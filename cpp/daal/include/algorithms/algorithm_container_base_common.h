@@ -54,11 +54,12 @@ namespace interface1
  * \tparam avx2Container        Implementation for Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
  */
-#ifdef __ARM_ARCH
-template <ComputeMode mode, typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
-#else
+
+#ifdef TARGET_X86_64
 template <ComputeMode mode, typename sse2Container DAAL_KERNEL_SSE42_ONLY(typename sse42Container) DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
                                 DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
+#elif TARGET_ARM
+template <ComputeMode mode, typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
 #endif
 class DAAL_EXPORT AlgorithmDispatchContainer : public AlgorithmContainerImpl<mode>
 {
@@ -104,14 +105,14 @@ private:
     AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
-#ifdef __ARM_ARCH
-    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
-        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>
-#else
+#ifdef TARGET_X86_64
     #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                \
         algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(                              \
                                                          ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) \
                                                          DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#elif TARGET_ARM
+    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
+        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 #endif
 
 /** @} */

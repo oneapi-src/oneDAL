@@ -89,22 +89,8 @@ inline int * get_nblocks_array(int * size)
     return array;
 }
 /* rows/cols is greater or equal to: --------------------------------------------------------- 0   1   2   4   8  16  32  64 128 256 512  1K  2K ----------------------------------------------------*/
-#ifdef __ARM_ARCH
-template <>
-inline int * get_nblocks_array<float, sve>(int * size)
-{
-    static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 24, 24, 20, 0 };
-    *size              = sizeof(array) / sizeof(int) - 1;
-    return array;
-}
-template <>
-inline int * get_nblocks_array<double, sve>(int * size)
-{
-    static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 20, 24, 20, 0 };
-    *size              = sizeof(array) / sizeof(int) - 1;
-    return array;
-}
-#else
+
+#ifdef TARGET_X86_64
 template <>
 inline int * get_nblocks_array<float, avx2>(int * size)
 {
@@ -130,6 +116,21 @@ template <>
 inline int * get_nblocks_array<double, avx512>(int * size)
 {
     static int array[] = { 1, 1, 1, 2, 4, 8, 8, 16, 32, 32, 32, 48, 0 };
+    *size              = sizeof(array) / sizeof(int) - 1;
+    return array;
+}
+#elif TARGET_ARM
+template <>
+inline int * get_nblocks_array<float, sve>(int * size)
+{
+    static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 24, 24, 20, 0 };
+    *size              = sizeof(array) / sizeof(int) - 1;
+    return array;
+}
+template <>
+inline int * get_nblocks_array<double, sve>(int * size)
+{
+    static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 20, 24, 20, 0 };
     *size              = sizeof(array) / sizeof(int) - 1;
     return array;
 }

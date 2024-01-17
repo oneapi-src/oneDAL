@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 #include <immintrin.h>
 #endif
 
@@ -65,7 +65,7 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     {}
 #endif
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 template <>
 ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
     const std::int32_t *neigh_u,

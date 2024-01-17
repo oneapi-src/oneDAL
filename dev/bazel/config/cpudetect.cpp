@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 #include <immintrin.h>
 #endif
 
@@ -158,9 +158,7 @@ int check_sse42_features() {
 
 std::string detect_cpu() {
 
-    #ifdef __ARM_ARCH
-        return "sve";
-    #else
+    #ifdef TARGET_X86_64
         try_enable_avx512f_on_macos();
 
         if (check_avx512_features()) {
@@ -175,6 +173,8 @@ std::string detect_cpu() {
         else {
             return "sse2";
         }
+    #elif TARGET_ARM
+        return "sve";
     #endif
 }
 

@@ -33,13 +33,13 @@
  * @{
  */
 
-#ifdef __ARM_ARCH
-    #define DAAL_KERNEL_SVE
-#else
+#ifdef TARGET_X86_64
     #define DAAL_KERNEL_SSE2
     #define DAAL_KERNEL_SSE42
     #define DAAL_KERNEL_AVX2
     #define DAAL_KERNEL_AVX512
+#elif TARGET_ARM
+    #define DAAL_KERNEL_SVE
 #endif
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
@@ -56,26 +56,7 @@ case cpuType:                                                                   
     break;                                                                                      \
 }
 
-#ifdef __ARM_ARCH
-    #if defined(DAAL_KERNEL_SVE)
-        #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
-        #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID          daal::sve
-        #define DAAL_KERNEL_SVE_ONLY(something)                   , something
-        #define DAAL_KERNEL_SVE_ONLY_CODE(...)                    __VA_ARGS__
-        #define DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sve, __VA_ARGS__)
-        #define DAAL_KERNEL_SVE_CONTAINER1(ContainerTemplate, ...) \
-            extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sve, __VA_ARGS__);
-        #define DAAL_KERNEL_SVE_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sve, __VA_ARGS__)
-        #define DAAL_KERNEL_SVE_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-    #else
-        #define DAAL_KERNEL_SVE_ONLY(something)
-        #define DAAL_KERNEL_SVE_ONLY_CODE(...)
-        #define DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, ...)
-        #define DAAL_KERNEL_SVE_CONTAINER1(ContainerTemplate, ...)
-        #define DAAL_KERNEL_SVE_CONTAINER_CASE(ContainerTemplate, ...)
-        #define DAAL_KERNEL_SVE_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
-    #endif
-#else
+#ifdef TARGET_X86_64
     #if defined(DAAL_KERNEL_SSE2)
         #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
         #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::sse2
@@ -149,6 +130,25 @@ case cpuType:                                                                   
         #define DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, ...)
         #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...)
         #define DAAL_KERNEL_AVX512_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
+    #endif
+#elif TARGET_ARM
+    #if defined(DAAL_KERNEL_SVE)
+        #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+        #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID          daal::sve
+        #define DAAL_KERNEL_SVE_ONLY(something)                   , something
+        #define DAAL_KERNEL_SVE_ONLY_CODE(...)                    __VA_ARGS__
+        #define DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sve, __VA_ARGS__)
+        #define DAAL_KERNEL_SVE_CONTAINER1(ContainerTemplate, ...) \
+            extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sve, __VA_ARGS__);
+        #define DAAL_KERNEL_SVE_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sve, __VA_ARGS__)
+        #define DAAL_KERNEL_SVE_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
+    #else
+        #define DAAL_KERNEL_SVE_ONLY(something)
+        #define DAAL_KERNEL_SVE_ONLY_CODE(...)
+        #define DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, ...)
+        #define DAAL_KERNEL_SVE_CONTAINER1(ContainerTemplate, ...)
+        #define DAAL_KERNEL_SVE_CONTAINER_CASE(ContainerTemplate, ...)
+        #define DAAL_KERNEL_SVE_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
     #endif
 #endif
 

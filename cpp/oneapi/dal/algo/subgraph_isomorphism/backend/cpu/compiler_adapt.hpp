@@ -18,7 +18,7 @@
 #pragma once
 #include <cstdint>
 
-#ifndef __ARM_ARCH
+#ifdef TARGET_X86_64
 #include <immintrin.h>
 #endif
 
@@ -88,23 +88,7 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
 #endif
 }
 
-#ifdef __ARM_ARCH
-template <>
-ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sve>(std::uint32_t a) {
-    return __builtin_clz(a);
-}
-
-template <>
-ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
-    return __builtin_clzl(a);
-}
-
-template <>
-ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
-    return __builtin_popcountl(a);
-}
-
-#else
+#ifdef TARGET_X86_64
 template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sse2>(std::uint32_t a) {
     if (a == 0)
@@ -186,6 +170,20 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_avx2>
     }
     return bit_cnt;
 }
+#elif TARGET_ARM
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sve>(std::uint32_t a) {
+    return __builtin_clz(a);
+}
 
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
+    return __builtin_clzl(a);
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
+    return __builtin_popcountl(a);
+}
 #endif
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

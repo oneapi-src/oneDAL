@@ -31,11 +31,7 @@ struct daal_cpu_value {
     constexpr static daal::CpuType value = cpu;
 };
 
-#ifdef __ARM_ARCH
-template <>
-struct to_daal_cpu_type<cpu_dispatch_sve> : daal_cpu_value<daal::sve> {};
-
-#else
+#ifdef TARGET_X86_64
 template <>
 struct to_daal_cpu_type<cpu_dispatch_default> : daal_cpu_value<daal::sse2> {};
 template <>
@@ -44,6 +40,10 @@ template <>
 struct to_daal_cpu_type<cpu_dispatch_avx2> : daal_cpu_value<daal::avx2> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_avx512> : daal_cpu_value<daal::avx512> {};
+
+#elif TARGET_ARM
+template <>
+struct to_daal_cpu_type<cpu_dispatch_sve> : daal_cpu_value<daal::sve> {};
 
 #endif
 
