@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
+
 namespace oneapi::dal::test::engine {
 
 inline void check_if_metadata_equal(const table_metadata& actual, const table_metadata& reference) {
@@ -33,11 +33,9 @@ inline void check_if_metadata_equal(const table_metadata& actual, const table_me
 
 template <typename Data>
 inline void check_if_table_content_equal(const table& actual, const table& reference) {
-    std::cout << "check tables content step 1" << std::endl;
     const auto actual_ary = row_accessor<const Data>{ actual }.pull();
-    std::cout << "check tables content step 2" << std::endl;
     const auto reference_ary = row_accessor<const Data>{ reference }.pull();
-    std::cout << "check tables content step 3" << std::endl;
+
     for (std::int64_t i = 0; i < reference_ary.get_count(); i++) {
         const Data actual = actual_ary[i];
         const Data reference = reference_ary[i];
@@ -75,19 +73,13 @@ inline void check_if_table_content_equal_approx(const table& actual,
 
 template <typename Data>
 inline void check_if_tables_equal(const table& actual, const table& reference) {
-    std::cout << "check tables step 1" << std::endl;
     REQUIRE(actual.get_row_count() == reference.get_row_count());
-    std::cout << "check tables step 2" << std::endl;
     REQUIRE(actual.get_column_count() == reference.get_column_count());
-    std::cout << "check tables step 3" << std::endl;
     REQUIRE(actual.get_data_layout() == reference.get_data_layout());
-    std::cout << "check tables step 4" << std::endl;
     REQUIRE(actual.get_kind() == reference.get_kind());
-    std::cout << "check tables step 5" << std::endl;
+
     check_if_metadata_equal(actual.get_metadata(), reference.get_metadata());
-    std::cout << "check tables step 6" << std::endl;
     check_if_table_content_equal<Data>(actual, reference);
-    std::cout << "check tables step 7" << std::endl;
 }
 
 template <typename Float>

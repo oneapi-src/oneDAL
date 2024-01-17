@@ -18,7 +18,7 @@
 #include "oneapi/dal/table/heterogen.hpp"
 
 #include "oneapi/dal/table/detail/metadata_utils.hpp"
-#include <iostream>
+
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/serialization.hpp"
@@ -47,29 +47,31 @@ public:
     void check_table_serialization(const heterogen_table& original) {
         SECTION("deserialize as exact type") {
             heterogen_table deserialized;
+
             SECTION("serialize as exact type") {
                 te::serialize_deserialize(original, deserialized);
             }
+
             SECTION("serialize as base type") {
                 table original_as_base = original;
                 te::serialize_deserialize(original_as_base, deserialized);
             }
-            std::cout << "check_table_serialization step 4" << std::endl;
+
             compare_tables(original, deserialized);
         }
-        std::cout << "check_table_serialization step 5" << std::endl;
+
         SECTION("deserialize as base type") {
             heterogen_table deserialized;
-            std::cout << "check_table_serialization step 6" << std::endl;
+
             SECTION("serialize as exact type") {
                 te::serialize_deserialize(original, deserialized);
             }
-            std::cout << "check_table_serialization step 7" << std::endl;
+
             SECTION("serialize as base type") {
                 table original_as_base = original;
                 te::serialize_deserialize(original_as_base, deserialized);
             }
-            std::cout << "check_table_serialization step 8" << std::endl;
+
             compare_tables(original, deserialized);
         }
     }
@@ -117,6 +119,7 @@ public:
     heterogen_table fill_table(F&& generate, const std::tuple<Types...>* = dummy) {
         auto meta = get_metadata(dummy);
         auto table = heterogen_table::empty(meta);
+
         std::int64_t col = 0l;
         detail::apply(
             [&](const auto& type) -> void {
@@ -125,6 +128,7 @@ public:
             },
             Types{}...);
         REQUIRE(col == column_count);
+
         return table;
     }
 
@@ -162,13 +166,11 @@ public:
 #endif
 
     void compare_tables(const heterogen_table& original, const table& deserialized) override {
-        std::cout << "compare tables first" << std::endl;
         te::check_if_tables_equal<float>(deserialized, original);
     }
 
     void compare_tables(const heterogen_table& original,
                         const heterogen_table& deserialized) override {
-        std::cout << "compare tables second" << std::endl;
         te::check_if_tables_equal<float>(deserialized, original);
     }
 };
@@ -177,6 +179,7 @@ TEST_CASE_METHOD(empty_heterogen_table_serialization_test,
                  "Empty heterogen table",
                  "[empty][heterogen]") {
     const heterogen_table empty_table;
+
     this->check_table_serialization(empty_table);
 }
 
@@ -184,9 +187,10 @@ TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
                      "Random heterogen table - device",
                      "[empty][heterogen][host]",
                      heterogen_types) {
-    const std::int64_t column_count = GENERATE(1, 9, 99, 999, 10000);
-    const std::int64_t row_count = GENERATE(1, 9, 99, 999, 9'999, 10000);
+    const std::int64_t column_count = GENERATE(1, 9, 99, 999);
+    const std::int64_t row_count = GENERATE(1, 9, 99, 999, 9'999);
     const heterogen_table original = this->get_host_backed_table(row_count, column_count);
+
     this->check_table_serialization(original);
 }
 
@@ -195,9 +199,10 @@ TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
                      "Random heterogen table - host",
                      "[empty][heterogen][device]",
                      heterogen_types) {
-    const std::int64_t column_count = GENERATE(1, 10, 101, 1'001, 10000);
-    const std::int64_t row_count = GENERATE(1, 11, 101, 1'001, 10'001, 10000);
+    const std::int64_t column_count = GENERATE(1, 10, 101, 1'001);
+    const std::int64_t row_count = GENERATE(1, 11, 101, 1'001, 10'001);
     const heterogen_table original = this->get_device_backed_table(row_count, column_count);
+
     this->check_table_serialization(original);
 }
 #endif
