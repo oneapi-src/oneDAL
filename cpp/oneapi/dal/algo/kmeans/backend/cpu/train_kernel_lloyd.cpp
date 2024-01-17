@@ -33,7 +33,6 @@ using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
-namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 
 template <daal_kmeans::Method Value>

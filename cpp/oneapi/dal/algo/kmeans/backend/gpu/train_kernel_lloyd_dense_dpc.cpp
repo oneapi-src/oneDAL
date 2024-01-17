@@ -37,15 +37,10 @@ namespace oneapi::dal::kmeans::backend {
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
-namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 namespace de = dal::detail;
 namespace bk = dal::backend;
-
-template <typename Float, daal::CpuType Cpu>
-using daal_kmeans_init_plus_plus_dense_kernel_t =
-    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
 template <typename Float>
 static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,

@@ -31,15 +31,11 @@ using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 using event_vector = std::vector<sycl::event>;
 
-namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 namespace de = dal::detail;
 namespace bk = dal::backend;
 
-template <typename Float, daal::CpuType Cpu>
-using daal_kmeans_init_plus_plus_csr_kernel_t =
-    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusCSR, Float, Cpu>;
 
 // Initializes centroids randomly on CPU if it was not set by user.
 template <typename Float, typename Method>
