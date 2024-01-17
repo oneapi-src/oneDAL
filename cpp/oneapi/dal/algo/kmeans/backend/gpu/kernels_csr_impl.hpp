@@ -19,12 +19,16 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/atomic.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 using event_vector = std::vector<sycl::event>;
+
+template <typename Data>
+using local_accessor_rw_t = sycl::local_accessor<Data, 1>;
 
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
@@ -37,6 +41,7 @@ sycl::event compute_data_squares(sycl::queue& q,
                                  const pr::ndview<std::int64_t, 1>& column_indices,
                                  const pr::ndview<std::int64_t, 1>& row_offsets,
                                  pr::ndview<Float, 1>& squares) {
+    ONEDAL_PROFILER_TASK(compute_data_squares, q);
     return pr::reduce_by_rows(q,
                               values,
                               column_indices,
@@ -59,6 +64,7 @@ sycl::event custom_spgemm(sycl::queue& q,
                           const Float alpha,
                           const Float beta,
                           const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(custom_spgemm, q);
     const size_t a_row_count = row_offsets.get_count() - 1;
     const size_t reduce_dim = b.get_dimension(1);
     const size_t b_row_count = b.get_dimension(0);
@@ -133,6 +139,7 @@ sycl::event assign_clusters(sycl::queue& q,
                             pr::ndview<std::int32_t, 2>& responses,
                             pr::ndview<Float, 2>& closest_dists,
                             const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(assign_clusters, q);
     auto data_squares_ptr = data_squares.get_data();
     auto cent_squares_ptr = centroid_squares.get_data();
     auto responses_ptr = responses.get_mutable_data();
@@ -208,6 +215,7 @@ template <typename Float>
 Float calc_objective_function(sycl::queue& q,
                               const pr::ndview<Float, 2>& dists,
                               const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(calc_objective_function, q);
     pr::sum<Float> sum{};
     pr::identity<Float> ident{};
     auto view_1d = dists.template reshape<1>(pr::ndshape<1>{ dists.get_dimension(0) });
@@ -237,6 +245,7 @@ sycl::event update_centroids(sycl::queue& q,
                              pr::ndarray<Float, 2>& centroids,
                              const pr::ndarray<std::int32_t, 1>& cluster_counts,
                              const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(update_centroids, q);
     const auto resp_ptr = responses.get_data();
     auto centroids_ptr = centroids.get_mutable_data();
     const auto row_count = row_offsets.get_count() - 1;
@@ -247,32 +256,58 @@ sycl::event update_centroids(sycl::queue& q,
 
     const auto local_size = bk::device_max_wg_size(q);
     const auto num_clusters = centroids.get_dimension(0);
-    const auto range = bk::make_multiple_nd_range_3d({ num_clusters, column_count, local_size },
-                                                     { 1, 1, local_size });
-    auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
+
+    const auto clean_range =
+        bk::make_multiple_nd_range_2d({ num_clusters, column_count }, { 1, 1 });
+    auto clean_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
+        cgh.parallel_for(clean_range, [=](auto it) {
+            const auto cluster_id = it.get_global_id(0);
+            const auto col_id = it.get_global_id(1);
+            centroids_ptr[cluster_id * column_count + col_id] = 0;
+        });
+    });
+
+    const auto row_block =
+        std::min<std::int32_t>(bk::device_max_wg_size(q) * 8, bk::down_pow2(row_count));
+    const auto col_block =
+        std::min<std::int32_t>(bk::device_max_wg_size(q), bk::down_pow2(column_count));
+    const auto range =
+        bk::make_multiple_nd_range_3d({ num_clusters, row_block, col_block }, { 1, 1, col_block });
+
+    auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(clean_event);
+        local_accessor_rw_t<Float> local_centroid(column_count, cgh);
         cgh.parallel_for(range, [=](auto it) {
             const auto cluster_id = it.get_global_id(0);
-            const auto col_idx = it.get_global_id(1);
-            const auto local_id = it.get_local_id(2);
-
-            Float acc = 0;
-            for (std::int32_t row_idx = local_id; row_idx < row_count; row_idx += local_size) {
+            const auto row_shift = it.get_global_id(1);
+            const auto local_id = static_cast<std::int64_t>(it.get_local_id(2));
+            if (counts_ptr[cluster_id] == 0) {
+                return;
+            }
+            auto local_centroid_ptr =
+                local_centroid.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
+            for (std::int64_t col_idx = local_id; col_idx < column_count; col_idx += col_block) {
+                local_centroid_ptr[col_idx] = 0;
+            }
+            it.barrier();
+            for (std::int64_t row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
                 if (resp_ptr[row_idx] == static_cast<std::int32_t>(cluster_id)) {
                     const auto start = row_ofs_ptr[row_idx];
                     const auto end = row_ofs_ptr[row_idx + 1];
-                    for (std::int32_t data_idx = start; data_idx < end; data_idx++) {
-                        if (col_ind_ptr[data_idx] == static_cast<std::int64_t>(col_idx)) {
-                            acc += data_ptr[data_idx];
-                        }
+                    for (auto idx = start + local_id; idx < end; idx += col_block) {
+                        const auto col_idx = col_ind_ptr[idx];
+                        const auto val = data_ptr[idx];
+                        bk::atomic_local_add(local_centroid_ptr + col_idx, val);
                     }
                 }
             }
-            const auto final_component =
-                sycl::reduce_over_group(it.get_group(), acc, sycl::ext::oneapi::plus<Float>());
-            // if count for cluster is zero, the centroid will remain as previous one
-            if (local_id == 0 && counts_ptr[cluster_id] > 0) {
-                centroids_ptr[cluster_id * column_count + col_idx] = final_component;
+            it.barrier();
+            if (local_id == 0) {
+                for (std::int64_t col_idx = 0; col_idx < column_count; ++col_idx) {
+                    const auto pos = cluster_id * column_count + col_idx;
+                    bk::atomic_global_add(centroids_ptr + pos, local_centroid_ptr[col_idx]);
+                }
             }
         });
     });
@@ -317,7 +352,7 @@ sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
                                   const event_vector& deps = {}) {
     auto& queue = ctx.get_queue();
     auto& comm = ctx.get_communicator();
-
+    ONEDAL_PROFILER_TASK(handle_empty_clusters, queue);
     const auto rank_count = comm.get_rank_count();
     const auto rank = comm.get_rank();
     const auto num_clusters = cluster_counts.get_dimension(0);
