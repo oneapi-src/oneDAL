@@ -20,6 +20,25 @@
 
 namespace oneapi::dal::kmeans {
 namespace detail {
+
+result_option_id get_compute_assignments_id() {
+    return result_option_id{ result_option_id::make_by_index(0) };
+}
+
+result_option_id get_compute_exact_objective_function_id() {
+    return result_option_id{ result_option_id::make_by_index(1) };
+}
+
+template <typename Task>
+result_option_id get_default_result_options() {
+    return result_option_id{};
+}
+
+template <>
+result_option_id get_default_result_options<task::clustering>() {
+    return get_compute_assignments_id() | get_compute_exact_objective_function_id();
+}
+
 namespace v1 {
 
 template <typename Task>
@@ -28,6 +47,7 @@ public:
     std::int64_t cluster_count = 2;
     std::int64_t max_iteration_count = 100;
     double accuracy_threshold = 0;
+    result_option_id result_options = get_default_result_options<Task>();
 };
 
 template <typename Task>
@@ -63,6 +83,11 @@ double descriptor_base<Task>::get_accuracy_threshold() const {
 }
 
 template <typename Task>
+result_option_id descriptor_base<Task>::get_result_options() const {
+    return impl_->result_options;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
@@ -87,6 +112,15 @@ void descriptor_base<Task>::set_accuracy_threshold_impl(double value) {
         throw domain_error(dal::detail::error_messages::accuracy_threshold_lt_zero());
     }
     impl_->accuracy_threshold = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
+    using msg = dal::detail::error_messages;
+    if (!bool(value)) {
+        throw domain_error(msg::empty_set_of_result_options());
+    }
+    impl_->result_options = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::clustering>;
