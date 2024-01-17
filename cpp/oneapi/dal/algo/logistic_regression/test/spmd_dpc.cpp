@@ -14,45 +14,36 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/logistic_regression/test/fixture.hpp"
-
-#include "oneapi/dal/test/engine/tables.hpp"
-#include "oneapi/dal/test/engine/io.hpp"
+#include "oneapi/dal/algo/logistic_regression/test/spmd_fixture.hpp"
 
 namespace oneapi::dal::logistic_regression::test {
 
-namespace te = dal::test::engine;
-namespace de = dal::detail;
-namespace la = te::linalg;
-
-template <typename TestType>
-class log_reg_batch_test : public log_reg_test<TestType, log_reg_batch_test<TestType>> {
-public:
-    using base_t = log_reg_test<TestType, log_reg_batch_test<TestType>>;
-    using float_t = typename base_t::float_t;
-    using train_input_t = typename base_t::train_input_t;
-    using train_result_t = typename base_t::train_result_t;
-};
-
-TEMPLATE_LIST_TEST_M(log_reg_batch_test, "LogReg common flow", "[logreg][batch]", log_reg_types) {
-    SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
+                     "LogReg common flow - fit intercept",
+                     "[lr][spmd]",
+                     log_reg_types) {
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
     this->gen_dimensions();
     this->gen_input(true, 0.5);
+    this->set_rank_count(GENERATE(2, 3));
 
-    this->run_test();
+    this->run_test(1e-4, 20);
 }
 
-TEMPLATE_LIST_TEST_M(log_reg_batch_test,
+TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
                      "LogReg common flow - no fit intercept",
-                     "[logreg][batch]",
+                     "[lr][spmd]",
                      log_reg_types) {
-    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
     this->gen_dimensions();
     this->gen_input(false, 0.5);
+    this->set_rank_count(GENERATE(2, 3));
 
-    this->run_test();
+    this->run_test(1e-4, 20);
 }
 
 } // namespace oneapi::dal::logistic_regression::test
