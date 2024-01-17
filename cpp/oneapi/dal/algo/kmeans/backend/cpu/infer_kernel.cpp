@@ -63,7 +63,6 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t row_count = data.get_row_count();
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
-    ;
 
     auto par = get_daal_parameter_to_infer(desc);
 
