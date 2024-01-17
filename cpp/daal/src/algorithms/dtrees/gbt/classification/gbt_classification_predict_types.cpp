@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_classification_predict_types.h"
+#include "algorithms/classifier/classifier_predict_types.h"
 #include "src/services/serialization_utils.h"
 #include "src/services/daal_strings.h"
 #include "src/algorithms/dtrees/gbt/classification/gbt_classification_model_impl.h"
@@ -115,12 +116,71 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 
     const bool predictContribs     = pPrm->resultsToCompute & shapContributions;
     const bool predictInteractions = pPrm->resultsToCompute & shapInteractions;
-    DAAL_CHECK(!(predictContribs || predictInteractions), services::ErrorMethodNotImplemented);
+    DAAL_CHECK(!(predictContribs && predictInteractions), services::ErrorGbtPredictShapOptions);
 
     return s;
 }
 
 } // namespace interface1
+
+namespace interface2
+{
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_CLASSIFICATION_PREDICTION_RESULT_ID);
+
+Result::Result() : algorithms::classifier::prediction::Result(lastResultId + 1) {};
+
+/**
+ * Returns the result of gradient boosted trees model-based prediction
+ * \param[in] id    Identifier of the result
+ * \return          Result that corresponds to the given identifier
+ */
+NumericTablePtr Result::get(ResultId id) const
+{
+    return algorithms::classifier::prediction::Result::get(algorithms::classifier::prediction::ResultId(id));
+}
+
+/**
+ * Sets the result of gradient boosted trees model-based prediction
+ * \param[in] id      Identifier of the input object
+ * \param[in] value   %Input object
+ */
+void Result::set(ResultId id, const NumericTablePtr & value)
+{
+    algorithms::classifier::prediction::Result::set(algorithms::classifier::prediction::ResultId(id), value);
+}
+
+/**
+ * Checks the result of gradient boosted trees model-based prediction
+ * \param[in] input   %Input object
+ * \param[in] par     %Parameter of the algorithm
+ * \param[in] method  Computation method
+ */
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
+{
+    using algorithms::classifier::prediction::data;
+    using algorithms::classifier::prediction::Result;
+
+    Status s;
+    DAAL_CHECK_STATUS(s, Result::check(input, par, method));
+    const auto inputCast                              = static_cast<const prediction::Input *>(input);
+    const prediction::Parameter * regressionParameter = static_cast<const prediction::Parameter *>(par);
+    size_t expectedNColumns                           = 1;
+    if (regressionParameter->resultsToCompute & shapContributions)
+    {
+        const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
+        expectedNColumns      = nColumns + 1;
+    }
+    else if (regressionParameter->resultsToCompute & shapInteractions)
+    {
+        const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
+        expectedNColumns      = (nColumns + 1) * (nColumns + 1);
+    }
+    DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == expectedNColumns, ErrorIncorrectNumberOfColumns, ArgumentName, predictionStr());
+    return s;
+}
+
+} // namespace interface2
+
 } // namespace prediction
 } // namespace classification
 } // namespace gbt

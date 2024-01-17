@@ -57,6 +57,16 @@ enum Method
 };
 
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__RESULTID"></a>
+ * \brief Available identifiers of the result for making model-based prediction
+ */
+enum ResultId
+{
+    prediction   = algorithms::classifier::prediction::prediction, /*!< Result of gradient boosted trees model-based prediction */
+    lastResultId = prediction
+};
+
+/**
  * <a name="DAAL-ENUM-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__RESULTTOCOMPUTEID"></a>
  * Available identifiers to specify the result to compute - results are mutually exclusive
  */
@@ -68,7 +78,7 @@ enum ResultToComputeId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2 .0 of the Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -89,6 +99,61 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
+
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__RESULT"></a>
+ * \brief Provides interface for the result of model-based prediction
+ */
+class DAAL_EXPORT Result : public algorithms::classifier::prediction::Result
+{
+public:
+    DECLARE_SERIALIZABLE_CAST(Result)
+    Result();
+
+    /**
+     * Returns the result of model-based prediction
+     * \param[in] id    Identifier of the result
+     * \return          Result that corresponds to the given identifier
+     */
+    data_management::NumericTablePtr get(ResultId id) const;
+
+    /**
+     * Sets the result of model-based prediction
+     * \param[in] id      Identifier of the input object
+     * \param[in] value   %Input object
+     */
+    void set(ResultId id, const data_management::NumericTablePtr & value);
+
+    /**
+     * Allocates memory to store a partial result of model-based prediction
+     * \param[in] input   %Input object
+     * \param[in] par     %Parameter of the algorithm
+     * \param[in] method  Algorithm method
+     * \return Status of allocation
+     */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
+
+    /**
+     * Checks the result of model-based prediction
+     * \param[in] input   %Input object
+     * \param[in] par     %Parameter of the algorithm
+     * \param[in] method  Computation method
+     * \return Status of checking
+     */
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    using daal::algorithms::Result::check;
+
+    /** \private */
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
+    {
+        return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
+    }
+};
+
 } // namespace interface2
 
 /**
@@ -151,6 +216,7 @@ public:
 
 } // namespace interface1
 using interface2::Parameter;
+using interface2::Result;
 using interface1::Input;
 } // namespace prediction
 /** @} */
