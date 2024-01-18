@@ -54,14 +54,14 @@ create_package() {
     # platform specific
     platform=$(bash $(dirname "$0")/../../dev/make/identify_os.sh)
     if [ ${platform} = "lnx32e" ]; then
-        platform=linux-x64
+        platform=linux
         tbb_platform=linux
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib/intel64
         static_lib_path=lib/intel64
         lib_prefix=libonedal
     elif [ ${platform} = "lnxarm" ]; then
-        platform=linux-aarch64
+        platform=linux
         tbb_platform=linux
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib/arm
@@ -107,10 +107,7 @@ create_package() {
 
     if [ "${build_nupkg}" = "yes" ]; then
         # extension of libraries
-        if [ "${platform}" = "linux-x64" ]; then
-            dl_postfix=.so.${major_binary_version}.${minor_binary_version}
-            sl_postfix=.a
-        elif [ "${platform}" = "linux-aarch64" ]; then
+        if [ "${platform}" = "linux" ]; then
             dl_postfix=.so.${major_binary_version}.${minor_binary_version}
             sl_postfix=.a
         elif [ "${platform}" = "osx-x64" ]; then
