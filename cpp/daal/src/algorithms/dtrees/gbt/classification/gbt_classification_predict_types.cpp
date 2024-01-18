@@ -57,7 +57,7 @@ NumericTablePtr Input::get(classifier::prediction::NumericTableInputId id) const
  * \param[in] id    Identifier of the input object
  * \return          %Input object that corresponds to the given identifier
  */
-gbt::classification::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
+gbt::classification::ModelPtr Input::get(ModelInputId id) const
 {
     return staticPointerCast<gbt::classification::Model, SerializationIface>(Argument::get(id));
 }
@@ -77,9 +77,9 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const gbt::classification::ModelPtr & value)
+void Input::set(ModelInputId id, const gbt::classification::ModelPtr & value)
 {
-    algorithms::classifier::prediction::Input::set(id, value);
+    algorithms::classifier::prediction::Input::set(algorithms::classifier::prediction::ModelInputId(id), value);
 }
 
 /**
@@ -89,16 +89,14 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::classifier::prediction::Input::check(parameter, method));
-    ModelPtr m = get(classifier::prediction::model);
-    const daal::algorithms::gbt::classification::internal::ModelImpl * pModel =
-        static_cast<const daal::algorithms::gbt::classification::internal::ModelImpl *>(m.get());
+    classifier::ModelPtr m = get(prediction::model);
+    const auto * pModel    = static_cast<const classification::internal::ModelImpl *>(m.get());
     DAAL_ASSERT(pModel);
     DAAL_CHECK(pModel->getNumberOfTrees(), services::ErrorNullModel);
 
     size_t nClasses = 0, nIterations = 0;
 
-    const gbt::classification::prediction::interface2::Parameter * pPrm =
-        dynamic_cast<const gbt::classification::prediction::interface2::Parameter *>(parameter);
+    const auto * pPrm = dynamic_cast<const gbt::classification::prediction::Parameter *>(parameter);
     if (pPrm)
     {
         nClasses    = pPrm->nClasses;
@@ -161,7 +159,11 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     using algorithms::classifier::prediction::Result;
 
     Status s;
-    DAAL_CHECK_STATUS(s, Result::check(input, par, method));
+
+    const Input * const in = static_cast<const Input *>(input);
+    classifier::ModelPtr m = in->get(prediction::model);
+    DAAL_CHECK(m, services::ErrorNullModel);
+
     const auto inputCast                              = static_cast<const prediction::Input *>(input);
     const prediction::Parameter * regressionParameter = static_cast<const prediction::Parameter *>(par);
     size_t expectedNColumns                           = 1;
@@ -174,6 +176,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     {
         const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
         expectedNColumns      = (nColumns + 1) * (nColumns + 1);
+    }
+    else
+    {
+        DAAL_CHECK_STATUS(s, Result::check(input, par, method));
     }
     DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == expectedNColumns, ErrorIncorrectNumberOfColumns, ArgumentName, predictionStr());
     return s;

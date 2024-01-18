@@ -57,13 +57,27 @@ enum Method
 };
 
 /**
+ * <a name="DAAL-ENUM-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__MODELINPUTID"></a>
+ * \brief Available identifiers of input models for making model-based prediction
+ */
+enum ModelInputId
+{
+    model            = algorithms::classifier::prediction::model, /*!< Trained gradient boosted trees model */
+    lastModelInputId = model
+};
+
+/**
  * <a name="DAAL-ENUM-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__RESULTID"></a>
  * \brief Available identifiers of the result for making model-based prediction
  */
 enum ResultId
 {
-    prediction   = algorithms::classifier::prediction::prediction, /*!< Result of gradient boosted trees model-based prediction */
-    lastResultId = prediction
+    prediction    = algorithms::classifier::prediction::prediction, /*!< Result of gradient boosted trees model-based prediction */
+    probabilities = algorithms::classifier::prediction::
+        probabilities, /*!< Prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
+    logProbabilities = algorithms::classifier::prediction::
+        logProbabilities, /*!< Logarithm of prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
+    lastResultId = logProbabilities
 };
 
 /**
@@ -154,6 +168,7 @@ protected:
     }
 };
 
+typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface2
 
 /**
@@ -189,7 +204,7 @@ public:
      * \param[in] id    Identifier of the input Model object
      * \return          %Input object that corresponds to the given identifier
      */
-    gbt::classification::ModelPtr get(classifier::prediction::ModelInputId id) const;
+    gbt::classification::ModelPtr get(ModelInputId id) const;
 
     /**
      * Sets the input NumericTable object in the prediction stage of the classification algorithm
@@ -203,7 +218,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const gbt::classification::ModelPtr & ptr);
+    void set(ModelInputId id, const gbt::classification::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -217,6 +232,7 @@ public:
 } // namespace interface1
 using interface2::Parameter;
 using interface2::Result;
+using interface2::ResultPtr;
 using interface1::Input;
 } // namespace prediction
 /** @} */
