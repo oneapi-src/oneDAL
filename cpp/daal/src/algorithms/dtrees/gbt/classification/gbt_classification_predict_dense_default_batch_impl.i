@@ -81,9 +81,12 @@ public:
      * \param m The model for which to run prediction
      * \param nIterations Number of iterations
      * \param pHostApp HostAppInterface
+     * \param predShapContributions Predict SHAP contributions
+     * \param predShapInteractions Predict SHAP interactions
      * \return services::Status
      */
-    services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nIterations, services::HostAppIface * pHostApp);
+    services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nIterations, services::HostAppIface * pHostApp,
+                         bool predShapContributions, bool predShapInteractions);
 
 protected:
     /**
@@ -126,9 +129,12 @@ public:
      * \param nClasses Number of data classes
      * \param nIterations Number of iterations
      * \param pHostApp HostAppInterface
+     * \param predShapContributions Predict SHAP contributions
+     * \param predShapInteractions Predict SHAP interactions
      * \return services::Status
      */
-    services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nClasses, size_t nIterations, services::HostAppIface * pHostApp);
+    services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nClasses, size_t nIterations, services::HostAppIface * pHostApp,
+                         bool predShapContributions, bool predShapInteractions);
 
 protected:
     /** Dispatcher type for template dispatching */
@@ -408,8 +414,12 @@ protected:
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::run(const gbt::classification::internal::ModelImpl * m, size_t nIterations,
-                                                                            services::HostAppIface * pHostApp)
+                                                                            services::HostAppIface * pHostApp, bool predShapContributions,
+                                                                            bool predShapInteractions)
 {
+    // assert we're not requesting both contributions and interactions
+    DAAL_ASSERT(!(predShapContributions && predShapInteractions));
+
     DAAL_ASSERT(!nIterations || nIterations <= m->size());
     DAAL_CHECK_MALLOC(this->_featHelper.init(*this->_data));
     const auto nTreesTotal = (nIterations ? nIterations : m->size());
@@ -497,7 +507,7 @@ services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::run(cons
         DAAL_CHECK_BLOCK_STATUS(resBD);
         const algorithmFPType label[2] = { algorithmFPType(1.), algorithmFPType(0.) };
         algorithmFPType * res          = resBD.get();
-        s                              = super::runInternal(pHostApp, this->_res, margin, false, false);
+        s                              = super::runInternal(pHostApp, this->_res, margin, predShapContributions, predShapInteractions);
         if (!s) return s;
 
         typedef services::internal::SignBit<algorithmFPType, cpu> SignBit;
@@ -714,23 +724,28 @@ size_t PredictMulticlassTask<algorithmFPType, cpu>::getMaxClass(const algorithmF
 template <typename algorithmFPType, prediction::Method method, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * pHostApp, const NumericTable * x,
                                                                       const classification::Model * m, NumericTable * r, NumericTable * prob,
-                                                                      size_t nClasses, size_t nIterations)
+                                                                      size_t nClasses, size_t nIterations, bool predShapContributions,
+                                                                      bool predShapInteractions)
 {
     const daal::algorithms::gbt::classification::internal::ModelImpl * pModel =
         static_cast<const daal::algorithms::gbt::classification::internal::ModelImpl *>(m);
     if (nClasses == 2)
     {
         PredictBinaryClassificationTask<algorithmFPType, cpu> task(x, r, prob);
-        return task.run(pModel, nIterations, pHostApp);
+        return task.run(pModel, nIterations, pHostApp, predShapContributions, predShapInteractions);
     }
     PredictMulticlassTask<algorithmFPType, cpu> task(x, r, prob);
-    return task.run(pModel, nClasses, nIterations, pHostApp);
+    return task.run(pModel, nClasses, nIterations, pHostApp, predShapContributions, predShapInteractions);
 }
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const gbt::classification::internal::ModelImpl * m, size_t nClasses,
-                                                                  size_t nIterations, services::HostAppIface * pHostApp)
+                                                                  size_t nIterations, services::HostAppIface * pHostApp, bool predShapContributions,
+                                                                  bool predShapInteractions)
 {
+    // assert we're not requesting both contributions and interactions
+    DAAL_ASSERT(!(predShapContributions && predShapInteractions));
+
     DAAL_ASSERT(!nIterations || nClasses * nIterations <= m->size());
     const auto nTreesTotal = (nIterations ? nIterations * nClasses : m->size());
     DAAL_CHECK_MALLOC(this->_featHelper.init(*this->_data));
