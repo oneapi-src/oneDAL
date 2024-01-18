@@ -1,6 +1,6 @@
 /* file: kernel_inst_arm.h */
 /*******************************************************************************
-* Copyright 2023-24 FUJITSU LIMITED
+* Copyright 2024 FUJITSU LIMITED
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,19 +24,6 @@
 #ifndef __KERNEL_INST_ARM_H__
 #define __KERNEL_INST_ARM_H__
 
-#include "services/daal_defines.h"
-#include "src/services/service_defines.h"
-#include "services/internal/daal_kernel_defines.h"
-#include "services/internal/gpu_support_checker.h"
-
-#define __DAAL_GET_CPUID int cpuid = daalEnv->cpuid;
-
-#define __DAAL_GET_CPUID_SAFE  \
-    int cpuid = DAAL_BASE_CPU; \
-    DAAL_SAFE_CPU_CALL((cpuid = daalEnv->cpuid), (cpuid = DAAL_BASE_CPU))
-
-#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
-
 #define __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, GetCpuid, ...)                         \
     DAAL_KERNEL_SVE_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                     \
     namespace interface1                                                                                                           \
@@ -55,13 +42,6 @@
                                                                                                                                    \
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>; \
     }
-
-#define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SAFE(ContainerTemplate, Mode, ...)                                                               \
-    __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID_SAFE, \
-                                     __VA_ARGS__)
-
-#define __DAAL_INSTANTIATE_DISPATCH_CONTAINER(ContainerTemplate, Mode, ...) \
-    __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID, __VA_ARGS__)
 
 #define __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, GetCpuid, ...)                    \
     DAAL_KERNEL_SVE_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                     \
@@ -87,13 +67,5 @@
                                                                                                                                    \
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>; \
     }
-
-#define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(ContainerTemplate, Mode, ...)                                                               \
-    __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID, \
-                                          __VA_ARGS__)
-
-#define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(ContainerTemplate, Mode, ...)                                                               \
-    __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID_SAFE, \
-                                          __VA_ARGS__)
 
 #endif
