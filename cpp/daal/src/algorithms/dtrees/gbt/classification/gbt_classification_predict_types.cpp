@@ -158,12 +158,11 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     using algorithms::classifier::prediction::data;
     using algorithms::classifier::prediction::Result;
 
-    Status s;
-
     const Input * const in = static_cast<const Input *>(input);
     classifier::ModelPtr m = in->get(prediction::model);
-    DAAL_CHECK(m, services::ErrorNullModel);
+    DAAL_CHECK(m.get(), services::ErrorNullModel);
 
+    Status s;
     const auto inputCast                              = static_cast<const prediction::Input *>(input);
     const prediction::Parameter * regressionParameter = static_cast<const prediction::Parameter *>(par);
     size_t expectedNColumns                           = 1;

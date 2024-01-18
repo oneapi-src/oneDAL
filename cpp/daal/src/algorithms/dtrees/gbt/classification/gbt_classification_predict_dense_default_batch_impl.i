@@ -510,15 +510,19 @@ services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::run(cons
         s                              = super::runInternal(pHostApp, this->_res, margin, predShapContributions, predShapInteractions);
         if (!s) return s;
 
-        typedef services::internal::SignBit<algorithmFPType, cpu> SignBit;
-
-        PRAGMA_IVDEP
-        for (size_t iRow = 0; iRow < nRows; ++iRow)
+        // for SHAP values, the score from runInternal is what we need
+        if (!(predShapContributions || predShapInteractions))
         {
-            // probability is a sigmoid(f) hence sign(f) can be checked
-            const algorithmFPType initial = res[iRow];
-            const int sign                = SignBit::get(initial);
-            res[iRow]                     = label[sign];
+            // convert the score to a class label
+            typedef services::internal::SignBit<algorithmFPType, cpu> SignBit;
+            PRAGMA_IVDEP
+            for (size_t iRow = 0; iRow < nRows; ++iRow)
+            {
+                // probability is a sigmoid(f) hence sign(f) can be checked
+                const algorithmFPType initial = res[iRow];
+                const int sign                = SignBit::get(initial);
+                res[iRow]                     = label[sign];
+            }
         }
     }
     return s;
