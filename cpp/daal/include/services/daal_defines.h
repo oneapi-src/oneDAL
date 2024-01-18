@@ -33,7 +33,7 @@
 #define TARGET_X86_64
 #endif
 
-#ifdef __ARM_ARCH
+#if defined(__ARM_ARCH) || defined(	__aarch64__) 
 #define TARGET_ARM
 #endif
 
@@ -74,7 +74,7 @@
 #if !defined(DAAL_INT)
     #if defined(_WIN64) || defined(__x86_64__)
         #define DAAL_INT __int64
-    #elif defined(__aarch64__)
+    #elif defined(TARGET_ARM)
         #define DAAL_INT __int64
     #else
         #define DAAL_INT __int32
