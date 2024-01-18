@@ -15,6 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/include/services/daal_defines.h>
+
 #include "daal/src/algorithms/covariance/covariance_kernel.h"
 
 #include "oneapi/dal/algo/covariance/backend/cpu/finalize_compute_kernel.hpp"
@@ -24,10 +26,10 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#ifdef TARGET_ARM
-#define CPU_EXTENSION dal::detail::cpu_extension::sve
-#else
+#if defined(TARGET_X86_64)
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
+#elif defined(TARGET_ARM)
+#define CPU_EXTENSION dal::detail::cpu_extension::sve
 #endif
 
 namespace oneapi::dal::covariance::backend {

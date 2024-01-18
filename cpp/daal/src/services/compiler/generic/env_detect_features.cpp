@@ -22,14 +22,15 @@
 //--
 */
 
-#ifdef TARGET_X86_64
+#include "services/env_detect.h"
+#include "services/daal_defines.h"
+
+#if defined(TARGET_X86_64)
     #include <immintrin.h>
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #include <arm_sve.h>
 #endif
 
-#include "services/env_detect.h"
-#include "services/daal_defines.h"
 #include "src/services/service_defines.h"
 #include "src/threading/threading.h"
 
@@ -46,7 +47,7 @@
 void __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 {
     #if defined(_MSC_VER)
@@ -213,7 +214,7 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 
     return daal::sse2;
 }
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 {
     return 0;

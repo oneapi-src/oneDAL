@@ -947,9 +947,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     algorithmFPType * const prob = probBD.get();
     daal::SafeStatus safeStat;
     const size_t nRowsOfRes = _data->getNumberOfRows();
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     const size_t blockSize = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     const size_t blockSize = cpu == sve ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
 #endif
     const size_t nBlocks           = nRowsOfRes / blockSize;

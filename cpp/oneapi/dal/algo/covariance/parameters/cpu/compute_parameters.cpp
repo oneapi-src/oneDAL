@@ -16,6 +16,7 @@
 *******************************************************************************/
 
 #include <algorithm>
+#include <daal/include/services/daal_defines.h>
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
@@ -28,9 +29,9 @@
 
 #include "oneapi/dal/algo/covariance/parameters/cpu/compute_parameters.hpp"
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
 #endif
 

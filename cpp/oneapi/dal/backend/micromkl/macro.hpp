@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <daal/include/services/daal_defines.h>
+
 #ifndef __MICROMKL_INCLUDE_GUARD__
 #error "This header cannot be included outside of micromkl module"
 #endif
@@ -51,10 +53,10 @@
     FUNC_CPU_DECL(nominal_cpu, prefix, name, argdecl)                     \
     DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, argdecl, argcall)
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define FUNC_AVX512(...) EXPAND(FUNC_CPU(avx512, avx512, __VA_ARGS__))
 #define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define FUNC_A8SVE(...) EXPAND(FUNC_CPU(sve, sve, __VA_ARGS__))
 #endif
 
@@ -66,14 +68,14 @@
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
 #endif
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define FUNC(prefix, name, argdecl, argcall)    \
     DISPATCH_FUNC_DECL(prefix, name, argdecl)   \
     FUNC_AVX512(prefix, name, argdecl, argcall) \
     FUNC_AVX2(prefix, name, argdecl, argcall)   \
     FUNC_SSE42(prefix, name, argdecl, argcall)  \
     FUNC_SSE2(prefix, name, argdecl, argcall)
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define FUNC(prefix, name, argdecl, argcall)  \
     DISPATCH_FUNC_DECL(prefix, name, argdecl) \
     FUNC_A8SVE(prefix, name, argdecl, argcall)
@@ -120,13 +122,13 @@
 
 #define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
     INSTANTIATE_AVX512(name, Float, argdecl)    \
     INSTANTIATE_AVX2(name, Float, argdecl)      \
     INSTANTIATE_SSE42(name, Float, argdecl)     \
     INSTANTIATE_SSE2(name, Float, argdecl)
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define INSTANTIATE_FLOAT(name, Float, argdecl) INSTANTIATE_A8SVE(name, Float, argdecl)
 #endif
 

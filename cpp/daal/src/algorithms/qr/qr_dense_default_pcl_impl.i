@@ -90,7 +90,7 @@ inline int * get_nblocks_array(int * size)
 }
 /* rows/cols is greater or equal to: --------------------------------------------------------- 0   1   2   4   8  16  32  64 128 256 512  1K  2K ----------------------------------------------------*/
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 template <>
 inline int * get_nblocks_array<float, avx2>(int * size)
 {
@@ -119,7 +119,7 @@ inline int * get_nblocks_array<double, avx512>(int * size)
     *size              = sizeof(array) / sizeof(int) - 1;
     return array;
 }
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 template <>
 inline int * get_nblocks_array<float, sve>(int * size)
 {

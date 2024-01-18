@@ -33,7 +33,7 @@
 #define TARGET_X86_64
 #endif
 
-#if defined(__ARM_ARCH) || defined(__aarch64__)
+#ifdef __ARM_ARCH
 #define TARGET_ARM
 #endif
 

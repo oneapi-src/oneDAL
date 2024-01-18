@@ -17,21 +17,14 @@
 
 #pragma once
 
+#include "daal/include/services/daal_defines.h"
+
 #include <type_traits>
 #ifdef ONEDAL_DATA_PARALLEL
 #include <sycl/sycl.hpp>
 #endif
 
 #include "oneapi/dal/detail/common.hpp"
-
-// Redefined here for oneapi part to avoid import of dal services
-#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
-#define TARGET_X86_64
-#endif
-
-#if defined(__ARM_ARCH) || defined(__aarch64__)
-#define TARGET_ARM
-#endif
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -71,12 +64,12 @@ inline constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::va
 
 enum class cpu_extension : uint64_t {
     none = 0U,
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     sse2 = 1U << 0,
     sse42 = 1U << 2,
     avx2 = 1U << 4,
     avx512 = 1U << 5
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     sve = 1U << 0,
 #endif
 };

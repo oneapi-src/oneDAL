@@ -25,6 +25,8 @@
 #ifndef __ALGORITHM_CONTAINER_BASE_COMMON_H__
 #define __ALGORITHM_CONTAINER_BASE_COMMON_H__
 
+#include "services/daal_defines.h"
+
 #include "algorithms/algorithm_container_base.h"
 #include "services/error_handling.h"
 #include "services/internal/gpu_support_checker.h"
@@ -55,10 +57,10 @@ namespace interface1
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
  */
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 template <ComputeMode mode, typename sse2Container DAAL_KERNEL_SSE42_ONLY(typename sse42Container) DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
                                 DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 template <ComputeMode mode, typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
 #endif
 class DAAL_EXPORT AlgorithmDispatchContainer : public AlgorithmContainerImpl<mode>
@@ -105,12 +107,12 @@ private:
     AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                \
         algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(                              \
                                                          ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) \
                                                          DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
         algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 #endif

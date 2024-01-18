@@ -15,7 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifdef TARGET_X86_64
+#include <daal/include/services/daal_defines.h>
+
+#if defined(TARGET_X86_64)
 #include <immintrin.h>
 #endif
 
@@ -158,7 +160,7 @@ int check_sse42_features() {
 
 std::string detect_cpu() {
 
-    #ifdef TARGET_X86_64
+    #if defined(TARGET_X86_64)
         try_enable_avx512f_on_macos();
 
         if (check_avx512_features()) {
@@ -173,7 +175,7 @@ std::string detect_cpu() {
         else {
             return "sse2";
         }
-    #elif TARGET_ARM
+    #elif defined(TARGET_ARM)
         return "sve";
     #endif
 }

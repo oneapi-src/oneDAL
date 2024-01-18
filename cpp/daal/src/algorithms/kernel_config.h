@@ -25,9 +25,11 @@
 #ifndef __KERNEL_CONFIG_H__
 #define __KERNEL_CONFIG_H__
 
-#ifdef TARGET_X86_64
+#include "services/daal_defines.h"
+
+#if defined(TARGET_X86_64)
     #include "src/algorithms/kernel_inst_x86.h"
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #include "src/algorithms/kernel_inst_arm.h"
 #endif
 #endif

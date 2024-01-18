@@ -17,17 +17,19 @@
 
 #pragma once
 
+#include <daal/include/services/daal_defines.h>
+
 #ifdef __ONEDAL_IDE_MODE__
 // If this file is openned in IDE it will complain about
 // `_onedal_dispatcher_cpu.hpp` as this file is generated at build time.
 // It's recommended to define __ONEDAL_IDE_MODE__ in your IDE settings to
 // enable this branch for preprocessor.
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define ONEDAL_CPU_DISPATCH_SSE42
 #define ONEDAL_CPU_DISPATCH_AVX2
 #define ONEDAL_CPU_DISPATCH_AVX512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define ONEDAL_CPU_DISPATCH_A8SVE
 #endif
 #else

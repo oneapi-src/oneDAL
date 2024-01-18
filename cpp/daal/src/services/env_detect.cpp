@@ -32,9 +32,9 @@
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     #define DAAL_HOST_CPUID daal::services::Environment::avx512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #define DAAL_HOST_CPUID daal::services::Environment::sve
 #endif
 

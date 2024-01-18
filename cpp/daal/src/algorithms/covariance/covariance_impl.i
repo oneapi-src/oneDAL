@@ -136,9 +136,9 @@ static inline size_t getBlockSize(size_t nrows)
     return 140;
 }
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     #define DAAL_CPU_TYPE avx512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #define DAAL_CPU_TYPE sve
 #endif
 

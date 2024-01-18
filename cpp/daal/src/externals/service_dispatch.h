@@ -29,7 +29,7 @@
 
 
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                                    \
         switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))                     \
         {                                                                                                               \
@@ -51,7 +51,7 @@
             DAAL_EXPAND(default : st = func(daal::CpuType::sse2, __VA_ARGS__); break;)                                       \
         }                                                                                                                    \
         services::throwIfPossible(st);
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                           \
         switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))            \
         {                                                                                                      \

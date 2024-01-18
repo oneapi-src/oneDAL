@@ -15,6 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/include/services/daal_defines.h>
+
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 #include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 
@@ -26,9 +28,9 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
 #endif
 

@@ -24,9 +24,9 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
 #endif
 

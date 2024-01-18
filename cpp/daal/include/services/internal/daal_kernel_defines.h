@@ -33,12 +33,12 @@
  * @{
  */
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     #define DAAL_KERNEL_SSE2
     #define DAAL_KERNEL_SSE42
     #define DAAL_KERNEL_AVX2
     #define DAAL_KERNEL_AVX512
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #define DAAL_KERNEL_SVE
 #endif
 
@@ -56,7 +56,7 @@ case cpuType:                                                                   
     break;                                                                                      \
 }
 
-#ifdef TARGET_X86_64
+#if defined(TARGET_X86_64)
     #if defined(DAAL_KERNEL_SSE2)
         #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
         #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::sse2
@@ -131,7 +131,7 @@ case cpuType:                                                                   
         #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...)
         #define DAAL_KERNEL_AVX512_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
     #endif
-#elif TARGET_ARM
+#elif defined(TARGET_ARM)
     #if defined(DAAL_KERNEL_SVE)
         #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
         #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID          daal::sve
