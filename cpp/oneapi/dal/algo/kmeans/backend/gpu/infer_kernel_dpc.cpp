@@ -48,7 +48,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                       sycl::usm::alloc::device);
         auto result =
             infer_result<task::clustering>{}.set_result_options(desc.get_result_options());
-        ;
+
         std::int64_t block_size_in_rows =
             std::min(row_count,
                      kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));

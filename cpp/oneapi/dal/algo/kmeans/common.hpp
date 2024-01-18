@@ -73,9 +73,9 @@ ONEDAL_EXPORT result_option_id get_compute_exact_objective_function_id();
 /// what should an algorithm return
 namespace result_options {
 
-/// Return assignments
+/// Return the assignments
 const inline result_option_id compute_assignments = detail::get_compute_assignments_id();
-/// Return objective function
+/// Return the objective function
 const inline result_option_id compute_exact_objective_function =
     detail::get_compute_exact_objective_function_id();
 
