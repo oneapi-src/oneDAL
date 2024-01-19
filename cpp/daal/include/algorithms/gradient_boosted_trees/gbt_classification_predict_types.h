@@ -72,12 +72,10 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction    = algorithms::classifier::prediction::prediction, /*!< Result of gradient boosted trees model-based prediction */
-    probabilities = algorithms::classifier::prediction::
-        probabilities, /*!< Prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
-    logProbabilities = algorithms::classifier::prediction::
-        logProbabilities, /*!< Logarithm of prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
-    lastResultId = logProbabilities
+    prediction       = algorithms::classifier::prediction::prediction,
+    probabilities    = algorithms::classifier::prediction::probabilities,
+    logProbabilities = algorithms::classifier::prediction::logProbabilities,
+    lastResultId     = logProbabilities
 };
 
 /**

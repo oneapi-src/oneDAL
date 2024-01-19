@@ -155,32 +155,46 @@ void Result::set(ResultId id, const NumericTablePtr & value)
  */
 services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
+    using algorithms::classifier::computeClassLabels;
+    using algorithms::classifier::computeClassProbabilities;
+    using algorithms::classifier::computeClassLogProbabilities;
     using algorithms::classifier::prediction::data;
     using algorithms::classifier::prediction::Result;
 
-    const Input * const in = static_cast<const Input *>(input);
-    classifier::ModelPtr m = in->get(prediction::model);
+    const prediction::Parameter * classificationParameter = static_cast<const prediction::Parameter *>(par);
+    Status s;
+
+    const auto predictionInput = static_cast<const prediction::Input *>(input);
+    DAAL_CHECK(predictionInput->get(data).get(), services::ErrorNullInputNumericTable);
+    const size_t nRows = predictionInput->get(data)->getNumberOfRows();
+
+    classifier::ModelPtr m = predictionInput->get(prediction::model);
     DAAL_CHECK(m.get(), services::ErrorNullModel);
 
-    Status s;
-    const auto inputCast                              = static_cast<const prediction::Input *>(input);
-    const prediction::Parameter * regressionParameter = static_cast<const prediction::Parameter *>(par);
-    size_t expectedNColumns                           = 1;
-    if (regressionParameter->resultsToCompute & shapContributions)
+    if (classificationParameter->resultsToEvaluate & computeClassLabels)
     {
-        const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
-        expectedNColumns      = nColumns + 1;
+        size_t expectedNColumns = 1;
+        if (classificationParameter->resultsToCompute & shapContributions)
+        {
+            const size_t nColumns = predictionInput->get(data)->getNumberOfColumns();
+            expectedNColumns      = nColumns + 1;
+        }
+        else if (classificationParameter->resultsToCompute & shapInteractions)
+        {
+            const size_t nColumns = predictionInput->get(data)->getNumberOfColumns();
+            expectedNColumns      = (nColumns + 1) * (nColumns + 1);
+        }
+        DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == expectedNColumns, ErrorIncorrectNumberOfColumns, ArgumentName, predictionStr());
+        DAAL_CHECK_STATUS(
+            s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, expectedNColumns, nRows));
     }
-    else if (regressionParameter->resultsToCompute & shapInteractions)
-    {
-        const size_t nColumns = inputCast->get(data)->getNumberOfColumns();
-        expectedNColumns      = (nColumns + 1) * (nColumns + 1);
-    }
-    else
-    {
-        DAAL_CHECK_STATUS(s, Result::check(input, par, method));
-    }
-    DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == expectedNColumns, ErrorIncorrectNumberOfColumns, ArgumentName, predictionStr());
+    if (classificationParameter->resultsToEvaluate & computeClassProbabilities)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), data_management::packed_mask, 0,
+                                                                classificationParameter->nClasses, nRows));
+    if (classificationParameter->resultsToEvaluate & computeClassLogProbabilities)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), data_management::packed_mask, 0,
+                                                                classificationParameter->nClasses, nRows));
+
     return s;
 }
 

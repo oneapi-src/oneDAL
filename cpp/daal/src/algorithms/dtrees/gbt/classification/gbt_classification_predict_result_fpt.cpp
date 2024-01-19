@@ -40,6 +40,9 @@ using namespace daal::services;
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
+    using algorithms::classifier::computeClassLabels;
+    using algorithms::classifier::computeClassProbabilities;
+    using algorithms::classifier::computeClassLogProbabilities;
     using algorithms::classifier::prediction::data;
 
     const Input * algInput                   = (static_cast<const Input *>(input));
@@ -48,21 +51,38 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     services::Status s;
     const size_t nVectors = dataPtr->getNumberOfRows();
 
-    size_t nColumnsToAllocate                 = 1;
     const Parameter * classificationParameter = static_cast<const Parameter *>(par);
-    if (classificationParameter->resultsToCompute & shapContributions)
+
+    if (classificationParameter->resultsToEvaluate & computeClassLabels)
     {
-        const size_t nColumns = dataPtr->getNumberOfColumns();
-        nColumnsToAllocate    = nColumns + 1;
-    }
-    else if (classificationParameter->resultsToCompute & shapInteractions)
-    {
-        const size_t nColumns = dataPtr->getNumberOfColumns();
-        nColumnsToAllocate    = (nColumns + 1) * (nColumns + 1);
+        size_t nColumnsToAllocate = 1;
+        if (classificationParameter->resultsToCompute & shapContributions)
+        {
+            const size_t nColumns = dataPtr->getNumberOfColumns();
+            nColumnsToAllocate    = nColumns + 1;
+        }
+        else if (classificationParameter->resultsToCompute & shapInteractions)
+        {
+            const size_t nColumns = dataPtr->getNumberOfColumns();
+            nColumnsToAllocate    = (nColumns + 1) * (nColumns + 1);
+        }
+
+        Argument::set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(nColumnsToAllocate, nVectors,
+                                                                                                data_management::NumericTableIface::doAllocate, &s));
     }
 
-    Argument::set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(nColumnsToAllocate, nVectors,
-                                                                                            data_management::NumericTableIface::doAllocate, &s));
+    if (classificationParameter->resultsToEvaluate & computeClassProbabilities)
+    {
+        Argument::set(probabilities, data_management::HomogenNumericTable<algorithmFPType>::create(
+                                         classificationParameter->nClasses, nVectors, data_management::NumericTableIface::doAllocate, &s));
+    }
+
+    if (classificationParameter->resultsToEvaluate & computeClassLogProbabilities)
+    {
+        Argument::set(logProbabilities, data_management::HomogenNumericTable<algorithmFPType>::create(
+                                            classificationParameter->nClasses, nVectors, data_management::NumericTableIface::doAllocate, &s));
+    }
+
     return s;
 }
 
