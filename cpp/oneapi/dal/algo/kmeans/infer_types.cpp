@@ -34,7 +34,7 @@ template <typename Task>
 class detail::v1::infer_result_impl : public base {
 public:
     table responses;
-    double objective_function_value = -1.0;
+    double objective_function_value = 0.0;
     result_option_id options;
 };
 

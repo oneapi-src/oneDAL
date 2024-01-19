@@ -66,7 +66,7 @@ struct infer_ops {
             ONEDAL_ASSERT(result.get_responses().get_column_count() == 1);
         }
         if (result.get_result_options().test(result_options::compute_exact_objective_function)) {
-            ONEDAL_ASSERT(result.get_objective_function_value() >= 0);
+            ONEDAL_ASSERT(result.get_objective_function_value() > 0);
         }
     }
 
