@@ -17,7 +17,13 @@
 
 #pragma once
 
-#include "daal/include/services/daal_defines.h"
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+    #define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+    #define TARGET_ARM
+#endif
 
 #include <type_traits>
 #ifdef ONEDAL_DATA_PARALLEL
