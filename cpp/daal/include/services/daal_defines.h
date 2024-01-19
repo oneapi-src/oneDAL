@@ -30,11 +30,11 @@
 #include <cstddef> // for size_t
 
 #if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
-#define TARGET_X86_64
+    #define TARGET_X86_64
 #endif
 
-#if defined(__ARM_ARCH) || defined(	__aarch64__) 
-#define TARGET_ARM
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+    #define TARGET_ARM
 #endif
 
 #if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)

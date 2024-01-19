@@ -38,7 +38,6 @@ void context_cpu::global_init() {
 inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     using detail::cpu_extension;
     switch (cpu) {
-
 #if defined(TARGET_X86_64)
         case daal::sse2: return cpu_extension::sse2;
         case daal::sse42: return cpu_extension::sse42;
@@ -53,7 +52,6 @@ inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
 
 detail::cpu_extension detect_top_cpu_extension() {
     if (!__daal_serv_cpu_extensions_available()) {
-
 #if defined(TARGET_X86_64)
         return detail::cpu_extension::sse2;
 #elif defined(TARGET_ARM)

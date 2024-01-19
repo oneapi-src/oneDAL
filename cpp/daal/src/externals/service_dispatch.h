@@ -27,8 +27,6 @@
 
 #include "services/internal/daal_kernel_defines.h"
 
-
-
 #if defined(TARGET_X86_64)
     #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                                    \
         switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))                     \
