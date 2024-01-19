@@ -304,6 +304,25 @@ public:
                                        dbi_ref_tol);
     }
 
+    void test_optional_results_on_dataset(const std::string& dataset_path,
+                                          std::int64_t cluster_count,
+                                          std::int64_t max_iteration_count,
+                                          float_t expected_dbi,
+                                          float_t expected_obj,
+                                          float_t obj_ref_tol = 1.0e-4,
+                                          float_t dbi_ref_tol = 1.0e-3) {
+        const te::dataframe data = te::dataframe_builder{ dataset_path }.build();
+        const table x = data.get_table(this->get_homogen_table_id());
+        this->optional_results_dbi_deterministic_checks(x,
+                                                        cluster_count,
+                                                        max_iteration_count,
+                                                        0.0,
+                                                        expected_dbi,
+                                                        expected_obj,
+                                                        obj_ref_tol,
+                                                        dbi_ref_tol);
+    }
+
     void dbi_deterministic_checks(const table& data,
                                   std::int64_t cluster_count,
                                   std::int64_t max_iteration_count,
@@ -337,6 +356,56 @@ public:
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
         REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
+                                         ref_obj_func,
+                                         obj_ref_tol));
+    }
+
+    void optional_results_dbi_deterministic_checks(const table& data,
+                                                   std::int64_t cluster_count,
+                                                   std::int64_t max_iteration_count,
+                                                   float_t accuracy_threshold,
+                                                   float_t ref_dbi,
+                                                   float_t ref_obj_func,
+                                                   float_t obj_ref_tol = 1.0e-4,
+                                                   float_t dbi_ref_tol = 1.0e-4) {
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        const auto data_rows = row_accessor<const float_t>(data).pull({ 0, cluster_count });
+        const auto initial_centroids =
+            homogen_table::wrap(data_rows.get_data(), cluster_count, data.get_column_count());
+
+        INFO("run training");
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        REQUIRE(te::has_no_nans(model.get_centroids()));
+
+        const auto kmeans_desc_infer_assignments =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
+                .set_result_options(dal::kmeans::result_options::compute_assignments);
+
+        const auto kmeans_desc_infer_obj_func =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
+                .set_result_options(dal::kmeans::result_options::compute_exact_objective_function);
+
+        INFO("run inference assignments");
+        const auto infer_result_assignments =
+            this->infer(kmeans_desc_infer_assignments, model, data);
+        REQUIRE(te::has_no_nans(infer_result_assignments.get_responses()));
+
+        auto dbi = te::davies_bouldin_index(data,
+                                            model.get_centroids(),
+                                            infer_result_assignments.get_responses());
+        CAPTURE(dbi, ref_dbi);
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
+
+        INFO("run inference just objective function");
+        const auto infer_result_obj_func = this->infer(kmeans_desc_infer_obj_func, model, data);
+        CAPTURE(infer_result_obj_func.get_objective_function_value(), ref_obj_func);
+        REQUIRE(check_value_with_ref_tol(infer_result_obj_func.get_objective_function_value(),
                                          ref_obj_func,
                                          obj_ref_tol));
     }

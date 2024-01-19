@@ -118,9 +118,19 @@ public:
         return *this;
     }
 
+    /// Result options that indicates availability of the properties
+    /// @remark default = default_result_options<Task>
+    const result_option_id& get_result_options() const;
+
+    auto& set_result_options(const result_option_id& value) {
+        set_result_options_impl(value);
+        return *this;
+    }
+
 protected:
     void set_responses_impl(const table&);
     void set_objective_function_value_impl(double);
+    void set_result_options_impl(const result_option_id&);
 
 private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;

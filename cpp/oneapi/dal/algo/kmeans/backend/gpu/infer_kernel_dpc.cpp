@@ -46,7 +46,9 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
-        auto result = infer_result<task::clustering>{};
+        auto result =
+            infer_result<task::clustering>{}.set_result_options(desc.get_result_options());
+
         std::int64_t block_size_in_rows =
             std::min(row_count,
                      kernels_fp<Float>::get_block_size_in_rows(queue, column_count, cluster_count));
@@ -80,19 +82,24 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                arr_closest_distances,
                                                { data_squares_event, centroid_squares_event });
 
-        auto arr_objective_function =
-            pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
-        kernels_fp<Float>::compute_objective_function(queue,
-                                                      arr_closest_distances,
-                                                      arr_objective_function,
-                                                      { assign_event })
-            .wait_and_throw();
+        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+            auto arr_objective_function =
+                pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
+            kernels_fp<Float>::compute_objective_function(queue,
+                                                          arr_closest_distances,
+                                                          arr_objective_function,
+                                                          { assign_event })
+                .wait_and_throw();
 
-        result.set_objective_function_value(
-            static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
-
-        result.set_responses(
-            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
+            result.set_objective_function_value(
+                static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
+        }
+        if (desc.get_result_options().test(result_options::compute_assignments)) {
+            result.set_responses(
+                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
+                                         row_count,
+                                         1));
+        }
 
         return result;
     }
