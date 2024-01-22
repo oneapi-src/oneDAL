@@ -107,14 +107,18 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
         return services::ErrorNullParameterNotSupported;
     }
 
+    const bool predictContribs     = pPrm->resultsToCompute & shapContributions;
+    const bool predictInteractions = pPrm->resultsToCompute & shapInteractions;
+    DAAL_CHECK(!(predictContribs && predictInteractions), services::ErrorGbtPredictShapOptions);
+    if (nClasses > 2 && (predictContribs || predictInteractions))
+    {
+        return services::ErrorGbtPredictShapMulticlassNotSupported;
+    }
+
     auto maxNIterations = pModel->getNumberOfTrees();
     if (nClasses > 2) maxNIterations /= nClasses;
     DAAL_CHECK((nClasses < 3) || (pModel->getNumberOfTrees() % nClasses == 0), services::ErrorGbtIncorrectNumberOfTrees);
     DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
-
-    const bool predictContribs     = pPrm->resultsToCompute & shapContributions;
-    const bool predictInteractions = pPrm->resultsToCompute & shapInteractions;
-    DAAL_CHECK(!(predictContribs && predictInteractions), services::ErrorGbtPredictShapOptions);
 
     return s;
 }

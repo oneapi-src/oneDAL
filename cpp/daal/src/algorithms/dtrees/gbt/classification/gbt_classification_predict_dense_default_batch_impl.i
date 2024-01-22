@@ -452,7 +452,7 @@ services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::run(cons
         TArray<algorithmFPType, cpu> expValPtr(nRows);
         algorithmFPType * expVal = expValPtr.get();
         DAAL_CHECK_MALLOC(expVal);
-        s = super::runInternal(pHostApp, this->_res, margin, false, false);
+        s = super::runInternal(pHostApp, this->_res, margin, predShapContributions, predShapInteractions);
         if (!s) return s;
 
         auto nBlocks           = daal::threader_get_threads_number();
@@ -484,7 +484,7 @@ services::Status PredictBinaryClassificationTask<algorithmFPType, cpu>::run(cons
         algorithmFPType * expVal = expValPtr.get();
         NumericTablePtr expNT    = HomogenNumericTableCPU<algorithmFPType, cpu>::create(expVal, 1, nRows, &s);
         DAAL_CHECK_MALLOC(expVal);
-        s = super::runInternal(pHostApp, expNT.get(), margin, false, false);
+        s = super::runInternal(pHostApp, expNT.get(), margin, predShapContributions, predShapInteractions);
         if (!s) return s;
 
         auto nBlocks           = daal::threader_get_threads_number();
