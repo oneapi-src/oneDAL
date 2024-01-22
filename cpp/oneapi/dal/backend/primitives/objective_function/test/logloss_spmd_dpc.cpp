@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "spmd_fixture.hpp"
 
-#include "oneapi/dal/algo/kmeans/train_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+namespace oneapi::dal::backend::primitives::test {
 
-namespace oneapi::dal::kmeans::backend {
+TEMPLATE_TEST_M(logloss_spmd_test, "spmd test - double", "[logloss spmd]", double) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    this->generate_input();
+    this->run_spmd(-1, 1.0, true);
+    this->run_spmd(-1, 1.0, false);
+}
 
-template <typename Float, typename Method, typename Task>
-struct train_kernel_cpu {
-    train_result<Task> operator()(const dal::backend::context_cpu& ctx,
-                                  const detail::descriptor_base<Task>& desc,
-                                  const train_input<Task>& input) const;
-};
+TEMPLATE_TEST_M(logloss_spmd_test, "spmd test - float", "[logloss spmd]", float) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    this->generate_input();
+    this->run_spmd(-1, 1.0, true);
+    this->run_spmd(-1, 1.0, false);
+}
 
-} // namespace oneapi::dal::kmeans::backend
+} // namespace oneapi::dal::backend::primitives::test

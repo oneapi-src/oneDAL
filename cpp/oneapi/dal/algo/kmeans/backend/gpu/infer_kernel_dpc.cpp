@@ -33,19 +33,21 @@ namespace pr = dal::backend::primitives;
 template <typename Float>
 struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     infer_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_t& params,
+                                              const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         ONEDAL_PROFILER_TASK(kmeans.infer_kernel, queue);
         const auto data = input.get_data();
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
-        const std::int64_t cluster_count = params.get_cluster_count();
+        const std::int64_t cluster_count = desc.get_cluster_count();
 
         auto arr_data = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
+        auto result =
+            infer_result<task::clustering>{}.set_result_options(desc.get_result_options());
 
         std::int64_t block_size_in_rows =
             std::min(row_count,
@@ -67,8 +69,6 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
-        auto arr_objective_function =
-            pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
         auto assign_event =
             kernels_fp<Float>::assign_clusters(queue,
@@ -81,16 +81,27 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                arr_distance_block,
                                                arr_closest_distances,
                                                { data_squares_event, centroid_squares_event });
-        kernels_fp<Float>::compute_objective_function(queue,
-                                                      arr_closest_distances,
-                                                      arr_objective_function,
-                                                      { assign_event })
-            .wait_and_throw();
 
-        return infer_result<task::clustering>()
-            .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
-            .set_objective_function_value(
+        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+            auto arr_objective_function =
+                pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
+            kernels_fp<Float>::compute_objective_function(queue,
+                                                          arr_closest_distances,
+                                                          arr_objective_function,
+                                                          { assign_event })
+                .wait_and_throw();
+
+            result.set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
+        }
+        if (desc.get_result_options().test(result_options::compute_assignments)) {
+            result.set_responses(
+                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
+                                         row_count,
+                                         1));
+        }
+
+        return result;
     }
 };
 

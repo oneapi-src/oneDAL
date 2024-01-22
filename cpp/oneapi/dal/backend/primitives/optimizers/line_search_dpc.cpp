@@ -43,6 +43,7 @@ Float backtracking(sycl::queue queue,
     std::int64_t iter_num = 0;
     Float cur_val = 0;
     while ((iter_num == 0 || cur_val > f0 + c1 * alpha * df0) && iter_num < 100) {
+        // TODO check that conditions are the same across diferent devices
         if (iter_num > 0) {
             alpha /= 2;
         }
