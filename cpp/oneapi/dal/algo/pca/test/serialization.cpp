@@ -87,7 +87,6 @@ public:
 };
 
 using pca_types = COMBINE_TYPES((float, double), (method::cov, method::svd));
-//TODO: fix, it sporadically fails on cov method as well
 TEMPLATE_LIST_TEST_M(pca_serialization_test,
                      "serialize/deserialize pca model",
                      "[pca]",

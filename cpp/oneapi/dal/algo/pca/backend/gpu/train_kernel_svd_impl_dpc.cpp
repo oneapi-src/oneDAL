@@ -22,7 +22,7 @@
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-#include <iostream>
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -42,107 +42,6 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-
-template <typename Float>
-auto slice_data(sycl::queue& q,
-                const pr::ndview<Float, 2>& data,
-                std::int64_t component_count,
-                std::int64_t column_count,
-                const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_means, q);
-    const std::int64_t column_count_local = data.get_dimension(1);
-    auto data_to_compute =
-        pr::ndarray<Float, 2>::empty(q, { component_count, column_count }, alloc::device);
-    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
-    auto data_ptr = data.get_data();
-    auto event = q.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_2d(component_count, column_count);
-        h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t row = id[0];
-            const std::int64_t column = id[1];
-            data_to_compute_ptr[row * column_count + column] =
-                data_ptr[row * column_count_local + column];
-        });
-    });
-    return std::make_tuple(data_to_compute, event);
-}
-template <typename Float>
-auto get_centered(sycl::queue& q,
-                  pr::ndview<Float, 2>& data,
-                  const pr::ndview<Float, 1>& means,
-                  const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_centered_data, q);
-    const std::int64_t row_count = data.get_dimension(0);
-    const std::int64_t column_count = data.get_dimension(1);
-
-    auto centered_data_ptr = data.get_mutable_data();
-    auto means_ptr = means.get_data();
-
-    auto centered_event = q.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_2d(row_count, column_count);
-        h.depends_on(deps);
-        h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::size_t i = id[0];
-            const std::size_t j = id[1];
-            centered_data_ptr[i * column_count + j] =
-                centered_data_ptr[i * column_count + j] - means_ptr[j];
-        });
-    });
-    return centered_event;
-}
-template <typename Float>
-auto get_scaled(sycl::queue& q,
-                pr::ndview<Float, 2>& data,
-                const pr::ndview<Float, 1>& variances,
-                const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_scaled_data, q);
-    const std::int64_t row_count = data.get_dimension(0);
-    const std::int64_t column_count = data.get_dimension(1);
-
-    auto scaled_data_ptr = data.get_mutable_data();
-    auto variances_ptr = variances.get_data();
-
-    auto scaled_event = q.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_2d(row_count, column_count);
-        h.depends_on(deps);
-        h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::size_t i = id[0];
-            const std::size_t j = id[1];
-            const Float sqrt_var = sycl::sqrt(variances_ptr[j]);
-            const Float inv_var =
-                sqrt_var < std::numeric_limits<Float>::epsilon() ? 0 : 1 / sqrt_var;
-            scaled_data_ptr[i * column_count + j] = scaled_data_ptr[i * column_count + j] * inv_var;
-        });
-    });
-    return scaled_event;
-}
-
-template <typename Float>
-auto compute_variances_(sycl::queue& q,
-                        const pr::ndview<Float, 2>& data,
-                        const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_means, q);
-    const std::int64_t row_count = data.get_dimension(0);
-    const std::int64_t column_count = data.get_dimension(1);
-
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-
-    constexpr pr::sum<Float> binary;
-    constexpr pr::square<Float> unary;
-
-    auto vars_event_ = pr::reduce_by_columns(q, data, vars, binary, unary, deps);
-    auto vars_ptr = vars.get_mutable_data();
-    auto vars_event = q.submit([&](sycl::handler& h) {
-        h.depends_on(vars_event_);
-        const auto range = bk::make_range_1d(column_count);
-        h.parallel_for(range, [=](sycl::id<1> id) {
-            const std::int64_t i = id[0];
-
-            vars_ptr[i] = vars_ptr[i] / (row_count - 1);
-        });
-    });
-    return std::make_tuple(vars, vars_event);
-}
 
 template <typename Float, pr::ndorder order>
 auto svd_decomposition(sycl::queue& queue,
@@ -168,17 +67,17 @@ auto svd_decomposition(sycl::queue& queue,
     sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
-                                                                          column_count,
-                                                                          row_count,
-                                                                          data_ptr,
-                                                                          lda,
-                                                                          S_ptr,
-                                                                          U_ptr,
-                                                                          ldu,
-                                                                          V_T_ptr,
-                                                                          ldvt,
-                                                                          { deps });
+        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
+                                                                            column_count,
+                                                                            row_count,
+                                                                            data_ptr,
+                                                                            lda,
+                                                                            S_ptr,
+                                                                            U_ptr,
+                                                                            ldu,
+                                                                            V_T_ptr,
+                                                                            ldvt,
+                                                                            { deps });
     }
     return std::make_tuple(U, S, V_T, gesvd_event);
 }
@@ -196,6 +95,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
     ONEDAL_ASSERT(component_count > 0);
     dal::detail::check_mul_overflow(column_count, component_count);
 
+    bool zscore = false;
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
     pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
@@ -207,24 +107,31 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         mean_centered_event = get_centered(q_, data_nd, means, { means_event });
     }
 
-    auto [vars, vars_event] = compute_variances_(q_, data_nd, { mean_centered_event });
+    auto [vars, vars_event] = compute_variances_device(q_, data_nd, { mean_centered_event });
 
     sycl::event scaled_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
+        zscore = true;
         scaled_event = get_scaled(q_, data_nd, vars, { vars_event, mean_centered_event });
     }
-    auto [U, S, V_T, gesvd_event] =
-        svd_decomposition(q_, data_nd, component_count, { scaled_event });
 
+    auto [U, S, V_T, gesvd_event] =
+        svd_decomposition(q_, data_nd, component_count, { scaled_event, mean_centered_event });
+
+    auto S_host = S.to_host(q_);
+    auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
     if (desc.get_result_options().test(result_options::singular_values)) {
-        result.set_singular_values(
-            homogen_table::wrap(S.flatten(q_, { gesvd_event }), 1, component_count));
+        if (zscore) {
+            result.set_singular_values(
+                homogen_table::wrap(eigenvalues.flatten(), 1, component_count));
+        }
+        else {
+            result.set_singular_values(homogen_table::wrap(S_host.flatten(), 1, component_count));
+        }
     }
 
     result.set_means(homogen_table::wrap(means.flatten(q_, { gesvd_event }), 1, column_count));
 
-    auto S_host = S.to_host(q_);
-    auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(homogen_table::wrap(eigenvalues.flatten(), 1, component_count));
     }

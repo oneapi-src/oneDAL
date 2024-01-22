@@ -27,7 +27,14 @@ using alloc = sycl::usm::alloc;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-//Wrapper for sums computation
+// Common
+
+/// Compute sums wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  data  The input data
 template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
@@ -44,7 +51,13 @@ auto compute_sums(sycl::queue& q,
     return std::make_tuple(sums, sums_event);
 }
 
-//Wrapper for means computation
+/// Compute means wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  sums  The means
+/// @param[in]  row_count  The number of rows
 template <typename Float>
 auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 1>& sums,
@@ -60,7 +73,15 @@ auto compute_means(sycl::queue& q,
     return std::make_tuple(means, means_event);
 }
 
-//Wrapper for the covariance matrix computation
+/// Compute covariance matrix wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
+/// @param[in]  xtx  The xtx
+/// @param[in]  sums  The sums
+/// @param[in]  bias  The bias values
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         std::int64_t row_count,
@@ -83,7 +104,14 @@ auto compute_covariance(sycl::queue& q,
     return std::make_tuple(cov, cov_event);
 }
 
-//Wrapper for the correlation matrix computation
+/// Compute correlation matrix wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
+/// @param[in]  xtx  The xtx
+/// @param[in]  sums  The sums
 template <typename Float>
 auto compute_correlation(sycl::queue& q,
                          std::int64_t row_count,
@@ -106,7 +134,12 @@ auto compute_correlation(sycl::queue& q,
     return std::make_tuple(corr, corr_event);
 }
 
-//Wrapper for the updating crossproduct matrix
+/// Compute crossproduct matrix wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  data  The input data
 template <typename Float>
 auto compute_crossproduct(sycl::queue& q,
                           const pr::ndview<Float, 2>& data,
@@ -127,7 +160,14 @@ auto compute_crossproduct(sycl::queue& q,
     return std::make_tuple(xtx, gemm_event);
 }
 
-//Wrapper for the 1st iteration of online computation
+// Online
+
+/// Compute init step of online algorithm wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  row_count  The number of rows
 template <typename Float>
 auto init(sycl::queue& q,
           const std::int64_t row_count,
@@ -150,7 +190,17 @@ auto init(sycl::queue& q,
     return std::make_tuple(result_nobs, init_event);
 }
 
-//Wrapper for the updating partial results
+/// Update partial results of  online algorithm wrapper
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  crossproducts  The crossproduct of current iteration
+/// @param[in]  sums  The sums of current iteration
+/// @param[in]  current_crossproducts  The crossproduct of previous iterations
+/// @param[in]  current_sums  The sums of previous iterations
+/// @param[in]  current_nobs  The number of observations of previous iterations
+/// @param[in]  row_count  The number of rows
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& crossproducts,
