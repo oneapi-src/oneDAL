@@ -28,13 +28,13 @@ def detect_cpu_architecture():
     Detect CPU architecture
     """
     architecture = plt.machine()
-    if architecture == 'x86_64':
+    if architecture in ('x86_64', 'AMD64'):
         return 'x86_64'
     elif architecture.startswith('arm') or architecture == 'aarch64':
         return 'aarch64'
     else:
         sys.stderr.write(f"Unknown Architecture {architecture} Detected. " \
-                         "Only 'x86_64' and 'aarch64' supported.\n")
+                         "Only 'x86_64', 'AMD64' and 'aarch64' supported.\n")
         sys.exit(1)
 
 LIBS_PAR_STAT, LIBS_PAR_DYN = [], []
@@ -67,7 +67,7 @@ ARCH = detect_cpu_architecture()
 if platform in ["linux2", "linux"]:
     PREF_LIB = "lib"
 
-    if ARCH =='x86_64':
+    if ARCH == 'x86_64':
         LIBDIR = 'lib/intel64'
     elif ARCH == 'aarch64':
         LIBDIR = 'lib/arm'

@@ -61,6 +61,9 @@ ifeq ($(PLAT),lnx32e)
 else ifeq ($(PLAT),mac32e)
   BACKEND_CONFIG ?= mkl
   ARCH = 32e
+else ifeq ($(PLAT),win32e)
+  BACKEND_CONFIG ?= mkl
+  ARCH = 32e
 else ifeq ($(PLAT),lnxarm)
   BACKEND_CONFIG ?= ref
   ARCH = arm
