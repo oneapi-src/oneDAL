@@ -134,7 +134,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     }
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q, sums, rows_count_global);
-        result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
+        result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
     }
     return result;
 }
