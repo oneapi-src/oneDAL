@@ -14,20 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
+#include "oneapi/dal/algo/decision_forest/parameters/cpu/infer_parameters.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-
-#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 
 namespace oneapi::dal::decision_forest::parameters {
 
-template <typename Float, typename Method, typename Task>
-struct ONEDAL_EXPORT infer_parameters_cpu {
+using dal::backend::context_gpu;
+
+// TODO: Is it correct to use method::by_default here?
+template <typename Float, typename Task>
+struct infer_parameters_gpu<Float, method::by_default, Task> {
     using params_t = detail::infer_parameters<Task>;
-    params_t operator()(const dal::backend::context_cpu& ctx,
+    params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
-                        const infer_input<Task>& input) const;
+                        const infer_input<Task>& input) const {
+        return params_t{};
+    }
 };
+
+template struct ONEDAL_EXPORT infer_parameters_gpu<float, method::dense, task::by_default>;
+template struct ONEDAL_EXPORT infer_parameters_gpu<double, method::dense, task::by_default>;
 
 } // namespace oneapi::dal::decision_forest::parameters

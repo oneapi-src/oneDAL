@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/decision_forest/parameters/cpu/infer_parameters.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
@@ -25,10 +26,34 @@ template <typename Policy, typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<Policy, Float, Task, Method> {
     infer_result<Task> operator()(const Policy& policy,
                                   const detail::descriptor_base<Task>& desc,
+                                  const infer_parameters<Task>& params,
                                   const infer_input<Task>& input) const {
+        return implementation(policy, desc, params, input);
+    }
+
+    infer_parameters<Task> select_parameters(const Policy& ctx,
+                                             const descriptor_base<Task>& desc,
+                                             const infer_input<Task>& input) const {
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
+            KERNEL_SINGLE_NODE_CPU(parameters::infer_parameters_cpu<Float, Method, Task>)>;
+        return kernel_dispatcher_t{}(ctx, desc, input);
+    }
+
+    infer_result<Task> operator()(const Policy& policy,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
+        const auto params = select_parameters(policy, desc, input);
+        return implementation(policy, desc, params, input);
+    }
+
+private:
+    inline auto implementation(const Policy& policy,
+                               const descriptor_base<Task>& desc,
+                               const infer_parameters<Task>& params,
+                               const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t()(policy, desc, input);
+        return kernel_dispatcher_t{}(policy, desc, params, input);
     }
 };
 

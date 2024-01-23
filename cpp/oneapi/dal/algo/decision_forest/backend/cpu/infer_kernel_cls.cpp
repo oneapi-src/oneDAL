@@ -33,6 +33,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
+using param_t = detail::infer_parameters<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_df = daal::algorithms::decision_forest;
@@ -59,6 +60,7 @@ static daal_df::classification::ModelPtr get_daal_model(const model_t& trained_m
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
+                                 const param_t& params,
                                  const model_t& trained_model,
                                  const table& data) {
     const std::int64_t row_count = data.get_row_count();
@@ -115,12 +117,15 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+static result_t infer(const context_cpu& ctx,
+                      const descriptor_t& desc,
+                      const param_t& params,
+                      const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, params, input.get_model(), input.get_data());
 }
 
-template <typename Float, typename Task>
-static daal_hyperparameters_t convert_parameters(const detail::infer_parameters<Task>& params) {
+template <typename Float>
+static daal_hyperparameters_t convert_parameters(const param_t& params) {
     using daal_df::internal::HyperparameterId;
     using daal_df::internal::DoubleHyperparameterId;
 
@@ -148,8 +153,9 @@ template <typename Float>
 struct infer_kernel_cpu<Float, method::by_default, task::classification> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
-        return infer<Float>(ctx, desc, input);
+        return infer<Float>(ctx, desc, params, input);
     }
 };
 

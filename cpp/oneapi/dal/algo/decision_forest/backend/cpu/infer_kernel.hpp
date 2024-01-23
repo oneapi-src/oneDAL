@@ -24,7 +24,8 @@ namespace oneapi::dal::decision_forest::backend {
 template <typename Float, typename Method, typename Task>
 struct infer_kernel_cpu {
     infer_result<Task> operator()(const dal::backend::context_cpu& ctx,
-                                  const detail::descriptor_base<Task>& params,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const detail::infer_parameters<Task>& params,
                                   const infer_input<Task>& input) const;
 };
 

@@ -31,6 +31,7 @@ using dal::backend::context_cpu;
 using model_t = model<task::regression>;
 using input_t = infer_input<task::regression>;
 using result_t = infer_result<task::regression>;
+using param_t = detail::infer_parameters<task::regression>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_df = daal::algorithms::decision_forest;
@@ -90,6 +91,7 @@ template <typename Float>
 struct infer_kernel_cpu<Float, method::by_default, task::regression> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
         return infer<Float>(ctx, desc, input);
     }

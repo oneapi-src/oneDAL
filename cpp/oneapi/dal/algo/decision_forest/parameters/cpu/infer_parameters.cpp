@@ -21,7 +21,6 @@ namespace oneapi::dal::decision_forest::parameters {
 
 using dal::backend::context_cpu;
 
-template <typename Float>
 std::int64_t propose_block_size(const context_cpu& ctx) {
     std::int64_t block_size = 22l;
     if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
@@ -50,17 +49,20 @@ struct infer_parameters_cpu<Float, method::by_default, Task> {
     params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const infer_input<Task>& input) const {
-        const auto block = propose_block_size<Float>(ctx);
-        const auto trees = propose_min_trees_for_threading<Float>();
-        const auto seq_nrows = propose_min_number_of_rows_for_vect_seq_compute<Float>();
-        const auto seq_trees = propose_scale_factor_for_vect_seq_compute<Float>();
+        const auto block = propose_block_size(ctx);
+        const auto trees = propose_min_trees_for_threading();
+        const auto seq_nrows = propose_min_number_of_rows_for_vect_seq_compute();
+        const auto seq_trees = propose_scale_factor_for_vect_seq_compute();
 
         return params_t{}
             .set_block_size(block)
-            .set_min_trees_for_threading(thread)
-            .set_enable_vect_sequential_compute(seq)
-            .set_scale_factor_for_vect_parallel_compute(seq_sf);
+            .set_min_trees_for_threading(trees)
+            .set_min_number_of_rows_for_vect_seq_compute(seq_nrows)
+            .set_scale_factor_for_vect_parallel_compute(seq_trees);
     }
 };
+
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::dense, task::by_default>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::dense, task::by_default>;
 
 } // namespace oneapi::dal::decision_forest::parameters

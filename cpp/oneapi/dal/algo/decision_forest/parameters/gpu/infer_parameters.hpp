@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,17 +16,18 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::decision_forest::backend {
+#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
+
+namespace oneapi::dal::decision_forest::parameters {
 
 template <typename Float, typename Method, typename Task>
-struct infer_kernel_gpu {
-    infer_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                  const detail::descriptor_base<Task>& desc,
-                                  const detail::infer_parameters<Task>& params,
-                                  const infer_input<Task>& input) const;
+struct ONEDAL_EXPORT infer_parameters_gpu {
+    using params_t = detail::infer_parameters<Task>;
+    params_t operator()(const dal::backend::context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const infer_input<Task>& input) const;
 };
 
-} // namespace oneapi::dal::decision_forest::backend
+} // namespace oneapi::dal::decision_forest::parameters
