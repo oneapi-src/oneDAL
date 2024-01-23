@@ -55,7 +55,7 @@ auto svd_decomposition(sycl::queue& queue,
 
     auto S = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
 
-    auto V_T = pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, alloc::device);
+    auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
 
     Float* data_ptr = data.get_mutable_data();
     Float* U_ptr = U.get_mutable_data();
@@ -63,21 +63,21 @@ auto svd_decomposition(sycl::queue& queue,
     Float* V_T_ptr = V_T.get_mutable_data();
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
-    std::int64_t ldvt = row_count;
+    std::int64_t ldvt = 1;
     sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
-        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::somevec>(queue,
-                                                                            column_count,
-                                                                            row_count,
-                                                                            data_ptr,
-                                                                            lda,
-                                                                            S_ptr,
-                                                                            U_ptr,
-                                                                            ldu,
-                                                                            V_T_ptr,
-                                                                            ldvt,
-                                                                            { deps });
+        gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
+                                                                          column_count,
+                                                                          row_count,
+                                                                          data_ptr,
+                                                                          lda,
+                                                                          S_ptr,
+                                                                          U_ptr,
+                                                                          ldu,
+                                                                          V_T_ptr,
+                                                                          ldvt,
+                                                                          { deps });
     }
     return std::make_tuple(U, S, V_T, gesvd_event);
 }

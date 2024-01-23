@@ -29,37 +29,12 @@ using pca_types_precomputed = COMBINE_TYPES((float, double), (method::precompute
 template <typename TestType>
 class pca_batch_test : public pca_test<TestType, pca_batch_test<TestType>> {};
 
-TEMPLATE_LIST_TEST_M(pca_batch_test,
-                     "pca common flow",
-                     "[pca][integration][batch]",
-                     pca_types_cov) {
+TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
-
-    // Homogen floating point type is the same as algorithm's floating point type
-    const auto data_table_id = this->get_homogen_table_id();
-
-    const std::int64_t component_count = GENERATE_COPY(0,
-                                                       1,
-                                                       data.get_column_count(),
-                                                       data.get_column_count() - 1,
-                                                       data.get_column_count() / 2);
-
-    this->general_checks(data, component_count, data_table_id);
-}
-
-TEMPLATE_LIST_TEST_M(pca_batch_test,
-                     "pca common flow svd",
-                     "[pca][integration][batch]",
-                     pca_types_svd) {
-    SKIP_IF(this->not_float64_friendly());
-
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
-                           te::dataframe_builder{ 1000, 10 }.fill_uniform(-0.2, 1.5));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
