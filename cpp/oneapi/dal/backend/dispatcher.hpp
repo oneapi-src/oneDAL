@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
+#include "oneapi/dal/detail/cpu_info.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
@@ -72,27 +73,39 @@ private:
 class context_cpu : public communicator_provider<spmd::device_memory_access::none> {
 public:
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
-            : cpu_extensions_(policy.get_enabled_cpu_extensions()) {
+            : system_cpu_info_(),
+              enabled_cpu_info_(policy.get_enabled_cpu_extensions()) {
         global_init();
     }
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
             : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
-              cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()) {
+              system_cpu_info_(),
+              enabled_cpu_info_(policy.get_local().get_enabled_cpu_extensions()) {
         global_init();
     }
 
     explicit context_cpu(const spmd::communicator<spmd::device_memory_access::none>& comm)
             : communicator_provider<spmd::device_memory_access::none>(comm),
-              cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
+              system_cpu_info_(),
+              enabled_cpu_info_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
-        return cpu_extensions_;
+        return enabled_cpu_info_.get_cpu_extensions();
     }
 
 private:
     void global_init();
-    detail::cpu_extension cpu_extensions_;
+    /// The information about the system on which the code is running
+    /// It cannot be changed during the execution
+    const detail::cpu_info system_cpu_info_;
+
+    /// The information about the behavior enabled currently.
+    /// Can possibly be changes during the run.
+    /// Can differ from the `system_cpu_info_`.
+    /// For example, the highest CPU extensions availabe on the system might be AVX512,
+    /// but the library was built with SSE4.2 code path only, so the enabled cpu extension is SSE4.2.
+    detail::cpu_info enabled_cpu_info_;
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
