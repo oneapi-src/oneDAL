@@ -129,16 +129,14 @@ static daal_hyperparameters_t convert_parameters(const param_t& params) {
     using daal_df::internal::HyperparameterId;
     using daal_df::internal::DoubleHyperparameterId;
 
-    const std::int64_t block = params.get_default_block_size();
-    const std::int64_t blockCommon = params.get_default_block_size_common();
+    const std::int64_t block = params.get_block_size();
     const std::int64_t minTrees = params.get_min_trees_for_threading();
-    const std::int64_t minRows = params.get_min_number_of_rows_for_sequential_compute();
+    const std::int64_t minRows = params.get_min_number_of_rows_for_vect_seq_compute();
     const double scale = params.get_scale_factor_for_vect_parallel_compute();
 
     daal_hyperparameters_t daal_hyperparameter;
 
-    auto status = daal_hyperparameter.set(HyperparameterId::defaultBlockSize, block);
-    status |= daal_hyperparameter.set(HyperparameterId::defaultBlockSizeCommon, blockCommon);
+    auto status = daal_hyperparameter.set(HyperparameterId::blockSize, block);
     status |= daal_hyperparameter.set(HyperparameterId::minTreesForThreading, minTrees);
     status |= daal_hyperparameter.set(HyperparameterId::minNumberOfRowsForVectSeqCompute, minRows);
     status |=

@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/parameters/cpu/infer_parameters.hpp"
+#include "oneapi/dal/algo/decision_forest/parameters/gpu/infer_parameters.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::parameters {

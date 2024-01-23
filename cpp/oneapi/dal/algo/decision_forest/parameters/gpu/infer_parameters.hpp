@@ -25,7 +25,7 @@ namespace oneapi::dal::decision_forest::parameters {
 template <typename Float, typename Method, typename Task>
 struct ONEDAL_EXPORT infer_parameters_gpu {
     using params_t = detail::infer_parameters<Task>;
-    params_t operator()(const dal::backend::context_cpu& ctx,
+    params_t operator()(const dal::backend::context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
                         const infer_input<Task>& input) const;
 };
