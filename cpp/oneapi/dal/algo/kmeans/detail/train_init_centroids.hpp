@@ -50,7 +50,7 @@ static daal::data_management::NumericTablePtr daal_generate_centroids(const desc
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
     daal::data_management::NumericTablePtr daal_initial_centroids;
-    auto daal_data = interop::convert_to_daal_table<Float>(data);
+    auto daal_data = interop::convert_to_daal_table<Float>(data, true);
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
     const std::size_t init_len_input = 1;
