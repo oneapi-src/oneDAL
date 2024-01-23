@@ -187,6 +187,89 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "higgs: samples=1M, iters=3 optional results",
+                     "[kmeans][batch][external-dataset][higgs]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
+
+    const std::int64_t iters = 3;
+    const std::string higgs_path = "workloads/higgs/dataset/higgs_1m_test.csv";
+
+    SECTION("clusters=10") {
+        this->test_optional_results_on_dataset(higgs_path, 10, iters, 3.1997724684, 14717484.0);
+    }
+
+    SECTION("clusters=100") {
+        this->test_optional_results_on_dataset(higgs_path, 100, iters, 2.7450205195, 10704352.0);
+    }
+
+    SECTION("cluster=250") {
+        this->test_optional_results_on_dataset(higgs_path, 250, iters, 2.5923397174, 9335216.0);
+    }
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy: samples=0.5M, iters=10 optional results",
+                     "[kmeans][nightly][batch][external-dataset][susy]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
+
+    const std::int64_t iters = 10;
+    const std::string susy_path = "workloads/susy/dataset/susy_test.csv";
+
+    SECTION("clusters=10") {
+        this->test_optional_results_on_dataset(susy_path, 10, iters, 1.7730860782, 3183696.0);
+    }
+
+    SECTION("clusters=100") {
+        this->test_optional_results_on_dataset(susy_path, 100, iters, 1.9384844916, 1757022.625);
+    }
+
+    SECTION("cluster=250") {
+        this->test_optional_results_on_dataset(susy_path, 250, iters, 1.8950113604, 1400958.5);
+    }
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon: samples=80K, iters=2 optional results",
+                     "[kmeans][nightly][batch][external-dataset][epsilon]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
+
+    const std::int64_t iters = 2;
+    const std::string epsilon_path = "workloads/epsilon/dataset/epsilon_80k_train.csv";
+
+    SECTION("clusters=512") {
+        this->test_optional_results_on_dataset(epsilon_path,
+                                               512,
+                                               iters,
+                                               6.9367580565,
+                                               50128.640625,
+                                               1.0e-3);
+    }
+
+    SECTION("clusters=1024") {
+        this->test_optional_results_on_dataset(epsilon_path,
+                                               1024,
+                                               iters,
+                                               5.59003873,
+                                               49518.75,
+                                               1.0e-3);
+    }
+
+    SECTION("cluster=2048") {
+        this->test_optional_results_on_dataset(epsilon_path,
+                                               2048,
+                                               iters,
+                                               4.3202752143,
+                                               48437.6015625,
+                                               1.0e-3);
+    }
+  
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "KMmeans sparse default cases",
                      "[kmeans][batch]",
                      kmeans_types) {
