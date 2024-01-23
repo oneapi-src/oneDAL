@@ -272,8 +272,7 @@ size_t testModel(daal::algorithms::gbt::classification::ModelPtr modelPtr) {
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    NumericTablePtr prediction =
-        algorithm.getResult()->get(daal::algorithms::classifier::prediction::prediction);
+    NumericTablePtr prediction = algorithm.getResult()->get(prediction::prediction);
     printNumericTable(prediction, "Gradient boosted trees prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
     size_t nRows = 0;
