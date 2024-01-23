@@ -73,11 +73,10 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     this->general_checks(data, component_count, data_table_id);
 }
 
-//TODO: investigate why it doesnt work with svd
 TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca on gold data",
                      "[pca][integration][batch][gold]",
-                     pca_types_cov) {
+                     pca_types) {
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;

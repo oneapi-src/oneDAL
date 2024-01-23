@@ -52,11 +52,11 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     const auto data = input.get_data();
 
-    ONEDAL_ASSERT(data.get_row_count() > 0);
     const std::int64_t row_count = data.get_row_count();
+    ONEDAL_ASSERT(row_count > 0);
     auto rows_count_global = row_count;
-    ONEDAL_ASSERT(data.get_column_count() > 0);
     const std::int64_t column_count = data.get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
 
     auto bias = desc.get_bias();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());

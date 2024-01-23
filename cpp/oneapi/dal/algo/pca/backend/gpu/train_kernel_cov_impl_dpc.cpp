@@ -96,7 +96,6 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     sycl::event means_event;
     if (desc.get_result_options().test(result_options::means)) {
-        ONEDAL_PROFILER_TASK(compute_means, q_);
         auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }

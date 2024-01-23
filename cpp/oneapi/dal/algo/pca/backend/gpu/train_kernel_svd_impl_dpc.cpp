@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
 
     bool zscore = false;
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
-    pr::ndview<Float, 2> data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
+    auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
     auto [sums, sums_event] = compute_sums(q_, data_nd);
     auto [means, means_event] = compute_means(q_, sums, row_count, { sums_event });

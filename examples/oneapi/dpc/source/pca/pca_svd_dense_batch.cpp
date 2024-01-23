@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
     const auto pca_desc = pca::descriptor<float, Method>()
                               .set_component_count(5)
                               .set_deterministic(true)
-                              .set_normalization_mode(pca::normalization::zscore)
+                              .set_normalization_mode(pca::normalization::mean_center)
                               .set_whiten(whiten);
     const auto result_train = dal::train(q, pca_desc, x_train);
 

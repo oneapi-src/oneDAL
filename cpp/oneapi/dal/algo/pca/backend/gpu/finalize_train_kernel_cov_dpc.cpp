@@ -64,7 +64,6 @@ static train_result<Task> train(const context_gpu& ctx,
         pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
 
     if (desc.get_result_options().test(result_options::means)) {
-        ONEDAL_PROFILER_TASK(compute_means, q);
         auto [means, means_event] = compute_means(q, sums, rows_count_global, {});
         result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
     }
