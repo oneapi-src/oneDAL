@@ -38,15 +38,9 @@ public:
     infer_parameters(infer_parameters&&) = default;
     infer_parameters(const infer_parameters&) = default;
 
-    std::int64_t get_default_block_size() const;
-    auto& set_default_block_size(std::int64_t val) {
-        set_default_block_size_impl(val);
-        return *this;
-    }
-
-    std::int64_t get_default_block_size_common() const;
-    auto& set_default_block_size_common(std::int64_t val) {
-        set_default_block_size_common_impl(val);
+    std::int64_t get_block_size() const;
+    auto& set_block_size(std::int64_t val) {
+        set_block_size_impl(val);
         return *this;
     }
 
@@ -56,9 +50,9 @@ public:
         return *this;
     }
 
-    std::int64_t get_min_number_of_rows_for_vect_sequential_compute() const;
-    auto& set_min_number_of_rows_for_vect_sequential_compute(std::int64_t val) {
-        set_min_number_of_rows_for_vect_sequential_compute_impl(val);
+    std::int64_t get_min_number_of_rows_for_vect_seq_compute() const;
+    auto& set_min_number_of_rows_for_vect_seq_compute(std::int64_t val) {
+        set_min_number_of_rows_for_vect_seq_compute_impl(val);
         return *this;
     }
 
@@ -69,10 +63,9 @@ public:
     }
 
 private:
-    void set_default_block_size_impl(std::int64_t val);
-    void set_default_block_size_common_impl(std::int64_t val);
+    void set_block_size_impl(std::int64_t val);
     void set_min_trees_for_threading_impl(std::int64_t val);
-    void set_min_number_of_rows_for_vect_sequential_compute_impl(std::int64_t val);
+    void set_min_number_of_rows_for_vect_seq_compute_impl(std::int64_t val);
     void set_scale_factor_for_vect_parallel_compute_impl(double val);
     dal::detail::pimpl<infer_parameters_impl<Task>> impl_;
 };

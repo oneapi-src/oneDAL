@@ -25,23 +25,13 @@ template <typename Task>
 infer_parameters<Task>::infer_parameters() : impl_(new infer_parameters_impl<Task>{}) {}
 
 template <typename Task>
-std::int64_t infer_parameters<Task>::get_default_block_size() const {
+std::int64_t infer_parameters<Task>::get_block_size() const {
     return impl_->default_block_size;
 }
 
 template <typename Task>
-void infer_parameters<Task>::set_default_block_size_impl(std::int64_t val) {
-    impl_->default_block_size = val;
-}
-
-template <typename Task>
-std::int64_t infer_parameters<Task>::get_default_block_size_common() const {
-    return impl_->default_block_size_common;
-}
-
-template <typename Task>
-void infer_parameters<Task>::set_default_block_size_common_impl(std::int64_t val) {
-    impl_->default_block_size_common = val;
+void infer_parameters<Task>::set_block_size_impl(std::int64_t val) {
+    impl_->block_size = val;
 }
 
 template <typename Task>
@@ -55,12 +45,12 @@ void infer_parameters<Task>::set_min_trees_for_threading_impl(std::int64_t val) 
 }
 
 template <typename Task>
-std::int64_t infer_parameters<Task>::get_min_number_of_rows_for_vect_sequential_compute() const {
+std::int64_t infer_parameters<Task>::get_min_number_of_rows_for_vect_seq_compute() const {
     return impl_->min_number_of_rows_for_vect_seq_compute;
 }
 
 template <typename Task>
-void infer_parameters<Task>::set_min_number_of_rows_for_vect_sequential_compute_impl(
+void infer_parameters<Task>::set_min_number_of_rows_for_vect_seq_compute_impl(
     std::int64_t val) {
     impl_->min_number_of_rows_for_vect_seq_compute = val;
 }
@@ -96,8 +86,7 @@ public:
 
 template <typename Task>
 struct infer_parameters_impl : public base {
-    std::int64_t default_block_size = 32l;
-    std::int64_t default_block_size_common = 22l;
+    std::int64_t block_size = 22l;
     std::int64_t min_trees_for_threading = 100l;
     std::int64_t min_number_of_rows_for_vect_seq_compute = 32l;
     double scale_factor_for_vect_parallel_compute = 0.3f;

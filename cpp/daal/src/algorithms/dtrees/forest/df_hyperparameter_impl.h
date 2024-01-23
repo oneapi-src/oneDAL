@@ -41,8 +41,7 @@ namespace internal
  */
 enum HyperparameterId
 {
-    defaultBlockSize = 0,
-    defaultBlockSizeCommon,
+    blockSize = 0,
     minTreesForThreading,
     minNumberOfRowsForVectSeqCompute,
     hyperparameterIdCount = minNumberOfRowsForVectSeqCompute + 1
