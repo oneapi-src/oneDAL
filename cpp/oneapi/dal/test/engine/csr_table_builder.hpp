@@ -205,15 +205,23 @@ struct csr_table_builder {
     }
 };
 
+/// Generates CSR table with clustering dataset.
+/// Dataset is looks like multidimensional blobs
+/// with fixed centroid and randomized points around centroid
+/// with radius :expr:`r=1.0`.
 struct csr_make_blobs {
+    /// Floating type used for generation
     using Float = float;
+    /// Indexing type used for generation
     using Index = std::int64_t;
+    /// Dataset paramters
     Index row_count_, column_count_, cluster_count_;
     float nonzero_fraction_;
     sparse_indexing indexing_;
     const dal::array<Float> data_;
     const dal::array<Index> column_indices_;
     const dal::array<Index> row_offsets_;
+    /// Dataset generation parameters
     const Float centroid_fill_value = 10.0f;
     const Float min_val = -1.0f;
     const Float max_val = 1.0f;

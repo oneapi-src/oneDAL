@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
 
-namespace oneapi::dal::kmeans::backend {
+namespace oneapi::dal::kmeans::detail {
 
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 
@@ -85,4 +85,4 @@ template daal::data_management::NumericTablePtr
 daal_generate_centroids<double, method::lloyd_csr, csr_table>(const descriptor_t& desc,
                                                               const csr_table& data);
 
-} // namespace oneapi::dal::kmeans::backend
+} // namespace oneapi::dal::kmeans::detail

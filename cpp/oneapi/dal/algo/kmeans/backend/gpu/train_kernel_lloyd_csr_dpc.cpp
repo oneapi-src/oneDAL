@@ -49,7 +49,8 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
     const std::int64_t cluster_count = params.get_cluster_count();
 
     if (!input.get_initial_centroids().has_data()) {
-        auto daal_initial_centroids = daal_generate_centroids<Float, Method>(params, data);
+        auto daal_initial_centroids =
+            oneapi::dal::kmeans::detail::daal_generate_centroids<Float, Method>(params, data);
         daal::data_management::BlockDescriptor<Float> block;
         daal_initial_centroids->getBlockOfRows(0,
                                                cluster_count,

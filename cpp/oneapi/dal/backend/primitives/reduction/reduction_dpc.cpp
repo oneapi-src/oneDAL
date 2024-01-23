@@ -88,6 +88,21 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
     return sycl::event{};
 }
 
+/// Reduces CSR table with `n x m` dimensions by rows
+///
+/// @tparam Float       Floating point type, it can be `float` or `double`
+/// @tparam BinaryOp    Binary operation class, it reduces 2 input values into 1
+/// @tparam UnaryOp     Unary operation class, it modifies an input value
+///
+/// @param[in] q                Sycl queue
+/// @param[in] values           An array of values in CSR table
+/// @param[in] column_indices   An array of column indices in CSR table
+/// @param[in] row_offsets      An array of row offsets in CSR table
+/// @param[in] indexing         Indexing kind of CSR table
+/// @param[out] output          An output array with dimensions `n x 1`
+/// @param[in] binary           A binary operation used in reduction
+/// @param[in] unary            An unary operation used in reduction
+/// @param[in] deps             A vector of dependent events
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_by_rows_impl(sycl::queue& q,
                                 const ndview<Float, 1>& values,

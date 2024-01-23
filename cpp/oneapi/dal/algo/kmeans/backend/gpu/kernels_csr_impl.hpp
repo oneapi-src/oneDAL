@@ -117,15 +117,15 @@ sycl::event custom_spgemm(sycl::queue& q,
     });
 }
 
-/// Calculates distances to centroid and select closest centroid to each point
+/// Calculates distances from each data point to each centroid and selects the closest centroid to each data point
 /// @param[in] q                A sycl-queue to perform operations on device
-/// @param[in] values           A data part of csr table
-/// @param[in] column_indices   An array of column indices in csr table
-/// @param[in] row_offsets      An arrat of row offsets in csr table
-/// @param[in] data_squares     An array of data squared elementwise
-/// @param[out] distances       An array of distances of dataset to each cluster
+/// @param[in] values           A data part of csr table with :expr:`non_zero_count x 1` dimensions
+/// @param[in] column_indices   An array of column indices in csr table with :expr:`non_zero_count x 1` dimensions
+/// @param[in] row_offsets      An arrat of row offsets in csr table with :expr:`(row_count + 1) x 1` dimensions
+/// @param[in] data_squares     An array of data squared elementwise with :expr:`row_count x 1` dimensions
+/// @param[out] distances       An array of distances of dataset to each cluster with :expr:`row_count x cluster_count` dimensions
 /// @param[out] centroids       An array of centroids with :expr:`cluster_count x column_count` dimensions
-/// @param[out] closest_dists   An array of closests distances for each data point
+/// @param[out] closest_dists   An array of closests distances for each data point with :expr:`row_count x 1` dimensions
 /// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event assign_clusters(sycl::queue& q,
@@ -159,7 +159,9 @@ sycl::event assign_clusters(sycl::queue& q,
 
     const auto cluster_count = centroids.get_dimension(0);
     const auto row_count = static_cast<size_t>(row_offsets.get_count() - 1);
-    const std::int64_t row_block = 8 * bk::device_max_wg_size(q);
+    // based on bechmarks an optimal block size is equal to 8 work-group sizes
+    const std::int64_t block_multiplier = 8;
+    const std::int64_t row_block = block_multiplier * bk::device_max_wg_size(q);
 
     const auto local_size =
         std::min<std::int64_t>(bk::device_max_wg_size(q), bk::down_pow2(cluster_count));
@@ -226,13 +228,13 @@ Float calc_objective_function(sycl::queue& q,
 // New centroid is a mean among all points in cluster.
 // If cluster is empty, centroid remains the same as in previous iteration.
 /// @param[in] q                A sycl-queue to perform operations on device
-/// @param[in] values           A data part of csr table
-/// @param[in] column_indices   An array of column indices in csr table
-/// @param[in] row_offsets      An arrat of row offsets in csr table
+/// @param[in] values           A data part of csr table with :expr:`non_zero_count x 1` dimensions
+/// @param[in] column_indices   An array of column indices in csr table :expr:`non_zero_count x 1` dimensions
+/// @param[in] row_offsets      An arrat of row offsets in csr table with :expr:`(row_count + 1) x 1` dimensions
 /// @param[in] column_count     A number of column in input dataset
-/// @param[in] reponses         An array of cluster assignments
+/// @param[in] reponses         An array of cluster assignments with :expr:`row_count x 1` dimensions
 /// @param[out] centroids       An array of centroids with :expr:`cluster_count x column_count` dimensions
-/// @param[in] cluster_counts   An array of cluster counts
+/// @param[in] cluster_counts   An array of cluster counts with :expr:`cluster_count x 1` dimensions
 /// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event update_centroids(sycl::queue& q,
@@ -339,9 +341,9 @@ sycl::event update_centroids(sycl::queue& q,
 /// Handling empty clusters.
 /// @param[in] ctx              GPU context structure
 /// @param[in] row_count        A number of rows in the dataset
-/// @param[out] responses       An array of cluster assignments
-/// @param[out] cluster_counts  An array of cluster counts
-/// @param[out] dists           An array of closest distances to cluster
+/// @param[out] responses       An array of cluster assignments with :expr:`row_count x 1` dimensions
+/// @param[out] cluster_counts  An array of cluster counts with :expr:`cluster_count x 1` dimensions
+/// @param[out] dists           An array of closest distances to cluster with :expr:`row_count x 1` dimensions
 /// @param[in] deps             An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,

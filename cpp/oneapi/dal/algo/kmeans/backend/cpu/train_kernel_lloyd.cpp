@@ -59,7 +59,8 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
     const table& initial_centroids) {
     daal::data_management::NumericTablePtr daal_initial_centroids;
     if (!initial_centroids.has_data()) {
-        daal_initial_centroids = daal_generate_centroids<Float, Method>(desc, data);
+        daal_initial_centroids =
+            oneapi::dal::kmeans::detail::daal_generate_centroids<Float, Method>(desc, data);
     }
     else {
         daal_initial_centroids = interop::convert_to_daal_table<Float>(initial_centroids);
