@@ -55,13 +55,17 @@ TESTING_RETURN=0
 PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
-if [ "$ARCH" == arm ]; then
+if [ "$ARCH" == "32e" ]; then
+    full_arch=intel64
+    arch_dir=intel_intel64
+elif [ "$ARCH" == "arm" ]; then
     full_arch=arm
     arch_dir=arm_aarch64
 else
-    full_arch=intel64
-    arch_dir=intel_intel64
+    echo "Uknown architecture ${ARCH} detected for platform ${PLATFORM}"
+    exit 1
 fi
+
 build_system=${build_system:-cmake}
 backend=${backend:-mkl}
 
