@@ -20,6 +20,9 @@ on:
       - .ci/env
       - .ci/scripts
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: Docker validation
