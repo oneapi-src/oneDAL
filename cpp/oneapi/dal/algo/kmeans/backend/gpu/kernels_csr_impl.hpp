@@ -224,7 +224,7 @@ Float calc_objective_function(sycl::queue& q,
     return pr::reduce_1d(q, view_1d, sum, ident, deps);
 }
 
-// Updates centroids based on new responses and cluster counts.
+// Updates the centroids based on new responses and cluster counts.
 // New centroid is a mean among all points in cluster.
 // If cluster is empty, centroid remains the same as in previous iteration.
 /// @param[in] q                A sycl-queue to perform operations on device
