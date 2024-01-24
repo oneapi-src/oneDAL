@@ -49,7 +49,7 @@ sycl::event cg_solve(sycl::queue& queue,
     using msg = dal::detail::error_messages;
 
     Float alpha = 0, beta = 0;
-    Float r_norm = 0, b_norm = 0;
+    Float r_norm = 0, b_l1_norm = 0, r_l1_norm = 0;
 
     const auto kernel_minus = [=](const Float a, const Float b) -> Float {
         return a - b;
@@ -67,14 +67,10 @@ sycl::event cg_solve(sycl::queue& queue,
     auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
     auto* const tmp_ptr = tmp_gpu.get_mutable_data();
 
-    dot_product<Float>(queue, b, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
-    b_norm = sqrt(b_norm);
+    l1_norm<Float>(queue, b, tmp_ptr, &b_l1_norm, deps).wait_and_throw(); // compute l1_norm(b)
 
-    // Tolerances for convergence norm(residual) <= max(tol*norm(b), atol)
-    const Float min_eps = std::numeric_limits<Float>::epsilon();
-    tol = std::max(tol, min_eps);
-    atol = std::max(atol, min_eps);
-    Float threshold = std::max(tol * b_norm, atol);
+    // Tolerances for convergence norm(residual) <= max(tol*l1_norm(b), atol)
+    Float threshold = std::max(tol * b_l1_norm, atol);
 
     const auto init_conj_kernel = [=](const Float residual_val, Float) -> Float {
         return -residual_val;
@@ -90,8 +86,10 @@ sycl::event cg_solve(sycl::queue& queue,
     dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { compute_r0_event })
         .wait_and_throw(); // compute r^T r
 
+    l1_norm<Float>(queue, residual, tmp_ptr, &r_l1_norm, { compute_r0_event })
+        .wait_and_throw(); // compute l1_norm for stopping condition
     for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
-        if (sqrt(r_norm) < threshold) {
+        if (r_l1_norm < threshold) {
             // TODO check that r_norms are the same across diferent devices
             break;
         }
@@ -131,6 +129,13 @@ sycl::event cg_solve(sycl::queue& queue,
                            &r_norm,
                            { update_x_event, update_residual_event })
             .wait_and_throw(); // compute r^T r
+        l1_norm<Float>(queue,
+                       residual,
+                       tmp_ptr,
+                       &r_l1_norm,
+                       { update_x_event, update_residual_event })
+            .wait_and_throw(); // compute l1_norm for stopping condition
+
         beta = r_norm / beta; // beta = r_i+1^T r_i+1 / (r_i^T r_i)
 
         const auto update_conj_kernel = [=](const Float residual_val,

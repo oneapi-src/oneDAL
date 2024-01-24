@@ -31,6 +31,7 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
                                                ndview<Float, 1>& x,
                                                Float tol,
                                                std::int64_t maxiter,
+                                               std::int64_t maxinner,
                                                const event_vector& deps) {
     std::int64_t n = x.get_dimension(0);
 
@@ -57,10 +58,11 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
         auto update_event_vec = f.update_x(x, true, last_iter_deps);
         auto gradient = f.get_gradient();
 
-        Float grad_norm = 0;
+        Float grad_norm = 0, grad_max_abs = 0;
         l1_norm(queue, gradient, tmp_gpu, &grad_norm, update_event_vec).wait_and_throw();
+        max_abs(queue, gradient, tmp_gpu, &grad_max_abs, update_event_vec).wait_and_throw();
 
-        if (grad_norm < tol) {
+        if (grad_max_abs < tol) {
             // TODO check that conditions are the same across diferent devices
             break;
         }
@@ -92,7 +94,7 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
                                         buffer3,
                                         tol_k,
                                         Float(0),
-                                        n * 20,
+                                        maxinner,
                                         { last_event });
 
             // <-grad, direction> should be > 0 if direction is descent direction
@@ -131,6 +133,7 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
                                                                base_function<F>&, \
                                                                ndview<F, 1>&,     \
                                                                F,                 \
+                                                               std::int64_t,      \
                                                                std::int64_t,      \
                                                                const event_vector&);
 
