@@ -22,7 +22,6 @@
 
 #include <daal/include/services/env_detect.h>
 
-#include <iostream>
 #include "daal/src/data_management/service_numeric_table.h"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
