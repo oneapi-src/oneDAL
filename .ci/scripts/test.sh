@@ -62,7 +62,7 @@ elif [ "$ARCH" == "arm" ]; then
     full_arch=arm
     arch_dir=arm_aarch64
 else
-    echo "Uknown architecture ${ARCH} detected for platform ${PLATFORM}"
+    echo "Unknown architecture ${ARCH} detected for platform ${PLATFORM}"
     exit 1
 fi
 

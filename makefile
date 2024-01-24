@@ -196,7 +196,7 @@ ifeq ($(ARCH_is_32e),yes)
                       $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),\
                       $(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow),$(USECPUS.out)))))
 else
-  USECPUS.out.defs := $(subst sve,#define DAAL_KERNEL_SVE$(sed.eow),$(USECPUS.out))
+  USECPUS.out.defs := $(subst sve,^\#define DAAL_KERNEL_SVE$(sed.eow),$(USECPUS.out))
 endif
 
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
