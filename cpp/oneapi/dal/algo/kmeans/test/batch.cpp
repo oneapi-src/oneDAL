@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/kmeans/test/fixture.hpp"
-
+#include "oneapi/dal/table/csr_accessor.hpp"
 namespace oneapi::dal::kmeans::test {
 
 template <typename TestType>
@@ -74,6 +74,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
     this->check_empty_clusters();
 }
 
@@ -82,6 +83,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
     this->check_on_smoke_data();
 }
 
@@ -90,6 +92,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
     this->check_on_gold_data();
 }
 
@@ -100,7 +103,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     // This test is not stable on CPU
     // TODO: Remove the following `SKIP_IF` once stability problem is resolved
     SKIP_IF(this->get_policy().is_cpu());
-
+    SKIP_IF(this->is_sparse_method());
     SKIP_IF(this->not_float64_friendly());
     this->check_on_large_data_with_one_cluster();
 }
@@ -110,6 +113,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch][nightly][stress]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
     this->partial_centroids_stress_test();
 }
 
@@ -118,6 +122,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch][external-dataset][higgs]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     const std::int64_t iters = 3;
     const std::string higgs_path = "workloads/higgs/dataset/higgs_1m_test.csv";
@@ -140,6 +145,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][nightly][batch][external-dataset][susy]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     const std::int64_t iters = 10;
     const std::string susy_path = "workloads/susy/dataset/susy_test.csv";
@@ -162,6 +168,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][nightly][batch][external-dataset][epsilon]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     const std::int64_t iters = 2;
     const std::string epsilon_path = "workloads/epsilon/dataset/epsilon_80k_train.csv";
@@ -184,6 +191,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch][external-dataset][higgs]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     const std::int64_t iters = 3;
     const std::string higgs_path = "workloads/higgs/dataset/higgs_1m_test.csv";
@@ -206,6 +214,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][nightly][batch][external-dataset][susy]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     const std::int64_t iters = 10;
     const std::string susy_path = "workloads/susy/dataset/susy_test.csv";
@@ -228,6 +237,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][nightly][batch][external-dataset][epsilon]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     const std::int64_t iters = 2;
     const std::string epsilon_path = "workloads/epsilon/dataset/epsilon_80k_train.csv";
@@ -257,6 +267,51 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                                                4.3202752143,
                                                48437.6015625,
                                                1.0e-3);
+    }
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "KMmeans sparse default cases",
+                     "[kmeans][batch]",
+                     kmeans_types) {
+    SKIP_IF(!this->is_sparse_method());
+
+    SECTION("cluster=5") {
+        auto input = oneapi::dal::test::engine::csr_make_blobs(5, 50, 20);
+        bool init_centroids = true;
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=16") {
+        bool init_centroids = true;
+        auto input = oneapi::dal::test::engine::csr_make_blobs(16, 200, 100);
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=128") {
+        SKIP_IF(this->get_policy().is_cpu());
+        bool init_centroids = true;
+        auto input = oneapi::dal::test::engine::csr_make_blobs(128, 100000, 200);
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=5") {
+        auto input = oneapi::dal::test::engine::csr_make_blobs(5, 50, 20);
+        bool init_centroids = false;
+        this->test_on_sparse_data(input, 20, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=16") {
+        bool init_centroids = false;
+        auto input = oneapi::dal::test::engine::csr_make_blobs(16, 200, 100);
+        this->test_on_sparse_data(input, 10, 0.01, init_centroids);
+    }
+
+    SECTION("cluster=32") {
+        SKIP_IF(this->get_policy().is_cpu());
+        bool init_centroids = false;
+        auto input = oneapi::dal::test::engine::csr_make_blobs(32, 10000, 100);
+        this->test_on_sparse_data(input, 30, 0.01, init_centroids);
     }
 }
 

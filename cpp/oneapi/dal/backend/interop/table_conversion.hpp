@@ -20,6 +20,9 @@
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
+#include <daal/include/services/env_detect.h>
+
+#include "daal/src/data_management/service_numeric_table.h"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/backend/interop/sycl_table_adapter.hpp"
@@ -222,25 +225,22 @@ inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(const 
 }
 
 template <typename Float>
-inline daal::data_management::CSRNumericTablePtr convert_to_daal_table(const csr_table& table) {
+inline daal::data_management::CSRNumericTablePtr convert_to_daal_table(const csr_table& table,
+                                                                       bool need_copy = false) {
     auto wrapper = wrap_by_host_csr_adapter(table);
-    if (!wrapper) {
-        return copy_to_daal_csr_table<Float>(table);
-    }
-    else {
-        return wrapper;
-    }
+    return need_copy || !wrapper ? copy_to_daal_csr_table<Float>(table) : wrapper;
 }
 
 template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table,
+                                                                    bool need_copy = false) {
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
         return convert_to_daal_table<Data>(homogen);
     }
     else if (table.get_kind() == csr_table::kind()) {
         const auto& csr = static_cast<const csr_table&>(table);
-        return convert_to_daal_table<Data>(csr);
+        return convert_to_daal_table<Data>(csr, need_copy);
     }
     else {
         return copy_to_daal_homogen_table<Data>(table);
