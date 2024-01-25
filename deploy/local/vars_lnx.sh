@@ -224,7 +224,7 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
-ARCH=$(uname -m)
+ARCH_ONEDAL=$(uname -m)
 
 if [[ "${ARCH}" == "x86_64" ]]; then
     ARCH_DIR="intel64"
