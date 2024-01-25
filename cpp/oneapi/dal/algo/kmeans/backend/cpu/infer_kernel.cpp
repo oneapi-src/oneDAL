@@ -33,21 +33,9 @@ using descriptor_t = detail::descriptor_base<task::clustering>;
 namespace daal_kmeans = daal::algorithms::kmeans;
 namespace interop = dal::backend::interop;
 
-template <daal_kmeans::Method Value>
-using daal_method_constant = std::integral_constant<daal_kmeans::Method, Value>;
-
-template <typename Method>
-struct to_daal_method;
-
-template <>
-struct to_daal_method<method::lloyd_dense> : daal_method_constant<daal_kmeans::lloydDense> {};
-
-template <>
-struct to_daal_method<method::lloyd_csr> : daal_method_constant<daal_kmeans::lloydCSR> {};
-
-template <typename Float, daal::CpuType Cpu, typename Method>
-using batch_kernel_t =
-    daal_kmeans::internal::KMeansBatchKernel<to_daal_method<Method>::value, Float, Cpu>;
+template <typename Float, daal::CpuType Cpu>
+using daal_kmeans_lloyd_dense_kernel_t =
+    daal_kmeans::internal::KMeansBatchKernel<daal_kmeans::lloydDense, Float, Cpu>;
 
 inline auto get_daal_parameter_to_infer(const descriptor_t& desc) {
     const std::int64_t max_iteration_count = 0;
@@ -67,11 +55,11 @@ inline auto get_daal_parameter_to_infer(const descriptor_t& desc) {
     return parameter;
 }
 
-template <typename Float, typename Task, typename Method, typename Table>
+template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const model<Task>& trained_model,
-                                           const Table& data) {
+                                           const table& data) {
     const std::int64_t row_count = data.get_row_count();
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
@@ -96,13 +84,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                        daal_objective_function_value.get(),
                                                        nullptr };
 
-    interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        return batch_kernel_t<Float,
-                              oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
-                              Method>()
-            .compute(input, output, &par);
-    }));
-
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_kmeans_lloyd_dense_kernel_t>(ctx,
+                                                                           input,
+                                                                           output,
+                                                                           &par));
     if (desc.get_result_options().test(result_options::compute_assignments)) {
         result.set_responses(
             dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
@@ -115,28 +101,23 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     return result;
 }
 
-template <typename Float, typename Task, typename Method>
+template <typename Float, typename Task>
 static infer_result<Task> infer(const context_cpu& ctx,
                                 const descriptor_t& desc,
                                 const infer_input<Task>& input) {
-    using table_type =
-        std::conditional_t<std::is_same_v<Method, method::lloyd_csr>, csr_table, table>;
-    const auto data = static_cast<table_type>(input.get_data());
-    return call_daal_kernel<Float, Task, Method>(ctx, desc, input.get_model(), data);
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
 }
 
-template <typename Float, typename Method>
-struct infer_kernel_cpu<Float, Method, task::clustering> {
+template <typename Float>
+struct infer_kernel_cpu<Float, method::by_default, task::clustering> {
     infer_result<task::clustering> operator()(const context_cpu& ctx,
                                               const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
-        return infer<Float, task::clustering, Method>(ctx, desc, input);
+        return infer<Float, task::clustering>(ctx, desc, input);
     }
 };
 
-template struct infer_kernel_cpu<float, method::lloyd_csr, task::clustering>;
-template struct infer_kernel_cpu<double, method::lloyd_csr, task::clustering>;
-template struct infer_kernel_cpu<float, method::lloyd_dense, task::clustering>;
-template struct infer_kernel_cpu<double, method::lloyd_dense, task::clustering>;
+template struct infer_kernel_cpu<float, method::by_default, task::clustering>;
+template struct infer_kernel_cpu<double, method::by_default, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend
