@@ -27,17 +27,17 @@ namespace oneapi::dal::backend::primitives {
 namespace mkl = oneapi::fpk;
 
 template <mkl::jobsvd jobu, mkl::jobsvd jobvt, typename Float>
-sycl::event gesvd(sycl::queue &queue,
+sycl::event gesvd(sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
-                  Float *a,
+                  ndview<Float, 2>& a,
                   std::int64_t lda,
-                  Float *s,
-                  Float *u,
+                  ndview<Float, 1>& s,
+                  ndview<Float, 2>& u,
                   std::int64_t ldu,
-                  Float *vt,
+                  ndview<Float, 2>& vt,
                   std::int64_t ldvt,
-                  const event_vector &deps = {});
+                  const event_vector& deps = {});
 
 #endif
 

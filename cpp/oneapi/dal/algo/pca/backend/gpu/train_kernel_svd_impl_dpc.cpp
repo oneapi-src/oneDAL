@@ -43,6 +43,19 @@ using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
+///  A wrapper that computes svd decomposition of the input data
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  component_count  The number of `component_count` of the algorithm descriptor
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of four elements, where the first element is the U matrix,
+/// the second is the resulting S array, the third is the resulting V_T matrix
+/// and the fourth element is a SYCL event indicating the availability
+/// of the all arrays are ready for reading and writing
 template <typename Float, pr::ndorder order>
 auto svd_decomposition(sycl::queue& queue,
                        pr::ndview<Float, 2, order>& data,
@@ -57,25 +70,22 @@ auto svd_decomposition(sycl::queue& queue,
 
     auto V_T = pr::ndarray<Float, 2>::empty(queue, { 1, 1 }, alloc::device);
 
-    Float* data_ptr = data.get_mutable_data();
-    Float* U_ptr = U.get_mutable_data();
-    Float* S_ptr = S.get_mutable_data();
-    Float* V_T_ptr = V_T.get_mutable_data();
     std::int64_t lda = column_count;
     std::int64_t ldu = column_count;
     std::int64_t ldvt = 1;
     sycl::event gesvd_event;
     {
         ONEDAL_PROFILER_TASK(gesvd, queue);
+        // Due to MKL uses Fortran API column count and row count are provided in inverted order
         gesvd_event = pr::gesvd<mkl::jobsvd::somevec, mkl::jobsvd::novec>(queue,
                                                                           column_count,
                                                                           row_count,
-                                                                          data_ptr,
+                                                                          data,
                                                                           lda,
-                                                                          S_ptr,
-                                                                          U_ptr,
+                                                                          S,
+                                                                          U,
                                                                           ldu,
-                                                                          V_T_ptr,
+                                                                          V_T,
                                                                           ldvt,
                                                                           { deps });
     }
@@ -119,7 +129,7 @@ result_t train_kernel_svd_impl<Float>::operator()(const descriptor_t& desc, cons
         svd_decomposition(q_, data_nd, component_count, { scaled_event, mean_centered_event });
 
     auto S_host = S.to_host(q_);
-    auto eigenvalues = compute_eigenvalues_on_device(q_, S_host, row_count, { gesvd_event });
+    auto eigenvalues = compute_eigenvalues_on_host(q_, S_host, row_count, { gesvd_event });
     if (desc.get_result_options().test(result_options::singular_values)) {
         if (zscore) {
             result.set_singular_values(

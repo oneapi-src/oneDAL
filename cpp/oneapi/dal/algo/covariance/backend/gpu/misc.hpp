@@ -29,12 +29,17 @@ namespace pr = dal::backend::primitives;
 
 // Common
 
-/// Compute sums wrapper
+///  A wrapper that computes 1d array of sums of the columns from 2d data array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The input data
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of sums
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the sums array for reading and writing
 template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
@@ -51,13 +56,18 @@ auto compute_sums(sycl::queue& q,
     return std::make_tuple(sums, sums_event);
 }
 
-/// Compute means wrapper
+///  A wrapper that computes 1d array of means of the columns from precomputed sums
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  sums  The means
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of means
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the means array for reading and writing
 template <typename Float>
 auto compute_means(sycl::queue& q,
                    const pr::ndview<Float, 1>& sums,
@@ -73,15 +83,20 @@ auto compute_means(sycl::queue& q,
     return std::make_tuple(means, means_event);
 }
 
-/// Compute covariance matrix wrapper
+///  A wrapper that computes 2d array of covariance matrix from 2d xtx array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  row_count  The number of rows
-/// @param[in]  xtx  The xtx
-/// @param[in]  sums  The sums
-/// @param[in]  bias  The bias values
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  xtx  The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  bias  The input bias value
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of covariance matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the covariance matrix array for reading and writing
 template <typename Float>
 auto compute_covariance(sycl::queue& q,
                         std::int64_t row_count,
@@ -104,14 +119,19 @@ auto compute_covariance(sycl::queue& q,
     return std::make_tuple(cov, cov_event);
 }
 
-/// Compute correlation matrix wrapper
+///  A wrapper that computes 2d array of correlation matrix from 2d xtx array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  row_count  The number of rows
-/// @param[in]  xtx  The xtx
-/// @param[in]  sums  The sums
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  xtx  The input xtx matrix of size  `column_count` x `column_count`
+/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of correlation matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the correlation matrix array for reading and writing
 template <typename Float>
 auto compute_correlation(sycl::queue& q,
                          std::int64_t row_count,
@@ -134,12 +154,17 @@ auto compute_correlation(sycl::queue& q,
     return std::make_tuple(corr, corr_event);
 }
 
-/// Compute crossproduct matrix wrapper
+///  A wrapper that computes 2d array of crossproduct matrix for the online algorthm
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The input data
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input block of the data of size `row_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of crossproduct matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the crossproduct matrix array for reading and writing
 template <typename Float>
 auto compute_crossproduct(sycl::queue& q,
                           const pr::ndview<Float, 2>& data,
@@ -162,12 +187,17 @@ auto compute_crossproduct(sycl::queue& q,
 
 // Online
 
-/// Compute init step of online algorithm wrapper
+///  A wrapper that initiates the first iteration partial rows of online algorithm
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting number of rows
+/// and the second element is a SYCL event indicating the availability
+/// of the resulting number of rows for reading and writing
 template <typename Float>
 auto init(sycl::queue& q,
           const std::int64_t row_count,
@@ -190,17 +220,23 @@ auto init(sycl::queue& q,
     return std::make_tuple(result_nobs, init_event);
 }
 
-/// Update partial results of  online algorithm wrapper
+///  A wrapper that updates partial results of online algorithm
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  crossproducts  The crossproduct of current iteration
-/// @param[in]  sums  The sums of current iteration
-/// @param[in]  current_crossproducts  The crossproduct of previous iterations
-/// @param[in]  current_sums  The sums of previous iterations
-/// @param[in]  current_nobs  The number of observations of previous iterations
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  crossproducts  The new crossproducts of size `column_count` x `column_count`
+/// @param[in]  sums  The new sums of size `column_count`
+/// @param[in]  current_crossproducts  The current crossproducts of size `column_count` x `column_count`
+/// @param[in]  current_sums  The current sums of size `column_count`
+/// @param[in]  current_nobs  The current nobs of size `1`
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of four elements, where the first element is the resulting sums,
+/// the second is the resulting crossproducts, the third is the resulting number of partial rows
+/// and the fourth element is a SYCL event indicating the availability
+/// of the all arrays for reading and writing
 template <typename Float>
 auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 2>& crossproducts,

@@ -65,12 +65,12 @@ template <mkl::jobsvd jobu, mkl::jobsvd jobvt, typename Float>
 sycl::event gesvd(sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
-                  Float* a,
+                  ndview<Float, 2>& a,
                   std::int64_t lda,
-                  Float* s,
-                  Float* u,
+                  ndview<Float, 1>& s,
+                  ndview<Float, 2>& u,
                   std::int64_t ldu,
-                  Float* vt,
+                  ndview<Float, 2>& vt,
                   std::int64_t ldvt,
                   const event_vector& deps) {
     ONEDAL_PROFILER_TASK(lapack_gesvd, queue);
@@ -94,12 +94,12 @@ sycl::event gesvd(sycl::queue& queue,
                          job_vt,
                          row_count,
                          column_count,
-                         a,
+                         a.get_mutable_data(),
                          lda,
-                         s,
-                         u,
+                         s.get_mutable_data(),
+                         u.get_mutable_data(),
                          ldu,
-                         vt,
+                         vt.get_mutable_data(),
                          ldvt,
                          scratchpad_ptr,
                          scratchpad_size,
@@ -110,12 +110,12 @@ sycl::event gesvd(sycl::queue& queue,
     template ONEDAL_EXPORT sycl::event gesvd<jobu, jobvt, F>(sycl::queue & queue, \
                                                              std::int64_t m,      \
                                                              std::int64_t n,      \
-                                                             F * a,               \
+                                                             ndview<F, 2> & a,    \
                                                              std::int64_t lda,    \
-                                                             F * s,               \
-                                                             F * u,               \
+                                                             ndview<F, 1> & s,    \
+                                                             ndview<F, 2> & u,    \
                                                              std::int64_t ldu,    \
-                                                             F * vt,              \
+                                                             ndview<F, 2> & vt,   \
                                                              std::int64_t ldvt,   \
                                                              const event_vector& deps);
 

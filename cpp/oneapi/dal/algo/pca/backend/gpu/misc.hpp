@@ -30,12 +30,17 @@ namespace pr = dal::backend::primitives;
 
 // Common
 
-/// Compute sums wrapper
+///  A wrapper that computes 1d array of sums of the columns from 2d data array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The input data
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of sums
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the sums array for reading and writing
 template <typename Float>
 auto compute_sums(sycl::queue& queue,
                   const pr::ndview<Float, 2>& data,
@@ -52,37 +57,47 @@ auto compute_sums(sycl::queue& queue,
     return std::make_tuple(sums, sums_event);
 }
 
-/// Compute means wrapper
+///  A wrapper that computes 1d array of means of the columns from precomputed sums
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  sums  The precomputed sums
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of means
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the means array for reading and writing
 template <typename Float>
-auto compute_means(sycl::queue& q,
+auto compute_means(sycl::queue& queue,
                    const pr::ndview<Float, 1>& sums,
                    std::int64_t row_count,
                    const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_PROFILER_TASK(compute_means, queue);
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(sums.get_dimension(0) > 0);
 
     const std::int64_t column_count = sums.get_dimension(0);
-    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto means_event = pr::means(q, row_count, sums, means, deps);
+    auto means = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
+    auto means_event = pr::means(queue, row_count, sums, means, deps);
     return std::make_tuple(means, means_event);
 }
 
-/// Compute explained variances wrapper
+///  A wrapper that computes 1d array of explained variances ratio from the eigenvalues
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  eigenvalues  The eigenvalues
-/// @param[in]  vars  The variances
+/// @param[in]  queue The SYCL queue
+/// @param[in]  eigenvalues  The input eigenvalues of size `component_count`
+/// @param[in]  vars  The input variances of size `component_count`
+/// @param[in]  deps  Events indicating availability of the `eigenvalues` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of explained variances ratio
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the explained variances ratio array for reading and writing
 template <typename Float>
-auto compute_explained_variances_on_host(sycl::queue& q,
+auto compute_explained_variances_on_host(sycl::queue& queue,
                                          pr::ndarray<Float, 1> eigenvalues,
                                          pr::ndarray<Float, 1> vars,
                                          const dal::backend::event_vector& deps = {}) {
@@ -111,152 +126,182 @@ auto compute_explained_variances_on_host(sycl::queue& q,
 
 // Cov and Precomputed methods
 
-/// Compute covariance matrix wrapper
+///  A wrapper that computes 2d array of covariance matrix from 2d xtx array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  xtx  The result of xtx of the input data
-/// @param[in]  sums  The sums
-/// @param[in]  bias  The bias value
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  xtx  The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  bias  The input bias value
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of covariance matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the covariance matrix array for reading and writing
 template <typename Float>
-auto compute_covariance(sycl::queue& q,
+auto compute_covariance(sycl::queue& queue,
                         std::int64_t row_count,
                         const pr::ndview<Float, 2>& xtx,
                         const pr::ndarray<Float, 1>& sums,
                         bool bias,
                         const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_covariance, q);
+    ONEDAL_PROFILER_TASK(compute_covariance, queue);
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(xtx.has_data());
     ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
 
     const std::int64_t column_count = xtx.get_dimension(1);
 
-    auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+    auto cov = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
-    auto copy_event = copy(q, cov, xtx, { deps });
+    auto copy_event = copy(queue, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
+    auto cov_event = pr::covariance(queue, row_count, sums, cov, bias, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
-/// Compute correaltion matrix wrapper
+///  A wrapper that computes 2d array of correlation matrix from 2d xtx array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  row_count  The numer of rows
-/// @param[in]  xtx  The result of xtx of the input data
-/// @param[in]  sums  The sums
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  xtx  The input xtx matrix of size  `column_count` x `column_count`
+/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of correlation matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the correlation matrix array for reading and writing
 template <typename Float>
-auto compute_correlation(sycl::queue& q,
+auto compute_correlation(sycl::queue& queue,
                          std::int64_t row_count,
                          const pr::ndview<Float, 2>& xtx,
                          const pr::ndarray<Float, 1>& sums,
                          const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_PROFILER_TASK(compute_correlation, queue);
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(xtx.has_data());
     ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
 
     const std::int64_t column_count = xtx.get_dimension(1);
 
-    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+    auto corr = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
-    auto copy_event = copy(q, corr, xtx, { deps });
+    auto copy_event = copy(queue, corr, xtx, { deps });
 
-    auto corr_event = pr::correlation(q, row_count, sums, corr, { copy_event });
+    auto corr_event = pr::correlation(queue, row_count, sums, corr, { copy_event });
 
     return std::make_tuple(corr, corr_event);
 }
 
-/// Compute crossproduct wrapper
+///  A wrapper that computes 2d array of crossproduct matrix for the online algorthm
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The input data
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input block of the data of size `row_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of crossproduct matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the crossproduct matrix array for reading and writing
 template <typename Float>
-auto compute_crossproduct(sycl::queue& q,
+auto compute_crossproduct(sycl::queue& queue,
                           const pr::ndview<Float, 2>& data,
                           const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_crossproduct, q);
+    ONEDAL_PROFILER_TASK(compute_crossproduct, queue);
     ONEDAL_ASSERT(data.has_data());
 
     const std::int64_t column_count = data.get_dimension(1);
-    auto xtx = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+    auto xtx = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
     sycl::event gemm_event;
     {
-        ONEDAL_PROFILER_TASK(gemm, q);
-        gemm_event = gemm(q, data.t(), data, xtx, Float(1.0), Float(0.0));
-        gemm_event.wait_and_throw();
+        ONEDAL_PROFILER_TASK(gemm, queue);
+        gemm_event = gemm(queue, data.t(), data, xtx, Float(1.0), Float(0.0));
     }
 
     return std::make_tuple(xtx, gemm_event);
 }
 
-/// Compute variances from covariance matrix wrapper
+///  A wrapper that computes 1d array of variances of the columns from the covariance matrix
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  cov  The covariance matrix
+/// @param[in]  queue The SYCL queue
+/// @param[in]  cov  The input covariance matrix of size `column_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of variances
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the variances array for reading and writing
 template <typename Float>
-auto compute_variances(sycl::queue& q,
+auto compute_variances(sycl::queue& queue,
                        const pr::ndview<Float, 2>& cov,
                        const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_vars, q);
+    ONEDAL_PROFILER_TASK(compute_vars, queue);
     ONEDAL_ASSERT(cov.has_data());
     ONEDAL_ASSERT(cov.get_dimension(0) > 0);
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
 
     auto column_count = cov.get_dimension(0);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto vars_event = pr::variances(q, cov, vars, deps);
+    auto vars = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
+    auto vars_event = pr::variances(queue, cov, vars, deps);
     return std::make_tuple(vars, vars_event);
 }
 
-/// Compute correaltion from covariance matrix wrapper
+///  A wrapper that computes 2d array of correlation matrix from the covariance matrix
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  row_count  The number of rows
-/// @param[in]  cov  The covariance matrix
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  cov  The input covariance matrix of size `column_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of correlation matrix
+/// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the correlation matrix array for reading and writing
 template <typename Float>
-auto compute_correlation_from_covariance(sycl::queue& q,
+auto compute_correlation_from_covariance(sycl::queue& queue,
                                          std::int64_t row_count,
                                          const pr::ndview<Float, 2>& cov,
                                          const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_PROFILER_TASK(compute_correlation, queue);
     ONEDAL_ASSERT(cov.has_data());
     ONEDAL_ASSERT(cov.get_dimension(0) > 0);
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
 
     const std::int64_t column_count = cov.get_dimension(1);
 
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
 
-    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+    auto corr = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
     const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
-    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, bias, deps);
+    auto corr_event = pr::correlation_from_covariance(queue, row_count, cov, corr, tmp, bias, deps);
 
     return std::make_tuple(corr, corr_event);
 }
 
 // SVD method
-/// Compute eigenvectors and eigenvalues wrapper
+
+///  A wrapper that computes 1d array of eigenvalues and 2d array of eigenvectors from the covariance matrix
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  corr  The correlation matrix
-/// @param[in]  component_count  The number of descriptor components
+/// @param[in]  queue The SYCL queue
+/// @param[in]  corr  The input covariance/correlation matrix of size `column_count` x `column_count`
+/// @param[in]  component_count  The number of `component_count` of the descriptor
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
+/// of size `component_count` x `column_count` and the second element is the resulting 1d array of eigenvalues
 template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
+auto compute_eigenvectors_on_host(sycl::queue& queue,
                                   pr::ndarray<Float, 2>&& corr,
                                   std::int64_t component_count,
                                   const dal::backend::event_vector& deps = {}) {
@@ -268,25 +313,28 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
 
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-    auto host_corr = corr.to_host(q, deps);
+    auto host_corr = corr.to_host(queue, deps);
     pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
 
     return std::make_tuple(eigvecs, eigvals);
 }
 
-/// Compute eigenvalues from singular values wrapper
+///  A wrapper that computes 1d array of eigenvalues from the 1d array of the singular values
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  singular_values  The singluar values
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  singular_values  The input singular values matrix of size `column_count` x `column_count`
+/// @param[in]  component_count  The number of `component_count` of the descriptor
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return The resulting 2d array of eigenvalues
 template <typename Float>
-auto compute_eigenvalues_on_device(sycl::queue& q,
-                                   pr::ndarray<Float, 1> singular_values,
-                                   std::int64_t row_count,
-                                   const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvalues_on_device);
+auto compute_eigenvalues_on_host(sycl::queue& queue,
+                                 pr::ndarray<Float, 1> singular_values,
+                                 std::int64_t row_count,
+                                 const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvalues_on_host);
 
     const std::int64_t component_count = singular_values.get_dimension(0);
 
@@ -302,15 +350,18 @@ auto compute_eigenvalues_on_device(sycl::queue& q,
     return eigenvalues;
 }
 
-/// Compute singular values from eigen values wrapper
+///  A wrapper that computes 1d array of singular values from the eigenvalues
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  eigenvalues  The eigen values
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  eigenvalues  The input eigenvalues array of size `component_count`
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return The resulting 2d array of singular values
 template <typename Float>
-auto compute_singular_values_on_host(sycl::queue& q,
+auto compute_singular_values_on_host(sycl::queue& queue,
                                      pr::ndarray<Float, 1> eigenvalues,
                                      std::int64_t row_count,
                                      const dal::backend::event_vector& deps = {}) {
@@ -331,58 +382,67 @@ auto compute_singular_values_on_host(sycl::queue& q,
     return singular_values;
 }
 
-/// Compute  U/VT sliced data wrapper
+///  A wrapper that sliced 2d array of eigenvectors with necessary dimensions
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The data necessary to be sliced
-/// @param[in]  component_count  The number of descriptor components
-/// @param[in]  column_count  The number of columns
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input eigenvectors matrix with size `column_count` x `column_count`
+/// @param[in]  component_count  The number of `component_count` of the descriptor
+/// @param[in]  column_count  The number of `column_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
+/// of size `component_count` x `column_count` and the second element is a SYCL event indicating the availability
+/// of the eigenvectors array for reading and writing
 template <typename Float>
-auto slice_data(sycl::queue& q,
+auto slice_data(sycl::queue& queue,
                 const pr::ndview<Float, 2>& data,
                 std::int64_t component_count,
                 std::int64_t column_count,
                 const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_PROFILER_TASK(compute_means, queue);
     const std::int64_t column_count_local = data.get_dimension(1);
-    auto data_to_compute =
-        pr::ndarray<Float, 2>::empty(q, { component_count, column_count }, alloc::device);
-    auto data_to_compute_ptr = data_to_compute.get_mutable_data();
+    auto sliced_data =
+        pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
+    auto sliced_data_ptr = sliced_data.get_mutable_data();
     auto data_ptr = data.get_data();
-    auto event = q.submit([&](sycl::handler& h) {
+    auto slice_event = queue.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(component_count, column_count);
         h.parallel_for(range, [=](sycl::id<2> id) {
             const std::int64_t row = id[0];
             const std::int64_t column = id[1];
-            data_to_compute_ptr[row * column_count + column] =
+            sliced_data_ptr[row * column_count + column] =
                 data_ptr[row * column_count_local + column];
         });
     });
-    return std::make_tuple(data_to_compute, event);
+    return std::make_tuple(sliced_data, slice_event);
 }
 
-/// Compute  mean centered data wrapper
+///  A wrapper that computes the mean centered data from the input data
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The input data
-/// @param[in]  means  The precomputed means
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input block of the data of size `row_count` x `column_count`
+/// @param[in]  means  The input means of size `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the mean centered data array for reading and writing
 template <typename Float>
-auto get_centered(sycl::queue& q,
+auto get_centered(sycl::queue& queue,
                   pr::ndview<Float, 2>& data,
                   const pr::ndview<Float, 1>& means,
                   const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_centered_data, q);
+    ONEDAL_PROFILER_TASK(compute_centered_data, queue);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
     auto centered_data_ptr = data.get_mutable_data();
     auto means_ptr = means.get_data();
 
-    auto centered_event = q.submit([&](sycl::handler& h) {
+    auto centered_event = queue.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(row_count, column_count);
         h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
@@ -395,26 +455,30 @@ auto get_centered(sycl::queue& q,
     return centered_event;
 }
 
-/// Compute scaled data wrapper
+///  A wrapper that computes the scaled data from the mean centered data
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The mean centered data
-/// @param[in]  means  The variances
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The mean centered data of size `row_count` x `column_count`
+/// @param[in]  variances  The input variances of size `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the scaled data array for reading and writing
 template <typename Float>
-auto get_scaled(sycl::queue& q,
+auto get_scaled(sycl::queue& queue,
                 pr::ndview<Float, 2>& data,
                 const pr::ndview<Float, 1>& variances,
                 const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_scaled_data, q);
+    ONEDAL_PROFILER_TASK(compute_scaled_data, queue);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
     auto scaled_data_ptr = data.get_mutable_data();
     auto variances_ptr = variances.get_data();
 
-    auto scaled_event = q.submit([&](sycl::handler& h) {
+    auto scaled_event = queue.submit([&](sycl::handler& h) {
         const auto range = bk::make_range_2d(row_count, column_count);
         h.depends_on(deps);
         h.parallel_for(range, [=](sycl::id<2> id) {
@@ -429,28 +493,33 @@ auto get_scaled(sycl::queue& q,
     return scaled_event;
 }
 
-/// Compute variances on device wrapper
+///  A wrapper that computes 1d array of variances of the columns from 2d mean centered data array
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The mean centered data
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The mean centered data of size `row_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 1d array of variances
+/// of size `column_count` and the second element is a SYCL event indicating the availability
+/// of the variances array for reading and writing
 template <typename Float>
-auto compute_variances_device(sycl::queue& q,
+auto compute_variances_device(sycl::queue& queue,
                               const pr::ndview<Float, 2>& data,
                               const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_PROFILER_TASK(compute_means, queue);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
 
     constexpr pr::sum<Float> binary;
     constexpr pr::square<Float> unary;
 
-    auto vars_event_ = pr::reduce_by_columns(q, data, vars, binary, unary, deps);
+    auto vars_event_ = pr::reduce_by_columns(queue, data, vars, binary, unary, deps);
     auto vars_ptr = vars.get_mutable_data();
-    auto vars_event = q.submit([&](sycl::handler& h) {
+    auto vars_event = queue.submit([&](sycl::handler& h) {
         h.depends_on(vars_event_);
         const auto range = bk::make_range_1d(column_count);
         h.parallel_for(range, [=](sycl::id<1> id) {
@@ -464,23 +533,28 @@ auto compute_variances_device(sycl::queue& q,
 
 // Online Cov method
 
-/// Compute init step of online algorithm wrapper
+///  A wrapper that initiates the first iteration partial rows of online algorithm
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting number of rows
+/// and the second element is a SYCL event indicating the availability
+/// of the resulting number of rows for reading and writing
 template <typename Float>
-auto init(sycl::queue& q,
+auto init(sycl::queue& queue,
           const std::int64_t row_count,
           const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(init_partial_results, q);
+    ONEDAL_PROFILER_TASK(init_partial_results, queue);
 
-    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
+    auto result_nobs = pr::ndarray<Float, 1>::empty(queue, 1);
 
     auto result_nobs_ptr = result_nobs.get_mutable_data();
 
-    auto init_event = q.submit([&](sycl::handler& cgh) {
+    auto init_event = queue.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(1);
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
@@ -491,19 +565,25 @@ auto init(sycl::queue& q,
     return std::make_tuple(result_nobs, init_event);
 }
 
-/// Update partial results of  online algorithm wrapper
+///  A wrapper that updates partial results of online algorithm
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The queue
-/// @param[in]  crossproducts  The crossproduct of current iteration
-/// @param[in]  sums  The sums of current iteration
-/// @param[in]  current_crossproducts  The crossproduct of previous iterations
-/// @param[in]  current_sums  The sums of previous iterations
-/// @param[in]  current_nobs  The number of observations of previous iterations
-/// @param[in]  row_count  The number of rows
+/// @param[in]  queue The SYCL queue
+/// @param[in]  crossproducts  The new crossproducts of size `column_count` x `column_count`
+/// @param[in]  sums  The new sums of size `column_count`
+/// @param[in]  current_crossproducts  The current crossproducts of size `column_count` x `column_count`
+/// @param[in]  current_sums  The current sums of size `column_count`
+/// @param[in]  current_nobs  The current nobs of size `1`
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of four elements, where the first element is the resulting sums,
+/// the second is the resulting crossproducts, the third is the resulting number of partial rows
+/// and the fourth element is a SYCL event indicating the availability
+/// of the all arrays for reading and writing
 template <typename Float>
-auto update_partial_results(sycl::queue& q,
+auto update_partial_results(sycl::queue& queue,
                             const pr::ndview<Float, 2>& crossproducts,
                             const pr::ndview<Float, 1>& sums,
                             const pr::ndview<Float, 2>& current_crossproducts,
@@ -511,13 +591,13 @@ auto update_partial_results(sycl::queue& q,
                             const pr::ndview<Float, 1>& current_nobs,
                             const std::int64_t row_count,
                             const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(update_partial_results, q);
+    ONEDAL_PROFILER_TASK(update_partial_results, queue);
 
     auto column_count = crossproducts.get_dimension(1);
-    auto result_sums = pr::ndarray<Float, 1>::empty(q, column_count, alloc::device);
+    auto result_sums = pr::ndarray<Float, 1>::empty(queue, column_count, alloc::device);
     auto result_crossproducts =
-        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-    auto result_nobs = pr::ndarray<Float, 1>::empty(q, 1);
+        pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
+    auto result_nobs = pr::ndarray<Float, 1>::empty(queue, 1);
 
     auto result_sums_ptr = result_sums.get_mutable_data();
     auto result_crossproducts_ptr = result_crossproducts.get_mutable_data();
@@ -530,7 +610,7 @@ auto update_partial_results(sycl::queue& q,
     auto crossproducts_data = crossproducts.get_data();
     auto sums_data = sums.get_data();
 
-    auto update_event = q.submit([&](sycl::handler& cgh) {
+    auto update_event = queue.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<2>(column_count, column_count);
 
         cgh.depends_on(deps);
