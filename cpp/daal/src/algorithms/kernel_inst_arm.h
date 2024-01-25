@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Defines used for kernel allocation, deallocation and calling kernel methods
+//  The defines used for kernel allocation, deallocation, and calling kernel methods
 //--
 */
 
