@@ -50,7 +50,7 @@ enum CpuType
     avx512      = 6, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
     lastCpuType = avx512
 #elif defined(TARGET_ARM)
-    sve         = 0, /*!< ARM processors based on Arm's Scalable Vector Extension (SVE) */
+    sve         = 0, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
     lastCpuType = sve
 #endif
 };
@@ -101,7 +101,7 @@ public:
 #if defined(TARGET_X86_64)
         avx512 = 2 /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
 #elif defined(TARGET_ARM)
-        sve = 2, /*!< ARM processors based on Arm's Scalable Vector Extension (SVE) */
+        sve = 2, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
 #endif
     };
 
