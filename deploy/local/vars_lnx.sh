@@ -251,8 +251,8 @@ if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
       export LD_LIBRARY_PATH="$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     else
       export CPATH="$__daal_tmp_dir/include${CPATH+:${CPATH}}"
-      export LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR${LIBRARY_PATH+:${LIBRARY_PATH}}"
-      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
+      export LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR_ONEDAL${LIBRARY_PATH+:${LIBRARY_PATH}}"
+      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR_ONEDAL${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     fi
   # ;;
 else   # must be a consolidated layout
