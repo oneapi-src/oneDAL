@@ -69,8 +69,7 @@ std::int64_t train_parameters<Task>::get_cpu_macro_block() const {
 
 template <typename Task>
 void train_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
-    std::cout << "macro block value=" << val << std::endl;
-    impl_->cpu_macro_block = val;
+    impl_->cpu_macro_block = 1024;
 }
 
 template <typename Task>
