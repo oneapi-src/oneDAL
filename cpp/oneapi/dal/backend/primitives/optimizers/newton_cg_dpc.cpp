@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 #include <cmath>
 
 namespace oneapi::dal::backend::primitives {
@@ -33,6 +34,7 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
                                                std::int64_t maxiter,
                                                std::int64_t maxinner,
                                                const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(newton_cg, queue);
     std::int64_t n = x.get_dimension(0);
 
     const auto kernel_minus = [=](const Float val, Float) -> Float {
@@ -85,17 +87,17 @@ std::pair<sycl::event, std::int64_t> newton_cg(sycl::queue& queue,
             }
             iter_num++;
 
-            auto solve_event = cg_solve(queue,
-                                        f.get_hessian_product(),
-                                        gradient,
-                                        direction,
-                                        buffer1,
-                                        buffer2,
-                                        buffer3,
-                                        tol_k,
-                                        Float(0),
-                                        maxinner,
-                                        { last_event });
+            auto [solve_event, inner_iter] = cg_solve(queue,
+                                                      f.get_hessian_product(),
+                                                      gradient,
+                                                      direction,
+                                                      buffer1,
+                                                      buffer2,
+                                                      buffer3,
+                                                      tol_k,
+                                                      Float(0),
+                                                      maxinner,
+                                                      { last_event });
 
             // <-grad, direction> should be > 0 if direction is descent direction
             last_event = dot_product(queue, gradient, direction, tmp_gpu, &desc, { solve_event });
