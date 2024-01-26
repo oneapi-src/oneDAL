@@ -39,9 +39,9 @@
 #define DAAL_KERNEL_AVX512
 
 #if defined(TARGET_X86_64)
-    #include "x86_64/x86_64_kernel_defines.h"
+    #include "services/internal/x86_64/x86_64_kernel_defines.h"
 #elif defined(TARGET_ARM)
-    #include "aarch64/aarch64_kernel_defines.h"
+    #include "services/internal/aarch64/aarch64_kernel_defines.h"
 #endif
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
