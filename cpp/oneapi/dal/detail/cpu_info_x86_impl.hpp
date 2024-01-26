@@ -19,6 +19,8 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/cpu_info_iface.hpp"
 
+#include <daal/src/services/service_defines.h>
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
@@ -26,12 +28,13 @@ class cpu_info_x86 : public cpu_info_iface {
 public:
     cpu_info_x86() {
         cpu_extensions_ = backend::detect_top_cpu_extension();
+        vendor_ = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
 
     cpu_info_x86(const detail::cpu_extension cpu_extension) : cpu_extensions_(cpu_extension) {}
 
     cpu_vendor get_cpu_vendor() const override {
-        return cpu_vendor::intel;
+        return vendor_;
     }
 
     detail::cpu_extension get_cpu_extensions() const override {
@@ -39,6 +42,7 @@ public:
     }
 
 private:
+    detail::cpu_vendor vendor_;
     detail::cpu_extension cpu_extensions_;
 };
 
