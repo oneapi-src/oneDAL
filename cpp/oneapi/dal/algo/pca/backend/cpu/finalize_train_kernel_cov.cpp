@@ -94,7 +94,6 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
     if (ctx.get_enabled_cpu_extensions() == CPU_EXTENSION) {
-        const std::int64_t row_count = rows_count_global;
         if (5000 < row_count && row_count <= 50000) {
             blockSize = 1024;
         }
