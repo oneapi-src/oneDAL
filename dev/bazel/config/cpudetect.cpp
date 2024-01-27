@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/include/services/daal_defines.h>
+#include "cpp/daal/include/services/daal_defines.h"
 
 #if defined(TARGET_X86_64)
 #include <immintrin.h>
