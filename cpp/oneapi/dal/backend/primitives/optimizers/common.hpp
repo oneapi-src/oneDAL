@@ -36,6 +36,13 @@ sycl::event dot_product(sycl::queue& queue,
                         const event_vector& deps = {});
 
 template <typename Float>
+sycl::event max_abs(sycl::queue& queue,
+                    const ndview<Float, 1>& x,
+                    Float* res_gpu,
+                    Float* res_host,
+                    const event_vector& deps = {});
+
+template <typename Float>
 class base_matrix_operator {
 public:
     virtual ~base_matrix_operator() {}

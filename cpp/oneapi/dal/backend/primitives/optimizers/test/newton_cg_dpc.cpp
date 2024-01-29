@@ -90,8 +90,13 @@ public:
             logloss_function<float_t>(this->get_queue(), data, y_gpu, 3.0, true, bsz);
         auto [solution_, fill_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
-        auto [opt_event, num_iter] =
-            newton_cg(this->get_queue(), logloss_func, solution_, float_t(1e-8), 100, { fill_e });
+        auto [opt_event, num_iter] = newton_cg(this->get_queue(),
+                                               logloss_func,
+                                               solution_,
+                                               float_t(1e-8),
+                                               100l,
+                                               200l,
+                                               { fill_e });
         opt_event.wait_and_throw();
         auto solution_host = solution_.to_host(this->get_queue());
 
@@ -196,7 +201,7 @@ public:
 
         float_t conv_tol = sizeof(float_t) == 4 ? 1e-7 : 1e-14;
         auto [opt_event, num_iter] =
-            newton_cg(this->get_queue(), *func_, x, conv_tol, 100, { x_event });
+            newton_cg(this->get_queue(), *func_, x, conv_tol, 100, 200l, { x_event });
         opt_event.wait_and_throw();
         auto x_host = x.to_host(this->get_queue());
         float_t tol = sizeof(float_t) == 4 ? 1e-4 : 1e-7;
