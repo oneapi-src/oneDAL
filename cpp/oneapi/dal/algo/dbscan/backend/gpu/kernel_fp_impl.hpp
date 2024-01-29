@@ -125,62 +125,62 @@ struct get_core_wide_kernel {
     static constexpr std::int64_t min_width = 4;
 };
 
-template <typename Float, bool use_weights>
-struct get_core_narrow_kernel {
-    static auto run(sycl::queue& queue,
-                    const pr::ndview<Float, 2>& data,
-                    const pr::ndview<Float, 2>& weights,
-                    pr::ndview<std::int32_t, 1>& cores,
-                    Float epsilon,
-                    std::int64_t min_observations,
-                    std::int64_t block_start,
-                    std::int64_t block_end,
-                    const bk::event_vector& deps) {
-        using count_type = typename std::conditional<use_weights, Float, std::int64_t>::type;
-        const auto row_count = data.get_dimension(0);
-        ONEDAL_ASSERT(row_count > 0);
-        ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
-        ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
-        block_start = sycl::max(block_start, std::int64_t(0));
-        block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
-        ONEDAL_ASSERT(block_start < block_end);
-        const auto block_size = block_end - block_start;
-        ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
-        const std::int64_t column_count = data.get_dimension(1);
+// template <typename Float, bool use_weights>
+// struct get_core_narrow_kernel {
+//     static auto run(sycl::queue& queue,
+//                     const pr::ndview<Float, 2>& data,
+//                     const pr::ndview<Float, 2>& weights,
+//                     pr::ndview<std::int32_t, 1>& cores,
+//                     Float epsilon,
+//                     std::int64_t min_observations,
+//                     std::int64_t block_start,
+//                     std::int64_t block_end,
+//                     const bk::event_vector& deps) {
+//         using count_type = typename std::conditional<use_weights, Float, std::int64_t>::type;
+//         const auto row_count = data.get_dimension(0);
+//         ONEDAL_ASSERT(row_count > 0);
+//         ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
+//         ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
+//         block_start = sycl::max(block_start, std::int64_t(0));
+//         block_end = (block_end < 0 || block_end > row_count) ? row_count : block_end;
+//         ONEDAL_ASSERT(block_start < block_end);
+//         const auto block_size = block_end - block_start;
+//         ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
+//         const std::int64_t column_count = data.get_dimension(1);
 
-        const Float* data_ptr = data.get_data();
-        const Float* weights_ptr = weights.get_data();
-        std::int32_t* cores_ptr = cores.get_mutable_data();
-        auto event = queue.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
-                count_type count = 0;
-                for (std::int64_t j = 0; j < row_count; j++) {
-                    Float sum = 0.0;
-                    for (std::int64_t i = 0; i < column_count; i++) {
-                        Float val = data_ptr[(block_start + idx) * column_count + i] -
-                                    data_ptr[j * column_count + i];
-                        sum += val * val;
-                    }
-                    if (sum > epsilon) {
-                        continue;
-                    }
-                    count += use_weights ? weights_ptr[j] : count_type(1);
+//         const Float* data_ptr = data.get_data();
+//         const Float* weights_ptr = weights.get_data();
+//         std::int32_t* cores_ptr = cores.get_mutable_data();
+//         auto event = queue.submit([&](sycl::handler& cgh) {
+//             cgh.depends_on(deps);
+//             cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
+//                 count_type count = 0;
+//                 for (std::int64_t j = 0; j < row_count; j++) {
+//                     Float sum = 0.0;
+//                     for (std::int64_t i = 0; i < column_count; i++) {
+//                         Float val = data_ptr[(block_start + idx) * column_count + i] -
+//                                     data_ptr[j * column_count + i];
+//                         sum += val * val;
+//                     }
+//                     if (sum > epsilon) {
+//                         continue;
+//                     }
+//                     count += use_weights ? weights_ptr[j] : count_type(1);
 
-                    if (count >= min_observations) {
-                        cores_ptr[idx] = count_type(1);
-                        break;
-                    }
-                    if (!use_weights && (row_count - j + count < min_observations)) {
-                        break;
-                    }
-                }
-            });
-        });
-        return event;
-    }
-    static constexpr std::int64_t max_width = 4;
-};
+//                     if (count >= min_observations) {
+//                         cores_ptr[idx] = count_type(1);
+//                         break;
+//                     }
+//                     if (!use_weights && (row_count - j + count < min_observations)) {
+//                         break;
+//                     }
+//                 }
+//             });
+//         });
+//         return event;
+//     }
+//     static constexpr std::int64_t max_width = 4;
+// };
 
 template <typename Float>
 template <bool use_weights>
@@ -193,29 +193,29 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               std::int64_t block_start,
                                               std::int64_t block_end,
                                               const bk::event_vector& deps) {
-    const std::int64_t column_count = data.get_dimension(1);
-    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-        return get_core_wide_kernel<Float, use_weights>::run(queue,
-                                                             data,
-                                                             weights,
-                                                             cores,
-                                                             epsilon,
-                                                             min_observations,
-                                                             block_start,
-                                                             block_end,
-                                                             deps);
-    }
-    else {
-        return get_core_narrow_kernel<Float, use_weights>::run(queue,
-                                                               data,
-                                                               weights,
-                                                               cores,
-                                                               epsilon,
-                                                               min_observations,
-                                                               block_start,
-                                                               block_end,
-                                                               deps);
-    }
+    //const std::int64_t column_count = data.get_dimension(1);
+    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+    return get_core_wide_kernel<Float, use_weights>::run(queue,
+                                                         data,
+                                                         weights,
+                                                         cores,
+                                                         epsilon,
+                                                         min_observations,
+                                                         block_start,
+                                                         block_end,
+                                                         deps);
+    // }
+    // else {
+    //     return get_core_narrow_kernel<Float, use_weights>::run(queue,
+    //                                                            data,
+    //                                                            weights,
+    //                                                            cores,
+    //                                                            epsilon,
+    //                                                            min_observations,
+    //                                                            block_start,
+    //                                                            block_end,
+    //                                                            deps);
+    // }
 }
 
 template <typename Float>

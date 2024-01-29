@@ -38,16 +38,17 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                           const descriptor_t& desc,
                                           const table& local_data,
                                           const table& local_weights) {
-    auto& comm = ctx.get_communicator();
+    //auto& comm = ctx.get_communicator();
     auto& queue = ctx.get_queue();
 
-    std::int64_t rank = comm.get_rank();
-    std::int64_t rank_count = comm.get_rank_count();
+    //std::int64_t rank = comm.get_rank();
+    //std::int64_t rank_count = comm.get_rank_count();
 
     const std::int64_t row_count = local_data.get_row_count();
 
-    const auto data_nd = pr::table2ndarray<Float>(q_, local_data, alloc::device);
-    const auto weights_nd = pr::table2ndarray<Float>(q_, local_weights, alloc::device);
+    const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
+    const auto weights_nd =
+        pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
 
     const double epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
@@ -69,8 +70,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                  arr_cores,
                                  epsilon,
                                  min_observations,
-                                 block_start,
-                                 block_end)
+                                 0,
+                                 row_count)
         .wait_and_throw();
 
     //std::int64_t cluster_count = 0;
@@ -168,7 +169,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     //         comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     //     }
     // }
-    return make_results(queue, desc, arr_data, arr_responses, arr_cores, cluster_count);
+    return make_results(queue, desc, data_nd, arr_responses, arr_cores, 10);
 }
 
 template <typename Float>
