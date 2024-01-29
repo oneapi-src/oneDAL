@@ -134,14 +134,55 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
+class kernel_reduction_rm_cw_blocking;
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
+class reduction_rm_cw_blocking {
+public:
+    using kernel_t = kernel_reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>;
+    reduction_rm_cw_blocking(sycl::queue& q);
+    reduction_rm_cw_blocking(sycl::queue& q, std::int64_t wg);
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {},
+                           const bool override_init = true) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {},
+                           const bool override_init = true) const;
+
+private:
+    sycl::nd_range<2> get_range(const std::int64_t width) const;
+    static kernel_t get_kernel(const Float* input,
+                               Float* output,
+                               std::int64_t height,
+                               std::int64_t stride,
+                               const BinaryOp& binary,
+                               const UnaryOp& unary,
+                               const bool override_init = true);
+    sycl::queue& q_;
+    const std::int64_t wg_;
+};
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw {
 public:
     using naive_t = reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
     using atomic_t = reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>;
     using naive_local_t = reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
+    using blocking_t = reduction_rm_cw_blocking<Float, BinaryOp, UnaryOp>;
 
     reduction_rm_cw(sycl::queue& q);
-    enum reduction_method { naive = 0, naive_local = 1, atomic = 2 };
+    enum reduction_method { naive = 0, naive_local = 1, atomic = 2, blocking = 3 };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(reduction_method method,
                            const Float* input,

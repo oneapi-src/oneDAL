@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
@@ -30,7 +30,6 @@ namespace bk = oneapi::dal::backend;
 using dal::backend::context_gpu;
 using alloc = sycl::usm::alloc;
 
-using model_t = model<task::dim_reduction>;
 using input_t = infer_input<task::dim_reduction>;
 using result_t = infer_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;

@@ -76,8 +76,10 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     pr::ndarray<Float, 2> data_nd = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
     table data_gpu = homogen_table::wrap(data_nd.flatten(queue, {}), sample_count, feature_count);
 
+    auto& comm = ctx.get_communicator();
+
     pr::logloss_function<Float> loss_func =
-        pr::logloss_function(queue, data_gpu, responses_nd, l2, fit_intercept, bsize);
+        pr::logloss_function(queue, comm, data_gpu, responses_nd, l2, fit_intercept, bsize);
 
     auto [x, fill_event] =
         pr::ndarray<Float, 1>::zeros(queue, { feature_count + 1 }, sycl::usm::alloc::device);

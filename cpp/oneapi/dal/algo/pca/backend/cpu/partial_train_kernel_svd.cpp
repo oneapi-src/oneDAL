@@ -27,14 +27,10 @@
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::dim_reduction>;
 using task_t = task::dim_reduction;
-using input_t = train_input<task::dim_reduction>;
-using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
 namespace daal_pca = daal::algorithms::pca;
-
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
@@ -54,11 +50,15 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     const context_cpu& ctx,
     const descriptor_t& desc,
     const partial_train_input<task::dim_reduction>& input) {
-    const std::int64_t component_count = input.get_data().get_column_count();
+    const std::int64_t column_count = input.get_data().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const auto input_ = input.get_prev();
+
+    dal::detail::check_mul_overflow(column_count, column_count);
 
     const auto data = input.get_data();
     ONEDAL_ASSERT(data.has_data());
+
     const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
 
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
@@ -76,10 +76,10 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
         auto daal_sums = interop::copy_to_daal_homogen_table<Float>(input_.get_partial_sum());
         auto daal_nobs_matrix =
             interop::copy_to_daal_homogen_table<Float>(input_.get_partial_n_rows());
-        auto auxiliaryTable = array<Float>::zeros(component_count * component_count);
+        auto auxiliaryTable = array<Float>::zeros(column_count * column_count);
         auto daal_auxiliary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
-                                                                                component_count,
-                                                                                component_count);
+                                                                                column_count,
+                                                                                column_count);
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_svd_kernel_t>(ctx,
                                                                 dtype,
@@ -100,17 +100,16 @@ static partial_train_result<task_t> call_daal_kernel_partial_train(
     }
     else {
         auto result = partial_train_result();
-        auto arr_crossproduct_svd = array<Float>::zeros(component_count);
-        auto arr_sums = array<Float>::zeros(component_count);
+        auto arr_crossproduct_svd = array<Float>::zeros(column_count);
+        auto arr_sums = array<Float>::zeros(column_count);
         auto arr_nobs_matrix = array<int>::zeros(1 * 1);
-        auto auxiliaryTable = array<Float>::zeros(component_count * component_count);
+        auto auxiliaryTable = array<Float>::zeros(column_count * column_count);
         auto daal_crossproduct_svd =
-            interop::convert_to_daal_homogen_table<Float>(arr_crossproduct_svd, 1, component_count);
+            interop::convert_to_daal_homogen_table<Float>(arr_crossproduct_svd, 1, column_count);
         auto daal_auxiliary_svd = interop::convert_to_daal_homogen_table<Float>(auxiliaryTable,
-                                                                                component_count,
-                                                                                component_count);
-        auto daal_sums =
-            interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, component_count);
+                                                                                column_count,
+                                                                                column_count);
+        auto daal_sums = interop::convert_to_daal_homogen_table<Float>(arr_sums, 1, column_count);
         auto daal_nobs_matrix = interop::convert_to_daal_homogen_table<int>(arr_nobs_matrix, 1, 1);
 
         {

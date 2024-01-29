@@ -291,14 +291,26 @@ sycl::event convert_vector_host2device(sycl::queue& q,
                    src_stride,
                    1L,
                    element_count);
-
-    auto scatter_event = scatter_host2device(q,
-                                             dst_device,
-                                             tmp_host_unique.get(),
-                                             element_count,
-                                             dst_stride_in_bytes,
-                                             element_size_in_bytes,
-                                             deps);
+    const std::int64_t max_loop_range = std::numeric_limits<std::int32_t>::max();
+    sycl::event scatter_event;
+    if (element_count > max_loop_range) {
+        scatter_event = scatter_host2device_blocking(q,
+                                                     dst_device,
+                                                     tmp_host_unique.get(),
+                                                     element_count,
+                                                     dst_stride_in_bytes,
+                                                     element_size_in_bytes,
+                                                     deps);
+    }
+    else {
+        scatter_event = scatter_host2device(q,
+                                            dst_device,
+                                            tmp_host_unique.get(),
+                                            element_count,
+                                            dst_stride_in_bytes,
+                                            element_size_in_bytes,
+                                            deps);
+    }
     return scatter_event;
 }
 
