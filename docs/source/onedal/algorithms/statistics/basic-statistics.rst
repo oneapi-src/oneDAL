@@ -65,6 +65,68 @@ the problem is to compute the following sample characteristics for each feature 
    * - Variation coefficient
      - :math:`V(j) = \frac {\text{stdev}(j)} {m(j)}`
 
+.. _basic_statistics_p_math:
+
+Partial Computing
+-----------------
+
+Given a block of a :math:`X = \{ x_1, \ldots, x_n \}` dataset  with :math:`n` feature vectors of :math:`p` dimension,
+the sums is a :math:`1 \times p` matrix, the crossproduct is :math:`p \times p` square matrices.
+The sums and the cross product are computed with the following formulas:
+
+.. list-table::
+   :widths: 20 60
+   :header-rows: 1
+   :align: left
+
+   * - Statistic
+     - Definition
+   * - Partial Minimum
+     - :math:`min(j) = \smash{\displaystyle \min_i } \{x_{ij}\}`
+   * - Partial Maximum
+     - :math:`max(j) = \smash{\displaystyle \max_i } \{x_{ij}\}`
+   * - Partial Sum
+     - :math:`s(j) = \sum_i x_{ij}`
+   * - Partial Sum of squares
+     - :math:`s_2(j) = \sum_i x_{ij}^2`
+
+.. _basic_statistics_f_math:
+
+Finalize Computing
+------------------
+
+Given a partial result with partial products,
+the means is a :math:`1 \times p` matrix, the covariance and correlation matrices are :math:`p \times p` square matrices.
+The means, the covariance, and the correlation are computed with the following formulas:
+
+.. list-table::
+   :widths: 20 60
+   :header-rows: 1
+   :align: left
+
+   * - Statistic
+     - Definition
+   * - Finalize Minimum
+     - :math:`min(j) = \smash{\displaystyle \min_i } \{x_{ij}\}`
+   * - Finalize Maximum
+     - :math:`max(j) = \smash{\displaystyle \max_i } \{x_{ij}\}`
+   * - Finalize Sum
+     - :math:`s(j) = \sum_i x_{ij}`
+   * - Finalize Sum of squares
+     - :math:`s_2(j) = \sum_i x_{ij}^2`
+   * - Finalize Means
+     - :math:`m(j) = \frac {s(j)} {n}`
+   * - Finalize Second order raw moment
+     - :math:`a_2(j) = \frac {s_2(j)} {n}`
+   * - Finalize Sum of squared difference from the means
+     - :math:`\text{SDM}(j) = \sum_i (x_{ij} - m(j))^2`
+   * - Finalize Variance
+     - :math:`k_2(j) = \frac {\text{SDM}(j) } {n - 1}`
+   * - Finalize Standard deviation
+     - :math:`\text{stdev}(j) = \sqrt {k_2(j)}`
+   * - Finalize Variation coefficient
+     - :math:`V(j) = \frac {\text{stdev}(j)} {m(j)}`
+
 .. _basic_statistics_c_math_dense:
 
 Computation method: *dense*
@@ -76,6 +138,12 @@ Programming Interface
 ---------------------
 
 Refer to :ref:`API Reference: Basic statistics <api_basic_statistics>`.
+
+-----------
+Online mode
+-----------
+
+The algorithm supports online mode.
 
 ----------------
 Distributed mode
