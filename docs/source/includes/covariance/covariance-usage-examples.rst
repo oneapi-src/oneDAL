@@ -20,13 +20,13 @@ Computing
 ::
 
     void run_computing(const table& data) {
-    const auto cov_desc = dal::covariance::descriptor{};
+        const auto cov_desc = dal::covariance::descriptor{};
 
-    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
+        const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+            dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
-    const auto result = dal::compute(cov_desc, data);
+        const auto result = dal::compute(cov_desc, data);
 
-    std::cout << "Means:\n" << result.get_means() << std::endl;
-    std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
+        std::cout << "Means:\n" << result.get_means() << std::endl;
+        std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
    }

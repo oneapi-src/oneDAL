@@ -72,7 +72,7 @@ The sums and cross product are computed with the following formulas:
    * - Sums
      - :math:`S = (m_{1}, \ldots , m_{p})`, where :math:`m_{j}=sum _{i}{x}_{ij}`
    * - Cross product matrix
-     - :math:`Crossproduct = (v_{ij})`
+     - :math:`Crossproduct = (v_{ij}) = \sum_{k=1}^{n}(x_{ki}-m_{i})(x_{kj}-m{j})`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`
 
 .. _covariance_f_math:
 
