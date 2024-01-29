@@ -91,12 +91,12 @@ the principal components can be computed in three steps:
 
 Covariance matrix can be computed in the following way:
 
-#. Compute the column means :math:`M = \{ m(1), \ldots , m(p) \}`, where :math:`m\left(j\right)=\frac{1}{n}\sum _{i}{x}_{ij}`.
-#. Compute the sample covariance matrix :math:`S = \{ s_{ij} \}`, where :math:`s_{ij}=\frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m(i))(x_{kj}-m(j))`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`.
+#. Compute the column means :math:`M = \{ m(1), \ldots , m(p) \}`, where :math:`m\left(j\right) = \frac{1}{n}\sum _{i}{x}_{ij}`.
+#. Compute the sample covariance matrix :math:`S = \{ s_{ij} \}`, where :math:`s_{ij} = \frac{1}{n-1}\sum_{k=1}^{n}(x_{ki}-m(i))(x_{kj}-m(j))`, :math:`i = \overline{1,p}`, :math:`j = \overline{1,p}`.
 
 Corelation matrix can be computed from covariance matrix in the following way:
 
-#. Compute the correlation matrix :math:`C = \{ c_{ij} \}`, where :math:`c_{ij}=\frac{s_{ij}}{\sqrt{s_{ii}\cdot s_{jj}}}`, :math:`i=\overline{1,p}`, :math:`j=\overline{1,p}`.
+#. Compute the correlation matrix :math:`C = \{ c_{ij} \}`, where :math:`c_{ij} = \frac{s_{ij}}{\sqrt{s_{ii}\cdot s_{jj}}}`, :math:`i = \overline{1,p}`, :math:`j = \overline{1,p}`.
 
 
 The eigenvalues :math:`\lambda_k` and eigenvectors :math:`\upsilon_k` can be computed by an arbitrary
@@ -128,7 +128,7 @@ are:
 #. Decomposing the mean-centered input data to compute the singular values and the singular vectors.
 #. Processing (sorting and storing) the results.
 
-First step is to mean center the input data :math:`X^{c} = \{ x^{c}_{ij} \}`, where :math:`x^{c}_{ij} = x_{ij} - m(j)`, :math:`i=\overline{1,n}`, :math:`j=\overline{1,p}`, :math:`m(j) = \frac{1}{n}\sum _{i}{x}_{ij}`.
+First step is to mean center the input data :math:`X^{c} = \{ x^{c}_{ij} \}`, where :math:`x^{c}_{ij} = x_{ij} - m(j)`, :math:`i = \overline{1,n}`, :math:`j = \overline{1,p}`, :math:`m(j) = \frac{1}{n}\sum _{i}{x}_{ij}`.
 
 Singular values :math:`\sigma_k`, left-singular vectors :math:`U_k`, and right-singular vectors :math:`V_k` of matrix :math:`X^{c}` can be computed with an arbitrary method as described in [Demmel90]_.
 
