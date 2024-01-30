@@ -24,16 +24,16 @@ namespace oneapi::dal::backend::primitives {
 // Method of Conjugate Gradients for Solving Linear Systems
 // https://nvlpubs.nist.gov/nistpubs/jres/049/jresv49n6p409_a1b.pdf
 template <typename Float>
-sycl::event cg_solve(sycl::queue& queue,
-                     base_matrix_operator<Float>& mul_operator,
-                     const ndview<Float, 1>& b,
-                     ndview<Float, 1>& x,
-                     ndview<Float, 1>& residual,
-                     ndview<Float, 1>& conj_vector,
-                     ndview<Float, 1>& buffer,
-                     Float tol = 1.0e-5,
-                     Float atol = -1.0,
-                     std::int64_t maxiter = 100l,
-                     const event_vector& deps = {});
+std::pair<sycl::event, std::int64_t> cg_solve(sycl::queue& queue,
+                                              base_matrix_operator<Float>& mul_operator,
+                                              const ndview<Float, 1>& b,
+                                              ndview<Float, 1>& x,
+                                              ndview<Float, 1>& residual,
+                                              ndview<Float, 1>& conj_vector,
+                                              ndview<Float, 1>& buffer,
+                                              Float tol = 1.0e-5,
+                                              Float atol = -1.0,
+                                              std::int64_t maxiter = 100l,
+                                              const event_vector& deps = {});
 
 } // namespace oneapi::dal::backend::primitives

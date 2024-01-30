@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2024 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,28 +14,15 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. tabs::
+=================
+Linear Regression
+=================
 
-  .. group-tab:: oneAPI DPC++
+.. toctree::
+   :titlesonly:
 
-    Batch Processing:
+   linear-regression.rst
 
-    - :ref:`dpc_cor_dense_batch.cpp`
-    - :ref:`dpc_cov_dense_batch.cpp`
+.. rubric:: Examples: Linear Regression
 
-    Online Processing:
-
-    - :ref:`dpc_cor_dense_online.cpp`
-    - :ref:`dpc_cov_dense_online.cpp`
-
-  .. group-tab:: oneAPI C++
-
-    Batch Processing:
-
-    - :ref:`cpp_cor_dense_batch.cpp`
-    - :ref:`cpp_cov_dense_batch.cpp`
-
-    Online Processing:
-
-    - :ref:`cpp_cor_dense_online.cpp`
-    - :ref:`cpp_cov_dense_batch.cpp`
+.. include::  ../../../includes/linear-regression/linear-regression-examples.rst

@@ -31,6 +31,7 @@ Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of
    graph/index.rst
    kernel-functions/index.rst
    logistic-regression/index.rst
+   linear-regression/index.rst
    nearest-neighbors/index.rst
    optimizers/index.rst
    objective-function/index.rst
