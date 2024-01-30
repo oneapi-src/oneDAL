@@ -35,7 +35,7 @@ namespace oneapi::dal::pca::backend {
 
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
-
+namespace mkl = oneapi::fpk;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
@@ -44,6 +44,24 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
+
+template <typename Float>
+auto syevd_computation(sycl::queue& queue,
+                       pr::ndview<Float, 2>& data,
+                       const bk::event_vector& deps = {}) {
+    const std::int64_t column_count = data.get_dimension(1);
+
+    auto w = pr::ndarray<Float, 1>::empty(queue, { column_count });
+
+    std::int64_t lda = column_count;
+
+    sycl::event syevd_event;
+    {
+        syevd_event =
+            pr::syevd<mkl::job::vec, mkl::uplo::upper>(queue, column_count, data, lda, w, { deps });
+    }
+    return std::make_tuple(w, syevd_event);
+}
 
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
@@ -119,44 +137,43 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         data_to_compute = corr;
     }
 
-    auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
-                                                           std::move(data_to_compute),
-                                                           component_count,
-                                                           { cov_event, corr_event, vars_event });
+    auto [eigvals, syevd_event] =
+        syevd_computation(q_, data_to_compute, { cov_event, corr_event, vars_event });
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+        result.set_eigenvalues(
+            homogen_table::wrap(eigvals.flatten(q_, { syevd_event }), 1, column_count));
     }
 
-    if (desc.get_result_options().test(result_options::singular_values)) {
-        auto singular_values =
-            compute_singular_values_on_host(q_,
-                                            eigvals,
-                                            row_count,
-                                            { cov_event, corr_event, vars_event });
-        result.set_singular_values(
-            homogen_table::wrap(singular_values.flatten(), 1, component_count));
-    }
+    // if (desc.get_result_options().test(result_options::singular_values)) {
+    //     auto singular_values =
+    //         compute_singular_values_on_host(q_,
+    //                                         eigvals,
+    //                                         row_count,
+    //                                         { cov_event, corr_event, vars_event });
+    //     result.set_singular_values(
+    //         homogen_table::wrap(singular_values.flatten(), 1, component_count));
+    // }
 
-    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
-        auto vars_host = vars.to_host(q_);
-        auto explained_variances_ratio =
-            compute_explained_variances_on_host(q_,
-                                                eigvals,
-                                                vars_host,
-                                                { cov_event, corr_event, vars_event });
-        result.set_explained_variances_ratio(
-            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
-    }
+    // if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+    //     auto vars_host = vars.to_host(q_);
+    //     auto explained_variances_ratio =
+    //         compute_explained_variances_on_host(q_,
+    //                                             eigvals,
+    //                                             vars_host,
+    //                                             { cov_event, corr_event, vars_event });
+    //     result.set_explained_variances_ratio(
+    //         homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    // }
 
-    if (desc.get_deterministic()) {
-        sign_flip(eigvecs);
-    }
+    // if (desc.get_deterministic()) {
+    //     sign_flip(eigvecs);
+    // }
 
-    if (desc.get_result_options().test(result_options::eigenvectors)) {
-        result.set_eigenvectors(
-            homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-    }
+    // if (desc.get_result_options().test(result_options::eigenvectors)) {
+    //     result.set_eigenvectors(
+    //         homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+    // }
 
     return result;
 }
