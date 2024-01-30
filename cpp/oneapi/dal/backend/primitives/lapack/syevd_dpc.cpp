@@ -59,8 +59,7 @@ sycl::event syevd(sycl::queue& queue,
 
     const auto scratchpad_size =
         mkl::lapack::syevd_scratchpad_size<Float>(queue, jobz, uplo, column_count, lda);
-    auto scratchpad =
-        ndarray<Float, 1>::empty(queue, { scratchpad_size }, sycl::usm::alloc::device);
+    auto scratchpad = ndarray<Float, 1>::empty(queue, { scratchpad_size });
     auto scratchpad_ptr = scratchpad.get_mutable_data();
 
     return syevd_wrapper(queue,

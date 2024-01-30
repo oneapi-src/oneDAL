@@ -51,14 +51,13 @@ auto syevd_computation(sycl::queue& queue,
                        const bk::event_vector& deps = {}) {
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto eigenvalues =
-        pr::ndarray<Float, 1>::empty(queue, { column_count }, sycl::usm::alloc::device);
+    auto eigenvalues = pr::ndarray<Float, 1>::empty(queue, { column_count });
 
     std::int64_t lda = column_count;
 
     sycl::event syevd_event;
     {
-        syevd_event = pr::syevd<mkl::job::vec, mkl::uplo::upper>(queue,
+        syevd_event = pr::syevd<mkl::job::vec, mkl::uplo::lower>(queue,
                                                                  column_count,
                                                                  data,
                                                                  lda,
@@ -142,8 +141,9 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         eigenvectors = corr;
     }
 
+    auto eigenvectors_host = eigenvectors.to_host(q_);
     auto [eigvals, syevd_event] =
-        syevd_computation(q_, eigenvectors, { cov_event, corr_event, vars_event });
+        syevd_computation(q_, eigenvectors_host, { cov_event, corr_event, vars_event });
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
