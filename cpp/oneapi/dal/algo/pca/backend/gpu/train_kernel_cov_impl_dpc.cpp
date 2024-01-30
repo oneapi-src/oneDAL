@@ -51,16 +51,21 @@ auto syevd_computation(sycl::queue& queue,
                        const bk::event_vector& deps = {}) {
     const std::int64_t column_count = data.get_dimension(1);
 
-    auto w = pr::ndarray<Float, 1>::empty(queue, { column_count });
+    auto eigenvalues =
+        pr::ndarray<Float, 1>::empty(queue, { column_count }, sycl::usm::alloc::device);
 
     std::int64_t lda = column_count;
 
     sycl::event syevd_event;
     {
-        syevd_event =
-            pr::syevd<mkl::job::vec, mkl::uplo::upper>(queue, column_count, data, lda, w, { deps });
+        syevd_event = pr::syevd<mkl::job::vec, mkl::uplo::upper>(queue,
+                                                                 column_count,
+                                                                 data,
+                                                                 lda,
+                                                                 eigenvalues,
+                                                                 { deps });
     }
-    return std::make_tuple(w, syevd_event);
+    return std::make_tuple(eigenvalues, syevd_event);
 }
 
 template <typename Float>
@@ -128,17 +133,17 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
             homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
 
-    auto data_to_compute = cov;
+    auto eigenvectors = cov;
 
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
         corr_event = pr::correlation_from_covariance(q_, row_count, cov, corr, bias, { cov_event });
-        data_to_compute = corr;
+        eigenvectors = corr;
     }
 
     auto [eigvals, syevd_event] =
-        syevd_computation(q_, data_to_compute, { cov_event, corr_event, vars_event });
+        syevd_computation(q_, eigenvectors, { cov_event, corr_event, vars_event });
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
@@ -170,10 +175,11 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     //     sign_flip(eigvecs);
     // }
 
-    // if (desc.get_result_options().test(result_options::eigenvectors)) {
-    //     result.set_eigenvectors(
-    //         homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-    // }
+    if (desc.get_result_options().test(result_options::eigenvectors)) {
+        result.set_eigenvectors(homogen_table::wrap(eigenvectors.flatten(q_, { syevd_event }),
+                                                    eigenvectors.get_dimension(0),
+                                                    eigenvectors.get_dimension(1)));
+    }
 
     return result;
 }
