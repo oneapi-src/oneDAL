@@ -29,18 +29,23 @@ using result_t = train_result<task::regression>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
 template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data,
-                                 const table& responses) {
+static result_t call_train_kernel(const context_gpu& ctx,
+                                  const descriptor_t& desc,
+                                  const table& data,
+                                  const table& responses,
+                                  const table& weights) {
     train_kernel_hist_impl<Float, std::uint32_t, std::int32_t, task::regression> train_hist_impl(
         ctx);
-    return train_hist_impl(desc, data, responses);
+    return train_hist_impl(desc, data, responses, weights);
 }
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
+    return call_train_kernel<Float>(ctx,
+                                    desc,
+                                    input.get_data(),
+                                    input.get_responses(),
+                                    input.get_weights());
 }
 
 template <typename Float, typename Task>

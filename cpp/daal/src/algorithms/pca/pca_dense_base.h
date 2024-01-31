@@ -42,6 +42,9 @@ public:
     services::Status signFlipEigenvectors(NumericTable & eigenvectors) const;
     services::Status fillTable(NumericTable & table, algorithmFPType val) const;
     services::Status copyTable(NumericTable & source, NumericTable & dest) const;
+    services::Status computeExplainedVariancesRatio(const data_management::NumericTable & eigenvalues,
+                                                    const data_management::NumericTable & variances,
+                                                    data_management::NumericTable & explained_variances_ratio);
 
 private:
     void signFlipArray(size_t size, algorithmFPType * source) const;

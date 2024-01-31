@@ -128,7 +128,6 @@ Machine learning terms
 
         **Synonyms:** instance, sample
 
-
     Result options:
         Result options are entities that mimic C++ enums. They are used to specify which results
         of an algorithm should be computed. The use of result options may alter the
@@ -189,6 +188,15 @@ Machine learning terms
         A process of creating a :capterm:`model` based on information extracted
         from a :capterm:`training set`. Resulting :capterm:`model` is selected in
         accordance with some quality criteria.
+
+    Partial Training
+        A process of computing partial results based on information extracted
+        from a :capterm:`training set`.
+
+    Finalize Training
+        A process of creating a :capterm:`model` based on information extracted
+        from partial results. Resulting :capterm:`model` is selected
+        according to some quality criteria.
 
     Training set
         A :capterm:`dataset` used at the :capterm:`training` stage to create a

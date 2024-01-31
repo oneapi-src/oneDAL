@@ -19,7 +19,7 @@
 
 [Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Support](#support)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
-[![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/oneapi-src.oneDAL?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=master) [![License](https://img.shields.io/github/license/oneapi-src/oneDAL.svg)](https://github.com/oneapi-src/oneDAL/blob/master/LICENSE) [![Join the community on GitHub Discussions](https://badgen.net/badge/join%20the%20discussion/on%20github/black?icon=github)](https://github.com/oneapi-src/oneDAL/discussions)
+[![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/oneapi-src.oneDAL?branchName=main)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=main) [![License](https://img.shields.io/github/license/oneapi-src/oneDAL.svg)](https://github.com/oneapi-src/oneDAL/blob/main/LICENSE) [![Join the community on GitHub Discussions](https://badgen.net/badge/join%20the%20discussion/on%20github/black?icon=github)](https://github.com/oneapi-src/oneDAL/discussions)
 
 oneAPI Data Analytics Library (oneDAL) is a powerful machine learning library that helps you accelerate big data analysis at all stages: **preprocessing**, **transformation**, **analysis**, **modeling**, **validation**, and **decision making**.
 
@@ -32,7 +32,7 @@ oneDAL is part of [oneAPI](https://oneapi.io). The current branch implements ver
 There are different ways for you to build high-performance data science applications that use the advantages of oneDAL:
 - Use oneDAL C++ interfaces with or without SYCL support ([learn more](https://oneapi-src.github.io/oneDAL/#oneapi-vs-daal-interfaces))
 - Use [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/) to accelerate existing scikit-learn code without changing it
-- Use [daal4py](https://github.com/intel/scikit-learn-intelex/tree/master/daal4py), a standalone package with Python API for oneDAL
+- Use [daal4py](https://github.com/intel/scikit-learn-intelex/tree/main/daal4py), a standalone package with Python API for oneDAL
 Deprecation Notice: The Java interfaces are removed from the oneDAL library.
 
 
@@ -46,18 +46,18 @@ You can [download the specific version of oneDAL](https://github.com/oneapi-src/
 
 C++ Examples:
 
-- [oneAPI interfaces with SYCL support](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/dpc)
-- [oneAPI interfaces without SYCL support](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/cpp)
-- [DAAL interfaces](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp)
-  
+- [oneAPI interfaces with SYCL support](https://github.com/oneapi-src/oneDAL/tree/main/examples/oneapi/dpc)
+- [oneAPI interfaces without SYCL support](https://github.com/oneapi-src/oneDAL/tree/main/examples/oneapi/cpp)
+- [DAAL interfaces](https://github.com/oneapi-src/oneDAL/tree/main/examples/daal/cpp)
+
 Python Examples:
-- [scikit-learn-intelex](https://github.com/intel/scikit-learn-intelex/tree/master/examples/notebooks)
-- [daal4py](https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py)
+- [scikit-learn-intelex](https://github.com/intel/scikit-learn-intelex/tree/main/examples/notebooks)
+- [daal4py](https://github.com/intel/scikit-learn-intelex/tree/main/examples/daal4py)
 
 <details><summary>Other Examples</summary>
 
-- [MPI](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mpi)
-- [MySQL](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/mysql)
+- [MPI](https://github.com/oneapi-src/oneDAL/tree/main/samples/daal/cpp/mpi)
+- [MySQL](https://github.com/oneapi-src/oneDAL/tree/main/samples/daal/cpp/mysql)
 
 </details>
 
@@ -65,7 +65,7 @@ Python Examples:
 
 oneDAL documentation:
 
-- [Release Notes](https://github.com/oneapi-src/oneDAL/releases) 
+- [Release Notes](https://github.com/oneapi-src/oneDAL/releases)
 - [Get Started Guide](https://oneapi-src.github.io/oneDAL/quick-start.html)
 - [Developer Guide and Reference](http://oneapi-src.github.io/oneDAL/)
 
