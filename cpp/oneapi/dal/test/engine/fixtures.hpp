@@ -381,32 +381,20 @@ public:
         comm_t comm{ thread_count };
 #endif
 
-        const auto input_per_rank =
-            this->split_partial_compute_input(thread_count, std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() ==
-                      dal::detail::integral_cast<std::size_t>(thread_count));
+        // const auto input_per_rank =
+        //     this->split_partial_compute_input(thread_count, std::forward<Args>(args)...);
+        // ONEDAL_ASSERT(input_per_rank.size() ==
+        //               dal::detail::integral_cast<std::size_t>(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_partial_compute(this->get_policy(),
                                                            comm,
                                                            desc,
-                                                           input_per_rank[rank]);
+                                                           std::forward<Args>(args)...);
         });
-        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
+        //ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
         return results;
-    }
-
-    template <typename Descriptor, typename... Args>
-    auto partial_compute_via_spmd_threads_and_merge(std::int64_t thread_count,
-                                                    const Descriptor& desc,
-                                                    Args&&... args) {
-        const auto results = this->partial_compute_via_spmd_threads( //
-            thread_count,
-            desc,
-            std::forward<Args>(args)...);
-
-        return this->merge_compute_result(results);
     }
 
     template <typename Descriptor, typename... Args>
@@ -424,16 +412,11 @@ public:
         comm_t comm{ thread_count };
 #endif
 
-        const auto input_per_rank =
-            this->split_finalize_compute_input(thread_count, std::forward<Args>(args)...);
-        ONEDAL_ASSERT(input_per_rank.size() ==
-                      dal::detail::integral_cast<std::size_t>(thread_count));
-
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_finalize_compute(this->get_policy(),
                                                             comm,
                                                             desc,
-                                                            input_per_rank[rank]);
+                                                            std::forward<Args>(args)...);
         });
         ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
