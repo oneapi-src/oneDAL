@@ -35,7 +35,7 @@ namespace oneapi::dal::pca::backend {
 
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
-namespace mkl = oneapi::fpk;
+
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
@@ -44,75 +44,6 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-
-template <typename Float>
-auto syevd_computation(sycl::queue& queue,
-                       pr::ndview<Float, 2>& data,
-                       const bk::event_vector& deps = {}) {
-    const std::int64_t column_count = data.get_dimension(1);
-
-    auto eigenvalues = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
-
-    std::int64_t lda = column_count;
-
-    sycl::event syevd_event;
-    {
-        syevd_event = pr::syevd<mkl::job::vec, mkl::uplo::lower>(queue,
-                                                                 column_count,
-                                                                 data,
-                                                                 lda,
-                                                                 eigenvalues,
-                                                                 { deps });
-    }
-    return std::make_tuple(eigenvalues, syevd_event);
-}
-
-template <typename Float>
-auto flip_eigenvectors(sycl::queue& queue,
-                       pr::ndview<Float, 2>& data,
-                       std::int64_t component_count,
-                       const bk::event_vector& deps = {}) {
-    const std::int64_t column_count = data.get_dimension(1);
-    const std::int64_t row_count = data.get_dimension(0);
-    auto data_ptr = data.get_data();
-    auto eigenvectors =
-        pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
-    auto eigenvectors_ptr = eigenvectors.get_mutable_data();
-    auto flip_event = queue.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_2d(component_count, column_count);
-        h.depends_on(deps);
-        h.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t row = id[0];
-            const std::int64_t column = id[1];
-            eigenvectors_ptr[row * column_count + column] =
-                data_ptr[(row_count - 1 - row) * column_count + column];
-        });
-    });
-
-    return std::make_tuple(eigenvectors, flip_event);
-}
-
-template <typename Float>
-auto flip_eigenvalues(sycl::queue& queue,
-                      pr::ndview<Float, 1>& eigenvalues,
-                      std::int64_t component_count,
-                      const bk::event_vector& deps = {}) {
-    auto column_count = eigenvalues.get_dimension(0);
-    auto data_ptr = eigenvalues.get_data();
-    auto flipped_eigenvalues =
-        pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
-    auto flipped_eigenvalues_ptr = flipped_eigenvalues.get_mutable_data();
-    auto flip_event = queue.submit([&](sycl::handler& h) {
-        const auto range = bk::make_range_1d(component_count);
-        h.depends_on(deps);
-        h.parallel_for(range, [=](sycl::id<1> id) {
-            const std::int64_t col = id[0];
-            flipped_eigenvalues_ptr[col] = data_ptr[column_count - 1 - col];
-        });
-    });
-
-    return std::make_tuple(flipped_eigenvalues, flip_event);
-}
 
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
@@ -190,37 +121,30 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     auto [eigvals, syevd_event] =
         syevd_computation(q_, eigenvectors, { cov_event, corr_event, vars_event });
-    auto [eigvals_host, flip_event_] =
-        flip_eigenvalues(q_, eigvals, component_count, { syevd_event });
-    flip_event_.wait_and_throw();
-    auto flipped_eigvals_host = eigvals_host.to_host(q_);
+
+    auto flipped_eigvals_host = flip_eigenvalues(q_, eigvals, component_count, { syevd_event });
+
     if (desc.get_result_options().test(result_options::eigenvalues)) {
         result.set_eigenvalues(
             homogen_table::wrap(flipped_eigvals_host.flatten(), 1, component_count));
     }
 
-    auto [flipped_eigenvectors, flip_event] =
+    auto flipped_eigenvectors_host =
         flip_eigenvectors(q_, eigenvectors, component_count, { syevd_event });
-    flip_event.wait_and_throw();
-    auto flipped_eigenvectors_host = flipped_eigenvectors.to_host(q_);
 
     if (desc.get_result_options().test(result_options::singular_values)) {
         auto singular_values =
-            compute_singular_values_on_host(q_,
-                                            flipped_eigvals_host,
-                                            row_count,
-                                            { syevd_event, flip_event, flip_event_ });
+            compute_singular_values_on_host(q_, flipped_eigvals_host, row_count, { syevd_event });
         result.set_singular_values(
             homogen_table::wrap(singular_values.flatten(), 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
         auto vars_host = vars.to_host(q_);
-        auto explained_variances_ratio =
-            compute_explained_variances_on_host(q_,
-                                                flipped_eigvals_host,
-                                                vars_host,
-                                                { syevd_event, flip_event });
+        auto explained_variances_ratio = compute_explained_variances_on_host(q_,
+                                                                             flipped_eigvals_host,
+                                                                             vars_host,
+                                                                             { syevd_event });
         result.set_explained_variances_ratio(
             homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
     }
