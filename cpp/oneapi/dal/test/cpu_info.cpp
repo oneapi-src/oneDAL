@@ -103,7 +103,10 @@ detail::cpu_vendor get_vendor() {
 TEST("can create default CPU info") {
     const detail::cpu_info default_cpu_info;
 
+    std::cout << "CPU INFO DUMP:" << std::endl;
+    std::cout << default_cpu_info.dump() << std::endl;
     REQUIRE(get_vendor() == default_cpu_info.get_cpu_vendor());
+    /// REQUIRE(detail::cpu_vendor::amd == default_cpu_info.get_cpu_vendor());
 }
 
 } // namespace oneapi::dal::test

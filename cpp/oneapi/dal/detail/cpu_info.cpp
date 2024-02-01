@@ -37,5 +37,9 @@ detail::cpu_extension cpu_info::get_cpu_extensions() const {
     return impl_->get_cpu_extensions();
 }
 
+std::string cpu_info::dump() const {
+    return impl_->dump();
+}
+
 } // namespace v1
 } // namespace oneapi::dal::detail

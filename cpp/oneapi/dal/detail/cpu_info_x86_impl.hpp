@@ -21,29 +21,69 @@
 
 #include <daal/src/services/service_defines.h>
 
+#include <any>
+#include <map>
+#include <string>
+#include <sstream>
+
+#include <iostream>
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
 class cpu_info_x86 : public cpu_info_iface {
 public:
     cpu_info_x86() {
-        cpu_extensions_ = backend::detect_top_cpu_extension();
-        vendor_ = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
+        info_["cpu_extensions"] = backend::detect_top_cpu_extension();
+        info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
 
-    cpu_info_x86(const detail::cpu_extension cpu_extension) : cpu_extensions_(cpu_extension) {}
+    cpu_info_x86(const detail::cpu_extension cpu_extension) {
+        info_["cpu_extensions"] = cpu_extension;
+        info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
+    }
 
     cpu_vendor get_cpu_vendor() const override {
-        return vendor_;
+        return std::any_cast<detail::cpu_vendor>(info_.find("vendor")->second);
     }
 
     detail::cpu_extension get_cpu_extensions() const override {
-        return cpu_extensions_;
+        return std::any_cast<detail::cpu_extension>(info_.find("cpu_extensions")->second);
+    }
+
+    std::string dump() const override {
+        std::stringstream ss;
+        for (auto it = info_.begin(); it != info_.end(); ++it) {
+            ss << it->first << ":";
+            print_any(it->second, ss);
+            ss << "; ";
+        }
+        std::string result;
+        std::string token;
+        while (ss >> token) {
+            result += token + " ";
+        }
+        return result;
     }
 
 private:
-    detail::cpu_vendor vendor_;
-    detail::cpu_extension cpu_extensions_;
+    std::map<std::string, std::any> info_;
+
+    template <typename T>
+    void print(const std::any& value, std::stringstream& ss) const {
+        T typed_value = std::any_cast<T>(typed_value);
+        ss << to_string(typed_value);
+    }
+
+    void print_any(const std::any& value, std::stringstream& ss) const {
+        const std::type_info& ti = value.type();
+        if (ti == typeid(detail::cpu_extension)) {
+            print<detail::cpu_extension>(value, ss);
+        }
+        else if (ti == typeid(detail::cpu_vendor)) {
+            print<detail::cpu_vendor>(value, ss);
+        }
+    }
 };
 
 } // namespace v1
