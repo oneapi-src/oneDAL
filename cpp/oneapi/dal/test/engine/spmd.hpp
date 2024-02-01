@@ -79,4 +79,42 @@ inline auto spmd_compute(device_test_policy& policy,
 }
 #endif
 
+template <typename... Args>
+inline auto spmd_partial_compute(host_test_policy& policy,
+                                 const spmd::communicator<spmd::device_memory_access::none>& comm,
+                                 Args&&... args) {
+    return dal::partial_compute(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
+                                std::forward<Args>(args)...);
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename... Args>
+inline auto spmd_partial_compute(device_test_policy& policy,
+                                 const spmd::communicator<spmd::device_memory_access::usm>& comm,
+                                 Args&&... args) {
+    dal::detail::data_parallel_policy local_policy{ policy.get_queue() };
+    dal::detail::spmd_policy<detail::data_parallel_policy> spmd_policy{ local_policy, comm };
+    return dal::partial_compute(spmd_policy, std::forward<Args>(args)...);
+}
+#endif
+
+template <typename... Args>
+inline auto spmd_finalize_compute(host_test_policy& policy,
+                                  const spmd::communicator<spmd::device_memory_access::none>& comm,
+                                  Args&&... args) {
+    return dal::finalize_compute(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
+                                 std::forward<Args>(args)...);
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename... Args>
+inline auto spmd_finalize_compute(device_test_policy& policy,
+                                  const spmd::communicator<spmd::device_memory_access::usm>& comm,
+                                  Args&&... args) {
+    dal::detail::data_parallel_policy local_policy{ policy.get_queue() };
+    dal::detail::spmd_policy<detail::data_parallel_policy> spmd_policy{ local_policy, comm };
+    return dal::finalize_compute(spmd_policy, std::forward<Args>(args)...);
+}
+#endif
+
 } // namespace oneapi::dal::test::engine
