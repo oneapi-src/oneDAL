@@ -381,10 +381,10 @@ public:
         comm_t comm{ thread_count };
 #endif
 
-        // const auto input_per_rank =
-        //     this->split_partial_compute_input(thread_count, std::forward<Args>(args)...);
-        // ONEDAL_ASSERT(input_per_rank.size() ==
-        //               dal::detail::integral_cast<std::size_t>(thread_count));
+        const auto input_per_rank =
+            this->split_partial_compute_input(thread_count, std::forward<Args>(args)...);
+        ONEDAL_ASSERT(input_per_rank.size() ==
+                      dal::detail::integral_cast<std::size_t>(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
             return dal::test::engine::spmd_partial_compute(this->get_policy(),
@@ -392,7 +392,7 @@ public:
                                                            desc,
                                                            std::forward<Args>(args)...);
         });
-        //ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
+        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
 
         return results;
     }

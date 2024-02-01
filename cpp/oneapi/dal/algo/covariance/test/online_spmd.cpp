@@ -55,6 +55,43 @@ public:
     result_t merge_finalize_compute_result_override(const std::vector<result_t>& results) {
         return results[0];
     }
+    template <typename... Args>
+    std::vector<partial_input_t> split_partial_compute_input_override(std::int64_t split_count,
+                                                                      Args&&... args) {
+        const partial_input_t input{ std::forward<Args>(args)... };
+        dal::covariance::partial_compute_input<> partial_compute_input;
+        const auto split_data =
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
+
+        std::vector<partial_input_t> split_input;
+        split_input.reserve(split_count);
+
+        for (std::int64_t i = 0; i < split_count; i++) {
+            auto partial_compute_input_ = dal::covariance::partial_compute_input(split_data[i]);
+            split_input.push_back(partial_compute_input_);
+        }
+
+        return split_input;
+    }
+
+    template <typename... Args>
+    std::vector<partial_result_t> split_finalize_compute_input_override(std::int64_t split_count,
+                                                                        Args&&... args) {
+        const partial_result_t input{ std::forward<Args>(args)... };
+        dal::covariance::partial_compute_input<> partial_compute_input;
+        const auto split_data =
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
+
+        std::vector<partial_result_t> split_input;
+        split_input.reserve(split_count);
+
+        for (std::int64_t i = 0; i < split_count; i++) {
+            auto partial_compute_input_ = dal::covariance::partial_compute_result(split_data[i]);
+            split_input.push_back(partial_compute_input_);
+        }
+
+        return split_input;
+    }
 
     void online_spmd_general_checks(const te::dataframe& data_fr,
                                     cov::result_option_id compute_mode,
@@ -67,7 +104,7 @@ public:
         const auto partial_compute_result = this->partial_compute_override(cov_desc, data);
 
         const auto compute_result =
-            this->finalize_compute_override(cov_desc, partial_compute_result[0]);
+            this->finalize_compute_override(cov_desc, partial_compute_result);
         base_t::check_compute_result(cov_desc, data, compute_result);
     }
 
@@ -90,7 +127,7 @@ TEMPLATE_LIST_TEST_M(covariance_online_spmd_test,
                            te::dataframe_builder{ 1000, 100 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 2000, 20 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 2500, 20 }.fill_normal(-30, 30, 7777));
-    this->set_rank_count(GENERATE(1));
+    this->set_rank_count(GENERATE(2));
 
     cov::result_option_id mode_mean = result_options::means;
     cov::result_option_id mode_cov = result_options::cov_matrix;
