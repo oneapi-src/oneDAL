@@ -34,11 +34,11 @@ namespace v1 {
 class cpu_info_x86 : public cpu_info_iface {
 public:
     cpu_info_x86() {
-        info_["cpu_extensions"] = backend::detect_top_cpu_extension();
+        info_["cpu_extensions"] = detect_top_cpu_extension();
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
 
-    cpu_info_x86(const detail::cpu_extension cpu_extension) {
+    cpu_info_x86(const cpu_extension cpu_extension) {
         info_["cpu_extensions"] = cpu_extension;
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
@@ -47,14 +47,14 @@ public:
         return std::any_cast<detail::cpu_vendor>(info_.find("vendor")->second);
     }
 
-    detail::cpu_extension get_cpu_extensions() const override {
-        return std::any_cast<detail::cpu_extension>(info_.find("cpu_extensions")->second);
+    cpu_extension get_cpu_extensions() const override {
+        return std::any_cast<cpu_extension>(info_.find("cpu_extensions")->second);
     }
 
     std::string dump() const override {
         std::stringstream ss;
         for (auto it = info_.begin(); it != info_.end(); ++it) {
-            ss << it->first << ":";
+            ss << it->first << " : ";
             print_any(it->second, ss);
             ss << "; ";
         }
@@ -71,14 +71,14 @@ private:
 
     template <typename T>
     void print(const std::any& value, std::stringstream& ss) const {
-        T typed_value = std::any_cast<T>(typed_value);
+        T typed_value = std::any_cast<T>(value);
         ss << to_string(typed_value);
     }
 
     void print_any(const std::any& value, std::stringstream& ss) const {
         const std::type_info& ti = value.type();
-        if (ti == typeid(detail::cpu_extension)) {
-            print<detail::cpu_extension>(value, ss);
+        if (ti == typeid(cpu_extension)) {
+            print<cpu_extension>(value, ss);
         }
         else if (ti == typeid(detail::cpu_vendor)) {
             print<detail::cpu_vendor>(value, ss);

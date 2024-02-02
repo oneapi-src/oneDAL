@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,31 +14,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/policy.hpp"
+#pragma once
 
-namespace oneapi::dal::detail {
+#include <cstdint>
+
+namespace oneapi::dal {
 namespace v1 {
 
-class host_policy_impl : public base {
-public:
-    cpu_extension cpu_extensions_mask = detect_top_cpu_extension();
+enum class cpu_extension : uint64_t {
+    none = 0U,
+    sse2 = 1U << 0,
+    sse42 = 1U << 2,
+    avx2 = 1U << 4,
+    avx512 = 1U << 5
 };
 
-host_policy::host_policy() : impl_(new host_policy_impl()) {}
-
-void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
-    impl_->cpu_extensions_mask = extensions;
-}
-
-cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
-    return impl_->cpu_extensions_mask;
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-void data_parallel_policy::init_impl(const sycl::queue& queue) {
-    this->impl_ = nullptr; // reserved for future use
-}
-#endif
+cpu_extension detect_top_cpu_extension();
 
 } // namespace v1
-} // namespace oneapi::dal::detail
+using v1::cpu_extension;
+using v1::detect_top_cpu_extension;
+} // namespace oneapi::dal

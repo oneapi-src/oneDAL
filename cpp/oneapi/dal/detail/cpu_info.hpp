@@ -16,18 +16,19 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/cpu_info_iface.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class cpu_info {
+class cpu_info : public cpu_info_iface {
 public:
     cpu_info();
-    cpu_info(const detail::cpu_extension cpu_extension_);
+    cpu_info(const cpu_extension cpu_extension_);
 
     cpu_vendor get_cpu_vendor() const;
-    detail::cpu_extension get_cpu_extensions() const;
+    cpu_extension get_cpu_extensions() const;
 
     std::string dump() const;
 

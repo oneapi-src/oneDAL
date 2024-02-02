@@ -16,7 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/cpu.hpp"
+
+#include <string>
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -30,7 +32,7 @@ class cpu_info_iface {
 public:
     ///
     virtual cpu_vendor get_cpu_vendor() const = 0;
-    virtual detail::cpu_extension get_cpu_extensions() const = 0;
+    virtual cpu_extension get_cpu_extensions() const = 0;
 
     virtual std::string dump() const = 0;
 

@@ -25,7 +25,7 @@ namespace v1 {
 cpu_info::cpu_info() {
     impl_ = detail::pimpl<cpu_info_iface>(new cpu_info_x86());
 }
-cpu_info::cpu_info(const detail::cpu_extension cpu_extension_) {
+cpu_info::cpu_info(const cpu_extension cpu_extension_) {
     impl_ = detail::pimpl<cpu_info_iface>(new cpu_info_x86(cpu_extension_));
 }
 
@@ -33,7 +33,7 @@ detail::cpu_vendor cpu_info::get_cpu_vendor() const {
     return impl_->get_cpu_vendor();
 }
 
-detail::cpu_extension cpu_info::get_cpu_extensions() const {
+cpu_extension cpu_info::get_cpu_extensions() const {
     return impl_->get_cpu_extensions();
 }
 
