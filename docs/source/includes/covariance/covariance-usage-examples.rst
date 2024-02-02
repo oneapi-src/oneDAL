@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2024 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,28 +14,19 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. tabs::
+Computing
+---------
 
-  .. group-tab:: oneAPI DPC++
+::
 
-    Batch Processing:
+    void run_computing(const table& data) {
+        const auto cov_desc = dal::covariance::descriptor{};
 
-    - :ref:`dpc_cor_dense_batch.cpp`
-    - :ref:`dpc_cov_dense_batch.cpp`
+        const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
+            dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
 
-    Online Processing:
+        const auto result = dal::compute(cov_desc, data);
 
-    - :ref:`dpc_cor_dense_online.cpp`
-    - :ref:`dpc_cov_dense_online.cpp`
-
-  .. group-tab:: oneAPI C++
-
-    Batch Processing:
-
-    - :ref:`cpp_cor_dense_batch.cpp`
-    - :ref:`cpp_cov_dense_batch.cpp`
-
-    Online Processing:
-
-    - :ref:`cpp_cor_dense_online.cpp`
-    - :ref:`cpp_cov_dense_batch.cpp`
+        std::cout << "Means:\n" << result.get_means() << std::endl;
+        std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
+   }
