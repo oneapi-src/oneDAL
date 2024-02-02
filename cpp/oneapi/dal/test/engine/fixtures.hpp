@@ -157,26 +157,6 @@ public:
     }
 
     template <typename... Args>
-    auto split_partial_compute_input(Args&&... args) {
-        return derived().split_partial_compute_input_override(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto merge_partial_compute_result(Args&&... args) {
-        return derived().merge_partial_compute_result_override(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto split_finalize_compute_input(Args&&... args) {
-        return derived().split_finalize_compute_input_override(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto merge_finalize_compute_result(Args&&... args) {
-        return derived().merge_finalize_compute_result_override(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
     auto split_infer_input(Args&&... args) {
         return derived().split_infer_input_override(std::forward<Args>(args)...);
     }
@@ -238,26 +218,6 @@ public:
 
     template <typename... Args>
     auto merge_compute_result_override(Args&&... args) {
-        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
-    }
-
-    template <typename... Args>
-    auto split_partial_compute_input_override(Args&&... args) {
-        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
-    }
-
-    template <typename... Args>
-    auto merge_partial_compute_result_override(Args&&... args) {
-        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
-    }
-
-    template <typename... Args>
-    auto split_finalize_compute_input_override(Args&&... args) {
-        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
-    }
-
-    template <typename... Args>
-    auto merge_finalize_compute_result_override(Args&&... args) {
         ONEDAL_ASSERT(!"This method must be overriden in the derived class");
     }
 
