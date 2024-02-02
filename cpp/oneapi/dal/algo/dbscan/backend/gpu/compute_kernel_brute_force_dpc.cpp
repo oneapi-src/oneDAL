@@ -38,15 +38,18 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                           const descriptor_t& desc,
                                           const table& local_data,
                                           const table& local_weights) {
-    //auto& comm = ctx.get_communicator();
+    auto& comm = ctx.get_communicator();
     auto& queue = ctx.get_queue();
 
-    //std::int64_t rank = comm.get_rank();
-    //std::int64_t rank_count = comm.get_rank_count();
-
+    std::int64_t rank_count = comm.get_rank_count();
+    auto current_rank = comm.get_rank();
+    auto prev_node = (current_rank - 1 + rank_count) % rank_count;
+    auto next_node = (current_rank + 1) % rank_count;
     const std::int64_t row_count = local_data.get_row_count();
-
+    // const std::int64_t column_count = local_data.get_column_count();
     const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
+    const auto data_nd_replace =
+        pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
     const auto weights_nd =
         pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
 
@@ -55,6 +58,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     auto [arr_cores, cores_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
+    auto [arr_neighbours, neighbours_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
     auto [arr_responses, responses_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
     auto [arr_queue, queue_event] =
@@ -62,16 +67,18 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [arr_queue_front, queue_front_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
-    sycl::event::wait({ cores_event, responses_event, queue_event, queue_front_event });
+    sycl::event::wait(
+        { cores_event, responses_event, queue_event, queue_front_event, neighbours_event });
 
+    comm.sendrecv_replace(data_nd_replace.flatten(queue), prev_node, next_node).wait();
     kernels_fp<Float>::get_cores(queue,
                                  data_nd,
+                                 data_nd_replace,
                                  weights_nd,
                                  arr_cores,
+                                 arr_neighbours,
                                  epsilon,
-                                 min_observations,
-                                 0,
-                                 row_count)
+                                 min_observations)
         .wait_and_throw();
 
     //std::int64_t cluster_count = 0;
