@@ -45,8 +45,6 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
 
 INSTANTIATE(float, method::lloyd_dense, task::clustering)
 INSTANTIATE(double, method::lloyd_dense, task::clustering)
-INSTANTIATE(float, method::lloyd_csr, task::clustering)
-INSTANTIATE(double, method::lloyd_csr, task::clustering)
 
 } // namespace v1
 } // namespace oneapi::dal::kmeans::detail

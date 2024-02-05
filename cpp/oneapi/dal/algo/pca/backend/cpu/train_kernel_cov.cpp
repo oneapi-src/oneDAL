@@ -19,6 +19,7 @@
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -27,7 +28,7 @@
 namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::dim_reduction>;
+
 using task_t = task::dim_reduction;
 using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
@@ -51,6 +52,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const std::int64_t component_count = get_component_count(desc, data);
     ONEDAL_ASSERT(component_count > 0);
 
+    dal::detail::check_mul_overflow(column_count, component_count);
+
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
@@ -60,7 +65,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_singular_values = array<Float>::empty(1 * component_count);
     auto arr_explained_variances_ratio = array<Float>::empty(1 * component_count);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
     const auto daal_eigenvalues =
@@ -134,6 +138,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::vars)) {
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
+
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }

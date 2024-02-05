@@ -15,16 +15,19 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_precomputed_impl.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -36,46 +39,11 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
-using model_t = model<task::dim_reduction>;
+
 using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-
-template <typename Float>
-auto compute_variances(sycl::queue& q,
-                       const pr::ndview<Float, 2>& cov,
-                       const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_vars, q);
-    ONEDAL_ASSERT(cov.has_data());
-    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
-    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-
-    auto column_count = cov.get_dimension(0);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto vars_event = pr::variances(q, cov, vars, deps);
-    return std::make_tuple(vars, vars_event);
-}
-
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto host_corr = corr.to_host(q, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
 
 template <typename Float>
 result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& desc,

@@ -19,21 +19,23 @@
 #include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
-sycl::event cg_solve(sycl::queue& queue,
-                     base_matrix_operator<Float>& mul_operator,
-                     const ndview<Float, 1>& b,
-                     ndview<Float, 1>& x,
-                     ndview<Float, 1>& residual,
-                     ndview<Float, 1>& conj_vector,
-                     ndview<Float, 1>& buffer,
-                     Float tol,
-                     Float atol,
-                     std::int64_t maxiter,
-                     const event_vector& deps) {
+std::pair<sycl::event, std::int64_t> cg_solve(sycl::queue& queue,
+                                              base_matrix_operator<Float>& mul_operator,
+                                              const ndview<Float, 1>& b,
+                                              ndview<Float, 1>& x,
+                                              ndview<Float, 1>& residual,
+                                              ndview<Float, 1>& conj_vector,
+                                              ndview<Float, 1>& buffer,
+                                              Float tol,
+                                              Float atol,
+                                              std::int64_t maxiter,
+                                              const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(cg_solve, queue);
     // Solving the equation mul_operator(x) = b
     const std::int64_t p = b.get_dimension(0);
     ONEDAL_ASSERT(b.has_data());
@@ -49,7 +51,7 @@ sycl::event cg_solve(sycl::queue& queue,
     using msg = dal::detail::error_messages;
 
     Float alpha = 0, beta = 0;
-    Float r_norm = 0, b_norm = 0;
+    Float r_norm = 0, b_l1_norm = 0, r_l1_norm = 0;
 
     const auto kernel_minus = [=](const Float a, const Float b) -> Float {
         return a - b;
@@ -67,14 +69,10 @@ sycl::event cg_solve(sycl::queue& queue,
     auto tmp_gpu = ndarray<Float, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
     auto* const tmp_ptr = tmp_gpu.get_mutable_data();
 
-    dot_product<Float>(queue, b, b, tmp_ptr, &b_norm, deps).wait_and_throw(); // compute norm(b)
-    b_norm = sqrt(b_norm);
+    l1_norm<Float>(queue, b, tmp_ptr, &b_l1_norm, deps).wait_and_throw(); // compute l1_norm(b)
 
-    // Tolerances for convergence norm(residual) <= max(tol*norm(b), atol)
-    const Float min_eps = std::numeric_limits<Float>::epsilon();
-    tol = std::max(tol, min_eps);
-    atol = std::max(atol, min_eps);
-    Float threshold = std::max(tol * b_norm, atol);
+    // Tolerances for convergence norm(residual) <= max(tol*l1_norm(b), atol)
+    Float threshold = std::max(tol * b_l1_norm, atol);
 
     const auto init_conj_kernel = [=](const Float residual_val, Float) -> Float {
         return -residual_val;
@@ -90,8 +88,11 @@ sycl::event cg_solve(sycl::queue& queue,
     dot_product<Float>(queue, residual, residual, tmp_ptr, &r_norm, { compute_r0_event })
         .wait_and_throw(); // compute r^T r
 
-    for (std::int64_t iter_num = 0; iter_num < maxiter; ++iter_num) {
-        if (sqrt(r_norm) < threshold) {
+    l1_norm<Float>(queue, residual, tmp_ptr, &r_l1_norm, { compute_r0_event })
+        .wait_and_throw(); // compute l1_norm for stopping condition
+    std::int64_t iter_num;
+    for (iter_num = 0; iter_num < maxiter; ++iter_num) {
+        if (r_l1_norm < threshold) {
             // TODO check that r_norms are the same across diferent devices
             break;
         }
@@ -131,6 +132,13 @@ sycl::event cg_solve(sycl::queue& queue,
                            &r_norm,
                            { update_x_event, update_residual_event })
             .wait_and_throw(); // compute r^T r
+        l1_norm<Float>(queue,
+                       residual,
+                       tmp_ptr,
+                       &r_l1_norm,
+                       { update_x_event, update_residual_event })
+            .wait_and_throw(); // compute l1_norm for stopping condition
+
         beta = r_norm / beta; // beta = r_i+1^T r_i+1 / (r_i^T r_i)
 
         const auto update_conj_kernel = [=](const Float residual_val,
@@ -146,21 +154,21 @@ sycl::event cg_solve(sycl::queue& queue,
                          { update_x_event, update_residual_event }); // p_i+1 = -r_i+1 + beta * p_i
     }
 
-    return compute_conj_event;
+    return { compute_conj_event, iter_num };
 }
 
-#define INSTANTIATE(F)                                         \
-    template sycl::event cg_solve<F>(sycl::queue&,             \
-                                     base_matrix_operator<F>&, \
-                                     const ndview<F, 1>&,      \
-                                     ndview<F, 1>&,            \
-                                     ndview<F, 1>&,            \
-                                     ndview<F, 1>&,            \
-                                     ndview<F, 1>&,            \
-                                     F,                        \
-                                     F,                        \
-                                     std::int64_t,             \
-                                     const event_vector&);
+#define INSTANTIATE(F)                                                                  \
+    template std::pair<sycl::event, std::int64_t> cg_solve<F>(sycl::queue&,             \
+                                                              base_matrix_operator<F>&, \
+                                                              const ndview<F, 1>&,      \
+                                                              ndview<F, 1>&,            \
+                                                              ndview<F, 1>&,            \
+                                                              ndview<F, 1>&,            \
+                                                              ndview<F, 1>&,            \
+                                                              F,                        \
+                                                              F,                        \
+                                                              std::int64_t,             \
+                                                              const event_vector&);
 
 INSTANTIATE(float);
 INSTANTIATE(double);

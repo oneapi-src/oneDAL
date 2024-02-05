@@ -22,8 +22,16 @@
     
     - :ref:`dpc_basic_statistics_dense_batch.cpp`
 
+    Online Processing:
+    
+    - :ref:`dpc_basic_statistics_dense_online.cpp`
+
   .. group-tab:: oneAPI C++
 
     Batch Processing:
 
     - :ref:`cpp_basic_statistics_dense_batch.cpp`
+
+    Online Processing:
+
+    - :ref:`cpp_basic_statistics_dense_online.cpp`
