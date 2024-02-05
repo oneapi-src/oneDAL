@@ -51,6 +51,23 @@ struct kernels_fp {
                                  Float epsilon,
                                  std::int64_t min_observations,
                                  const bk::event_vector& deps = {});
+    template <bool use_weights>
+    static sycl::event get_cores_local_impl(sycl::queue& queue,
+                                            const pr::ndview<Float, 2>& data,
+                                            const pr::ndview<Float, 2>& weights,
+                                            pr::ndview<std::int32_t, 1>& cores,
+                                            pr::ndview<std::int32_t, 1>& neighbours,
+                                            Float epsilon,
+                                            std::int64_t min_observations,
+                                            const bk::event_vector& deps);
+    static sycl::event get_cores_local(sycl::queue& queue,
+                                       const pr::ndview<Float, 2>& data,
+                                       const pr::ndview<Float, 2>& weights,
+                                       pr::ndview<std::int32_t, 1>& cores,
+                                       pr::ndview<std::int32_t, 1>& neighbours,
+                                       Float epsilon,
+                                       std::int64_t min_observations,
+                                       const bk::event_vector& deps = {});
     static std::int32_t start_next_cluster(sycl::queue& queue,
                                            const pr::ndview<std::int32_t, 1>& cores,
                                            pr::ndview<std::int32_t, 1>& responses,

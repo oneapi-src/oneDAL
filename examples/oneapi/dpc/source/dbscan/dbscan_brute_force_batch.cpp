@@ -38,12 +38,14 @@ void run(sycl::queue &q) {
     std::int64_t min_observations = 45;
 
     auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
-    dbscan_desc.set_result_options(dal::dbscan::result_options::responses);
+    dbscan_desc.set_result_options(dal::dbscan::result_options::responses |
+                                   dal::dbscan::result_options::core_flags);
 
     const auto result_compute = dal::compute(q, dbscan_desc, x_data);
 
     std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;
     std::cout << "Responses:\n" << result_compute.get_responses() << std::endl;
+    std::cout << "Core flags:\n" << result_compute.get_core_flags() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
