@@ -119,7 +119,8 @@ struct SplitData
           nLeft(0),
           iStart(0),
           totalWeights(0.0),
-          leftWeights(0.0)
+          leftWeights(0.0),
+          left {}
     {}
     SplitData(algorithmFPType impDecr, bool bFeatureUnordered)
         : impurityDecrease(impDecr), featureUnordered(bFeatureUnordered), featureValue(0.0), nLeft(0), iStart(0), totalWeights(0.0), leftWeights(0.0)
