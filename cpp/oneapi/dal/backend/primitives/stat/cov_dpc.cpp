@@ -83,7 +83,7 @@ inline sycl::event compute_covariance(sycl::queue& q,
             const std::int64_t j = id.get_id(1);
 
             if (i < p && j < p) {
-                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j];
+                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j] * 0;
                 cov_ptr[gi] *= multiplier;
             }
         });

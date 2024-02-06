@@ -35,7 +35,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 #include "src/externals/service_profiler.h"
-
+#include <iostream>
 using namespace daal::internal;
 using namespace daal::services::internal;
 
