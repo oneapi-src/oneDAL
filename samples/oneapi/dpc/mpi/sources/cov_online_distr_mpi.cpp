@@ -50,7 +50,7 @@ void run(sycl::queue& queue) {
 
     for (std::int64_t i = 0; i < nBlocks; i++) {
         partial_result =
-            dal::preview::partial_compute(comm, cov_desc, partial_result, input_blocks[i]);
+            dal::preview::partial_compute(queue, cov_desc, partial_result, input_blocks[i]);
     }
     const auto result = dal::preview::finalize_compute(comm, cov_desc, partial_result);
 

@@ -43,31 +43,23 @@ public:
         blocks_count_ = blocks_count;
     }
 
-    template <typename Descriptor, typename... Args>
-    auto finalize_compute_override(std::int64_t thread_count,
-                                   const Descriptor& desc,
-                                   std::vector<partial_result_t> vec) {
-        ONEDAL_ASSERT(thread_count > 0);
+    template <typename... Args>
+    result_t finalize_compute_override(Args&&... args) {
+        return this->finalize_compute_via_spmd_threads_and_merge(rank_count_,
+                                                                 std::forward<Args>(args)...);
+    }
 
-        CAPTURE(thread_count);
-#ifdef ONEDAL_DATA_PARALLEL
-        using comm_t =
-            ::oneapi::dal::test::engine::thread_communicator<spmd::device_memory_access::usm>;
-        comm_t comm{ this->get_queue(), thread_count };
-#else
-        using comm_t =
-            ::oneapi::dal::test::engine::thread_communicator<spmd::device_memory_access::none>;
-        comm_t comm{ thread_count };
-#endif
-        const auto results = comm.map([&](std::int64_t rank) {
-            return dal::test::engine::spmd_finalize_compute(this->get_policy(),
-                                                            comm,
-                                                            desc,
-                                                            vec.at(rank));
-        });
-        ONEDAL_ASSERT(results.size() == dal::detail::integral_cast<std::size_t>(thread_count));
+    result_t merge_finalize_compute_result_override(const std::vector<result_t>& results) {
+        return results[0];
+    }
 
-        return results;
+    template <typename... Args>
+    std::vector<partial_result_t> split_finalize_compute_input_override(std::int64_t split_count,
+                                                                        Args&&... args) {
+        ONEDAL_ASSERT(split_count == rank_count_);
+        const std::vector<partial_result_t> input{ std::forward<Args>(args)... };
+
+        return input;
     }
 
     void online_spmd_general_checks(const te::dataframe& data_fr,
@@ -89,11 +81,9 @@ public:
             }
             partial_results.push_back(partial_result);
         }
-        const auto compute_result =
-            this->finalize_compute_override(rank_count_, cov_desc, partial_results);
-        for (int64_t i = 0; i < rank_count_; i++) {
-            base_t::check_compute_result(cov_desc, data, compute_result[i]);
-        }
+        const auto compute_result = this->finalize_compute_override(cov_desc, partial_results);
+
+        base_t::check_compute_result(cov_desc, data, compute_result);
     }
 
 private:
