@@ -59,13 +59,15 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     ONEDAL_ASSERT(column_count > 0);
 
     auto bias = desc.get_bias();
+    auto assume_centered = desc.get_assume_centered();
+
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
-    //pr::ndarray<Float, 1> sums;
-    // auto fill_event = pr::fill(q_, sums, Float(0));
+    // pr::ndarray<Float, 1> sums;
+
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
-    //sycl::event sums_event;
-    //if (!desc.get_assume_centered()) {
-        auto[sums, sums_event] = compute_sums(q_, data_nd, { });
+    // sycl::event sums_event;
+    // if (!assume_centered) {
+    auto [sums, sums_event] = compute_sums(q_, data_nd, {});
     //}
 
     {
@@ -92,8 +94,13 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] =
-            compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
+        auto [cov, cov_event] = compute_covariance(q_,
+                                                   rows_count_global,
+                                                   xtx,
+                                                   sums,
+                                                   bias,
+                                                   assume_centered,
+                                                   { gemm_event });
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
@@ -103,7 +110,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
-    if (desc.get_result_options().test(result_options::means) && !desc.get_assume_centered()) {
+    if (desc.get_result_options().test(result_options::means) && !assume_centered) {
         auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }

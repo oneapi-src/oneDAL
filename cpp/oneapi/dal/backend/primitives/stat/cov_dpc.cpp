@@ -58,6 +58,7 @@ inline sycl::event compute_covariance(sycl::queue& q,
                                       const ndview<Float, 1>& sums,
                                       ndview<Float, 2>& cov,
                                       bool bias,
+                                      bool assume_centered,
                                       const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
@@ -70,6 +71,7 @@ inline sycl::event compute_covariance(sycl::queue& q,
     const Float inv_n = Float(1.0 / double(n));
     const Float inv_n1 = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
     const Float multiplier = bias ? inv_n : inv_n1;
+    const Float sum_multiplier = assume_centered ? 0 : 1;
     const Float* sums_ptr = sums.get_data();
     Float* cov_ptr = cov.get_mutable_data();
 
@@ -83,7 +85,7 @@ inline sycl::event compute_covariance(sycl::queue& q,
             const std::int64_t j = id.get_id(1);
 
             if (i < p && j < p) {
-                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j] * 0;
+                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j] * sum_multiplier;
                 cov_ptr[gi] *= multiplier;
             }
         });
@@ -96,6 +98,7 @@ sycl::event covariance(sycl::queue& q,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
                        bool bias,
+                       bool assume_centered,
                        const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
@@ -103,7 +106,7 @@ sycl::event covariance(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
-    auto compute_event = compute_covariance(q, row_count, sums, cov, bias, deps);
+    auto compute_event = compute_covariance(q, row_count, sums, cov, bias, assume_centered, deps);
     return compute_event;
 }
 
@@ -350,6 +353,7 @@ INSTANTIATE_MEANS(double)
                                                      std::int64_t,        \
                                                      const ndview<F, 1>&, \
                                                      ndview<F, 2>&,       \
+                                                     bool,                \
                                                      bool,                \
                                                      const event_vector&);
 

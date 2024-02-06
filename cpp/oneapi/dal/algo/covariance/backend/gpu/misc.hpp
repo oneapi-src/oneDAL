@@ -103,6 +103,7 @@ auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 2>& xtx,
                         const pr::ndarray<Float, 1>& sums,
                         bool bias,
+                        bool assume_centered,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
@@ -115,7 +116,7 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, assume_centered, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
