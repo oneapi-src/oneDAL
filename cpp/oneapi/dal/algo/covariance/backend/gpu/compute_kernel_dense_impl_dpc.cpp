@@ -60,14 +60,17 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
 
     auto bias = desc.get_bias();
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
-
+    pr::ndarray<Float, 1> sums;
+    auto fill_event = pr::fill(q_, sums, Float(0));
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
-
-    auto [sums, sums_event] = compute_sums(q_, data_nd);
+    sycl::event sums_event;
+    if (!desc.get_assume_centered()) {
+        std::tie(sums, sums_event) = compute_sums(q_, data_nd, { fill_event });
+    }
 
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
-        comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
+        comm_.allreduce(sums.flatten(q_, { sums_event, fill_event }), spmd::reduce_op::sum).wait();
     }
 
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
@@ -100,7 +103,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
-    if (desc.get_result_options().test(result_options::means)) {
+    if (desc.get_result_options().test(result_options::means) && !desc.get_assume_centered()) {
         auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }

@@ -259,7 +259,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     /** Default constructor */
     Parameter();
-    bool bias = false;                 /*!< Determines if covariance estimation biased or not*/
+    bool assumeСentered = false;       /*!< Determines if mean centering is necessary or not*/
+    bool bias           = false;       /*!< Determines if covariance estimation biased or not*/
     OutputMatrixType outputMatrixType; /*!< Type of the computed matrix */
 };
 
