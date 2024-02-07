@@ -38,7 +38,11 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
                            te::dataframe_builder{ 100, 10 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 200, 20 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 200, 530 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777));
+                           te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
 
     std::shared_ptr<te::dataframe> weights;
     const bool use_weights = GENERATE(0, 1);
@@ -68,7 +72,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
                                     te::csr_table_builder(7, 10),
                                     te::csr_table_builder(100, 100),
                                     te::csr_table_builder(1000, 1000),
-                                    te::csr_table_builder(1500, 1000));
+                                    te::csr_table_builder(150000, 1000));
     SKIP_IF(this->not_cpu_friendly(data));
     const bs::result_option_id res_min_max = result_options::min | result_options::max;
     const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
