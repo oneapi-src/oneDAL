@@ -43,17 +43,25 @@ namespace pr = dal::backend::primitives;
 template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
+                  bool assume_centered = false,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_sums, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) > 0);
 
     const std::int64_t column_count = data.get_dimension(1);
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    constexpr pr::sum<Float> binary{};
-    constexpr pr::identity<Float> unary{};
-    auto sums_event = pr::reduce_by_columns(q, data, sums, binary, unary, deps);
-    return std::make_tuple(sums, sums_event);
+    if (assume_centered) {
+        auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+        auto fill_event = pr::fill(q, sums, Float(0), deps);
+        return std::make_tuple(sums, fill_event);
+    }
+    else {
+        auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+        constexpr pr::sum<Float> binary{};
+        constexpr pr::identity<Float> unary{};
+        auto sums_event = pr::reduce_by_columns(q, data, sums, binary, unary, deps);
+        return std::make_tuple(sums, sums_event);
+    }
 }
 
 ///  A wrapper that computes 1d array of means of the columns from precomputed sums

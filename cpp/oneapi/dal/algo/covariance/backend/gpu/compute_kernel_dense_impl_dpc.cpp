@@ -62,13 +62,10 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     auto assume_centered = desc.get_assume_centered();
 
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
-    // pr::ndarray<Float, 1> sums;
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
-    // sycl::event sums_event;
-    // if (!assume_centered) {
-    auto [sums, sums_event] = compute_sums(q_, data_nd, {});
-    //}
+
+    auto [sums, sums_event] = compute_sums(q_, data_nd, assume_centered, {});
 
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
@@ -110,7 +107,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
-    if (desc.get_result_options().test(result_options::means) && !assume_centered) {
+    if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
