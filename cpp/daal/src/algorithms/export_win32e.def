@@ -21,9 +21,6 @@ fpk_serv_memcpy_s
 fpk_serv_lock
 fpk_serv_unlock
 fpk_serv_strnlen_s
-fpk_serv_strncpy_s
-fpk_serv_strncat_s
-fpk_serv_thread_yield
 fpk_serv_core_register_cleanup
 fpk_serv_calloc
 fpk_serv_printf_s
