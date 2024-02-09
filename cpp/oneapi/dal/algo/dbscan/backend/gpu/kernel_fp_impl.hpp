@@ -153,18 +153,17 @@ struct get_core_local_narrow_kernel {
                 for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
                     for (std::int64_t i = 0; i < column_count; i++) {
-                        Float val =
-                            data_ptr[idx * column_count + i] - data_ptr[j * column_count + i];
+                        Float val = data_ptr[j * column_count + i] - data_ptr[j * column_count + i];
                         sum += val * val;
                     }
                     if (sum > epsilon) {
                         continue;
                     }
-                    neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
+                    neighbours_ptr[j] += use_weights ? weights_ptr[j] : count_type(1);
 
-                    if (neighbours_ptr[idx] >= min_observations) {
-                        cores_ptr[idx] = count_type(1);
-                        break;
+                    if (neighbours_ptr[j] >= min_observations) {
+                        cores_ptr[j] = count_type(1);
+                        //break;
                     }
                     // if (!use_weights && (row_count - j + count < min_observations)) {
                     //     break;
@@ -203,31 +202,27 @@ struct get_core_narrow_kernel {
         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.parallel_for(
-                sycl::range<1>{ std::size_t(row_count_replace) },
-                [=](sycl::id<1> idx) {
-                    count_type count = 0;
-                    for (std::int64_t j = 0; j < row_count; j++) {
-                        Float sum = 0.0;
-                        for (std::int64_t i = 0; i < column_count; i++) {
-                            Float val = data_ptr[j * column_count + i] -
-                                        data_replace_ptr[idx * column_count + i];
-                            sum += val * val;
-                        }
-                        if (sum > epsilon) {
-                            continue;
-                        }
-                        neighbours_ptr[j] += use_weights ? weights_ptr[j] : count_type(1);
+            cgh.parallel_for(sycl::range<1>{ std::size_t(row_count_replace) },
+                             [=](sycl::id<1> idx) {
+                                 for (std::int64_t j = 0; j < row_count; j++) {
+                                     Float sum = 0.0;
+                                     for (std::int64_t i = 0; i < column_count; i++) {
+                                         Float val = data_ptr[j * column_count + i] -
+                                                     data_replace_ptr[idx * column_count + i];
+                                         sum += val * val;
+                                     }
+                                     if (sum > epsilon) {
+                                         continue;
+                                     }
+                                     neighbours_ptr[j] +=
+                                         use_weights ? weights_ptr[j] : count_type(1);
 
-                        if (neighbours_ptr[j] >= min_observations) {
-                            cores_ptr[idx] = count_type(1);
-                            break;
-                        }
-                        if (!use_weights && (row_count - j + count < min_observations)) {
-                            break;
-                        }
-                    }
-                });
+                                     if (neighbours_ptr[j] >= min_observations) {
+                                         cores_ptr[j] = count_type(1);
+                                         //break;
+                                     }
+                                 }
+                             });
         });
         return event;
     }
