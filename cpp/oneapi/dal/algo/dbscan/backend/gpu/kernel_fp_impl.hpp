@@ -157,13 +157,18 @@ struct get_core_local_narrow_kernel {
                             data_ptr[idx * column_count + i] - data_ptr[j * column_count + i];
                         sum += val * val;
                     }
-                    if (sum <= epsilon) {
-                        neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
+                    if (sum > epsilon) {
+                        continue;
                     }
-                }
+                    neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
 
-                if (neighbours_ptr[idx] >= min_observations) {
-                    cores_ptr[idx] = 1;
+                    if (neighbours_ptr[idx] >= min_observations) {
+                        cores_ptr[idx] = count_type(1);
+                        break;
+                    }
+                    // if (!use_weights && (row_count - j + count < min_observations)) {
+                    //     break;
+                    // }
                 }
             });
         });

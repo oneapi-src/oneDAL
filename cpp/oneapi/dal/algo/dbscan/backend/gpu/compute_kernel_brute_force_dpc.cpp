@@ -18,7 +18,7 @@
 #include "oneapi/dal/algo/dbscan/backend/gpu/data_keeper.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/results.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-
+#include <iostream>
 namespace bk = oneapi::dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 namespace spmd = oneapi::dal::preview::spmd;
@@ -101,6 +101,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         .wait_and_throw();
 
     for (std::int64_t j = 0; j < rank_count - 1; j++) {
+        std::cout << "here" << std::endl;
         comm.sendrecv_replace(data_nd_replace.flatten(queue), prev_node, next_node).wait();
         kernels_fp<Float>::get_cores(queue,
                                      data_nd,
