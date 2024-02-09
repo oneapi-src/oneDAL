@@ -20,7 +20,8 @@ set(DAL_ROOT_REL_PATH "../../..")
 set(INC_REL_PATH "include")
 set(LIB_REL_PATH "lib")
 set(DLL_REL_PATH "redist")
-set(ARCH_DIR_ONEDAL "${ARCH_DIR_ONEDAL}")
+set(SUB_DIR "intel64")
+set(ARCH_DIR_ONEDAL "intel64")
 
 # Parse version info if possible
 if (NOT "$ENV{DALROOT}" STREQUAL "")
