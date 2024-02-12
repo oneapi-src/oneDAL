@@ -69,6 +69,7 @@ if [ "${OS}" == "lnx" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
+
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
             with_gpu="true"
@@ -116,6 +117,11 @@ $(pwd)/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]
 then
 $(pwd)/.ci/env/tbb.sh
+fi
+
+if [ "${optimizations}" == "sve" ]; then
+    export CXX=aarch64-linux-gnu-g++
+    export CC=aarch64-linux-gnu-gcc 
 fi
 
 echo "Calling make"
