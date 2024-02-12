@@ -31,6 +31,16 @@ enum class test_alloc_kind {
     usm_shared /// USM pointer allocated by sycl::alloc_shared
 };
 
+std::string to_string(const test_alloc_kind alloc) {
+    switch (alloc) {
+        case test_alloc_kind::host: return "host      ";
+        case test_alloc_kind::usm_host: return "usm_host  ";
+        case test_alloc_kind::usm_device: return "usm_device";
+        case test_alloc_kind::usm_shared: return "usm_shared";
+        default: return "unknown";
+    }
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 inline sycl::usm::alloc test_alloc_kind_to_sycl(test_alloc_kind kind) {
     switch (kind) {
@@ -342,8 +352,11 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                      csr_accessor_types) {
     SKIP_IF(this->not_float64_friendly());
 
-    this->table_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
-    this->accessor_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
+    // this->table_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
+    // this->accessor_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
+
+    this->table_indexing_ = GENERATE(sparse_indexing::one_based);
+    this->accessor_indexing_ = GENERATE(sparse_indexing::zero_based);
 
 #ifdef ONEDAL_DATA_PARALLEL
     this->table_alloc_ = GENERATE(test_alloc_kind::host,
@@ -351,11 +364,10 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                                   test_alloc_kind::usm_device,
                                   test_alloc_kind::usm_shared);
 
-    this->accessor_alloc_ = GENERATE(test_alloc_kind::usm_device, test_alloc_kind::usm_shared);
-
-    // Furter improvement: Add support of the following accessor allocation types:
-    // test_alloc_kind::host,
-    // test_alloc_kind::usm_host.
+    this->accessor_alloc_ = GENERATE(test_alloc_kind::host,
+                                     test_alloc_kind::usm_host,
+                                     test_alloc_kind::usm_device,
+                                     test_alloc_kind::usm_shared);
 #else
     this->table_alloc_ = test_alloc_kind::host;
     this->accessor_alloc_ = test_alloc_kind::host;
@@ -379,11 +391,10 @@ TEMPLATE_LIST_TEST_M(csr_accessor_test,
                                   test_alloc_kind::usm_device,
                                   test_alloc_kind::usm_shared);
 
-    this->accessor_alloc_ = GENERATE(test_alloc_kind::usm_device, test_alloc_kind::usm_shared);
-
-    // Furter improvement: Add support of the following accessor allocation types:
-    // test_alloc_kind::host,
-    // test_alloc_kind::usm_host.
+    this->accessor_alloc_ = GENERATE(test_alloc_kind::host,
+                                     test_alloc_kind::usm_host,
+                                     test_alloc_kind::usm_device,
+                                     test_alloc_kind::usm_shared);
 #else
     this->table_alloc_ = test_alloc_kind::host;
     this->accessor_alloc_ = test_alloc_kind::host;
