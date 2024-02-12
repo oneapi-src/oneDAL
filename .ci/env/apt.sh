@@ -54,12 +54,21 @@ function install_dev-base-conda {
     conda env create -f .ci/env/environment.yml
 }
 
+function install_arm-cross-compilers {
+    sudo apt-get install gcc-aarch64-linux-gnu -y
+    sudo apt-get install g++-aarch64-linux-gnu -y
+    sudo apt-get install gfortran-aarch64-linux-gnu -y
+}
+
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
 elif [ "${component}" == "mkl" ]; then
     add_repo
     install_mkl
+elif [ "${component}" == "arm-compiler" ]; then
+    update
+    install_arm-cross-compilers
 elif [ "${component}" == "clang-format" ]; then
     update
     install_clang-format

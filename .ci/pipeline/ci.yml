@@ -83,6 +83,49 @@ jobs:
     condition: failed()
     continueOnError: true
 
+  - job: 'LinuxMakeGNU_OpenBLAS_ARM'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
+    platform.type : 'lnxarm'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+   - script: |
+      .ci/env/apt.sh dev-base
+    displayName: 'apt-get and conda install'
+  - script: |
+      .ci/env/apt.sh arm-compiler
+    displayName: 'arm-compiler installation'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend_config ref --conda-env ci-env
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend_config ref
+    displayName: 'make onedal_c'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) OpenBLAS build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
+    displayName: 'oneapi/cpp examples'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
+
 - job: 'LinuxMakeGNU_OpenBLAS'
   timeoutInMinutes: 0
   variables:
