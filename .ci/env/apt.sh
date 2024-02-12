@@ -78,6 +78,6 @@ elif [ "${component}" == "dev-base" ]; then
     install_dev-base-conda
 else
     echo "Usage:"
-    echo "   $0 [dpcpp|mkl|clang-format|dev-base]"
+    echo "   $0 [dpcpp|mkl|arm-compiler|clang-format|dev-base]"
     exit 1
 fi
