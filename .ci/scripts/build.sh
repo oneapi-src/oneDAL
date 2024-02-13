@@ -104,7 +104,11 @@ if [ "${backend_config}" == "mkl" ]; then
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
-        $(pwd)/.ci/env/openblas.sh
+        if [ "${optimizations}" == "sve" ]; then
+            $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile yes
+        else
+            $(pwd)/.ci/env/openblas.sh
+        fi
     fi
 else
     echo "Not supported backend env"

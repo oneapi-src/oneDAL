@@ -15,12 +15,45 @@
 # limitations under the License.
 #===============================================================================
 
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        --target)
+        target="$2"
+        ;;
+        --compiler)
+        compiler="$2"
+        ;;
+        --host_compiler)
+        host_compiler="$2"
+        ;;
+        --cflags)
+        cflags="$2"
+        ;;
+        --cross_compile)
+        cross_compile="$2"
+        ;;
+        *)
+        echo "Unknown option: $1"
+        exit 1
+        ;;
+    esac
+    shift
+    shift
+done
+
 sudo apt-get update
 sudo apt-get -y install build-essential gcc gfortran
 git clone https://github.com/xianyi/OpenBLAS.git
 CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 pushd OpenBLAS
   make clean
-  make -j${CoreCount} NO_FORTRAN=1
+  if [ "${cross_compile}" == "yes" ]; then
+    echo make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 CFLAGS=\"${cflags}\"
+    make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 CFLAGS=\"${cflags}\"
+  else
+    make -j${CoreCount} NO_FORTRAN=1
+  fi
   make install PREFIX=../__deps/open_blas
 popd
