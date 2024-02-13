@@ -101,10 +101,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend_config ref --conda-env ci-env
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend_config ref --conda-env ci-env --cross_compile yes
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend_config ref
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend_config ref --cross_compile yes
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -112,19 +112,19 @@ jobs:
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
-    displayName: 'oneapi/cpp examples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
+  # - script: |
+  #     .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
+  #   displayName: 'daal/cpp examples'
+  # - script: |
+  #     .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
+  #   displayName: 'oneapi/cpp examples'
+  # - task: PublishPipelineArtifact@1
+  #   inputs:
+  #     artifactName: '$(platform.type) fail'
+  #     targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+  #   displayName: 'Uploading on fail'
+  #   condition: failed()
+  #   continueOnError: true
 
 - job: 'LinuxMakeGNU_OpenBLAS'
   timeoutInMinutes: 0

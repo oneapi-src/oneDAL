@@ -35,6 +35,9 @@ while [[ $# -gt 0 ]]; do
         --conda-env)
         conda_env="$2"
         ;;
+        --cross_compile)
+        cross_compile="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -104,7 +107,7 @@ if [ "${backend_config}" == "mkl" ]; then
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
-        if [ "${optimizations}" == "sve" ]; then
+        if [ "${optimizations}" == "sve" && "${cross_compile}" == "yes"]; then
             $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile yes
         else
             $(pwd)/.ci/env/openblas.sh
@@ -121,6 +124,9 @@ $(pwd)/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]
 then
 $(pwd)/.ci/env/tbb.sh
+elif [[ "${ARCH}" == "arm" && "${cross_compile}" == "yes"]]
+then
+$(pwd)/.ci/env/tbb.sh --toolchain_file $(pwd)/.ci/env/arm-toolchain.cmake --arch_dir arm --cross_compile yes
 fi
 
 if [ "${optimizations}" == "sve" ]; then
