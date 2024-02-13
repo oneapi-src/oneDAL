@@ -37,41 +37,6 @@ include dev/make/common.mk
 # the $(PLAT).mk files, rather than here.
 include dev/make/config/$(PLAT).mk
 
-# Check that we have a known platform
-ifeq ($(PLAT),mac32e)
-  BACKEND_CONFIG ?= mkl
-  ARCH = 32e
-  ARCH_DIR_ONEDAL = intel64
-  _OS := mac
-  _IA := intel64
-else ifeq ($(PLAT),win32e)
-  BACKEND_CONFIG ?= mkl
-  ARCH_ONEDAL = 32e
-  ARCH_DIR = intel64
-  _OS := win
-  _IA := intel64
-endif
-
-# Used as $(eval $(call set_daal_rt_deps,$(PLAT))
-#define set_daal_rt_deps
-#ifeq ($1,win32e)
-#  $$(eval daaldep.win32e.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
-#          $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-#  $$(eval daaldep.win32e.rt.seq  := $$(dep_seq) \
-#          $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-#  $$(eval daaldep.win32e.threxport := export.def)
-#
-#  $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
-#else ifeq ($1,mac32e)
-#  $$(eval daaldep.mac32e.rt.thr := -L$$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc \
-#          $$(daaldep.mac32e.rt.$$(COMPILER)))
-#  $$(eval daaldep.mac32e.rt.seq := $$(daaldep.mac32e.rt.$$(COMPILER)))
-#  $$(eval daaldep.mac32e.threxport := export_mac.def)
-#
-#  $$(eval daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
-#endif
-#endef
-
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
 MSVC_RUNTIME_VERSIONs = release debug

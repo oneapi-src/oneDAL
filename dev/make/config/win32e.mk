@@ -15,24 +15,21 @@
 # limitations under the License.
 #===============================================================================
 
-BACKEND_CONFIG ?= ref
-ARCH = arm
-ARCH_DIR_ONEDAL = arm
-_OS := lnx
-_IA := arm
+BACKEND_CONFIG ?= mkl
+ARCH = 32e
+ARCH_DIR_ONEDAL = intel64
+_OS := win
+_IA := intel64
 
-include dev/make/config/arm.mk
+include dev/make/config/32e.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
 define set_daal_rt_deps
-  $$(eval daaldep.lnxarm.rt.thr := -L$$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc \
-          -lpthread $$(daaldep.lnxarm.rt.$$(COMPILER)) \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.rt.seq := -lpthread $$(daaldep.lnxarm.rt.$$(COMPILER)) \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.rt.dpc := -lpthread -lOpenCL \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.threxport := export_lnxarm.$$(BACKEND_CONFIG).def)
+  $$(eval daaldep.win32e.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
+          $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
+  $$(eval daaldep.win32e.rt.seq  := $$(dep_seq) \
+          $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
+  $$(eval daaldep.win32e.threxport := export.def)
 
-  $$(eval daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
+  $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
 endef
