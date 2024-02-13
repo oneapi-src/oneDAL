@@ -60,10 +60,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     }
 
     const Parameter * algParam = static_cast<const Parameter *>(par);
-    if (!algParam->optionalResultRequired)
-    {
-        return s;
-    }
     return s;
 }
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
