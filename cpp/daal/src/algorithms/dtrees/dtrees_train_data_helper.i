@@ -115,12 +115,12 @@ struct SplitData
 
     SplitData()
         : impurityDecrease(-daal::services::internal::MaxVal<algorithmFPType>::get()),
+          left {},
           featureValue(0.0),
           nLeft(0),
           iStart(0),
           totalWeights(0.0),
-          leftWeights(0.0),
-          left {}
+          leftWeights(0.0)
     {}
     SplitData(algorithmFPType impDecr, bool bFeatureUnordered)
         : impurityDecrease(impDecr), featureUnordered(bFeatureUnordered), featureValue(0.0), nLeft(0), iStart(0), totalWeights(0.0), leftWeights(0.0)
