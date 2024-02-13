@@ -15,6 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #===============================================================================
+PLATFORM=$(bash dev/make/identify_os.sh)
+OS=${PLATFORM::3}
+ARCH=${PLATFORM:3:3}
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -38,6 +41,9 @@ while [[ $# -gt 0 ]]; do
         --cross_compile)
         cross_compile="$2"
         ;;
+        --arch)
+        ARCH="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -46,10 +52,6 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
 done
-
-PLATFORM=$(bash dev/make/identify_os.sh)
-OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
 
 if [[ "${ARCH}" == "32e" ]]
 then
