@@ -15,24 +15,20 @@
 # limitations under the License.
 #===============================================================================
 
-BACKEND_CONFIG ?= ref
-ARCH = arm
-ARCH_DIR_ONEDAL = arm
-_OS := lnx
-_IA := arm
+BACKEND_CONFIG ?= mkl
+ARCH = 32e
+ARCH_DIR_ONEDAL = intel64
+_OS := mac
+_IA := intel64
 
-include dev/make/config/arm.mk
+include dev/make/config/32e.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
 define set_daal_rt_deps
-  $$(eval daaldep.lnxarm.rt.thr := -L$$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc \
-          -lpthread $$(daaldep.lnxarm.rt.$$(COMPILER)) \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.rt.seq := -lpthread $$(daaldep.lnxarm.rt.$$(COMPILER)) \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.rt.dpc := -lpthread -lOpenCL \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.threxport := export_lnxarm.$$(BACKEND_CONFIG).def)
+  $$(eval daaldep.mac32e.rt.thr := -L$$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc \
+          $$(daaldep.mac32e.rt.$$(COMPILER)))
+  $$(eval daaldep.mac32e.rt.seq := $$(daaldep.mac32e.rt.$$(COMPILER)))
+  $$(eval daaldep.mac32e.threxport := export_mac.def)
 
-  $$(eval daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
+  $$(eval daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
 endef
