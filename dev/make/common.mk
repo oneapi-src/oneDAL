@@ -183,10 +183,3 @@ sed.eow.lnx = \b
 PATCHBIN = $(patchbin.cmd)
 patchbin.cmd = cp $< $@.patchbin.tmp && $(patchbin.workaround.$(_OS)) sed -n $(sed.-i) $(sed.-b) -e $(PATCHBIN.OPTS) -e "w $@" $@.patchbin.tmp && rm -f $@.patchbin.tmp || { rm -f $@ $@.patchbin.tmp; false; }
 patchbin.workaround.mac = LANG=C
-
-# Used as $(eval $(call assert_non_empty,var_name))
-define assert_non_empty
-  ifeq ($$($1),)
-    $$(error Variable '$1' must be non-empty)
-  endif
-endef

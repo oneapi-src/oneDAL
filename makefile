@@ -32,10 +32,10 @@ $(if $(filter $(PLAT),$(PLATs)),,$(error Unknown platform $(PLAT)))
 # Non-platform or architecture specific defines live in common.mk
 include dev/make/common.mk
 
-# Platform specific variables are set in dev/make/config/$(PLAT).mk
-# There are also files dev/make/config/$(ARCH).mk, but these are included from
+# Platform specific variables are set in dev/make/function_definitions/$(PLAT).mk
+# There are also files dev/make/function_definitions/$(ARCH).mk, but these are included from
 # the $(PLAT).mk files, rather than here.
-include dev/make/config/$(PLAT).mk
+include dev/make/function_definitions/$(PLAT).mk
 
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
@@ -88,8 +88,8 @@ endif
 DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 endif
 
-include dev/make/cmplr.$(COMPILER).$(BACKEND_CONFIG).$(ARCH).mk
-include dev/make/cmplr.dpcpp.mk
+include dev/make/compiler_definitions/$(COMPILER).$(BACKEND_CONFIG).$(ARCH).mk
+include dev/make/compiler_definitions/dpcpp.mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
 
@@ -281,7 +281,6 @@ mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
-
 
 #============================= oneAPI folders =====================================
 ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)

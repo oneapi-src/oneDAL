@@ -1,5 +1,5 @@
+# file: clang.ref.arm.mk
 #===============================================================================
-# Copyright 2024 UXL Foundation
 # Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,21 +15,20 @@
 # limitations under the License.
 #===============================================================================
 
-BACKEND_CONFIG ?= mkl
-ARCH = 32e
-ARCH_DIR_ONEDAL = intel64
-_OS := win
-_IA := intel64
+#++
+#  Clang definitions for makefile
+#--
 
-include dev/make/config/32e.mk
+include dev/make/compiler_definitions/clang.mk
 
-# Used as $(eval $(call set_daal_rt_deps))
-define set_daal_rt_deps
-  $$(eval daaldep.win32e.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
-          $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-  $$(eval daaldep.win32e.rt.seq  := $$(dep_seq) \
-          $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-  $$(eval daaldep.win32e.threxport := export.def)
+PLATs.clang = lnxarm
 
-  $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
-endef
+COMPILER.lnx.clang= clang++ -march=armv8-a+sve \
+                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
+# Linker flags
+link.dynamic.lnx.clang = clang++ -march=armv8-a+sve
+
+pedantic.opts.lnx.clang = $(pedantic.opts.clang)
+
+# For SVE
+a8sve_OPT.clang = $(-Q)march=armv8-a+sve

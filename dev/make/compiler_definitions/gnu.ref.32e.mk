@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright contributors to the oneDAL project
+# Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,31 +18,9 @@
 #  g++ definitions for makefile
 #--
 
-PLATs.gnu = lnxarm
+include dev/make/compiler_definitions/gnu.32e.mk
 
-CMPLRDIRSUFF.gnu = _gnu
-
-CORE.SERV.COMPILER.gnu = generic
-
--Zl.gnu =
--DEBC.gnu = -g
-
-COMPILER.all.gnu =  ${CXX} -march=armv8-a+sve -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
-
-link.dynamic.all.gnu = ${CXX} -march=native
-
-pedantic.opts.all.gnu = -pedantic \
-                        -Wall \
-                        -Wextra \
-                        -Wno-unused-parameter
+COMPILER.all.gnu =  $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
 
 COMPILER.lnx.gnu = $(COMPILER.all.gnu)
-link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
-pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
-
 COMPILER.mac.gnu = $(COMPILER.all.gnu)
-link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
-pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
-
-a8sve_OPT.gnu = $(-Q)march=armv8-a+sve
