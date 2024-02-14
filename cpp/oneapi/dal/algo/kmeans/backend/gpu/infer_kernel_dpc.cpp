@@ -169,8 +169,7 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             calc_objective_function(queue, arr_closest_distances, { assign_event });
         {
             // Reduce objective function value over all ranks
-            auto obj_func_reduce_event = comm.allreduce(objective_function);
-            obj_func_reduce_event.wait();
+            comm.allreduce(objective_function).wait();
         }
         auto result = infer_result<task::clustering>{};
         result.set_objective_function_value(objective_function);

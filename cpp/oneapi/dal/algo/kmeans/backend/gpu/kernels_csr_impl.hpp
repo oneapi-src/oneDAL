@@ -118,15 +118,17 @@ sycl::event custom_spgemm(sycl::queue& q,
 }
 
 /// Calculates distances from each data point to each centroid and selects the closest centroid to each data point
-/// @param[in] q                A sycl-queue to perform operations on device
-/// @param[in] values           A data part of csr table with :expr:`non_zero_count x 1` dimensions
-/// @param[in] column_indices   An array of column indices in csr table with :expr:`non_zero_count x 1` dimensions
-/// @param[in] row_offsets      An arrat of row offsets in csr table with :expr:`(row_count + 1) x 1` dimensions
-/// @param[in] data_squares     An array of data squared elementwise with :expr:`row_count x 1` dimensions
-/// @param[out] distances       An array of distances of dataset to each cluster with :expr:`row_count x cluster_count` dimensions
-/// @param[out] centroids       An array of centroids with :expr:`cluster_count x column_count` dimensions
-/// @param[out] closest_dists   An array of closests distances for each data point with :expr:`row_count x 1` dimensions
-/// @param[in] deps             An event vector of dependencies for specified kernel
+/// @param[in] q                    A sycl-queue to perform operations on device
+/// @param[in] values               A data part of csr table with :expr:`non_zero_count x 1` dimensions
+/// @param[in] column_indices       An array of column indices in csr table with :expr:`non_zero_count x 1` dimensions
+/// @param[in] row_offsets          An arrat of row offsets in csr table with :expr:`(row_count + 1) x 1` dimensions
+/// @param[in] data_squares         An array of data squared elementwise with :expr:`row_count x 1` dimensions
+/// @param[in] centroids           An array of centroids with :expr:`cluster_count x column_count` dimensions
+/// @param[in] centroids_squares   An array of centroids squares with :expr:`cluster_count x 1` dimensions
+/// @param[out] distances           An array of distances of dataset to each cluster with :expr:`row_count x cluster_count` dimensions
+/// @param[out] responses           An array of responses with :expr:`row_count x 1` dimensions
+/// @param[out] closest_dists       An array of closests distances for each data point with :expr:`row_count x 1` dimensions
+/// @param[in] deps                 An event vector of dependencies for specified kernel
 template <typename Float>
 sycl::event assign_clusters(sycl::queue& q,
                             const pr::ndview<Float, 1>& values,
