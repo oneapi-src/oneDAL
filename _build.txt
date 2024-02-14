@@ -1,2 +1,0 @@
-Selected list of CPUs - USECPUS: sse2 sse42 avx2 avx512
-makefile:218: *** Can`t find TBB neither in ./__deps/tbb not in $TBBROOT.  Stop.
