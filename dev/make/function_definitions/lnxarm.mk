@@ -21,7 +21,7 @@ ARCH_DIR_ONEDAL = arm
 _OS := lnx
 _IA := arm
 
-include dev/make/config/arm.mk
+include dev/make/function_definitions/arm.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
 define set_daal_rt_deps

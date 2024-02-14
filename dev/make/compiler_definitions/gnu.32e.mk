@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2023 Intel Corporation
+# Copyright 2024 UXL Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,34 +16,25 @@
 
 #++
 #  g++ definitions for makefile
+#  This file contains definitions common to gnu on a 32e (intel64) platform. It
+#  should only be included from files which have more specializations (e.g.
+#  gnu.mkl.32e.mk)
 #--
+
+include dev/make/compiler_definitions/gnu.mk
 
 PLATs.gnu = lnx32e mac32e
 
-CMPLRDIRSUFF.gnu = _gnu
-
-CORE.SERV.COMPILER.gnu = generic
-
--Zl.gnu =
--DEBC.gnu = -g
-
 COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
+                    -Werror -Wreturn-type
 
 link.dynamic.all.gnu = ${CXX} -m64
 
-pedantic.opts.all.gnu = -pedantic \
-                        -Wall \
-                        -Wextra \
-                        -Wno-unused-parameter
-
-COMPILER.lnx.gnu = $(COMPILER.all.gnu)
-link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
 pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
-
-COMPILER.mac.gnu = $(COMPILER.all.gnu)
-link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
 pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
+
+link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
+link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
 
 p4_OPT.gnu   = $(-Q)march=nocona
 mc3_OPT.gnu  = $(-Q)march=corei7

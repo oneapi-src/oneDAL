@@ -1,6 +1,6 @@
-# file: cmplr.clang.ref.arm.mk
+# file: clang.mkl.32e.mk
 #===============================================================================
-# Copyright contributors to the oneDAL project
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,27 +19,4 @@
 #  Clang definitions for makefile
 #--
 
-PLATs.clang = lnxarm
-
-CMPLRDIRSUFF.clang = _clang
-
-CORE.SERV.COMPILER.clang = generic
-
--Zl.clang =
--DEBC.clang = -g
-
-COMPILER.lnx.clang= clang++ -march=armv8-a+sve \
-                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
-# Linker flags
-link.dynamic.lnx.clang = clang++ -march=armv8-a+sve
-
-pedantic.opts.clang = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wno-unused-parameter
-
-pedantic.opts.mac.clang = $(pedantic.opts.clang)
-pedantic.opts.lnx.clang = $(pedantic.opts.clang)
-
-# For SVE
-a8sve_OPT.clang = $(-Q)march=armv8-a+sve
+include dev/make/compiler_definitions/clang.32e.mk

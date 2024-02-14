@@ -21,7 +21,7 @@ ARCH_DIR_ONEDAL = intel64
 _OS := mac
 _IA := intel64
 
-include dev/make/config/32e.mk
+include dev/make/function_definitions/32e.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
 define set_daal_rt_deps
