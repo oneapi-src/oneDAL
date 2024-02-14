@@ -26,6 +26,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/csr_table_builder.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
 
@@ -34,7 +35,8 @@ namespace oneapi::dal::kmeans::test {
 namespace te = dal::test::engine;
 namespace la = dal::test::engine::linalg;
 
-using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
+using kmeans_types = COMBINE_TYPES((float, double),
+                                   (kmeans::method::lloyd_dense, kmeans::method::lloyd_csr));
 
 template <typename TestType, typename Derived>
 class kmeans_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -61,6 +63,10 @@ public:
 
     descriptor_t get_descriptor(std::int64_t cluster_count) const {
         return descriptor_t{ cluster_count };
+    }
+
+    bool is_sparse_method() {
+        return std::is_same_v<method_t, kmeans::method::lloyd_csr>;
     }
 
     void exact_checks(const table& data,
@@ -283,6 +289,32 @@ public:
         const auto y = homogen_table::wrap(responses.get_data(), row_count, 1);
 
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
+    }
+
+    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
+                             std::int64_t max_iter_count,
+                             float_t accuracy_threshold,
+                             bool init_centroids) {
+        const table data = input.get_data(this->get_policy());
+        const auto cluster_count = input.cluster_count_;
+        REQUIRE(data.get_kind() == csr_table::kind());
+        auto desc = this->get_descriptor(cluster_count, max_iter_count, accuracy_threshold);
+        INFO("KMeans sparse training");
+        if (init_centroids) {
+            const table initial_centroids = input.get_initial_centroids();
+            const auto train_result = this->train(desc, data, initial_centroids);
+            check_response_match(input.get_responses(), train_result.get_responses());
+        }
+        else {
+            const auto train_result = this->train(desc, data);
+            const auto model = train_result.get_model();
+            auto match_map = array<float_t>::zeros(cluster_count);
+            find_match_centroids(input.get_result_centroids(),
+                                 model.get_centroids(),
+                                 input.column_count_,
+                                 match_map);
+            check_response_match(match_map, input.get_responses(), train_result.get_responses());
+        }
     }
 
     void test_on_dataset(const std::string& dataset_path,
