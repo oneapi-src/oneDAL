@@ -91,7 +91,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-   - script: |
+  - script: |
       .ci/env/apt.sh dev-base
     displayName: 'apt-get and conda install'
   - script: |
