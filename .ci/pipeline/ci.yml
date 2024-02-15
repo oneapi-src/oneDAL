@@ -83,7 +83,7 @@ jobs:
     condition: failed()
     continueOnError: true
 
-  - job: 'LinuxMakeGNU_OpenBLAS_ARM'
+- job: 'LinuxMakeGNU_OpenBLAS_ARM'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
