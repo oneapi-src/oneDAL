@@ -84,6 +84,7 @@ CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 
 rm -rf __deps/tbb
 pushd onetbb-src
+rm -rf build
 mkdir build
 pushd build
 if [ "${cross_compile}" == "yes" ]; then

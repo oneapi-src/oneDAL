@@ -19,6 +19,35 @@ PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
+# set default values for optimisation based on arch
+if [[ "${ARCH}" == "32e" ]]
+then
+optimizations=${optimizations:-avx2}
+elif [[ "${ARCH}" == "arm" ]]
+then
+optimizations=${optimizations:-sve}
+else
+echo "Unknown architecture '${ARCH}'"
+exit 1
+fi
+
+# set PLAT based on OS
+if [[ "${OS}" == "lnx" ]]; then
+    if [[ "${ARCH}" == "32e" ]]; then
+        PLAT=lnx32e
+    elif [[ "${ARCH}" == "arm" ]]; then
+        PLAT=lnxarm
+    fi
+elif [[ "${OS}" == "win" ]]; then
+    if [[ "${ARCH}" == "32e" ]]; then
+        PLAT=win2e
+    fi
+elif [[ "${OS}" == "mac" ]]; then
+    if [[ "${ARCH}" == "32e" ]]; then
+        PLAT=mac32e
+    fi
+fi
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
@@ -44,6 +73,9 @@ while [[ $# -gt 0 ]]; do
         --arch)
         ARCH="$2"
         ;;
+        --plat)
+        PLAT="$2"
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -52,17 +84,6 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
 done
-
-if [[ "${ARCH}" == "32e" ]]
-then
-optimizations=${optimizations:-avx2}
-elif [[ "${ARCH}" == "arm" ]]
-then
-optimizations=${optimizations:-sve}
-else
-echo "Unknown architecture '${ARCH}'"
-exit 1
-fi
 
 backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
@@ -109,7 +130,7 @@ if [ "${backend_config}" == "mkl" ]; then
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
-        if [ "${optimizations}" == "sve" && "${cross_compile}" == "yes"]; then
+        if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
             $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile yes
         else
             $(pwd)/.ci/env/openblas.sh
@@ -119,28 +140,35 @@ else
     echo "Not supported backend env"
 fi
 
-#TBB setup
-if [[ "${ARCH}" == "32e" ]]
-then
-$(pwd)/dev/download_tbb.sh
-elif [[ "${ARCH}" == "arm" ]]
-then
-$(pwd)/.ci/env/tbb.sh
-elif [[ "${ARCH}" == "arm" && "${cross_compile}" == "yes"]]
-then
-$(pwd)/.ci/env/tbb.sh --toolchain_file $(pwd)/.ci/env/arm-toolchain.cmake --arch_dir arm --cross_compile yes
+TBB setup
+if [[ "${ARCH}" == "32e" ]]; then
+    $(pwd)/dev/download_tbb.sh
+elif [[ "${ARCH}" == "arm" ]]; then
+    if [[ "${cross_compile}" == "yes" ]]; then
+        $(pwd)/.ci/env/tbb.sh --toolchain_file $(pwd)/.ci/env/arm-toolchain.cmake --arch_dir arm --cross_compile yes
+    else
+        $(pwd)/.ci/env/tbb.sh
+    fi
 fi
 
-if [ "${optimizations}" == "sve" ]; then
+if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
     export CXX=aarch64-linux-gnu-g++
     export CC=aarch64-linux-gnu-gcc 
 fi
 
 echo "Calling make"
+echo $CXX
+echo $CC
+echo make ${target:-daal_c} ${make_op} \
+    COMPILER=${compiler} \
+    REQCPU="${optimizations}" \
+    BACKEND_CONFIG="${backend_config}" \
+    PLAT=$PLAT
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}"
+    BACKEND_CONFIG="${backend_config}" \
+    PLAT=${PLAT}
 err=$?
 
 if [ ${err} -ne 0 ]; then
