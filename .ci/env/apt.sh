@@ -31,7 +31,7 @@ function add_repo {
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-dpcpp-cpp-compiler-2024.0.2
+    sudo apt-get install -y intel-dpcpp-cpp-compiler-2024.0
     sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
     sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
 }
