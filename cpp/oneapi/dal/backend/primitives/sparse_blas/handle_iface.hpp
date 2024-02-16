@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,16 +14,27 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/backend/common.hpp"
+#include <mkl_dal_sycl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
+namespace mkl = oneapi::fpk;
+
+
+#ifdef ONEDAL_DATA_PARALLEL
+///
+class sparse_matrix_handle_iface {
+public:
+    sparse_matrix_handle_iface(sycl::queue & queue);
+
+    virtual ~sparse_matrix_handle_iface();
+
+    mkl::sparse::matrix_handle_t handle;
+private:
+    sycl::queue & queue_;
 };
+
+
+#endif // ifdef ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives

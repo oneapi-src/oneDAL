@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,23 @@
 
 #pragma once
 
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
-};
+/// Class that hides the implementation details of the `sparse_matrix_handle` class
+class sparse_matrix_handle_iface;
 
+/// Handle that is used to store the information about the data in starse format
+class sparse_matrix_handle {
+    friend detail::pimpl_accessor;
+
+public:
+    sparse_matrix_handle(sycl::queue & queue);
+
+private:
+    detail::pimpl<sparse_matrix_handle_iface> impl_;
+};
 } // namespace oneapi::dal::backend::primitives

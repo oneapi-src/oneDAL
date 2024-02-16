@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/table/common.hpp"
+
+#include <mkl_dal_sycl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
-};
+namespace mkl = oneapi::fpk;
+
+/// Convert oneDAL `sparse_indexing` to oneMKL `index_base`
+inline constexpr mkl::index_base sparse_indexing_to_mkl(const sparse_indexing indexing) {
+    return (indexing == sparse_indexing::zero_based) ? mkl::index_base::zero : mkl::index_base::one;
+}
 
 } // namespace oneapi::dal::backend::primitives

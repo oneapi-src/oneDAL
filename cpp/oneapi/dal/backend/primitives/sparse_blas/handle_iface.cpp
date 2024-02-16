@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/handle_iface.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
-};
+sparse_matrix_handle_iface::sparse_matrix_handle_iface(sycl::queue & queue) : queue_(queue) {
+    mkl::sparse::init_matrix_handle(&handle);
+}
+
+sparse_matrix_handle_iface::~sparse_matrix_handle_iface() {
+    mkl::sparse::release_matrix_handle(queue_, &handle, {});
+}
 
 } // namespace oneapi::dal::backend::primitives
