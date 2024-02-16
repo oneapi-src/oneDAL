@@ -169,6 +169,12 @@ public:
 
     services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
 
+    /**
+     *  Enables external threading control
+     *  \param[in] assumeExternalControl   Flag to assume external threading control
+     */
+    void modifyExternalThreadingControl(bool assumeExternalControl = true);
+
 private:
     Environment();
     Environment(const Environment & e);

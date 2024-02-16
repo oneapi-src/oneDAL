@@ -22,6 +22,11 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/backend/dispatcher_cpu.hpp"
+#include <daal/src/services/service_defines.h>
+
+#if !defined(__APPLE__)
+#include "oneapi/dal/backend/threading.hpp"
+#endif
 
 #define KERNEL_SPEC(spec, ...) ::oneapi::dal::backend::kernel_spec<spec, __VA_ARGS__>
 
@@ -71,10 +76,44 @@ private:
 
 class context_cpu : public communicator_provider<spmd::device_memory_access::none> {
 public:
+#if !defined(__APPLE__)
+    explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
+            : cpu_extensions_(policy.get_enabled_cpu_extensions()),
+              threading_policy_(policy.get_threading_policy()) {
+        global_init();
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    explicit context_cpu(const detail::data_parallel_policy& policy)
+            : cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()),
+              threading_policy_(policy.get_threading_policy()) {
+        global_init();
+    }
+#endif
+
+    explicit context_cpu(const detail::spmd_host_policy& policy)
+            : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
+              cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()),
+              threading_policy_(policy.get_local().get_threading_policy()) {
+        global_init();
+    }
+
+    explicit context_cpu(const spmd::communicator<spmd::device_memory_access::none>& comm)
+            : communicator_provider<spmd::device_memory_access::none>(comm),
+              cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()),
+              threading_policy_(detail::host_policy::get_default().get_threading_policy()) {}
+#else
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
             : cpu_extensions_(policy.get_enabled_cpu_extensions()) {
         global_init();
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    explicit context_cpu(const detail::data_parallel_policy& policy)
+            : cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {
+        global_init();
+    }
+#endif
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
             : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
@@ -85,14 +124,29 @@ public:
     explicit context_cpu(const spmd::communicator<spmd::device_memory_access::none>& comm)
             : communicator_provider<spmd::device_memory_access::none>(comm),
               cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
+#endif
+
+    ~context_cpu() {
+        using daal::services::Environment;
+
+        Environment::getInstance()->modifyExternalThreadingControl(false);
+    }
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
     }
+#if !defined(__APPLE__)
+    threading_policy get_threading_policy() const {
+        return threading_policy_;
+    }
+#endif
 
 private:
     void global_init();
     detail::cpu_extension cpu_extensions_;
+#if !defined(__APPLE__)
+    detail::threading_policy threading_policy_;
+#endif
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -182,7 +236,7 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
         return dispatch_by_device(
             policy,
             [&]() {
-                return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
+                return CpuKernel{}(context_cpu{ policy }, std::forward<Args>(args)...);
             },
             [&]() -> cpu_kernel_return_t<CpuKernel, Args...> {
                 // We have to specify return type for this lambda as compiler cannot
@@ -215,7 +269,7 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
         return dispatch_by_device(
             policy,
             [&]() {
-                return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
+                return CpuKernel{}(context_cpu{ policy }, std::forward<Args>(args)...);
             },
             [&]() {
                 return GpuKernel{}(context_gpu{ policy }, std::forward<Args>(args)...);
@@ -244,7 +298,7 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
         return dispatch_by_device(
             policy,
             [&]() {
-                return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
+                return CpuKernel{}(context_cpu{ policy }, std::forward<Args>(args)...);
             },
             [&]() {
                 return GpuKernel{}(context_gpu{ policy }, std::forward<Args>(args)...);
@@ -275,18 +329,46 @@ inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension
 }
 
 template <typename Op>
-inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
+inline auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     using detail::cpu_extension;
-
     [[maybe_unused]] const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
+#if !defined(__APPLE__)
+    using detail::threading_policy;
+
+    threading_policy policy = ctx.get_threading_policy();
+    task_executor task_executor_(policy);
+
+    ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
+        return task_executor_.execute([&]() {
+            return op(cpu_dispatch_avx512{});
+        });
+    })
+    ONEDAL_IF_CPU_DISPATCH_AVX2(if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) {
+        return task_executor_.execute([&]() {
+            return op(cpu_dispatch_avx2{});
+        });
+    })
+    ONEDAL_IF_CPU_DISPATCH_SSE42(if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) {
+        return task_executor_.execute([&]() {
+            return op(cpu_dispatch_sse42{});
+        });
+    })
+    return task_executor_.execute([&]() {
+        return op(cpu_dispatch_default{});
+    });
+#else
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return op(cpu_dispatch_avx512{});
     })
+
     ONEDAL_IF_CPU_DISPATCH_AVX2(
         if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
+
     ONEDAL_IF_CPU_DISPATCH_SSE42(
         if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
+
     return op(cpu_dispatch_default{});
+#endif
 }
 
 template <typename Op, typename OnUnknown>
