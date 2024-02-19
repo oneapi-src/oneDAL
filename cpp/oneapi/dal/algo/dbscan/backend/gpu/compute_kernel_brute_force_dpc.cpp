@@ -41,14 +41,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
 
     std::int64_t rank_count = comm.get_rank_count();
-    bool print_out = false;
+   // bool print_out = false;
     auto current_rank = comm.get_rank();
-    if (rank_count > 1) {
-        print_out = true;
-    }
 
-    auto prev_node = current_rank;
-    auto next_node = (current_rank + 1) % rank_count;
+
+    //auto prev_node = current_rank;
+    //auto next_node = (current_rank + 1) % rank_count;
 
     const std::int64_t row_count = local_data.get_row_count();
     const std::int64_t column_count = local_data.get_column_count();
@@ -124,15 +122,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     //std::cout<<"before loop"<<std::endl;
     for (std::int64_t j = 0; j < rank_count - 1; j++) {
-        auto send_train_block = array<Float>::wrap(queue,
-                                                   data_nd_replace.get_mutable_data(),
-                                                   row_count * column_count,
-                                                   {});
-        comm.sendrecv_replace(send_train_block, prev_node, next_node).wait();
-        auto data_nd_replace_q =
-            pr::ndarray<Float, 2>::wrap(send_train_block, { row_count, column_count });
-        //comm.sendrecv_replace(queue, data_nd_replace.get_mutable_data(), row_count * column_count, prev_node, next_node).wait();
-        // auto data_nd_replace_host_ = data_nd_replace_q.to_host(queue);
+        // auto send_train_block = array<Float>::wrap(queue,
+        //                                            data_nd_replace.get_mutable_data(),
+        //                                            row_count * column_count,
+        //                                            {});
+        //comm.sendrecv_replace(data_nd_replace.get_mutable_data(), prev_node, next_node).wait();
+        // auto data_nd_replace_q =
+        //     pr::ndarray<Float, 2>::wrap(send_train_block, { row_count, column_count });
+        // comm.sendrecv_replace(queue, data_nd_replace.get_mutable_data(), row_count * column_count, prev_node, next_node).wait();
+        // auto data_nd_replace_host_ = data_nd_replace.to_host(queue);
         // auto data_nd_ptr_ = data_nd_replace_host_.get_data();
         // std::cout << "after send recv replace data/data_nd for rank#" << current_rank << std::endl;
         // for (int64_t i = 0; i < row_count; i++) {
@@ -140,20 +138,20 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         //         std::cout << data_nd_ptr_[i * column_count + j] << " " << std::endl;
         //     }
         // }
-        kernels_fp<Float>::get_cores(queue,
-                                     data_nd,
-                                     data_nd_replace_q,
-                                     weights_nd,
-                                     arr_cores,
-                                     arr_neighbours,
-                                     epsilon,
-                                     min_observations)
-            .wait_and_throw();
+        // kernels_fp<Float>::get_cores(queue,
+        //                              data_nd,
+        //                              data_nd_replace,
+        //                              weights_nd,
+        //                              arr_cores,
+        //                              arr_neighbours,
+        //                              epsilon,
+        //                              min_observations)
+        //     .wait_and_throw();
     }
     std::int64_t cluster_count = 0;
     auto neighbours_host_ = arr_neighbours.to_host(queue);
     auto neighbours_host_ptr_ = neighbours_host_.get_data();
-    if (print_out) {
+    if (true) {
         std::cout << "spmd res rank #" << current_rank << std::endl;
 
         for (std::int64_t i = 0; i < row_count; i++) {

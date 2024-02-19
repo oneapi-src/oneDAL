@@ -230,7 +230,7 @@ public:
     }
 
 private:
-    std::int64_t rank_count_ = 3;
+    std::int64_t rank_count_ = 2;
 };
 
 using dbscan_types = COMBINE_TYPES((float), (dbscan::method::brute_force));
@@ -243,12 +243,12 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][batc
 
     const te::dataframe input =
         GENERATE_DATAFRAME( //te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
-            te::dataframe_builder{ 8, 2 }.fill_normal(0, 100, 7777));
+            te::dataframe_builder{ 16, 2 }.fill_normal(0, 100, 7777));
     //te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777));
 
     const auto input_data_table_id = this->get_homogen_table_id();
     const table data = input.get_table(this->get_policy(), input_data_table_id);
-    constexpr double epsilon = 3;
+    constexpr double epsilon = 15;
     constexpr std::int64_t min_observations = 2;
 
     constexpr float_t weights[] = { 1.0, 1.1, 1, 2 };
