@@ -34,18 +34,18 @@ sycl::event gemm(sycl::queue& queue,
 
     if (co == ndorder::c) {
         return mkl::sparse::gemm(queue,
-                                order_as_layout(co),
-                                transpose_to_mkl(transpose_a),
-                                f_order_as_transposed(bo),
-                                alpha,
-                                dal::detail::get_impl(a).handle,
-                                const_cast<Float*>(b.get_data()),
-                                b.get_dimension(1),
-                                b.get_leading_stride(),
-                                beta,
-                                c.get_mutable_data(),
-                                c.get_leading_stride(),
-                                dependencies);
+                                 order_as_layout(co),
+                                 transpose_to_mkl(transpose_a),
+                                 f_order_as_transposed(bo),
+                                 alpha,
+                                 dal::detail::get_impl(a).handle,
+                                 const_cast<Float*>(b.get_data()),
+                                 b.get_dimension(1),
+                                 b.get_leading_stride(),
+                                 beta,
+                                 c.get_mutable_data(),
+                                 c.get_leading_stride(),
+                                 dependencies);
     }
     else {
         return mkl::sparse::gemm(queue,

@@ -20,20 +20,19 @@ namespace oneapi::dal::backend::primitives {
 
 namespace mkl = oneapi::fpk;
 
-
 #ifdef ONEDAL_DATA_PARALLEL
 ///
 class sparse_matrix_handle_iface {
 public:
-    sparse_matrix_handle_iface(sycl::queue & queue);
+    sparse_matrix_handle_iface(sycl::queue& queue);
 
     virtual ~sparse_matrix_handle_iface();
 
     mkl::sparse::matrix_handle_t handle;
-private:
-    sycl::queue & queue_;
-};
 
+private:
+    sycl::queue& queue_;
+};
 
 #endif // ifdef ONEDAL_DATA_PARALLEL
 

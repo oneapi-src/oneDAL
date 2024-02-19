@@ -30,7 +30,7 @@ class sparse_matrix_handle {
     friend detail::pimpl_accessor;
 
 public:
-    sparse_matrix_handle(sycl::queue & queue);
+    sparse_matrix_handle(sycl::queue& queue);
 
 private:
     detail::pimpl<sparse_matrix_handle_iface> impl_;

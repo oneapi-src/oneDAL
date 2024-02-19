@@ -35,14 +35,14 @@ sycl::event set_csr_data(sycl::queue &queue,
     ONEDAL_ASSERT(column_indices.get_count());
     ONEDAL_ASSERT(row_offsets.get_count() == row_count + 1);
     return mkl::sparse::set_csr_data(queue,
-                                             dal::detail::get_impl(handle).handle,
-                                             row_count,
-                                             column_count,
-                                             sparse_indexing_to_mkl(indexing),
-                                             const_cast<std::int64_t *>(row_offsets.get_data()),
-                                             const_cast<std::int64_t *>(column_indices.get_data()),
-                                             const_cast<Float *>(data.get_data()),
-                                             deps);
+                                     dal::detail::get_impl(handle).handle,
+                                     row_count,
+                                     column_count,
+                                     sparse_indexing_to_mkl(indexing),
+                                     const_cast<std::int64_t *>(row_offsets.get_data()),
+                                     const_cast<std::int64_t *>(column_indices.get_data()),
+                                     const_cast<Float *>(data.get_data()),
+                                     deps);
 }
 
 template <typename Float>
@@ -59,14 +59,14 @@ sycl::event set_csr_data(sycl::queue &queue,
     ONEDAL_ASSERT(column_indices);
     ONEDAL_ASSERT(row_offsets);
     return mkl::sparse::set_csr_data(queue,
-                                             dal::detail::get_impl(handle).handle,
-                                             row_count,
-                                             column_count,
-                                             sparse_indexing_to_mkl(indexing),
-                                             const_cast<std::int64_t *>(row_offsets),
-                                             const_cast<std::int64_t *>(column_indices),
-                                             const_cast<Float *>(data),
-                                             deps);
+                                     dal::detail::get_impl(handle).handle,
+                                     row_count,
+                                     column_count,
+                                     sparse_indexing_to_mkl(indexing),
+                                     const_cast<std::int64_t *>(row_offsets),
+                                     const_cast<std::int64_t *>(column_indices),
+                                     const_cast<Float *>(data),
+                                     deps);
 }
 
 ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
@@ -121,7 +121,7 @@ ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
                                                        const F *data,                            \
                                                        const std::int64_t *column_indices,       \
                                                        const std::int64_t *row_offsets,          \
-                                                       const std::vector<sycl::event> &deps);    \
+                                                       const std::vector<sycl::event> &deps);
 
 INSTANTIATE(float)
 INSTANTIATE(double)

@@ -87,18 +87,18 @@ public:
         const std::int64_t value_count_in_even_rows = local_k / 2;
         const std::int64_t odd_rows_count = (local_m + 1) / 2;
         const std::int64_t even_rows_count = local_m / 2;
-        const std::int64_t element_count = value_count_in_odd_rows * odd_rows_count +
-                                           value_count_in_even_rows * even_rows_count;
+        const std::int64_t element_count =
+            value_count_in_odd_rows * odd_rows_count + value_count_in_even_rows * even_rows_count;
 
         data_ary_ = dal::array<float_t>::empty(q, element_count, alloc_);
         column_indices_ary_ = dal::array<std::int64_t>::empty(q, element_count, alloc_);
         row_offsets_ary_ = dal::array<std::int64_t>::empty(q, local_m + 1, alloc_);
 
-        float_t * data = data_ary_.get_mutable_data();
+        float_t* data = data_ary_.get_mutable_data();
 
         /// Initialize data values
         auto data_event = q.submit([&](sycl::handler& cgh) {
-            cgh.parallel_for(sycl::range<1>(element_count), [=] (sycl::id<1> i) {
+            cgh.parallel_for(sycl::range<1>(element_count), [=](sycl::id<1> i) {
                 data[i] = 1.0f;
             });
         });
@@ -106,7 +106,7 @@ public:
         constexpr std::int64_t indexing_offset = (indexing == sparse_indexing::zero_based ? 0 : 1);
 
         auto column_indices_host_ary = dal::array<std::int64_t>::empty(element_count);
-        std::int64_t * column_indices_host = column_indices_host_ary.get_mutable_data();
+        std::int64_t* column_indices_host = column_indices_host_ary.get_mutable_data();
 
         /// Initialize column indices of the even rows
         for (std::int64_t i = 0; i < local_k; i += 2) {
@@ -118,29 +118,30 @@ public:
         /// Initialize column indices of the odd rows
         for (std::int64_t i = 1; i < local_k; i += 2) {
             const std::int64_t column_index = i + indexing_offset;
-            for (std::int64_t j = value_count_in_odd_rows + i / 2; j < element_count; j += local_k) {
+            for (std::int64_t j = value_count_in_odd_rows + i / 2; j < element_count;
+                 j += local_k) {
                 column_indices_host[j] = column_index;
             }
         }
 
         auto row_offsets_host_ary = dal::array<std::int64_t>::empty(local_m + 1);
-        std::int64_t * row_offsets_host = row_offsets_host_ary.get_mutable_data();
+        std::int64_t* row_offsets_host = row_offsets_host_ary.get_mutable_data();
 
         /// Initialize row offsets of the even rows
-        for(std::int64_t i = 0; i < local_m + 1; i += 2) {
+        for (std::int64_t i = 0; i < local_m + 1; i += 2) {
             row_offsets_host[i] = (i / 2) * local_k + indexing_offset;
         }
         /// Initialize row offsets of the odd rows
-        for(std::int64_t i = 1; i < local_m + 1; i += 2) {
+        for (std::int64_t i = 1; i < local_m + 1; i += 2) {
             row_offsets_host[i] = value_count_in_odd_rows + (i / 2) * local_k + indexing_offset;
         }
 
-        std::int64_t * column_indices = column_indices_ary_.get_mutable_data();
+        std::int64_t* column_indices = column_indices_ary_.get_mutable_data();
         auto column_indices_event = q.submit([&](sycl::handler& cgh) {
             cgh.memcpy(column_indices, column_indices_host, element_count * sizeof(std::int64_t));
         });
 
-        std::int64_t * row_offsets = row_offsets_ary_.get_mutable_data();
+        std::int64_t* row_offsets = row_offsets_ary_.get_mutable_data();
         auto row_offsets_event = q.submit([&](sycl::handler& cgh) {
             cgh.memcpy(row_offsets, row_offsets_host, (local_m + 1) * sizeof(std::int64_t));
         });
@@ -189,8 +190,8 @@ public:
 
         auto mat_host = mat.to_host(this->get_queue());
         const float_t* mat_ptr = mat_host.get_data();
-        const std::int64_t result_even = (k_ + 1) / 2;    // even rows result
-        const std::int64_t result_odd = k_ / 2;           // odd rows result
+        const std::int64_t result_even = (k_ + 1) / 2; // even rows result
+        const std::int64_t result_odd = k_ / 2; // odd rows result
 
         for (std::int64_t i = 0; i < m_; i += 2) {
             for (std::int64_t j = 0; j < p_; j++) {
@@ -239,10 +240,7 @@ using gemm_types = COMBINE_TYPES(
     (c_order /*, f_order */),
     (indexing_zero_based, indexing_one_based));
 
-TEMPLATE_LIST_TEST_M(sparse_gemm_test,
-                     "ones matrix sparse CSR gemm",
-                     "[csr][gemm]",
-                     gemm_types) {
+TEMPLATE_LIST_TEST_M(sparse_gemm_test, "ones matrix sparse CSR gemm", "[csr][gemm]", gemm_types) {
     // DPC++ Sparse GEMM from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 

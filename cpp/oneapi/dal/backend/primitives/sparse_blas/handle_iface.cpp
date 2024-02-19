@@ -18,12 +18,14 @@
 
 namespace oneapi::dal::backend::primitives {
 
-sparse_matrix_handle_iface::sparse_matrix_handle_iface(sycl::queue & queue) : queue_(queue) {
+sparse_matrix_handle_iface::sparse_matrix_handle_iface(sycl::queue& queue) : queue_(queue) {
     mkl::sparse::init_matrix_handle(&handle);
 }
 
 sparse_matrix_handle_iface::~sparse_matrix_handle_iface() {
-    mkl::sparse::release_matrix_handle(queue_, &handle, {});
+    /// Temporary workaround to release_matrix_handle link error
+    queue_.wait();
+    /// mkl::sparse::release_matrix_handle(queue_, &handle, {});
 }
 
 } // namespace oneapi::dal::backend::primitives

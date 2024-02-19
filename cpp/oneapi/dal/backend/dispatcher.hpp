@@ -168,8 +168,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
     }
 
     template <typename... Args>
-    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const
-        -> cpu_kernel_return_t<CpuKernel, Args...> {
+    auto operator()(const detail::spmd_host_policy& policy,
+                    Args&&... args) const -> cpu_kernel_return_t<CpuKernel, Args...> {
         // We have to specify return type for this function as compiler cannot
         // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
@@ -195,8 +195,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename... Args>
-    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const
-        -> cpu_kernel_return_t<CpuKernel, Args...> {
+    auto operator()(const detail::spmd_data_parallel_policy& policy,
+                    Args&&... args) const -> cpu_kernel_return_t<CpuKernel, Args...> {
         // We have to specify return type for this function as compiler cannot
         // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
@@ -223,8 +223,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
     }
 
     template <typename... Args>
-    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const
-        -> cpu_kernel_return_t<CpuKernel, Args...> {
+    auto operator()(const detail::spmd_data_parallel_policy& policy,
+                    Args&&... args) const -> cpu_kernel_return_t<CpuKernel, Args...> {
         // We have to specify return type for this function as compiler cannot
         // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;

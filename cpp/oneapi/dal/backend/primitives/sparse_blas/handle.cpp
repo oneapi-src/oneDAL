@@ -19,6 +19,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-sparse_matrix_handle::sparse_matrix_handle(sycl::queue & queue) : impl_(new sparse_matrix_handle_iface(queue)) {}
+sparse_matrix_handle::sparse_matrix_handle(sycl::queue& queue)
+        : impl_(new sparse_matrix_handle_iface(queue)) {}
 
 } // namespace oneapi::dal::backend::primitives
