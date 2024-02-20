@@ -628,8 +628,8 @@ services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inPar
         size_t lcSize        = end - start;
 
         // create masks for exponent and fraction parts of FP type and zero register
-        __m256i exp256Mask  = _mm256_set1_epi64(doubleExpMask);
-        __m256i frac256Mask = _mm256_set1_epi64(doubleFracMask);
+        __m256i exp256Mask  = _mm256_set1_epi64x(doubleExpMask);
+        __m256i frac256Mask = _mm256_set1_epi64x(doubleFracMask);
         __m256i zero256     = _mm256_setzero_si256();
 
         __mmask8 notAllowNaNMask =
