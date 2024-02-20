@@ -131,7 +131,7 @@ public:
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data, weights);
 
         INFO("check mode");
-        //check_for_exception_for_non_requested_results(compute_mode, compute_result);
+        check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
     void check_for_exception_for_non_requested_results(result_option_id compute_mode,

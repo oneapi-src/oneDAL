@@ -214,7 +214,6 @@ struct get_core_send_recv_replace_narrow_kernel {
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
-                count_type count = 0;
                 for (std::int64_t j = 0; j < row_count_replace; j++) {
                     Float sum = 0.0;
                     for (std::int64_t i = 0; i < column_count; i++) {
@@ -225,9 +224,9 @@ struct get_core_send_recv_replace_narrow_kernel {
                     if (sum > epsilon) {
                         continue;
                     }
-                    neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
+                    neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
 
-                    if (count >= min_observations) {
+                    if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
                         //break;
                     }
@@ -493,7 +492,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     const std::int64_t column_count = data.get_dimension(1);
     ONEDAL_ASSERT(column_count > 0);
     const std::int32_t algo_queue_size = queue_end - queue_begin;
-
+    //std::cout<<"here update queue"<<std::endl;
     const Float* data_ptr = data.get_data();
     std::int32_t* cores_ptr = cores.get_mutable_data();
     std::int32_t* queue_ptr = algo_queue.get_mutable_data();
