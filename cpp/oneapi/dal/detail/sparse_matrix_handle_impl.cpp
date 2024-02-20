@@ -14,18 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/sparse_blas/handle_iface.hpp"
+#include "oneapi/dal/detail/sparse_matrix_handle_impl.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::detail {
 
-sparse_matrix_handle_iface::sparse_matrix_handle_iface(sycl::queue& queue) : queue_(queue) {
-    mkl::sparse::init_matrix_handle(&handle);
+namespace v1 {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+sparse_matrix_handle_impl::sparse_matrix_handle_impl(sycl::queue& queue) : queue_(queue) {
+    mkl::sparse::init_matrix_handle(&handle_);
 }
 
-sparse_matrix_handle_iface::~sparse_matrix_handle_iface() {
+sparse_matrix_handle_impl::~sparse_matrix_handle_impl() {
     /// Temporary workaround to release_matrix_handle link error
     queue_.wait();
-    /// mkl::sparse::release_matrix_handle(queue_, &handle, {});
+    /// mkl::sparse::release_matrix_handle(queue_, &handle_, {});
 }
 
-} // namespace oneapi::dal::backend::primitives
+#endif // ONEDAL_DATA_PARALLEL
+
+} // namespace v1
+} // namespace oneapi::dal::detail

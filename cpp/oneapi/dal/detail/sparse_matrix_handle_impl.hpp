@@ -14,26 +14,41 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
+#ifdef ONEDAL_DATA_PARALLEL
+
 #include <mkl_dal_sycl.hpp>
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::detail {
+
+namespace v1 {
 
 namespace mkl = oneapi::fpk;
 
-#ifdef ONEDAL_DATA_PARALLEL
-///
-class sparse_matrix_handle_iface {
+/// Class that hides the implementation details of the `backend::primitives::sparse_matrix_handle` class
+class sparse_matrix_handle_impl {
 public:
-    sparse_matrix_handle_iface(sycl::queue& queue);
+    sparse_matrix_handle_impl(sycl::queue& queue);
 
-    virtual ~sparse_matrix_handle_iface();
+    virtual ~sparse_matrix_handle_impl();
 
-    mkl::sparse::matrix_handle_t handle;
+    inline mkl::sparse::matrix_handle_t& get() {
+        return handle_;
+    }
+    inline const mkl::sparse::matrix_handle_t& get() const {
+        return handle_;
+    }
 
 private:
+    mkl::sparse::matrix_handle_t handle_;
     sycl::queue& queue_;
 };
 
-#endif // ifdef ONEDAL_DATA_PARALLEL
+} // namespace v1
 
-} // namespace oneapi::dal::backend::primitives
+using v1::sparse_matrix_handle_impl;
+
+} // namespace oneapi::dal::detail
+
+#endif // ifdef ONEDAL_DATA_PARALLEL

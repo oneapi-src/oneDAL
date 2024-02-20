@@ -19,11 +19,9 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/detail/sparse_matrix_handle_impl.hpp"
 
 namespace oneapi::dal::backend::primitives {
-
-/// Class that hides the implementation details of the `sparse_matrix_handle` class
-class sparse_matrix_handle_iface;
 
 /// Handle that is used to store the information about the data in starse format
 class sparse_matrix_handle {
@@ -33,6 +31,6 @@ public:
     sparse_matrix_handle(sycl::queue& queue);
 
 private:
-    detail::pimpl<sparse_matrix_handle_iface> impl_;
+    detail::pimpl<detail::sparse_matrix_handle_impl> impl_;
 };
 } // namespace oneapi::dal::backend::primitives

@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/blas/misc.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/gemm.hpp"
-#include "oneapi/dal/backend/primitives/sparse_blas/handle_iface.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -38,7 +38,7 @@ sycl::event gemm(sycl::queue& queue,
                                  transpose_to_mkl(transpose_a),
                                  f_order_as_transposed(bo),
                                  alpha,
-                                 dal::detail::get_impl(a).handle,
+                                 dal::detail::get_impl(a).get(),
                                  const_cast<Float*>(b.get_data()),
                                  b.get_dimension(1),
                                  b.get_leading_stride(),
@@ -53,7 +53,7 @@ sycl::event gemm(sycl::queue& queue,
                                  transpose_to_mkl(transpose_a),
                                  c_order_as_transposed(bo),
                                  alpha,
-                                 dal::detail::get_impl(a).handle,
+                                 dal::detail::get_impl(a).get(),
                                  const_cast<Float*>(b.get_data()),
                                  b.get_dimension(1),
                                  b.get_leading_stride(),

@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/set_csr_data.hpp"
-#include "oneapi/dal/backend/primitives/sparse_blas/handle_iface.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -35,7 +35,7 @@ sycl::event set_csr_data(sycl::queue &queue,
     ONEDAL_ASSERT(column_indices.get_count());
     ONEDAL_ASSERT(row_offsets.get_count() == row_count + 1);
     return mkl::sparse::set_csr_data(queue,
-                                     dal::detail::get_impl(handle).handle,
+                                     dal::detail::get_impl(handle).get(),
                                      row_count,
                                      column_count,
                                      sparse_indexing_to_mkl(indexing),
@@ -59,7 +59,7 @@ sycl::event set_csr_data(sycl::queue &queue,
     ONEDAL_ASSERT(column_indices);
     ONEDAL_ASSERT(row_offsets);
     return mkl::sparse::set_csr_data(queue,
-                                     dal::detail::get_impl(handle).handle,
+                                     dal::detail::get_impl(handle).get(),
                                      row_count,
                                      column_count,
                                      sparse_indexing_to_mkl(indexing),

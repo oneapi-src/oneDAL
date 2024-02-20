@@ -15,11 +15,10 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
-#include "oneapi/dal/backend/primitives/sparse_blas/handle_iface.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 sparse_matrix_handle::sparse_matrix_handle(sycl::queue& queue)
-        : impl_(new sparse_matrix_handle_iface(queue)) {}
+        : impl_(new detail::sparse_matrix_handle_impl(queue)) {}
 
 } // namespace oneapi::dal::backend::primitives
