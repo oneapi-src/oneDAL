@@ -204,13 +204,13 @@ DataType sumWithAVX2(size_t n, const DataType * dataPtr)
         for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm256_add_ps(sums, ptr256[i]);
 
         // AVX2 doesn't have reduce_add_ps, so finer-grained used of intrinsics necessary
-        __m128 s0 = _mm256_castps256_ps128(sums);
-        __m128 s1 = _mm256_extractf128_ps(sums, 1);
-        s0 = _mm_add_ps(s0, s1);
+        __m128 s0    = _mm256_castps256_ps128(sums);
+        __m128 s1    = _mm256_extractf128_ps(sums, 1);
+        s0           = _mm_add_ps(s0, s1);
         __m128 stemp = _mm_movehl_ps(s0, s0);
-        __m128 sD = _mm_add_ps(s0, stemp);
-        __m128 hi = _mm_shuffle_ps(sD, sD, 0x1);
-        
+        __m128 sD    = _mm_add_ps(s0, stemp);
+        __m128 hi    = _mm_shuffle_ps(sD, sD, 0x1);
+
         sum = _mm_cvtss_f32(_mm_add_ss(sD, hi));
     }
     else
@@ -220,12 +220,12 @@ DataType sumWithAVX2(size_t n, const DataType * dataPtr)
         for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm256_add_pd(sums, ptr256[i]);
 
         // AVX2 doesn't have reduce_add_pd, so finer-grained used of intrinsics necessary
-        __m128d s0  = _mm256_castpd256_pd128(sums);
-        __m128d s1 = _mm256_extractf128_pd(sums, 1);
-        s0  = _mm_add_pd(s0, s1);
+        __m128d s0    = _mm256_castpd256_pd128(sums);
+        __m128d s1    = _mm256_extractf128_pd(sums, 1);
+        s0            = _mm_add_pd(s0, s1);
         __m128d stemp = _mm_unpackhi_pd(s0, s0);
-        
-        sum =  _mm_cvtsd_f64(_mm_add_sd(s0, stemp));
+
+        sum = _mm_cvtsd_f64(_mm_add_sd(s0, stemp));
     }
     for (size_t i = (n / nPerInstr) * nPerInstr; i < n; ++i) sum += dataPtr[i];
 
