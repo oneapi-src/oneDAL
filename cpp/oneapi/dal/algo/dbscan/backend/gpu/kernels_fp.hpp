@@ -33,9 +33,27 @@ struct kernels_fp {
                                                              std::int64_t column_count,
                                                              std::int64_t cluster_count);
     template <bool use_weights>
+    static sycl::event get_cores_send_recv_replace_impl(sycl::queue& queue,
+                                                        const pr::ndview<Float, 2>& data,
+                                                        const pr::ndview<Float, 2>& data_replace,
+                                                        const pr::ndview<Float, 2>& weights,
+                                                        pr::ndview<std::int32_t, 1>& cores,
+                                                        pr::ndview<std::int32_t, 1>& neighbours,
+                                                        Float epsilon,
+                                                        std::int64_t min_observations,
+                                                        const bk::event_vector& deps);
+    static sycl::event get_cores_send_recv_replace(sycl::queue& queue,
+                                                   const pr::ndview<Float, 2>& data,
+                                                   const pr::ndview<Float, 2>& data_replace,
+                                                   const pr::ndview<Float, 2>& weights,
+                                                   pr::ndview<std::int32_t, 1>& cores,
+                                                   pr::ndview<std::int32_t, 1>& neighbours,
+                                                   Float epsilon,
+                                                   std::int64_t min_observations,
+                                                   const bk::event_vector& deps = {});
+    template <bool use_weights>
     static sycl::event get_cores_impl(sycl::queue& queue,
                                       const pr::ndview<Float, 2>& data,
-                                      const pr::ndview<Float, 2>& data_replace,
                                       const pr::ndview<Float, 2>& weights,
                                       pr::ndview<std::int32_t, 1>& cores,
                                       pr::ndview<std::int32_t, 1>& neighbours,
@@ -44,30 +62,12 @@ struct kernels_fp {
                                       const bk::event_vector& deps);
     static sycl::event get_cores(sycl::queue& queue,
                                  const pr::ndview<Float, 2>& data,
-                                 const pr::ndview<Float, 2>& data_replace,
                                  const pr::ndview<Float, 2>& weights,
                                  pr::ndview<std::int32_t, 1>& cores,
                                  pr::ndview<std::int32_t, 1>& neighbours,
                                  Float epsilon,
                                  std::int64_t min_observations,
                                  const bk::event_vector& deps = {});
-    template <bool use_weights>
-    static sycl::event get_cores_local_impl(sycl::queue& queue,
-                                            const pr::ndview<Float, 2>& data,
-                                            const pr::ndview<Float, 2>& weights,
-                                            pr::ndview<std::int32_t, 1>& cores,
-                                            pr::ndview<std::int32_t, 1>& neighbours,
-                                            Float epsilon,
-                                            std::int64_t min_observations,
-                                            const bk::event_vector& deps);
-    static sycl::event get_cores_local(sycl::queue& queue,
-                                       const pr::ndview<Float, 2>& data,
-                                       const pr::ndview<Float, 2>& weights,
-                                       pr::ndview<std::int32_t, 1>& cores,
-                                       pr::ndview<std::int32_t, 1>& neighbours,
-                                       Float epsilon,
-                                       std::int64_t min_observations,
-                                       const bk::event_vector& deps = {});
     static std::int32_t start_next_cluster(sycl::queue& queue,
                                            const pr::ndview<std::int32_t, 1>& cores,
                                            pr::ndview<std::int32_t, 1>& responses,

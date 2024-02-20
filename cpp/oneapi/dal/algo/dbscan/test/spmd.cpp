@@ -189,10 +189,12 @@ public:
                                .set_mem_save_mode(true);
         dbscan_desc.set_result_options(result_options::responses | result_options::core_flags);
         INFO("run computation");
+        std::cout << "!!!!!!!!!!!!!!!spmd implememntation call!!!!!!!!!!!!!!!!!!" << std::endl;
         const auto compute_results = this->compute_via_spmd_threads(rank_count_, dbscan_desc, data);
 
         auto joined_result = this->merge_compute_result(compute_results);
 
+        std::cout << "!!!!!!!!!!!!!!!batch implememntation call!!!!!!!!!!!!!!!!!!" << std::endl;
         const auto compute_result_batch =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data);
         INFO("check references")
@@ -230,7 +232,7 @@ public:
     }
 
 private:
-    std::int64_t rank_count_ = 2;
+    std::int64_t rank_count_ = 3;
 };
 
 using dbscan_types = COMBINE_TYPES((float), (dbscan::method::brute_force));
@@ -248,8 +250,8 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][batc
 
     const auto input_data_table_id = this->get_homogen_table_id();
     const table data = input.get_table(this->get_policy(), input_data_table_id);
-    constexpr double epsilon = 15;
-    constexpr std::int64_t min_observations = 2;
+    constexpr double epsilon = 250;
+    constexpr std::int64_t min_observations = 3;
 
     constexpr float_t weights[] = { 1.0, 1.1, 1, 2 };
     const auto w = homogen_table::wrap(weights, 3, 1);
