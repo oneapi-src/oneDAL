@@ -99,6 +99,23 @@ struct min {
     }
 };
 
+template <typename T>
+struct bit_or {
+    using tag_t = reduce_binary_op_tag;
+    constexpr static inline T init_value = 0;
+#ifdef ONEDAL_DATA_PARALLEL
+    constexpr static inline sycl::ext::oneapi::bit_or<T> native{};
+#else
+    constexpr static inline auto native = [](const T& a, const T& b) {
+        return std::bit_or(a, b);
+    };
+#endif
+    T operator()(const T& a, const T& b) const {
+        return native(a, b);
+    }
+};
+
+
 template <typename Float, typename BinaryOp>
 constexpr bool is_typed_sum_op_v = std::is_same_v<sum<Float>, BinaryOp>;
 
