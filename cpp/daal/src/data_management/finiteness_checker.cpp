@@ -168,8 +168,6 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
 
-////////// AVX512 Implementation ///////////
-
 template <typename DataType>
 DataType sumWithAVX512(size_t n, const DataType * dataPtr)
 {
@@ -445,7 +443,7 @@ double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::S
 }
 
 services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                         size_t nSurplus, bool allowNaN, bool & finiteness)
+                                            size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 16;
@@ -501,7 +499,7 @@ services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inPara
 }
 
 services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                         size_t nSurplus, bool allowNaN, bool & finiteness)
+                                            size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 8;
@@ -557,7 +555,7 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
 }
 
 services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                         size_t nSurplus, bool allowNaN, bool & finiteness)
+                                            size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 8;
@@ -613,7 +611,7 @@ services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inPara
 }
 
 services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                         size_t nSurplus, bool allowNaN, bool & finiteness)
+                                            size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 4;
