@@ -73,7 +73,7 @@ struct isinf {
         return std::numerical_limits<T>::infinity ==
                sycl::ext::oneapi::bit_or<T>(
                    sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg),
-                   arg)
+                   arg);
 #else
         return std::numerical_limits<T>::infinity ==
                std::bit_or(std::bit_and(std::numerical_limits<T>::infinity, arg), arg);
