@@ -54,11 +54,13 @@ struct square {
 template <typename T>
 struct isinfornan {
     using tag_t = reduce_unary_op_tag;
-    T operator()(const T& arg) const {
+    bool operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg)
+        return std::numerical_limits<T>::infinity ==
+               sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg);
 #else
-        return std::bit_and(std::numerical_limits<T>::infinity, arg);
+        return std::numerical_limits<T>::infinity ==
+               std::bit_and(std::numerical_limits<T>::infinity, arg);
 #endif
     }
 };
@@ -66,13 +68,15 @@ struct isinfornan {
 template <typename T>
 struct isinf {
     using tag_t = reduce_unary_op_tag;
-    T operator()(const T& arg) const {
+    bool operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return sycl::ext::oneapi::bit_or<T>(
-            sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg),
-            arg)
+        return std::numerical_limits<T>::infinity ==
+               sycl::ext::oneapi::bit_or<T>(
+                   sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg),
+                   arg)
 #else
-        return std::bit_or(std::bit_and(std::numerical_limits<T>::infinity, arg), arg);
+        return std::numerical_limits<T>::infinity ==
+               std::bit_or(std::bit_and(std::numerical_limits<T>::infinity, arg), arg);
 #endif
     }
 };
@@ -126,14 +130,14 @@ struct min {
 };
 
 template <typename T>
-struct bit_or {
+struct logical_or {
     using tag_t = reduce_binary_op_tag;
-    constexpr static inline T init_value = 0;
-#ifdef ONEDAL_DATA_PARALLEL
-    constexpr static inline sycl::ext::oneapi::bit_or<T> native{};
+    constexpr static inline T init_value = false;
+#ifdef __SYCL_DEVICE_ONLY__
+    constexpr static inline sycl::logical_or native{};
 #else
     constexpr static inline auto native = [](const T& a, const T& b) {
-        return std::bit_or(a, b);
+        return std::logical_or(a, b);
     };
 #endif
     T operator()(const T& a, const T& b) const {
