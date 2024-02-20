@@ -68,7 +68,9 @@ struct isinf {
     using tag_t = reduce_unary_op_tag;
     T operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return sycl::ext::oneapi::bit_or<T>(sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg), arg)
+        return sycl::ext::oneapi::bit_or<T>(
+            sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg),
+            arg)
 #else
         return std::bit_or(std::bit_and(std::numerical_limits<T>::infinity, arg), arg);
 #endif
@@ -138,7 +140,6 @@ struct bit_or {
         return native(a, b);
     }
 };
-
 
 template <typename Float, typename BinaryOp>
 constexpr bool is_typed_sum_op_v = std::is_same_v<sum<Float>, BinaryOp>;
