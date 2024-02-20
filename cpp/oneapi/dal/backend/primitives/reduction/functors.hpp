@@ -51,6 +51,30 @@ struct square {
     }
 };
 
+template <typename T>
+struct isinfornan {
+    using tag_t = reduce_unary_op_tag;
+    T operator()(const T& arg) const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg)
+#else
+        return std::bit_and(std::numerical_limits<T>::infinity, arg);
+#endif
+    }
+};
+
+template <typename T>
+struct isinf {
+    using tag_t = reduce_unary_op_tag;
+    T operator()(const T& arg) const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return sycl::ext::oneapi::bit_or<T>(sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg), arg)
+#else
+        return std::bit_or(std::bit_and(std::numerical_limits<T>::infinity, arg), arg);
+#endif
+    }
+};
+
 struct reduce_binary_op_tag;
 
 template <typename T>
