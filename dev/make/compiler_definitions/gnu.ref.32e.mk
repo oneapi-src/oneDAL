@@ -20,7 +20,5 @@
 
 include dev/make/compiler_definitions/gnu.32e.mk
 
-COMPILER.all.gnu =  $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
-
-COMPILER.lnx.gnu = $(COMPILER.all.gnu)
-COMPILER.mac.gnu = $(COMPILER.all.gnu)
+COMPILER.lnx.gnu = $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
+COMPILER.mac.gnu = $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
