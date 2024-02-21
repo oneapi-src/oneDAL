@@ -226,9 +226,9 @@ fi
 
 ARCH_ONEDAL=$(uname -m)
 
-if [[ "${ARCH_ONEDAL}" == "x86_64" ]]; then
+if [ "${ARCH_ONEDAL}" = "x86_64" ]; then
     ARCH_DIR_ONEDAL="intel64"
-elif [[ "${ARCH_ONEDAL}" == "aarch64" ]]; then
+elif [ "${ARCH_ONEDAL}" = "aarch64" ]; then
     ARCH_DIR_ONEDAL="arm"
 else
     echo "Unsupported CPU architecture '${ARCH_ONEDAL}'"
