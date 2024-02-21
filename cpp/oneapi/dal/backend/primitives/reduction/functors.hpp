@@ -56,11 +56,11 @@ struct isinfornan {
     using tag_t = reduce_unary_op_tag;
     bool operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return std::numerical_limits<T>::infinity ==
-               sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg);
+        return std::numeric_limits<T>::infinity ==
+               sycl::ext::oneapi::bit_and<T>(std::numeric_limits<T>::infinity, arg);
 #else
-        return std::numerical_limits<T>::infinity ==
-               std::bit_and(std::numerical_limits<T>::infinity, arg);
+        return std::numeric_limits<T>::infinity ==
+               std::bit_and(std::numeric_limits<T>::infinity, arg);
 #endif
     }
 };
@@ -68,15 +68,17 @@ struct isinfornan {
 template <typename T>
 struct isinf {
     using tag_t = reduce_unary_op_tag;
+    // the bitwise not of negative infinity is == mantissa with all ones
+    constexpr static inline T fracmask = ~(-std::numeric_limits<T>::infinity);
     bool operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return std::numerical_limits<T>::infinity ==
-               sycl::ext::oneapi::bit_or<T>(
-                   sycl::ext::oneapi::bit_and<T>(std::numerical_limits<T>::infinity, arg),
-                   arg);
+        return std::numeric_limits<T>::infinity ==
+                   sycl::ext::oneapi::bit_and<T>(std::numeric_limits<T>::infinity, arg) &&
+               0 == sycl::ext::oneapi::bit_and<T>(fracmask, arg);
 #else
-        return std::numerical_limits<T>::infinity ==
-               std::bit_or(std::bit_and(std::numerical_limits<T>::infinity, arg), arg);
+        return std::numeric_limits<T>::infinity ==
+                   std::bit_and(std::numeric_limits<T>::infinity, arg) &&
+               0 == std::bit_and(fracmask, arg);
 #endif
     }
 };
