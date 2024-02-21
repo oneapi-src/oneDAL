@@ -31,5 +31,5 @@ elif [ "${os}" = "Darwin" ]; then
 elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
   echo win32e
 else
-  echo "UnknownOS"
+  echo "Unknown OS: ${os}"
 fi
