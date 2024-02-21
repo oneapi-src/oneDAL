@@ -244,19 +244,20 @@ public:
             return new mpi_request_impl{ mpi_request };
         }
         else {
-            const std::int64_t dtype_size = get_data_type_size(dtype);
-            const std::int64_t size = check_mul_overflow(count, dtype_size);
-            auto recv_buf_backup = array<byte_t>::empty(size);
+            // const std::int64_t dtype_size = get_data_type_size(dtype);
+            // const std::int64_t size = check_mul_overflow(count, dtype_size);
+            // auto recv_buf_backup = array<byte_t>::empty(size);
 
             // TODO Replace with MPI_Iallreduce
-            mpi_call(MPI_Allreduce(send_buf,
-                                   recv_buf_backup.get_mutable_data(),
+            mpi_call(MPI_Allreduce(MPI_IN_PLACE,
+                                   recv_buf,
                                    integral_cast<int>(count),
                                    make_mpi_data_type(dtype),
                                    make_mpi_reduce_op(op),
                                    mpi_comm_));
-
-            memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
+            // #ifndef ONEDAL_DATA_PARALLEL
+            //             memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
+            // #endif
 
             // We have to copy memory after reduction, this cannot be performed
             // asynchronously in the current implementation, so we return `nullptr`
