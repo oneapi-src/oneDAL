@@ -78,6 +78,7 @@ secure.opts.link.mac =
 
 RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
 
+# Used as $(eval $(call set_c_compile,$(COMPILER),$(_OS),$(gcc_toolchain))
 C.COMPILE = $(if $(COMPILER.$(_OS).$(COMPILER)),$(COMPILER.$(_OS).$(COMPILER)),$(error COMPILER.$(_OS).$(COMPILER) must be defined)) \
             $(if $(C.COMPILE.gcc_toolchain),--gcc-toolchain=$(C.COMPILE.gcc_toolchain)) \
             -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
@@ -182,3 +183,10 @@ sed.eow.lnx = \b
 PATCHBIN = $(patchbin.cmd)
 patchbin.cmd = cp $< $@.patchbin.tmp && $(patchbin.workaround.$(_OS)) sed -n $(sed.-i) $(sed.-b) -e $(PATCHBIN.OPTS) -e "w $@" $@.patchbin.tmp && rm -f $@.patchbin.tmp || { rm -f $@ $@.patchbin.tmp; false; }
 patchbin.workaround.mac = LANG=C
+
+# Used as $(eval $(call assert_non_empty,var_name))
+define assert_non_empty
+  ifeq ($$($1),)
+    $$(error Variable '$1' must be non-empty)
+  endif
+endef
