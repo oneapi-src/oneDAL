@@ -998,13 +998,8 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     algorithmFPType * const res  = resBD.get();
     algorithmFPType * const prob = probBD.get();
     daal::SafeStatus safeStat;
-#if defined(TARGET_X86_64)
-    const size_t blockSize = cpu == avx512 ? _defaultBlockSize : _defaultBlockSizeCommon;
-#elif defined(TARGET_ARM)
-    const size_t blockSize = cpu == avx512 ? _defaultBlockSize : _defaultBlockSizeCommon;
-#endif
     const size_t nRowsOfRes        = _data->getNumberOfRows();
-    const size_t nBlocks           = nRowsOfRes / blockSize;
+    const size_t nBlocks           = nRowsOfRes / _blockSize;
     const size_t residualSize      = nRowsOfRes - nBlocks * blockSize;
     algorithmFPType * commonBufVal = nullptr;
     services::internal::TArray<algorithmFPType, cpu> commonBufValT;
@@ -1031,9 +1026,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
             parallelPredict(aX, aNode, treeSize, nBlocks, nCols, _blockSize, residualSize, tlsData.local(tid), iTree);
         });
 
-        const size_t nThreads   = tlsData.nthreads();
-        const size_t _blockSize = 256;
-        const size_t nBlocks    = nRowsOfRes / _blockSize + !!(nRowsOfRes % _blockSize);
+        const size_t nThreads       = tlsData.nthreads();
+        const size_t localBlockSize = 256; // TODO: Why can't this be the class value _blockSize?
+        const size_t nBlocks        = nRowsOfRes / _blockSize + !!(nRowsOfRes % _blockSize);
 
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t begin = iBlock * _blockSize;
