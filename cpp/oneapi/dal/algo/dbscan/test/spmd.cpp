@@ -251,7 +251,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][spmd
 
     const te::dataframe input =
         GENERATE_DATAFRAME( //te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
-            te::dataframe_builder{ 10, 5 }.fill_normal(0, 1000, 7777));
+            te::dataframe_builder{ 4000, 5 }.fill_normal(0, 1000, 7777));
     //te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777));
 
     const auto input_data_table_id = this->get_homogen_table_id();
@@ -265,7 +265,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][spmd
     constexpr std::int32_t responses[] = { 0, 1, 2 };
     const auto r = homogen_table::wrap(responses, 3, 1);
 
-    this->set_rank_count(GENERATE(2));
+    this->set_rank_count(GENERATE(4));
     this->run_spmd_response_checks(data, w, epsilon, min_observations, r);
 }
 
