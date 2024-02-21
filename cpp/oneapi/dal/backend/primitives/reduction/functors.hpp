@@ -136,7 +136,7 @@ struct logical_or {
     using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = false;
 #ifdef __SYCL_DEVICE_ONLY__
-    constexpr static inline sycl::logical_or native{};
+    constexpr static inline sycl::logical_or<T> native{};
 #else
     constexpr static inline auto native = [](const T& a, const T& b) {
         return std::logical_or(a, b);
