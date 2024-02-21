@@ -1,6 +1,7 @@
 /* file: qr_dense_default_pcl_impl.i */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -88,6 +89,8 @@ inline int * get_nblocks_array(int * size)
     return array;
 }
 /* rows/cols is greater or equal to: --------------------------------------------------------- 0   1   2   4   8  16  32  64 128 256 512  1K  2K ----------------------------------------------------*/
+
+#if defined(TARGET_X86_64)
 template <>
 inline int * get_nblocks_array<float, avx2>(int * size)
 {
@@ -116,6 +119,22 @@ inline int * get_nblocks_array<double, avx512>(int * size)
     *size              = sizeof(array) / sizeof(int) - 1;
     return array;
 }
+#elif defined(TARGET_ARM)
+template <>
+inline int * get_nblocks_array<float, sve>(int * size)
+{
+    static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 24, 24, 20, 0 };
+    *size              = sizeof(array) / sizeof(int) - 1;
+    return array;
+}
+template <>
+inline int * get_nblocks_array<double, sve>(int * size)
+{
+    static int array[] = { 1, 1, 1, 2, 4, 8, 16, 20, 20, 24, 20, 0 };
+    *size              = sizeof(array) / sizeof(int) - 1;
+    return array;
+}
+#endif
 
 #define QR_CHECK_BREAK(cond, error) \
     if (!(cond))                    \

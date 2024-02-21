@@ -15,7 +15,7 @@
 #===============================================================================
 
 #++
-#  g++ defenitions for makefile
+#  g++ definitions for makefile
 #--
 
 PLATs.gnu = lnx32e mac32e
@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.gnu = generic
 -DEBC.gnu = -g
 
 COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -Werror -Wreturn-type
+                    -DDAAL_REF -DONEDAL_REF -Werror -Wreturn-type
 
 link.dynamic.all.gnu = ${CXX} -m64
 

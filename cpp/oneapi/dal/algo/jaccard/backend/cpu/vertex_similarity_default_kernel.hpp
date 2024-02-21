@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -107,10 +108,11 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard(
     return res;
 }
 
+#if defined(TARGET_X86_64)
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
     const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr);
-
+#endif
 } // namespace oneapi::dal::preview::jaccard::backend
