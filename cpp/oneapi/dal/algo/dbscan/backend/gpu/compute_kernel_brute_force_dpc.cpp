@@ -44,8 +44,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     auto current_rank = comm.get_rank();
 
-    auto prev_node = (current_rank - 1 + rank_count) % rank_count;
-    auto next_node = (current_rank + 1) % rank_count;
+    // auto prev_node = (current_rank - 1 + rank_count) % rank_count;
+    // auto next_node = (current_rank + 1) % rank_count;
 
     const std::int64_t row_count = local_data.get_row_count();
     const std::int64_t column_count = local_data.get_column_count();
@@ -79,9 +79,10 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     auto data_nd_replace =
         pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, sycl::usm::alloc::device);
-
-    auto copy_event = copy(queue, data_nd_replace, data_nd, {});
-    copy_event.wait_and_throw();
+    if (rank_count > 1) {
+        auto copy_event = copy(queue, data_nd_replace, data_nd, {});
+        copy_event.wait_and_throw();
+    }
 
     const auto weights_nd =
         pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
@@ -90,7 +91,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const std::int64_t min_observations = desc.get_min_observations();
 
     auto [arr_cores, cores_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
     auto [arr_neighbours, neighbours_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
     auto [arr_responses_fake, responses_fake_event] =
@@ -121,7 +122,6 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                         queue_front_event,
                         neighbours_event });
 
-    //std::int64_t fake_cluster_count = 0;
     kernels_fp<Float>::get_cores(queue,
                                  data_nd,
                                  weights_nd,
@@ -131,14 +131,44 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                  epsilon,
                                  min_observations)
         .wait_and_throw();
+
+    // for (std::int64_t j = 0; j < rank_count - 1; j++) {
+    //     comm.sendrecv_replace(queue,
+    //                           data_nd_replace.get_mutable_data(),
+    //                           row_count * column_count,
+    //                           prev_node,
+    //                           next_node)
+    //         .wait();
+    //     kernels_fp<Float>::get_cores_send_recv_replace(queue,
+    //                                                    data_nd,
+    //                                                    data_nd_replace,
+    //                                                    weights_nd,
+    //                                                    arr_cores,
+    //                                                    arr_neighbours,
+    //                                                    epsilon,
+    //                                                    min_observations)
+    //         .wait_and_throw();
+    // }
+
+    // auto arr_fake_responses_host = arr_responses_fake.to_host(queue);
+
+    // auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
+    // std::cout << "after get cores components" << std::endl;
+    // for (int i = 0; i < row_count; i++) {
+    //     std::cout << fake_responses_ptr[i] << std::endl;
+    // }
+
     kernels_fp<Float>::update_responses(queue, arr_responses_fake, arr_neighbours, min_observations)
         .wait_and_throw();
     auto arr_fake_responses_host = arr_responses_fake.to_host(queue);
 
     auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
-    // std::cout << "after get cores components" << std::endl;
+    // auto arr_fake_responses_host_ = arr_responses_fake.to_host(queue);
+
+    // auto fake_responses_ptr_ = arr_fake_responses_host_.get_mutable_data();
+    // std::cout << "after responses update components" << std::endl;
     // for (int i = 0; i < row_count; i++) {
-    //     std::cout << fake_responses_ptr[i] << std::endl;
+    //     std::cout << fake_responses_ptr_[i] << std::endl;
     // }
     // std::cout << "after get cores neighbours" << std::endl;
     // auto arr_neighbours_host = arr_neighbours.to_host(queue);
@@ -191,23 +221,6 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         }
     }
     auto arr_responses_ordered = arr_fake_responses_host.to_device(queue);
-    for (std::int64_t j = 0; j < rank_count - 1; j++) {
-        comm.sendrecv_replace(queue,
-                              data_nd_replace.get_mutable_data(),
-                              row_count * column_count,
-                              prev_node,
-                              next_node)
-            .wait();
-        kernels_fp<Float>::get_cores_send_recv_replace(queue,
-                                                       data_nd,
-                                                       data_nd_replace,
-                                                       weights_nd,
-                                                       arr_cores,
-                                                       arr_neighbours,
-                                                       epsilon,
-                                                       min_observations)
-            .wait_and_throw();
-    }
 
     // std::int64_t cluster_count = 0;
 
@@ -336,13 +349,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     // }
     // std::cout << "fake cluster count" << final_id << "real cluster count" << cluster_count
     //           << std::endl;
-    return make_results(queue,
-                        desc,
-                        data_nd,
-                        arr_responses,
-                        arr_responses_ordered,
-                        arr_cores,
-                        final_id);
+    return make_results(queue, desc, data_nd, arr_responses_ordered, arr_cores, final_id);
 }
 
 template <typename Float>

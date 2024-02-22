@@ -195,11 +195,7 @@ struct get_core_narrow_kernel {
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
-                        //break;
                     }
-                    // if (!use_weights && (row_count - j + count < min_observations)) {
-                    //     break;
-                    // }
                 }
             });
         });
@@ -346,11 +342,7 @@ struct get_core_send_recv_replace_narrow_kernel {
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
-                        //break;
                     }
-                    // if (!use_weights && (row_count - j + count < min_observations)) {
-                    //     break;
-                    // }
                 }
             });
         });
@@ -370,29 +362,29 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               Float epsilon,
                                               std::int64_t min_observations,
                                               const bk::event_vector& deps) {
-    // const std::int64_t column_count = data.get_dimension(1);
-    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-    return get_core_wide_kernel<Float, use_weights>::run(queue,
-                                                         data,
-                                                         weights,
-                                                         cores,
-                                                         responses,
-                                                         neighbours,
-                                                         epsilon,
-                                                         min_observations,
-                                                         deps);
-    //}
-    // else {
-    // return get_core_narrow_kernel<Float, use_weights>::run(queue,
-    //                                                        data,
-    //                                                        weights,
-    //                                                        cores,
-    //                                                        responses,
-    //                                                        neighbours,
-    //                                                        epsilon,
-    //                                                        min_observations,
-    //                                                        deps);
-    // }
+    const std::int64_t column_count = data.get_dimension(1);
+    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+        return get_core_wide_kernel<Float, use_weights>::run(queue,
+                                                             data,
+                                                             weights,
+                                                             cores,
+                                                             responses,
+                                                             neighbours,
+                                                             epsilon,
+                                                             min_observations,
+                                                             deps);
+    }
+    else {
+        return get_core_narrow_kernel<Float, use_weights>::run(queue,
+                                                               data,
+                                                               weights,
+                                                               cores,
+                                                               responses,
+                                                               neighbours,
+                                                               epsilon,
+                                                               min_observations,
+                                                               deps);
+    }
 }
 
 template <typename Float>
@@ -451,8 +443,6 @@ sycl::event kernels_fp<Float>::update_responses(sycl::queue& queue,
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
             auto cluster = responses_ptr[idx];
-            //idx =2
-            //cluster = 1
             while (responses_ptr[cluster] != cluster) {
                 responses_ptr[idx] = responses_ptr[cluster];
                 cluster = responses_ptr[idx];
