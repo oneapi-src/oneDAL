@@ -262,31 +262,19 @@ struct csr_make_blobs {
         row_offs_ptr[0] = indexing_shift;
         // Create centroids
         for (Index cent_idx = 0; cent_idx < cluster_count; ++cent_idx) {
-            Index row_val_count = 0;
-            while (row_val_count < row_nonzero_count) {
+            std::set<Index> columns;
+            while (Index(columns.size()) < row_nonzero_count) {
                 const Index col_idx = uniform_indices(rng);
-                // Check if this index already has taken
-                bool is_filled = false;
-                for (Index data_idx = row_offs_ptr[cent_idx] - indexing_shift;
-                     data_idx < fill_count;
-                     ++data_idx) {
-                    if (col_indices_ptr[data_idx] == col_idx) {
-                        is_filled = true;
-                        break;
-                    }
-                }
-                // Fill the column
-                if (!is_filled) {
-                    data_ptr[fill_count] = centroid_fill_value * (cent_idx + 1);
-                    col_indices_ptr[fill_count] = col_idx;
-                    fill_count++;
-                    row_val_count++;
-                }
+                columns.insert(col_idx);
+            }
+            for (auto iter = columns.begin(); iter != columns.end(); iter++) {
+                data_ptr[fill_count] = centroid_fill_value * (cent_idx + 1);
+                col_indices_ptr[fill_count] = *iter;
+                fill_count++;
             }
             row_offs_ptr[cent_idx + 1] = fill_count + indexing_shift;
-            std::sort(col_indices_ptr + row_offs_ptr[cent_idx] - indexing_shift,
-                      col_indices_ptr + row_offs_ptr[cent_idx + 1] - indexing_shift);
         }
+
         // Generate remaining rows adding random noise to centroids
         for (Index row_idx = cluster_count; row_idx < row_count; ++row_idx) {
             const Index centroid_id = row_idx % cluster_count;

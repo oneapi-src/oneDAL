@@ -146,6 +146,7 @@ inline auto convert_to_daal_csr_table(array<T>& data,
                                       std::int64_t row_count,
                                       std::int64_t column_count,
                                       bool allow_copy = false) {
+    using daal::services::Status;
     ONEDAL_ASSERT(data.get_count() == column_indices.get_count());
     ONEDAL_ASSERT(row_indices.get_count() == row_count + 1);
 
@@ -173,12 +174,17 @@ inline auto convert_to_daal_csr_table(array<T>& data,
         reinterpret_cast<std::size_t*>(row_indices.get_mutable_data()),
         daal_object_owner{ row_indices });
 
-    return daal::data_management::CSRNumericTable::create(
+    Status status;
+    const auto table = daal::data_management::CSRNumericTable::create(
         daal_data,
         daal_column_indices,
         daal_row_indices,
         dal::detail::integral_cast<std::size_t>(column_count),
-        dal::detail::integral_cast<std::size_t>(row_count));
+        dal::detail::integral_cast<std::size_t>(row_count),
+        daal::data_management::CSRNumericTable::CSRIndexing::oneBased,
+        &status);
+    status_to_exception(status);
+    return table;
 }
 
 template <typename Float>
