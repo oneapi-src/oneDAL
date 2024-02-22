@@ -22,12 +22,48 @@
 
 namespace oneapi::dal::decision_forest::parameters {
 
+using dal::backend::context_cpu;
+
+std::int64_t propose_block_size(const context_cpu& ctx);
+
+constexpr std::int64_t propose_min_trees_for_threading() {
+    return 100l;
+}
+
+constexpr std::int64_t propose_min_number_of_rows_for_vect_seq_compute() {
+    return 32l;
+}
+
+constexpr double propose_scale_factor_for_vect_seq_compute() {
+    return 0.3f;
+}
+
 template <typename Float, typename Method, typename Task>
-struct ONEDAL_EXPORT infer_parameters_cpu {
+struct infer_parameters_cpu {
     using params_t = detail::infer_parameters<Task>;
-    params_t operator()(const dal::backend::context_cpu& ctx,
+    params_t operator()(const context_cpu& ctx,
                         const detail::descriptor_base<Task>& desc,
-                        const infer_input<Task>& input) const;
+                        const infer_input<Task>& input) const {
+        const auto block = propose_block_size(ctx);
+        const auto trees = propose_min_trees_for_threading();
+        const auto seq_nrows = propose_min_number_of_rows_for_vect_seq_compute();
+        const auto seq_trees = propose_scale_factor_for_vect_seq_compute();
+
+        return params_t{}
+            .set_block_size(block)
+            .set_min_trees_for_threading(trees)
+            .set_min_number_of_rows_for_vect_seq_compute(seq_nrows)
+            .set_scale_factor_for_vect_parallel_compute(seq_trees);
+    }
 };
 
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::dense, task::classification>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::dense, task::regression>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::dense, task::classification>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::dense, task::regression>;
+
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::hist, task::classification>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::hist, task::regression>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::hist, task::classification>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::hist, task::regression>;
 } // namespace oneapi::dal::decision_forest::parameters
