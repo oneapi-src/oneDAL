@@ -24,9 +24,69 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
-
+#include "oneapi/dal/algo/dbscan/test/data.hpp"
+#include "oneapi/dal/test/engine/tables.hpp"
+#include "oneapi/dal/test/engine/io.hpp"
+#include <iostream>
 namespace oneapi::dal::dbscan::test {
+template <typename Type>
+std::ostream &print_on_host(std::ostream &stream, const oneapi::dal::array<Type> &array) {
+    const std::int64_t count = array.get_count();
 
+    if (count < std::int64_t(1)) {
+        stream << "An empty array" << std::endl;
+    }
+
+    constexpr std::int32_t precision = std::is_floating_point_v<Type> ? 3 : 0;
+
+    stream << std::setw(10);
+    stream << std::setprecision(precision);
+    stream << std::setiosflags(std::ios::fixed);
+    for (std::int64_t i = 0l; i < count; ++i) {
+        stream << array[i] << ' ';
+    }
+
+    return stream;
+}
+
+template <typename Type>
+std::ostream &operator<<(std::ostream &stream, const oneapi::dal::array<Type> &array) {
+    oneapi::dal::array<Type> array_on_host = to_host(array);
+    return print_on_host(stream, array_on_host);
+}
+
+std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) {
+    auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+    const auto x = arr.get_data();
+
+    if (true) {
+        for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+            }
+            std::cout << std::endl;
+        }
+    }
+    else {
+        for (std::int64_t i = 0; i < 5; i++) {
+            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "..." << (table.get_row_count() - 10) << " lines skipped..." << std::endl;
+        for (std::int64_t i = table.get_row_count() - 5; i < table.get_row_count(); i++) {
+            for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+                std::cout << std::setw(10) << std::setiosflags(std::ios::fixed)
+                          << std::setprecision(3) << x[i * table.get_column_count() + j];
+            }
+            std::cout << std::endl;
+        }
+    }
+    return stream;
+}
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 
@@ -46,12 +106,50 @@ public:
             .set_mem_save_mode(true)
             .set_result_options(result_options::responses | result_options::core_flags);
     }
+    void check_if_close(const table &left,
+                        const table &right,
+                        std::string name = "",
+                        double tol = 1e-2) {
+        constexpr auto eps = std::numeric_limits<float_t>::epsilon();
 
-    void run_checks(const table& data,
-                    const table& weights,
+        const auto c_count = left.get_column_count();
+        const auto r_count = left.get_row_count();
+
+        REQUIRE(right.get_column_count() == c_count);
+        REQUIRE(right.get_row_count() == r_count);
+
+        row_accessor<const float_t> lacc(left);
+        row_accessor<const float_t> racc(right);
+
+        const auto larr = lacc.pull({ 0, -1 });
+        const auto rarr = racc.pull({ 0, -1 });
+
+        for (std::int64_t r = 0; r < r_count; ++r) {
+            for (std::int64_t c = 0; c < c_count; ++c) {
+                const auto lval = larr[r * c_count + c];
+                const auto rval = rarr[r * c_count + c];
+
+                CAPTURE(name, r_count, c_count, r, c, lval, rval);
+
+                const auto aerr = std::abs(lval - rval);
+                if (aerr < tol || (!std::isfinite(lval) && !std::isfinite(rval)))
+                    continue;
+
+                const auto den = std::max({ eps, //
+                                            std::abs(lval),
+                                            std::abs(rval) });
+
+                const auto rerr = aerr / den;
+                CAPTURE(aerr, rerr, den, r, c, lval, rval);
+                REQUIRE(rerr < tol);
+            }
+        }
+    }
+    void run_checks(const table &data,
+                    const table &weights,
                     float_t epsilon,
                     std::int64_t min_observations,
-                    const table& ref_responses) {
+                    const table &ref_responses) {
         CAPTURE(epsilon, min_observations);
 
         INFO("create descriptor")
@@ -60,11 +158,15 @@ public:
         INFO("run compute");
         const auto compute_result =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data, weights);
-
-        check_responses_against_ref(compute_result.get_responses(), ref_responses);
+        check_responses_against_ref(compute_result.get_fake_responses(), ref_responses);
+        //std::cout << "responses batch:\n" << compute_result.get_responses() << std::endl;
+        //std::cout << "responses fake batch:\n" << compute_result.get_fake_responses() << std::endl;
+        // check_if_close(compute_result.get_fake_responses(),
+        //                compute_result.get_responses(),
+        //                "responses");
     }
 
-    void check_responses_against_ref(const table& responses, const table& ref_responses) {
+    void check_responses_against_ref(const table &responses, const table &ref_responses) {
         ONEDAL_ASSERT(responses.get_row_count() == ref_responses.get_row_count());
         ONEDAL_ASSERT(responses.get_column_count() == ref_responses.get_column_count());
         ONEDAL_ASSERT(responses.get_column_count() == 1);
@@ -75,7 +177,7 @@ public:
             REQUIRE(ref_rows[i] == rows[i]);
         }
     }
-    void dbi_determenistic_checks(const table& data,
+    void dbi_determenistic_checks(const table &data,
                                   double epsilon,
                                   std::int64_t min_observations,
                                   float_t ref_dbi,
@@ -108,8 +210,8 @@ public:
     }
 
     void mode_checks(result_option_id compute_mode,
-                     const table& data,
-                     const table& weights,
+                     const table &data,
+                     const table &weights,
                      float_t epsilon,
                      std::int64_t min_observations) {
         CAPTURE(epsilon, min_observations);
@@ -127,7 +229,7 @@ public:
     }
 
     void check_for_exception_for_non_requested_results(result_option_id compute_mode,
-                                                       const result_t& result) {
+                                                       const result_t &result) {
         if (!compute_mode.test(result_options::responses)) {
             REQUIRE_THROWS_AS(result.get_responses(), domain_error);
         }

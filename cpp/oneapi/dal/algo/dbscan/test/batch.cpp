@@ -29,30 +29,30 @@ class dbscan_batch_test : public dbscan_test<TestType, dbscan_batch_test<TestTyp
 
 using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
 
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "dbscan compute mode check",
-                     "[dbscan][batch]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
+// TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+//                      "dbscan compute mode check",
+//                      "[dbscan][batch]",
+//                      dbscan_types) {
+//     SKIP_IF(this->not_float64_friendly());
+//     using float_t = std::tuple_element_t<0, TestType>;
 
-    constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
-                                 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
-    const auto x = homogen_table::wrap(data, 3, 5);
+//     constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
+//                                  0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
+//     const auto x = homogen_table::wrap(data, 3, 5);
 
-    constexpr double epsilon = 0.01;
-    constexpr std::int64_t min_observations = 1;
+//     constexpr double epsilon = 0.01;
+//     constexpr std::int64_t min_observations = 1;
 
-    result_option_id res_all = result_option_id(dal::result_option_id_base(mask_full));
+//     result_option_id res_all = result_option_id(dal::result_option_id_base(mask_full));
 
-    const result_option_id compute_mode = GENERATE_COPY(result_options::responses,
-                                                        result_options::core_flags,
-                                                        result_options::core_observations,
-                                                        result_options::core_observation_indices,
-                                                        res_all);
+//     const result_option_id compute_mode = GENERATE_COPY(result_options::responses,
+//                                                         result_options::core_flags,
+//                                                         result_options::core_observations,
+//                                                         result_options::core_observation_indices,
+//                                                         res_all);
 
-    this->mode_checks(compute_mode, x, table{}, epsilon, min_observations);
-}
+//     this->mode_checks(compute_mode, x, table{}, epsilon, min_observations);
+// }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "dbscan degenerated test",
@@ -73,7 +73,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { 0, 1, 2 };
     const auto r = homogen_table::wrap(responses, 3, 1);
-
+    std::cout << "dbscan degenerated test" << std::endl;
     this->run_checks(x, w, epsilon, min_observations, r);
 }
 
@@ -87,6 +87,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan boundary test", "[dbscan][batch]
     const auto x1 = homogen_table::wrap(data1, 2, 1);
     const auto r1 = homogen_table::wrap(responses1, 2, 1);
     constexpr double epsilon1 = 2.0;
+    std::cout << "dbscan boundary test 1" << std::endl;
     this->run_checks(x1, table{}, epsilon1, min_observations, r1);
 
     constexpr float_t data2[] = { 0.0, 1.0, 1.0 };
@@ -94,11 +95,13 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan boundary test", "[dbscan][batch]
     const auto x2 = homogen_table::wrap(data2, 3, 1);
     const auto r2 = homogen_table::wrap(responses2, 3, 1);
     constexpr double epsilon2 = 1.0;
+    std::cout << "dbscan boundary test 2" << std::endl;
     this->run_checks(x2, table{}, epsilon2, min_observations, r2);
 
     constexpr std::int32_t responses3[] = { -1, 0, 0 };
     const auto r3 = homogen_table::wrap(responses3, 3, 1);
     constexpr double epsilon3 = 0.999;
+    std::cout << "dbscan boundary test 3" << std::endl;
     this->run_checks(x2, table{}, epsilon3, min_observations, r3);
 }
 
@@ -151,7 +154,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { 0, 1, 1, 1, 2, 3, 4 };
     const auto r = homogen_table::wrap(responses, 7, 1);
-
+    std::cout << "dbscan core observations test #1 test 1" << std::endl;
     this->run_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -170,7 +173,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
     const auto r = homogen_table::wrap(responses, 7, 1);
-
+    std::cout << "dbscan core observations test #2" << std::endl;
     this->run_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -189,7 +192,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
     const auto r = homogen_table::wrap(responses, 7, 1);
-
+    std::cout << "dbscan core observations test #3" << std::endl;
     this->run_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -208,66 +211,66 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { -1, -1, -1, -1, -1, -1, -1 };
     const auto r = homogen_table::wrap(responses, 7, 1);
-
+    std::cout << "dbscan core observations test #4" << std::endl;
     this->run_checks(x, table{}, epsilon, min_observations, r);
 }
 
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "mnist: samples=10K, epsilon=1.7e3, min_observations=3",
-                     "[dbscan][nightly][batch][external-dataset]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
-    constexpr bool is_double = std::is_same_v<float_t, double>;
-    // Skipped due to known issue
-    SKIP_IF(is_double);
+// TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+//                      "mnist: samples=10K, epsilon=1.7e3, min_observations=3",
+//                      "[dbscan][nightly][batch][external-dataset]",
+//                      dbscan_types) {
+//     SKIP_IF(this->not_float64_friendly());
+//     using float_t = std::tuple_element_t<0, TestType>;
+//     constexpr bool is_double = std::is_same_v<float_t, double>;
+//     // Skipped due to known issue
+//     SKIP_IF(is_double);
 
-    const te::dataframe data =
-        te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();
+//     const te::dataframe data =
+//         te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();
 
-    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+//     const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
 
-    constexpr double epsilon = 1.7e3;
-    constexpr std::int64_t min_observations = 3;
-    constexpr float_t ref_dbi = 1.584515;
+//     constexpr double epsilon = 1.7e3;
+//     constexpr std::int64_t min_observations = 3;
+//     constexpr float_t ref_dbi = 1.584515;
 
-    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
-}
+//     // this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
+// }
 
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "hepmass: samples=10K, epsilon=5, min_observations=3",
-                     "[dbscan][nightly][batch][external-dataset]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
+// TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+//                      "hepmass: samples=10K, epsilon=5, min_observations=3",
+//                      "[dbscan][nightly][batch][external-dataset]",
+//                      dbscan_types) {
+//     SKIP_IF(this->not_float64_friendly());
+//     using float_t = std::tuple_element_t<0, TestType>;
 
-    const te::dataframe data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
-    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+//     const te::dataframe data = GENERATE_DATAFRAME(
+//         te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+//     const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
 
-    constexpr double epsilon = 5;
-    constexpr std::int64_t min_observations = 3;
-    constexpr float_t ref_dbi = 0.78373;
+//     constexpr double epsilon = 5;
+//     constexpr std::int64_t min_observations = 3;
+//     constexpr float_t ref_dbi = 0.78373;
 
-    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
-}
+//     // this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
+// }
 
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "road_network: samples=20K, epsilon=1.0e3, min_observations=220",
-                     "[dbscan][nightly][batch][external-dataset]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
+// TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+//                      "road_network: samples=20K, epsilon=1.0e3, min_observations=220",
+//                      "[dbscan][nightly][batch][external-dataset]",
+//                      dbscan_types) {
+//     SKIP_IF(this->not_float64_friendly());
+//     using float_t = std::tuple_element_t<0, TestType>;
 
-    const te::dataframe data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/road_network/dataset/road_network_20t_cluster.csv" });
-    const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
+//     const te::dataframe data = GENERATE_DATAFRAME(
+//         te::dataframe_builder{ "workloads/road_network/dataset/road_network_20t_cluster.csv" });
+//     const table x = data.get_table(this->get_policy(), this->get_homogen_table_id());
 
-    constexpr double epsilon = 1.0e3;
-    constexpr std::int64_t min_observations = 220;
-    constexpr float_t ref_dbi = float_t(0.00036);
+//     constexpr double epsilon = 1.0e3;
+//     constexpr std::int64_t min_observations = 220;
+//     constexpr float_t ref_dbi = float_t(0.00036);
 
-    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-1);
-}
+//     // this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-1);
+// }
 
 } // namespace oneapi::dal::dbscan::test

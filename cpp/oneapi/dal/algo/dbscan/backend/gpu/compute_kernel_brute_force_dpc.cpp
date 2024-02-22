@@ -62,12 +62,18 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         comm.allreduce(global_row_count, spmd::reduce_op::sum).wait();
     }
 
-    std::int64_t local_offset = 0;
+    // std::int64_t local_offset = 0;
 
-    for (std::int64_t i = 0; i < current_rank; i++) {
-        ONEDAL_ASSERT(global_rank_offsets.get_data()[i] >= 0);
-        local_offset += global_rank_offsets.get_data()[i];
-    }
+    // for (std::int64_t i = 0; i < current_rank; i++) {
+    //     ONEDAL_ASSERT(global_rank_offsets.get_data()[i] >= 0);
+    //     local_offset += global_rank_offsets.get_data()[i];
+    // }
+    std::unordered_map<int, int> element_to_id;
+    std::unordered_map<int, int> element_counts;
+    std::unordered_map<int, int> element_to_id_final;
+
+    int current_id = 0;
+    int final_id = 0;
 
     const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
 
@@ -87,6 +93,20 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
     auto [arr_neighbours, neighbours_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
+    auto [arr_responses_fake, responses_fake_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
+    // auto arr_responses_fake =
+    //     pr::ndarray<std::int32_t, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+    // auto arr_responses_ptr = arr_responses_fake.get_mutable_data();
+
+    // auto init_event = queue.submit([&](sycl::handler& cgh) {
+    //     const auto range = sycl::range<1>(global_row_count);
+
+    //     cgh.parallel_for(range, [=](sycl::item<1> id) {
+    //         arr_responses_ptr[id] = id + local_offset;
+    //     });
+    // });
+
     auto [arr_responses, responses_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
     auto [arr_queue, queue_event] =
@@ -94,18 +114,83 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [arr_queue_front, queue_front_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
-    sycl::event::wait(
-        { cores_event, responses_event, queue_event, queue_front_event, neighbours_event });
+    sycl::event::wait({ cores_event,
+                        responses_event,
+                        responses_fake_event,
+                        queue_event,
+                        queue_front_event,
+                        neighbours_event });
 
+    //std::int64_t fake_cluster_count = 0;
     kernels_fp<Float>::get_cores(queue,
                                  data_nd,
                                  weights_nd,
                                  arr_cores,
+                                 arr_responses_fake,
                                  arr_neighbours,
                                  epsilon,
                                  min_observations)
         .wait_and_throw();
+    kernels_fp<Float>::update_responses(queue, arr_responses_fake, arr_neighbours, min_observations)
+        .wait_and_throw();
+    auto arr_fake_responses_host = arr_responses_fake.to_host(queue);
 
+    auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
+    // std::cout << "after get cores components" << std::endl;
+    // for (int i = 0; i < row_count; i++) {
+    //     std::cout << fake_responses_ptr[i] << std::endl;
+    // }
+    // std::cout << "after get cores neighbours" << std::endl;
+    // auto arr_neighbours_host = arr_neighbours.to_host(queue);
+
+    // auto arr_neighbours_ptr = arr_neighbours_host.get_mutable_data();
+    // for (int i = 0; i < row_count; i++) {
+    //     std::cout << arr_neighbours_ptr[i] << std::endl;
+    // }
+    for (int i = 0; i < row_count; i++) {
+        if (element_to_id.find(fake_responses_ptr[i]) == element_to_id.end()) {
+            element_to_id[fake_responses_ptr[i]] = current_id++;
+        }
+
+        element_counts[fake_responses_ptr[i]]++;
+    }
+
+    // std::cout << "Reflection of unique elements:\n";
+    // for (const auto& pair : element_to_id) {
+    //     std::cout << pair.first << " -> " << pair.second << "\n";
+    // }
+
+    // std::cout << "Count of unique elements\n";
+    // for (const auto& pair : element_counts) {
+    //     std::cout << pair.first << " -> " << pair.second << "\n";
+    // }
+
+    for (int i = 0; i < row_count; i++) {
+        if (element_counts[fake_responses_ptr[i]] < min_observations) {
+            fake_responses_ptr[i] = -1;
+        }
+        else {
+            fake_responses_ptr[i] = element_to_id[fake_responses_ptr[i]];
+        }
+    }
+
+    for (int i = 0; i < row_count; i++) {
+        if (fake_responses_ptr[i] != -1) {
+            if (element_to_id_final.find(fake_responses_ptr[i]) == element_to_id_final.end()) {
+                element_to_id_final[fake_responses_ptr[i]] = final_id++;
+            }
+        }
+    }
+    // std::cout << "Reflection of unique elements final:\n";
+    // for (const auto& pair : element_to_id_final) {
+    //     std::cout << pair.first << " -> " << pair.second << "\n";
+    // }
+    for (int i = 0; i < row_count; i++) {
+        if (fake_responses_ptr[i] != -1) {
+            fake_responses_ptr[i] = element_to_id_final[fake_responses_ptr[i]];
+        }
+    }
+    auto arr_responses_ordered = arr_fake_responses_host.to_device(queue);
     for (std::int64_t j = 0; j < rank_count - 1; j++) {
         comm.sendrecv_replace(queue,
                               data_nd_replace.get_mutable_data(),
@@ -124,125 +209,140 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
             .wait_and_throw();
     }
 
-    std::int64_t cluster_count = 0;
-    if (rank_count == 1) {
-        std::int32_t cluster_index =
-            kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
-        cluster_index = cluster_index < row_count ? cluster_index + local_offset : global_row_count;
-        {
-            ONEDAL_PROFILER_TASK(allreduce_cluster_index);
-            comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
-        }
+    // std::int64_t cluster_count = 0;
 
-        if (cluster_index < 0) {
-            return make_results(queue, desc, data_nd, arr_responses, arr_cores, 0, 0);
-        }
+    // std::int32_t cluster_index =
+    //     kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
+    // cluster_index = cluster_index < row_count ? cluster_index + local_offset : global_row_count;
+    // {
+    //     ONEDAL_PROFILER_TASK(allreduce_cluster_index);
+    //     comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
+    // }
 
-        std::int32_t queue_begin = 0;
-        std::int32_t queue_end = 0;
+    // if (cluster_index < 0) {
+    //     return make_results(queue,
+    //                         desc,
+    //                         data_nd,
+    //                         arr_responses,
+    //                         arr_responses_ordered,
+    //                         arr_cores,
+    //                         0,
+    //                         0);
+    // }
+    // if (rank_count == 1) {
+    //     std::int32_t queue_begin = 0;
+    //     std::int32_t queue_end = 0;
 
-        while (cluster_index < de::integral_cast<std::int32_t>(global_row_count)) {
-            cluster_count++;
-            bool in_range =
-                cluster_index >= local_offset && cluster_index < local_offset + row_count;
+    //     while (cluster_index < de::integral_cast<std::int32_t>(global_row_count)) {
+    //         cluster_count++;
+    //         bool in_range =
+    //             cluster_index >= local_offset && cluster_index < local_offset + row_count;
 
-            if (in_range) {
-                set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
-                    .wait_and_throw();
-                set_queue_ptr(queue, arr_queue, arr_queue_front, cluster_index).wait_and_throw();
-                queue_end++;
-            }
+    //         if (in_range) {
+    //             set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
+    //                 .wait_and_throw();
+    //             set_queue_ptr(queue, arr_queue, arr_queue_front, cluster_index).wait_and_throw();
+    //             queue_end++;
+    //         }
 
-            std::int32_t local_queue_size = queue_end - queue_begin;
-            std::int32_t total_queue_size = local_queue_size;
+    //         std::int32_t local_queue_size = queue_end - queue_begin;
+    //         std::int32_t total_queue_size = local_queue_size;
 
-            {
-                ONEDAL_PROFILER_TASK(allreduce_total_queue_size_outer);
-                comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
-            }
+    //         {
+    //             ONEDAL_PROFILER_TASK(allreduce_total_queue_size_outer);
+    //             comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
+    //         }
 
-            while (total_queue_size > 0) {
-                auto recv_counts = array<std::int64_t>::zeros(rank_count);
+    //         while (total_queue_size > 0) {
+    //             auto recv_counts = array<std::int64_t>::zeros(rank_count);
 
-                recv_counts.get_mutable_data()[current_rank] = local_queue_size;
-                {
-                    ONEDAL_PROFILER_TASK(allreduce_recv_counts);
-                    comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
-                }
+    //             recv_counts.get_mutable_data()[current_rank] = local_queue_size;
+    //             {
+    //                 ONEDAL_PROFILER_TASK(allreduce_recv_counts);
+    //                 comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
+    //             }
 
-                auto displs = array<std::int64_t>::zeros(rank_count);
-                auto displs_ptr = displs.get_mutable_data();
-                std::int64_t total_count = 0;
+    //             auto displs = array<std::int64_t>::zeros(rank_count);
+    //             auto displs_ptr = displs.get_mutable_data();
+    //             std::int64_t total_count = 0;
 
-                for (std::int64_t i = 0; i < rank_count; i++) {
-                    displs_ptr[i] = total_count;
-                    total_count += recv_counts.get_data()[i];
-                }
-                ONEDAL_ASSERT(total_count > 0);
+    //             for (std::int64_t i = 0; i < rank_count; i++) {
+    //                 displs_ptr[i] = total_count;
+    //                 total_count += recv_counts.get_data()[i];
+    //             }
+    //             ONEDAL_ASSERT(total_count > 0);
 
-                auto send_array =
-                    recv_counts[current_rank] > 0
-                        ? arr_queue.slice(queue_begin, recv_counts[current_rank]).flatten(queue)
-                        : array<std::int32_t>::wrap(queue, arr_queue.get_data(), 0);
+    //             auto send_array =
+    //                 recv_counts[current_rank] > 0
+    //                     ? arr_queue.slice(queue_begin, recv_counts[current_rank]).flatten(queue)
+    //                     : array<std::int32_t>::wrap(queue, arr_queue.get_data(), 0);
 
-                if (rank_count > 1 && recv_counts[current_rank] > 0) {
-                    auto [arr_copy, arr_event] =
-                        pr::ndarray<std::int32_t, 1>::copy(queue,
-                                                           arr_queue.get_data() + queue_begin,
-                                                           recv_counts[current_rank],
-                                                           sycl::usm::alloc::device);
-                    arr_event.wait_and_throw();
-                    send_array = arr_copy.flatten(queue);
-                }
+    //             if (rank_count > 1 && recv_counts[current_rank] > 0) {
+    //                 auto [arr_copy, arr_event] =
+    //                     pr::ndarray<std::int32_t, 1>::copy(queue,
+    //                                                        arr_queue.get_data() + queue_begin,
+    //                                                        recv_counts[current_rank],
+    //                                                        sycl::usm::alloc::device);
+    //                 arr_event.wait_and_throw();
+    //                 send_array = arr_copy.flatten(queue);
+    //             }
 
-                auto recv_array = arr_queue.slice(queue_begin, total_count).flatten(queue);
-                {
-                    ONEDAL_PROFILER_TASK(allgather_cluster_data);
-                    comm.allgatherv(send_array,
-                                    recv_array,
-                                    recv_counts.get_data(),
-                                    displs.get_data())
-                        .wait();
-                }
+    //             auto recv_array = arr_queue.slice(queue_begin, total_count).flatten(queue);
+    //             {
+    //                 ONEDAL_PROFILER_TASK(allgather_cluster_data);
+    //                 comm.allgatherv(send_array,
+    //                                 recv_array,
+    //                                 recv_counts.get_data(),
+    //                                 displs.get_data())
+    //                     .wait();
+    //             }
 
-                queue_end = queue_begin + total_queue_size;
-                arr_queue_front.fill(queue, queue_end).wait_and_throw();
+    //             queue_end = queue_begin + total_queue_size;
+    //             arr_queue_front.fill(queue, queue_end).wait_and_throw();
 
-                kernels_fp<Float>::update_queue(queue,
-                                                data_nd,
-                                                arr_cores,
-                                                arr_queue,
-                                                queue_begin,
-                                                queue_end,
-                                                arr_responses,
-                                                arr_queue_front,
-                                                epsilon,
-                                                cluster_count - 1,
-                                                local_offset,
-                                                row_count)
-                    .wait_and_throw();
+    //             kernels_fp<Float>::update_queue(queue,
+    //                                             data_nd,
+    //                                             arr_cores,
+    //                                             arr_queue,
+    //                                             queue_begin,
+    //                                             queue_end,
+    //                                             arr_responses,
+    //                                             arr_queue_front,
+    //                                             epsilon,
+    //                                             cluster_count - 1,
+    //                                             local_offset,
+    //                                             row_count)
+    //                 .wait_and_throw();
 
-                queue_begin = queue_end;
-                queue_end = kernels_fp<Float>::get_queue_front(queue, arr_queue_front);
-                local_queue_size = queue_end - queue_begin;
-                total_queue_size = local_queue_size;
+    //             queue_begin = queue_end;
+    //             queue_end = kernels_fp<Float>::get_queue_front(queue, arr_queue_front);
+    //             local_queue_size = queue_end - queue_begin;
+    //             total_queue_size = local_queue_size;
 
-                {
-                    ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner);
-                    comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
-                }
-            }
+    //             {
+    //                 ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner);
+    //                 comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
+    //             }
+    //         }
 
-            cluster_index = kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
-            cluster_index =
-                cluster_index < row_count ? cluster_index + local_offset : global_row_count;
-            {
-                ONEDAL_PROFILER_TASK(cluster_index);
-                comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
-            }
-        }
-    }
-    return make_results(queue, desc, data_nd, arr_responses, arr_cores, cluster_count);
+    //         cluster_index = kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
+    //         cluster_index =
+    //             cluster_index < row_count ? cluster_index + local_offset : global_row_count;
+    //         {
+    //             ONEDAL_PROFILER_TASK(cluster_index);
+    //             comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
+    //         }
+    //     }
+    // }
+    // std::cout << "fake cluster count" << final_id << "real cluster count" << cluster_count
+    //           << std::endl;
+    return make_results(queue,
+                        desc,
+                        data_nd,
+                        arr_responses,
+                        arr_responses_ordered,
+                        arr_cores,
+                        final_id);
 }
 
 template <typename Float>

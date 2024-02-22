@@ -34,6 +34,7 @@ template <typename Task>
 class detail::v1::compute_result_impl : public base {
 public:
     table responses;
+    table fake_responses;
     table core_flags;
     table core_observation_indices;
     table core_observations;
@@ -84,6 +85,11 @@ const table& compute_result<Task>::get_responses() const {
 }
 
 template <typename Task>
+const table& compute_result<Task>::get_fake_responses() const {
+    return impl_->fake_responses;
+}
+
+template <typename Task>
 const table& compute_result<Task>::get_core_flags() const {
     using msg = dal::detail::error_messages;
     if (!get_result_options().test(result_options::core_flags)) {
@@ -128,6 +134,11 @@ void compute_result<Task>::set_result_options_impl(const result_option_id& value
 template <typename Task>
 void compute_result<Task>::set_responses_impl(const table& value) {
     impl_->responses = value;
+}
+
+template <typename Task>
+void compute_result<Task>::set_fake_responses_impl(const table& value) {
+    impl_->fake_responses = value;
 }
 
 template <typename Task>

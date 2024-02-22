@@ -106,6 +106,13 @@ public:
         return *this;
     }
 
+    const table& get_fake_responses() const;
+
+    auto& set_fake_responses(const table& value) {
+        set_fake_responses_impl(value);
+        return *this;
+    }
+
     /// An $n \\times 1$ table with the core flags $y_i$ assigned to the
     /// samples $x_i$ in the input data
     const table& get_core_flags() const;
@@ -145,6 +152,7 @@ public:
 protected:
     void set_cluster_count_impl(std::int64_t);
     void set_responses_impl(const table&);
+    void set_fake_responses_impl(const table&);
     void set_core_flags_impl(const table&);
     void set_core_observation_indices_impl(const table&);
     void set_core_observations_impl(const table&);

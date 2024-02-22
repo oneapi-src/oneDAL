@@ -81,6 +81,7 @@ inline auto make_results(sycl::queue& queue,
                          const descriptor_t& desc,
                          const pr::ndarray<Float, 2> data,
                          const pr::ndarray<Index, 1> responses,
+                         const pr::ndarray<Index, 1> fake_responses,
                          const pr::ndarray<Index, 1> cores,
                          std::int64_t cluster_count,
                          std::int64_t core_count = -1) {
@@ -90,7 +91,8 @@ inline auto make_results(sycl::queue& queue,
     ONEDAL_ASSERT(block_size == responses.get_dimension(0));
     auto results =
         result_t().set_cluster_count(cluster_count).set_result_options(desc.get_result_options());
-
+    results.set_fake_responses(
+        dal::homogen_table::wrap(fake_responses.flatten(queue), block_size, 1));
     if (desc.get_result_options().test(result_options::responses)) {
         results.set_responses(dal::homogen_table::wrap(responses.flatten(queue), block_size, 1));
     }
