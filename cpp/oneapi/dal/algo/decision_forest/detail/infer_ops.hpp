@@ -25,14 +25,14 @@ namespace v1 {
 template <typename Context, typename Float, typename Task, typename Method, typename... Options>
 struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
-                                  const descriptor_base<Task>&,
+                                  const descriptor<Float, Method, Task>&,
                                   const infer_parameters<Task>&,
                                   const infer_input<Task>&) const;
     infer_result<Task> operator()(const Context&,
-                                  const descriptor_base<Task>&,
+                                  const descriptor<Float, Method, Task>&,
                                   const infer_input<Task>&) const;
     infer_parameters<Task> select_parameters(const Context&,
-                                             const descriptor_base<Task>&,
+                                             const descriptor<Float, Method, Task>&,
                                              const infer_input<Task>&) const;
 };
 
@@ -71,7 +71,7 @@ struct infer_ops {
     template <typename Context>
     auto select_parameters(const Context& ctx, const Descriptor& desc, const input_t& input) const {
         check_preconditions(desc, input);
-        return infer_ops_dispatcher<Context, float_t, method_t, task_t>{}.select_parameters(ctx,
+        return infer_ops_dispatcher<Context, float_t, task_t, method_t>{}.select_parameters(ctx,
                                                                                             desc,
                                                                                             input);
     }

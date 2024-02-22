@@ -22,38 +22,38 @@
 namespace oneapi::dal::decision_forest::detail {
 namespace v1 {
 
-template <typename Policy, typename Float, typename Task, typename Method>
-struct infer_ops_dispatcher<Policy, Float, Task, Method> {
-    infer_result<Task> operator()(const Policy& policy,
-                                  const detail::descriptor_base<Task>& desc,
+template <typename Context, typename Float, typename Task, typename Method>
+struct infer_ops_dispatcher<Context, Float, Task, Method> {
+    infer_result<Task> operator()(const Context& context,
+                                  const descriptor<Float, Method, Task>& desc,
                                   const infer_parameters<Task>& params,
                                   const infer_input<Task>& input) const {
-        return implementation(policy, desc, params, input);
+        return implementation(context, desc, params, input);
     }
 
-    infer_parameters<Task> select_parameters(const Policy& ctx,
-                                             const descriptor_base<Task>& desc,
+    infer_parameters<Task> select_parameters(const Context& ctx,
+                                             const descriptor<Float, Method, Task>& desc,
                                              const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(parameters::infer_parameters_cpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
-    infer_result<Task> operator()(const Policy& policy,
-                                  const detail::descriptor_base<Task>& desc,
+    infer_result<Task> operator()(const Context& context,
+                                  const descriptor<Float, Method, Task>& desc,
                                   const infer_input<Task>& input) const {
-        const auto params = select_parameters(policy, desc, input);
-        return implementation(policy, desc, params, input);
+        const auto params = select_parameters(context, desc, input);
+        return implementation(context, desc, params, input);
     }
 
 private:
-    inline auto implementation(const Policy& policy,
-                               const descriptor_base<Task>& desc,
+    inline auto implementation(const Context& context,
+                               const descriptor<Float, Method, Task>& desc,
                                const infer_parameters<Task>& params,
                                const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t{}(policy, desc, params, input);
+        return kernel_dispatcher_t{}(context, desc, params, input);
     }
 };
 
@@ -61,11 +61,15 @@ private:
     template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::host_policy, F, T, M>; \
     template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::spmd_host_policy, F, T, M>;
 
-INSTANTIATE(float, task::classification, method::by_default)
-INSTANTIATE(double, task::classification, method::by_default)
+INSTANTIATE(float, task::classification, method::dense)
+INSTANTIATE(float, task::classification, method::hist)
+INSTANTIATE(float, task::regression, method::dense)
+INSTANTIATE(float, task::regression, method::hist)
 
-INSTANTIATE(float, task::regression, method::by_default)
-INSTANTIATE(double, task::regression, method::by_default)
+INSTANTIATE(double, task::classification, method::dense)
+INSTANTIATE(double, task::classification, method::hist)
+INSTANTIATE(double, task::regression, method::dense)
+INSTANTIATE(double, task::regression, method::hist)
 
 } // namespace v1
 } // namespace oneapi::dal::decision_forest::detail
