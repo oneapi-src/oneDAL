@@ -23,6 +23,8 @@
 
 namespace oneapi::dal::backend::primitives {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 /// Handle that is used to store the information about the data in starse format
 class sparse_matrix_handle {
     friend detail::pimpl_accessor;
@@ -33,4 +35,7 @@ public:
 private:
     detail::pimpl<detail::sparse_matrix_handle_impl> impl_;
 };
+
+#endif // ONEDAL_DATA_PARALLEL
+
 } // namespace oneapi::dal::backend::primitives

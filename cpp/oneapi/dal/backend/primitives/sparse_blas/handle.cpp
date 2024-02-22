@@ -18,7 +18,11 @@
 
 namespace oneapi::dal::backend::primitives {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 sparse_matrix_handle::sparse_matrix_handle(sycl::queue& queue)
         : impl_(new detail::sparse_matrix_handle_impl(queue)) {}
+
+#endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives
