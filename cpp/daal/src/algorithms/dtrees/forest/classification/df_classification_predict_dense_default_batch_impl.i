@@ -1133,10 +1133,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIface * const pHostApp)
 {
-    if (!assertHyperparameters())
-    {
-        return services::Status(services::ErrorIncorrectDataRange);
-    }
+    DAAL_CHECK(assertHyperparameters(), services::ErrorIncorrectDataRange);
 
     const auto nTreesTotal = _model->size();
     if (_cachedData != _data)
