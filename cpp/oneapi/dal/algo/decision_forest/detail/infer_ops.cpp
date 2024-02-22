@@ -57,18 +57,14 @@ private:
     }
 };
 
-#define INSTANTIATE(F, T, M) \
-    template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::host_policy, F, T, M>;
+#define INSTANTIATE(F, T, M)                                                               \
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::host_policy, F, T, M>; \
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::spmd_host_policy, F, T, M>;
 
-INSTANTIATE(float, task::classification, method::dense)
-INSTANTIATE(float, task::regression, method::dense)
-INSTANTIATE(double, task::classification, method::dense)
-INSTANTIATE(double, task::regression, method::dense)
-
-INSTANTIATE(float, task::classification, method::hist)
-INSTANTIATE(float, task::regression, method::hist)
-INSTANTIATE(double, task::classification, method::hist)
-INSTANTIATE(double, task::regression, method::hist)
+INSTANTIATE(float, task::classification, method::by_default)
+INSTANTIATE(float, task::regression, method::by_default)
+INSTANTIATE(double, task::classification, method::by_default)
+INSTANTIATE(double, task::regression, method::by_default)
 
 } // namespace v1
 } // namespace oneapi::dal::decision_forest::detail
