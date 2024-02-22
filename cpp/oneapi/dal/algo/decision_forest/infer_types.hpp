@@ -29,7 +29,7 @@ template <typename Task>
 class infer_result_impl;
 
 template <typename Task>
-class infer_parameters_impl;
+struct infer_parameters_impl;
 
 template <typename Task = task::by_default>
 class infer_parameters : public base {

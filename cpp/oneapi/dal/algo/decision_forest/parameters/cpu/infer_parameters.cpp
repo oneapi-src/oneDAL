@@ -62,7 +62,9 @@ struct infer_parameters_cpu<Float, method::by_default, Task> {
     }
 };
 
-template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::dense, task::by_default>;
-template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::dense, task::by_default>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::dense, task::classification>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<float, method::dense, task::regression>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::dense, task::classification>;
+template struct ONEDAL_EXPORT infer_parameters_cpu<double, method::dense, task::regression>;
 
 } // namespace oneapi::dal::decision_forest::parameters

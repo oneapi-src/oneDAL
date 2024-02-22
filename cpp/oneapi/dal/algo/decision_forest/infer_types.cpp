@@ -26,7 +26,7 @@ infer_parameters<Task>::infer_parameters() : impl_(new infer_parameters_impl<Tas
 
 template <typename Task>
 std::int64_t infer_parameters<Task>::get_block_size() const {
-    return impl_->default_block_size;
+    return impl_->block_size;
 }
 
 template <typename Task>
@@ -50,8 +50,7 @@ std::int64_t infer_parameters<Task>::get_min_number_of_rows_for_vect_seq_compute
 }
 
 template <typename Task>
-void infer_parameters<Task>::set_min_number_of_rows_for_vect_seq_compute_impl(
-    std::int64_t val) {
+void infer_parameters<Task>::set_min_number_of_rows_for_vect_seq_compute_impl(std::int64_t val) {
     impl_->min_number_of_rows_for_vect_seq_compute = val;
 }
 
@@ -65,10 +64,16 @@ void infer_parameters<Task>::set_scale_factor_for_vect_parallel_compute_impl(dou
     impl_->scale_factor_for_vect_parallel_compute = val;
 }
 
-} // namespace detail::v1
+template <typename Task>
+struct infer_parameters_impl : public base {
+    std::int64_t block_size = 22l;
+    std::int64_t min_trees_for_threading = 100l;
+    std::int64_t min_number_of_rows_for_vect_seq_compute = 32l;
+    double scale_factor_for_vect_parallel_compute = 0.3f;
+};
 
 template <typename Task>
-class detail::v1::infer_input_impl : public base {
+class infer_input_impl : public base {
 public:
     infer_input_impl(const model<Task>& trained_model, const table& data)
             : trained_model(trained_model),
@@ -78,20 +83,18 @@ public:
 };
 
 template <typename Task>
-class detail::v1::infer_result_impl : public base {
+class infer_result_impl : public base {
 public:
     table responses;
     table probabilities;
 };
 
-template <typename Task>
-struct infer_parameters_impl : public base {
-    std::int64_t block_size = 22l;
-    std::int64_t min_trees_for_threading = 100l;
-    std::int64_t min_number_of_rows_for_vect_seq_compute = 32l;
-    double scale_factor_for_vect_parallel_compute = 0.3f;
-};
+template class ONEDAL_EXPORT infer_parameters<task::classification>;
+template class ONEDAL_EXPORT infer_parameters<task::regression>;
 
+} // namespace detail::v1
+
+using detail::v1::infer_parameters;
 using detail::v1::infer_input_impl;
 using detail::v1::infer_result_impl;
 

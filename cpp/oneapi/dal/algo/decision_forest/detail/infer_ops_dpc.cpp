@@ -69,7 +69,6 @@ private:
 
 INSTANTIATE(float, task::classification, method::by_default)
 INSTANTIATE(double, task::classification, method::by_default)
-
 INSTANTIATE(float, task::regression, method::by_default)
 INSTANTIATE(double, task::regression, method::by_default)
 
