@@ -1,6 +1,6 @@
 # file: clang.ref.32e.mk
 #===============================================================================
-# Copyright 2024 UXL Foundation
+# Copyright 2024 contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
