@@ -125,7 +125,8 @@ inline daal::data_management::NumericTablePtr wrap_by_host_soa_adapter(const hom
 }
 
 template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table, bool need_copy = false) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table,
+                                                                    bool need_copy = false) {
     if (need_copy) {
         return copy_to_daal_homogen_table<Data>(table);
     }
