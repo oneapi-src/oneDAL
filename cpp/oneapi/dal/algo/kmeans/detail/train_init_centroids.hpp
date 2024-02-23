@@ -45,7 +45,7 @@ using init_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<to_daal_init_method<Method>::value, Float, Cpu>;
 
 template <typename Float, typename Method, typename Table>
-static daal::data_management::NumericTablePtr daal_generate_centroids(const descriptor_t& desc,
+inline daal::data_management::NumericTablePtr daal_generate_centroids(const descriptor_t& desc,
                                                                       const Table& data) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();

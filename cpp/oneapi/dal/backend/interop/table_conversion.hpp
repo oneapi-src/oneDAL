@@ -125,7 +125,10 @@ inline daal::data_management::NumericTablePtr wrap_by_host_soa_adapter(const hom
 }
 
 template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table, bool need_copy = false) {
+    if (need_copy) {
+        return copy_to_daal_homogen_table<Data>(table);
+    }
     if (table.get_data_layout() == data_layout::row_major) {
         if (auto wrapper = wrap_by_host_homogen_adapter(table)) {
             return wrapper;
@@ -242,7 +245,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
                                                                     bool need_copy = false) {
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
-        return convert_to_daal_table<Data>(homogen);
+        return convert_to_daal_table<Data>(homogen, need_copy);
     }
     else if (table.get_kind() == csr_table::kind()) {
         const auto& csr = static_cast<const csr_table&>(table);
