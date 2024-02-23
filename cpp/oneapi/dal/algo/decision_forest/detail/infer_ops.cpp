@@ -25,14 +25,14 @@ namespace v1 {
 template <typename Context, typename Float, typename Task, typename Method>
 struct infer_ops_dispatcher<Context, Float, Task, Method> {
     infer_result<Task> operator()(const Context& context,
-                                  const descriptor<Float, Method, Task>& desc,
+                                  const descriptor_base<Task>& desc,
                                   const infer_parameters<Task>& params,
                                   const infer_input<Task>& input) const {
         return implementation(context, desc, params, input);
     }
 
     infer_parameters<Task> select_parameters(const Context& ctx,
-                                             const descriptor<Float, Method, Task>& desc,
+                                             const descriptor_base<Task>& desc,
                                              const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(parameters::infer_parameters_cpu<Float, Method, Task>)>;
@@ -40,7 +40,7 @@ struct infer_ops_dispatcher<Context, Float, Task, Method> {
     }
 
     infer_result<Task> operator()(const Context& context,
-                                  const descriptor<Float, Method, Task>& desc,
+                                  const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
         const auto params = select_parameters(context, desc, input);
         return implementation(context, desc, params, input);
@@ -48,7 +48,7 @@ struct infer_ops_dispatcher<Context, Float, Task, Method> {
 
 private:
     inline auto implementation(const Context& context,
-                               const descriptor<Float, Method, Task>& desc,
+                               const descriptor_base<Task>& desc,
                                const infer_parameters<Task>& params,
                                const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
