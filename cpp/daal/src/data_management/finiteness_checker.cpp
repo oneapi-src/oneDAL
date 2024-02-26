@@ -23,7 +23,6 @@
 #include "src/threading/threading.h"
 #include "service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
-#include <iostream>
 
 namespace daal
 {
@@ -77,7 +76,6 @@ bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
-    std::cout << "standard sum \n";
     DataType sum = 0;
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
         for (size_t i = 0; i < nElementsPerPtr; ++i) sum += dataPtrs[ptrIdx][i];
