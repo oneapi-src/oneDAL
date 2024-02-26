@@ -20,22 +20,22 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 
-using gemm_types = COMBINE_TYPES(
+using gemv_types = COMBINE_TYPES(
     (float, double),
     (transpose_nontrans, transpose_trans),
-    (c_order /*, f_order */), /// oneMKL 2024.0 throws 'unimplemented' exception when the matrix B is transposed
-    (c_order /*, f_order */),
+    (c_order), /// not used in GEMV
+    (c_order), /// not used in GEMV
     (indexing_zero_based, indexing_one_based));
 
-TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR gemm", "[csr][gemm]", gemm_types) {
-    // DPC++ Sparse GEMM from micro MKL libs is not supported on CPU
+TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR gemv", "[csr][gemv]", gemv_types) {
+    // DPC++ Sparse GEMV from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
     SKIP_IF(this->not_float64_friendly());
 
-    this->generate_dimensions();
-    this->test_gemm();
+    this->generate_dimensions_gemv();
+    this->test_gemv();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

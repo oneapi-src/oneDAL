@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/backend/primitives/blas/misc.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/gemm.hpp"
-#include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

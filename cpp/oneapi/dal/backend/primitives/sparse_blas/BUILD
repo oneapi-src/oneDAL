@@ -8,6 +8,7 @@ dal_module(
     name = "sparse_blas",
     auto = True,
     dal_deps = [
+        "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:blas",
     ],
@@ -18,6 +19,9 @@ dal_test_suite(
     framework = "catch2",
     compile_as = [ "dpc++" ],
     private = True,
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
     srcs = glob([
         "test/*perf_dpc.cpp",
     ]),
@@ -31,6 +35,9 @@ dal_test_suite(
     framework = "catch2",
     compile_as = [ "dpc++" ],
     private = True,
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
     srcs = glob([
         "test/*_dpc.cpp",
     ], exclude=[
