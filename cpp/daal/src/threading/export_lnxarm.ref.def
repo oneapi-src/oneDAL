@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2007 Intel Corporation
+; Copyright contributors to the oneDAL project
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -15,19 +15,49 @@
 ;===============================================================================
 
 EXPORTS
-fpk_serv_malloc
-fpk_serv_free
-fpk_serv_memcpy_s
-fpk_serv_lock
-fpk_serv_unlock
-fpk_serv_strnlen_s
-fpk_serv_strncpy_s
-fpk_serv_strncat_s
-fpk_serv_thread_yield
-fpk_serv_core_register_cleanup
-fpk_serv_calloc
-fpk_serv_printf_s
-fpk_serv_memmove_s
-fpk_serv_realloc
-fpk_serv_print
-fpk_serv_exit
+openblas_set_num_threads
+openblas_get_num_threads
+ssyrk_
+dsyrk_
+ssyr_
+dsyr_
+sgemm_
+dgemm_
+ssymm_
+dsymm_
+sgemv_
+dgemv_
+saxpy_
+daxpy_
+sdot_
+ddot_
+sgetrf_
+dgetrf_
+sgetrs_
+dgetrs_
+spotrf_
+dpotrf_
+spotrs_
+dpotrs_
+spotri_
+dpotri_
+sgerqf_
+dgerqf_
+sormrq_
+dormrq_
+strtrs_
+dtrtrs_
+spptrf_
+dpptrf_
+sgeqrf_
+dgeqrf_
+sgeqp3_
+dgeqp3_
+sorgqr_
+dorgqr_
+sgesvd_
+dgesvd_
+ssyevd_
+dsyevd_
+sormqr_
+dormqr_
