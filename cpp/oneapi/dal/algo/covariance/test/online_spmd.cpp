@@ -49,7 +49,8 @@ public:
                                                                  std::forward<Args>(args)...);
     }
 
-    std::vector<result_t> merge_finalize_compute_result_override(const std::vector<result_t>& results) {
+    std::vector<result_t> merge_finalize_compute_result_override(
+        const std::vector<result_t>& results) {
         return results;
     }
 
@@ -82,9 +83,9 @@ public:
             partial_results.push_back(partial_result);
         }
         const auto compute_result = this->finalize_compute_override(cov_desc, partial_results);
-                for (int64_t i = 0; i < rank_count_; i++) {
-                    base_t::check_compute_result(cov_desc, data, compute_result[i]);
-                }
+        for (int64_t i = 0; i < rank_count_; i++) {
+            base_t::check_compute_result(cov_desc, data, compute_result[i]);
+        }
     }
 
 private:
