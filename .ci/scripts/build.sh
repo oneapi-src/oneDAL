@@ -48,7 +48,7 @@ PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
-if [[ "${ARCH}" == "32e" ]]
+if [[ "${ARCH}" == "x86_64" ]]
 then
 optimizations=${optimizations:-avx2}
 elif [[ "${ARCH}" == "arm" ]]
@@ -70,7 +70,7 @@ if [ "${OS}" == "lnx" ]; then
     fi
     compiler=${compiler:-gnu}
     #gpu support is only for Linux 64 bit
-    if [ "${ARCH}" == "32e" ]; then
+    if [ "${ARCH}" == "x86_64" ]; then
             with_gpu="true"
     else
             with_gpu="false"
@@ -110,7 +110,7 @@ else
 fi
 
 #TBB setup
-if [[ "${ARCH}" == "32e" ]]
+if [[ "${ARCH}" == "x86_64" ]]
 then
 $(pwd)/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]

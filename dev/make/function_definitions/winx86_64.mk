@@ -1,6 +1,6 @@
-# file: clang.mkl.32e.mk
 #===============================================================================
-# Copyright 2012 Intel Corporation
+# Copyright 2024 UXL Foundation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,21 @@
 # limitations under the License.
 #===============================================================================
 
-#++
-#  Clang definitions for makefile
-#--
+BACKEND_CONFIG ?= mkl
+ARCH = x86_64
+ARCH_DIR_ONEDAL = intel64
+_OS := win
+_IA := intel64
 
-include dev/make/compiler_definitions/clang.32e.mk
+include dev/make/function_definitions/x86_64.mk
+
+# Used as $(eval $(call set_daal_rt_deps))
+define set_daal_rt_deps
+  $$(eval daaldep.winx86_64.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
+          $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
+  $$(eval daaldep.winx86_64.rt.seq  := $$(dep_seq) \
+          $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
+  $$(eval daaldep.winx86_64.threxport := export.def)
+
+  $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
+endef

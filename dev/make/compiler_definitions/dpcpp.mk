@@ -19,7 +19,7 @@
 #  DPC++ Compiler definitions for makefile
 #--
 
-PLATs.dpcpp = lnx32e win32e
+PLATs.dpcpp = lnxx86_64 winx86_64
 
 CMPLRDIRSUFF.dpcpp = _dpcpp
 

@@ -1,6 +1,5 @@
 #===============================================================================
-# Copyright 2024 UXL Foundation
-# Copyright contributors to the oneDAL project
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,20 +14,23 @@
 # limitations under the License.
 #===============================================================================
 
-BACKEND_CONFIG ?= mkl
-ARCH = 32e
-ARCH_DIR_ONEDAL = intel64
-_OS := mac
-_IA := intel64
+#++
+#  Visual Studio definitions for makefile
+#--
 
-include dev/make/function_definitions/32e.mk
+PLATs.vc = winx86_64
 
-# Used as $(eval $(call set_daal_rt_deps))
-define set_daal_rt_deps
-  $$(eval daaldep.mac32e.rt.thr := -L$$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc \
-          $$(daaldep.mac32e.rt.$$(COMPILER)))
-  $$(eval daaldep.mac32e.rt.seq := $$(daaldep.mac32e.rt.$$(COMPILER)))
-  $$(eval daaldep.mac32e.threxport := export_mac.def)
+CMPLRDIRSUFF.vc = _vc
 
-  $$(eval daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
-endef
+CORE.SERV.COMPILER.vc = generic
+
+-Zl.vc = -Zl
+-DEBC.vc = -DEBUG -Z7
+
+# Disable C4661 because of false positives
+COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
+
+p4_OPT.vc   =
+mc3_OPT.vc  =
+avx2_OPT.vc = -arch:AVX2
+skx_OPT.vc  = -arch:AVX2

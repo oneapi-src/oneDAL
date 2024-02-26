@@ -18,7 +18,7 @@
 #  Intel compiler definitions for makefile
 #--
 
-PLATs.icc = lnx32e win32e mac32e
+PLATs.icc = lnxx86_64 winx86_64 macx86_64
 
 CMPLRDIRSUFF.icc =
 
@@ -43,7 +43,7 @@ pedantic.opts.lnx.icc = -pedantic \
                         -Wextra \
                         -Wno-unused-parameter
 
-daaldep.lnx32e.rt.icc = -static-intel
+daaldep.lnxx86_64.rt.icc = -static-intel
 daaldep.lnx32.rt.icc  = -static-intel
 
 p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),march=pentium4,xSSE2)

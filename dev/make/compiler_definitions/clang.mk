@@ -19,7 +19,7 @@
 #  Clang definitions for makefile
 #  This file contains definitions common to clang on all platforms.
 #  It should only be included from files which have more specializations (e.g.
-#  clang.32e.mk
+#  clang.x86_64.mk
 #--
 
 CMPLRDIRSUFF.clang = _clang

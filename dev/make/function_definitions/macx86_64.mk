@@ -16,23 +16,19 @@
 #===============================================================================
 
 BACKEND_CONFIG ?= mkl
-ARCH = 32e
+ARCH = x86_64
 ARCH_DIR_ONEDAL = intel64
-_OS := lnx
+_OS := mac
 _IA := intel64
 
-include dev/make/function_definitions/32e.mk
+include dev/make/function_definitions/x86_64.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
 define set_daal_rt_deps
-  $$(eval daaldep.lnx32e.rt.thr := -L$$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc \
-          -lpthread $$(daaldep.lnx32e.rt.$$(COMPILER)) \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnx32e.rt.seq := -lpthread $$(daaldep.lnx32e.rt.$$(COMPILER)) \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL \
-          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnx32e.threxport := export_lnx32e.$$(BACKEND_CONFIG).def)
+  $$(eval daaldep.macx86_64.rt.thr := -L$$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc \
+          $$(daaldep.macx86_64.rt.$$(COMPILER)))
+  $$(eval daaldep.macx86_64.rt.seq := $$(daaldep.macx86_64.rt.$$(COMPILER)))
+  $$(eval daaldep.macx86_64.threxport := export_mac.def)
 
-  $$(eval daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
+  $$(eval daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
 endef

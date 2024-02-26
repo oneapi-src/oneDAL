@@ -39,7 +39,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
+    platform.type : 'lnxx86_64'
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
@@ -87,7 +87,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
+    platform.type : 'lnxx86_64'
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
@@ -127,7 +127,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_icx'
-    platform.type : 'lnx32e'
+    platform.type : 'lnxx86_64'
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
@@ -179,7 +179,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   variables:
-    platform.type : 'lnx32e'
+    platform.type : 'lnxx86_64'
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
     BAZEL_VERSION: $(Pipeline.Workspace)/bazelisk-linux-amd64
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
@@ -290,7 +290,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
+    platform.type : 'lnxx86_64'
   pool:
     vmImage: 'ubuntu-22.04'
     maxParallel: 2
@@ -379,7 +379,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_mac_clang'
-    platform.type : 'mac32e'
+    platform.type : 'macx86_64'
   pool:
     vmImage:  'macos-12'
   steps:
@@ -430,7 +430,7 @@ jobs:
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_win_vc'
-    platform.type : 'win32e'
+    platform.type : 'winx86_64'
   pool:
     vmImage: 'windows-2022'
   steps:

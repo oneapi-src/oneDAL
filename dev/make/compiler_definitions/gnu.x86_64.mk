@@ -16,14 +16,14 @@
 
 #++
 #  g++ definitions for makefile
-#  This file contains definitions common to gnu on a 32e (intel64) platform. It
+#  This file contains definitions common to gnu on a x86_64 (intel64) platform. It
 #  should only be included from files which have more specializations (e.g.
-#  gnu.mkl.32e.mk)
+#  gnu.mkl.x86_64.mk)
 #--
 
 include dev/make/compiler_definitions/gnu.mk
 
-PLATs.gnu = lnx32e mac32e
+PLATs.gnu = lnxx86_64 macx86_64
 
 COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
                     -Werror -Wreturn-type

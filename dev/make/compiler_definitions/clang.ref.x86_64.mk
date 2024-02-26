@@ -1,5 +1,6 @@
+# file: clang.ref.x86_64.mk
 #===============================================================================
-# Copyright 2023 Intel Corporation
+# Copyright 2024 contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +16,10 @@
 #===============================================================================
 
 #++
-#  g++ definitions for makefile
+#  Clang definitions for makefile
 #--
 
-include dev/make/compiler_definitions/gnu.32e.mk
+include dev/make/compiler_definitions/clang.x86_64.mk
 
-COMPILER.lnx.gnu = $(COMPILER.all.gnu)
-COMPILER.mac.gnu = $(COMPILER.all.gnu)
+COMPILER.mac.clang = $(COMPILER.mac.clang) -DDAAL_REF -DONEDAL_REF
+COMPILER.lnx.clang = $(COMPILER.lnx.clang) -DDAAL_REF -DONEDAL_REF

@@ -55,7 +55,7 @@ TESTING_RETURN=0
 PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
-if [ "$ARCH" == "32e" ]; then
+if [ "$ARCH" == "x86_64" ]; then
     full_arch=intel64
     arch_dir=intel_intel64
 elif [ "$ARCH" == "arm" ]; then

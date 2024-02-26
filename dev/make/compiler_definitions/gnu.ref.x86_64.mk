@@ -18,7 +18,7 @@
 #  g++ definitions for makefile
 #--
 
-include dev/make/compiler_definitions/gnu.32e.mk
+include dev/make/compiler_definitions/gnu.x86_64.mk
 
 COMPILER.lnx.gnu = $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
 COMPILER.mac.gnu = $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF

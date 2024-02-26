@@ -76,13 +76,13 @@ algorithmFPType KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct(const
 
 #if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
-    #undef __DAAL_IA32e
+    #undef __DAAL_IAx86_64
 
     #if defined(_M_AMD64) || defined(__amd64) || defined(__x86_64) || defined(__x86_64__)
-        #define __DAAL_IA32e
+        #define __DAAL_IAx86_64
     #endif
 
-    #if defined(__DAAL_IA32e)
+    #if defined(__DAAL_IAx86_64)
 
         #if (__CPUID__(DAAL_CPU) == __avx512__)
 
@@ -304,7 +304,7 @@ inline float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t st
 }
         #endif // __CPUID__(DAAL_CPU) == __avx512__
 
-    #endif // __DAAL_IA32e
+    #endif // __DAAL_IAx86_64
 #endif     // DAAL_INTEL_CPP_COMPILER
 } // namespace internal
 } // namespace kernel_function

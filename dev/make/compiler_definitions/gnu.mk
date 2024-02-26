@@ -18,7 +18,7 @@
 #  g++ definitions for makefile
 #  This file contains definitions common to gnu on all platforms. It
 #  should only be included from files which have more specializations (e.g.
-#  gnu.32e.mk)
+#  gnu.x86_64.mk)
 #--
 
 CMPLRDIRSUFF.gnu = _gnu

@@ -16,20 +16,23 @@
 #===============================================================================
 
 BACKEND_CONFIG ?= mkl
-ARCH = 32e
+ARCH = x86_64
 ARCH_DIR_ONEDAL = intel64
-_OS := win
+_OS := lnx
 _IA := intel64
 
-include dev/make/function_definitions/32e.mk
+include dev/make/function_definitions/x86_64.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
 define set_daal_rt_deps
-  $$(eval daaldep.win32e.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
-          $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-  $$(eval daaldep.win32e.rt.seq  := $$(dep_seq) \
-          $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-  $$(eval daaldep.win32e.threxport := export.def)
+  $$(eval daaldep.lnxx86_64.rt.thr := -L$$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc \
+          -lpthread $$(daaldep.lnxx86_64.rt.$$(COMPILER)) \
+          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
+  $$(eval daaldep.lnxx86_64.rt.seq := -lpthread $$(daaldep.lnxx86_64.rt.$$(COMPILER)) \
+          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
+  $$(eval daaldep.lnxx86_64.rt.dpc := -lpthread -lOpenCL \
+          $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
+  $$(eval daaldep.lnxx86_64.threxport := export_lnxx86_64.$$(BACKEND_CONFIG).def)
 
-  $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
+  $$(eval daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
 endef

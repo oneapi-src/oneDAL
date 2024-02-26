@@ -1,4 +1,4 @@
-# file: clang.32e.mk
+# file: clang.x86_64.mk
 #===============================================================================
 # Copyright 2012 Intel Corporation
 #
@@ -17,14 +17,14 @@
 
 #++
 #  Clang definitions for makefile.
-#  This file contains definitions common to clang on a 32e (intel64) platform.
+#  This file contains definitions common to clang on a x86_64 (intel64) platform.
 #  It should only be included from files which have more specializations (e.g.
-#  clang.mkl.32e.mk
+#  clang.mkl.x86_64.mk
 #--
 
 include dev/make/compiler_definitions/clang.mk
 
-PLATs.clang = lnx32e mac32e
+PLATs.clang = lnxx86_64 macx86_64
 
 COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
                      -Werror -Wreturn-type

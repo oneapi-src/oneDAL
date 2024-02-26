@@ -20,13 +20,13 @@
 #===============================================================================
 
 ifeq (help,$(MAKECMDGOALS))
-    PLAT:=win32e
+    PLAT:=winx86_64
 else ifeq ($(PLAT),)
     PLAT:=$(shell bash dev/make/identify_os.sh)
 endif
 
 # Check that we know how to build for the identified platform
-PLATs := lnx32e mac32e win32e lnxarm
+PLATs := lnxx86_64 macx86_64 winx86_64 lnxarm
 $(if $(filter $(PLAT),$(PLATs)),,$(error Unknown platform $(PLAT)))
 
 # Non-platform or architecture specific defines live in common.mk
@@ -477,7 +477,7 @@ $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
-                                            $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
+                                            $(if $(PLAT_is_winx86_64),$(CORE.srcdir)/export_winx86_64.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt

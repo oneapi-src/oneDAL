@@ -97,39 +97,39 @@ is available as an alternative to the manual setup.
 
     - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 
-            make -f makefile daal PLAT=lnx32e
+            make -f makefile daal PLAT=lnxx86_64
 
     - DAAL interfaces on **Linux\*** using **GNU Compiler Collection\***:
 
-            make -f makefile daal PLAT=lnx32e COMPILER=gnu
+            make -f makefile daal PLAT=lnxx86_64 COMPILER=gnu
 
     - oneAPI C++/DPC++ interfaces on **Windows\*** using **Intel(R) DPC++ compiler**:
 
-            make -f makefile oneapi PLAT=win32e
+            make -f makefile oneapi PLAT=winx86_64
 
     - oneAPI C++ interfaces on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
-            make -f makefile oneapi_c PLAT=win32e COMPILER=vc
+            make -f makefile oneapi_c PLAT=winx86_64 COMPILER=vc
 
     - DAAL and oneAPI C++ interfaces on **Linux\*** using **GNU Compiler Collection\***:
 
-            make -f makefile daal oneapi_c PLAT=lnx32e COMPILER=gnu
+            make -f makefile daal oneapi_c PLAT=lnxx86_64 COMPILER=gnu
 
 It is possible to build oneDAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPUS` makefile defines are used for it.
 
 - To build oneDAL with Linear Regression and Support Vector Machine algorithms, run:
 
-            make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM="linear_regression svm" -j16
+            make -f makefile daal PLAT=winx86_64 CORE.ALGORITHMS.CUSTOM="linear_regression svm" -j16
 
 
 - To build oneDAL with AVX2 and AVX512 CPU optimizations, run:
 
-            make -f makefile daal PLAT=win32e REQCPU="avx2 avx512" -j16
+            make -f makefile daal PLAT=winx86_64 REQCPU="avx2 avx512" -j16
 
 
 - To build oneDAL with Moments of Low Order algorithm and AVX2 CPU optimizations, run:
 
-            make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
+            make -f makefile daal PLAT=winx86_64 CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
 
 

@@ -1,3 +1,4 @@
+# file: clang.mkl.x86_64.mk
 #===============================================================================
 # Copyright 2012 Intel Corporation
 #
@@ -15,22 +16,7 @@
 #===============================================================================
 
 #++
-#  Visual Studio definitions for makefile
+#  Clang definitions for makefile
 #--
 
-PLATs.vc = win32e
-
-CMPLRDIRSUFF.vc = _vc
-
-CORE.SERV.COMPILER.vc = generic
-
--Zl.vc = -Zl
--DEBC.vc = -DEBUG -Z7
-
-# Disable C4661 because of false positives
-COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
-
-p4_OPT.vc   =
-mc3_OPT.vc  =
-avx2_OPT.vc = -arch:AVX2
-skx_OPT.vc  = -arch:AVX2
+include dev/make/compiler_definitions/clang.x86_64.mk

@@ -53,7 +53,7 @@ create_package() {
 
     # platform specific
     platform=$(bash $(dirname "$0")/../../dev/make/identify_os.sh)
-    if [ ${platform} = "lnx32e" ]; then
+    if [ ${platform} = "lnxx86_64" ]; then
         platform=linux
         tbb_platform=linux
         rls_prefix=${rls_dir}/daal/latest
@@ -68,14 +68,14 @@ create_package() {
         static_lib_path=lib/arm
         lib_prefix=libonedal
 
-    elif [ ${platform} = "mac32e" ]; then
+    elif [ ${platform} = "macx86_64" ]; then
         platform=osx-x64
         tbb_platform=osx
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib
         static_lib_path=lib
         lib_prefix=libonedal
-    elif [ ${platform} = "win32e" ]; then
+    elif [ ${platform} = "winx86_64" ]; then
         platform=win-x64
         tbb_platform=win
         rls_prefix=${rls_dir}/daal/latest
