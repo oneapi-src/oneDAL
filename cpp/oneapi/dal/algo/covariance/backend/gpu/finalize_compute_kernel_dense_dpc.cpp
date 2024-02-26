@@ -48,6 +48,8 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     dal::detail::check_mul_overflow(column_count, column_count);
 
     auto bias = desc.get_bias();
+    auto assume_centered = desc.get_assume_centered();
+
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto nobs_host = pr::table2ndarray<Float>(q, input.get_partial_n_rows());
@@ -60,7 +62,8 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
         pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
-        auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums, bias);
+        auto [cov, cov_event] =
+            compute_covariance(q, rows_count_global, xtx, sums, bias, assume_centered);
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q, { cov_event }), column_count, column_count)));
     }

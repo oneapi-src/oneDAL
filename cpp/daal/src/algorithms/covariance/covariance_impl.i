@@ -36,7 +36,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 #include "src/externals/service_profiler.h"
-
+#include <iostream>
 using namespace daal::internal;
 using namespace daal::services::internal;
 
@@ -152,7 +152,7 @@ inline size_t getBlockSize<DAAL_CPU_TYPE>(size_t nrows)
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatures, size_t nVectors, NumericTable * dataTable,
                                                 algorithmFPType * crossProduct, algorithmFPType * sums, algorithmFPType * nObservations,
-                                                const Hyperparameter * hyperparameter)
+                                                const Hyperparameter * hyperparameter, bool assumeСentered = false)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateDenseCrossProductAndSums);
     if (((isNormalized) || ((!isNormalized) && ((method == defaultDense) || (method == sumDense)))))
@@ -216,7 +216,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                                                        (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
             }
 
-            if (!isNormalized && (method == defaultDense))
+            if (!isNormalized && (method == defaultDense) && !assumeСentered)
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
                 /* Sum input array elements in case of non-normalized data */
@@ -248,7 +248,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             }
 
             /* Update sums vector in case of non-normalized data */
-            if (!isNormalized && (method == defaultDense))
+            if (!isNormalized && (method == defaultDense) && !assumeСentered)
             {
                 if (tls_data_local->sums)
                 {
@@ -265,7 +265,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         });
 
         /* If data is not normalized, perform subtractions of(sums[i]*sums[j])/n */
-        if (!isNormalized)
+        if (!isNormalized && !assumeСentered)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemmSums);
             for (size_t i = 0; i < nFeatures; i++)

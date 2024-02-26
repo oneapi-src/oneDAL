@@ -43,17 +43,25 @@ namespace pr = dal::backend::primitives;
 template <typename Float>
 auto compute_sums(sycl::queue& q,
                   const pr::ndview<Float, 2>& data,
+                  bool assume_centered = false,
                   const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_sums, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) > 0);
 
     const std::int64_t column_count = data.get_dimension(1);
-    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    constexpr pr::sum<Float> binary{};
-    constexpr pr::identity<Float> unary{};
-    auto sums_event = pr::reduce_by_columns(q, data, sums, binary, unary, deps);
-    return std::make_tuple(sums, sums_event);
+    if (assume_centered) {
+        auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+        auto fill_event = pr::fill(q, sums, Float(0), deps);
+        return std::make_tuple(sums, fill_event);
+    }
+    else {
+        auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+        constexpr pr::sum<Float> binary{};
+        constexpr pr::identity<Float> unary{};
+        auto sums_event = pr::reduce_by_columns(q, data, sums, binary, unary, deps);
+        return std::make_tuple(sums, sums_event);
+    }
 }
 
 ///  A wrapper that computes 1d array of means of the columns from precomputed sums
@@ -103,6 +111,7 @@ auto compute_covariance(sycl::queue& q,
                         const pr::ndview<Float, 2>& xtx,
                         const pr::ndarray<Float, 1>& sums,
                         bool bias,
+                        bool assume_centered,
                         const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_covariance, q);
     ONEDAL_ASSERT(sums.has_data());
@@ -115,7 +124,7 @@ auto compute_covariance(sycl::queue& q,
 
     auto copy_event = copy(q, cov, xtx, { deps });
 
-    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, assume_centered, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
