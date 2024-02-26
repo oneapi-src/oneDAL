@@ -170,7 +170,7 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
 
-#if defined(__AVX2__)
+    #if defined(__AVX2__)
 
 template <typename DataType>
 DataType sumWithAVX2(size_t n, const DataType * dataPtr)
@@ -533,8 +533,8 @@ bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Sta
     return checkFinitenessSOAAVX2Impl(table, allowNaN, st);
 }
 
-#endif
-#if defined(__AVX512F__)
+    #endif
+    #if defined(__AVX512F__)
 
 template <typename DataType>
 DataType sumWithAVX512(size_t n, const DataType * dataPtr)
@@ -881,6 +881,7 @@ bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::S
     return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
 }
 
+    #endif
 #endif
 
 template <typename DataType, daal::CpuType cpu>
@@ -896,7 +897,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     // first stage: compute sum of all values and check its finiteness
     double sum       = 0;
     bool sumIsFinite = true;
-    std::cout << "cpu: " << (int) cpu << std::endl;
+    std::cout << "cpu: " << (int)cpu << std::endl;
 
     if (layout == NTLayout::soa)
     {
