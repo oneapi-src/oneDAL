@@ -304,7 +304,7 @@ double computeSum<double, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const 
 
 template <>
 float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
-{    
+{
     return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
