@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,8 +49,8 @@ public:
                                                                  std::forward<Args>(args)...);
     }
 
-    result_t merge_finalize_compute_result_override(const std::vector<result_t>& results) {
-        return results[0];
+    std::vector<result_t> merge_finalize_compute_result_override(const std::vector<result_t>& results) {
+        return results;
     }
 
     template <typename... Args>
@@ -82,8 +82,9 @@ public:
             partial_results.push_back(partial_result);
         }
         const auto compute_result = this->finalize_compute_override(cov_desc, partial_results);
-
-        base_t::check_compute_result(cov_desc, data, compute_result);
+                for (int64_t i = 0; i < rank_count_; i++) {
+                    base_t::check_compute_result(cov_desc, data, compute_result[i]);
+                }
     }
 
 private:

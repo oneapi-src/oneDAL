@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,6 +43,15 @@ using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 
+///  A wrapper that computes 2d arrays of correlation or covariance matrix and 1d array of means.
+///  The choice is based on the optional results
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  desc  The descriptor of the algorithm
+/// @param[in]  input The partial_compute_result class with partial sums and xtx matrix
+///
+/// @return The compute_result object, which contains functions to get covariance/correlation matrix or means.
 template <typename Float>
 result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
                                                                const input_t& input) {
