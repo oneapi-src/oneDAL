@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ sparse_matrix_handle_impl::sparse_matrix_handle_impl(sycl::queue& queue) : queue
 sparse_matrix_handle_impl::~sparse_matrix_handle_impl() {
     /// Temporary workaround to release_matrix_handle link error
     queue_.wait();
-    /// mkl::sparse::release_matrix_handle(queue_, &handle_, {});
+    /// mkl::sparse::release_matrix_handle(queue_, &handle_, {}).wait();
 }
 
 #endif // ONEDAL_DATA_PARALLEL
