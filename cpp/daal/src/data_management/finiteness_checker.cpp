@@ -23,6 +23,7 @@
 #include "src/threading/threading.h"
 #include "service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
+#include <iostream>
 
 namespace daal
 {
@@ -76,6 +77,7 @@ bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
+    std::cout << "standard sum \n";
     DataType sum = 0;
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
         for (size_t i = 0; i < nElementsPerPtr; ++i) sum += dataPtrs[ptrIdx][i];
@@ -168,6 +170,8 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
 
+#if defined(__AVX2__)
+
 template <typename DataType>
 DataType sumWithAVX2(size_t n, const DataType * dataPtr)
 {
@@ -209,30 +213,6 @@ DataType sumWithAVX2(size_t n, const DataType * dataPtr)
 }
 
 template <typename DataType>
-DataType sumWithAVX512(size_t n, const DataType * dataPtr)
-{
-    const size_t nPerInstr = 64 / sizeof(DataType);
-    DataType sum;
-    if (sizeof(DataType) == 4)
-    {
-        __m512 sums     = _mm512_set1_ps(0);
-        __m512 * ptr512 = (__m512 *)dataPtr;
-        for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_ps(sums, ptr512[i]);
-        sum = _mm512_reduce_add_ps(sums);
-    }
-    else
-    {
-        __m512d sums     = _mm512_set1_pd(0);
-        __m512d * ptr512 = (__m512d *)dataPtr;
-        for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_pd(sums, ptr512[i]);
-        sum = _mm512_reduce_add_pd(sums);
-    }
-    for (size_t i = (n / nPerInstr) * nPerInstr; i < n; ++i) sum += dataPtr[i];
-
-    return sum;
-}
-
-template <typename DataType>
 DataType computeSumAVX2Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
     size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
@@ -260,56 +240,18 @@ DataType computeSumAVX2Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Data
     return sumWithAVX2<DataType>(nTotalBlocks, pSums);
 }
 
-template <typename DataType>
-DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    size_t nElements    = nDataPtrs * nElementsPerPtr;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    daal::services::internal::TArray<DataType, avx512> partialSumsArr(nTotalBlocks);
-    DataType * pSums = partialSumsArr.get();
-    if (!pSums) return getInf<DataType>();
-    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
-
-    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
-        size_t ptrIdx        = iBlock / nBlocksPerPtr;
-        size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
-        size_t start         = blockIdxInPtr * nPerBlock;
-        size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
-
-        pSums[iBlock] = sumWithAVX512<DataType>(end - start, dataPtrs[ptrIdx] + start);
-    });
-
-    return sumWithAVX512<DataType>(nTotalBlocks, pSums);
-}
-
 template <>
 float computeSum<float, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
 {
+    std::cout << "avx2 sum \n";
     return computeSumAVX2Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSum<double, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
+    std::cout << "avx2 sum \n";
     return computeSumAVX2Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
-
-template <>
-float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
-{
-    return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
-
-template <>
-double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
-{
-    return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 double computeSumSOAAVX2Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
@@ -379,83 +321,10 @@ double computeSumSOAAVX2Impl(NumericTable & table, bool & sumIsFinite, services:
     return sum;
 }
 
-double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
-{
-    SafeStatus safeStat;
-    double sum                                  = 0;
-    bool breakFlag                              = false;
-    const size_t nRows                          = table.getNumberOfRows();
-    const size_t nCols                          = table.getNumberOfColumns();
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
-
-    daal::TlsMem<double, avx512, services::internal::ScalableCalloc<double, avx512> > tlsSum(1);
-    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsNotFinite(1);
-
-    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
-        double * localSum     = tlsSum.local();
-        bool * localNotFinite = tlsNotFinite.local();
-        DAAL_CHECK_MALLOC_THR(localSum);
-        DAAL_CHECK_MALLOC_THR(localNotFinite);
-
-        switch ((*tableFeaturesDict)[i].getIndexType())
-        {
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        {
-            ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const float * colPtr = colBlock.get();
-            *localSum += static_cast<double>(computeSum<float, avx512>(1, nRows, &colPtr));
-            break;
-        }
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        {
-            ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const double * colPtr = colBlock.get();
-            *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
-            break;
-        }
-        default: break;
-        }
-
-        *localNotFinite |= valuesAreNotFinite(localSum, 1, false);
-        if (*localNotFinite)
-        {
-            needBreak = true;
-            breakFlag = true;
-        }
-    });
-
-    st |= safeStat.detach();
-    if (!st)
-    {
-        return 0;
-    }
-
-    if (breakFlag)
-    {
-        sum         = getInf<double>();
-        sumIsFinite = false;
-    }
-    else
-    {
-        tlsSum.reduce([&](double * localSum) { sum += *localSum; });
-        tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
-    }
-
-    return sum;
-}
-
 template <>
 double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
     return computeSumSOAAVX2Impl(table, sumIsFinite, st);
-}
-
-template <>
-double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services::Status & st)
-{
-    return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
 services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
@@ -568,6 +437,242 @@ services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inPar
         }
     finiteness = true;
     return s;
+}
+
+template <typename DataType>
+bool checkFinitenessAVX2Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
+{
+    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
+    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
+    bool inParallel     = !(nElements < THREADING_BORDER);
+    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
+    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
+    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
+
+    bool finiteness;
+    checkFinitenessInBlocks256(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
+    return finiteness;
+}
+
+template <>
+bool checkFiniteness<float, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
+{
+    return checkFinitenessAVX2Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+}
+
+template <>
+bool checkFiniteness<double, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
+{
+    return checkFinitenessAVX2Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+}
+
+bool checkFinitenessSOAAVX2Impl(NumericTable & table, bool allowNaN, services::Status & st)
+{
+    SafeStatus safeStat;
+    bool valuesAreFinite                        = true;
+    bool breakFlag                              = false;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    daal::TlsMem<bool, avx2, services::internal::ScalableCalloc<bool, avx2> > tlsNotFinite(1);
+
+    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
+        bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
+
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, avx2> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const float * colPtr = colBlock.get();
+            *localNotFinite |= !checkFiniteness<float, avx2>(nRows, 1, nRows, &colPtr, allowNaN);
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, avx2> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const double * colPtr = colBlock.get();
+            *localNotFinite |= !checkFiniteness<double, avx2>(nRows, 1, nRows, &colPtr, allowNaN);
+            break;
+        }
+        default: break;
+        }
+
+        if (*localNotFinite)
+        {
+            needBreak = true;
+            breakFlag = true;
+        }
+    });
+
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return false;
+    }
+
+    if (breakFlag)
+    {
+        valuesAreFinite = false;
+    }
+    else
+    {
+        tlsNotFinite.reduce([&](bool * localNotFinite) { valuesAreFinite &= !*localNotFinite; });
+    }
+
+    return valuesAreFinite;
+}
+
+template <>
+bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Status & st)
+{
+    return checkFinitenessSOAAVX2Impl(table, allowNaN, st);
+}
+
+#endif
+#if defined(__AVX512F__)
+
+template <typename DataType>
+DataType sumWithAVX512(size_t n, const DataType * dataPtr)
+{
+    const size_t nPerInstr = 64 / sizeof(DataType);
+    DataType sum;
+    if (sizeof(DataType) == 4)
+    {
+        __m512 sums     = _mm512_set1_ps(0);
+        __m512 * ptr512 = (__m512 *)dataPtr;
+        for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_ps(sums, ptr512[i]);
+        sum = _mm512_reduce_add_ps(sums);
+    }
+    else
+    {
+        __m512d sums     = _mm512_set1_pd(0);
+        __m512d * ptr512 = (__m512d *)dataPtr;
+        for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_pd(sums, ptr512[i]);
+        sum = _mm512_reduce_add_pd(sums);
+    }
+    for (size_t i = (n / nPerInstr) * nPerInstr; i < n; ++i) sum += dataPtr[i];
+
+    return sum;
+}
+
+template <typename DataType>
+DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
+{
+    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
+    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
+    size_t nElements    = nDataPtrs * nElementsPerPtr;
+    bool inParallel     = !(nElements < THREADING_BORDER);
+    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
+    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
+    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
+
+    daal::services::internal::TArray<DataType, avx512> partialSumsArr(nTotalBlocks);
+    DataType * pSums = partialSumsArr.get();
+    if (!pSums) return getInf<DataType>();
+    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
+
+    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
+        size_t ptrIdx        = iBlock / nBlocksPerPtr;
+        size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
+        size_t start         = blockIdxInPtr * nPerBlock;
+        size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
+
+        pSums[iBlock] = sumWithAVX512<DataType>(end - start, dataPtrs[ptrIdx] + start);
+    });
+
+    return sumWithAVX512<DataType>(nTotalBlocks, pSums);
+}
+
+template <>
+float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
+{
+    std::cout << "avx512 sum \n";
+    return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
+}
+
+template <>
+double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
+{
+    std::cout << "avx512 sum \n";
+    return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
+}
+
+double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
+{
+    SafeStatus safeStat;
+    double sum                                  = 0;
+    bool breakFlag                              = false;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    daal::TlsMem<double, avx512, services::internal::ScalableCalloc<double, avx512> > tlsSum(1);
+    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsNotFinite(1);
+
+    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
+        double * localSum     = tlsSum.local();
+        bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localSum);
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
+
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const float * colPtr = colBlock.get();
+            *localSum += static_cast<double>(computeSum<float, avx512>(1, nRows, &colPtr));
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const double * colPtr = colBlock.get();
+            *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
+            break;
+        }
+        default: break;
+        }
+
+        *localNotFinite |= valuesAreNotFinite(localSum, 1, false);
+        if (*localNotFinite)
+        {
+            needBreak = true;
+            breakFlag = true;
+        }
+    });
+
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return 0;
+    }
+
+    if (breakFlag)
+    {
+        sum         = getInf<double>();
+        sumIsFinite = false;
+    }
+    else
+    {
+        tlsSum.reduce([&](double * localSum) { sum += *localSum; });
+        tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
+    }
+
+    return sum;
+}
+
+template <>
+double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services::Status & st)
+{
+    return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
 services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
@@ -683,21 +788,6 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
 }
 
 template <typename DataType>
-bool checkFinitenessAVX2Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    bool finiteness;
-    checkFinitenessInBlocks256(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
-    return finiteness;
-}
-
-template <typename DataType>
 bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
     size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
@@ -713,18 +803,6 @@ bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t 
 }
 
 template <>
-bool checkFiniteness<float, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
-{
-    return checkFinitenessAVX2Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
-template <>
-bool checkFiniteness<double, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
-{
-    return checkFinitenessAVX2Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
-template <>
 bool checkFiniteness<float, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
     return checkFinitenessAVX512Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
@@ -734,67 +812,6 @@ template <>
 bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
     return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
-bool checkFinitenessSOAAVX2Impl(NumericTable & table, bool allowNaN, services::Status & st)
-{
-    SafeStatus safeStat;
-    bool valuesAreFinite                        = true;
-    bool breakFlag                              = false;
-    const size_t nRows                          = table.getNumberOfRows();
-    const size_t nCols                          = table.getNumberOfColumns();
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
-
-    daal::TlsMem<bool, avx2, services::internal::ScalableCalloc<bool, avx2> > tlsNotFinite(1);
-
-    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
-        bool * localNotFinite = tlsNotFinite.local();
-        DAAL_CHECK_MALLOC_THR(localNotFinite);
-
-        switch ((*tableFeaturesDict)[i].getIndexType())
-        {
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        {
-            ReadColumns<float, avx2> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const float * colPtr = colBlock.get();
-            *localNotFinite |= !checkFiniteness<float, avx2>(nRows, 1, nRows, &colPtr, allowNaN);
-            break;
-        }
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        {
-            ReadColumns<double, avx2> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const double * colPtr = colBlock.get();
-            *localNotFinite |= !checkFiniteness<double, avx2>(nRows, 1, nRows, &colPtr, allowNaN);
-            break;
-        }
-        default: break;
-        }
-
-        if (*localNotFinite)
-        {
-            needBreak = true;
-            breakFlag = true;
-        }
-    });
-
-    st |= safeStat.detach();
-    if (!st)
-    {
-        return false;
-    }
-
-    if (breakFlag)
-    {
-        valuesAreFinite = false;
-    }
-    else
-    {
-        tlsNotFinite.reduce([&](bool * localNotFinite) { valuesAreFinite &= !*localNotFinite; });
-    }
-
-    return valuesAreFinite;
 }
 
 bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st)
@@ -859,12 +876,6 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
 }
 
 template <>
-bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Status & st)
-{
-    return checkFinitenessSOAAVX2Impl(table, allowNaN, st);
-}
-
-template <>
 bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::Status & st)
 {
     return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
@@ -885,6 +896,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     // first stage: compute sum of all values and check its finiteness
     double sum       = 0;
     bool sumIsFinite = true;
+    std::cout << "cpu: " << (int) cpu << std::endl;
 
     if (layout == NTLayout::soa)
     {
