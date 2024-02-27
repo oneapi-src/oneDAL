@@ -61,6 +61,9 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
 
     #if defined(__AVX512F__)
 
+template <typename DataType>
+DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs);
+
 double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st);
 
 services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
