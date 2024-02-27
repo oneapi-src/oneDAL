@@ -423,7 +423,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     // }
     // std::cout << "fake cluster count" << final_id << "real cluster count" << cluster_count
     //           << std::endl;
-    return make_results(queue, desc, adj_matrix, arr_responses_ordered, arr_cores, final_id);
+    return make_results(queue, desc, data_nd, arr_responses_ordered, arr_cores, final_id);
 }
 
 template <typename Float>

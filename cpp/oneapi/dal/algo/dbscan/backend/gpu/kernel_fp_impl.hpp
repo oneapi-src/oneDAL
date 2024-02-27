@@ -47,6 +47,7 @@ struct get_core_wide_kernel {
                     pr::ndview<std::int32_t, 1>& cores,
                     pr::ndview<std::int32_t, 1>& responses,
                     pr::ndview<std::int32_t, 1>& neighbours,
+                    pr::ndview<std::int32_t, 2>& adj_matrix,
                     Float epsilon,
                     std::int64_t min_observations,
                     const bk::event_vector& deps) {
@@ -58,14 +59,16 @@ struct get_core_wide_kernel {
         const auto block_start = 0;
         const auto block_end = row_count;
         ONEDAL_ASSERT(block_start < block_end);
+        const std::int64_t global_row_count = adj_matrix.get_dimension(1);
         const auto block_size = block_end - block_start;
         ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
         const std::int64_t column_count = data.get_dimension(1);
-        std::int32_t* responses_ptr = responses.get_mutable_data();
+        //std::int32_t* responses_ptr = responses.get_mutable_data();
         const Float* data_ptr = data.get_data();
         const Float* weights_ptr = weights.get_data();
         std::int32_t* cores_ptr = cores.get_mutable_data();
         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
+        std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
@@ -110,17 +113,7 @@ struct get_core_wide_kernel {
                             count += use_weights ? weights_ptr[wg_id] : count_type(1);
                             if (local_id == 0) {
                                 neighbours_ptr[wg_id] = count;
-
-                                auto min_cluster = sycl::min(static_cast<std::int64_t>(wg_id),
-                                                             static_cast<std::int64_t>(j));
-                                if (responses_ptr[wg_id] >= 0) {
-                                    responses_ptr[wg_id] =
-                                        sycl::min(static_cast<std::int64_t>(min_cluster),
-                                                  static_cast<std::int64_t>(responses_ptr[wg_id]));
-                                }
-                                else {
-                                    responses_ptr[wg_id] = min_cluster;
-                                }
+                                adj_matrix_ptr[wg_id * global_row_count + j] = 1;
                             }
                             if (count >= min_observations) {
                                 if (local_id == 0) {
@@ -380,7 +373,7 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                                            epsilon,
                                                            min_observations,
                                                            deps);
-    // }
+    //}
 }
 
 template <typename Float>

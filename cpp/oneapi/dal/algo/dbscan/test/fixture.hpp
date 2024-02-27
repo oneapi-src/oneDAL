@@ -158,13 +158,9 @@ public:
         INFO("run compute");
         const auto compute_result =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data, weights);
-        std::cout << "adj matrix batch:\n" << compute_result.get_fake_responses() << std::endl;
         std::cout << "responses batch:\n" << compute_result.get_responses() << std::endl;
         std::cout << "responses true batch:\n" << ref_responses << std::endl;
         check_responses_against_ref(compute_result.get_responses(), ref_responses);
-        // check_if_close(compute_result.get_fake_responses(),
-        //                compute_result.get_responses(),
-        //                "responses");
     }
 
     void check_responses_against_ref(const table &responses, const table &ref_responses) {

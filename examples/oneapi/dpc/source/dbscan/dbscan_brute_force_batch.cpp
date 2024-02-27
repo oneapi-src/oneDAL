@@ -34,7 +34,7 @@ void run(sycl::queue &q) {
 
     const auto x_data = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
 
-    double epsilon = 0.04;
+    double epsilon = 0.1;
     std::int64_t min_observations = 45;
 
     auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
