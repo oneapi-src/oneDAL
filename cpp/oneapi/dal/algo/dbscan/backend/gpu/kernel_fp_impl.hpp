@@ -148,7 +148,7 @@ struct get_core_narrow_kernel {
                     pr::ndview<std::int32_t, 1>& cores,
                     pr::ndview<std::int32_t, 1>& responses,
                     pr::ndview<std::int32_t, 1>& neighbours,
-                    pr::ndview<bool, 2>& adj_matrix,
+                    pr::ndview<std::int32_t, 2>& adj_matrix,
                     Float epsilon,
                     std::int64_t min_observations,
                     const bk::event_vector& deps) {
@@ -166,7 +166,7 @@ struct get_core_narrow_kernel {
         const std::int64_t global_row_count = adj_matrix.get_dimension(1);
         const Float* data_ptr = data.get_data();
         const Float* weights_ptr = weights.get_data();
-        bool* adj_matrix_ptr = adj_matrix.get_mutable_data();
+        std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
         //std::int32_t* responses_ptr = responses.get_mutable_data();
         std::int32_t* cores_ptr = cores.get_mutable_data();
         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
@@ -184,7 +184,7 @@ struct get_core_narrow_kernel {
                         continue;
                     }
                     neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
-                    adj_matrix_ptr[idx * global_row_count + j] = true;
+                    adj_matrix_ptr[idx * global_row_count + j] = 1;
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
@@ -352,7 +352,7 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               pr::ndview<std::int32_t, 1>& cores,
                                               pr::ndview<std::int32_t, 1>& responses,
                                               pr::ndview<std::int32_t, 1>& neighbours,
-                                              pr::ndview<bool, 2>& adj_matrix,
+                                              pr::ndview<std::int32_t, 2>& adj_matrix,
                                               Float epsilon,
                                               std::int64_t min_observations,
                                               const bk::event_vector& deps) {
@@ -423,7 +423,7 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace_impl(
 template <typename Float>
 sycl::event kernels_fp<Float>::update_responses(sycl::queue& queue,
                                                 pr::ndview<std::int32_t, 1>& responses,
-                                                pr::ndview<bool, 2>& adj_matrix,
+                                                pr::ndview<std::int32_t, 2>& adj_matrix,
                                                 std::int64_t min_observations,
                                                 const bk::event_vector& deps) {
     const auto row_count = responses.get_dimension(0);
@@ -455,7 +455,7 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                          pr::ndview<std::int32_t, 1>& cores,
                                          pr::ndview<std::int32_t, 1>& responses,
                                          pr::ndview<std::int32_t, 1>& neighbours,
-                                         pr::ndview<bool, 2>& adj_matrix,
+                                         pr::ndview<std::int32_t, 2>& adj_matrix,
                                          Float epsilon,
                                          std::int64_t min_observations,
                                          const bk::event_vector& deps) {
@@ -571,29 +571,30 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
 
 sycl::event connected_components(sycl::queue& queue,
                                  pr::ndview<std::int32_t, 1>& labels,
-                                 pr::ndview<bool, 2>& adj_matrix,
+                                 pr::ndview<std::int32_t, 2>& adj_matrix,
+                                 pr::ndview<std::int32_t, 1>& flag,
                                  const bk::event_vector& deps) {
     ONEDAL_ASSERT(queue.get_device().is_cpu());
-    auto labels_ptr = labels.get_mutable_data();
-    auto adj_matrix_ptr = adj_matrix.get_mutable_data();
+    std::int32_t* flag_ptr = flag.get_mutable_data();
+    std::int32_t* labels_ptr = labels.get_mutable_data();
+    std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
+    auto row_count = labels.get_dimension(0);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(
-            sycl::range<1>{ std::size_t(labels.get_dimension(0)) },
-            [=](sycl::id<1> idx) {
-            //     auto new_label = labels_ptr[idx];
-            //     for (std::int64_t j = 0; j < labels.get_dimension(0); j++) {
-            //         new_label = sycl::max(
-            //             adj_matrix_ptr[idx * labels.get_dimension(0) + j] ? labels_ptr[j] : 0,
-            //             new_label);
-            //     }
-            //     if (new_label != labels_ptr[idx]) {
-            //         labels_ptr[idx] = new_label;
-            //     }
-            });
+        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
+            auto new_label = labels_ptr[idx];
+            for (std::int64_t j = 0; j < row_count; j++) {
+                new_label =
+                    sycl::max(adj_matrix_ptr[idx * row_count + j] ? labels_ptr[j] : 0, new_label);
+            }
+            if (new_label != labels_ptr[idx]) {
+                labels_ptr[idx] = new_label;
+                flag_ptr[0] = 1;
+            }
+        });
     });
-
+    event.wait_and_throw();
     return event;
 }
 
@@ -728,7 +729,17 @@ std::int32_t kernels_fp<Float>::get_queue_front(sycl::queue& queue,
                                                 const pr::ndarray<std::int32_t, 1>& queue_front,
                                                 const bk::event_vector& deps) {
     ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
-    return queue_front.to_host(queue, deps).get_data()[0];
+    auto queue_ptr = queue_front.get_mutable_data();
+    auto value = queue_front.to_host(queue, deps).get_data()[0];
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
+                         [=](sycl::nd_item<2> item) {
+                             queue_ptr[0] = 0;
+                         });
+    });
+    event.wait_and_throw();
+    return value;
 }
 
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores) {

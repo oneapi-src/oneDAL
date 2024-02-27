@@ -131,11 +131,11 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     //     ONEDAL_ASSERT(global_rank_offsets.get_data()[i] >= 0);
     //     local_offset += global_rank_offsets.get_data()[i];
     // }
-    // std::unordered_map<int, int> element_to_id;
-    // std::unordered_map<int, int> element_counts;
-    // std::unordered_map<int, int> element_to_id_final;
+    std::unordered_map<int, int> element_to_id;
+    std::unordered_map<int, int> element_counts;
+    std::unordered_map<int, int> element_to_id_final;
 
-    // int current_id = 0;
+    int current_id = 0;
     int final_id = 0;
 
     const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
@@ -161,28 +161,32 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
     // auto arr_responses_fake =
     //     pr::ndarray<std::int32_t, 1>::empty(queue, row_count, sycl::usm::alloc::device);
-    // auto arr_responses_ptr = arr_responses_fake.get_mutable_data();
+    auto arr_responses_ptr = arr_responses_fake.get_mutable_data();
 
-    // auto init_event = queue.submit([&](sycl::handler& cgh) {
-    //     const auto range = sycl::range<1>(global_row_count);
+    auto init_event = queue.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range<1>(global_row_count);
 
-    //     cgh.parallel_for(range, [=](sycl::item<1> id) {
-    //         arr_responses_ptr[id] = id + local_offset;
-    //     });
-    // });
+        cgh.parallel_for(range, [=](sycl::item<1> id) {
+            arr_responses_ptr[id] = id;
+        });
+    });
 
     // auto [arr_responses, responses_event] =
     //     pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
     // auto [arr_queue, queue_event] =
     //     pr::ndarray<std::int32_t, 1>::full(queue, global_row_count, -1, sycl::usm::alloc::device);
-    // auto [arr_queue_front, queue_front_event] =
-    //     pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
+    auto [arr_queue_front, queue_front_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
     auto [adj_matrix, adj_matrix_event] =
-        pr::ndarray<bool, 2>::full(queue,
-                                   { row_count, global_row_count },
-                                   false,
-                                   sycl::usm::alloc::device);
-    sycl::event::wait({ cores_event, responses_fake_event, adj_matrix_event, neighbours_event });
+        pr::ndarray<std::int32_t, 2>::full(queue,
+                                           { row_count, global_row_count },
+                                           0,
+                                           sycl::usm::alloc::device);
+    sycl::event::wait({ cores_event,
+                        responses_fake_event,
+                        queue_front_event,
+                        adj_matrix_event,
+                        neighbours_event });
 
     kernels_fp<Float>::get_cores(queue,
                                  data_nd,
@@ -194,7 +198,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                  epsilon,
                                  min_observations)
         .wait_and_throw();
-    std::cout << adj_matrix << std::endl;
+    // std::cout << adj_matrix << std::endl;
     // for (std::int64_t j = 0; j < rank_count - 1; j++) {
     //     comm.sendrecv_replace(queue,
     //                           data_nd_replace.get_mutable_data(),
@@ -220,11 +224,19 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     // for (int i = 0; i < row_count; i++) {
     //     std::cout << fake_responses_ptr[i] << std::endl;
     // }
+    bool flag = true;
 
-    kernels_fp<Float>::connected_components(queue, arr_responses_fake, adj_matrix).wait_and_throw();
-    // auto arr_fake_responses_host = arr_responses_fake.to_host(queue);
+    while (flag) {
+        connected_components(queue, arr_responses_fake, adj_matrix, arr_queue_front)
+            .wait_and_throw();
+        auto value = kernels_fp<Float>::get_queue_front(queue, arr_queue_front);
+        if (value == 0) {
+            flag = false;
+        }
+    }
+    auto arr_fake_responses_host = arr_responses_fake.to_host(queue);
 
-    // auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
+    auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
     // auto arr_fake_responses_host_ = arr_responses_fake.to_host(queue);
 
     // auto fake_responses_ptr_ = arr_fake_responses_host_.get_mutable_data();
@@ -239,13 +251,13 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     // for (int i = 0; i < row_count; i++) {
     //     std::cout << arr_neighbours_ptr[i] << std::endl;
     // }
-    // for (int i = 0; i < row_count; i++) {
-    //     if (element_to_id.find(fake_responses_ptr[i]) == element_to_id.end()) {
-    //         element_to_id[fake_responses_ptr[i]] = current_id++;
-    //     }
+    for (int i = 0; i < row_count; i++) {
+        if (element_to_id.find(fake_responses_ptr[i]) == element_to_id.end()) {
+            element_to_id[fake_responses_ptr[i]] = current_id++;
+        }
 
-    //     element_counts[fake_responses_ptr[i]]++;
-    // }
+        element_counts[fake_responses_ptr[i]]++;
+    }
 
     // std::cout << "Reflection of unique elements:\n";
     // for (const auto& pair : element_to_id) {
@@ -257,32 +269,32 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     //     std::cout << pair.first << " -> " << pair.second << "\n";
     // }
 
-    // for (int i = 0; i < row_count; i++) {
-    //     if (element_counts[fake_responses_ptr[i]] < min_observations) {
-    //         fake_responses_ptr[i] = -1;
-    //     }
-    //     else {
-    //         fake_responses_ptr[i] = element_to_id[fake_responses_ptr[i]];
-    //     }
-    // }
+    for (int i = 0; i < row_count; i++) {
+        if (element_counts[fake_responses_ptr[i]] < min_observations) {
+            fake_responses_ptr[i] = -1;
+        }
+        else {
+            fake_responses_ptr[i] = element_to_id[fake_responses_ptr[i]];
+        }
+    }
 
-    // for (int i = 0; i < row_count; i++) {
-    //     if (fake_responses_ptr[i] != -1) {
-    //         if (element_to_id_final.find(fake_responses_ptr[i]) == element_to_id_final.end()) {
-    //             element_to_id_final[fake_responses_ptr[i]] = final_id++;
-    //         }
-    //     }
-    // }
+    for (int i = 0; i < row_count; i++) {
+        if (fake_responses_ptr[i] != -1) {
+            if (element_to_id_final.find(fake_responses_ptr[i]) == element_to_id_final.end()) {
+                element_to_id_final[fake_responses_ptr[i]] = final_id++;
+            }
+        }
+    }
     // std::cout << "Reflection of unique elements final:\n";
     // for (const auto& pair : element_to_id_final) {
     //     std::cout << pair.first << " -> " << pair.second << "\n";
     // }
-    // for (int i = 0; i < row_count; i++) {
-    //     if (fake_responses_ptr[i] != -1) {
-    //         fake_responses_ptr[i] = element_to_id_final[fake_responses_ptr[i]];
-    //     }
-    // }
-    // auto arr_responses_ordered = arr_fake_responses_host.to_device(queue);
+    for (int i = 0; i < row_count; i++) {
+        if (fake_responses_ptr[i] != -1) {
+            fake_responses_ptr[i] = element_to_id_final[fake_responses_ptr[i]];
+        }
+    }
+    auto arr_responses_ordered = arr_fake_responses_host.to_device(queue);
 
     // std::int64_t cluster_count = 0;
 
@@ -411,7 +423,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     // }
     // std::cout << "fake cluster count" << final_id << "real cluster count" << cluster_count
     //           << std::endl;
-    return make_results(queue, desc, data_nd, arr_responses_fake, arr_cores, final_id);
+    return make_results(queue, desc, adj_matrix, arr_responses_ordered, arr_cores, final_id);
 }
 
 template <typename Float>

@@ -76,21 +76,23 @@ inline auto output_core_indices(sycl::queue& queue,
     return std::make_tuple(res, event);
 }
 
-template <typename Float, typename Index>
+template <typename Index>
 inline auto make_results(sycl::queue& queue,
                          const descriptor_t& desc,
-                         const pr::ndarray<Float, 2> data,
+                         const pr::ndarray<Index, 2> data,
                          const pr::ndarray<Index, 1> responses,
                          const pr::ndarray<Index, 1> cores,
                          std::int64_t cluster_count,
                          std::int64_t core_count = -1) {
+    const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t column_count = data.get_dimension(1);
     ONEDAL_ASSERT(column_count > 0);
     const std::int64_t block_size = cores.get_dimension(0);
     ONEDAL_ASSERT(block_size == responses.get_dimension(0));
     auto results =
         result_t().set_cluster_count(cluster_count).set_result_options(desc.get_result_options());
-    results.set_fake_responses(dal::homogen_table::wrap(responses.flatten(queue), block_size, 1));
+    results.set_fake_responses(
+        dal::homogen_table::wrap(data.flatten(queue), row_count, column_count));
     if (desc.get_result_options().test(result_options::responses)) {
         results.set_responses(dal::homogen_table::wrap(responses.flatten(queue), block_size, 1));
     }
@@ -127,18 +129,18 @@ inline auto make_results(sycl::queue& queue,
                                              core_count,
                                              1));
             }
-            if (return_core_observations) {
-                auto res = pr::ndarray<Float, 2>::empty(queue,
-                                                        { core_count, column_count },
-                                                        sycl::usm::alloc::device);
+            // if (return_core_observations) {
+            //     auto res = pr::ndarray<Float, 2>::empty(queue,
+            //                                             { core_count, column_count },
+            //                                             sycl::usm::alloc::device);
 
-                auto event = pr::select_indexed_rows(queue, ids_array, data, res, { ids_event });
+            //     auto event = pr::select_indexed_rows(queue, ids_array, data, res, { ids_event });
 
-                results.set_core_observations(
-                    dal::homogen_table::wrap(res.flatten(queue, { event }),
-                                             core_count,
-                                             column_count));
-            }
+            //     results.set_core_observations(
+            //         dal::homogen_table::wrap(res.flatten(queue, { event }),
+            //                                  core_count,
+            //                                  column_count));
+            // }
         }
     }
     return results;
