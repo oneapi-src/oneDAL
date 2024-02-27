@@ -58,12 +58,13 @@ struct kernels_fp {
                                       pr::ndview<std::int32_t, 1>& cores,
                                       pr::ndview<std::int32_t, 1>& responses,
                                       pr::ndview<std::int32_t, 1>& neighbours,
+                                      pr::ndview<bool, 2>& adj_matrix,
                                       Float epsilon,
                                       std::int64_t min_observations,
                                       const bk::event_vector& deps);
     static sycl::event update_responses(sycl::queue& queue,
                                         pr::ndview<std::int32_t, 1>& responses,
-                                        pr::ndview<std::int32_t, 1>& neighbours,
+                                        pr::ndview<bool, 2>& adj_matrix,
                                         std::int64_t min_observations,
                                         const bk::event_vector& deps = {});
 
@@ -73,6 +74,7 @@ struct kernels_fp {
                                  pr::ndview<std::int32_t, 1>& cores,
                                  pr::ndview<std::int32_t, 1>& responses,
                                  pr::ndview<std::int32_t, 1>& neighbours,
+                                 pr::ndview<bool, 2>& adj_matrix,
                                  Float epsilon,
                                  std::int64_t min_observations,
                                  const bk::event_vector& deps = {});

@@ -148,6 +148,7 @@ struct get_core_narrow_kernel {
                     pr::ndview<std::int32_t, 1>& cores,
                     pr::ndview<std::int32_t, 1>& responses,
                     pr::ndview<std::int32_t, 1>& neighbours,
+                    pr::ndview<bool, 2>& adj_matrix,
                     Float epsilon,
                     std::int64_t min_observations,
                     const bk::event_vector& deps) {
@@ -162,10 +163,11 @@ struct get_core_narrow_kernel {
         const auto block_size = block_end - block_start;
         ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
         const std::int64_t column_count = data.get_dimension(1);
-
+        const std::int64_t global_row_count = adj_matrix.get_dimension(1);
         const Float* data_ptr = data.get_data();
         const Float* weights_ptr = weights.get_data();
-        std::int32_t* responses_ptr = responses.get_mutable_data();
+        bool* adj_matrix_ptr = adj_matrix.get_mutable_data();
+        //std::int32_t* responses_ptr = responses.get_mutable_data();
         std::int32_t* cores_ptr = cores.get_mutable_data();
         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
@@ -182,16 +184,7 @@ struct get_core_narrow_kernel {
                         continue;
                     }
                     neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
-                    auto min_cluster =
-                        sycl::min(static_cast<std::int64_t>(idx), static_cast<std::int64_t>(j));
-                    if (responses_ptr[idx] >= 0) {
-                        responses_ptr[idx] =
-                            sycl::min(static_cast<std::int64_t>(min_cluster),
-                                      static_cast<std::int64_t>(responses_ptr[idx]));
-                    }
-                    else {
-                        responses_ptr[idx] = min_cluster;
-                    }
+                    adj_matrix_ptr[idx * global_row_count + j] = true;
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
@@ -359,32 +352,35 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               pr::ndview<std::int32_t, 1>& cores,
                                               pr::ndview<std::int32_t, 1>& responses,
                                               pr::ndview<std::int32_t, 1>& neighbours,
+                                              pr::ndview<bool, 2>& adj_matrix,
                                               Float epsilon,
                                               std::int64_t min_observations,
                                               const bk::event_vector& deps) {
-    const std::int64_t column_count = data.get_dimension(1);
-    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-        return get_core_wide_kernel<Float, use_weights>::run(queue,
-                                                             data,
-                                                             weights,
-                                                             cores,
-                                                             responses,
-                                                             neighbours,
-                                                             epsilon,
-                                                             min_observations,
-                                                             deps);
-    }
-    else {
-        return get_core_narrow_kernel<Float, use_weights>::run(queue,
-                                                               data,
-                                                               weights,
-                                                               cores,
-                                                               responses,
-                                                               neighbours,
-                                                               epsilon,
-                                                               min_observations,
-                                                               deps);
-    }
+    // const std::int64_t column_count = data.get_dimension(1);
+    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+    //     return get_core_wide_kernel<Float, use_weights>::run(queue,
+    //                                                          data,
+    //                                                          weights,
+    //                                                          cores,
+    //                                                          responses,
+    //                                                          neighbours,
+    //                                                          adj_matrix,
+    //                                                          epsilon,
+    //                                                          min_observations,
+    //                                                          deps);
+    // }
+    // else {
+    return get_core_narrow_kernel<Float, use_weights>::run(queue,
+                                                           data,
+                                                           weights,
+                                                           cores,
+                                                           responses,
+                                                           neighbours,
+                                                           adj_matrix,
+                                                           epsilon,
+                                                           min_observations,
+                                                           deps);
+    // }
 }
 
 template <typename Float>
@@ -427,7 +423,7 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace_impl(
 template <typename Float>
 sycl::event kernels_fp<Float>::update_responses(sycl::queue& queue,
                                                 pr::ndview<std::int32_t, 1>& responses,
-                                                pr::ndview<std::int32_t, 1>& neighbours,
+                                                pr::ndview<bool, 2>& adj_matrix,
                                                 std::int64_t min_observations,
                                                 const bk::event_vector& deps) {
     const auto row_count = responses.get_dimension(0);
@@ -459,6 +455,7 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                          pr::ndview<std::int32_t, 1>& cores,
                                          pr::ndview<std::int32_t, 1>& responses,
                                          pr::ndview<std::int32_t, 1>& neighbours,
+                                         pr::ndview<bool, 2>& adj_matrix,
                                          Float epsilon,
                                          std::int64_t min_observations,
                                          const bk::event_vector& deps) {
@@ -470,6 +467,7 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                     cores,
                                     responses,
                                     neighbours,
+                                    adj_matrix,
                                     epsilon,
                                     min_observations,
                                     deps);
@@ -480,6 +478,7 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                  cores,
                                  responses,
                                  neighbours,
+                                 adj_matrix,
                                  epsilon,
                                  min_observations,
                                  deps);
