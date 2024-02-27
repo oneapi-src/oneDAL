@@ -39,6 +39,17 @@ using namespace daal::internal;
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
 
+template <typename DataType>
+DataType getInf()
+{
+    DataType inf;
+    if (sizeof(DataType) == 4)
+        *((uint32_t *)(&inf)) = floatExpMask;
+    else
+        *((uint64_t *)(&inf)) = doubleExpMask;
+    return inf;
+}
+
     #if defined(__AVX2__) and !defined(__AVX512F__)
 
 template <typename DataType>
@@ -457,20 +468,6 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
     return sumWithAVX512<DataType>(nTotalBlocks, pSums);
 }
 
-template <>
-float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
-{
-    std::cout << "avx512 sum \n";
-    return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
-
-template <>
-double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
-{
-    std::cout << "avx512 sum \n";
-    return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
-
 double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
     SafeStatus safeStat;
@@ -536,12 +533,6 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
     }
 
     return sum;
-}
-
-template <>
-double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services::Status & st)
-{
-    return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
 services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
@@ -656,33 +647,6 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
     return s;
 }
 
-template <typename DataType>
-bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    bool finiteness;
-    checkFinitenessInBlocks512(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
-    return finiteness;
-}
-
-template <>
-bool checkFiniteness<float, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
-{
-    return checkFinitenessAVX512Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
-template <>
-bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
-{
-    return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
 bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st)
 {
     SafeStatus safeStat;
@@ -744,31 +708,8 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
     return valuesAreFinite;
 }
 
-template <>
-bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::Status & st)
-{
-    return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
-}
-
     #endif
 #endif
-
-template <typename DataType>
-DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN)
-{
-    bool finiteness = false;
-
-#define DAAL_CHECK_FINITENESS(cpuId, ...) allValuesAreFiniteImpl<DataType, cpuId>(__VA_ARGS__);
-
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CHECK_FINITENESS, table, allowNaN, &finiteness);
-
-#undef DAAL_CHECK_FINITENESS
-
-    return finiteness;
-}
-
-template DAAL_EXPORT bool allValuesAreFinite<float>(NumericTable & table, bool allowNaN);
-template DAAL_EXPORT bool allValuesAreFinite<double>(NumericTable & table, bool allowNaN);
 
 } // namespace internal
 } // namespace data_management

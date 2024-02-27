@@ -38,9 +38,6 @@ const uint64_t doubleExpMask  = 0x7ff0000000000000uLL;
 const uint64_t doubleFracMask = 0x000fffffffffffffuLL;
 const uint64_t doubleZeroBits = 0x0000000000000000uLL;
 
-template <typename DataType>
-DataType getInf();
-
 bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN);
 
 bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN);
@@ -59,6 +56,24 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 
 template <typename DataType, daal::CpuType cpu>
 services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finiteness);
+
+#if defined(DAAL_INTEL_CPP_COMPILER)
+
+    #if defined(__AVX512F__)
+
+double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st);
+
+services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+                                            size_t nSurplus, bool allowNaN, bool & finiteness);
+
+services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+                                            size_t nSurplus, bool allowNaN, bool & finiteness);
+
+bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st);
+
+    #endif
+
+#endif
 
 } // namespace internal
 } // namespace data_management
