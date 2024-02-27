@@ -63,7 +63,7 @@ struct get_core_wide_kernel {
         const auto block_size = block_end - block_start;
         ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
         const std::int64_t column_count = data.get_dimension(1);
-        //std::int32_t* responses_ptr = responses.get_mutable_data();
+        std::int32_t* responses_ptr = responses.get_mutable_data();
         const Float* data_ptr = data.get_data();
         const Float* weights_ptr = weights.get_data();
         std::int32_t* cores_ptr = cores.get_mutable_data();
@@ -113,13 +113,13 @@ struct get_core_wide_kernel {
                             count += use_weights ? weights_ptr[wg_id] : count_type(1);
                             if (local_id == 0) {
                                 neighbours_ptr[wg_id] = count;
+                                responses_ptr[wg_id] = wg_id;
                                 adj_matrix_ptr[wg_id * global_row_count + j] = 1;
                             }
                             if (count >= min_observations) {
                                 if (local_id == 0) {
                                     cores_ptr[wg_id] = count_type(1);
                                 }
-                                break;
                             }
                             // if (!use_weights && (row_count - j + count < min_observations)) {
                             //     break;
@@ -349,31 +349,31 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               Float epsilon,
                                               std::int64_t min_observations,
                                               const bk::event_vector& deps) {
-    // const std::int64_t column_count = data.get_dimension(1);
-    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-    //     return get_core_wide_kernel<Float, use_weights>::run(queue,
-    //                                                          data,
-    //                                                          weights,
-    //                                                          cores,
-    //                                                          responses,
-    //                                                          neighbours,
-    //                                                          adj_matrix,
-    //                                                          epsilon,
-    //                                                          min_observations,
-    //                                                          deps);
-    // }
-    // else {
-    return get_core_narrow_kernel<Float, use_weights>::run(queue,
-                                                           data,
-                                                           weights,
-                                                           cores,
-                                                           responses,
-                                                           neighbours,
-                                                           adj_matrix,
-                                                           epsilon,
-                                                           min_observations,
-                                                           deps);
-    //}
+    const std::int64_t column_count = data.get_dimension(1);
+    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+        return get_core_wide_kernel<Float, use_weights>::run(queue,
+                                                             data,
+                                                             weights,
+                                                             cores,
+                                                             responses,
+                                                             neighbours,
+                                                             adj_matrix,
+                                                             epsilon,
+                                                             min_observations,
+                                                             deps);
+    }
+    else {
+        return get_core_narrow_kernel<Float, use_weights>::run(queue,
+                                                               data,
+                                                               weights,
+                                                               cores,
+                                                               responses,
+                                                               neighbours,
+                                                               adj_matrix,
+                                                               epsilon,
+                                                               min_observations,
+                                                               deps);
+    }
 }
 
 template <typename Float>
