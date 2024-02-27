@@ -26,6 +26,7 @@ namespace data_management
 {
 namespace internal
 {
+using namespace daal::internal;
 
 typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 
@@ -37,25 +38,27 @@ const uint64_t doubleExpMask  = 0x7ff0000000000000uLL;
 const uint64_t doubleFracMask = 0x000fffffffffffffuLL;
 const uint64_t doubleZeroBits = 0x0000000000000000uLL;
 
-bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN)
-{
-    const uint32_t * uint32Ptr = (const uint32_t *)dataPtr;
+template <typename DataType>
+DataType getInf();
 
-    for (size_t i = 0; i < n; ++i)
-        // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
-        if (floatExpMask == (uint32Ptr[i] & floatExpMask) && !(floatZeroBits != (uint32Ptr[i] & floatFracMask) && allowNaN)) return true;
-    return false;
-}
+bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN);
 
-bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
-{
-    const uint64_t * uint64Ptr = (const uint64_t *)dataPtr;
+bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN);
 
-    for (size_t i = 0; i < n; ++i)
-        // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
-        if (doubleExpMask == (uint64Ptr[i] & doubleExpMask) && !(doubleZeroBits != (uint64Ptr[i] & doubleFracMask) && allowNaN)) return true;
-    return false;
-}
+template <typename DataType, daal::CpuType cpu>
+DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs);
+
+template <daal::CpuType cpu>
+double computeSumSOA(NumericTable & table, bool & sumIsFinite, services::Status & st);
+
+template <typename DataType, daal::CpuType cpu>
+bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN);
+
+template <daal::CpuType cpu>
+bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & st);
+
+template <typename DataType, daal::CpuType cpu>
+services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finiteness);
 
 } // namespace internal
 } // namespace data_management

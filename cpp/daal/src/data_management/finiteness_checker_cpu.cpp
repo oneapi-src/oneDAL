@@ -23,7 +23,7 @@
 #include "src/threading/threading.h"
 #include "service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
-#include ""
+#include "src/data_management/finiteness_checker.h"
 #include <iostream>
 
 namespace daal
@@ -33,118 +33,6 @@ namespace data_management
 namespace internal
 {
 using namespace daal::internal;
-
-typedef daal::data_management::NumericTable::StorageLayout NTLayout;
-
-const uint32_t floatExpMask  = 0x7f800000u;
-const uint32_t floatFracMask = 0x007fffffu;
-const uint32_t floatZeroBits = 0x00000000u;
-
-const uint64_t doubleExpMask  = 0x7ff0000000000000uLL;
-const uint64_t doubleFracMask = 0x000fffffffffffffuLL;
-const uint64_t doubleZeroBits = 0x0000000000000000uLL;
-
-template <typename DataType>
-DataType getInf()
-{
-    DataType inf;
-    if (sizeof(DataType) == 4)
-        *((uint32_t *)(&inf)) = floatExpMask;
-    else
-        *((uint64_t *)(&inf)) = doubleExpMask;
-    return inf;
-}
-
-template <typename DataType, daal::CpuType cpu>
-DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
-{
-    std::cout << "standard sum \n";
-    DataType sum = 0;
-    for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
-        for (size_t i = 0; i < nElementsPerPtr; ++i) sum += dataPtrs[ptrIdx][i];
-
-    return sum;
-}
-
-template <daal::CpuType cpu>
-double computeSumSOA(NumericTable & table, bool & sumIsFinite, services::Status & st)
-{
-    double sum                                  = 0;
-    const size_t nRows                          = table.getNumberOfRows();
-    const size_t nCols                          = table.getNumberOfColumns();
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
-
-    for (size_t i = 0; (i < nCols) && sumIsFinite; ++i)
-    {
-        switch ((*tableFeaturesDict)[i].getIndexType())
-        {
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        {
-            ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS(colBlock);
-            const float * colPtr = colBlock.get();
-            sum += static_cast<double>(computeSum<float, cpu>(1, nRows, &colPtr));
-            break;
-        }
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        {
-            ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS(colBlock);
-            const double * colPtr = colBlock.get();
-            sum += computeSum<double, cpu>(1, nRows, &colPtr);
-            break;
-        }
-        default: break;
-        }
-        sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
-    }
-
-    return sum;
-}
-
-template <typename DataType, daal::CpuType cpu>
-bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
-{
-    bool notFinite = false;
-    for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx) notFinite = notFinite || valuesAreNotFinite(dataPtrs[ptrIdx], nElementsPerPtr, allowNaN);
-
-    return !notFinite;
-}
-
-template <daal::CpuType cpu>
-bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & st)
-{
-    bool valuesAreFinite                        = true;
-    const size_t nRows                          = table.getNumberOfRows();
-    const size_t nCols                          = table.getNumberOfColumns();
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
-
-    for (size_t i = 0; (i < nCols) && valuesAreFinite; ++i)
-    {
-        switch ((*tableFeaturesDict)[i].getIndexType())
-        {
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        {
-            ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS(colBlock);
-            const float * colPtr = colBlock.get();
-            valuesAreFinite &= checkFiniteness<float, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
-            break;
-        }
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        {
-            ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS(colBlock);
-            const double * colPtr = colBlock.get();
-            valuesAreFinite &= checkFiniteness<double, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
-            break;
-        }
-        default: break;
-        }
-    }
-
-    return valuesAreFinite;
-}
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
@@ -864,62 +752,6 @@ bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::S
 
     #endif
 #endif
-
-template <typename DataType, daal::CpuType cpu>
-services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finiteness)
-{
-    services::Status s;
-    const size_t nRows    = table.getNumberOfRows();
-    const size_t nColumns = table.getNumberOfColumns();
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nColumns);
-    const size_t nElements = nRows * nColumns;
-    const NTLayout layout  = table.getDataLayout();
-
-    // first stage: compute sum of all values and check its finiteness
-    double sum       = 0;
-    bool sumIsFinite = true;
-    std::cout << "cpu: " << (int)cpu << std::endl;
-
-    if (layout == NTLayout::soa)
-    {
-        sum = computeSumSOA<cpu>(table, sumIsFinite, s);
-    }
-    else
-    {
-        ReadRows<DataType, cpu> dataBlock(table, 0, nRows);
-        DAAL_CHECK_BLOCK_STATUS(dataBlock);
-        const DataType * dataPtr = dataBlock.get();
-
-        sum = computeSum<DataType, cpu>(1, nElements, &dataPtr);
-    }
-
-    sumIsFinite &= !valuesAreNotFinite(&sum, 1, false);
-
-    if (sumIsFinite)
-    {
-        *finiteness = true;
-        return s;
-    }
-
-    // second stage: check finiteness of all values
-    bool valuesAreFinite = true;
-    if (layout == NTLayout::soa)
-    {
-        valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN, s);
-    }
-    else
-    {
-        ReadRows<DataType, cpu> dataBlock(table, 0, nRows);
-        DAAL_CHECK_BLOCK_STATUS(dataBlock);
-        const DataType * dataPtr = dataBlock.get();
-
-        valuesAreFinite = checkFiniteness<DataType, cpu>(nElements, 1, nElements, &dataPtr, allowNaN);
-    }
-
-    *finiteness = valuesAreFinite;
-
-    return s;
-}
 
 template <typename DataType>
 DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN)
