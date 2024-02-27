@@ -36,9 +36,6 @@ using namespace daal::internal;
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
-const size_t BLOCK_SIZE       = 8192;
-const size_t THREADING_BORDER = 262144;
-
 template <typename DataType>
 DataType getInf()
 {
@@ -493,7 +490,7 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
             ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
-            *localSum += static_cast<double>(computeSum<float, avx512>(1, nRows, &colPtr));
+            *localSum += static_cast<double>(computeSumAVX512Impl<float>(1, nRows, &colPtr));
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -501,7 +498,7 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
             ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const double * colPtr = colBlock.get();
-            *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
+            *localSum += computeSumAVX512Impl<double>(1, nRows, &colPtr);
             break;
         }
         default: break;
@@ -669,7 +666,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
             ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
-            *localNotFinite |= !checkFiniteness<float, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
+            *localNotFinite |= !checkFinitenessAVX512Impl<float>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -677,7 +674,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
             ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const double * colPtr = colBlock.get();
-            *localNotFinite |= !checkFiniteness<double, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
+            *localNotFinite |= !checkFinitenessAVX512Impl<double>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
         default: break;

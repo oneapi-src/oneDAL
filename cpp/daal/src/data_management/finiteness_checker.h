@@ -59,6 +59,9 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
+const size_t BLOCK_SIZE       = 8192;
+const size_t THREADING_BORDER = 262144;
+
     #if defined(__AVX512F__)
 
 template <typename DataType>
@@ -71,6 +74,21 @@ services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inPara
 
 services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness);
+
+template <typename DataType>
+bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
+{
+    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
+    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
+    bool inParallel     = !(nElements < THREADING_BORDER);
+    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
+    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
+    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
+
+    bool finiteness;
+    checkFinitenessInBlocks512(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
+    return finiteness;
+}
 
 bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st);
 

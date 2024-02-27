@@ -147,7 +147,7 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
-    #if defined(DAAL_KERNEL_AVX512) and defined(__AVX512F__)
+    #if defined(__AVX512F__)
 
 template <>
 float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
