@@ -291,6 +291,18 @@ public:
         }
     }
 
+    float_t clip_prob(float_t prob) {
+        constexpr float_t bottom = sizeof(float_t) > 4 ? 1e-15 : 1e-7;
+        constexpr float_t top = float_t(1.0) - bottom;
+        if (prob < bottom) {
+            prob = bottom;
+        }
+        if (prob > top) {
+            prob = top;
+        }
+        return prob;
+    }
+
     float_t test_predictions_and_logloss(const ndview<float_t, 2>& data_host,
                                          const ndview<float_t, 1>& params_host,
                                          const ndview<std::int32_t, 1>& labels_host,
@@ -313,7 +325,7 @@ public:
             if (fit_intercept) {
                 pred += params_host.at(0);
             }
-            float_t prob = 1 / (1 + std::exp(-pred));
+            float_t prob = clip_prob(float_t(1.0) / (1 + std::exp(-pred)));
             logloss -=
                 labels_host.at(i) * std::log(prob) + (1 - labels_host.at(i)) * std::log(1 - prob);
             float_t out_val = probabilities.at(i);
