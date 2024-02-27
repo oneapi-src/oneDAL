@@ -113,12 +113,12 @@ struct get_core_wide_kernel {
                             count += use_weights ? weights_ptr[wg_id] : count_type(1);
                             if (local_id == 0) {
                                 neighbours_ptr[wg_id] = count;
-                                responses_ptr[wg_id] = wg_id;
                                 adj_matrix_ptr[wg_id * global_row_count + j] = 1;
                             }
                             if (count >= min_observations) {
                                 if (local_id == 0) {
                                     cores_ptr[wg_id] = count_type(1);
+                                    responses_ptr[wg_id] = wg_id;
                                 }
                             }
                             // if (!use_weights && (row_count - j + count < min_observations)) {
@@ -178,8 +178,8 @@ struct get_core_narrow_kernel {
                     }
                     neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
                     adj_matrix_ptr[idx * global_row_count + j] = 1;
-                    responses_ptr[idx] = idx;
                     if (neighbours_ptr[idx] >= min_observations) {
+                        responses_ptr[idx] = idx;
                         cores_ptr[idx] = count_type(1);
                     }
                 }
@@ -363,16 +363,16 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                                              deps);
     }
     else {
-        return get_core_narrow_kernel<Float, use_weights>::run(queue,
-                                                               data,
-                                                               weights,
-                                                               cores,
-                                                               responses,
-                                                               neighbours,
-                                                               adj_matrix,
-                                                               epsilon,
-                                                               min_observations,
-                                                               deps);
+    return get_core_narrow_kernel<Float, use_weights>::run(queue,
+                                                           data,
+                                                           weights,
+                                                           cores,
+                                                           responses,
+                                                           neighbours,
+                                                           adj_matrix,
+                                                           epsilon,
+                                                           min_observations,
+                                                           deps);
     }
 }
 
@@ -573,7 +573,7 @@ sycl::event connected_components(sycl::queue& queue,
     std::int32_t* flag_ptr = flag.get_mutable_data();
     std::int32_t* labels_ptr = labels.get_mutable_data();
     std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
-    //std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
+    std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
     auto row_count = labels.get_dimension(0);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
@@ -583,8 +583,11 @@ sycl::event connected_components(sycl::queue& queue,
             //if(neighbours_ptr[idx] >=min_observations){
             for (std::int64_t j = 0; j < row_count; j++) {
                 //if(neighbours_ptr[j] >=min_observations){
-                new_label =
-                    sycl::max(adj_matrix_ptr[idx * row_count + j] * labels_ptr[j], new_label);
+                if (adj_matrix_ptr[idx * row_count + j] != 0 &&
+                    neighbours_ptr[j] >= min_observations) {
+                    new_label =
+                        sycl::max(adj_matrix_ptr[idx * row_count + j] * labels_ptr[j], new_label);
+                }
                 //}
                 //}
             }

@@ -132,7 +132,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     //     local_offset += global_rank_offsets.get_data()[i];
     // }
     std::unordered_map<int, int> element_to_id;
-    std::unordered_map<int, int> element_counts;
+    // std::unordered_map<int, int> element_counts;
     std::unordered_map<int, int> element_to_id_final;
 
     int current_id = 0;
@@ -243,20 +243,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
 
     for (int i = 0; i < row_count; i++) {
-        if (element_to_id.find(fake_responses_ptr[i]) == element_to_id.end()) {
-            element_to_id[fake_responses_ptr[i]] = current_id++;
+        if (fake_responses_ptr[i] != -1) {
+            if (element_to_id.find(fake_responses_ptr[i]) == element_to_id.end()) {
+                element_to_id[fake_responses_ptr[i]] = current_id++;
+            }
         }
-
-        element_counts[fake_responses_ptr[i]]++;
-    }
-
-    for (int i = 0; i < row_count; i++) {
-        if (element_counts[fake_responses_ptr[i]] < min_observations) {
-            fake_responses_ptr[i] = -1;
-        }
-        else {
-            fake_responses_ptr[i] = element_to_id[fake_responses_ptr[i]];
-        }
+        //element_counts[fake_responses_ptr[i]]++;
     }
 
     for (int i = 0; i < row_count; i++) {
