@@ -569,6 +569,34 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
     return start_index.to_host(queue, { index_event }).at(0);
 }
 
+sycl::event connected_components(sycl::queue& queue,
+                                 pr::ndview<std::int32_t, 1>& labels,
+                                 pr::ndview<bool, 2>& adj_matrix,
+                                 const bk::event_vector& deps) {
+    ONEDAL_ASSERT(queue.get_device().is_cpu());
+    auto labels_ptr = labels.get_mutable_data();
+    auto adj_matrix_ptr = adj_matrix.get_mutable_data();
+
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(
+            sycl::range<1>{ std::size_t(labels.get_dimension(0)) },
+            [=](sycl::id<1> idx) {
+            //     auto new_label = labels_ptr[idx];
+            //     for (std::int64_t j = 0; j < labels.get_dimension(0); j++) {
+            //         new_label = sycl::max(
+            //             adj_matrix_ptr[idx * labels.get_dimension(0) + j] ? labels_ptr[j] : 0,
+            //             new_label);
+            //     }
+            //     if (new_label != labels_ptr[idx]) {
+            //         labels_ptr[idx] = new_label;
+            //     }
+            });
+    });
+
+    return event;
+}
+
 sycl::event set_queue_ptr(sycl::queue& queue,
                           pr::ndview<std::int32_t, 1>& algo_queue,
                           pr::ndview<std::int32_t, 1>& queue_front,

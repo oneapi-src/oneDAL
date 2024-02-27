@@ -101,6 +101,11 @@ struct kernels_fp {
                                         const bk::event_vector& deps = {});
 };
 
+sycl::event connected_components(sycl::queue& queue,
+                                 pr::ndview<std::int32_t, 1>& responses,
+                                 pr::ndview<bool, 2>& adj_matrix,
+                                 const bk::event_vector& deps = {});
+
 sycl::event set_queue_ptr(sycl::queue& queue,
                           pr::ndview<std::int32_t, 1>& algo_queue,
                           pr::ndview<std::int32_t, 1>& queue_front,

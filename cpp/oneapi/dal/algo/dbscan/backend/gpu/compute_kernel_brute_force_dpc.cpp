@@ -221,8 +221,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     //     std::cout << fake_responses_ptr[i] << std::endl;
     // }
 
-    kernels_fp<Float>::update_responses(queue, arr_responses_fake, adj_matrix, min_observations)
-        .wait_and_throw();
+    kernels_fp<Float>::connected_components(queue, arr_responses_fake, adj_matrix).wait_and_throw();
     // auto arr_fake_responses_host = arr_responses_fake.to_host(queue);
 
     // auto fake_responses_ptr = arr_fake_responses_host.get_mutable_data();
