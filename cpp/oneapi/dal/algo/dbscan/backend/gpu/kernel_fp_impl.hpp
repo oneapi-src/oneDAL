@@ -160,7 +160,7 @@ struct get_core_narrow_kernel {
         const Float* data_ptr = data.get_data();
         const Float* weights_ptr = weights.get_data();
         std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
-        //std::int32_t* responses_ptr = responses.get_mutable_data();
+        std::int32_t* responses_ptr = responses.get_mutable_data();
         std::int32_t* cores_ptr = cores.get_mutable_data();
         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
@@ -178,7 +178,7 @@ struct get_core_narrow_kernel {
                     }
                     neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
                     adj_matrix_ptr[idx * global_row_count + j] = 1;
-
+                    responses_ptr[idx] = idx;
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
                     }
@@ -566,20 +566,27 @@ sycl::event connected_components(sycl::queue& queue,
                                  pr::ndview<std::int32_t, 1>& labels,
                                  pr::ndview<std::int32_t, 2>& adj_matrix,
                                  pr::ndview<std::int32_t, 1>& flag,
+                                 pr::ndview<std::int32_t, 1>& neighbours,
+                                 std::int64_t min_observations,
                                  const bk::event_vector& deps) {
     ONEDAL_ASSERT(queue.get_device().is_cpu());
     std::int32_t* flag_ptr = flag.get_mutable_data();
     std::int32_t* labels_ptr = labels.get_mutable_data();
     std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
+    //std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
     auto row_count = labels.get_dimension(0);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
             auto new_label = labels_ptr[idx];
+            //if(neighbours_ptr[idx] >=min_observations){
             for (std::int64_t j = 0; j < row_count; j++) {
+                //if(neighbours_ptr[j] >=min_observations){
                 new_label =
-                    sycl::max(adj_matrix_ptr[idx * row_count + j] ? labels_ptr[j] : 0, new_label);
+                    sycl::max(adj_matrix_ptr[idx * row_count + j] * labels_ptr[j], new_label);
+                //}
+                //}
             }
             if (new_label != labels_ptr[idx]) {
                 labels_ptr[idx] = new_label;

@@ -105,6 +105,8 @@ sycl::event connected_components(sycl::queue& queue,
                                  pr::ndview<std::int32_t, 1>& responses,
                                  pr::ndview<std::int32_t, 2>& adj_matrix,
                                  pr::ndview<std::int32_t, 1>& flag,
+                                 pr::ndview<std::int32_t, 1>& neighbours,
+                                 std::int64_t min_observations,
                                  const bk::event_vector& deps = {});
 
 sycl::event set_queue_ptr(sycl::queue& queue,
