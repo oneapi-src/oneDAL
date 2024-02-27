@@ -284,7 +284,7 @@ public:
         minDistAccTrials[iBestTrial * nBlock + iBlock] =
             updateMinDistForITrials(pDistSqBest, iBestTrial, nRowsToProcess, pData, colIdx, rowIdx, pLastAddedCenter, weights, pDistSqBest);
 
-        return Status();
+        return _csr->releaseSparseBlock(block);
     }
 
     algorithmFPType updateMinDistForITrials(algorithmFPType * const pDistSq, size_t iTrials, size_t nRowsToProcess,
@@ -336,6 +336,7 @@ public:
             const auto colIndex = colIdx[i];
             pDst[colIndex - 1]  = val;
         }
+        _csr->releaseSparseBlock(block);
         return res;
     }
 
