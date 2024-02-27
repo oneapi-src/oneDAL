@@ -45,6 +45,26 @@ DataType getInf()
     return inf;
 }
 
+bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN)
+{
+    const uint32_t * uint32Ptr = (const uint32_t *)dataPtr;
+
+    for (size_t i = 0; i < n; ++i)
+        // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
+        if (floatExpMask == (uint32Ptr[i] & floatExpMask) && !(floatZeroBits != (uint32Ptr[i] & floatFracMask) && allowNaN)) return true;
+    return false;
+}
+
+bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
+{
+    const uint64_t * uint64Ptr = (const uint64_t *)dataPtr;
+
+    for (size_t i = 0; i < n; ++i)
+        // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
+        if (doubleExpMask == (uint64Ptr[i] & doubleExpMask) && !(doubleZeroBits != (uint64Ptr[i] & doubleFracMask) && allowNaN)) return true;
+    return false;
+}
+
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
