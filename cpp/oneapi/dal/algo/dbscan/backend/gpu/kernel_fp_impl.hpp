@@ -363,16 +363,16 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                                              deps);
     }
     else {
-    return get_core_narrow_kernel<Float, use_weights>::run(queue,
-                                                           data,
-                                                           weights,
-                                                           cores,
-                                                           responses,
-                                                           neighbours,
-                                                           adj_matrix,
-                                                           epsilon,
-                                                           min_observations,
-                                                           deps);
+        return get_core_narrow_kernel<Float, use_weights>::run(queue,
+                                                               data,
+                                                               weights,
+                                                               cores,
+                                                               responses,
+                                                               neighbours,
+                                                               adj_matrix,
+                                                               epsilon,
+                                                               min_observations,
+                                                               deps);
     }
 }
 
@@ -580,16 +580,12 @@ sycl::event connected_components(sycl::queue& queue,
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
             auto new_label = labels_ptr[idx];
-            //if(neighbours_ptr[idx] >=min_observations){
             for (std::int64_t j = 0; j < row_count; j++) {
-                //if(neighbours_ptr[j] >=min_observations){
                 if (adj_matrix_ptr[idx * row_count + j] != 0 &&
                     neighbours_ptr[j] >= min_observations) {
                     new_label =
                         sycl::max(adj_matrix_ptr[idx * row_count + j] * labels_ptr[j], new_label);
                 }
-                //}
-                //}
             }
             if (new_label != labels_ptr[idx]) {
                 labels_ptr[idx] = new_label;
