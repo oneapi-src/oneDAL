@@ -1,6 +1,6 @@
 /** file finiteness_checker.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2024 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include "src/threading/threading.h"
 #include "service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
+#include ""
 #include <iostream>
 
 namespace daal
@@ -52,26 +53,6 @@ DataType getInf()
     else
         *((uint64_t *)(&inf)) = doubleExpMask;
     return inf;
-}
-
-bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN)
-{
-    const uint32_t * uint32Ptr = (const uint32_t *)dataPtr;
-
-    for (size_t i = 0; i < n; ++i)
-        // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
-        if (floatExpMask == (uint32Ptr[i] & floatExpMask) && !(floatZeroBits != (uint32Ptr[i] & floatFracMask) && allowNaN)) return true;
-    return false;
-}
-
-bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
-{
-    const uint64_t * uint64Ptr = (const uint64_t *)dataPtr;
-
-    for (size_t i = 0; i < n; ++i)
-        // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
-        if (doubleExpMask == (uint64Ptr[i] & doubleExpMask) && !(doubleZeroBits != (uint64Ptr[i] & doubleFracMask) && allowNaN)) return true;
-    return false;
 }
 
 template <typename DataType, daal::CpuType cpu>
@@ -165,12 +146,12 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
     return valuesAreFinite;
 }
 
-#if defined(__INTEL_COMPILER)
+#if defined(DAAL_INTEL_CPP_COMPILER)
 
 const size_t BLOCK_SIZE       = 8192;
 const size_t THREADING_BORDER = 262144;
 
-    #if defined(__AVX2__)
+    #if defined(__AVX2__) and !defined(__AVX512F__)
 
 template <typename DataType>
 DataType sumWithAVX2(size_t n, const DataType * dataPtr)
