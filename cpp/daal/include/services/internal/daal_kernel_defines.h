@@ -61,7 +61,6 @@ case cpuType:                                                                   
 }
 
 #define DAAL_EXPAND(...) __VA_ARGS__
-
 /** @} */
 
 #endif
