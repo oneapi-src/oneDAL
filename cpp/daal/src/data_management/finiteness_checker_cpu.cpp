@@ -303,7 +303,7 @@ double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::S
     return computeSumSOAAVX2Impl(table, sumIsFinite, st);
 }
 
-services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -359,7 +359,7 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
     return s;
 }
 
-services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -426,7 +426,7 @@ bool checkFinitenessAVX2Impl(const size_t nElements, size_t nDataPtrs, size_t nE
     size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
 
     bool finiteness;
-    checkFinitenessInBlocks(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
+    checkFinitenessInBlocks256(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
     return finiteness;
 }
 
@@ -652,7 +652,7 @@ double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services:
     return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
-services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                          size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -708,7 +708,7 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
     return s;
 }
 
-services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                          size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -775,7 +775,7 @@ bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t 
     size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
 
     bool finiteness;
-    checkFinitenessInBlocks(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
+    checkFinitenessInBlocks512(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
     return finiteness;
 }
 
