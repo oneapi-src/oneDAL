@@ -37,7 +37,10 @@ using namespace daal::internal;
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
-    std::cout << "standard sum, check \n";
+    std::cout << "standard sum, check test \n";
+    #if defined(__AVX512F__)
+    std::cout << "test\n";
+    #endif
 
     DataType sum = 0;
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
@@ -502,8 +505,9 @@ bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Sta
 {
     return checkFinitenessSOAAVX2Impl(table, allowNaN, st);
 }
-*/
     #endif
+
+*/    
     #if defined(__AVX512F__)
 
 template <typename DataType>

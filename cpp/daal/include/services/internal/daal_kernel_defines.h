@@ -59,6 +59,8 @@ case cpuType:                                                                   
 }
 
 #define DAAL_EXPAND(...) __VA_ARGS__
+
+#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
 /** @} */
 
 #endif
