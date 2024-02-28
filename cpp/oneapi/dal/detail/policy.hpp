@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +16,15 @@
 *******************************************************************************/
 
 #pragma once
+
+// TODO: Clean up this redefinition and import the defines globally.
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+#define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+#define TARGET_ARM
+#endif
 
 #include <type_traits>
 #ifdef ONEDAL_DATA_PARALLEL
@@ -61,10 +71,14 @@ inline constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::va
 
 enum class cpu_extension : uint64_t {
     none = 0U,
+#if defined(TARGET_X86_64)
     sse2 = 1U << 0,
     sse42 = 1U << 2,
     avx2 = 1U << 4,
     avx512 = 1U << 5
+#elif defined(TARGET_ARM)
+    sve = 1U << 0,
+#endif
 };
 
 class ONEDAL_EXPORT default_host_policy {};

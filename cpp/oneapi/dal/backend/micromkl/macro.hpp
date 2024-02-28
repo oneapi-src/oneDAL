@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +16,8 @@
 *******************************************************************************/
 
 #pragma once
+
+#include <daal/include/services/daal_defines.h>
 
 #ifndef __MICROMKL_INCLUDE_GUARD__
 #error "This header cannot be included outside of micromkl module"
@@ -50,8 +53,12 @@
     FUNC_CPU_DECL(nominal_cpu, prefix, name, argdecl)                     \
     DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, argdecl, argcall)
 
+#if defined(TARGET_X86_64)
 #define FUNC_AVX512(...) EXPAND(FUNC_CPU(avx512, avx512, __VA_ARGS__))
 #define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
+#elif defined(TARGET_ARM)
+#define FUNC_A8SVE(...) EXPAND(FUNC_CPU(sve, sve, __VA_ARGS__))
+#endif
 
 #ifdef __APPLE__
 #define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, avx2, __VA_ARGS__))
@@ -61,12 +68,18 @@
 #define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
 #endif
 
+#if defined(TARGET_X86_64)
 #define FUNC(prefix, name, argdecl, argcall)    \
     DISPATCH_FUNC_DECL(prefix, name, argdecl)   \
     FUNC_AVX512(prefix, name, argdecl, argcall) \
     FUNC_AVX2(prefix, name, argdecl, argcall)   \
     FUNC_SSE42(prefix, name, argdecl, argcall)  \
     FUNC_SSE2(prefix, name, argdecl, argcall)
+#elif defined(TARGET_ARM)
+#define FUNC(prefix, name, argdecl, argcall)  \
+    DISPATCH_FUNC_DECL(prefix, name, argdecl) \
+    FUNC_A8SVE(prefix, name, argdecl, argcall)
+#endif
 
 #ifdef ONEDAL_REF
 #define FUNC_DECL(prefix, floatabr, name, argdecl, argcall) \
@@ -82,6 +95,12 @@
 
 #define INSTANTIATE_CPU(cpu, name, Float, argdecl) \
     template void name<DISPATCH_ID_NAME(cpu), Float> argdecl(Float);
+
+#ifdef ONEDAL_CPU_DISPATCH_A8SVE
+#define INSTANTIATE_A8SVE(...) EXPAND(INSTANTIATE_CPU(sve, __VA_ARGS__))
+#else
+#define INSTANTIATE_A8SVE(...)
+#endif
 
 #ifdef ONEDAL_CPU_DISPATCH_AVX512
 #define INSTANTIATE_AVX512(...) EXPAND(INSTANTIATE_CPU(avx512, __VA_ARGS__))
@@ -103,11 +122,15 @@
 
 #define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
 
+#if defined(TARGET_X86_64)
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
     INSTANTIATE_AVX512(name, Float, argdecl)    \
     INSTANTIATE_AVX2(name, Float, argdecl)      \
     INSTANTIATE_SSE42(name, Float, argdecl)     \
     INSTANTIATE_SSE2(name, Float, argdecl)
+#elif defined(TARGET_ARM)
+#define INSTANTIATE_FLOAT(name, Float, argdecl) INSTANTIATE_A8SVE(name, Float, argdecl)
+#endif
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \
     FUNC_DECL(prefix, s, name, fargdecl(float), fargcall)                   \
