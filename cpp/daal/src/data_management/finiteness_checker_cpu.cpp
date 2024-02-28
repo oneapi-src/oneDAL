@@ -842,8 +842,6 @@ bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::S
 {
     return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
 }
-
-
     #endif
 #endif
 
@@ -904,23 +902,8 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     return s;
 }
 
-template <typename DataType>
-DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN)
-{
-    bool finiteness = false;
-
-#define DAAL_CHECK_FINITENESS(cpuId, ...) allValuesAreFiniteImpl<DataType, cpuId>(__VA_ARGS__);
-
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CHECK_FINITENESS, table, allowNaN, &finiteness);
-
-#undef DAAL_CHECK_FINITENESS
-
-    return finiteness;
-}
-
-template DAAL_EXPORT bool allValuesAreFinite<float>(NumericTable & table, bool allowNaN);
-template DAAL_EXPORT bool allValuesAreFinite<double>(NumericTable & table, bool allowNaN);
-
+template services::Status allValuesAreFiniteImpl<float, DAAL_CPU>(NumericTable & table, bool allowNaN, bool * finiteness);
+template services::Status allValuesAreFiniteImpl<double, DAAL_CPU>(NumericTable & table, bool allowNaN, bool * finiteness);
 
 } // namespace internal
 } // namespace data_management

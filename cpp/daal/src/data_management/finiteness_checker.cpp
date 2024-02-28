@@ -55,6 +55,24 @@ bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
 }
 
 
+template <typename DataType>
+DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN)
+{
+    bool finiteness = false;
+
+#define DAAL_CHECK_FINITENESS(cpuId, ...) allValuesAreFiniteImpl<DataType, cpuId>(__VA_ARGS__);
+
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CHECK_FINITENESS, table, allowNaN, &finiteness);
+
+#undef DAAL_CHECK_FINITENESS
+
+    return finiteness;
+}
+
+template DAAL_EXPORT bool allValuesAreFinite<float>(NumericTable & table, bool allowNaN);
+template DAAL_EXPORT bool allValuesAreFinite<double>(NumericTable & table, bool allowNaN);
+
+
 } // namespace internal
 } // namespace data_management
 } // namespace daal
