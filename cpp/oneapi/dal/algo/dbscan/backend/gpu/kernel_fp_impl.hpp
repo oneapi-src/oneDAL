@@ -702,33 +702,36 @@ sycl::event kernels_fp<Float>::search(sycl::queue& queue,
     const Float* current_queue_ptr = current_queue.get_data();
     bool* indicies_cores_ptr = indicies_cores.get_mutable_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
-    // auto fill_event = queue.submit([&](sycl::handler& cgh) {
-    //     cgh.depends_on(deps);
-    //     cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-    //            indicies_cores_ptr[idx] = false;
-    //     });
-    // });
+    auto fill_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
+            indicies_cores_ptr[idx] = false;
+            queue_size_arr_ptr[0] = 0;
+        });
+    });
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-            for (std::int64_t j = 0; j < queue_size; j++) {
-                Float sum = 0.0;
-                for (std::int64_t i = 0; i < column_count; i++) {
-                    Float val =
-                        data_ptr[idx * column_count + i] - current_queue_ptr[j * column_count + i];
-                    sum += val * val;
-                }
-                if (sum > epsilon) {
-                    continue;
-                }
-                responses_ptr[idx] = cluster_id;
-
-                if (cores_ptr[idx] == 1) {
-                    if (indicies_cores_ptr[idx] != true) {
-                        queue_size_arr_ptr[0]++;
+            if (responses_ptr[idx] == -1) {
+                for (std::int64_t j = 0; j < queue_size; j++) {
+                    Float sum = 0.0;
+                    for (std::int64_t i = 0; i < column_count; i++) {
+                        Float val = data_ptr[idx * column_count + i] -
+                                    current_queue_ptr[j * column_count + i];
+                        sum += val * val;
                     }
-                    indicies_cores_ptr[idx] = true;
+                    if (sum > epsilon) {
+                        continue;
+                    }
+                    responses_ptr[idx] = cluster_id;
+
+                    if (cores_ptr[idx] == 1) {
+                        if (indicies_cores_ptr[idx] != true) {
+                            queue_size_arr_ptr[0]++;
+                        }
+                        indicies_cores_ptr[idx] = true;
+                    }
                 }
             }
         });
