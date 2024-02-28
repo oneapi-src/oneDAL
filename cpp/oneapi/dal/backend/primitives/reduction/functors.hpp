@@ -59,8 +59,7 @@ struct isinfornan {
         return std::numeric_limits<T>::infinity ==
                sycl::ext::oneapi::bit_and<T>(std::numeric_limits<T>::infinity, arg);
 #else
-        return std::numeric_limits<T>::infinity ==
-               std::bit_and(std::numeric_limits<T>::infinity, arg);
+        return isinf(arg) || (arg != arg);
 #endif
     }
 };
@@ -76,9 +75,7 @@ struct isinf {
                    sycl::ext::oneapi::bit_and<T>(std::numeric_limits<T>::infinity, arg) &&
                0 == sycl::ext::oneapi::bit_and<T>(fracmask, arg);
 #else
-        return std::numeric_limits<T>::infinity ==
-                   std::bit_and(std::numeric_limits<T>::infinity, arg) &&
-               0 == std::bit_and(fracmask, arg);
+        return (std::numeric_limits<T>::infinity == arg) ||  (-std::numeric_limits<T>::infinity == arg);
 #endif
     }
 };
