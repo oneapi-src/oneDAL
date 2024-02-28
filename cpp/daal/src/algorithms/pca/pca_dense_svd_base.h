@@ -35,6 +35,10 @@ namespace pca
 {
 namespace internal
 {
+using namespace daal::services::internal;
+using namespace daal::data_management;
+using namespace daal::internal;
+
 enum InputDataType
 {
     nonNormalizedDataset = 0, /*!< Original, non-normalized data set */
@@ -47,11 +51,33 @@ class PCASVDKernelBase : public PCADenseBase<algorithmFPType, cpu>
 {
 public:
     PCASVDKernelBase() {}
+    using PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
     virtual ~PCASVDKernelBase() {}
 
 protected:
+    services::Status computeEigenValues(const data_management::NumericTable & eigenvalues, data_management::NumericTable & singular_values,
+                                        size_t nRows);
     services::Status scaleSingularValues(data_management::NumericTable & eigenvaluesTable, size_t nVectors);
 };
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status PCASVDKernelBase<algorithmFPType, cpu>::computeEigenValues(const data_management::NumericTable & singular_values,
+                                                                            data_management::NumericTable & eigenvalues, size_t nRows)
+{
+    const size_t nComponents = singular_values.getNumberOfColumns();
+    ReadRows<algorithmFPType, cpu> SingularValuesBlock(const_cast<data_management::NumericTable &>(singular_values), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(SingularValuesBlock);
+    const algorithmFPType * const SingularValuesArray = SingularValuesBlock.get();
+    WriteRows<algorithmFPType, cpu> EigenValuesBlock(eigenvalues, 0, 1);
+    DAAL_CHECK_MALLOC(EigenValuesBlock.get());
+    algorithmFPType * EigenValuesArray = EigenValuesBlock.get();
+    if ((nRows - 1) <= 0) return services::Status(services::ErrorIncorrectSingularValuesDenominator);
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        EigenValuesArray[i] = SingularValuesArray[i] * SingularValuesArray[i] / (nRows - 1);
+    }
+    return services::Status();
+}
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PCASVDKernelBase<algorithmFPType, cpu>::scaleSingularValues(NumericTable & eigenvaluesTable, size_t nVectors)

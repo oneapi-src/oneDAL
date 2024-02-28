@@ -37,6 +37,8 @@ public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
     using input_t = cov::compute_input<>;
+    using partial_input_t = cov::partial_compute_input<>;
+    using partial_result_t = cov::partial_compute_result<>;
     using result_t = cov::compute_result<>;
     using descriptor_t = cov::descriptor<Float, Method>;
 

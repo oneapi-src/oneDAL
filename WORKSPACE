@@ -1,14 +1,6 @@
 workspace(name = "onedal")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-  name = "bazel_skylib",
-  urls = [
-    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
-    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
-  ],
-  sha256 = "cd55a062e763b9349921f0f5db8c3933288dc8ba4f76dd9416aac68acee3cb94",
-)
 
 load("@onedal//dev/bazel/config:config.bzl", "declare_onedal_config")
 declare_onedal_config(
@@ -123,8 +115,8 @@ http_archive(
 
 http_archive(
     name = "fmt",
-    url = "https://github.com/fmtlib/fmt/archive/10.1.1.tar.gz",
-    sha256 = "78b8c0a72b1c35e4443a7e308df52498252d1cefc2b08c9a97bc9ee6cfe61f8b",
-    strip_prefix = "fmt-10.1.1",
+    url = "https://github.com/fmtlib/fmt/archive/10.2.1.tar.gz",
+    sha256 = "1250e4cc58bf06ee631567523f48848dc4596133e163f02615c97f78bab6c811",
+    strip_prefix = "fmt-10.2.1",
     build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
 )

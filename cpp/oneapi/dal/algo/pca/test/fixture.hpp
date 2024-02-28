@@ -182,7 +182,7 @@ public:
         check_nans(result);
 
         INFO("check if eigenvectors order is descending")
-        this->check_eigenvalues_order(eigenvalues);
+        check_eigenvalues_order(eigenvalues);
 
         INFO("check if eigenvectors matrix is orthogonal")
         check_eigenvectors_orthogonality(eigenvectors);
@@ -205,7 +205,7 @@ public:
         check_nans(result);
 
         INFO("check if eigenvectors order is descending")
-        this->check_eigenvalues_order(eigenvalues);
+        check_eigenvalues_order(eigenvalues);
 
         INFO("check if eigenvectors matrix is orthogonal")
         check_eigenvectors_orthogonality(eigenvectors);

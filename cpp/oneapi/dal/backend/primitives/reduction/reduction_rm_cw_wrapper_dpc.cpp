@@ -26,6 +26,12 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                                std::int64_t height) const
     -> reduction_method {
+    const std::int64_t max_loop_range = std::numeric_limits<std::int32_t>::max();
+    const std::int64_t local_range = width * height;
+    if (local_range >= max_loop_range) {
+        return reduction_method::blocking;
+    }
+
     {
         const auto fwidth = device_max_wg_size(q_);
         const auto twidth = fwidth * atomic_t::max_folding;
@@ -59,6 +65,10 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_meth
     }
     if (method == reduction_method::naive_local) {
         const naive_local_t kernel{ q_ };
+        return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
+    }
+    if (method == reduction_method::blocking) {
+        const blocking_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps, override_init);
     }
     ONEDAL_ASSERT(false);

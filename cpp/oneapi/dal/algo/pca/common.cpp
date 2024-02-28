@@ -37,6 +37,14 @@ result_option_id get_means_id() {
     return result_option_id{ result_option_id::make_by_index(3) };
 }
 
+result_option_id get_singular_values_id() {
+    return result_option_id{ result_option_id::make_by_index(4) };
+}
+
+result_option_id get_explained_variances_ratio_id() {
+    return result_option_id{ result_option_id::make_by_index(5) };
+}
+
 template <typename Task>
 result_option_id get_default_result_options() {
     return result_option_id{};
@@ -44,7 +52,8 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::dim_reduction>() {
-    return get_eigenvectors_id() | get_eigenvalues_id() | get_variances_id() | get_means_id();
+    return get_eigenvectors_id() | get_eigenvalues_id() | get_variances_id() | get_means_id() |
+           get_singular_values_id() | get_explained_variances_ratio_id();
 }
 
 namespace v1 {
@@ -54,6 +63,9 @@ class descriptor_impl : public base {
 public:
     std::int64_t component_count = -1;
     bool deterministic = false;
+    bool whiten = false;
+    normalization normalization_mode = normalization::zscore;
+    normalization data_normalization = normalization::none;
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -61,13 +73,21 @@ template <typename Task>
 class model_impl : public ONEDAL_SERIALIZABLE(pca_dim_reduction_model_impl_id) {
 public:
     table eigenvectors;
-
+    table pMeans;
+    table pVariances;
+    table eigenvalues;
     void serialize(dal::detail::output_archive& ar) const override {
         ar(eigenvectors);
+        ar(pMeans);
+        ar(pVariances);
+        ar(eigenvalues);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         ar(eigenvectors);
+        ar(pMeans);
+        ar(pVariances);
+        ar(eigenvalues);
     }
 };
 
@@ -85,6 +105,21 @@ bool descriptor_base<Task>::get_deterministic() const {
 }
 
 template <typename Task>
+bool descriptor_base<Task>::whiten() const {
+    return impl_->whiten;
+}
+
+template <typename Task>
+normalization descriptor_base<Task>::get_normalization_mode() const {
+    return impl_->normalization_mode;
+}
+
+template <typename Task>
+normalization descriptor_base<Task>::get_data_normalization() const {
+    return impl_->data_normalization;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_component_count_impl(std::int64_t value) {
     if (value < 0) {
         throw domain_error(dal::detail::error_messages::component_count_lt_zero());
@@ -97,6 +132,19 @@ void descriptor_base<Task>::set_deterministic_impl(bool value) {
     impl_->deterministic = value;
 }
 
+template <typename Task>
+void descriptor_base<Task>::set_normalization_mode_impl(normalization value) {
+    impl_->normalization_mode = value;
+}
+template <typename Task>
+void descriptor_base<Task>::set_data_normalization_impl(normalization value) {
+    impl_->data_normalization = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_whiten_impl(bool value) {
+    impl_->whiten = value;
+}
 template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
@@ -132,7 +180,35 @@ template <typename Task>
 void model<Task>::set_eigenvectors_impl(const table& value) {
     impl_->eigenvectors = value;
 }
+template <typename Task>
+const table& model<Task>::get_means() const {
+    return impl_->pMeans;
+}
 
+template <typename Task>
+void model<Task>::set_means_impl(const table& value) {
+    impl_->pMeans = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_variances() const {
+    return impl_->pVariances;
+}
+
+template <typename Task>
+void model<Task>::set_variances_impl(const table& value) {
+    impl_->pVariances = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_eigenvalues() const {
+    return impl_->eigenvalues;
+}
+
+template <typename Task>
+void model<Task>::set_eigenvalues_impl(const table& value) {
+    impl_->eigenvalues = value;
+}
 template <typename Task>
 void model<Task>::serialize(dal::detail::output_archive& ar) const {
     dal::detail::serialize_polymorphic_shared(impl_, ar);

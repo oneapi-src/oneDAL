@@ -37,6 +37,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::knn::backend {
 
@@ -166,6 +167,7 @@ public:
                            pr::ndview<idx_t, 2>& inp_indices,
                            pr::ndview<Float, 2>& inp_distances,
                            const bk::event_vector& deps = {}) {
+        ONEDAL_PROFILER_TASK(query_loop.callback, queue_);
         sycl::event copy_indices, copy_distances, comp_responses;
 
         const auto bounds = this->block_bounds(qb_id);
@@ -473,6 +475,7 @@ sycl::event bf_kernel(sycl::queue& queue,
         distance_impl->get_daal_distance_type() == daal_distance_t::cosine;
     const bool is_euclidean_distance =
         is_minkowski_distance && (distance_impl->get_degree() == 2.0);
+    ONEDAL_ASSERT(is_minkowski_distance ^ is_chebyshev_distance ^ is_cosine_distance);
 
     sycl::event search_event;
 

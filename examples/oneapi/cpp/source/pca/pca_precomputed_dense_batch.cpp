@@ -20,11 +20,11 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 template <typename Method>
 void run(const dal::table& x_train, const std::string& method_name) {
     const auto pca_desc =
-        dal::pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
+        pca::descriptor<float, Method>().set_component_count(5).set_deterministic(true);
 
     const auto result_train = dal::train(pca_desc, x_train);
 
@@ -46,8 +46,8 @@ int main(int argc, char const* argv[]) {
     const auto cov_train = dal::read<dal::table>(dal::csv::data_source{ cov_data_file_name });
     const auto cor_train = dal::read<dal::table>(dal::csv::data_source{ cor_data_file_name });
 
-    run<dal::pca::method::precomputed>(cov_train, "PCA precomputed method with covariance matrix");
-    run<dal::pca::method::precomputed>(cor_train, "PCA precomputed method with correlation matrix");
+    run<pca::method::precomputed>(cov_train, "PCA precomputed method with covariance matrix");
+    run<pca::method::precomputed>(cor_train, "PCA precomputed method with correlation matrix");
 
     return 0;
 }

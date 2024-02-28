@@ -19,7 +19,7 @@
 .. _github_rls: https://github.com/oneapi-src/oneDAL/releases
 
 .. |install_sources| replace:: Install |short_name| from sources
-.. _install_sources: https://github.com/oneapi-src/oneDAL/blob/master/INSTALL.md
+.. _install_sources: https://github.com/oneapi-src/oneDAL/blob/main/INSTALL.md
 
 Installation
 ============
