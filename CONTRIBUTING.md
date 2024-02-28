@@ -38,7 +38,7 @@ To contribute your changes directly to the repository, do the following:
 - Make sure your code is in line with our [coding style](#code-style) as `clang-format` is one of the checks in our public CI.
 - For a larger feature, provide a relevant example.
 - [Document](#documentation-guidelines) your code.
-- [Submit](https://github.com/oneapi-src/oneDAL/pulls) a pull request into the `master` branch.
+- [Submit](https://github.com/oneapi-src/oneDAL/pulls) a pull request into the `main` branch.
 
 Public and private CIs are enabled for the repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into our GitHub* repository.
 
@@ -48,7 +48,7 @@ Public and private CIs are enabled for the repository. Your PR should pass all o
 
 **Prerequisites:** ClangFormat `9.0.0` or later
 
-Our repository contains [clang-format configurations](https://github.com/oneapi-src/oneDAL/blob/master/.clang-format) that you should use on your code. To do this, run:
+Our repository contains [clang-format configurations](https://github.com/oneapi-src/oneDAL/blob/main/.clang-format) that you should use on your code. To do this, run:
 
 ```
 clang-format style=file <your file>

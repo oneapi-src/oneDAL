@@ -1,5 +1,6 @@
+# file: cmplt.clang.mk
 #===============================================================================
-# Copyright 2022 Intel Corporation
+# Copyright 2012 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,32 +16,35 @@
 #===============================================================================
 
 #++
-#  Intel compiler defenitions for makefile
+#  Clang definitions for makefile
 #--
 
-PLATs.icx = lnx32e mac32e
+PLATs.clang = lnx32e mac32e
 
-CMPLRDIRSUFF.icx = _icx
+CMPLRDIRSUFF.clang = _clang
 
-CORE.SERV.COMPILER.icx = generic
+CORE.SERV.COMPILER.clang = generic
 
--Zl.icx =  -no-intel-lib=libirc
--DEBC.icx = -g
+-Zl.clang =
+-DEBC.clang = -g
 
-COMPILER.lnx.icx = icpx -m64 \
+COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
+                     -Werror -Wreturn-type
+COMPILER.lnx.clang = clang++ -m64 \
                      -Werror -Wreturn-type
 
+link.dynamic.mac.clang = clang++ -m64
+link.dynamic.lnx.clang = clang++ -m64
 
-link.dynamic.lnx.icx = icpx -m64
-
-pedantic.opts.icx = -pedantic \
+pedantic.opts.clang = -pedantic \
                       -Wall \
                       -Wextra \
                       -Wno-unused-parameter
 
-pedantic.opts.lnx.icx = $(pedantic.opts.icx)
+pedantic.opts.mac.clang = $(pedantic.opts.clang)
+pedantic.opts.lnx.clang = $(pedantic.opts.clang)
 
-p4_OPT.icx   = $(-Q)march=nocona
-mc3_OPT.icx  = $(-Q)march=nehalem
-avx2_OPT.icx = $(-Q)march=haswell
-skx_OPT.icx  = $(-Q)march=skx
+p4_OPT.clang   = $(-Q)march=nocona
+mc3_OPT.clang  = $(-Q)$(if $(OS_is_mac),march=nocona,march=nehalem) $(if $(OS_is_mac),$(-Q)mtune=nehalem)
+avx2_OPT.clang = $(-Q)march=haswell
+skx_OPT.clang  = $(-Q)march=skx

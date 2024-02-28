@@ -28,15 +28,15 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+namespace pca = dal::pca;
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("precomputed_covariance.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
     using float_t = float;
-    using method_t = dal::pca::method::precomputed;
-    using task_t = dal::pca::task::dim_reduction;
-    using descriptor_t = dal::pca::descriptor<float_t, method_t, task_t>;
+    using method_t = pca::method::precomputed;
+    using task_t = pca::task::dim_reduction;
+    using descriptor_t = pca::descriptor<float_t, method_t, task_t>;
     const auto pca_desc = descriptor_t().set_component_count(5).set_deterministic(true);
 
     const auto result_train = dal::train(q, pca_desc, x_train);

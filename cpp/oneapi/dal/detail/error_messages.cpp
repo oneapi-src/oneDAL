@@ -325,6 +325,7 @@ MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
 MSG(not_enough_memory_to_build_one_tree, "There isn't enough memory to build one tree")
+MSG(not_enough_local_memory_for_hist, "There is not enough local memory to build one histogram")
 MSG(invalid_number_of_trees, "Invalid number of trees")
 MSG(invalid_number_of_min_observations_in_leaf_node,
     "Invalid number of min observations in leaf node")

@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2014 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +28,7 @@ ifeq (help,$(MAKECMDGOALS))
 endif
 
 attr.lnx32e = lnx intel64 lin
+attr.lnxarm = lnx arm lin
 attr.mac32e = mac intel64
 attr.win32e = win intel64 win
 
@@ -53,19 +55,53 @@ $(error Building with the parameters library is not available on Windows OS)
 endif
 endif
 
-COMPILERs = icc icx gnu clang vc
-COMPILER ?= icc
+ifeq ($(PLAT),lnx32e)
+  BACKEND_CONFIG ?= mkl
+  ARCH = 32e
+else ifeq ($(PLAT),mac32e)
+  BACKEND_CONFIG ?= mkl
+  ARCH = 32e
+else ifeq ($(PLAT),win32e)
+  BACKEND_CONFIG ?= mkl
+  ARCH = 32e
+else ifeq ($(PLAT),lnxarm)
+  BACKEND_CONFIG ?= ref
+  ARCH = arm
+else
+  $(error Unsupported platform: $(PLAT))
+endif
 
-BACKEND_CONFIG ?= mkl
+ARCH_is_$(ARCH)            := yes
+
+ifeq ($(ARCH_is_32e),yes)
+  $(if $(filter mkl ref,$(BACKEND_CONFIG)),,$(error Unsupported backend config '$(BACKEND_CONFIG)'. \
+      Supported config for '${PLAT}' are ['mkl','ref']))
+  COMPILERs = icc icx gnu clang vc
+  COMPILER ?= icc
+else
+  $(if $(filter ref,$(BACKEND_CONFIG)),,$(error Unsupported backend config '$(BACKEND_CONFIG)'. \
+      Supported config for '${PLAT}' is 'ref'))
+  COMPILERs = gnu clang
+  COMPILER ?= gnu
+endif
 
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
-CPUs := sse2 sse42 avx2 avx512
-CPUs.files := nrh neh hsw skx
+ifeq ($(ARCH_is_32e),yes)
+  CPUs := sse2 sse42 avx2 avx512
+  CPUs.files := nrh neh hsw skx
+else
+  CPUs := sve
+  CPUs.files := a8sve
+endif
 
 USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
-USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
+ifeq ($(ARCH_is_32e),yes)
+  USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
+else
+  USECPUS := $(if $(filter sve,$(USECPUS)),$(USECPUS),sve $(USECPUS))
+endif
 
 $(info Selected list of CPUs - USECPUS: $(USECPUS))
 
@@ -91,7 +127,7 @@ endif
 DPC.COMPILE.gcc_toolchain := $(GCC_TOOLCHAIN_PATH)
 endif
 
-include dev/make/cmplr.$(COMPILER).$(BACKEND_CONFIG).mk
+include dev/make/cmplr.$(COMPILER).$(BACKEND_CONFIG).$(ARCH).mk
 include dev/make/cmplr.dpcpp.mk
 
 $(if $(filter $(PLATs.$(COMPILER)),$(PLAT)),,$(error PLAT for $(COMPILER) must be defined to one of $(PLATs.$(COMPILER))))
@@ -133,21 +169,36 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -eGRP  = $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
 daalmake = make
 
-p4_OPT   := $(p4_OPT.$(COMPILER))
-mc3_OPT  := $(mc3_OPT.$(COMPILER))
-avx2_OPT := $(avx2_OPT.$(COMPILER))
-skx_OPT  := $(skx_OPT.$(COMPILER))
+ifeq ($(ARCH_is_32e),yes)
+  p4_OPT   := $(p4_OPT.$(COMPILER))
+  mc3_OPT  := $(mc3_OPT.$(COMPILER))
+  avx2_OPT := $(avx2_OPT.$(COMPILER))
+  skx_OPT  := $(skx_OPT.$(COMPILER))
+else
+  a8sve_OPT := $(a8sve_OPT.$(COMPILER))
+endif
 
 _OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,))
 
-USECPUS.files := $(subst sse2,nrh,$(subst sse42,neh,$(subst avx2,hsw,$(subst avx512,skx,$(USECPUS)))))
+ifeq ($(ARCH_is_32e),yes)
+  USECPUS.files := $(subst sse2,nrh,$(subst sse42,neh,$(subst avx2,hsw,$(subst avx512,skx,$(USECPUS)))))
+else
+  USECPUS.files := $(subst sve,a8sve,$(USECPUS))
+endif
+
 USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
-USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),\
-                    $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),\
-                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),\
-                    $(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow),$(USECPUS.out)))))
+
+ifeq ($(ARCH_is_32e),yes)
+  USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$(sed.eow),\
+                      $(subst sse42,^\#define DAAL_KERNEL_SSE42$(sed.eow),\
+                      $(subst avx2,^\#define DAAL_KERNEL_AVX2$(sed.eow),\
+                      $(subst avx512,^\#define DAAL_KERNEL_AVX512$(sed.eow),$(USECPUS.out)))))
+else
+  USECPUS.out.defs := $(subst sve,^\#define DAAL_KERNEL_SVE$(sed.eow),$(USECPUS.out))
+endif
+
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
@@ -355,6 +406,11 @@ daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.l
 daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.threxport := export_lnx32e.$(BACKEND_CONFIG).def
 
+daaldep.lnxarm.rt.thr := -L$(TBBDIR.soia.lnx) -ltbb -ltbbmalloc -lpthread $(daaldep.lnxarm.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.lnxarm.rt.seq := -lpthread $(daaldep.lnxarm.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a) 
+daaldep.lnxarm.rt.dpc := -lpthread -lOpenCL $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.lnxarm.threxport := export_lnxarm.$(BACKEND_CONFIG).def
+
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) $(dep_thr) $(if $(CHECK_DLL_SIG),Wintrust.lib)
@@ -514,10 +570,14 @@ $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
+
+ifeq ($(ARCH_is_32e),yes)
 $(call containing,_nrh, $(CORE.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
 $(call containing,_neh, $(CORE.objs_a)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
 $(call containing,_hsw, $(CORE.objs_a)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
 $(call containing,_skx, $(CORE.objs_a)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
+endif
+
 $(call containing,_flt, $(CORE.objs_a)): COPT += -DDAAL_FPTYPE=float
 $(call containing,_dbl, $(CORE.objs_a)): COPT += -DDAAL_FPTYPE=double
 
@@ -529,10 +589,14 @@ $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
+
+ifeq ($(ARCH_is_32e),yes)
 $(call containing,_nrh, $(CORE.objs_y)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
 $(call containing,_neh, $(CORE.objs_y)): COPT += $(mc3_OPT)  -DDAAL_CPU=sse42
 $(call containing,_hsw, $(CORE.objs_y)): COPT += $(avx2_OPT) -DDAAL_CPU=avx2
 $(call containing,_skx, $(CORE.objs_y)): COPT += $(skx_OPT)  -DDAAL_CPU=avx512
+endif
+
 $(call containing,_flt, $(CORE.objs_y)): COPT += -DDAAL_FPTYPE=float
 $(call containing,_dbl, $(CORE.objs_y)): COPT += -DDAAL_FPTYPE=double
 
@@ -550,10 +614,16 @@ define .compile.template.ay
 $(eval template_source_cpp := $(subst .$o,.cpp,$(notdir $1)))
 $(eval template_source_cpp := $(subst _fpt_flt,_fpt,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _fpt_dbl,_fpt,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+
+ifeq ($(ARCH_is_32e),yes)
+  $(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
+  $(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
+  $(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
+  $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+else
+  $(eval template_source_cpp := $(subst _cpu_a8sve,_cpu,$(template_source_cpp)))
+endif
+
 $1: $(template_source_cpp) ; $(value C.COMPILE)
 endef
 
@@ -582,10 +652,15 @@ ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend.incdir) $
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp) $(ONEAPI.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
-ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=__CPU_TAG_SSE2__
-ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=__CPU_TAG_SSE42__
-ONEAPI.dispatcher_tag.hsw := -D__CPU_TAG__=__CPU_TAG_AVX2__
-ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=__CPU_TAG_AVX512__
+
+ifeq ($(ARCH_is_32e),yes)
+  ONEAPI.dispatcher_tag.nrh := -D__CPU_TAG__=__CPU_TAG_SSE2__
+  ONEAPI.dispatcher_tag.neh := -D__CPU_TAG__=__CPU_TAG_SSE42__
+  ONEAPI.dispatcher_tag.hsw := -D__CPU_TAG__=__CPU_TAG_AVX2__
+  ONEAPI.dispatcher_tag.skx := -D__CPU_TAG__=__CPU_TAG_AVX512__
+else
+  ONEAPI.dispatcher_tag.a8sve := -D__CPU_TAG__=__CPU_TAG_ARMV8SVE__
+endif
 
 ONEAPI.srcdir := $(CPPDIR.onedal)
 ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
@@ -628,10 +703,16 @@ ONEAPI.objs_y.all := $(ONEAPI.objs_y) $(ONEAPI.objs_y.dpc)
 define .populate_cpus
 $(eval non_cpu_files := $(call notcontaining,_cpu,$2))
 $(eval cpu_files := $(call containing,_cpu,$2))
-$(eval nrh_files := $(subst _nrh,_cpu_nrh,$(call containing,_nrh,$(non_cpu_files))))
-$(eval neh_files := $(subst _neh,_cpu_neh,$(call containing,_neh,$(non_cpu_files))))
-$(eval hsw_files := $(subst _hsw,_cpu_hsw,$(call containing,_hsw,$(non_cpu_files))))
-$(eval skx_files := $(subst _skx,_cpu_skx,$(call containing,_skx,$(non_cpu_files))))
+
+ifeq ($(ARCH_is_32e),yes)
+  $(eval nrh_files := $(subst _nrh,_cpu_nrh,$(call containing,_nrh,$(non_cpu_files))))
+  $(eval neh_files := $(subst _neh,_cpu_neh,$(call containing,_neh,$(non_cpu_files))))
+  $(eval hsw_files := $(subst _hsw,_cpu_hsw,$(call containing,_hsw,$(non_cpu_files))))
+  $(eval skx_files := $(subst _skx,_cpu_skx,$(call containing,_skx,$(non_cpu_files))))
+else
+  $(eval a8sve_files := $(subst _a8sve,_cpu_a8sve,$(call containing,_a8sve,$(non_cpu_files))))
+endif
+
 $(eval user_cpu_files := $(nrh_files) $(neh_files) $(hsw_files) $(skx_files))
 $(eval populated_cpu_files := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(cpu_files))))
 $(eval populated_cpu_files := $(filter-out $(user_cpu_files),$(populated_cpu_files)))
@@ -655,10 +736,16 @@ $(eval $(call .populate_cpus,ONEAPI.objs_y.dpc,$(ONEAPI.objs_y.dpc)))
 define .ONEAPI.compile
 $(eval template_source_cpp := $(1:$2/%.$o=%.cpp))
 $(eval template_source_cpp := $(subst -,/,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
-$(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+
+ifeq ($(ARCH_is_32e),yes)
+  $(eval template_source_cpp := $(subst _cpu_nrh,_cpu,$(template_source_cpp)))
+  $(eval template_source_cpp := $(subst _cpu_neh,_cpu,$(template_source_cpp)))
+  $(eval template_source_cpp := $(subst _cpu_hsw,_cpu,$(template_source_cpp)))
+  $(eval template_source_cpp := $(subst _cpu_skx,_cpu,$(template_source_cpp)))
+else
+  $(eval template_source_cpp := $(subst _cpu_a8sve,_cpu,$(template_source_cpp)))
+endif
+
 $1: $(template_source_cpp) | $(dir $1)/. ; $(value $3.COMPILE)
 endef
 
@@ -672,9 +759,13 @@ $1: $(1:%.$a=%_link.txt) | $(dir $1)/. ; $(value LINK.STATIC)
 endef
 
 $(ONEAPI.dispatcher_cpu): | $(dir $(ONEAPI.dispatcher_cpu))/.
+ifeq ($(ARCH_is_32e),yes)
 	$(if $(filter sse42,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_SSE42" >> $@)
 	$(if $(filter avx2,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX2" >> $@)
 	$(if $(filter avx512,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_AVX512" >> $@)
+else
+	$(if $(filter sve,$(USECPUS)),echo "#define ONEDAL_CPU_DISPATCH_A8SVE" >> $@)
+endif
 
 # Create file with include paths
 ONEAPI.include_options := $(addprefix -I, $(ONEAPI.incdirs.common)) \
@@ -701,10 +792,14 @@ $(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                            @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
-$(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
+ifeq ($(ARCH_is_32e),yes)
+  $(call containing,_nrh, $(ONEAPI.objs_a)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
+  $(call containing,_neh, $(ONEAPI.objs_a)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
+  $(call containing,_hsw, $(ONEAPI.objs_a)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
+  $(call containing,_skx, $(ONEAPI.objs_a)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
+else
+  $(call containing,_a8sve, $(ONEAPI.objs_a)): COPT += $(a8sve_OPT) $(ONEAPI.dispatcher_tag.a8sve)
+endif
 
 $(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
@@ -716,10 +811,14 @@ $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
-$(call containing,_nrh, $(ONEAPI.objs_a.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_neh, $(ONEAPI.objs_a.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_hsw, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
-$(call containing,_skx, $(ONEAPI.objs_a.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
+ifeq ($(ARCH_is_32e),yes)
+  $(call containing,_nrh, $(ONEAPI.objs_a.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
+  $(call containing,_neh, $(ONEAPI.objs_a.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
+  $(call containing,_hsw, $(ONEAPI.objs_a.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
+  $(call containing,_skx, $(ONEAPI.objs_a.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
+else
+  $(call containing,_a8sve, $(ONEAPI.objs_a.dpc)): COPT += $(a8sve_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.a8sve)
+endif
 
 # Set compilation options to the object files which are part of DYNAMIC lib
 $(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
@@ -732,10 +831,14 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                           @$(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
-$(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
+ifeq ($(ARCH_is_32e),yes) 
+  $(call containing,_nrh, $(ONEAPI.objs_y)): COPT += $(p4_OPT)   $(ONEAPI.dispatcher_tag.nrh)
+  $(call containing,_neh, $(ONEAPI.objs_y)): COPT += $(mc3_OPT)  $(ONEAPI.dispatcher_tag.neh)
+  $(call containing,_hsw, $(ONEAPI.objs_y)): COPT += $(avx2_OPT) $(ONEAPI.dispatcher_tag.hsw)
+  $(call containing,_skx, $(ONEAPI.objs_y)): COPT += $(skx_OPT)  $(ONEAPI.dispatcher_tag.skx)
+else
+  $(call containing,_a8sve, $(ONEAPI.objs_y)): COPT += $(a8sve_OPT) $(ONEAPI.dispatcher_tag.a8sve)
+endif
 
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
@@ -749,10 +852,14 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -DTBB_USE_ASSERT=0 \
                               @$(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
-$(call containing,_nrh, $(ONEAPI.objs_y.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
-$(call containing,_neh, $(ONEAPI.objs_y.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
-$(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
-$(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
+ifeq ($(ARCH_is_32e),yes)
+  $(call containing,_nrh, $(ONEAPI.objs_y.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
+  $(call containing,_neh, $(ONEAPI.objs_y.dpc)): COPT += $(mc3_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.neh)
+  $(call containing,_hsw, $(ONEAPI.objs_y.dpc)): COPT += $(avx2_OPT.dpcpp) $(ONEAPI.dispatcher_tag.hsw)
+  $(call containing,_skx, $(ONEAPI.objs_y.dpc)): COPT += $(skx_OPT.dpcpp)  $(ONEAPI.dispatcher_tag.skx)
+else                              
+  $(call containing,_a8sve, $(ONEAPI.objs_y.dpc)): COPT += $(a8sve_OPT.dpcpp) $(ONEAPI.dispatcher_tag.a8sve)
+endif
 
 # Filtering parameter files
 PARAMETERS.objs_a.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_a))
@@ -1122,8 +1229,15 @@ $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.so
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
 
 #----- cmake configs generation
+ARCH_DIR_ONEDAL=
+ifeq ($(ARCH),32e)
+  ARCH_DIR_ONEDAL=intel64
+else  
+  ARCH_DIR_ONEDAL=arm
+endif
+
 _release_cmake_configs:
-	$(if $(shell bash -c "command -v cmake"),cmake -DINSTALL_DIR=$(RELEASEDIR.lib)/cmake/oneDAL -P cmake/scripts/generate_config.cmake,echo 'cmake configs generation skipped')
+	$(if $(shell bash -c "command -v cmake"),cmake -DINSTALL_DIR=$(RELEASEDIR.lib)/cmake/oneDAL -DARCH_DIR_ONEDAL=$(ARCH_DIR_ONEDAL) -P cmake/scripts/generate_config.cmake,echo 'cmake configs generation skipped')
 
 #----- nuspecs generation
 _release_common: _release_nuspec

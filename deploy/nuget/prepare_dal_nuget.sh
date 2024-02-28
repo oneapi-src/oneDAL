@@ -1,6 +1,7 @@
 #!/bin/bash
 #===============================================================================
 # Copyright 2022 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,12 +54,20 @@ create_package() {
     # platform specific
     platform=$(bash $(dirname "$0")/../../dev/make/identify_os.sh)
     if [ ${platform} = "lnx32e" ]; then
-        platform=linux-x64
+        platform=linux
         tbb_platform=linux
         rls_prefix=${rls_dir}/daal/latest
         dynamic_lib_path=lib/intel64
         static_lib_path=lib/intel64
         lib_prefix=libonedal
+    elif [ ${platform} = "lnxarm" ]; then
+        platform=linux
+        tbb_platform=linux
+        rls_prefix=${rls_dir}/daal/latest
+        dynamic_lib_path=lib/arm
+        static_lib_path=lib/arm
+        lib_prefix=libonedal
+
     elif [ ${platform} = "mac32e" ]; then
         platform=osx-x64
         tbb_platform=osx
@@ -98,7 +107,7 @@ create_package() {
 
     if [ "${build_nupkg}" = "yes" ]; then
         # extension of libraries
-        if [ "${platform}" = "linux-x64" ]; then
+        if [ "${platform}" = "linux" ]; then
             dl_postfix=.so.${major_binary_version}.${minor_binary_version}
             sl_postfix=.a
         elif [ "${platform}" = "osx-x64" ]; then
