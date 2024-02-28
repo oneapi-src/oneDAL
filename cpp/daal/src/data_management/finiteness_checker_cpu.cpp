@@ -38,9 +38,6 @@ template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
     std::cout << "standard sum, check test \n";
-    #if defined(__AVX512F__)
-    std::cout << "test\n";
-    #endif
 
     DataType sum = 0;
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
@@ -144,7 +141,6 @@ DataType getInf()
         *((uint64_t *)(&inf)) = doubleExpMask;
     return inf;
 }
-
 
     #if defined(__AVX2__) and !defined(__AVX512F__)
 
@@ -510,7 +506,6 @@ bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Sta
 }
     #endif
 
-
     #if defined(__AVX512F__)
 
 template <typename DataType>
@@ -653,7 +648,7 @@ double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services:
 }
 
 services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                         size_t nSurplus, bool allowNaN, bool & finiteness)
+                                            size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 16;
@@ -709,7 +704,7 @@ services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inPara
 }
 
 services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                         size_t nSurplus, bool allowNaN, bool & finiteness)
+                                            size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 8;
@@ -860,7 +855,6 @@ bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::S
 
     #endif
 #endif
-
 
 template <typename DataType, daal::CpuType cpu>
 services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finiteness)

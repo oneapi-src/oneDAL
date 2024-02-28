@@ -24,7 +24,6 @@
 #include "service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/data_management/finiteness_checker.h"
-#include <iostream>
 
 namespace daal
 {
@@ -54,7 +53,6 @@ bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
     return false;
 }
 
-
 template <typename DataType>
 DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN)
 {
@@ -71,7 +69,6 @@ DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN)
 
 template DAAL_EXPORT bool allValuesAreFinite<float>(NumericTable & table, bool allowNaN);
 template DAAL_EXPORT bool allValuesAreFinite<double>(NumericTable & table, bool allowNaN);
-
 
 } // namespace internal
 } // namespace data_management
