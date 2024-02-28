@@ -539,6 +539,28 @@ sycl::event set_queue_ptr(sycl::queue& queue,
     });
 }
 
+sycl::event set_core_in_area_value(sycl::queue& queue,
+                                   pr::ndview<bool, 1>& arr,
+                                   std::int32_t index,
+                                   bool value,
+                                   const bk::event_vector& deps) {
+    auto arr_ptr = arr.get_mutable_data();
+    auto row_count = arr.get_dimension(0);
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
+            arr_ptr[idx] = false;
+        });
+    });
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(event);
+        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
+                         [=](sycl::nd_item<2> item) {
+                             arr_ptr[index] = value;
+                         });
+    });
+}
+
 sycl::event set_arr_value(sycl::queue& queue,
                           pr::ndview<std::int32_t, 1>& arr,
                           std::int32_t offset,
@@ -642,6 +664,74 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                     break;
                 }
             });
+    });
+    return event;
+}
+// template <typename Float>
+// sycl::event fill_current_queue(sycl::queue& queue,
+//                                     const pr::ndview<Float, 2>& data,
+//                                     const pr::ndview<bool, 1>& indicies,
+//                                     pr::ndview<Float, 2>& current_queue,
+//                                     std::int64_t block_start = -1,
+//                                     const bk::event_vector& deps) {
+
+//     auto event = sycl::event;
+//     return event;
+//                                     }
+
+template <typename Float>
+sycl::event kernels_fp<Float>::search(sycl::queue& queue,
+                                      const pr::ndview<Float, 2>& data,
+                                      const pr::ndview<std::int32_t, 1>& cores,
+                                      pr::ndview<Float, 2>& current_queue,
+                                      pr::ndview<std::int32_t, 1>& responses,
+                                      pr::ndview<std::int32_t, 1>& queue_size_arr,
+                                      pr::ndview<bool, 1>& indicies_cores,
+                                      Float epsilon,
+                                      std::int32_t cluster_id,
+                                      const bk::event_vector& deps) {
+    const auto row_count = data.get_dimension(0);
+
+    const std::int64_t column_count = data.get_dimension(1);
+
+    const std::int32_t queue_size = current_queue.get_dimension(0);
+
+    const Float* data_ptr = data.get_data();
+    std::int32_t* cores_ptr = cores.get_mutable_data();
+    std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
+    const Float* current_queue_ptr = current_queue.get_data();
+    bool* indicies_cores_ptr = indicies_cores.get_mutable_data();
+    std::int32_t* responses_ptr = responses.get_mutable_data();
+    // auto fill_event = queue.submit([&](sycl::handler& cgh) {
+    //     cgh.depends_on(deps);
+    //     cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
+    //            indicies_cores_ptr[idx] = false;
+    //     });
+    // });
+
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
+            for (std::int64_t j = 0; j < queue_size; j++) {
+                Float sum = 0.0;
+                for (std::int64_t i = 0; i < column_count; i++) {
+                    Float val =
+                        data_ptr[idx * column_count + i] - current_queue_ptr[j * column_count + i];
+                    sum += val * val;
+                }
+                if (sum > epsilon) {
+                    continue;
+                }
+                responses_ptr[idx] = cluster_id;
+
+                if (cores_ptr[idx] == 1) {
+                    if (indicies_cores_ptr[idx] != true) {
+                        queue_size_arr_ptr[0]++;
+                    }
+                    indicies_cores_ptr[idx] = true;
+                }
+            }
+        });
     });
     return event;
 }
