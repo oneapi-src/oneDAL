@@ -80,7 +80,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const auto weights_nd =
         pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
 
-    const double epsilon = desc.get_epsilon() * desc.get_epsilon();
+    const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
     auto [arr_cores, cores_event] =
@@ -204,7 +204,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                     displ++;
                 }
             }
-
+            // std::cout<<"displ="<<displ<<std::endl;
+            // if(cluster_count==1){
+            // for (std::int64_t i = 0; i < total_queue_size; i++) {
+            //         for (std::int64_t j = 0; j < column_count; j++) {
+            //             std::cout<<current_queue_ptr[i * column_count + j]<<" ";
+            //         }
+            //         std::cout<<std::endl;
+            //     }
+            // }
             auto queue_size_host_ = queue_size.to_host(queue);
             auto queue_size_host_ptr_ = queue_size_host_.get_mutable_data();
             queue_size_host_ptr_[0] = total_queue_size;
@@ -228,9 +236,18 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                 .wait_and_throw();
 
             local_queue_size = kernels_fp<Float>::get_queue_front(queue, queue_size);
+            auto counter = 0;
+            auto indicies_host_ = arr_in_area.to_host(queue);
+            auto indicies_host_ptr_ = indicies_host_.get_mutable_data();
+            for (std::int64_t i = 0; i < row_count; i++) {
+                if (indicies_host_ptr_[i] == true) {
+                    counter++;
+                }
+            }
 
-            total_queue_size = local_queue_size;
-
+            total_queue_size = counter;
+            // std::cout<<total_queue_size<<"!!!!!!!!!!!!"<<std::endl;
+            // std::cout<<counter<<"counter!!!!!!!!!!!!"<<std::endl;
             {
                 ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner);
                 comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();

@@ -711,7 +711,7 @@ sycl::event kernels_fp<Float>::search(sycl::queue& queue,
     });
 
     auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
+        cgh.depends_on(fill_event);
         cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
             if (responses_ptr[idx] == -1) {
                 for (std::int64_t j = 0; j < queue_size; j++) {
@@ -724,12 +724,17 @@ sycl::event kernels_fp<Float>::search(sycl::queue& queue,
                     if (sum > epsilon) {
                         continue;
                     }
-                    responses_ptr[idx] = cluster_id;
+                    if (responses_ptr[idx] != -1) {
+                        responses_ptr[idx] = sycl::min(cluster_id, responses_ptr[idx]);
+                    }
+                    else {
+                        responses_ptr[idx] = cluster_id;
+                    }
 
                     if (cores_ptr[idx] == 1) {
-                        if (indicies_cores_ptr[idx] != true) {
-                            queue_size_arr_ptr[0]++;
-                        }
+                        // if (indicies_cores_ptr[idx] != true) {
+                        //     queue_size_arr_ptr[0]=1;
+                        // }
                         indicies_cores_ptr[idx] = true;
                     }
                 }

@@ -35,13 +35,14 @@ void run(sycl::queue &q) {
     const auto x_data = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
 
     double epsilon = 0.04;
-    std::int64_t min_observations = 45;
+    std::int64_t min_observations = 10;
 
     auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
-    dbscan_desc.set_result_options(dal::dbscan::result_options::responses);
+    dbscan_desc.set_result_options(dal::dbscan::result_options::responses |
+                                   dal::dbscan::result_options::core_flags);
 
     const auto result_compute = dal::compute(q, dbscan_desc, x_data);
-
+    //std::cout << "Cores count: " << result_compute.get_core_flags() << std::endl;
     std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;
     std::cout << "Responses:\n" << result_compute.get_responses() << std::endl;
 }
