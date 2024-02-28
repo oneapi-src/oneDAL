@@ -39,94 +39,94 @@ inline std::int64_t get_recommended_check_block_size(const sycl::queue& queue,
     return 1;
 }
 
-// template <typename Float, bool use_weights>
-// struct get_core_wide_kernel {
-//     static auto run(sycl::queue& queue,
-//                     const pr::ndview<Float, 2>& data,
-//                     const pr::ndview<Float, 2>& weights,
-//                     pr::ndview<std::int32_t, 1>& cores,
-//                     pr::ndview<std::int32_t, 1>& neighbours,
-//                     Float epsilon,
-//                     std::int64_t min_observations,
-//                     const bk::event_vector& deps) {
-//         using count_type = typename std::conditional<use_weights, Float, std::int64_t>::type;
-//         const auto row_count = data.get_dimension(0);
-//         ONEDAL_ASSERT(row_count > 0);
-//         ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
-//         ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
-//         const auto block_start = 0;
-//         const auto block_end = row_count;
-//         ONEDAL_ASSERT(block_start < block_end);
+template <typename Float, bool use_weights>
+struct get_core_wide_kernel {
+    static auto run(sycl::queue& queue,
+                    const pr::ndview<Float, 2>& data,
+                    const pr::ndview<Float, 2>& weights,
+                    pr::ndview<std::int32_t, 1>& cores,
+                    pr::ndview<std::int32_t, 1>& neighbours,
+                    Float epsilon,
+                    std::int64_t min_observations,
+                    const bk::event_vector& deps) {
+        using count_type = typename std::conditional<use_weights, Float, std::int64_t>::type;
+        const auto row_count = data.get_dimension(0);
+        ONEDAL_ASSERT(row_count > 0);
+        ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
+        ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
+        const auto block_start = 0;
+        const auto block_end = row_count;
+        ONEDAL_ASSERT(block_start < block_end);
+        const auto block_size = block_end - block_start;
+        ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
+        const std::int64_t column_count = data.get_dimension(1);
 
-//         const auto block_size = block_end - block_start;
-//         ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
-//         const std::int64_t column_count = data.get_dimension(1);
+        const Float* data_ptr = data.get_data();
+        const Float* weights_ptr = weights.get_data();
+        std::int32_t* cores_ptr = cores.get_mutable_data();
+        std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+            const std::int64_t block_split_size =
+                get_recommended_check_block_size(queue, column_count, wg_size);
+            cgh.parallel_for(
+                bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+                [=](sycl::nd_item<2> item) {
+                    auto sg = item.get_sub_group();
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    if (sg_id > 0)
+                        return;
+                    const std::uint32_t wg_id = item.get_global_id(1);
+                    if (wg_id >= block_size)
+                        return;
+                    const std::uint32_t local_id = sg.get_local_id();
+                    const std::uint32_t local_size = sg.get_local_range()[0];
 
-//         const Float* data_ptr = data.get_data();
-//         const Float* weights_ptr = weights.get_data();
-//         std::int32_t* cores_ptr = cores.get_mutable_data();
-//         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
-//         auto event = queue.submit([&](sycl::handler& cgh) {
-//             cgh.depends_on(deps);
-//             const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
-//             const std::int64_t block_split_size =
-//                 get_recommended_check_block_size(queue, column_count, wg_size);
-//             cgh.parallel_for(
-//                 bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
-//                 [=](sycl::nd_item<2> item) {
-//                     auto sg = item.get_sub_group();
-//                     const std::uint32_t sg_id = sg.get_group_id()[0];
-//                     if (sg_id > 0)
-//                         return;
-//                     const std::uint32_t wg_id = item.get_global_id(1);
-//                     if (wg_id >= row_count)
-//                         return;
-//                     const std::uint32_t local_id = sg.get_local_id();
-//                     const std::uint32_t local_size = sg.get_local_range()[0];
-
-//                     count_type count = neighbours_ptr[wg_id];
-
-//                     for (std::int64_t j = 0; j < row_count; j++) {
-//                         Float sum = Float(0);
-//                         std::int64_t count_iter = 0;
-//                         for (std::int64_t i = local_id; i < column_count; i += local_size) {
-//                             count_iter++;
-//                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
-//                                         data_ptr[j * column_count + i];
-//                             sum += val * val;
-//                             if (count_iter % block_split_size == 0 &&
-//                                 local_size * count_iter <= column_count) {
-//                                 Float distance_check =
-//                                     sycl::reduce_over_group(sg,
-//                                                             sum,
-//                                                             sycl::ext::oneapi::plus<Float>());
-//                                 if (distance_check > epsilon) {
-//                                     break;
-//                                 }
-//                             }
-//                         }
-//                         Float distance =
-//                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-//                         if (distance <= epsilon) {
-//                             count += use_weights ? weights_ptr[wg_id] : count_type(1);
-//                             if (local_id == 0) {
-//                                 neighbours_ptr[wg_id] = count;
-
-//                             }
-//                             if (count >= min_observations) {
-//                                 if (local_id == 0) {
-//                                     cores_ptr[wg_id] = count_type(1);
-//                                 }
-//                             }
-
-//                         }
-//                     }
-//                 });
-//         });
-//         return event;
-//     }
-//     static constexpr std::int64_t min_width = 4;
-// };
+                    count_type count = neighbours_ptr[wg_id];
+                    for (std::int64_t j = 0; j < row_count; j++) {
+                        Float sum = Float(0);
+                        std::int64_t count_iter = 0;
+                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                            count_iter++;
+                            Float val = data_ptr[(block_start + wg_id) * column_count + i] -
+                                        data_ptr[j * column_count + i];
+                            sum += val * val;
+                            if (count_iter % block_split_size == 0 &&
+                                local_size * count_iter <= column_count) {
+                                Float distance_check =
+                                    sycl::reduce_over_group(sg,
+                                                            sum,
+                                                            sycl::ext::oneapi::plus<Float>());
+                                if (distance_check > epsilon) {
+                                    break;
+                                }
+                            }
+                        }
+                        Float distance =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance <= epsilon) {
+                            count += use_weights ? weights_ptr[wg_id] : count_type(1);
+                            if (local_id == 0) {
+                                neighbours_ptr[wg_id] = count;
+                            }
+                            if (count >= min_observations) {
+                                if (local_id == 0) {
+                                    cores_ptr[wg_id] = count_type(1);
+                                }
+                                break;
+                            }
+                            // if (!use_weights && (row_count - j + count < min_observations)) {
+                            //     break;
+                            // }
+                        }
+                    }
+                });
+        });
+        return event;
+    }
+    static constexpr std::int64_t min_width = 4;
+};
 
 template <typename Float, bool use_weights>
 struct get_core_narrow_kernel {
@@ -143,7 +143,11 @@ struct get_core_narrow_kernel {
         ONEDAL_ASSERT(row_count > 0);
         ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
         ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
-
+        const auto block_start = 0;
+        const auto block_end = row_count;
+        ONEDAL_ASSERT(block_start < block_end);
+        const auto block_size = block_end - block_start;
+        ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
         const std::int64_t column_count = data.get_dimension(1);
 
         const Float* data_ptr = data.get_data();
@@ -152,7 +156,7 @@ struct get_core_narrow_kernel {
         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
+            cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
                 for (std::int64_t j = 0; j < row_count; j++) {
                     Float sum = 0.0;
                     for (std::int64_t i = 0; i < column_count; i++) {
@@ -167,7 +171,11 @@ struct get_core_narrow_kernel {
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
+                        //break;
                     }
+                    // if (!use_weights && (row_count - j + count < min_observations)) {
+                    //     break;
+                    // }
                 }
             });
         });
@@ -176,96 +184,96 @@ struct get_core_narrow_kernel {
     static constexpr std::int64_t max_width = 4;
 };
 
-// template <typename Float, bool use_weights>
-// struct get_core_send_recv_replace_wide_kernel {
-//     static auto run(sycl::queue& queue,
-//                     const pr::ndview<Float, 2>& data,
-//                     const pr::ndview<Float, 2>& data_replace,
-//                     const pr::ndview<Float, 2>& weights,
-//                     pr::ndview<std::int32_t, 1>& cores,
-//                     pr::ndview<std::int32_t, 1>& neighbours,
-//                     Float epsilon,
-//                     std::int64_t min_observations,
-//                     const bk::event_vector& deps) {
-//         using count_type = typename std::conditional<use_weights, Float, std::int64_t>::type;
-//         const auto row_count = data.get_dimension(0);
-//         const auto row_count_replace = data_replace.get_dimension(0);
-//         ONEDAL_ASSERT(row_count > 0);
-//         ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
-//         ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
-//         const auto block_start = 0;
-//         const auto block_end = row_count;
-//         ONEDAL_ASSERT(block_start < block_end);
-//         const auto block_size = block_end - block_start;
-//         ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
-//         const std::int64_t column_count = data.get_dimension(1);
+template <typename Float, bool use_weights>
+struct get_core_send_recv_replace_wide_kernel {
+    static auto run(sycl::queue& queue,
+                    const pr::ndview<Float, 2>& data,
+                    const pr::ndview<Float, 2>& data_replace,
+                    const pr::ndview<Float, 2>& weights,
+                    pr::ndview<std::int32_t, 1>& cores,
+                    pr::ndview<std::int32_t, 1>& neighbours,
+                    Float epsilon,
+                    std::int64_t min_observations,
+                    const bk::event_vector& deps) {
+        using count_type = typename std::conditional<use_weights, Float, std::int64_t>::type;
+        const auto row_count = data.get_dimension(0);
+        const auto row_count_replace = data_replace.get_dimension(0);
+        ONEDAL_ASSERT(row_count > 0);
+        ONEDAL_ASSERT(!use_weights || weights.get_dimension(0) == row_count);
+        ONEDAL_ASSERT(!use_weights || weights.get_dimension(1) == 1);
+        const auto block_start = 0;
+        const auto block_end = row_count;
+        ONEDAL_ASSERT(block_start < block_end);
+        const auto block_size = block_end - block_start;
+        ONEDAL_ASSERT(cores.get_dimension(0) >= block_size);
+        const std::int64_t column_count = data.get_dimension(1);
 
-//         const Float* data_ptr = data.get_data();
-//         const Float* data_replace_ptr = data_replace.get_data();
-//         const Float* weights_ptr = weights.get_data();
-//         std::int32_t* cores_ptr = cores.get_mutable_data();
-//         std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
-//         auto event = queue.submit([&](sycl::handler& cgh) {
-//             cgh.depends_on(deps);
-//             const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
-//             const std::int64_t block_split_size =
-//                 get_recommended_check_block_size(queue, column_count, wg_size);
-//             cgh.parallel_for(
-//                 bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
-//                 [=](sycl::nd_item<2> item) {
-//                     auto sg = item.get_sub_group();
-//                     const std::uint32_t sg_id = sg.get_group_id()[0];
-//                     if (sg_id > 0)
-//                         return;
-//                     const std::uint32_t wg_id = item.get_global_id(1);
-//                     if (wg_id >= block_size)
-//                         return;
-//                     const std::uint32_t local_id = sg.get_local_id();
-//                     const std::uint32_t local_size = sg.get_local_range()[0];
+        const Float* data_ptr = data.get_data();
+        const Float* data_replace_ptr = data_replace.get_data();
+        const Float* weights_ptr = weights.get_data();
+        std::int32_t* cores_ptr = cores.get_mutable_data();
+        std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+            const std::int64_t block_split_size =
+                get_recommended_check_block_size(queue, column_count, wg_size);
+            cgh.parallel_for(
+                bk::make_multiple_nd_range_2d({ wg_size, block_size }, { wg_size, 1 }),
+                [=](sycl::nd_item<2> item) {
+                    auto sg = item.get_sub_group();
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    if (sg_id > 0)
+                        return;
+                    const std::uint32_t wg_id = item.get_global_id(1);
+                    if (wg_id >= block_size)
+                        return;
+                    const std::uint32_t local_id = sg.get_local_id();
+                    const std::uint32_t local_size = sg.get_local_range()[0];
 
-//                     count_type count = neighbours_ptr[wg_id];
-//                     for (std::int64_t j = 0; j < row_count_replace; j++) {
-//                         Float sum = Float(0);
-//                         std::int64_t count_iter = 0;
-//                         for (std::int64_t i = local_id; i < column_count; i += local_size) {
-//                             count_iter++;
-//                             Float val = data_ptr[(block_start + wg_id) * column_count + i] -
-//                                         data_replace_ptr[j * column_count + i];
-//                             sum += val * val;
-//                             if (count_iter % block_split_size == 0 &&
-//                                 local_size * count_iter <= column_count) {
-//                                 Float distance_check =
-//                                     sycl::reduce_over_group(sg,
-//                                                             sum,
-//                                                             sycl::ext::oneapi::plus<Float>());
-//                                 if (distance_check > epsilon) {
-//                                     break;
-//                                 }
-//                             }
-//                         }
-//                         Float distance =
-//                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
-//                         if (distance <= epsilon) {
-//                             count += use_weights ? weights_ptr[wg_id] : count_type(1);
-//                             if (count >= min_observations) {
-//                                 if (local_id == 0) {
-//                                     neighbours_ptr[wg_id] = count;
-//                                     cores_ptr[wg_id] = count_type(1);
-//                                 }
-//                                 break;
-//                             }
+                    count_type count = neighbours_ptr[wg_id];
+                    for (std::int64_t j = 0; j < row_count_replace; j++) {
+                        Float sum = Float(0);
+                        std::int64_t count_iter = 0;
+                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                            count_iter++;
+                            Float val = data_ptr[(block_start + wg_id) * column_count + i] -
+                                        data_replace_ptr[j * column_count + i];
+                            sum += val * val;
+                            if (count_iter % block_split_size == 0 &&
+                                local_size * count_iter <= column_count) {
+                                Float distance_check =
+                                    sycl::reduce_over_group(sg,
+                                                            sum,
+                                                            sycl::ext::oneapi::plus<Float>());
+                                if (distance_check > epsilon) {
+                                    break;
+                                }
+                            }
+                        }
+                        Float distance =
+                            sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                        if (distance <= epsilon) {
+                            count += use_weights ? weights_ptr[wg_id] : count_type(1);
+                            if (count >= min_observations) {
+                                if (local_id == 0) {
+                                    neighbours_ptr[wg_id] = count;
+                                    cores_ptr[wg_id] = count_type(1);
+                                }
+                                break;
+                            }
 
-//                             // if (!use_weights && (row_count - j + count < min_observations)) {
-//                             //     break;
-//                             // }
-//                         }
-//                     }
-//                 });
-//         });
-//         return event;
-//     }
-//     static constexpr std::int64_t min_width = 4;
-// };
+                            // if (!use_weights && (row_count - j + count < min_observations)) {
+                            //     break;
+                            // }
+                        }
+                    }
+                });
+        });
+        return event;
+    }
+    static constexpr std::int64_t min_width = 4;
+};
 
 template <typename Float, bool use_weights>
 struct get_core_send_recv_replace_narrow_kernel {
@@ -314,7 +322,11 @@ struct get_core_send_recv_replace_narrow_kernel {
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
+                        //break;
                     }
+                    // if (!use_weights && (row_count - j + count < min_observations)) {
+                    //     break;
+                    // }
                 }
             });
         });
@@ -333,29 +345,27 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               Float epsilon,
                                               std::int64_t min_observations,
                                               const bk::event_vector& deps) {
-    // const std::int64_t column_count = data.get_dimension(1);
-    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-    //     return get_core_wide_kernel<Float, use_weights>::run(queue,
-    //                                                          data,
-    //                                                          weights,
-    //                                                          cores,
-    //                                                          responses,
-    //                                                          neighbours,
-    //                                                          adj_matrix,
-    //                                                          epsilon,
-    //                                                          min_observations,
-    //                                                          deps);
-    // }
-    // else {
-    return get_core_narrow_kernel<Float, use_weights>::run(queue,
-                                                           data,
-                                                           weights,
-                                                           cores,
-                                                           neighbours,
-                                                           epsilon,
-                                                           min_observations,
-                                                           deps);
-    //}
+    const std::int64_t column_count = data.get_dimension(1);
+    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+        return get_core_wide_kernel<Float, use_weights>::run(queue,
+                                                             data,
+                                                             weights,
+                                                             cores,
+                                                             neighbours,
+                                                             epsilon,
+                                                             min_observations,
+                                                             deps);
+    }
+    else {
+        return get_core_narrow_kernel<Float, use_weights>::run(queue,
+                                                               data,
+                                                               weights,
+                                                               cores,
+                                                               neighbours,
+                                                               epsilon,
+                                                               min_observations,
+                                                               deps);
+    }
 }
 
 template <typename Float>
@@ -370,57 +380,29 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace_impl(
     Float epsilon,
     std::int64_t min_observations,
     const bk::event_vector& deps) {
-    //const std::int64_t column_count = data.get_dimension(1);
-    // if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
-    //     return get_core_send_recv_replace_wide_kernel<Float, use_weights>::run(queue,
-    //                                                                            data,
-    //                                                                            data_replace,
-    //                                                                            weights,
-    //                                                                            cores,
-    //                                                                            neighbours,
-    //                                                                            epsilon,
-    //                                                                            min_observations,
-    //                                                                            deps);
-    // }
-    // else {
-    return get_core_send_recv_replace_narrow_kernel<Float, use_weights>::run(queue,
-                                                                             data,
-                                                                             data_replace,
-                                                                             weights,
-                                                                             cores,
-                                                                             neighbours,
-                                                                             epsilon,
-                                                                             min_observations,
-                                                                             deps);
-    //}
-}
-
-template <typename Float>
-sycl::event kernels_fp<Float>::update_responses(sycl::queue& queue,
-                                                pr::ndview<std::int32_t, 1>& responses,
-                                                pr::ndview<std::int32_t, 2>& adj_matrix,
-                                                std::int64_t min_observations,
-                                                const bk::event_vector& deps) {
-    const auto row_count = responses.get_dimension(0);
-
-    const auto block_start = 0;
-    const auto block_end = row_count;
-    ONEDAL_ASSERT(block_start < block_end);
-    const auto block_size = block_end - block_start;
-
-    std::int32_t* responses_ptr = responses.get_mutable_data();
-
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(sycl::range<1>{ std::size_t(block_size) }, [=](sycl::id<1> idx) {
-            auto cluster = responses_ptr[idx];
-            while (responses_ptr[cluster] != cluster) {
-                responses_ptr[idx] = responses_ptr[cluster];
-                cluster = responses_ptr[idx];
-            }
-        });
-    });
-    return event;
+    const std::int64_t column_count = data.get_dimension(1);
+    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+        return get_core_send_recv_replace_wide_kernel<Float, use_weights>::run(queue,
+                                                                               data,
+                                                                               data_replace,
+                                                                               weights,
+                                                                               cores,
+                                                                               neighbours,
+                                                                               epsilon,
+                                                                               min_observations,
+                                                                               deps);
+    }
+    else {
+        return get_core_send_recv_replace_narrow_kernel<Float, use_weights>::run(queue,
+                                                                                 data,
+                                                                                 data_replace,
+                                                                                 weights,
+                                                                                 cores,
+                                                                                 neighbours,
+                                                                                 epsilon,
+                                                                                 min_observations,
+                                                                                 deps);
+    }
 }
 
 template <typename Float>
@@ -536,41 +518,6 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
             });
     });
     return start_index.to_host(queue, { index_event }).at(0);
-}
-
-sycl::event connected_components(sycl::queue& queue,
-                                 pr::ndview<std::int32_t, 1>& labels,
-                                 pr::ndview<std::int32_t, 2>& adj_matrix,
-                                 pr::ndview<std::int32_t, 1>& flag,
-                                 pr::ndview<std::int32_t, 1>& neighbours,
-                                 std::int64_t min_observations,
-                                 const bk::event_vector& deps) {
-    ONEDAL_ASSERT(queue.get_device().is_cpu());
-    std::int32_t* flag_ptr = flag.get_mutable_data();
-    std::int32_t* labels_ptr = labels.get_mutable_data();
-    std::int32_t* adj_matrix_ptr = adj_matrix.get_mutable_data();
-    std::int32_t* neighbours_ptr = neighbours.get_mutable_data();
-    auto row_count = labels.get_dimension(0);
-
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-            auto new_label = labels_ptr[idx];
-            for (std::int64_t j = 0; j < row_count; j++) {
-                if (adj_matrix_ptr[idx * row_count + j] != 0 &&
-                    neighbours_ptr[j] >= min_observations) {
-                    new_label =
-                        sycl::max(adj_matrix_ptr[idx * row_count + j] * labels_ptr[j], new_label);
-                }
-            }
-            if (new_label != labels_ptr[idx]) {
-                labels_ptr[idx] = new_label;
-                flag_ptr[0] = 1;
-            }
-        });
-    });
-    event.wait_and_throw();
-    return event;
 }
 
 sycl::event set_queue_ptr(sycl::queue& queue,
@@ -704,17 +651,7 @@ std::int32_t kernels_fp<Float>::get_queue_front(sycl::queue& queue,
                                                 const pr::ndarray<std::int32_t, 1>& queue_front,
                                                 const bk::event_vector& deps) {
     ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
-    auto queue_ptr = queue_front.get_mutable_data();
-    auto value = queue_front.to_host(queue, deps).get_data()[0];
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             queue_ptr[0] = 0;
-                         });
-    });
-    event.wait_and_throw();
-    return value;
+    return queue_front.to_host(queue, deps).get_data()[0];
 }
 
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores) {
