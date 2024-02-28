@@ -1,6 +1,7 @@
 /* file: service_defines.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +34,11 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int);
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd);
 bool daal_check_is_intel_cpu();
 
-#define DAAL_BASE_CPU daal::sse2
+#if defined(TARGET_X86_64)
+    #define DAAL_BASE_CPU daal::sse2
+#elif defined(TARGET_ARM)
+    #define DAAL_BASE_CPU daal::sve
+#endif
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
@@ -117,18 +122,26 @@ enum DataFormat
 } // namespace daal
 
 /* CPU comparison macro */
-#define __sse2__   (0)
-#define __sse42__  (2)
-#define __avx2__   (4)
-#define __avx512__ (6)
+#if defined(TARGET_X86_64)
+    #define __sse2__   (0)
+    #define __sse42__  (2)
+    #define __avx2__   (4)
+    #define __avx512__ (6)
+#elif defined(TARGET_ARM)
+    #define __sve__ (0)
+#endif
 
 #define __float__  (0)
 #define __double__ (1)
 
-#define CPU_sse2   __sse2__
-#define CPU_sse42  __sse42__
-#define CPU_avx2   __avx2__
-#define CPU_avx512 __avx512__
+#if defined(TARGET_X86_64)
+    #define CPU_sse2   __sse2__
+    #define CPU_sse42  __sse42__
+    #define CPU_avx2   __avx2__
+    #define CPU_avx512 __avx512__
+#elif defined(TARGET_ARM)
+    #define CPU_sve __sve__
+#endif
 
 #define FPTYPE_float  __float__
 #define FPTYPE_double __double__

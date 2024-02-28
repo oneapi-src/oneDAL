@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +17,13 @@
 
 #pragma once
 #include <cstdint>
+
+#include <daal/include/services/daal_defines.h>
+
+#if defined(TARGET_X86_64)
 #include <immintrin.h>
+#endif
+
 #include <daal/src/services/service_defines.h>
 #include "oneapi/dal/backend/dispatcher.hpp"
 
@@ -83,6 +90,7 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
 #endif
 }
 
+#if defined(TARGET_X86_64)
 template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sse2>(std::uint32_t a) {
     if (a == 0)
@@ -164,5 +172,20 @@ ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_avx2>
     }
     return bit_cnt;
 }
+#elif defined(TARGET_ARM)
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sve>(std::uint32_t a) {
+    return __builtin_clz(a);
+}
 
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
+    return __builtin_clzl(a);
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
+    return __builtin_popcountl(a);
+}
+#endif
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

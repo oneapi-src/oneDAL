@@ -1,6 +1,7 @@
 #! /bin/bash
 #===============================================================================
 # Copyright 2019 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +48,17 @@ PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
+if [[ "${ARCH}" == "32e" ]]
+then
 optimizations=${optimizations:-avx2}
+elif [[ "${ARCH}" == "arm" ]]
+then
+optimizations=${optimizations:-sve}
+else
+echo "Unknown architecture '${ARCH}'"
+exit 1
+fi
+
 backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
 
@@ -97,7 +108,16 @@ elif [ "${backend_config}" == "ref" ]; then
 else
     echo "Not supported backend env"
 fi
+
+#TBB setup
+if [[ "${ARCH}" == "32e" ]]
+then
 $(pwd)/dev/download_tbb.sh
+elif [[ "${ARCH}" == "arm" ]]
+then
+$(pwd)/.ci/env/tbb.sh
+fi
+
 echo "Calling make"
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \
