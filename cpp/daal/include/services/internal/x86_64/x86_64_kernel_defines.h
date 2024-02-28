@@ -18,8 +18,6 @@
 #ifndef __x86_64_KERNEL_DEFINES_H__
 #define __x86_64_KERNEL_DEFINES_H__
 
-#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
-
 #if defined(DAAL_KERNEL_SSE2)
     #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
     #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::sse2
