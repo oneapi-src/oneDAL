@@ -24,7 +24,6 @@
 #include "service_numeric_table.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/data_management/finiteness_checker.h"
-#include <iostream>
 
 namespace daal
 {
@@ -37,8 +36,6 @@ using namespace daal::internal;
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
-    std::cout << "standard sum, check test \n";
-
     DataType sum = 0;
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
         for (size_t i = 0; i < nElementsPerPtr; ++i) sum += dataPtrs[ptrIdx][i];
@@ -215,14 +212,12 @@ DataType computeSumAVX2Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Data
 template <>
 float computeSum<float, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
 {
-    std::cout << "avx2 sum \n";
     return computeSumAVX2Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSum<double, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
-    std::cout << "avx2 sum \n";
     return computeSumAVX2Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
@@ -563,14 +558,12 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
 template <>
 float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
 {
-    std::cout << "avx512 sum \n";
     return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
-    std::cout << "avx512 sum \n";
     return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
@@ -869,7 +862,6 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     // first stage: compute sum of all values and check its finiteness
     double sum       = 0;
     bool sumIsFinite = true;
-    std::cout << "cpu: " << (int)cpu << std::endl;
 
     if (layout == NTLayout::soa)
     {
