@@ -131,6 +131,9 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
+const size_t BLOCK_SIZE       = 8192;
+const size_t THREADING_BORDER = 262144;
+
 template <typename DataType>
 DataType getInf()
 {
@@ -142,7 +145,7 @@ DataType getInf()
     return inf;
 }
 
-/*
+
     #if defined(__AVX2__) and !defined(__AVX512F__)
 
 template <typename DataType>
@@ -300,7 +303,7 @@ double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::S
     return computeSumSOAAVX2Impl(table, sumIsFinite, st);
 }
 
-services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -356,7 +359,7 @@ services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inPara
     return s;
 }
 
-services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -423,7 +426,7 @@ bool checkFinitenessAVX2Impl(const size_t nElements, size_t nDataPtrs, size_t nE
     size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
 
     bool finiteness;
-    checkFinitenessInBlocks256(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
+    checkFinitenessInBlocks(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
     return finiteness;
 }
 
@@ -507,7 +510,7 @@ bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Sta
 }
     #endif
 
-*/    
+
     #if defined(__AVX512F__)
 
 template <typename DataType>
@@ -533,7 +536,6 @@ DataType sumWithAVX512(size_t n, const DataType * dataPtr)
 
     return sum;
 }
-
 
 template <typename DataType>
 DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
@@ -562,7 +564,6 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
 
     return sumWithAVX512<DataType>(nTotalBlocks, pSums);
 }
-
 
 template <>
 float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
@@ -603,7 +604,7 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
             ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
-            *localSum += static_cast<double>(computeSumAVX512Impl<float>(1, nRows, &colPtr));
+            *localSum += static_cast<double>(computeSum<float, avx512>(1, nRows, &colPtr));
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -611,7 +612,7 @@ double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, service
             ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const double * colPtr = colBlock.get();
-            *localSum += computeSumAVX512Impl<double>(1, nRows, &colPtr);
+            *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
             break;
         }
         default: break;
@@ -651,8 +652,8 @@ double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services:
     return computeSumSOAAVX512Impl(table, sumIsFinite, st);
 }
 
-services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness)
+services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+                                         size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 16;
@@ -707,8 +708,8 @@ services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inPara
     return s;
 }
 
-services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness)
+services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+                                         size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 8;
@@ -763,6 +764,33 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
     return s;
 }
 
+template <typename DataType>
+bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
+{
+    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
+    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
+    bool inParallel     = !(nElements < THREADING_BORDER);
+    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
+    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
+    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
+
+    bool finiteness;
+    checkFinitenessInBlocks(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
+    return finiteness;
+}
+
+template <>
+bool checkFiniteness<float, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
+{
+    return checkFinitenessAVX512Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+}
+
+template <>
+bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
+{
+    return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+}
+
 bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st)
 {
     SafeStatus safeStat;
@@ -785,7 +813,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
             ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
-            *localNotFinite |= !checkFinitenessAVX512Impl<float>(nRows, 1, nRows, &colPtr, allowNaN);
+            *localNotFinite |= !checkFiniteness<float, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
         case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
@@ -793,7 +821,7 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
             ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const double * colPtr = colBlock.get();
-            *localNotFinite |= !checkFinitenessAVX512Impl<double>(nRows, 1, nRows, &colPtr, allowNaN);
+            *localNotFinite |= !checkFiniteness<double, avx512>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
         default: break;
@@ -824,24 +852,12 @@ bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services:
     return valuesAreFinite;
 }
 
-
-template <>
-bool checkFiniteness<float, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
-{
-    return checkFinitenessAVX512Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
-template <>
-bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
-{
-    return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
 template <>
 bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::Status & st)
 {
     return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
 }
+
     #endif
 #endif
 

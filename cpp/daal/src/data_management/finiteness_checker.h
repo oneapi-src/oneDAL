@@ -43,58 +43,7 @@ bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN);
 bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN);
 
 template <typename DataType, daal::CpuType cpu>
-DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs);
-
-template <daal::CpuType cpu>
-double computeSumSOA(NumericTable & table, bool & sumIsFinite, services::Status & st);
-
-template <typename DataType, daal::CpuType cpu>
-bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN);
-
-template <daal::CpuType cpu>
-bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & st);
-
-template <typename DataType, daal::CpuType cpu>
 services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finiteness);
-
-#if defined(DAAL_INTEL_CPP_COMPILER)
-
-const size_t BLOCK_SIZE       = 8192;
-const size_t THREADING_BORDER = 262144;
-
-    #if defined(__AVX512F__)
-
-template <typename DataType>
-DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs);
-
-double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st);
-
-services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness);
-
-services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness);
-
-template <typename DataType>
-bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    bool finiteness;
-    checkFinitenessInBlocks512(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
-    return finiteness;
-}
-
-bool checkFinitenessSOAAVX512Impl(NumericTable & table, bool allowNaN, services::Status & st);
-
-    #endif
-
-#endif
 
 } // namespace internal
 } // namespace data_management
