@@ -1,6 +1,7 @@
 /* file: env_detect_features.cpp */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,10 +22,15 @@
 //--
 */
 
-#include <immintrin.h>
-
 #include "services/env_detect.h"
 #include "services/daal_defines.h"
+
+#if defined(TARGET_X86_64)
+    #include <immintrin.h>
+#elif defined(TARGET_ARM)
+    #include <arm_sve.h>
+#endif
+
 #include "src/services/service_defines.h"
 #include "src/threading/threading.h"
 
@@ -41,23 +47,24 @@
 void __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
 
+#if defined(TARGET_X86_64)
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 {
-#if defined(_MSC_VER)
+    #if defined(_MSC_VER)
     __cpuidex((int *)abcd, eax, ecx);
-#else
+    #else
     uint32_t ebx, edx;
-    #if defined(__i386__) && defined(__PIC__)
+        #if defined(__i386__) && defined(__PIC__)
     /* in case of PIC under 32-bit EBX cannot be clobbered */
     __asm__("movl %%ebx, %%edi \n\t cpuid \n\t xchgl %%ebx, %%edi" : "=D"(ebx), "+a"(eax), "+c"(ecx), "=d"(edx));
-    #else
+        #else
     __asm__("cpuid" : "+b"(ebx), "+a"(eax), "+c"(ecx), "=d"(edx));
-    #endif
+        #endif
     abcd[0] = eax;
     abcd[1] = ebx;
     abcd[2] = ecx;
     abcd[3] = edx;
-#endif
+    #endif
 }
 
 bool __daal_internal_is_intel_cpu()
@@ -86,11 +93,11 @@ static int check_cpuid(uint32_t eax, uint32_t ecx, int abcd_index, uint32_t mask
 static int check_xgetbv_xcr0_ymm(uint32_t mask)
 {
     uint32_t xcr0;
-#if defined(_MSC_VER)
+    #if defined(_MSC_VER)
     xcr0 = (uint32_t)_xgetbv(0);
-#else
+    #else
     __asm__("xgetbv" : "=a"(xcr0) : "c"(0) : "%edx");
-#endif
+    #endif
     return ((xcr0 & mask) == mask); /* checking if xmm and ymm state are enabled in XCR0 */
 }
 
@@ -187,9 +194,9 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-#if defined(__APPLE__)
+    #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
-#endif
+    #endif
     if (check_avx512_features() && daal_check_is_intel_cpu())
     {
         return daal::avx512;
@@ -207,3 +214,24 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 
     return daal::sse2;
 }
+#elif defined(TARGET_ARM)
+DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
+{
+    return 0;
+}
+
+DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
+{
+    return daal::sve;
+}
+
+void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
+{
+    // TODO: ARM implementation for cpuid
+}
+
+bool daal_check_is_intel_cpu()
+{
+    return false;
+}
+#endif

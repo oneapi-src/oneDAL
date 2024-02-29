@@ -1,6 +1,7 @@
 /* file: daal_defines.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +28,14 @@
 /** \file daal_defines.h */
 
 #include <cstddef> // for size_t
+
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+    #define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+    #define TARGET_ARM
+#endif
 
 #if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
     #define DAAL_INTEL_CPP_COMPILER
@@ -64,6 +73,8 @@
 
 #if !defined(DAAL_INT)
     #if defined(_WIN64) || defined(__x86_64__)
+        #define DAAL_INT __int64
+    #elif defined(TARGET_ARM)
         #define DAAL_INT __int64
     #else
         #define DAAL_INT __int32

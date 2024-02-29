@@ -1,6 +1,7 @@
 /* file: df_classification_predict_dense_default_batch_impl.i */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -945,8 +946,12 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     algorithmFPType * const res  = resBD.get();
     algorithmFPType * const prob = probBD.get();
     daal::SafeStatus safeStat;
-    const size_t nRowsOfRes        = _data->getNumberOfRows();
-    const size_t blockSize         = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+    const size_t nRowsOfRes = _data->getNumberOfRows();
+#if defined(TARGET_X86_64)
+    const size_t blockSize = cpu == avx512 ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+#elif defined(TARGET_ARM)
+    const size_t blockSize = cpu == sve ? _DEFAULT_BLOCK_SIZE : _DEFAULT_BLOCK_SIZE_COMMON;
+#endif
     const size_t nBlocks           = nRowsOfRes / blockSize;
     const size_t residualSize      = nRowsOfRes - nBlocks * blockSize;
     algorithmFPType * commonBufVal = nullptr;

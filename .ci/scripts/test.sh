@@ -1,6 +1,7 @@
 #! /bin/bash
 #===============================================================================
 # Copyright 2019 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +55,17 @@ TESTING_RETURN=0
 PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
-full_arch=intel64
+if [ "$ARCH" == "32e" ]; then
+    full_arch=intel64
+    arch_dir=intel_intel64
+elif [ "$ARCH" == "arm" ]; then
+    full_arch=arm
+    arch_dir=arm_aarch64
+else
+    echo "Unknown architecture ${ARCH} detected for platform ${PLATFORM}"
+    exit 1
+fi
+
 build_system=${build_system:-cmake}
 backend=${backend:-mkl}
 
@@ -161,7 +172,7 @@ for link_mode in ${link_modes}; do
         fi
         output_result=
         err=
-        cmake_results_dir="_cmake_results/intel_intel64_${lib_ext}"
+        cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
         for p in ${cmake_results_dir}/*; do
             e=$(basename "$p")
             ${p} 2>&1 > ${e}.res
