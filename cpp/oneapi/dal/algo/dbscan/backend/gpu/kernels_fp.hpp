@@ -28,10 +28,6 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 struct kernels_fp {
-    //static std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count);
-    // static std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
-    //                                                          std::int64_t column_count,
-    //                                                          std::int64_t cluster_count);
     template <bool use_weights>
     static sycl::event get_cores_send_recv_replace_impl(sycl::queue& queue,
                                                         const pr::ndview<Float, 2>& data,

@@ -93,6 +93,7 @@ inline auto make_results(sycl::queue& queue,
     if (desc.get_result_options().test(result_options::responses)) {
         results.set_responses(dal::homogen_table::wrap(responses.flatten(queue), block_size, 1));
     }
+
     if (desc.get_result_options().test(result_options::core_flags)) {
         results.set_core_flags(dal::homogen_table::wrap(cores.flatten(queue), block_size, 1));
     }
