@@ -675,7 +675,7 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
             for (std::int64_t i = 0; i < local_row_count; i++) {
                 if (indicies_host_ptr[i] == true) {
                     for (std::int64_t j = 0; j < column_count; j++) {
-                        current_queue_ptr[displ * column_count + j] =
+                        current_queue_ptr[block_start * column_count + displ * column_count + j] =
                             data_host_ptr[i * column_count + j];
                     }
                     displ++;

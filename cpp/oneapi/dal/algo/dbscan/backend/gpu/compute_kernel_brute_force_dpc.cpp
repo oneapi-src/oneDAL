@@ -173,19 +173,19 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         }
 
         while (total_queue_size != 0) {
-            // auto recv_counts = array<std::int64_t>::zeros(rank_count);
-            // recv_counts.get_mutable_data()[current_rank] = local_queue_size;
-            // {
-            //     ONEDAL_PROFILER_TASK(allreduce_recv_counts);
-            //     comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
-            // }
-            // auto displs = array<std::int64_t>::zeros(rank_count);
-            // auto displs_ptr = displs.get_mutable_data();
-            // std::int64_t total_count = 0;
-            // for (std::int64_t i = 0; i < rank_count; i++) {
-            //     displs_ptr[i] = total_count;
-            //     total_count += recv_counts.get_data()[i];
-            // }
+            auto recv_counts = array<std::int64_t>::zeros(rank_count);
+            recv_counts.get_mutable_data()[current_rank] = local_queue_size;
+            {
+                ONEDAL_PROFILER_TASK(allreduce_recv_counts);
+                comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
+            }
+            auto displs = array<std::int64_t>::zeros(rank_count);
+            auto displs_ptr = displs.get_mutable_data();
+            std::int64_t total_count = 0;
+            for (std::int64_t i = 0; i < rank_count; i++) {
+                displs_ptr[i] = total_count;
+                total_count += recv_counts.get_data()[i];
+            }
 
             auto [current_queue, current_queue_event] =
                 pr::ndarray<Float, 2>::full(queue,
@@ -197,7 +197,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                                   data_nd,
                                                   observation_indicies,
                                                   current_queue,
-                                                  0,
+                                                  displs_ptr[current_rank],
                                                   { current_queue_event })
                 .wait_and_throw();
 
