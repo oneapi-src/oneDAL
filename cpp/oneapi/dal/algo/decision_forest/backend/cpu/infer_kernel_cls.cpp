@@ -57,6 +57,28 @@ static daal_df::classification::ModelPtr get_daal_model(const model_t& trained_m
     return static_cast<const model_interop_cls*>(interop_model)->get_model();
 }
 
+static daal_hyperparameters_t convert_parameters(const param_t& params) {
+    using daal_df::internal::HyperparameterId;
+    using daal_df::internal::DoubleHyperparameterId;
+
+    const std::int64_t block = params.get_block_size();
+    const std::int64_t minTrees = params.get_min_trees_for_threading();
+    const std::int64_t minRows = params.get_min_number_of_rows_for_vect_seq_compute();
+    const double scale = params.get_scale_factor_for_vect_parallel_compute();
+
+    daal_hyperparameters_t daal_hyperparameter;
+
+    auto status = daal_hyperparameter.set(HyperparameterId::blockSize, block);
+    status |= daal_hyperparameter.set(HyperparameterId::minTreesForThreading, minTrees);
+    status |= daal_hyperparameter.set(HyperparameterId::minNumberOfRowsForVectSeqCompute, minRows);
+    status |=
+        daal_hyperparameter.set(DoubleHyperparameterId::scaleFactorForVectParallelCompute, scale);
+
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
+}
+
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
@@ -89,6 +111,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
 
     const daal_df::classification::Model* const daal_model_ptr = daal_model.get();
+    const daal_hyperparameters_t& hyperparameters = convert_parameters(params);
     interop::status_to_exception(interop::call_daal_kernel<Float, cls_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
@@ -97,7 +120,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_responses_res.get(),
         daal_responses_prob_res.get(),
         desc.get_class_count(),
-        daal_voting_mode));
+        daal_voting_mode,
+        &hyperparameters));
 
     result_t res;
 
@@ -122,29 +146,6 @@ static result_t infer(const context_cpu& ctx,
                       const param_t& params,
                       const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, params, input.get_model(), input.get_data());
-}
-
-template <typename Float>
-static daal_hyperparameters_t convert_parameters(const param_t& params) {
-    using daal_df::internal::HyperparameterId;
-    using daal_df::internal::DoubleHyperparameterId;
-
-    const std::int64_t block = params.get_block_size();
-    const std::int64_t minTrees = params.get_min_trees_for_threading();
-    const std::int64_t minRows = params.get_min_number_of_rows_for_vect_seq_compute();
-    const double scale = params.get_scale_factor_for_vect_parallel_compute();
-
-    daal_hyperparameters_t daal_hyperparameter;
-
-    auto status = daal_hyperparameter.set(HyperparameterId::blockSize, block);
-    status |= daal_hyperparameter.set(HyperparameterId::minTreesForThreading, minTrees);
-    status |= daal_hyperparameter.set(HyperparameterId::minNumberOfRowsForVectSeqCompute, minRows);
-    status |=
-        daal_hyperparameter.set(DoubleHyperparameterId::scaleFactorForVectParallelCompute, scale);
-
-    interop::status_to_exception(status);
-
-    return daal_hyperparameter;
 }
 
 template <typename Float>
