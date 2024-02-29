@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iostream>
 #include <unordered_map>
 
 #include "oneapi/dal/test/engine/catch.hpp"
