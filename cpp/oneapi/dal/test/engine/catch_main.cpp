@@ -19,14 +19,13 @@
 #include <sstream>
 #include <unordered_map>
 
-#define CATCH_CONFIG_RUNNER
 #include "oneapi/dal/test/engine/catch.hpp"
 #include "oneapi/dal/test/engine/config.hpp"
 
 inline constexpr int default_benchmark_run_count = 5;
 
 int main(int argc, char** argv) {
-    using namespace Catch::clara;
+    using namespace Catch::Clara;
     using oneapi::dal::test::engine::global_config;
 
     global_config config;
