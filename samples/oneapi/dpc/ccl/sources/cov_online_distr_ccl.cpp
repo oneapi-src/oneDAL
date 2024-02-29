@@ -49,8 +49,7 @@ void run(sycl::queue& queue) {
     dal::covariance::partial_compute_result<> partial_result;
 
     for (std::int64_t i = 0; i < nBlocks; i++) {
-        partial_result =
-            dal::preview::partial_compute(queue, cov_desc, partial_result, input_blocks[i]);
+        partial_result = dal::partial_compute(queue, cov_desc, partial_result, input_blocks[i]);
     }
     const auto result = dal::preview::finalize_compute(comm, cov_desc, partial_result);
 
