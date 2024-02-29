@@ -1026,9 +1026,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
             parallelPredict(aX, aNode, treeSize, nBlocks, nCols, _blockSize, residualSize, tlsData.local(tid), iTree);
         });
 
-        const size_t nThreads       = tlsData.nthreads();
+        const size_t nThreads  = tlsData.nthreads();
         const size_t blockSize = 256; // TODO: Why can't this be the class value _blockSize?
-        const size_t nBlocks        = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
+        const size_t nBlocks   = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
 
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t begin = iBlock * blockSize;
@@ -1092,7 +1092,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
         if (prob != nullptr || res != nullptr)
         {
             const size_t blockSize = 256;
-            const size_t nBlocks    = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
+            const size_t nBlocks   = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
 
             daal::threader_for(nBlocks, nBlocks, [&, nCols](const size_t iBlock) {
                 const size_t begin = iBlock * blockSize;
