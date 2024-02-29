@@ -161,7 +161,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         if (in_range) {
             set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
                 .wait_and_throw();
-            set_core_in_area_value(queue, observation_indicies, cluster_index - local_offset, true)
+            set_indicies_in_area(queue, observation_indicies, cluster_index - local_offset, true)
                 .wait_and_throw();
             local_queue_size++;
         }
@@ -209,15 +209,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                 comm.allreduce(current_queue.flatten(queue, {}), spmd::reduce_op::sum).wait();
             }
 
-            kernels_fp<Float>::search(queue,
-                                      data_nd,
-                                      arr_cores,
-                                      current_queue,
-                                      arr_responses,
-                                      queue_size,
-                                      observation_indicies,
-                                      epsilon,
-                                      cluster_count - 1)
+            kernels_fp<Float>::update_queue(queue,
+                                            data_nd,
+                                            arr_cores,
+                                            current_queue,
+                                            arr_responses,
+                                            queue_size,
+                                            observation_indicies,
+                                            epsilon,
+                                            cluster_count - 1)
                 .wait_and_throw();
 
             local_queue_size = kernels_fp<Float>::get_queue_front(queue, queue_size);
