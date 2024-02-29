@@ -327,8 +327,8 @@ services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inPara
             __m256i expBits  = _mm256_and_si256(exp256Mask, ptr256i[i]);
             __m256i fracBits = _mm256_and_si256(frac256Mask, ptr256i[i]);
 
-            __mmask16 expAreOnes   = _mm256_cmpeq_epi32_mask(exp256Mask, expBits);
-            __mmask16 fracAreZeros = _mm256_cmpeq_epi32_mask(zero256, fracBits);
+            __m256i expAreOnes   = _mm256_cmpeq_epi32(exp256Mask, expBits); //switch to _m256_cmpeq_epi32 (output is a _m256i)
+            __m256i fracAreZeros = _mm256_cmpeq_epi32(zero256, fracBits);
 
             // "values aren't finite" = "exponent bits are ones" AND ( "fraction bits are zeros" OR NOT "NaN is allowed" )
             __mmask16 orMask    = _kor_mask16(fracAreZeros, notAllowNaNMask);
@@ -373,7 +373,7 @@ services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inPar
         __m256i zero256     = _mm256_setzero_si256();
 
         __mmask8 notAllowNaNMask =
-            allowNaN ? _cvtu32_mask8(0) : _cvtu32_mask8(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1);
+            allowNaN ? _cvtu32_mask8(0) : _cvtu32_mask8(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1); //second sets all to one?
 
         __m256i * ptr256i = (__m256i *)(dataPtrs[ptrIdx] + start);
 
@@ -384,14 +384,16 @@ services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inPar
             __m256i fracBits = _mm256_and_si256(frac256Mask, ptr256i[i]);
 
             __mmask8 expAreOnes   = _mm256_cmpeq_epi64_mask(exp256Mask, expBits);
-            __mmask8 fracAreZeros = _mm256_cmpeq_epi64_mask(zero256, fracBits);
+            __mmask8 fracAreZeros = _mm256_cmpeq_epi64_mask(zero256, fracBits); //not necessary, just used to convert to mask
 
             // "values aren't finite" = "exponent bits are ones" AND ( "fraction bits are zeros" OR NOT "NaN is allowed" )
-            __mmask8 orMask    = _kor_mask8(fracAreZeros, notAllowNaNMask);
-            __mmask8 finalMask = _kand_mask8(expAreOnes, orMask);
+            __mmask8 orMask    = _kor_mask8(fracAreZeros, notAllowNaNMask); //use __mm256_or_si256(fracBits, notAllowNaN)
+            __mmask8 finalMask = _kand_mask8(expAreOnes, orMask); // use __mm
+            //do an __mm256_or_si256 on endMask here
 
-            if (_cvtmask8_u32(finalMask) != 0) notFinitePtr[iBlock] = true;
         }
+        if (_cvtmask8_u32(endMask) != 0) notFinitePtr[iBlock] = true; // will need to look closely at this for 256 bit bus, need to check for any nonzero on 256 bus.
+
         size_t offset = start + (lcSize / nPerInstr) * nPerInstr;
         notFinitePtr[iBlock] |= valuesAreNotFinite(dataPtrs[ptrIdx] + offset, end - offset, allowNaN);
     });
@@ -664,6 +666,7 @@ services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inPara
 
         __mmask16 notAllowNaNMask =
             allowNaN ? _cvtu32_mask16(0) : _cvtu32_mask16(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1);
+        __mmask16 endMask = _cvtu32_mask16(0);
 
         __m512i * ptr512i = (__m512i *)(dataPtrs[ptrIdx] + start);
 
@@ -679,9 +682,10 @@ services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inPara
             // "values aren't finite" = "exponent bits are ones" AND ( "fraction bits are zeros" OR NOT "NaN is allowed" )
             __mmask16 orMask    = _kor_mask16(fracAreZeros, notAllowNaNMask);
             __mmask16 finalMask = _kand_mask16(expAreOnes, orMask);
-
-            if (_cvtmask16_u32(finalMask) != 0) notFinitePtr[iBlock] = true;
+            endMask = _kor_mask16(endMask, finalMask);
         }
+        if (_cvtmask16_u32(endMask) != 0) notFinitePtr[iBlock] = true;
+
         size_t offset = start + (lcSize / nPerInstr) * nPerInstr;
         notFinitePtr[iBlock] |= valuesAreNotFinite(dataPtrs[ptrIdx] + offset, end - offset, allowNaN);
     });
@@ -720,6 +724,7 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
 
         __mmask8 notAllowNaNMask =
             allowNaN ? _cvtu32_mask8(0) : _cvtu32_mask8(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1);
+        __mask8 endMask = _cvtu32_mask8(0);
 
         __m512i * ptr512i = (__m512i *)(dataPtrs[ptrIdx] + start);
 
@@ -735,9 +740,10 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
             // "values aren't finite" = "exponent bits are ones" AND ( "fraction bits are zeros" OR NOT "NaN is allowed" )
             __mmask8 orMask    = _kor_mask8(fracAreZeros, notAllowNaNMask);
             __mmask8 finalMask = _kand_mask8(expAreOnes, orMask);
-
-            if (_cvtmask8_u32(finalMask) != 0) notFinitePtr[iBlock] = true;
+            endMask = _kor_mask8(endMask, finalMask);
         }
+        if (_cvtmask8_u32(endMask) != 0) notFinitePtr[iBlock] = true;
+
         size_t offset = start + (lcSize / nPerInstr) * nPerInstr;
         notFinitePtr[iBlock] |= valuesAreNotFinite(dataPtrs[ptrIdx] + offset, end - offset, allowNaN);
     });
