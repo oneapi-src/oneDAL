@@ -169,6 +169,7 @@ public:
         
         int ze_support;
         MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
+        std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
         throw std::runtime_error(std::to_string(ze_support == MPIX_Query_ze_support()));
         mpi_call(MPI_Bcast(send_buf,
                            integral_cast<int>(count),
@@ -214,6 +215,7 @@ public:
         
         int ze_support;
         MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
+        std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
         throw std::runtime_error(std::to_string(ze_support == MPIX_Query_ze_support()));
         mpi_call(MPI_Iallgatherv(send_buf,
                                  integral_cast<int>(send_count),
@@ -248,6 +250,7 @@ public:
             std::cout << "Iallreduce " << count << std::endl;
             int ze_support;
             MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
+            std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
             throw std::runtime_error(std::to_string(ze_support == MPIX_Query_ze_support()));
             mpi_call(MPI_Iallreduce(send_buf,
                                     recv_buf,
@@ -265,6 +268,10 @@ public:
 
             // TODO Replace with MPI_Iallreduce
             std::cout << "Allreduce " << count << std::endl;
+            int ze_support;
+            MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
+            std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
+            throw std::runtime_error(std::to_string(ze_support == MPIX_Query_ze_support()));
             mpi_call(MPI_Allreduce(MPI_IN_PLACE,
                                    recv_buf,
                                    integral_cast<int>(count),
@@ -303,6 +310,7 @@ public:
         
         int ze_support;
         MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
+        std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
         throw std::runtime_error(std::to_string(ze_support == MPIX_Query_ze_support()));
         mpi_call(MPI_Sendrecv_replace(buf,
                                       integral_cast<int>(count),
