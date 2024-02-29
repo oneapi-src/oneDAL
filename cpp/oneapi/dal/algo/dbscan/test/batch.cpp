@@ -29,30 +29,30 @@ class dbscan_batch_test : public dbscan_test<TestType, dbscan_batch_test<TestTyp
 
 using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
 
-// TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-//                      "dbscan compute mode check",
-//                      "[dbscan][batch]",
-//                      dbscan_types) {
-//     SKIP_IF(this->not_float64_friendly());
-//     using float_t = std::tuple_element_t<0, TestType>;
+TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+                     "dbscan compute mode check",
+                     "[dbscan][batch]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using float_t = std::tuple_element_t<0, TestType>;
 
-//     constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
-//                                  0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
-//     const auto x = homogen_table::wrap(data, 3, 5);
+    constexpr float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0,
+                                 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
+    const auto x = homogen_table::wrap(data, 3, 5);
 
-//     constexpr double epsilon = 0.01;
-//     constexpr std::int64_t min_observations = 1;
+    constexpr double epsilon = 0.01;
+    constexpr std::int64_t min_observations = 1;
 
-//     result_option_id res_all = result_option_id(dal::result_option_id_base(mask_full));
+    result_option_id res_all = result_option_id(dal::result_option_id_base(mask_full));
 
-//     const result_option_id compute_mode = GENERATE_COPY(result_options::responses,
-//                                                         result_options::core_flags,
-//                                                         result_options::core_observations,
-//                                                         result_options::core_observation_indices,
-//                                                         res_all);
+    const result_option_id compute_mode = GENERATE_COPY(result_options::responses,
+                                                        result_options::core_flags,
+                                                        result_options::core_observations,
+                                                        result_options::core_observation_indices,
+                                                        res_all);
 
-//     this->mode_checks(compute_mode, x, table{}, epsilon, min_observations);
-// }
+    this->mode_checks(compute_mode, x, table{}, epsilon, min_observations);
+}
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "dbscan degenerated test",
@@ -73,7 +73,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { 0, 1, 2 };
     const auto r = homogen_table::wrap(responses, 3, 1);
-    std::cout << "dbscan degenerated test #1" << std::endl;
+
     this->run_checks(x, w, epsilon, min_observations, r);
 }
 
@@ -154,7 +154,7 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 
     constexpr std::int32_t responses[] = { 0, 1, 1, 1, 2, 3, 4 };
     const auto r = homogen_table::wrap(responses, 7, 1);
-    std::cout << "dbscan simple core observations test #1" << std::endl;
+
     this->run_checks(x, table{}, epsilon, min_observations, r);
 }
 

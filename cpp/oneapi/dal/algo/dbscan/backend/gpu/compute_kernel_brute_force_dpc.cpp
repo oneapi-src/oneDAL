@@ -188,45 +188,26 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
             // }
 
             auto [current_queue, current_queue_event] =
-                pr::ndarray<Float, 2>::full(queue, { total_queue_size, column_count }, 0);
+                pr::ndarray<Float, 2>::full(queue,
+                                            { total_queue_size, column_count },
+                                            0,
+                                            sycl::usm::alloc::device);
 
-            current_queue_event.wait_and_throw();
-            auto current_queue_ptr = current_queue.get_mutable_data();
-            auto data_host = data_nd.to_host(queue);
-            auto data_host_ptr = data_host.get_data();
-            auto indicies_host = observation_indicies.to_host(queue);
-            auto indicies_host_ptr = indicies_host.get_mutable_data();
-            auto displ = 0;
+            kernels_fp<Float>::fill_current_queue(queue,
+                                                  data_nd,
+                                                  observation_indicies,
+                                                  current_queue,
+                                                  0,
+                                                  { current_queue_event })
+                .wait_and_throw();
 
-            for (std::int64_t i = 0; i < local_row_count; i++) {
-                if (indicies_host_ptr[i] == true) {
-                    for (std::int64_t j = 0; j < column_count; j++) {
-                        current_queue_ptr[displ * column_count + j] =
-                            data_host_ptr[i * column_count + j];
-                    }
-                    displ++;
-                }
-            }
-            // std::cout<<"displ="<<displ<<std::endl;
-            // if(cluster_count==1){
-            // for (std::int64_t i = 0; i < total_queue_size; i++) {
-            //         for (std::int64_t j = 0; j < column_count; j++) {
-            //             std::cout<<current_queue_ptr[i * column_count + j]<<" ";
-            //         }
-            //         std::cout<<std::endl;
-            //     }
-            // }
-            auto queue_size_host_ = queue_size.to_host(queue);
-            auto queue_size_host_ptr_ = queue_size_host_.get_mutable_data();
-            queue_size_host_ptr_[0] = total_queue_size;
-            // kernels_fp<Float>::fill_current_queue(queue, data_nd, arr_in_area, current_queue, displs[current_rank])
-            //     .wait_and_throw();
+            set_arr_value(queue, queue_size, 0, total_queue_size).wait_and_throw();
+
             {
                 ONEDAL_PROFILER_TASK(allreduce_xtx, queue);
                 comm.allreduce(current_queue.flatten(queue, {}), spmd::reduce_op::sum).wait();
             }
 
-            auto current_queue_nd = current_queue.to_device(queue);
             kernels_fp<Float>::search(queue,
                                       data_nd,
                                       arr_cores,

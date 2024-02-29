@@ -104,12 +104,14 @@ struct kernels_fp {
                               Float epsilon,
                               std::int32_t cluster_id,
                               const bk::event_vector& deps = {});
+
     static sycl::event fill_current_queue(sycl::queue& queue,
                                           const pr::ndview<Float, 2>& data,
                                           const pr::ndview<bool, 1>& indicies,
                                           pr::ndview<Float, 2>& current_queue,
-                                          std::int64_t block_start = -1,
+                                          std::int64_t block_start,
                                           const bk::event_vector& deps = {});
+
     static std::int32_t get_queue_front(sycl::queue& queue,
                                         const pr::ndarray<std::int32_t, 1>& queue_front,
                                         const bk::event_vector& deps = {});

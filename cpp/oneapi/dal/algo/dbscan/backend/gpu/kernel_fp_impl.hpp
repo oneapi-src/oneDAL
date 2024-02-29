@@ -116,9 +116,6 @@ struct get_core_wide_kernel {
                                 }
                                 break;
                             }
-                            // if (!use_weights && (row_count - j + count < min_observations)) {
-                            //     break;
-                            // }
                         }
                     }
                 });
@@ -171,11 +168,8 @@ struct get_core_narrow_kernel {
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
-                        //break;
+                        break;
                     }
-                    // if (!use_weights && (row_count - j + count < min_observations)) {
-                    //     break;
-                    // }
                 }
             });
         });
@@ -262,10 +256,6 @@ struct get_core_send_recv_replace_wide_kernel {
                                 }
                                 break;
                             }
-
-                            // if (!use_weights && (row_count - j + count < min_observations)) {
-                            //     break;
-                            // }
                         }
                     }
                 });
@@ -322,11 +312,8 @@ struct get_core_send_recv_replace_narrow_kernel {
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
-                        //break;
+                        break;
                     }
-                    // if (!use_weights && (row_count - j + count < min_observations)) {
-                    //     break;
-                    // }
                 }
             });
         });
@@ -667,17 +654,36 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     });
     return event;
 }
-// template <typename Float>
-// sycl::event fill_current_queue(sycl::queue& queue,
-//                                     const pr::ndview<Float, 2>& data,
-//                                     const pr::ndview<bool, 1>& indicies,
-//                                     pr::ndview<Float, 2>& current_queue,
-//                                     std::int64_t block_start = -1,
-//                                     const bk::event_vector& deps) {
+template <typename Float>
+sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
+                                                  const pr::ndview<Float, 2>& data,
+                                                  const pr::ndview<bool, 1>& indicies,
+                                                  pr::ndview<Float, 2>& current_queue,
+                                                  std::int64_t block_start,
+                                                  const bk::event_vector& deps) {
+    const std::int64_t local_row_count = data.get_dimension(0);
+    ONEDAL_ASSERT(local_row_count > 0);
+    const std::int64_t column_count = data.get_dimension(1);
+    const bool* indicies_host_ptr = indicies.get_data();
+    const Float* data_host_ptr = data.get_data();
+    Float* current_queue_ptr = current_queue.get_mutable_data();
 
-//     auto event = sycl::event;
-//     return event;
-//                                     }
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(sycl::range<1>{ static_cast<std::size_t>(1) }, [=](sycl::id<1> idx) {
+            std::int64_t displ = 0;
+            for (std::int64_t i = 0; i < local_row_count; i++) {
+                if (indicies_host_ptr[i] == true) {
+                    for (std::int64_t j = 0; j < column_count; j++) {
+                        current_queue_ptr[displ * column_count + j] =
+                            data_host_ptr[i * column_count + j];
+                    }
+                    displ++;
+                }
+            }
+        });
+    });
+}
 
 template <typename Float>
 sycl::event kernels_fp<Float>::search(sycl::queue& queue,
