@@ -527,11 +527,11 @@ sycl::event set_queue_ptr(sycl::queue& queue,
     });
 }
 
-sycl::event set_indicies_in_area(sycl::queue& queue,
-                                 pr::ndview<bool, 1>& arr,
-                                 std::int32_t index,
-                                 bool value,
-                                 const bk::event_vector& deps) {
+sycl::event set_indices_in_area(sycl::queue& queue,
+                                pr::ndview<bool, 1>& arr,
+                                std::int32_t index,
+                                bool value,
+                                const bk::event_vector& deps) {
     auto arr_ptr = arr.get_mutable_data();
     auto row_count = arr.get_dimension(0);
     auto event = queue.submit([&](sycl::handler& cgh) {
@@ -569,14 +569,14 @@ sycl::event set_arr_value(sycl::queue& queue,
 template <typename Float>
 sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& data,
-                                                  const pr::ndview<bool, 1>& indicies,
+                                                  const pr::ndview<bool, 1>& indices,
                                                   pr::ndview<Float, 2>& current_queue,
                                                   std::int64_t block_start,
                                                   const bk::event_vector& deps) {
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
-    const bool* indicies_host_ptr = indicies.get_data();
+    const bool* indices_host_ptr = indices.get_data();
     const Float* data_host_ptr = data.get_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
     const auto local_size = bk::device_max_sg_size(queue);
@@ -589,7 +589,7 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                 const auto local_id = item.get_local_id(1);
                 std::int64_t displ = 0;
                 for (std::int64_t i = 0; i < local_row_count; i++) {
-                    if (indicies_host_ptr[i] == true) {
+                    if (indices_host_ptr[i] == true) {
                         for (std::int32_t col_idx = local_id; col_idx < column_count;
                              col_idx += local_size) {
                             current_queue_ptr[block_start * column_count + displ * column_count +
@@ -609,7 +609,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             pr::ndview<Float, 2>& current_queue,
                                             pr::ndview<std::int32_t, 1>& responses,
                                             pr::ndview<std::int32_t, 1>& queue_size_arr,
-                                            pr::ndview<bool, 1>& indicies_cores,
+                                            pr::ndview<bool, 1>& indices_cores,
                                             Float epsilon,
                                             std::int32_t cluster_id,
                                             const bk::event_vector& deps) {
@@ -623,12 +623,12 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     std::int32_t* cores_ptr = cores.get_mutable_data();
     std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
     const Float* current_queue_ptr = current_queue.get_data();
-    bool* indicies_cores_ptr = indicies_cores.get_mutable_data();
+    bool* indices_cores_ptr = indices_cores.get_mutable_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
     auto fill_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-            indicies_cores_ptr[idx] = false;
+            indices_cores_ptr[idx] = false;
             queue_size_arr_ptr[0] = 0;
         });
     });
@@ -676,7 +676,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                          sycl::access::address_space::ext_intel_global_device_space>
                             counter_atomic(queue_size_arr_ptr[0]);
                         counter_atomic.fetch_add(1);
-                        indicies_cores_ptr[wg_id] = true;
+                        indices_cores_ptr[wg_id] = true;
                     }
                     break;
                 }

@@ -77,14 +77,14 @@ struct kernels_fp {
                                     pr::ndview<Float, 2>& current_queue,
                                     pr::ndview<std::int32_t, 1>& responses,
                                     pr::ndview<std::int32_t, 1>& queue_size,
-                                    pr::ndview<bool, 1>& indicies_cores,
+                                    pr::ndview<bool, 1>& indices_cores,
                                     Float epsilon,
                                     std::int32_t cluster_id,
                                     const bk::event_vector& deps = {});
 
     static sycl::event fill_current_queue(sycl::queue& queue,
                                           const pr::ndview<Float, 2>& data,
-                                          const pr::ndview<bool, 1>& indicies,
+                                          const pr::ndview<bool, 1>& indices,
                                           pr::ndview<Float, 2>& current_queue,
                                           std::int64_t block_start,
                                           const bk::event_vector& deps = {});
@@ -104,11 +104,11 @@ sycl::event set_arr_value(sycl::queue& queue,
                           std::int32_t offset,
                           std::int32_t value,
                           const bk::event_vector& deps = {});
-sycl::event set_indicies_in_area(sycl::queue& queue,
-                                 pr::ndview<bool, 1>& arr,
-                                 std::int32_t index,
-                                 bool value,
-                                 const bk::event_vector& deps = {});
+sycl::event set_indices_in_area(sycl::queue& queue,
+                                pr::ndview<bool, 1>& arr,
+                                std::int32_t index,
+                                bool value,
+                                const bk::event_vector& deps = {});
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores);
 #endif
 

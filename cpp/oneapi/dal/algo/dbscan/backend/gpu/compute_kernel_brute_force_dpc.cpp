@@ -98,7 +98,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, -1, sycl::usm::alloc::device);
 
     //array storages the information about which point are core neighbours in the current step
-    auto [observation_indicies, observation_indicies_event] =
+    auto [observation_indices, observation_indices_event] =
         pr::ndarray<bool, 1>::full(queue, local_row_count, false, sycl::usm::alloc::device);
 
     //array storages the information about count of the points in queue
@@ -108,7 +108,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     sycl::event::wait({ queue_size_event,
                         cores_event,
                         responses_event,
-                        observation_indicies_event,
+                        observation_indices_event,
                         neighbours_event });
 
     kernels_fp<Float>::get_cores(queue,
@@ -161,7 +161,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         if (in_range) {
             set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
                 .wait_and_throw();
-            set_indicies_in_area(queue, observation_indicies, cluster_index - local_offset, true)
+            set_indices_in_area(queue, observation_indices, cluster_index - local_offset, true)
                 .wait_and_throw();
             local_queue_size++;
         }
@@ -196,7 +196,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
             kernels_fp<Float>::fill_current_queue(queue,
                                                   data_nd,
-                                                  observation_indicies,
+                                                  observation_indices,
                                                   current_queue,
                                                   displs_ptr[current_rank],
                                                   { current_queue_event })
@@ -215,7 +215,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                             current_queue,
                                             arr_responses,
                                             queue_size,
-                                            observation_indicies,
+                                            observation_indices,
                                             epsilon,
                                             cluster_count - 1)
                 .wait_and_throw();
