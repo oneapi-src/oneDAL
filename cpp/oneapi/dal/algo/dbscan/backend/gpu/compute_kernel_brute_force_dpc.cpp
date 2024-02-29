@@ -17,6 +17,7 @@
 #include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/data_keeper.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/results.hpp"
+
 #include "oneapi/dal/detail/profiler.hpp"
 
 namespace bk = oneapi::dal::backend;

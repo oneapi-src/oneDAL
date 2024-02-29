@@ -292,71 +292,71 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
 }
 
-// TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
-//                      "dbscan simple core observations test #2",
-//                      "[dbscan][spmd]",
-//                      dbscan_types) {
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->get_policy().is_cpu());
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "dbscan simple core observations test #2",
+                     "[dbscan][spmd]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
-//     using float_t = std::tuple_element_t<0, TestType>;
+    using float_t = std::tuple_element_t<0, TestType>;
 
-//     constexpr float_t data[] = { 0.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0 };
-//     const auto x = homogen_table::wrap(data, 7, 1);
+    constexpr float_t data[] = { 0.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0 };
+    const auto x = homogen_table::wrap(data, 7, 1);
 
-//     constexpr double epsilon = 1;
-//     constexpr std::int64_t min_observations = 2;
+    constexpr double epsilon = 1;
+    constexpr std::int64_t min_observations = 2;
 
-//     constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
-//     const auto r = homogen_table::wrap(responses, 7, 1);
+    constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
+    const auto r = homogen_table::wrap(responses, 7, 1);
 
-//     this->set_rank_count(GENERATE(2));
-//     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
-// }
+    this->set_rank_count(GENERATE(2));
+    this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
+}
 
-// TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
-//                      "dbscan simple core observations test #3",
-//                      "[dbscan][spmd]",
-//                      dbscan_types) {
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->get_policy().is_cpu());
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "dbscan simple core observations test #3",
+                     "[dbscan][spmd]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
-//     using float_t = std::tuple_element_t<0, TestType>;
+    using float_t = std::tuple_element_t<0, TestType>;
 
-//     constexpr float_t data[] = { 0.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0 };
-//     const auto x = homogen_table::wrap(data, 7, 1);
+    constexpr float_t data[] = { 0.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0 };
+    const auto x = homogen_table::wrap(data, 7, 1);
 
-//     constexpr double epsilon = 1;
-//     constexpr std::int64_t min_observations = 3;
+    constexpr double epsilon = 1;
+    constexpr std::int64_t min_observations = 3;
 
-//     constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
-//     const auto r = homogen_table::wrap(responses, 7, 1);
+    constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
+    const auto r = homogen_table::wrap(responses, 7, 1);
 
-//     this->set_rank_count(GENERATE(2));
-//     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
-// }
+    this->set_rank_count(GENERATE(2));
+    this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
+}
 
-// TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
-//                      "dbscan simple core observations test #4",
-//                      "[dbscan][spmd]",
-//                      dbscan_types) {
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->get_policy().is_cpu());
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "dbscan simple core observations test #4",
+                     "[dbscan][spmd]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
-//     using float_t = std::tuple_element_t<0, TestType>;
+    using float_t = std::tuple_element_t<0, TestType>;
 
-//     constexpr float_t data[] = { 0.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0 };
-//     const auto x = homogen_table::wrap(data, 7, 1);
+    constexpr float_t data[] = { 0.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0 };
+    const auto x = homogen_table::wrap(data, 7, 1);
 
-//     constexpr double epsilon = 1;
-//     constexpr std::int64_t min_observations = 4;
+    constexpr double epsilon = 1;
+    constexpr std::int64_t min_observations = 4;
 
-//     constexpr std::int32_t responses[] = { -1, -1, -1, -1, -1, -1, -1 };
-//     const auto r = homogen_table::wrap(responses, 7, 1);
+    constexpr std::int32_t responses[] = { -1, -1, -1, -1, -1, -1, -1 };
+    const auto r = homogen_table::wrap(responses, 7, 1);
 
-//     this->set_rank_count(GENERATE(2));
-//     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
-// }
+    this->set_rank_count(GENERATE(2));
+    this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
+}
 
 TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
                      "mnist: samples=10K, epsilon=1.7e3, min_observations=3",

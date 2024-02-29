@@ -87,7 +87,6 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan boundary test", "[dbscan][batch]
     const auto x1 = homogen_table::wrap(data1, 2, 1);
     const auto r1 = homogen_table::wrap(responses1, 2, 1);
     constexpr double epsilon1 = 2.0;
-
     this->run_checks(x1, table{}, epsilon1, min_observations, r1);
 
     constexpr float_t data2[] = { 0.0, 1.0, 1.0 };
@@ -95,13 +94,11 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test, "dbscan boundary test", "[dbscan][batch]
     const auto x2 = homogen_table::wrap(data2, 3, 1);
     const auto r2 = homogen_table::wrap(responses2, 3, 1);
     constexpr double epsilon2 = 1.0;
-
     this->run_checks(x2, table{}, epsilon2, min_observations, r2);
 
     constexpr std::int32_t responses3[] = { -1, 0, 0 };
     const auto r3 = homogen_table::wrap(responses3, 3, 1);
     constexpr double epsilon3 = 0.999;
-
     this->run_checks(x2, table{}, epsilon3, min_observations, r3);
 }
 

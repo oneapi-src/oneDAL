@@ -90,10 +90,10 @@ inline auto make_results(sycl::queue& queue,
     ONEDAL_ASSERT(block_size == responses.get_dimension(0));
     auto results =
         result_t().set_cluster_count(cluster_count).set_result_options(desc.get_result_options());
+
     if (desc.get_result_options().test(result_options::responses)) {
         results.set_responses(dal::homogen_table::wrap(responses.flatten(queue), block_size, 1));
     }
-
     if (desc.get_result_options().test(result_options::core_flags)) {
         results.set_core_flags(dal::homogen_table::wrap(cores.flatten(queue), block_size, 1));
     }

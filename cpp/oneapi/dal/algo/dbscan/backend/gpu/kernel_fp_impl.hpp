@@ -654,6 +654,8 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     });
     return event;
 }
+
+//todo: add potential optimizations
 template <typename Float>
 sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& data,
@@ -667,21 +669,26 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
     const bool* indicies_host_ptr = indicies.get_data();
     const Float* data_host_ptr = data.get_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
-
+    const auto local_size = bk::device_max_sg_size(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(sycl::range<1>{ static_cast<std::size_t>(1) }, [=](sycl::id<1> idx) {
-            std::int64_t displ = 0;
-            for (std::int64_t i = 0; i < local_row_count; i++) {
-                if (indicies_host_ptr[i] == true) {
-                    for (std::int64_t j = 0; j < column_count; j++) {
-                        current_queue_ptr[block_start * column_count + displ * column_count + j] =
-                            data_host_ptr[i * column_count + j];
+        const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, local_size }, { wg_size, local_size }),
+            [=](sycl::nd_item<2> item) {
+                const auto local_id = item.get_local_id(1);
+                std::int64_t displ = 0;
+                for (std::int64_t i = 0; i < local_row_count; i++) {
+                    if (indicies_host_ptr[i] == true) {
+                        for (std::int32_t col_idx = local_id; col_idx < column_count;
+                             col_idx += local_size) {
+                            current_queue_ptr[block_start * column_count + displ * column_count +
+                                              col_idx] = data_host_ptr[i * column_count + col_idx];
+                        }
+                        displ++;
                     }
-                    displ++;
                 }
-            }
-        });
+            });
     });
 }
 
