@@ -47,12 +47,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto prev_node = (current_rank - 1 + rank_count) % rank_count;
     auto next_node = (current_rank + 1) % rank_count;
 
-    const std::int64_t row_count = local_data.get_row_count();
+    const std::int64_t local_row_count = local_data.get_row_count();
     const std::int64_t column_count = local_data.get_column_count();
-    std::int64_t global_row_count = row_count;
+    std::int64_t global_row_count = local_row_count;
 
     auto global_rank_offsets = array<std::int64_t>::zeros(rank_count);
-    global_rank_offsets.get_mutable_data()[current_rank] = row_count;
+    global_rank_offsets.get_mutable_data()[current_rank] = local_row_count;
     {
         ONEDAL_PROFILER_TASK(allreduce_recv_counts, queue);
         comm.allreduce(global_rank_offsets, spmd::reduce_op::sum).wait();
@@ -71,8 +71,9 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
 
-    auto data_nd_replace =
-        pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, sycl::usm::alloc::device);
+    auto data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
+                                                        { local_row_count, column_count },
+                                                        sycl::usm::alloc::device);
 
     auto copy_event = copy(queue, data_nd_replace, data_nd, {});
     copy_event.wait_and_throw();
@@ -83,27 +84,30 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
+    //array indicates is the point core or no
     auto [arr_cores, cores_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
+
+    //array storages the information about neighbours of the point for distributed mode
     auto [arr_neighbours, neighbours_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, row_count, 0, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
+
+    //array storages the information about neighbours of the point for distributed mode
     auto [arr_responses, responses_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
-    auto [arr_in_area, arr_in_area_event] =
-        pr::ndarray<bool, 1>::full(queue, row_count, false, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, -1, sycl::usm::alloc::device);
+
+    //array storages the information about which point are core neighbours in the current step
+    auto [observation_indicies, observation_indicies_event] =
+        pr::ndarray<bool, 1>::full(queue, local_row_count, false, sycl::usm::alloc::device);
+
+    //array storages the information about count of the points in queue
     auto [queue_size, queue_size_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
-    auto [arr_queue, queue_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, global_row_count, -1, sycl::usm::alloc::device);
-    auto [arr_queue_front, queue_front_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
     sycl::event::wait({ queue_size_event,
                         cores_event,
                         responses_event,
-                        queue_event,
-                        queue_front_event,
-                        arr_in_area_event,
+                        observation_indicies_event,
                         neighbours_event });
 
     kernels_fp<Float>::get_cores(queue,
@@ -118,7 +122,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     for (std::int64_t j = 0; j < rank_count - 1; j++) {
         comm.sendrecv_replace(queue,
                               data_nd_replace.get_mutable_data(),
-                              row_count * column_count,
+                              local_row_count * column_count,
                               prev_node,
                               next_node)
             .wait();
@@ -137,7 +141,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     std::int32_t cluster_index =
         kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
-    cluster_index = cluster_index < row_count ? cluster_index + local_offset : global_row_count;
+    cluster_index =
+        cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
     {
         ONEDAL_PROFILER_TASK(allreduce_cluster_index);
         comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
@@ -147,17 +152,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         return make_results(queue, desc, data_nd, arr_responses, arr_cores, 0, 0);
     }
 
-    // std::int32_t queue_begin = 0;
-    // std::int32_t queue_end = 0;
-
     while (cluster_index < de::integral_cast<std::int32_t>(global_row_count)) {
         cluster_count++;
-        bool in_range = cluster_index >= local_offset && cluster_index < local_offset + row_count;
+        bool in_range =
+            cluster_index >= local_offset && cluster_index < local_offset + local_row_count;
         std::int32_t local_queue_size = 0;
         if (in_range) {
             set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
                 .wait_and_throw();
-            set_core_in_area_value(queue, arr_in_area, cluster_index - local_offset, true)
+            set_core_in_area_value(queue, observation_indicies, cluster_index - local_offset, true)
                 .wait_and_throw();
             local_queue_size++;
         }
@@ -191,11 +194,11 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
             auto current_queue_ptr = current_queue.get_mutable_data();
             auto data_host = data_nd.to_host(queue);
             auto data_host_ptr = data_host.get_data();
-            auto indicies_host = arr_in_area.to_host(queue);
+            auto indicies_host = observation_indicies.to_host(queue);
             auto indicies_host_ptr = indicies_host.get_mutable_data();
             auto displ = 0;
 
-            for (std::int64_t i = 0; i < row_count; i++) {
+            for (std::int64_t i = 0; i < local_row_count; i++) {
                 if (indicies_host_ptr[i] == true) {
                     for (std::int64_t j = 0; j < column_count; j++) {
                         current_queue_ptr[displ * column_count + j] =
@@ -230,24 +233,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                       current_queue,
                                       arr_responses,
                                       queue_size,
-                                      arr_in_area,
+                                      observation_indicies,
                                       epsilon,
                                       cluster_count - 1)
                 .wait_and_throw();
 
             local_queue_size = kernels_fp<Float>::get_queue_front(queue, queue_size);
-            auto counter = 0;
-            auto indicies_host_ = arr_in_area.to_host(queue);
-            auto indicies_host_ptr_ = indicies_host_.get_mutable_data();
-            for (std::int64_t i = 0; i < row_count; i++) {
-                if (indicies_host_ptr_[i] == true) {
-                    counter++;
-                }
-            }
 
-            total_queue_size = counter;
-            // std::cout<<total_queue_size<<"!!!!!!!!!!!!"<<std::endl;
-            // std::cout<<counter<<"counter!!!!!!!!!!!!"<<std::endl;
+            total_queue_size = local_queue_size;
+
             {
                 ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner);
                 comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
@@ -255,7 +249,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         }
 
         cluster_index = kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
-        cluster_index = cluster_index < row_count ? cluster_index + local_offset : global_row_count;
+        cluster_index =
+            cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
         {
             ONEDAL_PROFILER_TASK(cluster_index);
             comm.allreduce(cluster_index, spmd::reduce_op::min).wait();

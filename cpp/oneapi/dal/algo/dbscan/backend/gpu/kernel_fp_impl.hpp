@@ -712,34 +712,52 @@ sycl::event kernels_fp<Float>::search(sycl::queue& queue,
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_event);
-        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-            if (responses_ptr[idx] == -1) {
+        const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t wg_id = item.get_global_id(1);
+                if (wg_id >= row_count)
+                    return;
+                const std::uint32_t local_id = sg.get_local_id();
+                const std::uint32_t local_size = sg.get_local_range()[0];
+
+                if (responses_ptr[wg_id] >= 0)
+                    return;
+
                 for (std::int64_t j = 0; j < queue_size; j++) {
                     Float sum = 0.0;
-                    for (std::int64_t i = 0; i < column_count; i++) {
-                        Float val = data_ptr[idx * column_count + i] -
+                    for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                        Float val = data_ptr[wg_id * column_count + i] -
                                     current_queue_ptr[j * column_count + i];
                         sum += val * val;
                     }
-                    if (sum > epsilon) {
+                    Float distance =
+                        sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
+                    if (distance > epsilon)
                         continue;
-                    }
-                    if (responses_ptr[idx] != -1) {
-                        responses_ptr[idx] = sycl::min(cluster_id, responses_ptr[idx]);
-                    }
-                    else {
-                        responses_ptr[idx] = cluster_id;
+                    if (local_id == 0) {
+                        responses_ptr[wg_id] = cluster_id;
                     }
 
-                    if (cores_ptr[idx] == 1) {
-                        // if (indicies_cores_ptr[idx] != true) {
-                        //     queue_size_arr_ptr[0]=1;
-                        // }
-                        indicies_cores_ptr[idx] = true;
+                    if (cores_ptr[wg_id] == 0)
+                        continue;
+                    if (local_id == 0) {
+                        sycl::atomic_ref<std::int32_t,
+                                         sycl::memory_order::relaxed,
+                                         sycl::memory_scope::device,
+                                         sycl::access::address_space::ext_intel_global_device_space>
+                            counter_atomic(queue_size_arr_ptr[0]);
+                        counter_atomic.fetch_add(1);
+                        indicies_cores_ptr[wg_id] = true;
                     }
+                    break;
                 }
-            }
-        });
+            });
     });
     return event;
 }
