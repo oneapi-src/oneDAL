@@ -40,4 +40,4 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Buil
 echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
 make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
 
-cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -P cmake\scripts\generate_config.cmake
+cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake

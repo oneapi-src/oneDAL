@@ -16,7 +16,7 @@
 #===============================================================================
 
 #++
-#  DPC++ Compiler defenitions for makefile
+#  DPC++ Compiler definitions for makefile
 #--
 
 PLATs.dpcpp = lnx32e win32e
