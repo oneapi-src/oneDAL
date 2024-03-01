@@ -16,9 +16,9 @@
 #===============================================================================
 
 MKLFPK_URL_ROOT="https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/"
-MKLFPK_VERSION="20240129"
+MKLFPK_VERSION="2024-02-22"
 MKLFPK_VERSION_MAC="20210426"
-MKLGPUFPK_VERSION="20240129"
+MKLGPUFPK_VERSION="2024-02-22"
 WITH_GPU=true
 
 while true ; do
