@@ -327,13 +327,13 @@ services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inPara
             __m256i expBits  = _mm256_and_si256(exp256Mask, ptr256i[i]);
             __m256i fracBits = _mm256_and_si256(frac256Mask, ptr256i[i]);
 
-            __m256i expAreOnes   = _mm256_cmpeq_epi32(exp256Mask, expBits); //switch to _m256_cmpeq_epi32 (output is a _m256i)
+            __m256i expAreOnes   = _mm256_cmpeq_epi32(exp256Mask, expBits);
             __m256i fracAreZeros = _mm256_cmpeq_epi32(zero256, fracBits);
 
             // "values aren't finite" = "exponent bits are ones" AND ( "fraction bits are zeros" OR NOT "NaN is allowed" )
             __m256i orMask    = _mm256_or_si256(fracAreZeros, notAllowNaNMask);
             __m256i finalMask = _mm256_and_si256(expAreOnes, orMask);
-            endMask           = _mm256_or_si256(endMask, finalMask);
+            endMask           = _mm256_or_si256(endMask, finalMask); // collect ones for final check
         }
         if (_mm256_testz_si256(endMask, endMask) != 1) notFinitePtr[iBlock] = true;
         size_t offset = start + (lcSize / nPerInstr) * nPerInstr;
