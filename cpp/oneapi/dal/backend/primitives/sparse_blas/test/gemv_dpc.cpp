@@ -20,12 +20,11 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 
-using gemv_types = COMBINE_TYPES(
-    (float, double),
-    (transpose_nontrans, transpose_trans),
-    (c_order), /// not used in GEMV
-    (c_order), /// not used in GEMV
-    (indexing_zero_based, indexing_one_based));
+using gemv_types = COMBINE_TYPES((float, double),
+                                 (transpose_nontrans, transpose_trans),
+                                 (c_order), /// not used in GEMV
+                                 (c_order), /// not used in GEMV
+                                 (indexing_zero_based, indexing_one_based));
 
 TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR gemv", "[csr][gemv]", gemv_types) {
     // DPC++ Sparse GEMV from micro MKL libs is not supported on CPU

@@ -41,14 +41,14 @@ sycl::event gemv(sycl::queue& queue,
                              dependencies);
 }
 
-#define INSTANTIATE(F)                                                    \
-    template ONEDAL_EXPORT sycl::event gemv<F>(sycl::queue & queue,       \
-                                               transpose transpose_a,     \
-                                               sparse_matrix_handle & a,  \
-                                               const ndview<F, 1>& x,     \
-                                               ndview<F, 1>& y,           \
-                                               const F alpha,             \
-                                               const F beta,              \
+#define INSTANTIATE(F)                                                   \
+    template ONEDAL_EXPORT sycl::event gemv<F>(sycl::queue & queue,      \
+                                               transpose transpose_a,    \
+                                               sparse_matrix_handle & a, \
+                                               const ndview<F, 1>& x,    \
+                                               ndview<F, 1>& y,          \
+                                               const F alpha,            \
+                                               const F beta,             \
                                                const std::vector<sycl::event>& deps);
 
 INSTANTIATE(float);
