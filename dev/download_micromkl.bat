@@ -19,7 +19,7 @@ rem req: PowerShell 3.0+
 powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} else {Write-Host \"The script requires PowerShell 3.0 or above (current version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor))\"}" && goto Error_load
 
 set MKLURLROOT=https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/
-set MKLVERSION="2024-02-22"
+set MKLVERSION=20230413
 set MKLGPUVERSION="2024-02-22"
 
 set MKLPACKAGE=mklfpk_win_%MKLVERSION%
