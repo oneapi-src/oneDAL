@@ -14,29 +14,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/cpu.hpp"
-#include <daal/src/services/service_defines.h>
+#pragma once
 
-namespace oneapi::dal {
+#include <cstdint>
+
+namespace oneapi::dal::detail {
 namespace v1 {
 
-inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
-    switch (cpu) {
-        case daal::sse2: return cpu_extension::sse2;
-        case daal::sse42: return cpu_extension::sse42;
-        case daal::avx2: return cpu_extension::avx2;
-        case daal::avx512: return cpu_extension::avx512;
-    }
-    return cpu_extension::none;
-}
-cpu_extension detect_top_cpu_extension() {
-    if (!__daal_serv_cpu_extensions_available()) {
-        return cpu_extension::sse2;
-    }
-    const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);
+enum class cpu_extension : uint64_t {
+    none = 0U,
+    sse2 = 1U << 0,
+    sse42 = 1U << 2,
+    avx2 = 1U << 4,
+    avx512 = 1U << 5
+};
 
-    return from_daal_cpu_type(daal_cpu);
-}
+cpu_extension detect_top_cpu_extension();
 
 } // namespace v1
+using v1::cpu_extension;
+using v1::detect_top_cpu_extension;
 } // namespace oneapi::dal

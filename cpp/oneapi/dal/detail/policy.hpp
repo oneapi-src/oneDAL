@@ -21,8 +21,8 @@
 #include <sycl/sycl.hpp>
 #endif
 
-#include "oneapi/dal/cpu.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/cpu.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/cpu.hpp"
 #include "oneapi/dal/global_context.hpp"
 
 #include "oneapi/dal/detail/policy.hpp"
@@ -74,30 +73,26 @@ private:
 class context_cpu : public communicator_provider<spmd::device_memory_access::none> {
 public:
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
-            : enabled_cpu_info_(policy.get_enabled_cpu_extensions()) {
+            : cpu_extensions_(policy.get_enabled_cpu_extensions()) {
         global_context::get_global_context();
     }
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
             : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
-              enabled_cpu_info_(policy.get_local().get_enabled_cpu_extensions()) {
+              cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()) {
         global_context::get_global_context();
     }
 
     explicit context_cpu(const spmd::communicator<spmd::device_memory_access::none>& comm)
             : communicator_provider<spmd::device_memory_access::none>(comm),
-              enabled_cpu_info_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
+              cpu_extensions_(detail::host_policy::get_default().get_enabled_cpu_extensions()) {}
 
-    cpu_extension get_enabled_cpu_extensions() const {
-        return enabled_cpu_info_.get_cpu_extensions();
+    detail::cpu_extension get_enabled_cpu_extensions() const {
+        return cpu_extensions_;
     }
 
 private:
-    /// The information about the behavior enabled currently.
-    /// Can possibly be changes during the run.
-    /// For example, the highest CPU extensions availabe on the system might be AVX512,
-    /// but the library was built with SSE4.2 code path only, so the enabled cpu extension is SSE4.2.
-    detail::cpu_info enabled_cpu_info_;
+    detail::cpu_extension cpu_extensions_;
 };
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -275,20 +270,20 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
 };
 #endif
 
-inline bool test_cpu_extension(cpu_extension mask, cpu_extension test) {
+inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension test) {
     return mask >= test;
 }
 
 template <typename Op>
 inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
-    [[maybe_unused]] const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
+    [[maybe_unused]] const detail::cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return op(cpu_dispatch_avx512{});
     })
     ONEDAL_IF_CPU_DISPATCH_AVX2(
-        if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
+        if (test_cpu_extension(cpu_ex, detail::cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
     ONEDAL_IF_CPU_DISPATCH_SSE42(
-        if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
+        if (test_cpu_extension(cpu_ex, detail::cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
     return op(cpu_dispatch_default{});
 }
 

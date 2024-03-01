@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/cpu.hpp"
+#include "oneapi/dal/detail/cpu.hpp"
 
 #include <string>
 
