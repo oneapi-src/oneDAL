@@ -85,8 +85,8 @@ public:
         const input_t input{ std::forward<Args>(args)... };
         const auto split_data =
             te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
-        // const auto split_weights =
-        //     te::split_table_by_rows<float_t>(this->get_policy(), input.get_weights(), split_count);
+        const auto split_weights =
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_weights(), split_count);
 
         std::vector<input_t> split_input;
         split_input.reserve(split_count);

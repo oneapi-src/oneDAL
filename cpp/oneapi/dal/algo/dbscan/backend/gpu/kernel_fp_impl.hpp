@@ -508,60 +508,31 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
     return start_index.to_host(queue, { index_event }).at(0);
 }
 
-sycl::event set_queue_ptr(sycl::queue& queue,
-                          pr::ndview<std::int32_t, 1>& algo_queue,
-                          pr::ndview<std::int32_t, 1>& queue_front,
-                          std::int32_t start_index,
-                          const bk::event_vector& deps) {
-    ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
-    auto queue_ptr = algo_queue.get_mutable_data();
-    auto queue_front_ptr = queue_front.get_mutable_data();
-
-    return queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             queue_ptr[queue_front_ptr[0]] = start_index;
-                             queue_front_ptr[0]++;
-                         });
-    });
-}
-
 sycl::event set_indices_in_area(sycl::queue& queue,
-                                pr::ndview<bool, 1>& arr,
+                                pr::ndview<bool, 1>& observation_indices,
                                 std::int32_t index,
                                 bool value,
                                 const bk::event_vector& deps) {
-    auto arr_ptr = arr.get_mutable_data();
-    auto row_count = arr.get_dimension(0);
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-            arr_ptr[idx] = false;
-        });
-    });
+    auto observation_indices_ptr = observation_indices.get_mutable_data();
     return queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(event);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             arr_ptr[index] = value;
-                         });
+        cgh.depends_on(deps);
+        cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
+            observation_indices_ptr[index] = value;
+        });
     });
 }
 
 sycl::event set_arr_value(sycl::queue& queue,
                           pr::ndview<std::int32_t, 1>& arr,
-                          std::int32_t offset,
+                          std::int32_t index,
                           std::int32_t value,
                           const bk::event_vector& deps) {
     auto arr_ptr = arr.get_mutable_data();
-
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 1, 1 }, { 1, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             arr_ptr[offset] = value;
-                         });
+        cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
+            arr_ptr[index] = value;
+        });
     });
 }
 
@@ -625,6 +596,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     const Float* current_queue_ptr = current_queue.get_data();
     bool* indices_cores_ptr = indices_cores.get_mutable_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
+
     auto fill_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
@@ -686,11 +658,11 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
 }
 
 template <typename Float>
-std::int32_t kernels_fp<Float>::get_queue_front(sycl::queue& queue,
-                                                const pr::ndarray<std::int32_t, 1>& queue_front,
-                                                const bk::event_vector& deps) {
-    ONEDAL_ASSERT(queue_front.get_dimension(0) == 1);
-    return queue_front.to_host(queue, deps).get_data()[0];
+std::int32_t kernels_fp<Float>::get_queue_size(sycl::queue& queue,
+                                               const pr::ndarray<std::int32_t, 1>& queue_size,
+                                               const bk::event_vector& deps) {
+    ONEDAL_ASSERT(queue_size.get_dimension(0) == 1);
+    return queue_size.to_host(queue, deps).get_data()[0];
 }
 
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores) {

@@ -52,7 +52,7 @@ public:
     auto get_descriptor(float_t epsilon, std::int64_t min_observations) const {
         return dbscan::descriptor<float_t, method_t>(epsilon, min_observations)
             .set_mem_save_mode(true)
-            .set_result_options(result_options::responses | result_options::core_flags);
+            .set_result_options(result_options::responses);
     }
 
     void run_checks(const table& data,

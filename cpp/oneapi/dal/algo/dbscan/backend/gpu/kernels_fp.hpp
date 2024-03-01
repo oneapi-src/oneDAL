@@ -89,9 +89,9 @@ struct kernels_fp {
                                           std::int64_t block_start,
                                           const bk::event_vector& deps = {});
 
-    static std::int32_t get_queue_front(sycl::queue& queue,
-                                        const pr::ndarray<std::int32_t, 1>& queue_front,
-                                        const bk::event_vector& deps = {});
+    static std::int32_t get_queue_size(sycl::queue& queue,
+                                       const pr::ndarray<std::int32_t, 1>& queue_front,
+                                       const bk::event_vector& deps = {});
 };
 
 sycl::event set_queue_ptr(sycl::queue& queue,

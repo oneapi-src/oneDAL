@@ -17,15 +17,18 @@
 #include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/data_keeper.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/results.hpp"
-
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+
+namespace oneapi::dal::dbscan::backend {
 
 namespace bk = oneapi::dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 namespace spmd = oneapi::dal::preview::spmd;
 namespace de = oneapi::dal::detail;
-
-namespace oneapi::dal::dbscan::backend {
 
 using dal::backend::context_gpu;
 
@@ -50,6 +53,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     const std::int64_t local_row_count = local_data.get_row_count();
     const std::int64_t column_count = local_data.get_column_count();
+
     std::int64_t global_row_count = local_row_count;
 
     auto global_rank_offsets = array<std::int64_t>::zeros(rank_count);
@@ -71,14 +75,14 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     }
 
     const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
+    pr::ndarray<Float, 2> data_nd_replace;
+    if (rank_count > 1) {
+        data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
+                                                       { local_row_count, column_count },
+                                                       sycl::usm::alloc::device);
 
-    auto data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
-                                                        { local_row_count, column_count },
-                                                        sycl::usm::alloc::device);
-
-    auto copy_event = copy(queue, data_nd_replace, data_nd, {});
-    copy_event.wait_and_throw();
-
+        copy(queue, data_nd_replace, data_nd, {}).wait_and_throw();
+    }
     const auto weights_nd =
         pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
 
@@ -105,20 +109,19 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [queue_size, queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
-    sycl::event::wait({ queue_size_event,
-                        cores_event,
+    sycl::event::wait({ cores_event,
+                        neighbours_event,
                         responses_event,
                         observation_indices_event,
-                        neighbours_event });
+                        queue_size_event });
 
-    kernels_fp<Float>::get_cores(queue,
-                                 data_nd,
-                                 weights_nd,
-                                 arr_cores,
-                                 arr_neighbours,
-                                 epsilon,
-                                 min_observations)
-        .wait_and_throw();
+    auto get_cores_event = kernels_fp<Float>::get_cores(queue,
+                                                        data_nd,
+                                                        weights_nd,
+                                                        arr_cores,
+                                                        arr_neighbours,
+                                                        epsilon,
+                                                        min_observations);
 
     for (std::int64_t j = 0; j < rank_count - 1; j++) {
         comm.sendrecv_replace(queue,
@@ -134,14 +137,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                                        arr_cores,
                                                        arr_neighbours,
                                                        epsilon,
-                                                       min_observations)
+                                                       min_observations,
+                                                       { get_cores_event })
             .wait_and_throw();
     }
 
     std::int64_t cluster_count = 0;
 
     std::int32_t cluster_index =
-        kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
+        kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses, { get_cores_event });
     cluster_index =
         cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
     {
@@ -155,9 +159,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     while (cluster_index < de::integral_cast<std::int32_t>(global_row_count)) {
         cluster_count++;
+
         bool in_range =
             cluster_index >= local_offset && cluster_index < local_offset + local_row_count;
+
         std::int32_t local_queue_size = 0;
+
         if (in_range) {
             set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
                 .wait_and_throw();
@@ -180,6 +187,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                 ONEDAL_PROFILER_TASK(allreduce_recv_counts);
                 comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
             }
+
             auto displs = array<std::int64_t>::zeros(rank_count);
             auto displs_ptr = displs.get_mutable_data();
             std::int64_t total_count = 0;
@@ -220,7 +228,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                             cluster_count - 1)
                 .wait_and_throw();
 
-            local_queue_size = kernels_fp<Float>::get_queue_front(queue, queue_size);
+            local_queue_size = kernels_fp<Float>::get_queue_size(queue, queue_size);
 
             total_queue_size = local_queue_size;
 
