@@ -723,7 +723,7 @@ services::Status checkFinitenessInBlocks512(const double ** dataPtrs, bool inPar
 
         __mmask8 notAllowNaNMask =
             allowNaN ? _cvtu32_mask8(0) : _cvtu32_mask8(static_cast<unsigned int>(services::internal::MaxVal<int>::get()) * 2 + 1);
-        __mask8 endMask = _cvtu32_mask8(0);
+        __mmask8 endMask = _cvtu32_mask8(0);
 
         __m512i * ptr512i = (__m512i *)(dataPtrs[ptrIdx] + start);
 
