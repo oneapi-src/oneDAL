@@ -1135,8 +1135,6 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
 {
     DAAL_CHECK(assertHyperparameters(), services::ErrorIncorrectDataRange);
 
-    printf("Running with hyperparameter blockSize = %lu\n", _blockSize);
-
     const auto nTreesTotal = _model->size();
     if (_cachedData != _data)
     {
