@@ -373,7 +373,7 @@ services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inPar
         __m256i zero256     = _mm256_setzero_si256();
         __m256i endMask     = _mm256_setzero_si256();
 
-        __m256i notAllowNaNMask = allowNaN ? _mm256_serzero_si256() : _mm256_set1_epi64x(-1);
+        __m256i notAllowNaNMask = allowNaN ? _mm256_setzero_si256() : _mm256_set1_epi64x(-1);
 
         __m256i * ptr256i = (__m256i *)(dataPtrs[ptrIdx] + start);
 
