@@ -40,26 +40,4 @@ auto partial_compute(sycl::queue& queue, Args&&... args) {
 
 using v1::partial_compute;
 
-namespace preview {
-
-template <typename... Args>
-auto partial_compute(spmd::communicator<spmd::device_memory_access::none>& comm, Args&&... args) {
-    return dal::detail::partial_compute_dispatch(
-        dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
-        std::forward<Args>(args)...);
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename... Args>
-auto partial_compute(spmd::communicator<spmd::device_memory_access::usm>& comm, Args&&... args) {
-    return dal::detail::partial_compute_dispatch(
-        dal::detail::spmd_policy<dal::detail::data_parallel_policy>{
-            dal::detail::data_parallel_policy{ comm.get_queue() },
-            comm },
-        std::forward<Args>(args)...);
-}
-#endif
-
-} // namespace preview
-
 } // namespace oneapi::dal

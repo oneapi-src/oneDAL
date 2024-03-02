@@ -15,7 +15,7 @@
 #===============================================================================
 
 #++
-#  Intel compiler defenitions for makefile
+#  Intel compiler definitions for makefile
 #--
 
 PLATs.icc = lnx32e win32e mac32e

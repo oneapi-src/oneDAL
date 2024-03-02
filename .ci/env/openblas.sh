@@ -16,7 +16,7 @@
 #===============================================================================
 
 sudo apt-get update
-sudo apt-get install build-essential gcc gfortran
+sudo apt-get -y install build-essential gcc gfortran
 git clone https://github.com/xianyi/OpenBLAS.git
 CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 pushd OpenBLAS

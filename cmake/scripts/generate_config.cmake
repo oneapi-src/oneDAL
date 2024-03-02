@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2021 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@ set(DAL_ROOT_REL_PATH "../../..")
 set(INC_REL_PATH "include")
 set(LIB_REL_PATH "lib")
 set(DLL_REL_PATH "redist")
-set(SUB_DIR "intel64")
+set(ARCH_DIR_ONEDAL "${ARCH_DIR_ONEDAL}")
 
 # Parse version info if possible
 if (NOT "$ENV{DALROOT}" STREQUAL "")

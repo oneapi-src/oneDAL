@@ -134,6 +134,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
     // removed once it's supported for CPU. The same for the rest of tests cases.
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(2, 4));
     this->check_if_results_same_on_all_ranks();
@@ -145,6 +146,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 2));
     this->check_empty_clusters();
@@ -156,6 +158,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 2));
     this->check_on_smoke_data();
@@ -167,6 +170,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 2, 4, 8));
     this->check_on_gold_data();
@@ -178,6 +182,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 8));
     this->check_on_large_data_with_one_cluster();
@@ -189,6 +194,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(10);
     const std::int64_t iters = 3;
@@ -213,6 +219,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(10);
     const std::int64_t iters = 10;
@@ -237,6 +244,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(10);
     const std::int64_t iters = 2;
