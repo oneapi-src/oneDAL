@@ -433,7 +433,7 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace(sycl::queue& queue,
                                                            Float epsilon,
                                                            std::int64_t min_observations,
                                                            const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(get_cores, queue);
+    ONEDAL_PROFILER_TASK(get_cores_send_recv_replace, queue);
     if (weights.get_dimension(0) == data.get_dimension(0)) {
         return get_cores_send_recv_replace_impl<true>(queue,
                                                       data,
@@ -513,6 +513,7 @@ sycl::event set_indices_in_area(sycl::queue& queue,
                                 std::int32_t index,
                                 bool value,
                                 const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(set_indices_in_area, queue);
     auto observation_indices_ptr = observation_indices.get_mutable_data();
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -527,6 +528,7 @@ sycl::event set_arr_value(sycl::queue& queue,
                           std::int32_t index,
                           std::int32_t value,
                           const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(set_arr_value, queue);
     auto arr_ptr = arr.get_mutable_data();
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -544,6 +546,7 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   pr::ndview<Float, 2>& current_queue,
                                                   std::int64_t block_start,
                                                   const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(fill_current_queue, queue);
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
@@ -584,6 +587,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             Float epsilon,
                                             std::int32_t cluster_id,
                                             const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(update_queue, queue);
     const auto row_count = data.get_dimension(0);
 
     const std::int64_t column_count = data.get_dimension(1);

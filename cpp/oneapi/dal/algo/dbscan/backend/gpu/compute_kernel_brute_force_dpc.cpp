@@ -57,10 +57,10 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     std::int64_t global_row_count = local_row_count;
     std::int64_t max_local_block_size = local_row_count;
     {
-        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global, queue);
         comm.allreduce(max_local_block_size, spmd::reduce_op::max).wait();
     }
-    
+
     auto global_rank_offsets = array<std::int64_t>::zeros(rank_count);
     global_rank_offsets.get_mutable_data()[current_rank] = local_row_count;
     {
@@ -68,7 +68,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         comm.allreduce(global_rank_offsets, spmd::reduce_op::sum).wait();
     }
     {
-        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global, queue);
         comm.allreduce(global_row_count, spmd::reduce_op::sum).wait();
     }
 
@@ -156,7 +156,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     cluster_index =
         cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
     {
-        ONEDAL_PROFILER_TASK(allreduce_cluster_index);
+        ONEDAL_PROFILER_TASK(allreduce_cluster_index, queue);
         comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     }
 
@@ -183,7 +183,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         std::int32_t total_queue_size = local_queue_size;
 
         {
-            ONEDAL_PROFILER_TASK(allreduce_total_queue_size_outer);
+            ONEDAL_PROFILER_TASK(allreduce_total_queue_size_outer, queue);
             comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
         }
 
@@ -191,7 +191,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
             auto recv_counts = array<std::int64_t>::zeros(rank_count);
             recv_counts.get_mutable_data()[current_rank] = local_queue_size;
             {
-                ONEDAL_PROFILER_TASK(allreduce_recv_counts);
+                ONEDAL_PROFILER_TASK(allreduce_recv_counts, queue);
                 comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
             }
 
@@ -240,7 +240,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
             total_queue_size = local_queue_size;
 
             {
-                ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner);
+                ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner, queue);
                 comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
             }
         }
@@ -249,7 +249,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         cluster_index =
             cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
         {
-            ONEDAL_PROFILER_TASK(cluster_index);
+            ONEDAL_PROFILER_TASK(cluster_index, queue);
             comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
         }
     }
