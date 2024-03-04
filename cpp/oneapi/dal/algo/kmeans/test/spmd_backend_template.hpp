@@ -117,15 +117,15 @@ public:
         constexpr std::int64_t max_iteration_count = 100;
         constexpr float_t accuracy_threshold = 0.0;
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto kmeans_desc =
             this->get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         INFO("run training");
         const auto result = this->train_in_parallel(kmeans_desc, data, initial_centroids);
 
-        INFO("check if all results bitwise equal on all ranks") {
-            INFO("check centroids") {
+        SECTION("check if all results bitwise equal on all ranks") {
+            SECTION("check centroids") {
                 auto comm = this->get_comm();
                 const auto centroids = result.get_model().get_centroids();
                 const std::int64_t cluster_count = centroids.get_row_count();
@@ -160,7 +160,7 @@ public:
                 }
             }
 
-            INFO("check iterations") {
+            SECTION("check iterations") {
                 auto comm = this->get_comm();
                 std::int64_t min_value = result.get_iteration_count();
                 comm.allreduce(min_value, dal::preview::spmd::reduce_op::min);
@@ -169,7 +169,7 @@ public:
                 REQUIRE(min_value == max_value);
             }
 
-            INFO("check objective function") {
+            SECTION("check objective function") {
                 auto comm = this->get_comm();
                 float_t min_value = result.get_objective_function_value();
                 comm.allreduce(min_value, dal::preview::spmd::reduce_op::min);

@@ -43,7 +43,7 @@ public:
         const table x = x_data.get_table(this->get_policy(), x_data_table_id);
         const table y = y_data.get_table(this->get_policy(), y_data_table_id);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto rbf_kernel_desc = get_descriptor(sigma);
 
         INFO("run compute");
@@ -57,14 +57,14 @@ public:
                               const rbf_kernel::compute_result<>& result) {
         const auto result_values = result.get_values();
 
-        INFO("check if result values table shape is expected")
+        INFO("check if result values table shape is expected");
         REQUIRE(result_values.get_row_count() == x_data.get_row_count());
         REQUIRE(result_values.get_column_count() == y_data.get_row_count());
 
-        INFO("check if there is no NaN in result values table")
+        INFO("check if there is no NaN in result values table");
         REQUIRE(te::has_no_nans(result_values));
 
-        INFO("check if result values are expected")
+        INFO("check if result values are expected");
         check_result_values(sigma, x_data, y_data, result_values);
     }
 
