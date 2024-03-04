@@ -55,7 +55,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const std::int64_t column_count = local_data.get_column_count();
 
     std::int64_t global_row_count = local_row_count;
-
+    std::int64_t max_local_block_size = local_row_count;
+    {
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        comm.allreduce(max_local_block_size, spmd::reduce_op::max).wait();
+    }
+    
     auto global_rank_offsets = array<std::int64_t>::zeros(rank_count);
     global_rank_offsets.get_mutable_data()[current_rank] = local_row_count;
     {
@@ -78,7 +83,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     pr::ndarray<Float, 2> data_nd_replace;
     if (rank_count > 1) {
         data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
-                                                       { local_row_count, column_count },
+                                                       { max_local_block_size, column_count },
                                                        sycl::usm::alloc::device);
 
         copy(queue, data_nd_replace, data_nd, {}).wait_and_throw();
@@ -126,13 +131,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     for (std::int64_t j = 0; j < rank_count - 1; j++) {
         comm.sendrecv_replace(queue,
                               data_nd_replace.get_mutable_data(),
-                              local_row_count * column_count,
+                              max_local_block_size * column_count,
                               prev_node,
                               next_node)
             .wait();
+        auto local_row_block_count = global_rank_offsets.get_data()[next_node];
+        auto actual_current_block = data_nd_replace.get_row_slice(0, local_row_block_count);
         kernels_fp<Float>::get_cores_send_recv_replace(queue,
                                                        data_nd,
-                                                       data_nd_replace,
+                                                       actual_current_block,
                                                        weights_nd,
                                                        arr_cores,
                                                        arr_neighbours,
