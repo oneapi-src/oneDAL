@@ -88,6 +88,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto [train_event, iter_num] = opt_impl->minimize(queue, loss_func, x_suf, { fill_event });
 
+    train_event.wait_and_throw();
+
     auto all_coefs = homogen_table::wrap(x.flatten(queue, { train_event }), 1, feature_count + 1);
 
     const auto model_impl = std::make_shared<model_impl_t>(all_coefs);
@@ -111,6 +113,10 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     if (options.test(result_options::iterations_count)) {
         result.set_iterations_count(iter_num);
+    }
+
+    if (options.test(result_options::inner_iterations_count)) {
+        result.set_inner_iterations_count(opt_impl->get_inner_iter());
     }
 
     return result;

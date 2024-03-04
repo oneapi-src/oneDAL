@@ -32,7 +32,10 @@ namespace pr = be::primitives;
 
 class newton_cg_optimizer_impl : public optimizer_impl {
 public:
-    newton_cg_optimizer_impl(std::int64_t max_iter, double tol) : max_iter_(max_iter), tol_(tol) {}
+    newton_cg_optimizer_impl(std::int64_t max_iter, double tol)
+            : max_iter_(max_iter),
+              tol_(tol),
+              inner_iter_(0) {}
 
     optimizer_type get_optimizer_type() override {
         return optimizer_type::newton_cg;
@@ -47,12 +50,21 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+
+    // this parameter is set after minimize function was called
+    std::int64_t get_inner_iter() override {
+        return inner_iter_;
+    }
+
     template <typename Float>
     std::pair<sycl::event, std::int64_t> minimize_impl(sycl::queue& q,
                                                        pr::base_function<Float>& f,
                                                        pr::ndview<Float, 1>& x,
                                                        const be::event_vector& deps = {}) {
-        return pr::newton_cg(q, f, x, Float(tol_), max_iter_, 200l, deps);
+        auto [opt_event, max_iter, inner_iter] =
+            pr::newton_cg(q, f, x, Float(tol_), max_iter_, 200l, deps);
+        inner_iter_ = inner_iter;
+        return { opt_event, max_iter };
     }
 
     std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,
@@ -73,6 +85,7 @@ public:
 private:
     std::int64_t max_iter_;
     double tol_;
+    std::int64_t inner_iter_;
 };
 
 template <typename F, typename M>
