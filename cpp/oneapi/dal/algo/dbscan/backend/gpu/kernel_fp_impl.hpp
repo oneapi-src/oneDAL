@@ -553,26 +553,26 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
     const bool* indices_host_ptr = indices.get_data();
     const Float* data_host_ptr = data.get_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
-    const auto local_size = bk::device_max_sg_size(queue);
+    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_row_count, 1);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
-        cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ wg_size, local_size }, { wg_size, local_size }),
-            [=](sycl::nd_item<2> item) {
-                const auto local_id = item.get_local_id(1);
-                std::int64_t displ = 0;
-                for (std::int64_t i = 0; i < local_row_count; i++) {
-                    if (indices_host_ptr[i] == true) {
-                        for (std::int32_t col_idx = local_id; col_idx < column_count;
-                             col_idx += local_size) {
-                            current_queue_ptr[block_start * column_count + displ * column_count +
-                                              col_idx] = data_host_ptr[i * column_count + col_idx];
-                        }
-                        displ++;
-                    }
+        sycl::local_accessor<int, 1> displ(1, cgh);
+        displ[0] = 0;
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> idx) {
+            const std::int64_t gid = idx.get_global_linear_id();
+            if (indices_host_ptr[gid] == true) {
+                sycl::atomic_ref<std::int32_t,
+                                 sycl::memory_order::relaxed,
+                                 sycl::memory_scope::device,
+                                 sycl::access::address_space::ext_intel_global_device_space>
+                    counter_atomic(displ[0]);
+                counter_atomic.fetch_add(1);
+                for (std::int32_t col_idx = 0; col_idx < column_count; col_idx += 1) {
+                    current_queue_ptr[block_start * column_count + displ[0] * column_count +
+                                      col_idx] = data_host_ptr[gid * column_count + col_idx];
                 }
-            });
+            }
+        });
     });
 }
 
