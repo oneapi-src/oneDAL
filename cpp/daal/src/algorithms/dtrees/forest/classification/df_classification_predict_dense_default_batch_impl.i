@@ -1000,7 +1000,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     daal::SafeStatus safeStat;
     const size_t nRowsOfRes        = _data->getNumberOfRows();
     const size_t nBlocks           = nRowsOfRes / _blockSize;
-    const size_t residualSize      = nRowsOfRes - nBlocks * blockSize;
+    const size_t residualSize      = nRowsOfRes - nBlocks * _blockSize;
     algorithmFPType * commonBufVal = nullptr;
     services::internal::TArray<algorithmFPType, cpu> commonBufValT;
     if (prob == nullptr)
@@ -1026,13 +1026,13 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
             parallelPredict(aX, aNode, treeSize, nBlocks, nCols, _blockSize, residualSize, tlsData.local(tid), iTree);
         });
 
-        const size_t nThreads  = tlsData.nthreads();
-        const size_t blockSize = 256; // TODO: Why can't this be the class value _blockSize?
-        const size_t nBlocks   = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
+        const size_t nThreads       = tlsData.nthreads();
+        const size_t localBlockSize = 256; // TODO: Why can't this be the class value _blockSize?
+        const size_t nBlocks        = nRowsOfRes / localBlockSize + !!(nRowsOfRes % localBlockSize);
 
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            const size_t begin = iBlock * blockSize;
-            const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + blockSize);
+            const size_t begin = iBlock * localBlockSize;
+            const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + localBlockSize);
 
             services::internal::service_memset_seq<algorithmFPType, cpu>(commonBufVal + begin * _nClasses, algorithmFPType(0),
                                                                          (end - begin) * _nClasses);
@@ -1087,16 +1087,16 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
         {
             const size_t treeSize                = _aTree[iTree]->getNumberOfRows();
             const DecisionTreeNode * const aNode = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
-            parallelPredict(aX, aNode, treeSize, nBlocks, nCols, blockSize, residualSize, commonBufVal, iTree);
+            parallelPredict(aX, aNode, treeSize, nBlocks, nCols, _blockSize, residualSize, commonBufVal, iTree);
         }
         if (prob != nullptr || res != nullptr)
         {
-            const size_t blockSize = 256;
-            const size_t nBlocks   = nRowsOfRes / blockSize + !!(nRowsOfRes % blockSize);
+            const size_t localBlockSize = 256;
+            const size_t nBlocks        = nRowsOfRes / localBlockSize + !!(nRowsOfRes % localBlockSize);
 
             daal::threader_for(nBlocks, nBlocks, [&, nCols](const size_t iBlock) {
-                const size_t begin = iBlock * blockSize;
-                const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + blockSize);
+                const size_t begin = iBlock * localBlockSize;
+                const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + localBlockSize);
 
                 if (prob != nullptr)
                 {
