@@ -38,11 +38,13 @@ struct cpuid_registers {
 ///                           eax == 1 - Processor type, family, stepping, ... are returned;
 ///                           ...
 /// @param[out] registers x86 CPU registers to write the results of CPUID
-static inline void cpuid(uint32_t eax, cpuid_registers& registers) {
+/// @param[in]  ecx       The input value of ECX register, the ID of CPUID's subfunction subleaf.
+static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t, uint32_t ecx = 0U) {
     asm volatile(
         "cpuid"
         : "=a"(registers.eax_), "=b"(registers.ebx_), "=c"(registers.ecx_), "=d"(registers.edx_)
-        : "a"(eax));
+        : "a"(eax), "c"(ecx)
+    );
 }
 
 /// Copies the value of x86 register into the buffer of characters
@@ -109,23 +111,14 @@ detail::cpu_extension get_cpu_extensions() {
     /// Calls CPUID with EAX == 0 to retrieve CPU vendor
     cpuid_registers registers;
     cpuid(0, registers);
-    uint32_t ids_count = registers.eax_;
-            std::cout << "ids_count = " << ids_count << std::endl;
+    const uint32_t ids_count = registers.eax_;
     if (ids_count >= 1) {
         cpuid(0x1, registers);
-        std::cout << "EAX = " << registers.eax_ << std::endl;
-        std::cout << "EBX = " << registers.ebx_ << std::endl;
-        std::cout << "ECX = " << registers.ecx_ << std::endl;
-        std::cout << "EDX = " << registers.edx_ << std::endl;
         if (registers.edx_ & (1U << 26)) { ext = detail::cpu_extension::sse2; }
         if (registers.ecx_ & (1U << 20)) { ext = detail::cpu_extension::sse42; }
     }
     if (ids_count >= 7) {
         cpuid(0x7, registers);
-        std::cout << "EAX = " << registers.ebx_ << std::endl;
-        std::cout << "EBX = " << registers.ebx_ << std::endl;
-        std::cout << "ECX = " << registers.ecx_ << std::endl;
-        std::cout << "EDX = " << registers.edx_ << std::endl;
         if (registers.ebx_ & (1U << 5)) { ext = detail::cpu_extension::avx2; }
         if (registers.ebx_ & (1U << 16)) { ext = detail::cpu_extension::avx512; }
     }
