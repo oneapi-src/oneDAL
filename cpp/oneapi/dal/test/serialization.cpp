@@ -43,7 +43,7 @@ TEST("mock primitive type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
+    SECTION("serialize") {
         te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
@@ -52,7 +52,7 @@ TEST("mock primitive type") {
         REQUIRE(state.get<float>(0) == original);
     }
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         float deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -70,7 +70,7 @@ TEST("mock enum") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
+    SECTION("serialize") {
         te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
@@ -79,7 +79,7 @@ TEST("mock enum") {
         REQUIRE(state.get<my_enum>(0) == original);
     }
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         my_enum deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -101,7 +101,7 @@ TEST("mock POD type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
+    SECTION("serialize") {
         te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
@@ -113,7 +113,7 @@ TEST("mock POD type") {
         REQUIRE(state.get<double>(5) == original.x6);
     }
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         pod_type deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -170,7 +170,7 @@ TEST("mock non-trivially copyable type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
+    SECTION("serialize") {
         te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
@@ -181,7 +181,7 @@ TEST("mock non-trivially copyable type") {
         }
     }
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         vector_type deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -344,7 +344,7 @@ TEST("mock polymorphic type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
+    SECTION("serialize") {
         te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
