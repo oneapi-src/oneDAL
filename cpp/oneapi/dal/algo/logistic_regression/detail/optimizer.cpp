@@ -49,12 +49,12 @@ public:
         return max_iter_;
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
-
     // this parameter is set after minimize function was called
     std::int64_t get_inner_iter() override {
         return inner_iter_;
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
 
     template <typename Float>
     std::pair<sycl::event, std::int64_t> minimize_impl(sycl::queue& q,

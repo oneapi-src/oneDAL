@@ -36,13 +36,13 @@ public:
     virtual double get_tol() = 0;
     virtual std::int64_t get_max_iter() = 0;
 
-#ifdef ONEDAL_DATA_PARALLEL
-
     // this function returns meaningful value only for newton_cg optimizer
     // inner iterations value can be accessed after minimize method was called
     virtual std::int64_t get_inner_iter() {
         return -1;
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
 
     virtual std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,
                                                           pr::base_function<float>& f,
