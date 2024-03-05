@@ -17,7 +17,7 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/global_context.hpp"
 
-namespace oneapi::dal::test {
+namespace oneapi::dal::detail::test {
 
 #if defined(__x86_64__)
 
@@ -39,7 +39,7 @@ struct cpuid_registers {
 ///                           ...
 /// @param[out] registers x86 CPU registers to write the results of CPUID
 /// @param[in]  ecx       The input value of ECX register, the ID of CPUID's subfunction subleaf.
-static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t, uint32_t ecx = 0U) {
+static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t ecx = 0U) {
     asm volatile(
         "cpuid"
         : "=a"(registers.eax_), "=b"(registers.ebx_), "=c"(registers.ecx_), "=d"(registers.edx_)
