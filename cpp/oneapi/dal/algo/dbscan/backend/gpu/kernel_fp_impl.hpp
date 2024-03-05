@@ -553,22 +553,23 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
     const bool* indices_host_ptr = indices.get_data();
     const Float* data_host_ptr = data.get_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
+    //const auto local_size = bk::device_max_wg_size(queue);
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_row_count, 1);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        sycl::local_accessor<int, 1> displ(1, cgh);
-        displ[0] = 0;
+        sycl::local_accessor<std::int32_t, 1> displ(1, cgh);
+        displ[0] = -1;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> idx) {
-            const std::int64_t gid = idx.get_global_linear_id();
+            const std::int64_t gid = idx.get_global_id(0);
             if (indices_host_ptr[gid] == true) {
                 sycl::atomic_ref<std::int32_t,
                                  sycl::memory_order::relaxed,
                                  sycl::memory_scope::device,
                                  sycl::access::address_space::ext_intel_global_device_space>
                     counter_atomic(displ[0]);
-                counter_atomic.fetch_add(1);
+                auto cur_idx = counter_atomic.fetch_add(1);
                 for (std::int32_t col_idx = 0; col_idx < column_count; col_idx += 1) {
-                    current_queue_ptr[block_start * column_count + displ[0] * column_count +
+                    current_queue_ptr[block_start * column_count + cur_idx * column_count +
                                       col_idx] = data_host_ptr[gid * column_count + col_idx];
                 }
             }

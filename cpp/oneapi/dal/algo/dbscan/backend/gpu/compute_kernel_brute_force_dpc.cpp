@@ -208,7 +208,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                             { total_queue_size, column_count },
                                             0,
                                             sycl::usm::alloc::device);
-
+            current_queue_event.wait_and_throw();
             kernels_fp<Float>::fill_current_queue(queue,
                                                   data_nd,
                                                   observation_indices,
