@@ -54,7 +54,7 @@ pushd OpenBLAS
     echo make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 CFLAGS=\"${cflags}\"
     make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 CFLAGS=\"${cflags}\"
   else
-    make -j${CoreCount} NO_FORTRAN=1
+    make -j${CoreCount} NO_FORTRAN=1 USE_OPENMP=0
   fi
   make install PREFIX=../__deps/open_blas
 popd
