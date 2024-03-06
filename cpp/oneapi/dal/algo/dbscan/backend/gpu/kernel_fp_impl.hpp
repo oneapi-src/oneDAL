@@ -547,6 +547,7 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   pr::ndview<std::int32_t, 1>& queue_size_arr,
                                                   std::int64_t block_start,
                                                   const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(fill_current_queue, queue);
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
