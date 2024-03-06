@@ -23,7 +23,6 @@
 #include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
-
 namespace oneapi::dal::dbscan::backend {
 
 namespace bk = oneapi::dal::backend;
@@ -170,7 +169,6 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     while (cluster_index < de::integral_cast<std::int32_t>(global_row_count)) {
         cluster_count++;
-        // std::cout << "new cluster" << cluster_count - 1 << std::endl;
         bool in_range =
             cluster_index >= local_offset && cluster_index < local_offset + local_row_count;
 
@@ -223,19 +221,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                                   displs_ptr[current_rank],
                                                   { current_queue_event })
                 .wait_and_throw();
-            // auto current_queue_host = current_queue.to_host(queue);
-            // auto current_host_queue_ptr = current_queue_host.get_data();
-            // std::cout << "new scan" << std::endl;
-            // std::cout << "atmic res ="
-            //           << kernels_fp<Float>::get_queue_size(queue, local_queue_size_arr)
-            //           << std::endl;
             set_arr_value(queue, local_queue_size_arr, 0, 0).wait_and_throw();
-            // for (int64_t i = 0; i < total_queue_size; i++) {
-            //     for (int64_t j = 0; j < column_count; j++) {
-            //         std::cout << current_host_queue_ptr[i * column_count + j];
-            //     }
-            //     std::cout << std::endl;
-            // }
 
             {
                 ONEDAL_PROFILER_TASK(allreduce_xtx, queue);
