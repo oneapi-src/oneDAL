@@ -20,6 +20,9 @@
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
+#include <daal/include/services/env_detect.h>
+
+#include "daal/src/data_management/service_numeric_table.h"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/backend/interop/sycl_table_adapter.hpp"
@@ -122,7 +125,11 @@ inline daal::data_management::NumericTablePtr wrap_by_host_soa_adapter(const hom
 }
 
 template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table,
+                                                                    bool need_copy = false) {
+    if (need_copy) {
+        return copy_to_daal_homogen_table<Data>(table);
+    }
     if (table.get_data_layout() == data_layout::row_major) {
         if (auto wrapper = wrap_by_host_homogen_adapter(table)) {
             return wrapper;
@@ -143,6 +150,7 @@ inline auto convert_to_daal_csr_table(array<T>& data,
                                       std::int64_t row_count,
                                       std::int64_t column_count,
                                       bool allow_copy = false) {
+    using daal::services::Status;
     ONEDAL_ASSERT(data.get_count() == column_indices.get_count());
     ONEDAL_ASSERT(row_indices.get_count() == row_count + 1);
 
@@ -170,12 +178,17 @@ inline auto convert_to_daal_csr_table(array<T>& data,
         reinterpret_cast<std::size_t*>(row_indices.get_mutable_data()),
         daal_object_owner{ row_indices });
 
-    return daal::data_management::CSRNumericTable::create(
+    Status status;
+    const auto table = daal::data_management::CSRNumericTable::create(
         daal_data,
         daal_column_indices,
         daal_row_indices,
         dal::detail::integral_cast<std::size_t>(column_count),
-        dal::detail::integral_cast<std::size_t>(row_count));
+        dal::detail::integral_cast<std::size_t>(row_count),
+        daal::data_management::CSRNumericTable::CSRIndexing::oneBased,
+        &status);
+    status_to_exception(status);
+    return table;
 }
 
 template <typename Float>
@@ -222,25 +235,22 @@ inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(const 
 }
 
 template <typename Float>
-inline daal::data_management::CSRNumericTablePtr convert_to_daal_table(const csr_table& table) {
+inline daal::data_management::CSRNumericTablePtr convert_to_daal_table(const csr_table& table,
+                                                                       bool need_copy = false) {
     auto wrapper = wrap_by_host_csr_adapter(table);
-    if (!wrapper) {
-        return copy_to_daal_csr_table<Float>(table);
-    }
-    else {
-        return wrapper;
-    }
+    return need_copy || !wrapper ? copy_to_daal_csr_table<Float>(table) : wrapper;
 }
 
 template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table) {
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table,
+                                                                    bool need_copy = false) {
     if (table.get_kind() == homogen_table::kind()) {
         const auto& homogen = static_cast<const homogen_table&>(table);
-        return convert_to_daal_table<Data>(homogen);
+        return convert_to_daal_table<Data>(homogen, need_copy);
     }
     else if (table.get_kind() == csr_table::kind()) {
         const auto& csr = static_cast<const csr_table&>(table);
-        return convert_to_daal_table<Data>(csr);
+        return convert_to_daal_table<Data>(csr, need_copy);
     }
     else {
         return copy_to_daal_homogen_table<Data>(table);
