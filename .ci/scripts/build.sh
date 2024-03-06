@@ -142,7 +142,7 @@ else
     echo "Not supported backend env"
 fi
 
-TBB setup
+# TBB setup
 if [[ "${ARCH}" == "32e" ]]; then
     $(pwd)/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
