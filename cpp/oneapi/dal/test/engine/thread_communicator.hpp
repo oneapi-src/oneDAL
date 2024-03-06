@@ -453,6 +453,10 @@ public:
         return ctx_.get_thread_count();
     }
 
+    bool get_mpi_gpu_support() override {
+        return false;
+    }
+
     void barrier() override;
 
     request_t* bcast(byte_t* send_buf,

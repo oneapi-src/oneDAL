@@ -147,6 +147,15 @@ public:
         return default_root_;
     }
 
+    bool get_mpi_gpu_support() override {
+        // TODO: add additional conditions (i.e. GPU type, data parallel, etc.)
+        // TODO: make this function bool convert() and instead determine if conversion necessary?
+        if (MPIX_Query_ze_support()) {
+            return true;
+        }
+        return false;
+    }
+
     void barrier() override {
         mpi_call(MPI_Barrier(mpi_comm_));
     }
@@ -165,11 +174,6 @@ public:
         ONEDAL_ASSERT(count > 0);
 
         // TODO replace with MPI_Ibcast
-        std::cout << "bcast " << count << std::endl;
-        
-        int ze_support;
-        MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
-        std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
         mpi_call(MPI_Bcast(send_buf,
                            integral_cast<int>(count),
                            make_mpi_data_type(dtype),
@@ -210,11 +214,6 @@ public:
         }
 
         MPI_Request mpi_request;
-        std::cout << "allgatherv " << send_count << std::endl;
-        
-        int ze_support;
-        MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
-        std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
         mpi_call(MPI_Iallgatherv(send_buf,
                                  integral_cast<int>(send_count),
                                  make_mpi_data_type(dtype),
@@ -245,10 +244,6 @@ public:
         // TODO: Implement correct aliasing check
         if (send_buf != recv_buf) {
             MPI_Request mpi_request;
-            std::cout << "Iallreduce " << count << std::endl;
-            int ze_support;
-            MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
-            std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
             mpi_call(MPI_Iallreduce(send_buf,
                                     recv_buf,
                                     integral_cast<int>(count),
@@ -264,10 +259,6 @@ public:
             // auto recv_buf_backup = array<byte_t>::empty(size);
 
             // TODO Replace with MPI_Iallreduce
-            std::cout << "Allreduce " << count << std::endl;
-            int ze_support;
-            MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
-            std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
             mpi_call(MPI_Allreduce(MPI_IN_PLACE,
                                    recv_buf,
                                    integral_cast<int>(count),
@@ -302,11 +293,6 @@ public:
 
         MPI_Status status;
         constexpr int zero_tag = 0;
-        std::cout << "sendrecvreplace " << count << std::endl;
-        
-        int ze_support;
-        MPIX_GPU_query_support(MPIX_GPU_SUPPORT_ZE, &ze_support);
-        std::cout << ze_support << " " << MPIX_Query_ze_support() << std::endl;
         mpi_call(MPI_Sendrecv_replace(buf,
                                       integral_cast<int>(count),
                                       make_mpi_data_type(dtype),
