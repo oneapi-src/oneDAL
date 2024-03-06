@@ -325,6 +325,11 @@ public:
         return default_root_;
     }
 
+    bool get_mpi_gpu_support() override {
+        // TODO: any options that could be true here?
+        return false;
+    }
+
     void barrier() override {
         ccl::barrier(host_comm_->get_ref()).wait();
     }
