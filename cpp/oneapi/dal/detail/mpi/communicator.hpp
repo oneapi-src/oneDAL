@@ -149,9 +149,11 @@ public:
     }
 
     bool get_mpi_gpu_support() override {
+        std::cout << "at 152" << std::endl;
         void* handle = dlopen("libmpi.so", RTLD_LAZY);
 
         if (handle == nullptr) {
+            std::cout << "155" << std::endl;
             return false;
         }
 
@@ -159,6 +161,7 @@ public:
 
         if (sym == nullptr) {
             dlclose(handle);
+            std::cout << "163" << std::endl;
             return false;
         }
 
@@ -166,6 +169,7 @@ public:
         MPIX_Query_ze_support_ptr query_ze_support_ptr = (MPIX_Query_ze_support_ptr)sym;
 
         bool result = (query_ze_support_ptr() == MPI_SUCCESS);
+        std::cout << "171" << query_ze_support_ptr() << std::endl;
         dlclose(handle);
         return result;
         // TODO: add additional conditions (i.e. GPU type, data parallel, etc.)
