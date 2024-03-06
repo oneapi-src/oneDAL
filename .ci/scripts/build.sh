@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #===============================================================================
+
+# Obtain platform, OS and arch details automatically
 PLATFORM=$(bash dev/make/identify_os.sh)
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 
-# set default values for optimisation based on arch
+# set default values for optimisation based on arch, these values can be overidden by passed arguments to the script.
 if [[ "${ARCH}" == "32e" ]]
 then
 optimizations=${optimizations:-avx2}
