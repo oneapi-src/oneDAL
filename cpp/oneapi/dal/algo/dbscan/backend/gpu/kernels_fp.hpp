@@ -86,6 +86,7 @@ struct kernels_fp {
                                           const pr::ndview<Float, 2>& data,
                                           const pr::ndview<bool, 1>& indices,
                                           pr::ndview<Float, 2>& current_queue,
+                                          pr::ndview<std::int32_t, 1>& queue_size_arr,
                                           std::int64_t block_start,
                                           const bk::event_vector& deps = {});
 

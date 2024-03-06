@@ -544,33 +544,31 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& data,
                                                   const pr::ndview<bool, 1>& indices,
                                                   pr::ndview<Float, 2>& current_queue,
+                                                  pr::ndview<std::int32_t, 1>& queue_size_arr,
                                                   std::int64_t block_start,
                                                   const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(fill_current_queue, queue);
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
     const bool* indices_host_ptr = indices.get_data();
     const Float* data_host_ptr = data.get_data();
+    std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
-    //const auto local_size = bk::device_max_wg_size(queue);
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_row_count, 1);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        sycl::local_accessor<std::int32_t, 1> displ(1, cgh);
-        displ[0] = -1;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> idx) {
-            const std::int64_t gid = idx.get_global_id(0);
-            if (indices_host_ptr[gid] == true) {
-                sycl::atomic_ref<std::int32_t,
+            auto row_id = idx.get_global_id(0);
+            if (indices_host_ptr[row_id]) {
+                sycl::atomic_ref<int,
                                  sycl::memory_order::relaxed,
                                  sycl::memory_scope::device,
                                  sycl::access::address_space::ext_intel_global_device_space>
-                    counter_atomic(displ[0]);
+                    counter_atomic(queue_size_arr_ptr[0]);
                 auto cur_idx = counter_atomic.fetch_add(1);
                 for (std::int32_t col_idx = 0; col_idx < column_count; col_idx += 1) {
                     current_queue_ptr[block_start * column_count + cur_idx * column_count +
-                                      col_idx] = data_host_ptr[gid * column_count + col_idx];
+                                      col_idx] = data_host_ptr[row_id * column_count + col_idx];
                 }
             }
         });
