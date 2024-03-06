@@ -169,7 +169,7 @@ public:
         MPIX_Query_ze_support_ptr query_ze_support_ptr = (MPIX_Query_ze_support_ptr)sym;
 
         bool result = (query_ze_support_ptr() == MPI_SUCCESS);
-        std::cout << "171" << query_ze_support_ptr() << std::endl;
+        std::cout << "171" << query_ze_support_ptr() << MPI_SUCCESS << result << std::endl;
         dlclose(handle);
         return result;
         // TODO: add additional conditions (i.e. GPU type, data parallel, etc.)
