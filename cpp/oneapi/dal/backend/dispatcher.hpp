@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,11 +40,16 @@
 
 namespace oneapi::dal::backend {
 
+#if defined(TARGET_X86_64)
 struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
+#elif defined(TARGET_ARM)
+struct cpu_dispatch_sve {};
+#endif
 
+#if defined(TARGET_X86_64)
 using cpu_dispatch_default = cpu_dispatch_sse2;
 
 #define __CPU_TAG_SSE2__    oneapi::dal::backend::cpu_dispatch_sse2
@@ -51,6 +57,13 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 #define __CPU_TAG_AVX2__    oneapi::dal::backend::cpu_dispatch_avx2
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
+
+#elif defined(TARGET_ARM)
+using cpu_dispatch_default = cpu_dispatch_sve;
+
+#define __CPU_TAG_ARMV8SVE__ oneapi::dal::backend::cpu_dispatch_sve
+
+#endif
 
 template <typename MemoryAccessKind>
 class communicator_provider : public base {
@@ -276,14 +289,24 @@ inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension
 
 template <typename Op>
 inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
-    [[maybe_unused]] const detail::cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
+    using detail::cpu_extension;
+
+    [[maybe_unused]] const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
+
+#if defined(TARGET_X86_64)
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return op(cpu_dispatch_avx512{});
     })
     ONEDAL_IF_CPU_DISPATCH_AVX2(
         if (test_cpu_extension(cpu_ex, detail::cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
     ONEDAL_IF_CPU_DISPATCH_SSE42(
-        if (test_cpu_extension(cpu_ex, detail::cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
+        if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
+
+#elif defined(TARGET_ARM)
+    ONEDAL_IF_CPU_DISPATCH_A8SVE(
+        if (test_cpu_extension(cpu_ex, cpu_extension::sve)) { return op(cpu_dispatch_sve{}); })
+#endif
+
     return op(cpu_dispatch_default{});
 }
 

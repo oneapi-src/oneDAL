@@ -25,9 +25,15 @@ namespace oneapi::dal::backend {
 
 class csr_table_builder_impl : public detail::csr_table_builder_template<csr_table_builder_impl> {
 public:
+#ifdef ONEDAL_DATA_PARALLEL
+    csr_table_builder_impl() : dependencies_(nullptr) {
+        reset();
+    }
+#else
     csr_table_builder_impl() {
         reset();
     }
+#endif
 
     void reset() {
         data_.reset();
@@ -38,6 +44,9 @@ public:
         element_count_ = 0;
         dtype_ = data_type::float32;
         indexing_ = sparse_indexing::one_based;
+#ifdef ONEDAL_DATA_PARALLEL
+        dependencies_ = nullptr;
+#endif
     }
 
     void reset(const dal::array<byte_t>& data,
@@ -68,8 +77,21 @@ public:
     }
 
     detail::csr_table_iface* build_csr() override {
-        auto new_table = new csr_table_impl{ data_,         column_indices_, row_offsets_,
-                                             column_count_, dtype_,          indexing_ };
+        csr_table_impl* new_table = nullptr;
+#ifdef ONEDAL_DATA_PARALLEL
+        if (dependencies_ && data_.get_queue().has_value())
+            new_table = new csr_table_impl{ detail::data_parallel_policy(data_.get_queue().value()),
+                                            data_,
+                                            column_indices_,
+                                            row_offsets_,
+                                            column_count_,
+                                            dtype_,
+                                            indexing_,
+                                            *dependencies_ };
+        else
+#endif
+            new_table = new csr_table_impl{ data_,         column_indices_, row_offsets_,
+                                            column_count_, dtype_,          indexing_ };
         reset();
         return new_table;
     }
@@ -105,14 +127,43 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+    void reset(const dal::array<byte_t>& data,
+               const dal::array<std::int64_t>& column_indices,
+               const dal::array<std::int64_t>& row_offsets,
+               std::int64_t row_count,
+               std::int64_t column_count,
+               sparse_indexing indexing,
+               const std::vector<sycl::event>& dependencies) override {
+        reset(data, column_indices, row_offsets, row_count, column_count, indexing);
+        dependencies_ = &dependencies;
+    }
+
     template <typename T>
     void pull_csr_block_template(const detail::data_parallel_policy& policy,
                                  dal::array<T>& data,
                                  dal::array<std::int64_t>& column_indices,
                                  dal::array<std::int64_t>& row_offsets,
                                  const sparse_indexing& indexing,
-                                 const range& rows,
-                                 sycl::usm::alloc alloc) const {}
+                                 const range& row_range,
+                                 sycl::usm::alloc alloc) const {
+        constexpr bool preserve_mutability = true;
+
+        block_info block_info{ row_range.start_idx,
+                               row_range.get_element_count(row_count_),
+                               indexing };
+
+        csr_pull_block(policy,
+                       get_info(),
+                       block_info,
+                       data_,
+                       column_indices_,
+                       row_offsets_,
+                       data,
+                       column_indices,
+                       row_offsets,
+                       alloc_kind_from_sycl(alloc),
+                       preserve_mutability);
+    }
 #endif
 
 private:
@@ -135,6 +186,9 @@ private:
     std::int64_t element_count_;
     data_type dtype_;
     sparse_indexing indexing_;
+#ifdef ONEDAL_DATA_PARALLEL
+    const std::vector<sycl::event>* dependencies_;
+#endif
 };
 
 } // namespace oneapi::dal::backend

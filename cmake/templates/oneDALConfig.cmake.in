@@ -209,14 +209,14 @@ foreach (_dal_component ${DAL_LIBS})
         find_library(
             _dal_lib
             NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
-            PATH_SUFFIXES "lib/intel64"
+            PATH_SUFFIXES "lib/@ARCH_DIR_ONEDAL@"
             PATHS "${_dal_root}")
     elseif (${ONEDAL_LINK} STREQUAL "dynamic")
         add_library(oneDAL::${_dal_component} SHARED IMPORTED)
         find_library(
             _dal_lib
             NAMES "${LIB_PREFIX}${_dal_component}${DLL_EXT}"
-            PATH_SUFFIXES "lib/intel64"
+            PATH_SUFFIXES "lib/@ARCH_DIR_ONEDAL@"
             PATHS "${_dal_root}")
     endif()
 

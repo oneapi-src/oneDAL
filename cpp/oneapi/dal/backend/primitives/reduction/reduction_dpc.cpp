@@ -88,6 +88,65 @@ sycl::event reduce_by_rows_impl(sycl::queue& q,
     return sycl::event{};
 }
 
+/// Reduces CSR table with `n x m` dimensions by rows
+///
+/// @tparam Float       Floating point type, it can be `float` or `double`
+/// @tparam BinaryOp    Binary operation class, it reduces 2 input values into 1
+/// @tparam UnaryOp     Unary operation class, it modifies an input value
+///
+/// @param[in] q                Sycl queue
+/// @param[in] values           An array of values in CSR table
+/// @param[in] column_indices   An array of column indices in CSR table
+/// @param[in] row_offsets      An array of row offsets in CSR table
+/// @param[in] indexing         Indexing kind of CSR table
+/// @param[out] output          An output array with dimensions `n x 1`
+/// @param[in] binary           A binary operation used in reduction
+/// @param[in] unary            An unary operation used in reduction
+/// @param[in] deps             A vector of dependent events
+template <typename Float, typename BinaryOp, typename UnaryOp>
+sycl::event reduce_by_rows_impl(sycl::queue& q,
+                                const ndview<Float, 1>& values,
+                                const ndview<std::int64_t, 1>& column_indices,
+                                const ndview<std::int64_t, 1>& row_offsets,
+                                const dal::sparse_indexing indexing,
+                                ndview<Float, 1>& output,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary,
+                                const event_vector& deps,
+                                bool override_init) {
+    ONEDAL_ASSERT(values.get_count() == column_indices.get_count());
+    const std::int64_t row_block_size = device_max_wg_size(q);
+    const std::int64_t column_block_size = device_max_wg_size(q) / 2;
+    const auto range =
+        make_multiple_nd_range_2d({ row_block_size, column_block_size }, { 1, column_block_size });
+    const auto val_ptr = values.get_data();
+    const auto row_ptr = row_offsets.get_data();
+    auto const out_ptr = output.get_mutable_data();
+    const std::int64_t shift = bool(indexing == sparse_indexing::one_based);
+    const auto row_count = row_offsets.get_count() - 1;
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](auto it) {
+            const std::int64_t row_shift = it.get_global_id(0);
+            const std::int64_t col_shift = it.get_local_id(1);
+            for (auto row_idx = row_shift; row_idx < row_count; row_idx += row_block_size) {
+                const auto start = row_ptr[row_idx] - shift;
+                const auto end = row_ptr[row_idx + 1] - shift;
+                Float local_accum = binary.init_value;
+                for (auto idx = start + col_shift; idx < end; idx += column_block_size) {
+                    const auto val = val_ptr[idx];
+                    local_accum = binary.native(local_accum, unary(val));
+                }
+                const auto result =
+                    sycl::reduce_over_group(it.get_group(), local_accum, binary.native);
+                if (col_shift == 0) {
+                    out_ptr[row_idx] = override_init ? result : out_ptr[row_idx] + result;
+                }
+            }
+        });
+    });
+}
+
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_by_columns_impl(sycl::queue& q,
                                    const ndview<Float, 2, order>& input,
@@ -123,10 +182,22 @@ sycl::event reduce_by_columns_impl(sycl::queue& q,
                                                             const U&,               \
                                                             const event_vector&,    \
                                                             bool);
+#define INSTANTIATE_CSR(F, B, U)                                                      \
+    template sycl::event reduce_by_rows_impl<F, B, U>(sycl::queue&,                   \
+                                                      const ndview<F, 1>&,            \
+                                                      const ndview<std::int64_t, 1>&, \
+                                                      const ndview<std::int64_t, 1>&, \
+                                                      dal::sparse_indexing,           \
+                                                      ndview<F, 1>&,                  \
+                                                      const B&,                       \
+                                                      const U&,                       \
+                                                      const event_vector&,            \
+                                                      bool);
 
 #define INSTANTIATE_LAYOUT(F, B, U)  \
     INSTANTIATE(F, ndorder::c, B, U) \
-    INSTANTIATE(F, ndorder::f, B, U)
+    INSTANTIATE(F, ndorder::f, B, U) \
+    INSTANTIATE_CSR(F, B, U)
 
 #define INSTANTIATE_FLOAT(B, U)                       \
     INSTANTIATE_LAYOUT(double, B<double>, U<double>); \

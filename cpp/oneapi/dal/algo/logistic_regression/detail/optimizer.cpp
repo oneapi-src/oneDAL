@@ -52,7 +52,7 @@ public:
                                                        pr::base_function<Float>& f,
                                                        pr::ndview<Float, 1>& x,
                                                        const be::event_vector& deps = {}) {
-        return pr::newton_cg(q, f, x, Float(tol_), max_iter_, deps);
+        return pr::newton_cg(q, f, x, Float(tol_), max_iter_, 200l, deps);
     }
 
     std::pair<sycl::event, std::int64_t> minimize(sycl::queue& q,

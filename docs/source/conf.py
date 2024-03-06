@@ -162,6 +162,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::train_input'),
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
+    ('cpp:identifier', 'task::search'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
     ('cpp:identifier', 'detail::enable_if_search_t<T>'),
     ('cpp:identifier', 'detail::enable_if_not_classification_t<T>'),
@@ -211,6 +212,14 @@ nitpick_ignore = [
     ('cpp:identifier', 'logistic_regression::infer_result'),
     ('cpp:identifier', 'logistic_regression::infer_input'),
     ('cpp:identifier', 'optimizer_t'),
+    # linear_regression
+    ('cpp:identifier', 'linear_regression'),
+    ('cpp:identifier', 'oneapi::dal::linear_regression'),
+    ('cpp:identifier', 'linear_regression::descriptor'),
+    ('cpp:identifier', 'linear_regression::train_result'),
+    ('cpp:identifier', 'linear_regression::train_input'),
+    ('cpp:identifier', 'linear_regression::infer_result'),
+    ('cpp:identifier', 'linear_regression::infer_input'),
     # newton_cg
     ('cpp:identifier', 'newton_cg'),
     ('cpp:identifier', 'oneapi::dal::newton_cg'),

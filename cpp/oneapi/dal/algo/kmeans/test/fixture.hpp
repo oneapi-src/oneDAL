@@ -26,6 +26,7 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/csr_table_builder.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
 
@@ -34,7 +35,8 @@ namespace oneapi::dal::kmeans::test {
 namespace te = dal::test::engine;
 namespace la = dal::test::engine::linalg;
 
-using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
+using kmeans_types = COMBINE_TYPES((float, double),
+                                   (kmeans::method::lloyd_dense, kmeans::method::lloyd_csr));
 
 template <typename TestType, typename Derived>
 class kmeans_test : public te::crtp_algo_fixture<TestType, Derived> {
@@ -61,6 +63,10 @@ public:
 
     descriptor_t get_descriptor(std::int64_t cluster_count) const {
         return descriptor_t{ cluster_count };
+    }
+
+    bool is_sparse_method() {
+        return std::is_same_v<method_t, kmeans::method::lloyd_csr>;
     }
 
     void exact_checks(const table& data,
@@ -285,6 +291,32 @@ public:
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
 
+    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
+                             std::int64_t max_iter_count,
+                             float_t accuracy_threshold,
+                             bool init_centroids) {
+        const table data = input.get_data(this->get_policy());
+        const auto cluster_count = input.cluster_count_;
+        REQUIRE(data.get_kind() == csr_table::kind());
+        auto desc = this->get_descriptor(cluster_count, max_iter_count, accuracy_threshold);
+        INFO("KMeans sparse training");
+        if (init_centroids) {
+            const table initial_centroids = input.get_initial_centroids();
+            const auto train_result = this->train(desc, data, initial_centroids);
+            check_response_match(input.get_responses(), train_result.get_responses());
+        }
+        else {
+            const auto train_result = this->train(desc, data);
+            const auto model = train_result.get_model();
+            auto match_map = array<float_t>::zeros(cluster_count);
+            find_match_centroids(input.get_result_centroids(),
+                                 model.get_centroids(),
+                                 input.column_count_,
+                                 match_map);
+            check_response_match(match_map, input.get_responses(), train_result.get_responses());
+        }
+    }
+
     void test_on_dataset(const std::string& dataset_path,
                          std::int64_t cluster_count,
                          std::int64_t max_iteration_count,
@@ -302,6 +334,25 @@ public:
                                        expected_obj,
                                        obj_ref_tol,
                                        dbi_ref_tol);
+    }
+
+    void test_optional_results_on_dataset(const std::string& dataset_path,
+                                          std::int64_t cluster_count,
+                                          std::int64_t max_iteration_count,
+                                          float_t expected_dbi,
+                                          float_t expected_obj,
+                                          float_t obj_ref_tol = 1.0e-4,
+                                          float_t dbi_ref_tol = 1.0e-3) {
+        const te::dataframe data = te::dataframe_builder{ dataset_path }.build();
+        const table x = data.get_table(this->get_homogen_table_id());
+        this->optional_results_dbi_deterministic_checks(x,
+                                                        cluster_count,
+                                                        max_iteration_count,
+                                                        0.0,
+                                                        expected_dbi,
+                                                        expected_obj,
+                                                        obj_ref_tol,
+                                                        dbi_ref_tol);
     }
 
     void dbi_deterministic_checks(const table& data,
@@ -337,6 +388,56 @@ public:
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
         REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
+                                         ref_obj_func,
+                                         obj_ref_tol));
+    }
+
+    void optional_results_dbi_deterministic_checks(const table& data,
+                                                   std::int64_t cluster_count,
+                                                   std::int64_t max_iteration_count,
+                                                   float_t accuracy_threshold,
+                                                   float_t ref_dbi,
+                                                   float_t ref_obj_func,
+                                                   float_t obj_ref_tol = 1.0e-4,
+                                                   float_t dbi_ref_tol = 1.0e-4) {
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        const auto data_rows = row_accessor<const float_t>(data).pull({ 0, cluster_count });
+        const auto initial_centroids =
+            homogen_table::wrap(data_rows.get_data(), cluster_count, data.get_column_count());
+
+        INFO("run training");
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        REQUIRE(te::has_no_nans(model.get_centroids()));
+
+        const auto kmeans_desc_infer_assignments =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
+                .set_result_options(dal::kmeans::result_options::compute_assignments);
+
+        const auto kmeans_desc_infer_obj_func =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
+                .set_result_options(dal::kmeans::result_options::compute_exact_objective_function);
+
+        INFO("run inference assignments");
+        const auto infer_result_assignments =
+            this->infer(kmeans_desc_infer_assignments, model, data);
+        REQUIRE(te::has_no_nans(infer_result_assignments.get_responses()));
+
+        auto dbi = te::davies_bouldin_index(data,
+                                            model.get_centroids(),
+                                            infer_result_assignments.get_responses());
+        CAPTURE(dbi, ref_dbi);
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
+
+        INFO("run inference just objective function");
+        const auto infer_result_obj_func = this->infer(kmeans_desc_infer_obj_func, model, data);
+        CAPTURE(infer_result_obj_func.get_objective_function_value(), ref_obj_func);
+        REQUIRE(check_value_with_ref_tol(infer_result_obj_func.get_objective_function_value(),
                                          ref_obj_func,
                                          obj_ref_tol));
     }

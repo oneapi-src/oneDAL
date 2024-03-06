@@ -218,9 +218,14 @@ sycl::event extract_and_share_by_index(const bk::context_gpu& ctx,
 
     // Share part
     if (rank_count > 1l) {
-        const auto dst =
+        // comm.bcast() is sporadically failing by timeout
+        // TODO: Need to fix comm.bcast() and replace comm.allreduce() with comm.bcast()
+        if (rank != target) {
+            pr::fill(queue, place, Float(0), new_deps).wait_and_throw();
+        }
+        auto wrap_place =
             array<Float>::wrap(queue, place.get_mutable_data(), place.get_count(), new_deps);
-        comm.bcast(dst, target).wait();
+        comm.allreduce(wrap_place).wait();
     }
 
     return bk::wait_or_pass(new_deps);
