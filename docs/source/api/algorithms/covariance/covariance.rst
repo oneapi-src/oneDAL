@@ -59,11 +59,10 @@ Input
 ~~~~~
 .. onedal_class:: oneapi::dal::covariance::compute_input
 
-
 .. _covariance_c_api_result:
 
-Result
-~~~~~~
+Result and Finalize Result
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::covariance::compute_result
 
 Operation
@@ -77,3 +76,30 @@ Operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
+
+.. _covariance_p_api:
+
+Partial Training
+----------------
+.. _covariance_p_api_input:
+
+Partial Input
+~~~~~~~~~~~~~
+.. onedal_class:: oneapi::dal::covariance::partial_compute_input
+
+.. _covariance_p_api_result:
+
+Partial Result and Finalize Input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. onedal_class:: oneapi::dal::covariance::partial_compute_result
+
+.. _covariance_f_api:
+
+Finalize Training
+-----------------
+
+-------------
+Usage Example
+-------------
+
+.. include:: ../../../includes/covariance/covariance-usage-examples.rst

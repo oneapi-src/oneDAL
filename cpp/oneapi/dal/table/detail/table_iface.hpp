@@ -138,6 +138,15 @@ public:
                        std::int64_t row_count,
                        std::int64_t column_count,
                        sparse_indexing indexing) = 0;
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual void reset(const dal::array<byte_t>& data,
+                       const dal::array<std::int64_t>& column_indices,
+                       const dal::array<std::int64_t>& row_offsets,
+                       std::int64_t row_count,
+                       std::int64_t column_count,
+                       sparse_indexing indexing,
+                       const std::vector<sycl::event>& dependencies) = 0;
+#endif
 
     virtual csr_table_iface* build_csr() = 0;
 };

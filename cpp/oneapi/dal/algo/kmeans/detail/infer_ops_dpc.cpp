@@ -42,8 +42,10 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
     template struct ONEDAL_EXPORT                                         \
         infer_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
-INSTANTIATE(float, method::by_default, task::clustering)
-INSTANTIATE(double, method::by_default, task::clustering)
+INSTANTIATE(float, method::lloyd_dense, task::clustering)
+INSTANTIATE(double, method::lloyd_dense, task::clustering)
+INSTANTIATE(float, method::lloyd_csr, task::clustering)
+INSTANTIATE(double, method::lloyd_csr, task::clustering)
 
 } // namespace v1
 } // namespace oneapi::dal::kmeans::detail

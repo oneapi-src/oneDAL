@@ -30,6 +30,7 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   ndview<Float, 1>& probabilities,
                                   bool fit_intercept,
                                   const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_probabilities, q);
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
 
@@ -78,6 +79,7 @@ sycl::event compute_logloss(sycl::queue& q,
                             ndview<Float, 1>& out,
                             bool fit_intercept,
                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_logloss, q);
     const std::int64_t n = labels.get_dimension(0);
     ONEDAL_ASSERT(probabilities.get_dimension(0) == n);
     ONEDAL_ASSERT(labels.has_data());
@@ -116,7 +118,7 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      bool fit_intercept,
                                      const event_vector& deps) {
     // out, out_derivative should be filled with zeros
-
+    ONEDAL_PROFILER_TASK(compute_logloss_with_grad, q);
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
 
@@ -201,7 +203,7 @@ sycl::event compute_derivative(sycl::queue& q,
                                bool fit_intercept,
                                const event_vector& deps) {
     // out_derivative should be filled with zeros
-
+    ONEDAL_PROFILER_TASK(compute_logloss_grad, q);
     const std::int64_t n = data.get_dimension(0);
     const std::int64_t p = data.get_dimension(1);
 
@@ -273,6 +275,7 @@ sycl::event add_regularization_loss(sycl::queue& q,
                                     Float L2,
                                     bool fit_intercept,
                                     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(add_regularization_loss, q);
     using dal::backend::operator+;
     auto [out_reg, out_reg_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
     auto* const reg_ptr = out_reg.get_mutable_data();
@@ -288,7 +291,7 @@ sycl::event add_regularization_loss(sycl::queue& q,
         const std::int64_t st_id = fit_intercept;
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + st_id];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
+            sum += L1 * sycl::fabs(param) + L2 * param * param;
         });
     });
     return q.submit([&](sycl::handler& cgh) {
@@ -308,6 +311,7 @@ sycl::event add_regularization_gradient_loss(sycl::queue& q,
                                              Float L2,
                                              bool fit_intercept,
                                              const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(add_regularization_grad_loss, q);
     using dal::backend::operator+;
     auto [reg_val, reg_val_e] = ndarray<Float, 1>::zeros(q, { 1 }, sycl::usm::alloc::device);
 
@@ -326,7 +330,7 @@ sycl::event add_regularization_gradient_loss(sycl::queue& q,
         std::int64_t st_id = fit_intercept;
         cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum) {
             const Float param = param_ptr[idx + st_id];
-            sum += L1 * sycl::abs(param) + L2 * param * param;
+            sum += L1 * sycl::fabs(param) + L2 * param * param;
             grad_ptr[idx + st_id] += L2 * 2 * param;
         });
     });
@@ -347,6 +351,7 @@ sycl::event add_regularization_gradient(sycl::queue& q,
                                         Float L2,
                                         bool fit_intercept,
                                         const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(add_regularization_grad, q);
     auto* const grad_ptr = out_derivative.get_mutable_data();
     const auto* const param_ptr = parameters.get_data();
     const std::int64_t p =
@@ -372,6 +377,7 @@ sycl::event compute_hessian(sycl::queue& q,
                             const Float L2,
                             bool fit_intercept,
                             const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_logloss_hessian, q);
     const int64_t n = data.get_dimension(0);
     const int64_t p = data.get_dimension(1);
 
@@ -450,6 +456,7 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 const ndview<Float, 1>& probabilities,
                                 ndview<Float, 1>& out_hessian,
                                 const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_raw_hessian, q);
     const std::int64_t n = probabilities.get_dimension(0);
 
     ONEDAL_ASSERT(out_hessian.get_dimension(0) == n);
@@ -514,6 +521,7 @@ template <typename Float>
 sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndview<Float, 1>& vec,
                                                                        ndview<Float, 1>& out,
                                                                        const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_hessp_with_fit_intercept, q_);
     auto* const tmp_ptr = tmp_gpu_.get_mutable_data();
     ONEDAL_ASSERT(vec.get_dimension(0) == p_ + 1);
     ONEDAL_ASSERT(out.get_dimension(0) == p_ + 1);
@@ -593,6 +601,7 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
     const ndview<Float, 1>& vec,
     ndview<Float, 1>& out,
     const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(compute_hessp_without_fit_intercept, q_);
     ONEDAL_ASSERT(vec.get_dimension(0) == p_);
     ONEDAL_ASSERT(out.get_dimension(0) == p_);
 
@@ -726,6 +735,7 @@ template <typename Float>
 event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
                                                bool need_hessp,
                                                const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(logloss_function_update_weights, q_);
     using dal::backend::operator+;
     value_ = 0;
     auto fill_event = fill(q_, gradient_, Float(0), deps);

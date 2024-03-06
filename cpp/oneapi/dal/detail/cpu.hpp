@@ -18,15 +18,28 @@
 
 #include <cstdint>
 
+// TODO: Clean up this redefinition and import the defines globally.
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+#define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+#define TARGET_ARM
+#endif
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
 enum class cpu_extension : uint64_t {
     none = 0U,
+#if defined(TARGET_X86_64)
     sse2 = 1U << 0,
     sse42 = 1U << 2,
     avx2 = 1U << 4,
     avx512 = 1U << 5
+#elif defined(TARGET_ARM)
+    sve = 1U << 0
+#endif
 };
 
 cpu_extension detect_top_cpu_extension();
@@ -34,4 +47,4 @@ cpu_extension detect_top_cpu_extension();
 } // namespace v1
 using v1::cpu_extension;
 using v1::detect_top_cpu_extension;
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

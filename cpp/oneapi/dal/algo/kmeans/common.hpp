@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/util/result_option_id.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 
@@ -42,15 +43,48 @@ namespace v1 {
 /// method.
 struct lloyd_dense {};
 
+/// Tag-type that denotes :ref:`Lloyd's <kmeans_t_math_lloyd>` computational
+/// method for sparse data.
+struct lloyd_csr {};
+
 /// Alias tag-type for :ref:`Lloyd's <kmeans_t_math_lloyd>` computational
 /// method.
 using by_default = lloyd_dense;
 } // namespace v1
 
 using v1::lloyd_dense;
+using v1::lloyd_csr;
 using v1::by_default;
 
 } // namespace method
+
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
+class result_option_id : public result_option_id_base {
+public:
+    constexpr result_option_id() = default;
+    constexpr explicit result_option_id(const result_option_id_base& base)
+            : result_option_id_base{ base } {}
+};
+
+namespace detail {
+
+ONEDAL_EXPORT result_option_id get_compute_assignments_id();
+ONEDAL_EXPORT result_option_id get_compute_exact_objective_function_id();
+
+} // namespace detail
+
+/// Result options are used to define
+/// what should an algorithm return
+namespace result_options {
+
+/// Return the assignments
+const inline result_option_id compute_assignments = detail::get_compute_assignments_id();
+/// Return the objective function
+const inline result_option_id compute_exact_objective_function =
+    detail::get_compute_exact_objective_function_id();
+
+} // namespace result_options
 
 namespace detail {
 namespace v1 {
@@ -66,7 +100,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::lloyd_dense>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::lloyd_dense, method::lloyd_csr>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::clustering>;
@@ -86,11 +121,13 @@ public:
     std::int64_t get_cluster_count() const;
     std::int64_t get_max_iteration_count() const;
     double get_accuracy_threshold() const;
+    result_option_id get_result_options() const;
 
 protected:
     void set_cluster_count_impl(std::int64_t);
     void set_max_iteration_count_impl(std::int64_t);
     void set_accuracy_threshold_impl(double);
+    void set_result_options_impl(const result_option_id& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -171,6 +208,16 @@ public:
 
     auto& set_accuracy_threshold(double value) {
         base_t::set_accuracy_threshold_impl(value);
+        return *this;
+    }
+
+    /// Choose which results should be computed and returned.
+    result_option_id get_result_options() const {
+        return base_t::get_result_options();
+    }
+
+    auto& set_result_options(const result_option_id& value) {
+        base_t::set_result_options_impl(value);
         return *this;
     }
 };

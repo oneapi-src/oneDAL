@@ -18,3 +18,5 @@
 
 #include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
 #include "oneapi/dal/backend/primitives/lapack/solve.hpp"
+#include "oneapi/dal/backend/primitives/lapack/misc.hpp"
+#include "oneapi/dal/backend/primitives/lapack/gesvd.hpp"
