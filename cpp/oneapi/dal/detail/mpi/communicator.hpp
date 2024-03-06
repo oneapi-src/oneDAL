@@ -150,7 +150,7 @@ public:
 
     bool get_mpi_gpu_support() override {
         void* handle = dlopen("libmpi.so", RTLD_LAZY);
-        
+
         if (handle == nullptr) {
             return false;
         }

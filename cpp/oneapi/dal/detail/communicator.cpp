@@ -146,7 +146,10 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
             const std::int64_t dst_offset = check_mul_overflow(dtype_size, displs_host[i]);
             const std::int64_t copy_size = check_mul_overflow(dtype_size, recv_counts_host[i]);
             if (copy_size > 0) {
-                memcpy_host2usm(q, recv_buf + dst_offset, recv_buf_host_ptr + src_offset, copy_size);
+                memcpy_host2usm(q,
+                                recv_buf + dst_offset,
+                                recv_buf_host_ptr + src_offset,
+                                copy_size);
             }
         }
     }
@@ -188,8 +191,11 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
         const auto recv_buf_host = array<byte_t>::empty(byte_count);
 
         memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, byte_count);
-        wait_request(
-            allreduce(send_buff_host.get_data(), recv_buf_host.get_mutable_data(), count, dtype, op));
+        wait_request(allreduce(send_buff_host.get_data(),
+                               recv_buf_host.get_mutable_data(),
+                               count,
+                               dtype,
+                               op));
         memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
     }
 
@@ -232,10 +238,10 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
         memcpy_usm2host(q, buff_host.get_mutable_data(), buf, size);
 
         wait_request(sendrecv_replace(buff_host.get_mutable_data(),
-                                    count,
-                                    dtype,
-                                    destination_rank,
-                                    source_rank));
+                                      count,
+                                      dtype,
+                                      destination_rank,
+                                      source_rank));
 
         memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
     }
