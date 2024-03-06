@@ -21,6 +21,7 @@
 // TODO: In the future this can be solved via __has_include C++17 feature
 
 #include <mpi.h>
+#include <dlfcn.h>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 #include <iostream>
@@ -148,12 +149,27 @@ public:
     }
 
     bool get_mpi_gpu_support() override {
+        void* handle = dlopen("libmpi.so", RTLD_LAZY);
+        
+        if (handle == nullptr) {
+            return false;
+        }
+
+        void* sym = dlsym(handle, "MPIX_Query_ze_support");
+
+        if (sym == nullptr) {
+            dlclose(handle);
+            return false;
+        }
+
+        typedef int (*MPIX_Query_ze_support_ptr)();
+        MPIX_Query_ze_support_ptr query_ze_support_ptr = (MPIX_Query_ze_support_ptr)sym;
+
+        bool result = (query_ze_support_ptr() == MPI_SUCCESS);
+        dlclose(handle);
+        return result;
         // TODO: add additional conditions (i.e. GPU type, data parallel, etc.)
         // TODO: make this function bool convert() and instead determine if conversion necessary?
-        if (MPIX_Query_ze_support()) {
-            return true;
-        }
-        return false;
     }
 
     void barrier() override {
