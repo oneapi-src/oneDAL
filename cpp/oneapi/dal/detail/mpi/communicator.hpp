@@ -24,7 +24,6 @@
 #include <dlfcn.h>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
-#include <iostream>
 
 namespace spmd = oneapi::dal::preview::spmd;
 
@@ -149,6 +148,10 @@ public:
     }
 
     bool get_mpi_gpu_support() override {
+        // TODO: explore additional conditions (i.e. GPU type, data parallel, etc.)
+        // TODO: make this function bool convert() and instead determine if conversion necessary?
+
+        // Check libmpi.so for symbol
         void* handle = dlopen("libmpi.so", RTLD_LAZY);
 
         if (handle == nullptr) {
@@ -162,14 +165,13 @@ public:
             return false;
         }
 
+        // Return status of MPI ze support using pointer to function
         typedef int (*MPIX_Query_ze_support_ptr)();
         MPIX_Query_ze_support_ptr query_ze_support_ptr = (MPIX_Query_ze_support_ptr)sym;
 
         bool result = query_ze_support_ptr();
         dlclose(handle);
         return result;
-        // TODO: add additional conditions (i.e. GPU type, data parallel, etc.)
-        // TODO: make this function bool convert() and instead determine if conversion necessary?
     }
 
     void barrier() override {
@@ -270,10 +272,6 @@ public:
             return new mpi_request_impl{ mpi_request };
         }
         else {
-            // const std::int64_t dtype_size = get_data_type_size(dtype);
-            // const std::int64_t size = check_mul_overflow(count, dtype_size);
-            // auto recv_buf_backup = array<byte_t>::empty(size);
-
             // TODO Replace with MPI_Iallreduce
             mpi_call(MPI_Allreduce(MPI_IN_PLACE,
                                    recv_buf,
@@ -281,13 +279,6 @@ public:
                                    make_mpi_data_type(dtype),
                                    make_mpi_reduce_op(op),
                                    mpi_comm_));
-            // #ifndef ONEDAL_DATA_PARALLEL
-            //             memcpy(default_host_policy{}, recv_buf, recv_buf_backup.get_data(), size);
-            // #endif
-
-            // We have to copy memory after reduction, this cannot be performed
-            // asynchronously in the current implementation, so we return `nullptr`
-            // indicating that operation was performed synchronously
             return nullptr;
         }
     }
