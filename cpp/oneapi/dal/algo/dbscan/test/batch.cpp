@@ -234,7 +234,6 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
     std::int64_t min_observations = gold_dataset::get_min_observations();
 
     float_t ref_dbi = gold_dataset::get_expected_dbi();
-    // const auto r = gold_dataset::get_expected_responses().get_table(this->get_homogen_table_id());
 
     this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }

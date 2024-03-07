@@ -463,16 +463,19 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                                                    const bk::event_vector& deps) {
     using oneapi::dal::backend::operator+;
     ONEDAL_PROFILER_TASK(start_next_cluster, queue);
+
     ONEDAL_ASSERT(cores.get_dimension(0) > 0);
     ONEDAL_ASSERT(cores.get_dimension(0) == responses.get_dimension(0));
-    std::int64_t block_size = cores.get_dimension(0);
+    std::int64_t local_row_count = cores.get_dimension(0);
+    ONEDAL_ASSERT(local_row_count > 0);
 
     auto [start_index, start_index_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, { 1 }, block_size, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::full(queue, { 1 }, local_row_count, sycl::usm::alloc::device);
     auto start_index_ptr = start_index.get_mutable_data();
 
     const std::int32_t* cores_ptr = cores.get_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
+
     const std::int64_t wg_size = get_recommended_wg_size(queue);
     auto full_deps = deps + bk::event_vector{ start_index_event };
     auto index_event = queue.submit([&](sycl::handler& cgh) {
@@ -487,16 +490,17 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                 const std::int32_t local_id = sg.get_local_id();
                 const std::int32_t local_size = sg.get_local_range()[0];
                 std::int32_t adjusted_block_size =
-                    local_size * (block_size / local_size + bool(block_size % local_size));
+                    local_size *
+                    (local_row_count / local_size + bool(local_row_count % local_size));
 
                 for (std::int32_t i = local_id; i < adjusted_block_size; i += local_size) {
                     const bool found =
-                        i < block_size ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
+                        i < local_row_count ? cores_ptr[i] == 1 && responses_ptr[i] < 0 : false;
                     const std::int32_t index =
                         sycl::reduce_over_group(sg,
-                                                (std::int32_t)(found ? i : block_size),
+                                                (std::int32_t)(found ? i : local_row_count),
                                                 sycl::ext::oneapi::minimum<std::int32_t>());
-                    if (index < block_size) {
+                    if (index < local_row_count) {
                         if (local_id == 0) {
                             *start_index_ptr = index;
                         }
@@ -514,7 +518,9 @@ sycl::event set_init_index(sycl::queue& queue,
                            bool value,
                            const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(set_init_index, queue);
+
     auto observation_indices_ptr = observation_indices.get_mutable_data();
+
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
@@ -529,7 +535,9 @@ sycl::event set_arr_value(sycl::queue& queue,
                           std::int32_t value,
                           const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(set_arr_value, queue);
+
     auto arr_ptr = arr.get_mutable_data();
+
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
@@ -538,7 +546,6 @@ sycl::event set_arr_value(sycl::queue& queue,
     });
 }
 
-//todo: add potential optimizations
 template <typename Float>
 sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& data,
@@ -548,13 +555,17 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   std::int64_t block_start,
                                                   const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(fill_current_queue, queue);
+
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
+    ONEDAL_ASSERT(column_count > 0);
+
     bool* indices_host_ptr = indices.get_mutable_data();
     const Float* data_host_ptr = data.get_data();
     std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
+
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_row_count, 1);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -589,11 +600,13 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             std::int32_t cluster_id,
                                             const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(update_queue, queue);
-    const auto row_count = data.get_dimension(0);
 
+    const auto local_row_count = data.get_dimension(0);
+    ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
-
+    ONEDAL_ASSERT(column_count > 0);
     const std::int32_t queue_size = current_queue.get_dimension(0);
+    ONEDAL_ASSERT(queue_size >= 0);
 
     const Float* data_ptr = data.get_data();
     std::int32_t* cores_ptr = cores.get_mutable_data();
@@ -613,14 +626,14 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
         cgh.depends_on(fill_event);
         const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
         cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+            bk::make_multiple_nd_range_2d({ wg_size, local_row_count }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
                 const std::uint32_t sg_id = sg.get_group_id()[0];
                 if (sg_id > 0)
                     return;
                 const std::uint32_t wg_id = item.get_global_id(1);
-                if (wg_id >= row_count)
+                if (wg_id >= local_row_count)
                     return;
                 const std::uint32_t local_id = sg.get_local_id();
                 const std::uint32_t local_size = sg.get_local_range()[0];
