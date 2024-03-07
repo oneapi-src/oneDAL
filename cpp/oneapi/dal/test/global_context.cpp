@@ -78,7 +78,7 @@ void registers_to_vendor_id(const cpuid_registers& registers, char* buffer) {
 ///
 /// @return CPU vendor ID
 detail::cpu_vendor get_vendor() {
-#if defined(__x86_64__)
+#if defined(TARGET_X86_64)
     /// Calls CPUID with EAX == 0 to retrieve CPU vendor
     cpuid_registers registers;
     cpuid(0, registers);
@@ -95,7 +95,7 @@ detail::cpu_vendor get_vendor() {
     else {
         return detail::cpu_vendor::unknown;
     }
-#elif defined(__ARM_ARCH)
+#elif defined(TARGET_ARM)
     /// ARM architecture
     return detail::cpu_vendor::arm;
 #endif
@@ -106,8 +106,8 @@ detail::cpu_vendor get_vendor() {
 /// @return CPU extensions
 detail::cpu_extension get_cpu_extensions() {
     detail::cpu_extension ext = detail::cpu_extension::none;
-#if defined(__x86_64__)
-    /// Calls CPUID with EAX == 0 to retrieve CPU vendor
+#if defined(TARGET_X86_64)
+    /// Calls CPUID with EAX == 0 to retrieve the number of supported CPUID subfunctions
     cpuid_registers registers;
     cpuid(0, registers);
     const uint32_t ids_count = registers.eax_;
@@ -129,6 +129,8 @@ detail::cpu_extension get_cpu_extensions() {
             ext = detail::cpu_extension::avx512;
         }
     }
+#elif defined(TARGET_ARM)
+    ext = detail::cpu_extension::sve;
 #endif
     return ext;
 }
@@ -140,7 +142,7 @@ TEST("can create default CPU info") {
     std::cout << "SYSTEM CPU INFO DUMP:" << std::endl;
     std::cout << gc.get_cpu_info().dump() << std::endl;
     REQUIRE(get_cpu_extensions() == gc.get_cpu_info().get_cpu_extensions());
-    REQUIRE(detail::cpu_vendor::intel == gc.get_cpu_info().get_cpu_vendor());
+    REQUIRE(get_vendor() == gc.get_cpu_info().get_cpu_vendor());
 }
 
 } // namespace oneapi::dal::detail::test

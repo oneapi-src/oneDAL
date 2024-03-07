@@ -20,26 +20,30 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 std::string to_string(cpu_vendor vendor) {
+    std::string vendor_str;
     switch (vendor) {
-        case cpu_vendor::unknown: return std::string("unknown");
-        case cpu_vendor::intel: return std::string("intel");
-        case cpu_vendor::amd: return std::string("amd");
-        case cpu_vendor::arm: return std::string("arm");
-        default: break; /// error handling
+        case cpu_vendor::unknown: vendor_str = std::string("Unknown"); break;
+        case cpu_vendor::intel: vendor_str = std::string("Intel"); break;
+        case cpu_vendor::amd: vendor_str = std::string("AMD"); break;
+        case cpu_vendor::arm: vendor_str = std::string("ARM"); break;
     }
-    return std::string();
+    return vendor_str;
 }
 
 std::string to_string(cpu_extension extension) {
+    std::string extension_str;
     switch (extension) {
-        case cpu_extension::none: return std::string("none");
-        case cpu_extension::sse2: return std::string("sse2");
-        case cpu_extension::sse42: return std::string("sse42");
-        case cpu_extension::avx2: return std::string("avx2");
-        case cpu_extension::avx512: return std::string("avx512");
-        default: break; /// error handling
+        case cpu_extension::none: extension_str = std::string("none"); break;
+#if defined(TARGET_X86_64)
+        case cpu_extension::sse2: extension_str = std::string("sse2"); break;
+        case cpu_extension::sse42: extension_str = std::string("sse42"); break;
+        case cpu_extension::avx2: extension_str = std::string("avx2"); break;
+        case cpu_extension::avx512: extension_str = std::string("avx512"); break;
+#elif defined(TARGET_ARM)
+        case cpu_extension::sve: extension_str = std::string("sve"); break;
+#endif
     }
-    return std::string();
+    return extension_str;
 }
 
 } // namespace v1

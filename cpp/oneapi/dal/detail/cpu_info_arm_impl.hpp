@@ -29,16 +29,16 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class cpu_info_x86 : public cpu_info_iface {
+class cpu_info_arm : public cpu_info_iface {
 public:
-    cpu_info_x86() {
-        info_["cpu_extensions"] = detect_top_cpu_extension();
-        info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
+    cpu_info_arm() {
+        info_["cpu_extensions"] = cpu_extension::sve;
+        info_["vendor"] = cpu_vendor::arm);
     }
 
-    cpu_info_x86(const cpu_extension cpu_extension) {
+    cpu_info_arm(const cpu_extension cpu_extension) {
         info_["cpu_extensions"] = cpu_extension;
-        info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
+        info_["vendor"] = cpu_vendor::arm);
     }
 
     cpu_vendor get_cpu_vendor() const override {

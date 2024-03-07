@@ -30,10 +30,14 @@ std::string to_string(cpu_extension extension);
 
 class cpu_info_iface {
 public:
-    ///
+    /// The CPU vendor
     virtual cpu_vendor get_cpu_vendor() const = 0;
+
+    /// The highest supported CPU extension
     virtual cpu_extension get_cpu_extensions() const = 0;
 
+    /// The dump of all supported CPU features in the format:
+    /// feature 1: value1; feature2: value2; ...
     virtual std::string dump() const = 0;
 
     virtual ~cpu_info_iface() {}
