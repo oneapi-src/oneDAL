@@ -21,7 +21,6 @@ namespace oneapi::dal::decision_forest::parameters {
 
 using dal::backend::context_gpu;
 
-// TODO: Is it correct to use method::by_default here?
 template <typename Float, typename Task>
 struct infer_parameters_gpu<Float, method::by_default, Task> {
     using params_t = detail::infer_parameters<Task>;

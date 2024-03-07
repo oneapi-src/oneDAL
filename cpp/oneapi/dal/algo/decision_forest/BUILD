@@ -5,11 +5,27 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "decision_forest",
+    name = "core",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/algo:decision_tree",
+    ],
+)
+
+dal_module(
+    name = "parameters",
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo/covariance/parameters",
+    ],
+)
+
+dal_module(
+    name = "decision_forest",
+    dal_deps = [
+        ":core",
+        ":parameters",
+        "@onedal//cpp/oneapi/dal/algo/decision_forest/detail",
+        "@onedal//cpp/oneapi/dal/algo/decision_forest/backend",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:sort",
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",
@@ -30,6 +46,8 @@ dal_test_suite(
         "test/*.cpp",
     ]),
     dal_deps = [
+        ":core",
+        ":parameters",
         ":decision_forest",
     ],
 )
@@ -37,6 +55,9 @@ dal_test_suite(
 dal_test_suite(
     name = "tests",
     tests = [
+        ":core",
+        ":parameters",
+        ":decision_forest",
         ":interface_tests",
     ],
 )

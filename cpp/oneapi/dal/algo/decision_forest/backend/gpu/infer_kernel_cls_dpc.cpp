@@ -23,6 +23,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
+using param_t = detail::infer_parameters<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 template <typename Float>
@@ -41,10 +42,15 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 
 template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::classification> {
+    result_t operator()(context_gpu& ctx, const descriptor_t& desc, const input_t& input) const {
+        return infer<Float>(ctx, desc, input);
+    }
+
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
-        return infer<Float>(ctx, desc, input);
+        return operator()<Float>(ctx, desc, input);
     }
 };
 

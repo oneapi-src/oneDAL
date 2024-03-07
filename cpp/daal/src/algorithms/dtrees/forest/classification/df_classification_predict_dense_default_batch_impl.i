@@ -162,20 +162,20 @@ public:
     Status run(services::HostAppIface * pHostApp);
 
 protected:
-    void predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x, algorithmFPType * const resPtr,
-                        const size_t nTreesTotal);
+    Status predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x, algorithmFPType * const resPtr,
+                          const size_t nTreesTotal);
 
-    void predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x, double * const prob,
-                                         const size_t nTreesTotal);
+    Status predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x, double * const prob,
+                                           const size_t nTreesTotal);
 
-    void predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols, const featureIndexType * const tFI,
-                       const leftOrClassType * const tLC, const algorithmFPType * const tFV, algorithmFPType * const prob, const size_t iTree);
+    Status predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols, const featureIndexType * const tFI,
+                         const leftOrClassType * const tLC, const algorithmFPType * const tFV, algorithmFPType * const prob, const size_t iTree);
 
-    void predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols, const featureIndexType * const fi,
-                             const leftOrClassType * const lc, const algorithmFPType * const fv, algorithmFPType * const prob, const size_t iTree);
+    Status predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock, const size_t nCols, const featureIndexType * const fi,
+                               const leftOrClassType * const lc, const algorithmFPType * const fv, algorithmFPType * const prob, const size_t iTree);
 
-    void parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode, const size_t treeSize, const size_t nBlocks,
-                         const size_t nCols, const size_t blockSize, const size_t residualSize, algorithmFPType * const prob, const size_t iTree);
+    Status parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode, const size_t treeSize, const size_t nBlocks,
+                           const size_t nCols, const size_t blockSize, const size_t residualSize, algorithmFPType * const prob, const size_t iTree);
 
     Status predictByAllTrees(const size_t nTreesTotal, const DimType & dim);
 
@@ -196,10 +196,10 @@ protected:
         return services::internal::getMaxElementIndex<ClassIndexType, cpu>(counts, _nClasses);
     }
 
-    DAAL_FORCEINLINE void predictByTreeInternal(size_t check, const size_t blockSize, const size_t nCols, uint32_t * const currentNodes,
-                                                bool * const isSplits, const algorithmFPType * const x, const featureIndexType * const fi,
-                                                const leftOrClassType * const lc, const algorithmFPType * const fv, algorithmFPType * const resPtr,
-                                                const size_t iTree)
+    DAAL_FORCEINLINE Status predictByTreeInternal(size_t check, const size_t blockSize, const size_t nCols, uint32_t * const currentNodes,
+                                                  bool * const isSplits, const algorithmFPType * const x, const featureIndexType * const fi,
+                                                  const leftOrClassType * const lc, const algorithmFPType * const fv, algorithmFPType * const resPtr,
+                                                  const size_t iTree)
     {
         for (; check > 0;)
         {
@@ -217,6 +217,8 @@ protected:
         }
         const double * probas = _model->getProbas(iTree);
         fillResults<algorithmFPType, cpu>(_nClasses, _votingMethod, blockSize, probas, lc, currentNodes, resPtr);
+
+        return Status();
     }
 
 protected:
@@ -263,10 +265,10 @@ PredictKernel<algorithmFPType, method, cpu>::~PredictKernel()
 }
 
 template <typename algorithmFPType, prediction::Method method, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * const pHostApp, const NumericTable * const x,
-                                                                      const decision_forest::classification::Model * const m, NumericTable * const r,
-                                                                      NumericTable * const prob, const size_t nClasses,
-                                                                      const VotingMethod votingMethod, const HyperparameterType * hyperparameter)
+Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * const pHostApp, const NumericTable * const x,
+                                                            const decision_forest::classification::Model * const m, NumericTable * const r,
+                                                            NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod,
+                                                            const HyperparameterType * hyperparameter)
 {
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
@@ -276,7 +278,7 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
     if (hyperparameter != nullptr)
     {
         DAAL_INT64 blockSizeValue = 0l;
-        services::Status st       = hyperparameter->find(blockSize, blockSizeValue);
+        Status st                 = hyperparameter->find(blockSize, blockSizeValue);
         DAAL_CHECK(0l < blockSizeValue, services::ErrorIncorrectDataRange);
         DAAL_CHECK_STATUS_VAR(st);
 
@@ -307,8 +309,8 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x,
-                                                                     algorithmFPType * const resPtr, const size_t nTreesTotal)
+Status PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_t iFirstTree, const size_t nTrees, const algorithmFPType * const x,
+                                                                       algorithmFPType * const resPtr, const size_t nTreesTotal)
 {
     const size_t iLastTree = iFirstTree + nTrees;
     for (size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
@@ -316,7 +318,7 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_
         const dtrees::internal::DecisionTreeNode * const pNode =
             dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(*_aTree[iTree], _featHelper, x);
 
-        DAAL_ASSERT(pNode);
+        DAAL_CHECK_MALLOC(pNode);
         const dtrees::internal::DecisionTreeNode * const top = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
         const size_t idx                                     = pNode - top;
         const double * const probas                          = _model->getProbas(iTree);
@@ -354,20 +356,22 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(const size_
             }
         }
     }
+
+    return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees,
-                                                                                      const algorithmFPType * const x, double * const resPtr,
-                                                                                      const size_t nTreesTotal)
+Status PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConversion(const size_t iFirstTree, const size_t nTrees,
+                                                                                        const algorithmFPType * const x, double * const resPtr,
+                                                                                        const size_t nTreesTotal)
 {
-    DAAL_ASSERT(resPtr);
+    DAAL_CHECK_MALLOC(resPtr);
     const size_t iLastTree = iFirstTree + nTrees;
     for (size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
     {
         const dtrees::internal::DecisionTreeNode * const pNode =
             dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(*_aTree[iTree], _featHelper, x);
-        DAAL_ASSERT(pNode);
+        DAAL_CHECK_MALLOC(pNode);
         const dtrees::internal::DecisionTreeNode * const top = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
         const size_t idx                                     = pNode - top;
         const double * probas                                = nullptr;
@@ -415,13 +419,15 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConve
             }
         }
     }
+
+    return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode,
-                                                                      const size_t treeSize, const size_t nBlocks, const size_t nCols,
-                                                                      const size_t blockSize, const size_t residualSize, algorithmFPType * const prob,
-                                                                      const size_t iTree)
+Status PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algorithmFPType * const aX, const DecisionTreeNode * const aNode,
+                                                                        const size_t treeSize, const size_t nBlocks, const size_t nCols,
+                                                                        const size_t blockSize, const size_t residualSize,
+                                                                        algorithmFPType * const prob, const size_t iTree)
 {
     services::internal::TArray<featureIndexType, cpu> tFI(treeSize);
     services::internal::TArray<leftOrClassType, cpu> tLC(treeSize);
@@ -430,6 +436,8 @@ void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algo
     featureIndexType * const fi = tFI.get();
     leftOrClassType * const lc  = tLC.get();
     algorithmFPType * const fv  = tFV.get();
+
+    SafeStatus safeStat;
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
@@ -440,20 +448,22 @@ void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algo
         fv[i] = (algorithmFPType)aNode[i].featureValueOrResponse;
     }
     daal::threader_for(nBlocks, nBlocks, [&, nCols](const size_t iBlock) {
-        predictByTree(aX + iBlock * blockSize * nCols, blockSize, nCols, fi, lc, fv, prob + iBlock * blockSize * _nClasses, iTree);
+        safeStat |= predictByTree(aX + iBlock * blockSize * nCols, blockSize, nCols, fi, lc, fv, prob + iBlock * blockSize * _nClasses, iTree);
     });
 
     if (residualSize != 0)
     {
-        predictByTree(aX + nBlocks * blockSize * nCols, residualSize, nCols, fi, lc, fv, prob + nBlocks * blockSize * _nClasses, iTree);
+        return predictByTree(aX + nBlocks * blockSize * nCols, residualSize, nCols, fi, lc, fv, prob + nBlocks * blockSize * _nClasses, iTree);
     }
+
+    return safeStat.detach();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock,
-                                                                          const size_t nCols, const featureIndexType * const fi,
-                                                                          const leftOrClassType * const lc, const algorithmFPType * const fv,
-                                                                          algorithmFPType * const prob, const size_t iTree)
+Status PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const algorithmFPType * const x, const size_t sizeOfBlock,
+                                                                            const size_t nCols, const featureIndexType * const fi,
+                                                                            const leftOrClassType * const lc, const algorithmFPType * const fv,
+                                                                            algorithmFPType * const prob, const size_t iTree)
 {
     size_t check = 0;
     check        = fi[0] != -1;
@@ -461,11 +471,13 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const 
     /* done for unrollig */
     if (sizeOfBlock == _blockSize)
     {
-        uint32_t currentNodes[_blockSize];
-        bool isSplits[_blockSize];
-        services::internal::service_memset_seq<uint32_t, cpu>(currentNodes, uint32_t(0), _blockSize);
-        services::internal::service_memset_seq<bool, cpu>(isSplits, bool(1), _blockSize);
-        predictByTreeInternal(check, _blockSize, nCols, currentNodes, isSplits, x, fi, lc, fv, prob, iTree);
+        TArray<uint32_t, cpu> currentNodes(_blockSize);
+        TArray<bool, cpu> isSplits(_blockSize);
+        DAAL_CHECK_MALLOC(currentNodes.get());
+        DAAL_CHECK_MALLOC(isSplits.get());
+        services::internal::service_memset_seq<uint32_t, cpu>(currentNodes.get(), uint32_t(0), _blockSize);
+        services::internal::service_memset_seq<bool, cpu>(isSplits.get(), bool(1), _blockSize);
+        return predictByTreeInternal(check, _blockSize, nCols, currentNodes.get(), isSplits.get(), x, fi, lc, fv, prob, iTree);
     }
     else
     {
@@ -477,28 +489,31 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreeCommon(const 
         {
             services::internal::service_memset_seq<uint32_t, cpu>(currentNodes, uint32_t(0), sizeOfBlock);
             services::internal::service_memset_seq<bool, cpu>(isSplits, bool(1), sizeOfBlock);
-            predictByTreeInternal(check, sizeOfBlock, nCols, currentNodes, isSplits, x, fi, lc, fv, prob, iTree);
+            return predictByTreeInternal(check, sizeOfBlock, nCols, currentNodes, isSplits, x, fi, lc, fv, prob, iTree);
         }
     }
+
+    return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-DAAL_FORCEINLINE void PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock,
-                                                                                     const size_t nCols, const featureIndexType * const tFI,
-                                                                                     const leftOrClassType * const tLC,
-                                                                                     const algorithmFPType * const tFV, algorithmFPType * const prob,
-                                                                                     const size_t iTree)
+DAAL_FORCEINLINE Status PredictClassificationTask<algorithmFPType, cpu>::predictByTree(const algorithmFPType * const x, const size_t sizeOfBlock,
+                                                                                       const size_t nCols, const featureIndexType * const tFI,
+                                                                                       const leftOrClassType * const tLC,
+                                                                                       const algorithmFPType * const tFV,
+                                                                                       algorithmFPType * const prob, const size_t iTree)
 {
-    predictByTreeCommon(x, sizeOfBlock, nCols, tFI, tLC, tFV, prob, iTree);
+    return predictByTreeCommon(x, sizeOfBlock, nCols, tFI, tLC, tFV, prob, iTree);
 }
 
 #if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <>
-DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(const float * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                                              const featureIndexType * const feat_idx,
-                                                                              const leftOrClassType * const left_son, const float * const split_point,
-                                                                              float * const resPtr, const size_t iTree)
+DAAL_FORCEINLINE Status PredictClassificationTask<float, avx512>::predictByTree(const float * const x, const size_t sizeOfBlock, const size_t nCols,
+                                                                                const featureIndexType * const feat_idx,
+                                                                                const leftOrClassType * const left_son,
+                                                                                const float * const split_point, float * const resPtr,
+                                                                                const size_t iTree)
 {
     if (sizeOfBlock == _blockSize)
     {
@@ -545,20 +560,20 @@ DAAL_FORCEINLINE void PredictClassificationTask<float, avx512>::predictByTree(co
         }
         const double * probas = _model->getProbas(iTree);
 
-        fillResults<float, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
+        return fillResults<float, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
     }
     else
     {
-        predictByTreeCommon(x, sizeOfBlock, nCols, feat_idx, left_son, split_point, resPtr, iTree);
+        return predictByTreeCommon(x, sizeOfBlock, nCols, feat_idx, left_son, split_point, resPtr, iTree);
     }
 }
 
 template <>
-DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(const double * const x, const size_t sizeOfBlock, const size_t nCols,
-                                                                               const featureIndexType * const feat_idx,
-                                                                               const leftOrClassType * const left_son,
-                                                                               const double * const split_point, double * const resPtr,
-                                                                               const size_t iTree)
+DAAL_FORCEINLINE Status PredictClassificationTask<double, avx512>::predictByTree(const double * const x, const size_t sizeOfBlock, const size_t nCols,
+                                                                                 const featureIndexType * const feat_idx,
+                                                                                 const leftOrClassType * const left_son,
+                                                                                 const double * const split_point, double * const resPtr,
+                                                                                 const size_t iTree)
 {
     if (sizeOfBlock == _blockSize)
     {
@@ -601,11 +616,11 @@ DAAL_FORCEINLINE void PredictClassificationTask<double, avx512>::predictByTree(c
 
         const double * probas = _model->getProbas(iTree);
 
-        fillResults<double, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
+        return fillResults<double, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
     }
     else
     {
-        predictByTreeCommon(x, sizeOfBlock, nCols, feat_idx, left_son, split_point, resPtr, iTree);
+        return predictByTreeCommon(x, sizeOfBlock, nCols, feat_idx, left_son, split_point, resPtr, iTree);
     }
 }
 #endif
@@ -1201,7 +1216,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
 
     const size_t nThreads = daal::threader_get_threads_number();
     daal::SafeStatus safeStat;
-    services::Status s;
+    Status s;
     HostAppHelper host(pHostApp, 100);
     for (size_t iTree = 0; iTree < nTreesTotal; iTree += dim.nTreesInBlock)
     {
@@ -1260,7 +1275,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
                     for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)
                     {
                         algorithmFPType * countsForTheRow = counts + iRow * _nClasses;
-                        predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, countsForTheRow, nTreesTotal);
+                        safeStat |= predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, countsForTheRow, nTreesTotal);
                         if (bLastGroup)
                             //find winning class now
                             res[iRow] = algorithmFPType(getMaxClass(countsForTheRow));
@@ -1270,7 +1285,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
                 {
                     daal::threader_for(nRowsToProcess, nRowsToProcess, [&](size_t iRow) {
                         algorithmFPType * countsForTheRow = counts + iRow * _nClasses;
-                        predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, countsForTheRow, nTreesTotal);
+                        safeStat |= predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, countsForTheRow, nTreesTotal);
                         if (bLastGroup)
                             //find winning class now
                             res[iRow] = algorithmFPType(getMaxClass(countsForTheRow));
