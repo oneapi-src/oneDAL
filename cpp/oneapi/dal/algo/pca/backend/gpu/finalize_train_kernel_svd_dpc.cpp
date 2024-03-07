@@ -16,15 +16,12 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/finalize_train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
-
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-
 namespace oneapi::dal::pca::backend {
 
 namespace bk = dal::backend;
@@ -32,6 +29,7 @@ namespace pr = oneapi::dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
+using model_t = model<task::dim_reduction>;
 using task_t = task::dim_reduction;
 using input_t = partial_train_result<task_t>;
 using result_t = train_result<task_t>;
