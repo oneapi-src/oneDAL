@@ -15,25 +15,21 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/covariance/backend/gpu/finalize_compute_kernel.hpp"
-<<<<<<< HEAD
-#include "oneapi/dal/algo/covariance/backend/gpu/finalize_compute_kernel_dense_impl.hpp"
-=======
 
->>>>>>> parent of 1373db484 (feature: adding svd(GPU) support + removing code duplications in Cov/PcaCov (#2618))
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/detail/common.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::covariance::backend {
 
+namespace bk = dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
+using alloc = sycl::usm::alloc;
 
-using method_t = method::dense;
+using bk::context_gpu;
 using task_t = task::compute;
 using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
@@ -138,7 +134,7 @@ static compute_result<Task> finalize_compute(const context_gpu& ctx,
     }
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q, sums, rows_count_global);
-        result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
+        result.set_means(homogen_table::wrap(means.flatten(q), 1, column_count));
     }
     return result;
 }
