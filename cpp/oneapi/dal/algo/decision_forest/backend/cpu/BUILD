@@ -13,6 +13,6 @@ dal_module(
     ],
     extra_deps = [
         "@onedal//cpp/daal:core",
-        "@onedal//cpp/daal/src/algorithms/decision_forest:kernel",
+        "@onedal//cpp/daal/src/algorithms/decision_tree:kernel",
     ],
 )

@@ -560,7 +560,8 @@ DAAL_FORCEINLINE Status PredictClassificationTask<float, avx512>::predictByTree(
         }
         const double * probas = _model->getProbas(iTree);
 
-        return fillResults<float, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
+        fillResults<float, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
+        return Status();
     }
     else
     {
@@ -616,7 +617,8 @@ DAAL_FORCEINLINE Status PredictClassificationTask<double, avx512>::predictByTree
 
         const double * probas = _model->getProbas(iTree);
 
-        return fillResults<double, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
+        fillResults<double, avx512>(_nClasses, _votingMethod, _blockSize, probas, left_son, idx, resPtr);
+        return Status();
     }
     else
     {

@@ -6,6 +6,7 @@ load("@onedal//dev/bazel:dal.bzl",
 
 dal_module(
     name = "backend",
+    auto=True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo/decision_forest/backend/cpu",
         "@onedal//cpp/oneapi/dal/algo/decision_forest/backend/gpu",

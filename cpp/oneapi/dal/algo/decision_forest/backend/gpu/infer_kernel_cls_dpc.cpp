@@ -50,7 +50,7 @@ struct infer_kernel_gpu<Float, method::by_default, task::classification> {
                         const descriptor_t& desc,
                         const param_t& params,
                         const input_t& input) const {
-        return operator()<Float>(ctx, desc, input);
+        return infer<Float>(ctx, desc, input);
     }
 };
 

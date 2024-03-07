@@ -23,6 +23,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::regression>;
 using input_t = infer_input<task::regression>;
 using result_t = infer_result<task::regression>;
+using param_t = detail::infer_parameters<task::classification>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
 template <typename Float>
@@ -49,7 +50,7 @@ struct infer_kernel_gpu<Float, method::by_default, task::regression> {
                         const descriptor_t& desc,
                         const param_t& infer_params,
                         const input_t& input) const {
-        return operator()<Float>(ctx, desc, input);
+        return infer<Float>(ctx, desc, input);
     }
 };
 
