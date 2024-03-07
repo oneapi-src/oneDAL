@@ -142,26 +142,11 @@ private:
 
 class thread_communicator_bcast {
 public:
-#ifdef ONEDAL_DATA_PARALLEL
-    explicit thread_communicator_bcast(thread_communicator_context& ctx, sycl::queue& queue)
-            : ctx_(ctx),
-              barrier_(ctx),
-              source_count_(0),
-              source_buf_(nullptr),
-              queue_(queue) {}
-#else
     explicit thread_communicator_bcast(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               source_count_(0),
               source_buf_(nullptr) {}
-#endif
-    auto get_policy() const {
-#ifdef ONEDAL_DATA_PARALLEL
-        return dal::detail::data_parallel_policy{ queue_ };
-#else
-        return dal::detail::default_host_policy{};
-#endif
     }
     void operator()(byte_t* send_buf,
                     std::int64_t count,
@@ -173,9 +158,6 @@ private:
     thread_communicator_barrier barrier_;
     std::int64_t source_count_;
     byte_t* source_buf_;
-#ifdef ONEDAL_DATA_PARALLEL
-    sycl::queue& queue_;
-#endif
 };
 
 class thread_communicator_gather {
@@ -206,24 +188,11 @@ public:
         const byte_t* buf = nullptr;
         std::int64_t count = 0;
     };
-#ifdef ONEDAL_DATA_PARALLEL
-    explicit thread_communicator_allgatherv(thread_communicator_context& ctx, sycl::queue& queue)
-            : ctx_(ctx),
-              barrier_(ctx),
-              send_buffers_(ctx_.get_thread_count()),
-              queue_(queue) {}
-#else
+
     explicit thread_communicator_allgatherv(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
-#endif
-    auto get_policy() const {
-#ifdef ONEDAL_DATA_PARALLEL
-        return dal::detail::data_parallel_policy{ queue_ };
-#else
-        return dal::detail::default_host_policy{};
-#endif
     }
 
     void operator()(const byte_t* send_buf,
@@ -237,9 +206,6 @@ private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::vector<buffer_info> send_buffers_;
-#ifdef ONEDAL_DATA_PARALLEL
-    sycl::queue& queue_;
-#endif
 };
 
 class thread_communicator_sendrecv_replace {
@@ -248,25 +214,11 @@ public:
         byte_t* buf = nullptr;
         std::int64_t count = 0;
     };
-#ifdef ONEDAL_DATA_PARALLEL
-    explicit thread_communicator_sendrecv_replace(thread_communicator_context& ctx,
-                                                  sycl::queue& queue)
-            : ctx_(ctx),
-              barrier_(ctx),
-              send_buffers_(ctx_.get_thread_count()),
-              queue_(queue) {}
-#else
+
     explicit thread_communicator_sendrecv_replace(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
-#endif
-    auto get_policy() const {
-#ifdef ONEDAL_DATA_PARALLEL
-        return dal::detail::data_parallel_policy{ queue_ };
-#else
-        return dal::detail::default_host_policy{};
-#endif
     }
 
     void operator()(byte_t* buf,
@@ -279,9 +231,6 @@ private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::vector<buffer_info> send_buffers_;
-#ifdef ONEDAL_DATA_PARALLEL
-    sycl::queue& queue_;
-#endif
 };
 
 class thread_communicator_allreduce {
@@ -291,25 +240,10 @@ public:
         std::int64_t count = 0;
     };
 
-#ifdef ONEDAL_DATA_PARALLEL
-    explicit thread_communicator_allreduce(thread_communicator_context& ctx, sycl::queue& queue)
-            : ctx_(ctx),
-              barrier_(ctx),
-              send_buffers_(ctx_.get_thread_count()),
-              queue_(queue) {}
-#else
     explicit thread_communicator_allreduce(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
-#endif
-    auto get_policy() const {
-#ifdef ONEDAL_DATA_PARALLEL
-        return dal::detail::data_parallel_policy{ queue_ };
-#else
-        return dal::detail::default_host_policy{};
-#endif
-    }
 
     void operator()(const byte_t* send_buf,
                     byte_t* recv_buf,
@@ -321,9 +255,6 @@ private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::vector<buffer_info> send_buffers_;
-#ifdef ONEDAL_DATA_PARALLEL
-    sycl::queue& queue_;
-#endif
 
     static void reduce(const byte_t* src,
                        byte_t* dst,
@@ -429,11 +360,11 @@ public:
             : base_t(queue),
               ctx_(thread_count),
               barrier_(ctx_),
-              bcast_(ctx_, queue),
+              bcast_(ctx_),
               gather_(ctx_),
-              allgatherv_(ctx_, queue),
-              sendrecv_replace_(ctx_, queue),
-              allreduce_(ctx_, queue),
+              allgatherv_(ctx_),
+              sendrecv_replace_(ctx_),
+              allreduce_(ctx_),
               allgather_(ctx_) {}
 #endif
 
