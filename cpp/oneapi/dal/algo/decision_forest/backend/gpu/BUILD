@@ -8,10 +8,6 @@ dal_module(
     name = "gpu",
     auto = True,
     dal_deps = [
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
-        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
-        "@onedal//cpp/oneapi/dal/backend/primitives:stat",
-        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
         "@onedal//cpp/oneapi/dal/algo/decision_forest:core",
     ],
     extra_deps = [

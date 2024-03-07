@@ -46,8 +46,6 @@ dal_test_suite(
         "test/*.cpp",
     ]),
     dal_deps = [
-        ":core",
-        ":parameters",
         ":decision_forest",
     ],
 )
@@ -55,9 +53,6 @@ dal_test_suite(
 dal_test_suite(
     name = "tests",
     tests = [
-        ":core",
-        ":parameters",
-        ":decision_forest",
         ":interface_tests",
     ],
 )
