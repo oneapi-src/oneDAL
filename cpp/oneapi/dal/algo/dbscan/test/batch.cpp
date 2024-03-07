@@ -15,19 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/dbscan/test/fixture.hpp"
-/*
-#include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/test/engine/metrics/clustering.hpp"
-*/
+
 namespace oneapi::dal::dbscan::test {
 
 template <typename TestType>
 class dbscan_batch_test : public dbscan_test<TestType, dbscan_batch_test<TestType>> {};
 
-using dbscan_types = COMBINE_TYPES((float), (dbscan::method::brute_force));
+using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "dbscan compute mode check",
@@ -213,14 +207,44 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+                     "dbscan gold data clusters test",
+                     "[dbscan][batch]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto x = gold_dataset::get_data().get_table(this->get_homogen_table_id());
+
+    double epsilon = gold_dataset::get_epsilon();
+    std::int64_t min_observations = gold_dataset::get_min_observations();
+
+    const auto r = gold_dataset::get_expected_responses().get_table(this->get_homogen_table_id());
+
+    this->run_checks(x, table{}, epsilon, min_observations, r);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+                     "dbscan gold data dbi test",
+                     "[dbscan][batch]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using float_t = std::tuple_element_t<0, TestType>;
+    const auto x = gold_dataset::get_data().get_table(this->get_homogen_table_id());
+
+    double epsilon = gold_dataset::get_epsilon();
+    std::int64_t min_observations = gold_dataset::get_min_observations();
+
+    float_t ref_dbi = gold_dataset::get_expected_dbi();
+    // const auto r = gold_dataset::get_expected_responses().get_table(this->get_homogen_table_id());
+
+    this->dbi_determenistic_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "mnist: samples=10K, epsilon=1.7e3, min_observations=3",
                      "[dbscan][nightly][batch][external-dataset]",
                      dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = std::tuple_element_t<0, TestType>;
-    constexpr bool is_double = std::is_same_v<float_t, double>;
-    // Skipped due to known issue
-    SKIP_IF(is_double);
 
     const te::dataframe data =
         te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();

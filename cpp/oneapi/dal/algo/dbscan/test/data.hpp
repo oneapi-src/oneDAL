@@ -153,26 +153,31 @@ public:
         return te::dataframe{ data.data(), row_count, column_count };
     }
 
+    //these responses have been updated via scikit-learn.
+    //Previous result was incorrect on oneDAL side as well.
     static te::dataframe get_expected_responses() {
         static std::array<float, row_count> data = {
-            1, 0, 2, 2, 1, 2, 0, 0, 1, 0, 1, 1, 2, 2, 2, 2, 2, 1, 1, 0, 2, 2, 2, 2, 0,
-            2, 1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 1, 2, 1, 1, 0, 2, 2, 1, 2, 2, 0, 1, 2, 1,
-            0, 2, 2, 1, 2, 2, 0, 1, 0, 0, 1, 1, 2, 1, 2, 1, 2, 1, 2, 0, 0, 1, 2, 1, 0,
-            2, 1, 1, 2, 2, 2, 0, 1, 1, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 2, 0,
+            0,  -1, 1,  1,  -1, 1, -1, -1, 0,  2,  -1, 0,  -1, -1, 1,  1,  1,  0,  0,  -1,
+            1,  1,  1,  1,  3,  1, 0,  2,  1,  0,  0,  2,  1,  2,  -1, -1, -1, 1,  0,  -1,
+            3,  1,  -1, 0,  -1, 1, -1, 0,  1,  0,  3,  1,  1,  0,  1,  1,  -1, 0,  -1, 3,
+            -1, -1, 1,  -1, 1,  0, -1, 0,  1,  -1, 3,  -1, -1, -1, -1, 1,  0,  0,  1,  1,
+            1,  3,  -1, -1, 1,  3, -1, 1,  -1, 1,  1,  1,  1,  1,  -1, 1,  3,  -1, 1,  3,
         };
         return te::dataframe{ data.data(), row_count, 1 };
     }
 
     static double get_expected_dbi() {
-        return 241.3593613;
+        return 0.8075699709;
     }
 
 private:
     static constexpr std::int64_t row_count = 100;
     static constexpr std::int64_t column_count = 3;
-    static constexpr std::int64_t cluster_count = 3;
-    static constexpr double epsilon = 0.5;
-    static constexpr std::int64_t min_observations = 5;
+    //These values have been updated to create more
+    //more representative test case
+    static constexpr std::int64_t cluster_count = 4;
+    static constexpr double epsilon = 0.75;
+    static constexpr std::int64_t min_observations = 4;
 };
 
 } // namespace oneapi::dal::dbscan::test

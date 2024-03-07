@@ -25,6 +25,8 @@
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
 
+#include "oneapi/dal/algo/dbscan/test/data.hpp"
+
 namespace oneapi::dal::dbscan::test {
 
 namespace te = dal::test::engine;

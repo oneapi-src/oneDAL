@@ -359,15 +359,46 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "dbscan gold data clusters test",
+                     "[dbscan][spmd]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    const auto x = gold_dataset::get_data().get_table(this->get_homogen_table_id());
+
+    double epsilon = gold_dataset::get_epsilon();
+    std::int64_t min_observations = gold_dataset::get_min_observations();
+
+    const auto r = gold_dataset::get_expected_responses().get_table(this->get_homogen_table_id());
+    this->set_rank_count(GENERATE(2, 4));
+    this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
+                     "dbscan gold data dbi test",
+                     "[dbscan][spmd]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+    using float_t = std::tuple_element_t<0, TestType>;
+    const auto x = gold_dataset::get_data().get_table(this->get_homogen_table_id());
+
+    double epsilon = gold_dataset::get_epsilon();
+    std::int64_t min_observations = gold_dataset::get_min_observations();
+
+    float_t ref_dbi = gold_dataset::get_expected_dbi();
+
+    this->set_rank_count(GENERATE(2, 4));
+    this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
                      "mnist: samples=10K, epsilon=1.7e3, min_observations=3",
                      "[dbscan][nightly][spmd][external-dataset]",
                      dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     using float_t = std::tuple_element_t<0, TestType>;
-    constexpr bool is_double = std::is_same_v<float_t, double>;
-    // Skipped due to known issue
-    SKIP_IF(is_double);
 
     const te::dataframe data =
         te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" }.build();

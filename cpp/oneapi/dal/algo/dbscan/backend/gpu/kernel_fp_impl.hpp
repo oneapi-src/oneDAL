@@ -508,12 +508,12 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
     return start_index.to_host(queue, { index_event }).at(0);
 }
 
-sycl::event set_indices_in_area(sycl::queue& queue,
-                                pr::ndview<bool, 1>& observation_indices,
-                                std::int32_t index,
-                                bool value,
-                                const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(set_indices_in_area, queue);
+sycl::event set_init_index(sycl::queue& queue,
+                           pr::ndview<bool, 1>& observation_indices,
+                           std::int32_t index,
+                           bool value,
+                           const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(set_init_index, queue);
     auto observation_indices_ptr = observation_indices.get_mutable_data();
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -551,7 +551,7 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
-    const bool* indices_host_ptr = indices.get_data();
+    bool* indices_host_ptr = indices.get_mutable_data();
     const Float* data_host_ptr = data.get_data();
     std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
     Float* current_queue_ptr = current_queue.get_mutable_data();
@@ -571,6 +571,7 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                     current_queue_ptr[block_start * column_count + cur_idx * column_count +
                                       col_idx] = data_host_ptr[row_id * column_count + col_idx];
                 }
+                indices_host_ptr[row_id] = false;
             }
         });
     });
@@ -603,8 +604,7 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
 
     auto fill_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(sycl::range<1>{ std::size_t(row_count) }, [=](sycl::id<1> idx) {
-            indices_cores_ptr[idx] = false;
+        cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
             queue_size_arr_ptr[0] = 0;
         });
     });

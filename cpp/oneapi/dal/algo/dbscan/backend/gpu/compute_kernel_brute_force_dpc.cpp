@@ -114,14 +114,15 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [queue_size, queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
+    //array storages the information about count of the local points in queue
     auto [local_queue_size_arr, local_queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
     sycl::event::wait({ cores_event,
                         neighbours_event,
                         responses_event,
                         observation_indices_event,
-                        local_queue_size_event,
-                        queue_size_event });
+                        queue_size_event,
+                        local_queue_size_event });
 
     auto get_cores_event = kernels_fp<Float>::get_cores(queue,
                                                         data_nd,
@@ -177,7 +178,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         if (in_range) {
             set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
                 .wait_and_throw();
-            set_indices_in_area(queue, observation_indices, cluster_index - local_offset, true)
+            set_init_index(queue, observation_indices, cluster_index - local_offset, true)
                 .wait_and_throw();
             local_queue_size++;
         }
@@ -210,22 +211,27 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                             { total_queue_size, column_count },
                                             0,
                                             sycl::usm::alloc::device);
-            current_queue_event.wait_and_throw();
 
             set_arr_value(queue, queue_size, 0, total_queue_size).wait_and_throw();
-            kernels_fp<Float>::fill_current_queue(queue,
-                                                  data_nd,
-                                                  observation_indices,
-                                                  current_queue,
-                                                  local_queue_size_arr,
-                                                  displs_ptr[current_rank],
-                                                  { current_queue_event })
-                .wait_and_throw();
-            set_arr_value(queue, local_queue_size_arr, 0, 0).wait_and_throw();
 
+            sycl::event fill_queue_event;
+
+            if (local_queue_size != 0) {
+                fill_queue_event = kernels_fp<Float>::fill_current_queue(queue,
+                                                                         data_nd,
+                                                                         observation_indices,
+                                                                         current_queue,
+                                                                         local_queue_size_arr,
+                                                                         displs_ptr[current_rank],
+                                                                         { current_queue_event });
+                set_arr_value(queue, local_queue_size_arr, 0, 0, { fill_queue_event })
+                    .wait_and_throw();
+            }
             {
                 ONEDAL_PROFILER_TASK(allreduce_xtx, queue);
-                comm.allreduce(current_queue.flatten(queue, {}), spmd::reduce_op::sum).wait();
+                comm.allreduce(current_queue.flatten(queue, { fill_queue_event }),
+                               spmd::reduce_op::sum)
+                    .wait();
             }
 
             kernels_fp<Float>::update_queue(queue,
@@ -236,7 +242,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                                             queue_size,
                                             observation_indices,
                                             epsilon,
-                                            cluster_count - 1)
+                                            cluster_count - 1,
+                                            { fill_queue_event })
                 .wait_and_throw();
 
             local_queue_size = kernels_fp<Float>::get_queue_size(queue, queue_size);

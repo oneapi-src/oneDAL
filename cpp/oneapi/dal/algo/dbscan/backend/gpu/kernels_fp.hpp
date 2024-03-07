@@ -105,11 +105,11 @@ sycl::event set_arr_value(sycl::queue& queue,
                           std::int32_t offset,
                           std::int32_t value,
                           const bk::event_vector& deps = {});
-sycl::event set_indices_in_area(sycl::queue& queue,
-                                pr::ndview<bool, 1>& arr,
-                                std::int32_t index,
-                                bool value,
-                                const bk::event_vector& deps = {});
+sycl::event set_init_index(sycl::queue& queue,
+                           pr::ndview<bool, 1>& arr,
+                           std::int32_t index,
+                           bool value,
+                           const bk::event_vector& deps = {});
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores);
 #endif
 
