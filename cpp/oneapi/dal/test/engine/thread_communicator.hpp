@@ -147,7 +147,7 @@ public:
               barrier_(ctx),
               source_count_(0),
               source_buf_(nullptr) {}
-    }
+
     void operator()(byte_t* send_buf,
                     std::int64_t count,
                     const data_type& dtype,
@@ -193,7 +193,6 @@ public:
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
-    }
 
     void operator()(const byte_t* send_buf,
                     std::int64_t send_count,
@@ -219,7 +218,6 @@ public:
             : ctx_(ctx),
               barrier_(ctx),
               send_buffers_(ctx_.get_thread_count()) {}
-    }
 
     void operator()(byte_t* buf,
                     std::int64_t count,
