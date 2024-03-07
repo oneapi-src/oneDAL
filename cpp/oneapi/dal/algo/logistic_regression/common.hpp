@@ -68,6 +68,7 @@ namespace detail {
 ONEDAL_EXPORT result_option_id get_intercept_id();
 ONEDAL_EXPORT result_option_id get_coefficients_id();
 ONEDAL_EXPORT result_option_id get_iterations_count_id();
+ONEDAL_EXPORT result_option_id get_inner_iterations_count_id();
 
 } // namespace detail
 
@@ -83,6 +84,9 @@ const inline result_option_id coefficients = detail::get_coefficients_id();
 
 /// Return the number of iterations made by optimizer
 const inline result_option_id iterations_count = detail::get_iterations_count_id();
+
+/// Return the number of subiterations made by optimizer. Only available for newton-cg optimizer
+const inline result_option_id inner_iterations_count = detail::get_inner_iterations_count_id();
 
 } // namespace result_options
 
