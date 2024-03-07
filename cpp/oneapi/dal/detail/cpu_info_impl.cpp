@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ std::string to_string(cpu_vendor vendor) {
         case cpu_vendor::arm: return std::string("arm");
         default: break; /// error handling
     }
+    return std::string();
 }
 
 std::string to_string(cpu_extension extension) {
@@ -38,6 +39,7 @@ std::string to_string(cpu_extension extension) {
         case cpu_extension::avx512: return std::string("avx512");
         default: break; /// error handling
     }
+    return std::string();
 }
 
 } // namespace v1
