@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
-#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
+// #include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
@@ -44,6 +44,163 @@ using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
+
+template <typename Float>
+auto compute_sums(sycl::queue& q,
+                  const pr::ndview<Float, 2>& data,
+                  const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_sums, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(0 < data.get_dimension(1));
+
+    const std::int64_t column_count = data.get_dimension(1);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
+    return std::make_tuple(sums, reduce_event);
+}
+
+template <typename Float>
+auto compute_means(sycl::queue& q,
+                   std::int64_t row_count,
+                   const pr::ndview<Float, 1>& sums,
+                   const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(sums.get_dimension(0) > 0);
+
+    const std::int64_t column_count = sums.get_dimension(0);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto means_event = pr::means(q, row_count, sums, means, deps);
+    return std::make_tuple(means, means_event);
+}
+
+template <typename Float>
+auto compute_variances(sycl::queue& q,
+                       const pr::ndview<Float, 2>& cov,
+                       const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_vars, q);
+    ONEDAL_ASSERT(cov.has_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+
+    auto column_count = cov.get_dimension(0);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto vars_event = pr::variances(q, cov, vars, deps);
+    return std::make_tuple(vars, vars_event);
+}
+
+template <typename Float>
+auto compute_covariance(sycl::queue& q,
+                        std::int64_t row_count,
+                        const pr::ndview<Float, 2>& xtx,
+                        const pr::ndarray<Float, 1>& sums,
+                        const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_covariance, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(xtx.has_data());
+    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
+
+    const std::int64_t column_count = xtx.get_dimension(1);
+
+    auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    auto copy_event = copy(q, cov, xtx, { deps });
+    auto cov_event = pr::covariance(q, row_count, sums, cov, false, { copy_event });
+    return std::make_tuple(cov, cov_event);
+}
+
+template <typename Float>
+auto compute_correlation_from_covariance(sycl::queue& q,
+                                         std::int64_t row_count,
+                                         const pr::ndview<Float, 2>& cov,
+                                         const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(cov.has_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+
+    const std::int64_t column_count = cov.get_dimension(1);
+
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+
+    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    const bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+    auto corr_event = pr::correlation_from_covariance(q, row_count, cov, corr, tmp, bias, deps);
+
+    return std::make_tuple(corr, corr_event);
+}
+
+template <typename Float>
+auto compute_eigenvectors_on_host(sycl::queue& q,
+                                  pr::ndarray<Float, 2>&& corr,
+                                  std::int64_t component_count,
+                                  const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
+    ONEDAL_ASSERT(corr.has_mutable_data());
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
+    const std::int64_t column_count = corr.get_dimension(0);
+
+    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
+    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
+    auto host_corr = corr.to_host(q, deps);
+    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+
+    return std::make_tuple(eigvecs, eigvals);
+}
+
+template <typename Float>
+auto compute_singular_values_on_host(sycl::queue& q,
+                                     pr::ndarray<Float, 1> eigenvalues,
+                                     std::int64_t row_count,
+                                     const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_singular_values_on_host);
+    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
+
+    const std::int64_t component_count = eigenvalues.get_dimension(0);
+
+    auto singular_values = pr::ndarray<Float, 1>::empty(component_count);
+
+    auto eigvals_ptr = eigenvalues.get_data();
+    auto singular_values_ptr = singular_values.get_mutable_data();
+
+    const Float factor = row_count - 1;
+    for (std::int64_t i = 0; i < component_count; ++i) {
+        singular_values_ptr[i] = std::sqrt(factor * eigvals_ptr[i]);
+    }
+    return singular_values;
+}
+
+template <typename Float>
+auto compute_explained_variances_on_host(sycl::queue& q,
+                                         pr::ndarray<Float, 1> eigenvalues,
+                                         pr::ndarray<Float, 1> vars,
+                                         const dal::backend::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_explained_variances_on_host);
+    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
+
+    const std::int64_t component_count = eigenvalues.get_dimension(0);
+    const std::int64_t column_count = vars.get_dimension(0);
+    auto explained_variances_ratio = pr::ndarray<Float, 1>::empty(component_count);
+
+    auto eigvals_ptr = eigenvalues.get_data();
+    auto vars_ptr = vars.get_data();
+    auto explained_variances_ratio_ptr = explained_variances_ratio.get_mutable_data();
+
+    Float sum = 0;
+    for (std::int64_t i = 0; i < column_count; ++i) {
+        sum += vars_ptr[i];
+    }
+    ONEDAL_ASSERT(sum > 0);
+    const Float inverse_sum = 1.0 / sum;
+    for (std::int64_t i = 0; i < component_count; ++i) {
+        explained_variances_ratio_ptr[i] = eigvals_ptr[i] * inverse_sum;
+    }
+    return explained_variances_ratio;
+}
 
 template <typename Float>
 result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, const input_t& input) {
@@ -96,12 +253,11 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
 
     sycl::event means_event;
     if (desc.get_result_options().test(result_options::means)) {
-        auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
+        auto [means, means_event] = compute_means(q_, rows_count_global, sums, { gemm_event });
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
 
-    auto [cov, cov_event] =
-        compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
+    auto [cov, cov_event] = compute_covariance(q_, rows_count_global, xtx, sums, { gemm_event });
 
     auto [vars, vars_event] = compute_variances(q_, cov, { cov_event, means_event });
 

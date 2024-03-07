@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/covariance/backend/gpu/compute_kernel_dense_impl.hpp"
-#include "oneapi/dal/algo/covariance/backend/gpu/misc.hpp"
+//#include "oneapi/dal/algo/covariance/backend/gpu/misc.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -43,6 +43,83 @@ using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
 using parameters_t = detail::compute_parameters<task_t>;
+
+template <typename Float>
+auto compute_sums(sycl::queue& q,
+                  const pr::ndview<Float, 2>& data,
+                  const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_sums, q);
+    ONEDAL_ASSERT(data.has_data());
+    ONEDAL_ASSERT(data.get_dimension(1) > 0);
+
+    const std::int64_t column_count = data.get_dimension(1);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data, sums, pr::sum<Float>{}, pr::identity<Float>{}, deps);
+    return std::make_tuple(sums, reduce_event);
+}
+
+template <typename Float>
+auto compute_means(sycl::queue& q,
+                   const pr::ndview<Float, 1>& sums,
+                   std::int64_t row_count,
+                   const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_means, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(sums.get_dimension(0) > 0);
+
+    const std::int64_t column_count = sums.get_dimension(0);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+    auto means_event = pr::means(q, row_count, sums, means, deps);
+    return std::make_tuple(means, means_event);
+}
+
+template <typename Float>
+auto compute_covariance(sycl::queue& q,
+                        std::int64_t row_count,
+                        const pr::ndview<Float, 2>& xtx,
+                        const pr::ndarray<Float, 1>& sums,
+                        bool bias,
+                        const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_covariance, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(xtx.has_data());
+    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
+
+    const std::int64_t column_count = xtx.get_dimension(1);
+
+    auto cov = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    auto copy_event = copy(q, cov, xtx, { deps });
+
+    auto cov_event = pr::covariance(q, row_count, sums, cov, bias, { copy_event });
+    return std::make_tuple(cov, cov_event);
+}
+
+template <typename Float>
+auto compute_correlation(sycl::queue& q,
+                         std::int64_t row_count,
+                         const pr::ndview<Float, 2>& xtx,
+                         const pr::ndarray<Float, 1>& sums,
+                         const bk::event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(compute_correlation, q);
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(xtx.has_data());
+    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
+
+    const std::int64_t column_count = xtx.get_dimension(1);
+
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+
+    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+
+    auto copy_event = copy(q, corr, xtx, { deps });
+
+    auto corr_event = pr::correlation(q, row_count, sums, corr, tmp, { copy_event });
+
+    auto smart_event = bk::smart_event{ corr_event }.attach(tmp);
+    return std::make_tuple(corr, smart_event);
+}
 
 template <typename Float>
 result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
