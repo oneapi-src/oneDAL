@@ -47,4 +47,4 @@ cpu_extension detect_top_cpu_extension() {
 }
 
 } // namespace v1
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

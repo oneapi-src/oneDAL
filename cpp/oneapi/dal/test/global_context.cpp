@@ -43,8 +43,7 @@ static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t ecx 
     asm volatile(
         "cpuid"
         : "=a"(registers.eax_), "=b"(registers.ebx_), "=c"(registers.ecx_), "=d"(registers.edx_)
-        : "a"(eax), "c"(ecx)
-    );
+        : "a"(eax), "c"(ecx));
 }
 
 /// Copies the value of x86 register into the buffer of characters
@@ -114,18 +113,25 @@ detail::cpu_extension get_cpu_extensions() {
     const uint32_t ids_count = registers.eax_;
     if (ids_count >= 1) {
         cpuid(0x1, registers);
-        if (registers.edx_ & (1U << 26)) { ext = detail::cpu_extension::sse2; }
-        if (registers.ecx_ & (1U << 20)) { ext = detail::cpu_extension::sse42; }
+        if (registers.edx_ & (1U << 26)) {
+            ext = detail::cpu_extension::sse2;
+        }
+        if (registers.ecx_ & (1U << 20)) {
+            ext = detail::cpu_extension::sse42;
+        }
     }
     if (ids_count >= 7) {
         cpuid(0x7, registers);
-        if (registers.ebx_ & (1U << 5)) { ext = detail::cpu_extension::avx2; }
-        if (registers.ebx_ & (1U << 16)) { ext = detail::cpu_extension::avx512; }
+        if (registers.ebx_ & (1U << 5)) {
+            ext = detail::cpu_extension::avx2;
+        }
+        if (registers.ebx_ & (1U << 16)) {
+            ext = detail::cpu_extension::avx512;
+        }
     }
 #endif
     return ext;
 }
-
 
 TEST("can create default CPU info") {
     /// Get global CPU context
@@ -137,4 +143,4 @@ TEST("can create default CPU info") {
     REQUIRE(detail::cpu_vendor::intel == gc.get_cpu_info().get_cpu_vendor());
 }
 
-} // namespace oneapi::dal::test
+} // namespace oneapi::dal::detail::test
