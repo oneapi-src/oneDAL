@@ -83,8 +83,14 @@ static train_result<Task> train(const context_gpu& ctx,
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-        corr_event =
-            pr::correlation_from_covariance(q, rows_count_global, cov, corr, bias, { cov_event });
+        auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
+        corr_event = pr::correlation_from_covariance(q,
+                                                     rows_count_global,
+                                                     cov,
+                                                     corr,
+                                                     tmp,
+                                                     bias,
+                                                     { cov_event });
         data_to_compute = corr;
     }
 

@@ -144,12 +144,12 @@ auto compute_correlation(sycl::queue& q,
     ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
 
     const std::int64_t column_count = xtx.get_dimension(1);
-
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
     auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
 
     auto copy_event = copy(q, corr, xtx, { deps });
 
-    auto corr_event = pr::correlation(q, row_count, sums, corr, { copy_event });
+    auto corr_event = pr::correlation(q, row_count, sums, corr, tmp, { copy_event });
 
     return std::make_tuple(corr, corr_event);
 }
