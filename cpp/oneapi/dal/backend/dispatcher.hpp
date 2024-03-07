@@ -181,8 +181,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
     }
 
     template <typename... Args>
-    auto operator()(const detail::spmd_host_policy& policy,
-                    Args&&... args) const -> cpu_kernel_return_t<CpuKernel, Args...> {
+    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const
+        -> cpu_kernel_return_t<CpuKernel, Args...> {
         // We have to specify return type for this function as compiler cannot
         // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
@@ -208,8 +208,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename... Args>
-    auto operator()(const detail::spmd_data_parallel_policy& policy,
-                    Args&&... args) const -> cpu_kernel_return_t<CpuKernel, Args...> {
+    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const
+        -> cpu_kernel_return_t<CpuKernel, Args...> {
         // We have to specify return type for this function as compiler cannot
         // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
@@ -236,8 +236,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
     }
 
     template <typename... Args>
-    auto operator()(const detail::spmd_data_parallel_policy& policy,
-                    Args&&... args) const -> cpu_kernel_return_t<CpuKernel, Args...> {
+    auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const
+        -> cpu_kernel_return_t<CpuKernel, Args...> {
         // We have to specify return type for this function as compiler cannot
         // infer it from a body that consist of single `throw` expression
         using msg = detail::error_messages;
@@ -297,9 +297,8 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     ONEDAL_IF_CPU_DISPATCH_AVX512(if (test_cpu_extension(cpu_ex, cpu_extension::avx512)) {
         return op(cpu_dispatch_avx512{});
     })
-    ONEDAL_IF_CPU_DISPATCH_AVX2(if (test_cpu_extension(cpu_ex, detail::cpu_extension::avx2)) {
-        return op(cpu_dispatch_avx2{});
-    })
+    ONEDAL_IF_CPU_DISPATCH_AVX2(
+        if (test_cpu_extension(cpu_ex, cpu_extension::avx2)) { return op(cpu_dispatch_avx2{}); })
     ONEDAL_IF_CPU_DISPATCH_SSE42(
         if (test_cpu_extension(cpu_ex, cpu_extension::sse42)) { return op(cpu_dispatch_sse42{}); })
 
