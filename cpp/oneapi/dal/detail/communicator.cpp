@@ -94,30 +94,30 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     preview::detail::check_if_pointer_matches_queue(q, recv_buf);
     sycl::event::wait_and_throw(deps);
 
+    const std::int64_t rank_count = get_rank_count();
+    std::int64_t total_recv_count = 0;
+
+    array<std::int64_t> displs_host_root;
+    displs_host_root.reset(rank_count);
+    {
+        std::int64_t* displs_host_root_ptr = displs_host_root.get_mutable_data();
+        for (std::int64_t i = 0; i < rank_count; i++) {
+            displs_host_root_ptr[i] = total_recv_count;
+            total_recv_count += recv_counts_host[i];
+        }
+    }
+
+    const std::int64_t dtype_size = get_data_type_size(dtype);
+    const std::int64_t send_size = check_mul_overflow(dtype_size, send_count);
+    const std::int64_t total_recv_size = check_mul_overflow(dtype_size, total_recv_count);
+
     if (get_mpi_gpu_support()) {
-        // TODO: any of below logic relevant to device and need to be general?
         ONEDAL_PROFILER_TASK(comm.allgatherv_gpu, q);
         wait_request(
             allgatherv(send_buf, send_count, recv_buf, recv_counts_host, displs_host, dtype));
     }
     else {
         ONEDAL_PROFILER_TASK(comm.allgatherv_cpu, q);
-        const std::int64_t rank_count = get_rank_count();
-        std::int64_t total_recv_count = 0;
-
-        array<std::int64_t> displs_host_root;
-        displs_host_root.reset(rank_count);
-        {
-            std::int64_t* displs_host_root_ptr = displs_host_root.get_mutable_data();
-            for (std::int64_t i = 0; i < rank_count; i++) {
-                displs_host_root_ptr[i] = total_recv_count;
-                total_recv_count += recv_counts_host[i];
-            }
-        }
-
-        const std::int64_t dtype_size = get_data_type_size(dtype);
-        const std::int64_t send_size = check_mul_overflow(dtype_size, send_count);
-        const std::int64_t total_recv_size = check_mul_overflow(dtype_size, total_recv_count);
         // Workaround for zero send_size
         const auto send_buff_host = array<byte_t>::empty(send_size > 0 ? send_size : 1);
         if (send_size > 0) {
