@@ -30,6 +30,8 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
+enum class cpu_vendor { unknown = 0, intel = 1, amd = 2, arm = 3 };
+
 enum class cpu_extension : uint64_t {
     none = 0U,
 #if defined(TARGET_X86_64)
@@ -45,6 +47,7 @@ enum class cpu_extension : uint64_t {
 cpu_extension detect_top_cpu_extension();
 
 } // namespace v1
+using v1::cpu_vendor;
 using v1::cpu_extension;
 using v1::detect_top_cpu_extension;
 } // namespace oneapi::dal::detail

@@ -23,8 +23,6 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-enum class cpu_vendor { unknown = 0, intel = 1, amd = 2, arm = 3 };
-
 std::string to_string(cpu_vendor vendor);
 std::string to_string(cpu_extension extension);
 
@@ -44,6 +42,5 @@ public:
 };
 
 } // namespace v1
-using v1::cpu_vendor;
 using v1::cpu_info_iface;
 } // namespace oneapi::dal::detail
