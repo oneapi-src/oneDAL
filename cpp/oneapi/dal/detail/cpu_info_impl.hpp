@@ -30,7 +30,6 @@ std::string to_string(cpu_extension extension);
 
 class cpu_info_impl : public cpu_info_iface {
 public:
-
     cpu_vendor get_cpu_vendor() const override;
 
     cpu_extension get_top_cpu_extension() const override;
