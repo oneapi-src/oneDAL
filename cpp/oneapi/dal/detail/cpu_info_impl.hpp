@@ -16,28 +16,36 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/cpu.hpp"
+#include "oneapi/dal/detail/cpu_info_iface.hpp"
 
+#include <any>
+#include <map>
 #include <string>
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class cpu_info_iface {
+std::string to_string(cpu_vendor vendor);
+std::string to_string(cpu_extension extension);
+
+class cpu_info_impl : public cpu_info_iface {
 public:
-    /// The CPU vendor
-    virtual cpu_vendor get_cpu_vendor() const = 0;
 
-    /// The highest supported CPU extension
-    virtual cpu_extension get_top_cpu_extension() const = 0;
+    cpu_vendor get_cpu_vendor() const override;
 
-    /// The dump of all supported CPU features in the format:
-    /// feature 1: value1; feature2: value2; ...
-    virtual std::string dump() const = 0;
+    cpu_extension get_top_cpu_extension() const override;
 
-    virtual ~cpu_info_iface() {}
+    std::string dump() const override;
+
+protected:
+    std::map<std::string, std::any> info_;
+
+    template <typename T>
+    void print(const std::any& value, std::stringstream& ss) const;
+
+    void print_any(const std::any& value, std::stringstream& ss) const;
 };
 
 } // namespace v1
-using v1::cpu_info_iface;
+using v1::cpu_info_impl;
 } // namespace oneapi::dal::detail

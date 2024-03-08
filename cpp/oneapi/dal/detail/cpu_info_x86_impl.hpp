@@ -16,20 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/detail/cpu_info_iface.hpp"
+#include "oneapi/dal/detail/cpu_info_impl.hpp"
 
 #include <daal/src/services/service_defines.h>
-
-#include <any>
-#include <map>
-#include <string>
-#include <sstream>
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class cpu_info_x86 : public cpu_info_iface {
+class cpu_info_x86 : public cpu_info_impl {
 public:
     cpu_info_x86() {
         info_["top_cpu_extension"] = detect_top_cpu_extension();
@@ -39,48 +33,6 @@ public:
     cpu_info_x86(const cpu_extension cpu_extension) {
         info_["top_cpu_extension"] = cpu_extension;
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
-    }
-
-    cpu_vendor get_cpu_vendor() const override {
-        return std::any_cast<cpu_vendor>(info_.find("vendor")->second);
-    }
-
-    cpu_extension get_top_cpu_extension() const override {
-        return std::any_cast<cpu_extension>(info_.find("top_cpu_extension")->second);
-    }
-
-    std::string dump() const override {
-        std::stringstream ss;
-        for (auto it = info_.begin(); it != info_.end(); ++it) {
-            ss << it->first << " : ";
-            print_any(it->second, ss);
-            ss << "; ";
-        }
-        std::string result;
-        std::string token;
-        while (ss >> token) {
-            result += token + " ";
-        }
-        return result;
-    }
-
-private:
-    std::map<std::string, std::any> info_;
-
-    template <typename T>
-    void print(const std::any& value, std::stringstream& ss) const {
-        T typed_value = std::any_cast<T>(value);
-        ss << to_string(typed_value);
-    }
-
-    void print_any(const std::any& value, std::stringstream& ss) const {
-        const std::type_info& ti = value.type();
-        if (ti == typeid(cpu_extension)) {
-            print<cpu_extension>(value, ss);
-        }
-        else if (ti == typeid(cpu_vendor)) {
-            print<cpu_vendor>(value, ss);
-        }
     }
 };
 
