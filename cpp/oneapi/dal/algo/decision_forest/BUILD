@@ -9,7 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/algo/decision_forest/backend:model_impl",  
+        "@onedal//cpp/oneapi/dal/algo/decision_forest/backend:model_impl",
     ],
 )
 
@@ -34,6 +34,8 @@ dal_module(
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/decision_tree:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
     ]
 )
 
