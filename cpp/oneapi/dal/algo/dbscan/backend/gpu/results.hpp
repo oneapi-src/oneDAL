@@ -24,11 +24,11 @@
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/kernels_fp.hpp"
 
-namespace oneapi::dal::dbscan::backend {
-
 namespace bk = oneapi::dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 namespace spmd = oneapi::dal::preview::spmd;
+
+namespace oneapi::dal::dbscan::backend {
 
 using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;

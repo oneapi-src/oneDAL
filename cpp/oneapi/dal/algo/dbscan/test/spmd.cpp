@@ -40,60 +40,31 @@ public:
     result_t compute_override(Args &&...args) {
         return this->compute_via_spmd_threads_and_merge(rank_count_, std::forward<Args>(args)...);
     }
-    void check_if_close(const table &left,
-                        const table &right,
-                        std::string name = "",
-                        double tol = 1e-2) {
-        constexpr auto eps = std::numeric_limits<float_t>::epsilon();
 
-        const auto c_count = left.get_column_count();
-        const auto r_count = left.get_row_count();
-
-        REQUIRE(right.get_column_count() == c_count);
-        REQUIRE(right.get_row_count() == r_count);
-
-        row_accessor<const float_t> lacc(left);
-        row_accessor<const float_t> racc(right);
-
-        const auto larr = lacc.pull({ 0, -1 });
-        const auto rarr = racc.pull({ 0, -1 });
-
-        for (std::int64_t r = 0; r < r_count; ++r) {
-            for (std::int64_t c = 0; c < c_count; ++c) {
-                const auto lval = larr[r * c_count + c];
-                const auto rval = rarr[r * c_count + c];
-
-                CAPTURE(name, r_count, c_count, r, c, lval, rval);
-
-                const auto aerr = std::abs(lval - rval);
-                if (aerr < tol || (!std::isfinite(lval) && !std::isfinite(rval)))
-                    continue;
-
-                const auto den = std::max({ eps, //
-                                            std::abs(lval),
-                                            std::abs(rval) });
-
-                const auto rerr = aerr / den;
-                CAPTURE(aerr, rerr, den, r, c, lval, rval);
-                REQUIRE(rerr < tol);
-            }
-        }
-    }
     template <typename... Args>
     std::vector<input_t> split_compute_input_override(std::int64_t split_count, Args &&...args) {
         // Data table is distributed across the ranks
         const input_t input{ std::forward<Args>(args)... };
         const auto split_data =
             te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
-        const auto split_weights =
-            te::split_table_by_rows<float_t>(this->get_policy(), input.get_weights(), split_count);
 
         std::vector<input_t> split_input;
         split_input.reserve(split_count);
+        if (input.get_weights().has_data()) {
+            const auto split_weights = te::split_table_by_rows<float_t>(this->get_policy(),
+                                                                        input.get_weights(),
+                                                                        split_count);
 
-        for (std::int64_t i = 0; i < split_count; i++) {
-            split_input.push_back( //
-                input_t{ split_data[i] });
+            for (std::int64_t i = 0; i < split_count; i++) {
+                split_input.push_back( //
+                    input_t{ split_data[i], split_weights[i] });
+            }
+        }
+        else {
+            for (std::int64_t i = 0; i < split_count; i++) {
+                split_input.push_back( //
+                    input_t{ split_data[i] });
+            }
         }
 
         return split_input;
@@ -137,13 +108,13 @@ public:
         const auto compute_result_batch =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data);
         INFO("check references")
-        check_if_close(joined_result.get_core_flags(),
-                       compute_result_batch.get_core_flags(),
-                       "Cores");
+        this->check_if_close(joined_result.get_core_flags(),
+                             compute_result_batch.get_core_flags(),
+                             "Cores");
         INFO("check references")
-        check_if_close(joined_result.get_responses(),
-                       compute_result_batch.get_responses(),
-                       "responses");
+        this->check_if_close(joined_result.get_responses(),
+                             compute_result_batch.get_responses(),
+                             "responses");
         base_t::check_responses_against_ref(joined_result.get_responses(), ref_responses);
     }
 
@@ -192,7 +163,7 @@ public:
     }
 
 private:
-    std::int64_t rank_count_ = 3;
+    std::int64_t rank_count_ = 1;
 };
 
 using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
@@ -248,43 +219,81 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan boundary test", "[dbscan][spmd]",
     this->run_spmd_vs_batch_checks(x2, epsilon3, min_observations, r3);
 }
 
-// TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan weight test", "[dbscan][spmd]", dbscan_types) {
-//     SKIP_IF(this->not_float64_friendly());
-//     SKIP_IF(this->get_policy().is_cpu());
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan weight test #1", "[dbscan][spmd]", dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
 
-//     using float_t = std::tuple_element_t<0, TestType>;
+    using float_t = std::tuple_element_t<0, TestType>;
 
-//     constexpr float_t data[] = { 0.0, 1.0 };
-//     const auto x = homogen_table::wrap(data, 2, 1);
+    constexpr float_t data[] = { 0.0, 1.0 };
+    const auto x = homogen_table::wrap(data, 2, 1);
 
-//     constexpr std::int64_t min_observations = 6;
+    constexpr std::int64_t min_observations = 6;
 
-//     constexpr std::int32_t responses1[] = { -1, -1 };
-//     const auto r_none = homogen_table::wrap(responses1, 2, 1);
+    constexpr std::int32_t responses1[] = { -1, -1 };
+    const auto r_none = homogen_table::wrap(responses1, 2, 1);
 
-//     constexpr std::int32_t responses2[] = { 0, -1 };
-//     const auto r_first = homogen_table::wrap(responses2, 2, 1);
+    constexpr std::int32_t responses2[] = { 0, -1 };
+    const auto r_first = homogen_table::wrap(responses2, 2, 1);
 
-//     constexpr std::int32_t responses3[] = { 0, 1 };
-//     const auto r_both = homogen_table::wrap(responses3, 2, 1);
+    constexpr std::int32_t responses3[] = { 0, 1 };
+    const auto r_both = homogen_table::wrap(responses3, 2, 1);
 
-//     constexpr float_t weights1[] = { 5, 5 };
-//     const auto w1 = homogen_table::wrap(weights1, 2, 1);
+    constexpr float_t weights1[] = { 5, 5 };
+    const auto w1 = homogen_table::wrap(weights1, 2, 1);
 
-//     constexpr float_t weights2[] = { 6, 5 };
-//     const auto w2 = homogen_table::wrap(weights2, 2, 1);
+    constexpr float_t weights2[] = { 6, 5 };
+    const auto w2 = homogen_table::wrap(weights2, 2, 1);
 
-//     constexpr float_t weights3[] = { 6, 6 };
-//     const auto w3 = homogen_table::wrap(weights3, 2, 1);
+    constexpr float_t weights3[] = { 6, 6 };
+    const auto w3 = homogen_table::wrap(weights3, 2, 1);
 
-//     constexpr double epsilon1 = 0.5;
+    constexpr double epsilon = 0.5;
 
-//     this->set_rank_count(2);
-//     // this->run_spmd_response_checks(x, table{}, epsilon1, min_observations, r_none);
-//     this->run_spmd_response_checks(x, w1, epsilon1, min_observations, r_none);
-//     this->run_spmd_response_checks(x, w2, epsilon1, min_observations, r_first);
-//     this->run_spmd_response_checks(x, w3, epsilon1, min_observations, r_both);
-// }
+    this->set_rank_count(2);
+    this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r_none);
+    this->run_spmd_response_checks(x, w1, epsilon, min_observations, r_none);
+    this->run_spmd_response_checks(x, w2, epsilon, min_observations, r_first);
+    this->run_spmd_response_checks(x, w3, epsilon, min_observations, r_both);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan weight test #2", "[dbscan][spmd]", dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_cpu());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+
+    constexpr float_t data[] = { 0.0, 1.0 };
+    const auto x = homogen_table::wrap(data, 2, 1);
+
+    constexpr std::int64_t min_observations = 6;
+
+    constexpr std::int32_t responses1[] = { -1, -1 };
+    const auto r_none = homogen_table::wrap(responses1, 2, 1);
+
+    constexpr std::int32_t responses2[] = { 0, 0 };
+    const auto r_both = homogen_table::wrap(responses2, 2, 1);
+
+    constexpr float_t weights1[] = { 2, 2 };
+    const auto w1 = homogen_table::wrap(weights1, 2, 1);
+
+    constexpr float_t weights2[] = { 3, 3 };
+    const auto w2 = homogen_table::wrap(weights2, 2, 1);
+
+    constexpr float_t weights3[] = { 1, 5 };
+    const auto w3 = homogen_table::wrap(weights3, 2, 1);
+
+    constexpr float_t weights4[] = { 5, 1 };
+    const auto w4 = homogen_table::wrap(weights4, 2, 1);
+    constexpr double epsilon = 2;
+
+    this->set_rank_count(2);
+    this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r_none);
+    this->run_spmd_response_checks(x, w1, epsilon, min_observations, r_none);
+    this->run_spmd_response_checks(x, w2, epsilon, min_observations, r_both);
+    this->run_spmd_response_checks(x, w3, epsilon, min_observations, r_both);
+    this->run_spmd_response_checks(x, w4, epsilon, min_observations, r_both);
+}
 
 TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
                      "dbscan simple core observations test #1",
@@ -386,7 +395,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     std::int64_t min_observations = gold_dataset::get_min_observations();
 
     const auto r = gold_dataset::get_expected_responses().get_table(this->get_homogen_table_id());
-    this->set_rank_count(GENERATE(2, 3, 4));
+    this->set_rank_count(GENERATE(2, 3, 4, 5));
     this->run_spmd_vs_batch_checks(x, epsilon, min_observations, r);
 }
 
@@ -404,7 +413,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
 
     float_t ref_dbi = gold_dataset::get_expected_dbi();
 
-    this->set_rank_count(GENERATE(2, 3, 4));
+    this->set_rank_count(GENERATE(2, 3, 4, 5));
     this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
