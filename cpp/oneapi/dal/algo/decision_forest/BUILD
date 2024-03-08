@@ -14,6 +14,7 @@ dal_module(
 
 dal_module(
     name = "parameters",
+    auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo/decision_forest/parameters",
     ],
@@ -24,8 +25,8 @@ dal_module(
     dal_deps = [
         ":core",
         ":parameters",
-        "@onedal//cpp/oneapi/dal/algo/decision_forest/detail",
-        "@onedal//cpp/oneapi/dal/algo/decision_forest/backend",
+        "@onedal//cpp/oneapi/dal/algo/decision_forest:detail",
+        "@onedal//cpp/oneapi/dal/algo/decision_forest:backend",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:sort",
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",

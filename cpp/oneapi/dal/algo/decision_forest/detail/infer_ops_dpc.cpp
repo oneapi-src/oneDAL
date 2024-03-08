@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/parameters/cpu/infer_parameters.hpp"
 #include "oneapi/dal/algo/decision_forest/parameters/gpu/infer_parameters.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 

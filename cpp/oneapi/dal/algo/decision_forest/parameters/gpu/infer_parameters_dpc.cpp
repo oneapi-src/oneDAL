@@ -20,9 +20,12 @@
 namespace oneapi::dal::decision_forest::parameters {
 
 using dal::backend::context_gpu;
+using method::by_default;
+using task::classification;
+using task::regression;
 
 template <typename Float, typename Task>
-struct infer_parameters_gpu<Float, method::by_default, Task> {
+struct infer_parameters_gpu<Float, by_default, Task> {
     using params_t = detail::infer_parameters<Task>;
     params_t operator()(const context_gpu& ctx,
                         const detail::descriptor_base<Task>& desc,
@@ -31,7 +34,9 @@ struct infer_parameters_gpu<Float, method::by_default, Task> {
     }
 };
 
-template struct ONEDAL_EXPORT infer_parameters_gpu<float, method::dense, task::by_default>;
-template struct ONEDAL_EXPORT infer_parameters_gpu<double, method::dense, task::by_default>;
+template struct ONEDAL_EXPORT infer_parameters_gpu<float, by_default, classification>;
+template struct ONEDAL_EXPORT infer_parameters_gpu<double, by_default, classification>;
+template struct ONEDAL_EXPORT infer_parameters_gpu<float, by_default, regression>;
+template struct ONEDAL_EXPORT infer_parameters_gpu<double, by_default, regression>;
 
 } // namespace oneapi::dal::decision_forest::parameters

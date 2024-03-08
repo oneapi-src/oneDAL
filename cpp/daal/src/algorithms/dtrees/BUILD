@@ -3,7 +3,8 @@ load("@onedal//dev/bazel:daal.bzl", "daal_module")
 
 daal_module(
     name = "kernel",
-    auto = True,
+    hdrs = glob(["**/*.h", "**/*.i", "**/*.cl"]),
+    srcs = glob(["*.cpp"]),
     deps = [
         "@onedal//cpp/daal:core",
     ],
