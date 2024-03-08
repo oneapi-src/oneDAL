@@ -14,5 +14,9 @@ dal_module(
     extra_deps = [
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal/src/algorithms/dtrees:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:model_impl",
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:model_impl",
     ],
 )

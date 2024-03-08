@@ -12,3 +12,11 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo/decision_forest/backend/gpu",
     ],
 )
+
+dal_module(
+    name = "model_impl",
+    hdrs = glob(["*.hpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:decision_tree",
+    ]
+)
