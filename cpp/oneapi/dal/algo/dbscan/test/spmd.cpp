@@ -176,7 +176,7 @@ private:
     std::int64_t rank_count_ = 3;
 };
 
-using dbscan_types = COMBINE_TYPES((float), (dbscan::method::brute_force));
+using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
 
 TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][spmd]", dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
@@ -186,13 +186,13 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][spmd
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 10, 5 }.fill_normal(0, 1000, 7777),
-                           te::dataframe_builder{ 100, 2 }.fill_normal(0, 1000, 7777));
+                           te::dataframe_builder{ 25, 5 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 2500, 4 }.fill_normal(0, 10, 7777));
 
     const auto input_data_table_id = this->get_homogen_table_id();
     const table data = input.get_table(this->get_policy(), input_data_table_id);
     constexpr double epsilon = 10;
-    constexpr std::int64_t min_observations = 5;
+    constexpr std::int64_t min_observations = 4;
 
     constexpr float_t weights[] = { 1.0, 1.1, 1, 2 };
     const auto w = homogen_table::wrap(weights, 3, 1);
@@ -200,7 +200,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test, "dbscan degenerated test", "[dbscan][spmd
     constexpr std::int32_t responses[] = { 0, 1, 2 };
     const auto r = homogen_table::wrap(responses, 3, 1);
 
-    this->set_rank_count(GENERATE(2, 4));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_response_checks(data, w, epsilon, min_observations, r);
 }
 
@@ -288,7 +288,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr std::int32_t responses[] = { 0, 1, 1, 1, 2, 3, 1, 1 };
     const auto r = homogen_table::wrap(responses, 8, 1);
 
-    this->set_rank_count(GENERATE(2, 4));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -310,7 +310,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
     const auto r = homogen_table::wrap(responses, 7, 1);
 
-    this->set_rank_count(GENERATE(2));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -332,7 +332,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr std::int32_t responses[] = { -1, 0, 0, 0, -1, -1, -1 };
     const auto r = homogen_table::wrap(responses, 7, 1);
 
-    this->set_rank_count(GENERATE(2));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -354,7 +354,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr std::int32_t responses[] = { -1, -1, -1, -1, -1, -1, -1 };
     const auto r = homogen_table::wrap(responses, 7, 1);
 
-    this->set_rank_count(GENERATE(2));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -370,7 +370,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     std::int64_t min_observations = gold_dataset::get_min_observations();
 
     const auto r = gold_dataset::get_expected_responses().get_table(this->get_homogen_table_id());
-    this->set_rank_count(GENERATE(2, 4));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_response_checks(x, table{}, epsilon, min_observations, r);
 }
 
@@ -388,7 +388,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
 
     float_t ref_dbi = gold_dataset::get_expected_dbi();
 
-    this->set_rank_count(GENERATE(2, 4));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
@@ -408,7 +408,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr double epsilon = 1.7e3;
     constexpr std::int64_t min_observations = 3;
     constexpr float_t ref_dbi = 1.584515;
-    this->set_rank_count(GENERATE(2));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
@@ -427,7 +427,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr double epsilon = 5;
     constexpr std::int64_t min_observations = 3;
     constexpr float_t ref_dbi = 0.78373;
-    this->set_rank_count(GENERATE(2, 4));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-3);
 }
 
@@ -446,7 +446,7 @@ TEMPLATE_LIST_TEST_M(dbscan_spmd_test,
     constexpr double epsilon = 1.0e3;
     constexpr std::int64_t min_observations = 220;
     constexpr float_t ref_dbi = float_t(0.00036);
-    this->set_rank_count(GENERATE(2, 4));
+    this->set_rank_count(GENERATE(2, 3, 4));
     this->run_spmd_dbi_checks(x, epsilon, min_observations, ref_dbi, 1.0e-1);
 }
 

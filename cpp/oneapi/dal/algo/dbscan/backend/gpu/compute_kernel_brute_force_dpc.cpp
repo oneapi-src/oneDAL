@@ -61,6 +61,9 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
         comm.allreduce(max_local_block_size, spmd::reduce_op::max).wait();
     }
 
+    auto send_recv_replace_local_size = array<std::int64_t>::zeros(1);
+    send_recv_replace_local_size.get_mutable_data()[0] = local_row_count;
+
     auto global_rank_offsets = array<std::int64_t>::zeros(rank_count);
     global_rank_offsets.get_mutable_data()[current_rank] = local_row_count;
     {
@@ -139,7 +142,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                               prev_node,
                               next_node)
             .wait();
-        auto local_row_block_count = global_rank_offsets.get_data()[next_node];
+        comm.sendrecv_replace(send_recv_replace_local_size.get_mutable_data(),
+                              1,
+                              prev_node,
+                              next_node)
+            .wait();
+        auto local_row_block_count = send_recv_replace_local_size.get_data()[0];
         auto actual_current_block = data_nd_replace.get_row_slice(0, local_row_block_count);
         kernels_fp<Float>::get_cores_send_recv_replace(queue,
                                                        data_nd,
