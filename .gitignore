@@ -15,12 +15,12 @@ bazel-*
 # Visual Studio related files, e.g., ".vscode"
 .vs*
 
-# Bazel directories
-bazel-*
-
 # PyCharm directories
 .idea*
 
 # CMake directories and cache
 CMakeFiles
 CMakeCache.txt
+
+# MODULE.bazel lock file
+MODULE.bazel.lock
