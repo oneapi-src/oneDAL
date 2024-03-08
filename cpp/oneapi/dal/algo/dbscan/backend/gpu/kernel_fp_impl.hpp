@@ -109,7 +109,7 @@ struct get_core_wide_kernel {
                         Float distance =
                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                         if (distance <= epsilon) {
-                            count += use_weights ? weights_ptr[wg_id] : count_type(1);
+                            count += use_weights ? weights_ptr[j] : count_type(1);
                             if (local_id == 0) {
                                 neighbours_ptr[wg_id] = count;
                             }
@@ -167,7 +167,7 @@ struct get_core_narrow_kernel {
                     if (sum > epsilon) {
                         continue;
                     }
-                    neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
+                    neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);
@@ -252,7 +252,7 @@ struct get_core_send_recv_replace_wide_kernel {
                         Float distance =
                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                         if (distance <= epsilon) {
-                            count += use_weights ? weights_ptr[wg_id] : count_type(1);
+                            count += use_weights ? weights_ptr[j] : count_type(1);
                             if (count >= min_observations) {
                                 if (local_id == 0) {
                                     neighbours_ptr[wg_id] = count;
@@ -309,7 +309,7 @@ struct get_core_send_recv_replace_narrow_kernel {
                     if (sum > epsilon) {
                         continue;
                     }
-                    neighbours_ptr[idx] += use_weights ? weights_ptr[idx] : count_type(1);
+                    neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
 
                     if (neighbours_ptr[idx] >= min_observations) {
                         cores_ptr[idx] = count_type(1);

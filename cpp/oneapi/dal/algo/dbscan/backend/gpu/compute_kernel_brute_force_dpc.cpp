@@ -93,7 +93,18 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     }
     const auto weights_nd =
         pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
+    bool use_weights = false;
+    if (weights_nd.get_dimension(0) == data_nd.get_dimension(0)) {
+        use_weights = true;
+    }
+    pr::ndarray<Float, 2> weights_nd_replace;
+    if (rank_count > 1 && use_weights) {
+        weights_nd_replace = pr::ndarray<Float, 2>::empty(queue,
+                                                          { max_local_block_size, 1 },
+                                                          sycl::usm::alloc::device);
 
+        copy(queue, weights_nd_replace, weights_nd, {}).wait_and_throw();
+    }
     const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
@@ -142,6 +153,14 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                               prev_node,
                               next_node)
             .wait();
+        if (use_weights) {
+            comm.sendrecv_replace(queue,
+                                  weights_nd_replace.get_mutable_data(),
+                                  max_local_block_size,
+                                  prev_node,
+                                  next_node)
+                .wait();
+        }
         comm.sendrecv_replace(send_recv_replace_local_size.get_mutable_data(),
                               1,
                               prev_node,
@@ -149,16 +168,31 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
             .wait();
         auto local_row_block_count = send_recv_replace_local_size.get_data()[0];
         auto actual_current_block = data_nd_replace.get_row_slice(0, local_row_block_count);
-        kernels_fp<Float>::get_cores_send_recv_replace(queue,
-                                                       data_nd,
-                                                       actual_current_block,
-                                                       weights_nd,
-                                                       arr_cores,
-                                                       arr_neighbours,
-                                                       epsilon,
-                                                       min_observations,
-                                                       { get_cores_event })
-            .wait_and_throw();
+        if (use_weights) {
+            auto actual_weights = weights_nd_replace.get_row_slice(0, local_row_block_count);
+            kernels_fp<Float>::get_cores_send_recv_replace(queue,
+                                                           data_nd,
+                                                           actual_current_block,
+                                                           actual_weights,
+                                                           arr_cores,
+                                                           arr_neighbours,
+                                                           epsilon,
+                                                           min_observations,
+                                                           { get_cores_event })
+                .wait_and_throw();
+        }
+        else {
+            kernels_fp<Float>::get_cores_send_recv_replace(queue,
+                                                           data_nd,
+                                                           actual_current_block,
+                                                           weights_nd,
+                                                           arr_cores,
+                                                           arr_neighbours,
+                                                           epsilon,
+                                                           min_observations,
+                                                           { get_cores_event })
+                .wait_and_throw();
+        }
     }
 
     std::int64_t cluster_count = 0;
