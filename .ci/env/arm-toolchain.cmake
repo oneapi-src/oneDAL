@@ -30,7 +30,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8-a+sve")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a+sve")
 
 # Specify the root directory of the cross-compiler toolchain
-set(CMAKE_FIND_ROOT_PATH /usr/bin)
+set(CMAKE_FIND_ROOT_PATH / /usr/bin)
 
 # Specify the search paths for libraries and headers
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
