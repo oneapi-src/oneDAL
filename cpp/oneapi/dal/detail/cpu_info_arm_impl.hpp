@@ -32,12 +32,12 @@ namespace v1 {
 class cpu_info_arm : public cpu_info_iface {
 public:
     cpu_info_arm() {
-        info_["cpu_extensions"] = cpu_extension::sve;
+        info_["top_cpu_extension"] = cpu_extension::sve;
         info_["vendor"] = cpu_vendor::arm);
     }
 
     cpu_info_arm(const cpu_extension cpu_extension) {
-        info_["cpu_extensions"] = cpu_extension;
+        info_["top_cpu_extension"] = cpu_extension;
         info_["vendor"] = cpu_vendor::arm);
     }
 
@@ -45,8 +45,8 @@ public:
         return std::any_cast<detail::cpu_vendor>(info_.find("vendor")->second);
     }
 
-    cpu_extension get_cpu_extensions() const override {
-        return std::any_cast<cpu_extension>(info_.find("cpu_extensions")->second);
+    cpu_extension get_top_cpu_extension() const override {
+        return std::any_cast<cpu_extension>(info_.find("top_cpu_extension")->second);
     }
 
     std::string dump() const override {

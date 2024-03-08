@@ -101,10 +101,10 @@ cpu_vendor get_vendor() {
 #endif
 }
 
-/// Retreives the supported CPU extensions
+/// Retreives the highest supported CPU extension
 ///
-/// @return CPU extensions
-cpu_extension get_cpu_extensions() {
+/// @return The highest supported CPU extension
+cpu_extension get_top_cpu_extension() {
     cpu_extension ext = cpu_extension::none;
 #if defined(TARGET_X86_64)
     /// Calls CPUID with EAX == 0 to retrieve the number of supported CPUID subfunctions
@@ -141,7 +141,7 @@ TEST("can create default CPU info") {
 
     std::cout << "SYSTEM CPU INFO DUMP:" << std::endl;
     std::cout << gc.get_cpu_info().dump() << std::endl;
-    REQUIRE(get_cpu_extensions() == gc.get_cpu_info().get_cpu_extensions());
+    REQUIRE(get_top_cpu_extension() == gc.get_cpu_info().get_top_cpu_extension());
     REQUIRE(get_vendor() == gc.get_cpu_info().get_cpu_vendor());
 }
 

@@ -32,21 +32,21 @@ namespace v1 {
 class cpu_info_x86 : public cpu_info_iface {
 public:
     cpu_info_x86() {
-        info_["cpu_extensions"] = detect_top_cpu_extension();
+        info_["top_cpu_extension"] = detect_top_cpu_extension();
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
 
     cpu_info_x86(const cpu_extension cpu_extension) {
-        info_["cpu_extensions"] = cpu_extension;
+        info_["top_cpu_extension"] = cpu_extension;
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
 
     cpu_vendor get_cpu_vendor() const override {
-        return std::any_cast<detail::cpu_vendor>(info_.find("vendor")->second);
+        return std::any_cast<cpu_vendor>(info_.find("vendor")->second);
     }
 
-    cpu_extension get_cpu_extensions() const override {
-        return std::any_cast<cpu_extension>(info_.find("cpu_extensions")->second);
+    cpu_extension get_top_cpu_extension() const override {
+        return std::any_cast<cpu_extension>(info_.find("top_cpu_extension")->second);
     }
 
     std::string dump() const override {

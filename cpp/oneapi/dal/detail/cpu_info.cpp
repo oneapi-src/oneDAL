@@ -47,8 +47,8 @@ detail::cpu_vendor cpu_info::get_cpu_vendor() const {
     return impl_->get_cpu_vendor();
 }
 
-detail::cpu_extension cpu_info::get_cpu_extensions() const {
-    return impl_->get_cpu_extensions();
+detail::cpu_extension cpu_info::get_top_cpu_extension() const {
+    return impl_->get_top_cpu_extension();
 }
 
 std::string cpu_info::dump() const {

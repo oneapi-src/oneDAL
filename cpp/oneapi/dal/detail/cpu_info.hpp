@@ -27,10 +27,10 @@ public:
     cpu_info();
     cpu_info(const cpu_extension cpu_extension_);
 
-    cpu_vendor get_cpu_vendor() const;
-    cpu_extension get_cpu_extensions() const;
+    cpu_vendor get_cpu_vendor() const override;
+    cpu_extension get_top_cpu_extension() const override;
 
-    std::string dump() const;
+    std::string dump() const override;
 
 private:
     detail::pimpl<cpu_info_iface> impl_;

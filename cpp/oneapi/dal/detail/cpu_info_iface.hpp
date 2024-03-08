@@ -32,7 +32,7 @@ public:
     virtual cpu_vendor get_cpu_vendor() const = 0;
 
     /// The highest supported CPU extension
-    virtual cpu_extension get_cpu_extensions() const = 0;
+    virtual cpu_extension get_top_cpu_extension() const = 0;
 
     /// The dump of all supported CPU features in the format:
     /// feature 1: value1; feature2: value2; ...
