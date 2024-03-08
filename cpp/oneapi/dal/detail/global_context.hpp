@@ -19,12 +19,12 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/cpu_info.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 namespace v1 {
 
 class global_context_iface : public base {
 public:
-    virtual const detail::cpu_info_iface& get_cpu_info() const = 0;
+    virtual const cpu_info_iface& get_cpu_info() const = 0;
 };
 
 class global_context : public global_context_iface {
@@ -41,4 +41,4 @@ private:
 } // namespace v1
 using v1::global_context;
 using v1::global_context_iface;
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

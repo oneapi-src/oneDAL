@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/global_context.hpp"
+#include "oneapi/dal/detail/global_context.hpp"
 
 namespace oneapi::dal::detail::test {
 
@@ -77,7 +77,7 @@ void registers_to_vendor_id(const cpuid_registers& registers, char* buffer) {
 /// Retreives the CPU vendor
 ///
 /// @return CPU vendor ID
-detail::cpu_vendor get_vendor() {
+cpu_vendor get_vendor() {
 #if defined(TARGET_X86_64)
     /// Calls CPUID with EAX == 0 to retrieve CPU vendor
     cpuid_registers registers;
@@ -87,25 +87,25 @@ detail::cpu_vendor get_vendor() {
     registers_to_vendor_id(registers, vendor_buffer);
 
     if (std::string(vendor_buffer) == std::string("GenuineIntel")) {
-        return detail::cpu_vendor::intel;
+        return cpu_vendor::intel;
     }
     else if (std::string(vendor_buffer) == std::string("AuthenticAMD")) {
-        return detail::cpu_vendor::amd;
+        return cpu_vendor::amd;
     }
     else {
-        return detail::cpu_vendor::unknown;
+        return cpu_vendor::unknown;
     }
 #elif defined(TARGET_ARM)
     /// ARM architecture
-    return detail::cpu_vendor::arm;
+    return cpu_vendor::arm;
 #endif
 }
 
 /// Retreives the supported CPU extensions
 ///
 /// @return CPU extensions
-detail::cpu_extension get_cpu_extensions() {
-    detail::cpu_extension ext = detail::cpu_extension::none;
+cpu_extension get_cpu_extensions() {
+    cpu_extension ext = cpu_extension::none;
 #if defined(TARGET_X86_64)
     /// Calls CPUID with EAX == 0 to retrieve the number of supported CPUID subfunctions
     cpuid_registers registers;
@@ -114,23 +114,23 @@ detail::cpu_extension get_cpu_extensions() {
     if (ids_count >= 1) {
         cpuid(0x1, registers);
         if (registers.edx_ & (1U << 26)) {
-            ext = detail::cpu_extension::sse2;
+            ext = cpu_extension::sse2;
         }
         if (registers.ecx_ & (1U << 20)) {
-            ext = detail::cpu_extension::sse42;
+            ext = cpu_extension::sse42;
         }
     }
     if (ids_count >= 7) {
         cpuid(0x7, registers);
         if (registers.ebx_ & (1U << 5)) {
-            ext = detail::cpu_extension::avx2;
+            ext = cpu_extension::avx2;
         }
         if (registers.ebx_ & (1U << 16)) {
-            ext = detail::cpu_extension::avx512;
+            ext = cpu_extension::avx512;
         }
     }
 #elif defined(TARGET_ARM)
-    ext = detail::cpu_extension::sve;
+    ext = cpu_extension::sve;
 #endif
     return ext;
 }

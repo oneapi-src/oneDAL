@@ -17,11 +17,9 @@
 
 #pragma once
 
-#include "oneapi/dal/global_context.hpp"
-
+#include "oneapi/dal/detail/global_context.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
-#include "oneapi/dal/detail/cpu_info.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
@@ -87,13 +85,13 @@ class context_cpu : public communicator_provider<spmd::device_memory_access::non
 public:
     explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
             : cpu_extensions_(policy.get_enabled_cpu_extensions()) {
-        global_context::get_global_context();
+        detail::global_context::get_global_context();
     }
 
     explicit context_cpu(const detail::spmd_host_policy& policy)
             : communicator_provider<spmd::device_memory_access::none>(policy.get_communicator()),
               cpu_extensions_(policy.get_local().get_enabled_cpu_extensions()) {
-        global_context::get_global_context();
+        detail::global_context::get_global_context();
     }
 
     explicit context_cpu(const spmd::communicator<spmd::device_memory_access::none>& comm)

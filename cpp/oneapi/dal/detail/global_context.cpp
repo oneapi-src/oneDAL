@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/global_context.hpp"
+#include "oneapi/dal/detail/global_context.hpp"
 #include "oneapi/dal/detail/global_context_impl.hpp"
 
-namespace oneapi::dal {
+namespace oneapi::dal::detail {
 namespace v1 {
 
 const global_context_iface& global_context::get_global_context() {
@@ -26,4 +26,4 @@ const global_context_iface& global_context::get_global_context() {
 }
 
 } // namespace v1
-} // namespace oneapi::dal
+} // namespace oneapi::dal::detail

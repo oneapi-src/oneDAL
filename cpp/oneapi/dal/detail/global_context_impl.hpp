@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/global_context.hpp"
+#include "oneapi/dal/detail/global_context.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
