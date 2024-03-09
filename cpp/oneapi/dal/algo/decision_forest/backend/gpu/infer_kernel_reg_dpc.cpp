@@ -24,7 +24,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::regression>;
 using input_t = infer_input<task::regression>;
 using result_t = infer_result<task::regression>;
-using param_t = detail::infer_parameters<task::classification>;
+using param_t = detail::infer_parameters<task::regression>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
 template <typename Float>
