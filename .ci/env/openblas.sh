@@ -22,18 +22,18 @@ while [[ $# -gt 0 ]]; do
     case $key in
         --target)
         target="$2"
-        ;;
+        shift;;
         --compiler)
         compiler="$2"
-        ;;
+        shift;;
         --host_compiler)
         host_compiler="$2"
-        ;;
+        shift;;
         --cflags)
         cflags="$2"
-        ;;
+        shift;;
         --cross_compile)
-        cross_compile="$2"
+        cross_compile="yes"
         ;;
         *)
         echo "Unknown option: $1"
@@ -41,8 +41,12 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
     shift
-    shift
 done
+
+target=${target:-ARMV8}
+host_compiler=${host_compiler:-gcc}
+compiler=${compiler:-aarch64-linux-gnu-gcc}
+cflags=${cflags:--march=armv8-a+sve}
 
 sudo apt-get update
 sudo apt-get -y install build-essential gcc gfortran

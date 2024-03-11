@@ -133,7 +133,7 @@ elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
         if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
-            $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile yes
+            $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
         else
             $(pwd)/.ci/env/openblas.sh
         fi
@@ -147,7 +147,7 @@ if [[ "${ARCH}" == "32e" ]]; then
     $(pwd)/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        $(pwd)/.ci/env/tbb.sh --toolchain_file $(pwd)/.ci/env/arm-toolchain.cmake --arch_dir arm --cross_compile yes
+        $(pwd)/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-toolchain.cmake --target_arch aarch64
     else
         $(pwd)/.ci/env/tbb.sh
     fi

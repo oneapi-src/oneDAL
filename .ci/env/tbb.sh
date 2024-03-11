@@ -15,14 +15,16 @@
 # limitations under the License.
 #===============================================================================
 
-arch=$(uname -m)
-if [ "${arch}" == "x86_64" ]; then
-    arch_dir="intel64"
-elif [ "${arch}" == "aarch64" ]; then
-    arch_dir="arm"
-else
-    arch_dir=${arch}
-fi
+# Function to display help
+show_help() {
+    echo "Usage: $0 [--help]"
+    echo -e "  --help  \t\t\tDisplay this information"
+    echo -e "  --CC <bin path> \t\tPass full path to c compiler. Default is GNU gcc."
+    echo -e "  --CXX <bin path> \t\tPass full path to c++ compiler. Default is GNU g++."
+    echo -e "  --cross-compile <flag> \tPass this flag if cross-compiling."
+    echo -e "  --toolchain_file <file> \tPass path to cmake toolchain file. Default is './.ci/env/arm-toolchain.cmake'. Use only with '--cross_compile'"
+    echo -e "  --target_arch <name> \t\tTarget architecture name (i.e aarch64, x86_64, etc.) for cross-compilation. Use only with '--cross_compile'"
+}
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -30,18 +32,22 @@ while [[ $# -gt 0 ]]; do
     case $key in
         --CXX)
         CXX="$2"
-        ;;
+        shift;;
         --CC)
         CC="$2"
-        ;;
+        shift;;
         --toolchain_file)
         toolchain_file="$2"
-        ;;
-        --arch_dir)
-        arch_dir="$2"
+        shift;;
+        --target_arch)
+        target_arch="$2"
+        shift;;
+        --help)
+        show_help
+        exit 0
         ;;
         --cross_compile)
-        cross_compile="$2"
+        cross_compile="yes"
         ;;
         *)
         echo "Unknown option: $1"
@@ -49,30 +55,39 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
     shift
-    shift
 done
 
-# Function to display help
-show_help() {
-    echo "Usage: $0 [-h]"
-    echo "  -h  Display this information"
-    echo "  Set CC and CXX environment variables to change the compiler. Default is GNU."
+set_arch_dir() {
+    local arch="$1"
+    local arch_dir=""
+    if [ "$arch" == "x86_64" ]; then
+        arch_dir="intel64"
+    elif [ "$arch" == "aarch64" ]; then
+        arch_dir="arm"
+    else
+        arch_dir="$arch"
+    fi
+    echo "${arch_dir}"
 }
 
-# Check for command-line options
-while getopts ":h" opt; do
-    case $opt in
-        h)
-            show_help
-            exit 0
-            ;;
-        \?)
-            echo "Invalid option: -$OPTARG" >&2
-            show_help
-            exit 1
-            ;;
-    esac
-done
+if [ "${cross_compile}" == "yes" ]; then
+    toolchain_file=${toolchain_file:-$(pwd)/.ci/env/arm-toolchain.cmake}
+    if [ ! -f ${toolchain_file} ]; then
+        echo "'${toolchain_file}' file does not exists. Please specify using '--toolchain_file=<path>' argument."
+        exit 1
+    fi
+    target_arch=${target_arch:-aarch64}
+    arch_dir=${arch_dir:-$(set_arch_dir "${target_arch}")}
+else
+    arch=${target_arch:-$(uname -m)}
+    if [ "${arch}" == "x86_64" ]; then
+        arch_dir="intel64"
+    elif [ "${arch}" == "aarch64" ]; then
+        arch_dir="arm"
+    else
+        arch_dir=${arch}
+    fi
+fi
 
 TBB_VERSION="v2021.10.0"
 
@@ -101,7 +116,7 @@ else
     echo "CC is set to: $CC"
     cmake -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_CC_COMPILER=${CC} -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb .. 
 fi
-make -j${CoreCount} 
+make -j${CoreCount}
 make install
 popd
 popd
