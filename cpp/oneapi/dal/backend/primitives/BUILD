@@ -44,6 +44,7 @@ dal_collect_modules(
         "search",
         "selection",
         "sort",
+        "sparse_blas",
         "stat",
         "voting",
     ],
