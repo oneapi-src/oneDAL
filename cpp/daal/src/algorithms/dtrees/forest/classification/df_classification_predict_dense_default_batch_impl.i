@@ -517,7 +517,8 @@ DAAL_FORCEINLINE Status PredictClassificationTask<float, avx512>::predictByTree(
 {
     if (sizeOfBlock == _blockSize)
     {
-        uint32_t idx[_blockSize];
+        TArray<uint32_t, avx512> idxArray(_blockSize);
+        auto idx = idxArray.get();
         services::internal::service_memset_seq<uint32_t, avx512>(idx, uint32_t(0), _blockSize);
 
         __mmask16 isSplit = 0xffff;
@@ -578,7 +579,8 @@ DAAL_FORCEINLINE Status PredictClassificationTask<double, avx512>::predictByTree
 {
     if (sizeOfBlock == _blockSize)
     {
-        uint32_t idx[_blockSize];
+        TArray<uint32_t, avx512> idxArray(_blockSize);
+        auto idx = idxArray.get();
         services::internal::service_memset_seq<uint32_t, avx512>(idx, uint32_t(0), _blockSize);
 
         __mmask8 isSplit = 1;
