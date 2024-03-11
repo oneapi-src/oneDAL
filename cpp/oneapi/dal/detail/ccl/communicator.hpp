@@ -23,6 +23,8 @@
 // otherwise it creates dependeny on CCL at the user's application compile time
 // TODO: In the future this can be solved via __has_include C++17 feature
 
+#include <string>
+#include <iostream>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 #include <mpi.h>
@@ -328,6 +330,7 @@ public:
     bool get_mpi_gpu_support() override {
         auto ccl_backend = ccl::get_library_version().cl_backend_name.c_str();
         std::cout << "CCL BACKEND: " << ccl_backend << std::endl;
+        throw std::runtime_error(ccl_backend);
         if (ccl_backend == "DPCPP") {
                 return true;
         }
