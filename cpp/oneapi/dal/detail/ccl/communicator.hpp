@@ -326,7 +326,11 @@ public:
     }
 
     bool get_mpi_gpu_support() override {
-        // TODO: any options that could be true here?
+        auto ccl_backend = ccl::get_library_version().cl_backend_name.c_str();
+        std::cout << "CCL BACKEND: " << ccl_backend << std::endl;
+        if (ccl_backend == "DPCPP") {
+                return true;
+        }
         return false;
     }
 
