@@ -19,7 +19,7 @@
 #  Clang definitions for makefile.
 #  This file contains definitions common to clang on a 32e (intel64) platform.
 #  It should only be included from files which have more specializations (e.g.
-#  clang.mkl.32e.mk
+#  clang.mkl.32e.mk)
 #--
 
 include dev/make/compiler_definitions/clang.mk

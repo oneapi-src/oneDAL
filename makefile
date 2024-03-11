@@ -511,19 +511,19 @@ $(CORE.tmpdir_y)/inc_y_folders.txt: makefile.lst | $(CORE.tmpdir_y)/. $(CORE.inc
 $(CORE.tmpdir_a)/library_version_info.$(o): $(VERSION_DATA_FILE)
 $(CORE.tmpdir_y)/library_version_info.$(o): $(VERSION_DATA_FILE)
 
-# Used as $(eval $(call .compile.template.ay,$(ARCH),obj_file))
+# Used as $(eval $(call .compile.template.ay,obj_file))
 define .compile.template.ay
-$(eval template_source_cpp := $(subst .$o,.cpp,$(notdir $2)))
+$(eval template_source_cpp := $(subst .$o,.cpp,$(notdir $1)))
 $(eval template_source_cpp := $(subst _fpt_flt,_fpt,$(template_source_cpp)))
 $(eval template_source_cpp := $(subst _fpt_dbl,_fpt,$(template_source_cpp)))
 
 $(eval $(call subst_arch_cpu_in_var,template_source_cpp))
 
-$2: $(template_source_cpp) ; $(value C.COMPILE)
+$1: $(template_source_cpp) ; $(value C.COMPILE)
 endef
 
-$(foreach a,$(CORE.objs_a),$(eval $(call .compile.template.ay,$(ARCH),$a)))
-$(foreach a,$(CORE.objs_y),$(eval $(call .compile.template.ay,$(ARCH),$a)))
+$(foreach a,$(CORE.objs_a),$(eval $(call .compile.template.ay,$a)))
+$(foreach a,$(CORE.objs_y),$(eval $(call .compile.template.ay,$a)))
 
 $(CORE.tmpdir_y)/dll.res: $(VERSION_DATA_FILE)
 $(CORE.tmpdir_y)/dll.res: RCOPT += $(addprefix -I, $(CORE.incdirs.common))
