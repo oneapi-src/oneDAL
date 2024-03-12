@@ -152,27 +152,26 @@ public:
         // TODO: make this function bool convert() and instead determine if conversion necessary?
 
         // Check libmpi.so for symbol
-        return true;
-        // void* handle = dlopen("libmpi.so", RTLD_LAZY);
+        void* handle = dlopen("libmpi.so", RTLD_LAZY);
 
-        // if (handle == nullptr) {
-        //     return false;
-        // }
+        if (handle == nullptr) {
+            return false;
+        }
 
-        // void* sym = dlsym(handle, "MPIX_Query_ze_support");
+        void* sym = dlsym(handle, "MPIX_Query_ze_support");
 
-        // if (sym == nullptr) {
-        //     dlclose(handle);
-        //     return false;
-        // }
+        if (sym == nullptr) {
+            dlclose(handle);
+            return false;
+        }
 
-        // // Return status of MPI ze support using pointer to function
-        // typedef int (*MPIX_Query_ze_support_ptr)();
-        // MPIX_Query_ze_support_ptr query_ze_support_ptr = (MPIX_Query_ze_support_ptr)sym;
+        // Return status of MPI ze support using pointer to function
+        typedef int (*MPIX_Query_ze_support_ptr)();
+        MPIX_Query_ze_support_ptr query_ze_support_ptr = (MPIX_Query_ze_support_ptr)sym;
 
-        // bool result = query_ze_support_ptr();
-        // dlclose(handle);
-        // return result;
+        bool result = query_ze_support_ptr();
+        dlclose(handle);
+        return result;
     }
 
     void barrier() override {
