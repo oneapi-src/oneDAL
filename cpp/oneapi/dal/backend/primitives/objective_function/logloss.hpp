@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -31,6 +32,14 @@ sycl::event compute_probabilities(sycl::queue& q,
                                   ndview<Float, 1>& probabilities,
                                   bool fit_intercept = true,
                                   const event_vector& deps = {});
+
+template <typename Float>
+sycl::event compute_probabilities_sparse(sycl::queue& q,
+                                         const ndview<Float, 1>& parameters,
+                                         sparse_matrix_handle& sp_handler,
+                                         ndview<Float, 1>& probabilities,
+                                         bool fit_intercept = true,
+                                         const event_vector& deps = {});
 
 template <typename Float>
 sycl::event compute_logloss(sycl::queue& q,
@@ -49,6 +58,16 @@ sycl::event compute_logloss_with_der(sycl::queue& q,
                                      ndview<Float, 1>& out_derivative,
                                      bool fit_intercept = true,
                                      const event_vector& deps = {});
+
+template <typename Float>
+sycl::event compute_logloss_with_der_sparse(sycl::queue& q,
+                                            sparse_matrix_handle& sp_handler,
+                                            const ndview<std::int32_t, 1>& labels,
+                                            const ndview<Float, 1>& probabilities,
+                                            ndview<Float, 1>& out,
+                                            ndview<Float, 1>& out_derivative,
+                                            bool fit_intercept = true,
+                                            const event_vector& deps = {});
 
 template <typename Float>
 sycl::event compute_derivative(sycl::queue& q,
@@ -103,89 +122,5 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 const ndview<Float, 1>& probabilities,
                                 ndview<Float, 1>& out_hessian,
                                 const event_vector& deps = {});
-
-using comm_t = backend::communicator<spmd::device_memory_access::usm>;
-
-template <typename Float>
-class logloss_hessian_product : public base_matrix_operator<Float> {
-public:
-    logloss_hessian_product(sycl::queue& q,
-                            const table& data,
-                            Float L2 = Float(0),
-                            bool fit_intercept = true,
-                            std::int64_t bsz = -1);
-    logloss_hessian_product(sycl::queue& q,
-                            comm_t comm,
-                            const table& data,
-                            Float L2 = Float(0),
-                            bool fit_intercept = true,
-                            std::int64_t bsz = -1);
-    sycl::event operator()(const ndview<Float, 1>& vec,
-                           ndview<Float, 1>& out,
-                           const event_vector& deps) final;
-    ndview<Float, 1>& get_raw_hessian();
-
-private:
-    sycl::event compute_with_fit_intercept(const ndview<Float, 1>& vec,
-                                           ndview<Float, 1>& out,
-                                           const event_vector& deps);
-    sycl::event compute_without_fit_intercept(const ndview<Float, 1>& vec,
-                                              ndview<Float, 1>& out,
-                                              const event_vector& deps);
-
-    sycl::queue q_;
-    comm_t comm_;
-    const table data_;
-    Float L2_;
-    bool fit_intercept_;
-    ndarray<Float, 1> raw_hessian_;
-    ndarray<Float, 1> buffer_;
-    ndarray<Float, 1> tmp_gpu_;
-    const std::int64_t n_;
-    const std::int64_t p_;
-    const std::int64_t bsz_;
-};
-
-template <typename Float>
-class logloss_function : public base_function<Float> {
-public:
-    logloss_function(sycl::queue queue,
-                     const table& data,
-                     const ndview<std::int32_t, 1>& labels,
-                     Float L2 = 0.0,
-                     bool fit_intercept = true,
-                     std::int64_t bsz = -1);
-    logloss_function(sycl::queue queue,
-                     comm_t comm,
-                     const table& data,
-                     const ndview<std::int32_t, 1>& labels,
-                     Float L2 = 0.0,
-                     bool fit_intercept = true,
-                     std::int64_t bsz = -1);
-    Float get_value() final;
-    ndview<Float, 1>& get_gradient() final;
-    base_matrix_operator<Float>& get_hessian_product() final;
-
-    event_vector update_x(const ndview<Float, 1>& x,
-                          bool need_hessp = false,
-                          const event_vector& deps = {}) final;
-
-private:
-    sycl::queue q_;
-    comm_t comm_;
-    const table data_;
-    const ndview<std::int32_t, 1> labels_;
-    const std::int64_t n_;
-    const std::int64_t p_;
-    Float L2_;
-    bool fit_intercept_;
-    const std::int64_t bsz_;
-    ndarray<Float, 1> probabilities_;
-    ndarray<Float, 1> gradient_;
-    ndarray<Float, 1> buffer_;
-    logloss_hessian_product<Float> hessp_;
-    const std::int64_t dimension_;
-    Float value_;
-};
 
 } // namespace oneapi::dal::backend::primitives

@@ -17,3 +17,4 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/objective_function/logloss_functors.hpp"

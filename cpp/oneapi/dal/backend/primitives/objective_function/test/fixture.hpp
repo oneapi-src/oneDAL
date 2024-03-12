@@ -17,6 +17,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/objective_function/logloss_functors.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -136,6 +137,8 @@ public:
         const std::int64_t n = data_host.get_dimension(0);
         const std::int64_t p = data_host.get_dimension(1);
         const std::int64_t dim = params_host.get_dimension(0);
+
+        std::cerr << n << " " << p << std::endl;
 
         auto data_gpu = data_host.to_device(this->get_queue());
         auto labels_gpu = labels_host.to_device(this->get_queue());
@@ -265,19 +268,23 @@ public:
                              atol);
 
         if (L1 == 0) {
+            std::cerr << "in functors test" << std::endl;
             std::int64_t bsz = -1;
             if (batch_test) {
                 bsz = GENERATE(4, 8, 16, 20, 37, 512);
             }
             // logloss_function has different regularization so we need to multiply it by 2 to allign with other implementations
+            std::cerr << "before functor construction" << std::endl;
             auto functor = logloss_function<float_t>(this->get_queue(),
                                                      data_,
                                                      labels_gpu,
                                                      L2 * 2,
                                                      fit_intercept,
                                                      bsz);
+            std::cerr << "after functor constructor" << std::endl;
             auto set_point_event = functor.update_x(params_gpu, true, {});
             wait_or_pass(set_point_event).wait_and_throw();
+            std::cerr << "after update x" << std::endl;
 
             check_val(logloss, functor.get_value(), rtol, atol);
             auto grad_func = functor.get_gradient();
@@ -288,7 +295,9 @@ public:
             }
             base_matrix_operator<float_t>& hessp = functor.get_hessian_product();
             test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
+            std::cerr << "releasing functor" << std::endl;
         }
+        std::cerr << "test end" << std::endl;
     }
 
     float_t clip_prob(float_t prob) {

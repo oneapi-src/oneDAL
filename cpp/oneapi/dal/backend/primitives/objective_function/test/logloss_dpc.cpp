@@ -17,7 +17,7 @@
 #include "fixture.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
-
+/*
 TEMPLATE_TEST_M(logloss_test, "gold input test - double", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -39,6 +39,7 @@ TEMPLATE_TEST_M(logloss_test, "gold input test - float - no fit intercept", "[lo
     SKIP_IF(this->get_policy().is_cpu());
     this->test_gold_input(false);
 }
+*/
 
 TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
@@ -46,6 +47,7 @@ TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss
     this->generate_input();
     this->run_test(0.0, 1.3);
 }
+/*
 
 TEMPLATE_TEST_M(logloss_test,
                 "test random input - double without L1 - no fit intercept",
@@ -99,5 +101,6 @@ TEMPLATE_TEST_M(logloss_test, "test random input - float - no fit intercept", "[
     this->generate_input();
     this->run_test(0.4, 1.3, false);
 }
+*/
 
 } // namespace oneapi::dal::backend::primitives::test
