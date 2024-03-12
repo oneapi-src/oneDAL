@@ -331,9 +331,9 @@ public:
         auto ccl_backend = ccl::get_library_version().cl_backend_name.c_str();
         std::cout << "CCL BACKEND: " << ccl_backend << std::endl;
         throw std::runtime_error(ccl_backend);
-        if (ccl_backend == "DPCPP") {
-                return true;
-        }
+        // if (ccl_backend == "DPCPP") {
+        //         return true;
+        // }
         return false;
     }
 
