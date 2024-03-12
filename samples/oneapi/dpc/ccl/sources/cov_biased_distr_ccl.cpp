@@ -33,6 +33,8 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& queue) {
     const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
+    auto ccl_backend = ccl::get_library_version().cl_backend_name.c_str();
+    throw std::runtime_error(ccl_backend);
 
     const auto data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 

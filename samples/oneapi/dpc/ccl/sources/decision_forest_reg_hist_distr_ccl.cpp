@@ -36,6 +36,11 @@ void run(sycl::queue &queue) {
     const auto train_response_file_name = get_data_path("df_regression_train_label.csv");
     const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
     const auto test_response_file_name = get_data_path("df_regression_test_label.csv");
+    auto ccl_backend = ccl::get_library_version().cl_backend_name.c_str();
+    std::cout << "CCL BACKEND: " << ccl_backend << std::endl;
+    if (ccl_backend == "DPCPP") {
+            std::cout << "EQUAL" << std::endl;
+    }
 
     const auto x_train =
         dal::read<dal::table>(queue, dal::csv::data_source{ train_data_file_name });
