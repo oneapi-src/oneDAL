@@ -17,7 +17,6 @@
 #include <sycl/sycl.hpp>
 #include <iomanip>
 #include <iostream>
-#include <string>
 
 #define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/dbscan.hpp"
@@ -30,11 +29,6 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue &queue) {
     const auto data_file_name = get_data_path("data/dbscan_dense.csv");
-    auto ccl_backend = ccl::get_library_version().cl_backend_name.c_str();
-    std::cout << "CCL BACKEND: " << ccl_backend << std::endl;
-    if (ccl_backend == "DPCPP") {
-            std::cout << "EQUAL" << std::endl;
-    }
 
     const auto x_data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 
