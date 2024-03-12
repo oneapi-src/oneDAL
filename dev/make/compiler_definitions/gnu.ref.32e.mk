@@ -1,4 +1,3 @@
-#!/bin/bash
 #===============================================================================
 # Copyright 2023 Intel Corporation
 #
@@ -15,21 +14,11 @@
 # limitations under the License.
 #===============================================================================
 
-os=$(uname)
-ARCH=$(uname -m)
-if [ "${os}" = "Linux" ]; then
-  if [ "${ARCH}" = "x86_64" ]; then
-    echo lnx32e
-  elif [ "${ARCH}" = "aarch64" ]; then
-    echo lnxarm
-  else
-    echo "Unkown architecture: ${ARCH}"
-    exit 1
-  fi
-elif [ "${os}" = "Darwin" ]; then
-  echo mac32e
-elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
-  echo win32e
-else
-  echo "Unknown OS: ${os}"
-fi
+#++
+#  g++ definitions for makefile
+#--
+
+include dev/make/compiler_definitions/gnu.32e.mk
+
+COMPILER.lnx.gnu = $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
+COMPILER.mac.gnu = $(COMPILER.all.gnu) -DDAAL_REF -DONEDAL_REF
