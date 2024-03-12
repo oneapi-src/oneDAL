@@ -53,9 +53,9 @@ sycl::event set_csr_data(sycl::queue &queue,
                          const std::int64_t row_count,
                          const std::int64_t column_count,
                          dal::sparse_indexing indexing,
-                         dal::array<Float> &data,
-                         dal::array<std::int64_t> &column_indices,
-                         dal::array<std::int64_t> &row_offsets,
+                         const dal::array<const Float> &data,
+                         const dal::array<const std::int64_t> &column_indices,
+                         const dal::array<const std::int64_t> &row_offsets,
                          const std::vector<sycl::event> &dependencies = {});
 
 /// Fill the internal CSR data structure of the matrix handle with the data
@@ -103,7 +103,7 @@ sycl::event set_csr_data(sycl::queue &queue,
 ///         that were enqueued during the API call.
 sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
-                         dal::csr_table &table,
+                         const dal::csr_table &table,
                          const std::vector<sycl::event> &dependencies = {});
 
 #endif // ifdef ONEDAL_DATA_PARALLEL
