@@ -102,10 +102,10 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend_config ref --conda-env ci-env --cross_compile yes --arch arm --plat lnxarm
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend_config ref --conda-env ci-env --cross_compile --arch arm --plat lnxarm
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend_config ref --cross_compile yes --arch arm --plat lnxarm
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend_config ref --cross_compile --arch arm --plat lnxarm
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:

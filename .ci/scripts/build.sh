@@ -56,34 +56,33 @@ while [[ $# -gt 0 ]]; do
     case $key in
         --compiler)
         compiler="$2"
-        ;;
+        shift;;
         --optimizations)
         optimizations="$2"
-        ;;
+        shift;;
         --target)
         target="$2"
-        ;;
+        shift;;
         --backend_config)
         backend_config="$2"
-        ;;
+        shift;;
         --conda-env)
         conda_env="$2"
-        ;;
+        shift;;
         --cross_compile)
-        cross_compile="$2"
+        cross_compile="yes"
         ;;
         --arch)
         ARCH="$2"
-        ;;
+        shift;;
         --plat)
         PLAT="$2"
-        ;;
+        shift;;
         *)
         echo "Unknown option: $1"
         exit 1
         ;;
     esac
-    shift
     shift
 done
 
