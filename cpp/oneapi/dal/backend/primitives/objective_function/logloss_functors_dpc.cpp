@@ -101,45 +101,83 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
     Float v0 = vec.at_device(q_, 0, deps);
-
-    const uniform_blocking blocking(n_, bsz_);
-
-    row_accessor<const Float> data_accessor(data_);
     event_vector last_iter_deps = { fill_buffer_event, fill_out_event };
 
-    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
-        const auto last = blocking.get_block_end_index(b);
-        const auto first = blocking.get_block_start_index(b);
-        const auto length = last - first;
-        auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
-        auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
-        auto buffer_batch = buffer_.slice(first, length);
-        sycl::event event_xv = gemv(q_, x_nd, vec_suf, buffer_batch, Float(1), v0, last_iter_deps);
-        event_xv.wait_and_throw(); // Without this line gemv does not work correctly
+    if (data_.get_kind() == dal::csr_table::kind()) {
+        const auto* const hess_ptr = raw_hessian_.get_data();
+        auto* const out_ptr = out.get_mutable_data();
+        auto* const buffer_ptr = buffer_.get_mutable_data();
 
-        auto* const buffer_ptr = buffer_batch.get_mutable_data();
-        const auto* const hess_ptr = raw_hessian_.get_data() + first;
-
-        auto fill_tmp_event = fill<Float>(q_, tmp_gpu_, Float(0), last_iter_deps);
+        sycl::event event_xv = gemv(q_,
+                                    transpose::nontrans,
+                                    *sp_handle_,
+                                    vec_suf,
+                                    buffer_,
+                                    Float(1),
+                                    v0,
+                                    last_iter_deps);
+        event_xv.wait_and_throw();
 
         sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
-            cgh.depends_on({ event_xv, fill_tmp_event });
-            const auto range = make_range_1d(length);
-            auto sum_reduction = sycl::reduction(tmp_ptr, sycl::plus<>());
+            cgh.depends_on({ event_xv });
+            const auto range = make_range_1d(n_);
+            auto sum_reduction = sycl::reduction(out_ptr, sycl::plus<>());
             cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
                 buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
                 sum_v0 += buffer_ptr[idx];
             });
         });
 
-        sycl::event event_xtdxv =
-            gemv(q_, x_nd.t(), buffer_batch, tmp_suf, Float(1), Float(0), { event_dxv });
-        event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+        sycl::event event_xtdxv = gemv(q_,
+                                       transpose::trans,
+                                       *sp_handle_,
+                                       buffer_,
+                                       out_suf,
+                                       Float(1),
+                                       Float(0),
+                                       { event_dxv });
+        event_xtdxv.wait_and_throw();
+        last_iter_deps = { event_xtdxv };
+    }
+    else {
+        const uniform_blocking blocking(n_, bsz_);
+        row_accessor<const Float> data_accessor(data_);
 
-        sycl::event update_result_e =
-            element_wise(q_, sycl::plus<>(), out, tmp_ndview, out, { event_xtdxv });
+        for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+            const auto last = blocking.get_block_end_index(b);
+            const auto first = blocking.get_block_start_index(b);
+            const auto length = last - first;
+            auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
+            auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
+            auto buffer_batch = buffer_.slice(first, length);
+            sycl::event event_xv =
+                gemv(q_, x_nd, vec_suf, buffer_batch, Float(1), v0, last_iter_deps);
+            event_xv.wait_and_throw(); // Without this line gemv does not work correctly
 
-        last_iter_deps = { update_result_e };
+            auto* const buffer_ptr = buffer_batch.get_mutable_data();
+            const auto* const hess_ptr = raw_hessian_.get_data() + first;
+
+            auto fill_tmp_event = fill<Float>(q_, tmp_gpu_, Float(0), last_iter_deps);
+
+            sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
+                cgh.depends_on({ event_xv, fill_tmp_event });
+                const auto range = make_range_1d(length);
+                auto sum_reduction = sycl::reduction(tmp_ptr, sycl::plus<>());
+                cgh.parallel_for(range, sum_reduction, [=](sycl::id<1> idx, auto& sum_v0) {
+                    buffer_ptr[idx] = buffer_ptr[idx] * hess_ptr[idx];
+                    sum_v0 += buffer_ptr[idx];
+                });
+            });
+
+            sycl::event event_xtdxv =
+                gemv(q_, x_nd.t(), buffer_batch, tmp_suf, Float(1), Float(0), { event_dxv });
+            event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+
+            sycl::event update_result_e =
+                element_wise(q_, sycl::plus<>(), out, tmp_ndview, out, { event_xtdxv });
+
+            last_iter_deps = { update_result_e };
+        }
     }
 
     if (comm_.get_rank_count() > 1) {
@@ -171,47 +209,78 @@ sycl::event logloss_hessian_product<Float>::compute_without_fit_intercept(
     ONEDAL_ASSERT(vec.get_dimension(0) == p_);
     ONEDAL_ASSERT(out.get_dimension(0) == p_);
 
+    ndview<Float, 1> buffer_view_ = buffer_;
+    ndview<Float, 1> hess_view_ = raw_hessian_;
+
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
-    const uniform_blocking blocking(n_, bsz_);
-
-    ndview<Float, 1> tmp_ndview = tmp_gpu_.slice(0, p_);
-
-    row_accessor<const Float> data_accessor(data_);
     event_vector last_iter_deps = { fill_out_event };
 
-    for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
-        const auto last = blocking.get_block_end_index(b);
-        const auto first = blocking.get_block_start_index(b);
-        const auto length = last - first;
-        ONEDAL_ASSERT(0l < length);
-        auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
-        auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
-        ndview<Float, 1> buffer_batch = buffer_.slice(first, length);
-        ndview<Float, 1> hess_batch = raw_hessian_.slice(first, length);
-
-        sycl::event event_xv =
-            gemv(q_, x_nd, vec, buffer_batch, Float(1), Float(0), last_iter_deps);
+    if (data_.get_kind() == dal::csr_table::kind()) {
+        sycl::event event_xv = gemv(q_,
+                                    transpose::nontrans,
+                                    *sp_handle_,
+                                    vec,
+                                    buffer_,
+                                    Float(1),
+                                    Float(0),
+                                    last_iter_deps);
         event_xv.wait_and_throw(); // Without this line gemv does not work correctly
 
         constexpr sycl::multiplies<Float> kernel_mul{};
         auto event_dxv =
-            element_wise(q_, kernel_mul, buffer_batch, hess_batch, buffer_batch, { event_xv });
-
-        auto fill_tmp_event = fill<Float>(q_, tmp_ndview, Float(0), last_iter_deps);
+            element_wise(q_, kernel_mul, buffer_view_, hess_view_, buffer_view_, { event_xv });
 
         sycl::event event_xtdxv = gemv(q_,
-                                       x_nd.t(),
-                                       buffer_batch,
-                                       tmp_ndview,
+                                       transpose::trans,
+                                       *sp_handle_,
+                                       buffer_,
+                                       out,
                                        Float(1),
                                        Float(0),
-                                       { event_dxv, fill_tmp_event });
+                                       { event_dxv });
         event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
 
-        sycl::event update_grad_e =
-            element_wise(q_, sycl::plus<>(), out, tmp_ndview, out, { event_xtdxv });
-        last_iter_deps = { update_grad_e };
+        last_iter_deps = { event_xtdxv };
+    }
+    else {
+        const uniform_blocking blocking(n_, bsz_);
+        ndview<Float, 1> tmp_ndview = tmp_gpu_.slice(0, p_);
+        row_accessor<const Float> data_accessor(data_);
+
+        for (std::int64_t b = 0; b < blocking.get_block_count(); ++b) {
+            const auto last = blocking.get_block_end_index(b);
+            const auto first = blocking.get_block_start_index(b);
+            const auto length = last - first;
+            ONEDAL_ASSERT(0l < length);
+            auto x_rows = data_accessor.pull(q_, { first, last }, sycl::usm::alloc::device);
+            auto x_nd = pr::ndarray<Float, 2>::wrap(x_rows, { length, p_ });
+            ndview<Float, 1> buffer_batch = buffer_.slice(first, length);
+            ndview<Float, 1> hess_batch = raw_hessian_.slice(first, length);
+
+            sycl::event event_xv =
+                gemv(q_, x_nd, vec, buffer_batch, Float(1), Float(0), last_iter_deps);
+            event_xv.wait_and_throw(); // Without this line gemv does not work correctly
+
+            constexpr sycl::multiplies<Float> kernel_mul{};
+            auto event_dxv =
+                element_wise(q_, kernel_mul, buffer_batch, hess_batch, buffer_batch, { event_xv });
+
+            auto fill_tmp_event = fill<Float>(q_, tmp_ndview, Float(0), last_iter_deps);
+
+            sycl::event event_xtdxv = gemv(q_,
+                                           x_nd.t(),
+                                           buffer_batch,
+                                           tmp_ndview,
+                                           Float(1),
+                                           Float(0),
+                                           { event_dxv, fill_tmp_event });
+            event_xtdxv.wait_and_throw(); // Without this line gemv does not work correctly
+
+            sycl::event update_grad_e =
+                element_wise(q_, sycl::plus<>(), out, tmp_ndview, out, { event_xtdxv });
+            last_iter_deps = { update_grad_e };
+        }
     }
 
     if (comm_.get_rank_count() > 1) {
