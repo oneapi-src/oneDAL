@@ -40,18 +40,14 @@ struct order_tag {
 using c_order = order_tag<ndorder::c>;
 using f_order = order_tag<ndorder::f>;
 
+#define IS_CLOSE(ftype, real, expected, rtol, atol) \
+    REQUIRE(abs(real - expected) < atol);           \
+    REQUIRE(abs(real - expected) / std::max(std::abs(expected), (ftype)1.0) < rtol);
+
 template <typename Param>
 class logloss_test : public te::float_algo_fixture<Param> {
 public:
     using float_t = Param;
-
-    void check_val(const float_t real,
-                   const float_t expected,
-                   const float_t rtol,
-                   const float_t atol) {
-        REQUIRE(abs(real - expected) < atol);
-        REQUIRE(abs(real - expected) / std::max(std::abs(expected), (float_t)1.0) < rtol);
-    }
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
@@ -274,7 +270,7 @@ public:
         logloss_reg_event.wait_and_throw();
 
         const float_t val_logloss1 = out_logloss.to_host(this->get_queue(), {}).at(0);
-        check_val(val_logloss1, logloss, rtol, atol);
+        IS_CLOSE(float_t, val_logloss1, logloss, rtol, atol);
 
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
         auto [out_derivative, out_der_e] =
@@ -299,7 +295,7 @@ public:
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
 
         const float_t val_logloss2 = out_logloss.to_host(this->get_queue(), {}).at(0);
-        check_val(val_logloss2, logloss, rtol, atol);
+        IS_CLOSE(float_t, val_logloss2, logloss, rtol, atol);
 
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { dim }, sycl::usm::alloc::device);
@@ -582,7 +578,7 @@ public:
                          fit_intercept);
 
         for (std::int64_t i = 0; i < dim; ++i) {
-            check_val(out_derivative.at(i), derivative.at(i), rtol, atol);
+            IS_CLOSE(float_t, out_derivative.at(i), derivative.at(i), rtol, atol);
         }
     }
 
@@ -601,7 +597,7 @@ public:
 
         for (std::int64_t i = 0; i <= p; ++i) {
             for (std::int64_t j = 0; j <= p; ++j) {
-                check_val(out_hessian.at(i, j), hessian.at(i, j), rtol, atol);
+                IS_CLOSE(float_t, out_hessian.at(i, j), hessian.at(i, j), rtol, atol);
             }
         }
     }
@@ -636,7 +632,7 @@ public:
                 for (std::int64_t j = st; j < p + 1; ++j) {
                     correct += vec_host.at(j - st) * hessian_host.at(i, j);
                 }
-                check_val(out_vector_host.at(i - st), correct, rtol, atol);
+                IS_CLOSE(float_t, out_vector_host.at(i - st), correct, rtol, atol);
             }
         }
     }
@@ -671,12 +667,12 @@ public:
         wait_or_pass(set_point_event).wait_and_throw();
         std::cerr << "after update x" << std::endl;
 
-        check_val(gth_logloss, functor.get_value(), rtol, atol);
+        IS_CLOSE(float_t, gth_logloss, functor.get_value(), rtol, atol);
         auto grad_func = functor.get_gradient();
         auto grad_func_host = grad_func.to_host(this->get_queue());
         std::int64_t dim = fit_intercept ? p + 1 : p;
         for (std::int64_t i = 0; i < dim; ++i) {
-            check_val(gth_grad.at(i), grad_func_host.at(i), rtol, atol);
+            IS_CLOSE(float_t, gth_grad.at(i), grad_func_host.at(i), rtol, atol);
         }
         base_matrix_operator<float_t>& hessp = functor.get_hessian_product();
         test_hessian_product(gth_hessian, hessp, fit_intercept, L2, rtol, atol);

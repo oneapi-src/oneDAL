@@ -18,7 +18,6 @@
 
 namespace oneapi::dal::backend::primitives::test {
 
-/*
 TEMPLATE_TEST_M(logloss_test, "gold input test - double", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
@@ -100,7 +99,6 @@ TEMPLATE_TEST_M(logloss_test, "test random input - float - no fit intercept", "[
     this->generate_input();
     this->run_test(0.4, 1.3, false);
 }
-*/
 
 TEMPLATE_TEST_M(logloss_test, "sparse data test - double", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
