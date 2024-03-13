@@ -127,6 +127,7 @@ public:
           _cachedModel(nullptr),
           _averageTreeSize(0),
           _cachedNClasses(0),
+          _blockSizeMultiplier(0),
           _blockSize(0),
           _minTreesForThreading(0),
           _minNumberOfRowsForVectSeqCompute(0),
@@ -144,9 +145,10 @@ public:
         _votingMethod = votingMethod;
     }
 
-    void setHyperparams(const size_t blockSize = 32, const size_t minTreesForThreading = 100, const size_t minNumberOfRowsForVectSeqCompute = 32,
-                        const float scaleFactorForVectParallelCompute = 0.3)
+    void setHyperparams(const size_t blockSideMultiplier = 8, const size_t blockSize = 32, const size_t minTreesForThreading = 100,
+                        const size_t minNumberOfRowsForVectSeqCompute = 32, const float scaleFactorForVectParallelCompute = 0.3)
     {
+        _blockSizeMultiplier               = blockSideMultiplier;
         _blockSize                         = blockSize;
         _minTreesForThreading              = minTreesForThreading;
         _minNumberOfRowsForVectSeqCompute  = minNumberOfRowsForVectSeqCompute;
@@ -155,8 +157,8 @@ public:
 
     bool assertHyperparameters()
     {
-        return (_blockSize > 0l) && (_minTreesForThreading > 0l) && (_minNumberOfRowsForVectSeqCompute > 0l)
-               && (_scaleFactorForVectParallelCompute > 0.0f);
+        return (_blockSizeMultiplier > 0l) && (_blockSize > 0l) && ((_blockSize % _blockSizeMultiplier) == 0) && (_minTreesForThreading > 0l)
+               && (_minNumberOfRowsForVectSeqCompute > 0l) && (_scaleFactorForVectParallelCompute > 0.0f);
     }
 
     Status run(services::HostAppIface * pHostApp);
@@ -232,6 +234,7 @@ protected:
     size_t _nClasses;
     size_t _cachedNClasses;
     VotingMethod _votingMethod;
+    size_t _blockSizeMultiplier;
     size_t _blockSize;
     size_t _minTreesForThreading;
     size_t _minNumberOfRowsForVectSeqCompute;
@@ -537,7 +540,7 @@ DAAL_FORCEINLINE Status PredictClassificationTask<float, avx512>::predictByTree(
         {
             checkMask = 0x0000;
             size_t i  = 0;
-            for (size_t i = 0; i < _blockSize; i += 16)
+            for (size_t i = 0; i < _blockSize; i += _blockSizeMultiplier)
             {
                 __m512i idxr = _mm512_castps_si512(_mm512_loadu_ps((float *)(idx + i)));
                 __m512 sp    = _mm512_i32gather_ps(idxr, split_point, 4);
@@ -593,7 +596,7 @@ DAAL_FORCEINLINE Status PredictClassificationTask<double, avx512>::predictByTree
         {
             checkMask = 0;
             size_t i  = 0;
-            for (size_t i = 0; i < _blockSize; i += 8)
+            for (size_t i = 0; i < _blockSize; i += _blockSizeMultiplier)
             {
                 __m256i idxr = _mm256_castps_si256(_mm256_loadu_ps((float *)(idx + i)));
                 __m512d sp   = _mm512_i32gather_pd(idxr, split_point, 8);

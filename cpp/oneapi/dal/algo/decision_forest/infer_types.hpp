@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,12 @@ public:
     infer_parameters(infer_parameters&&) = default;
     infer_parameters(const infer_parameters&) = default;
 
+    std::int64_t get_block_size_multiplier() const;
+    auto& set_block_size_multiplier(std::int64_t val) {
+        set_block_size_multiplier_impl(val);
+        return *this;
+    }
+
     std::int64_t get_block_size() const;
     auto& set_block_size(std::int64_t val) {
         set_block_size_impl(val);
@@ -63,6 +69,7 @@ public:
     }
 
 private:
+    void set_block_size_multiplier_impl(std::int64_t val);
     void set_block_size_impl(std::int64_t val);
     void set_min_trees_for_threading_impl(std::int64_t val);
     void set_min_number_of_rows_for_vect_seq_compute_impl(std::int64_t val);

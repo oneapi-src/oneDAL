@@ -1,6 +1,6 @@
 /* file: df_hyperparameter_impl.h */
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ namespace internal
  */
 enum HyperparameterId
 {
-    blockSize = 0,
+    blockSizeMultiplier = 0,
+    blockSize,
     minTreesForThreading,
     minNumberOfRowsForVectSeqCompute,
     hyperparameterIdCount = minNumberOfRowsForVectSeqCompute + 1
