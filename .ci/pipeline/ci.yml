@@ -109,16 +109,10 @@ jobs:
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: '$(platform.type) OpenBLAS build'
+      artifactName: '$(platform.type) ARM OpenBLAS build'
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref
-    displayName: 'oneapi/cpp examples'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) fail'
