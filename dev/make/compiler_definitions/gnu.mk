@@ -16,9 +16,10 @@
 
 #++
 #  g++ definitions for makefile
+#  This file contains definitions common to gnu on all platforms. It
+#  should only be included from files which have more specializations (e.g.
+#  gnu.32e.mk)
 #--
-
-PLATs.gnu = lnxarm
 
 CMPLRDIRSUFF.gnu = _gnu
 
@@ -27,22 +28,7 @@ CORE.SERV.COMPILER.gnu = generic
 -Zl.gnu =
 -DEBC.gnu = -g
 
-COMPILER.all.gnu =  ${CXX} -march=armv8-a+sve -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
-
-link.dynamic.all.gnu = ${CXX} -march=native
-
 pedantic.opts.all.gnu = -pedantic \
                         -Wall \
                         -Wextra \
                         -Wno-unused-parameter
-
-COMPILER.lnx.gnu = $(COMPILER.all.gnu)
-link.dynamic.lnx.gnu = $(link.dynamic.all.gnu)
-pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
-
-COMPILER.mac.gnu = $(COMPILER.all.gnu)
-link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
-pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
-
-a8sve_OPT.gnu = $(-Q)march=armv8-a+sve
