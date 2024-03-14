@@ -145,10 +145,10 @@ public:
         _votingMethod = votingMethod;
     }
 
-    void setHyperparams(const size_t blockSideMultiplier = 8, const size_t blockSize = 32, const size_t minTreesForThreading = 100,
+    void setHyperparams(const size_t blockSizeMultiplier = 8, const size_t blockSize = 32, const size_t minTreesForThreading = 100,
                         const size_t minNumberOfRowsForVectSeqCompute = 32, const float scaleFactorForVectParallelCompute = 0.3)
     {
-        _blockSizeMultiplier               = blockSideMultiplier;
+        _blockSizeMultiplier               = blockSizeMultiplier;
         _blockSize                         = blockSize;
         _minTreesForThreading              = minTreesForThreading;
         _minNumberOfRowsForVectSeqCompute  = minNumberOfRowsForVectSeqCompute;
@@ -280,27 +280,33 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
 
     if (hyperparameter != nullptr)
     {
+        DAAL_INT64 blockSizeMultiplierValue = 0l;
+        Status st                           = hyperparameter->find(blockSizeMultiplier, blockSizeMultiplierValue);
+        DAAL_CHECK(0l < blockSizeMultiplierValue, services::ErrorHyperparameterBadValue);
+        DAAL_CHECK_STATUS_VAR(st);
+
         DAAL_INT64 blockSizeValue = 0l;
-        Status st                 = hyperparameter->find(blockSize, blockSizeValue);
-        DAAL_CHECK(0l < blockSizeValue, services::ErrorIncorrectDataRange);
+        st                        = hyperparameter->find(blockSize, blockSizeValue);
+        DAAL_CHECK(0l < blockSizeValue, services::ErrorHyperparameterBadValue);
+        DAAL_CHECK((blockSizeValue % blockSizeMultiplierValue) == 0, services::ErrorHyperparameterBadValue);
         DAAL_CHECK_STATUS_VAR(st);
 
         DAAL_INT64 minTreesForThreadingValue = 0l;
         st                                   = hyperparameter->find(minTreesForThreading, minTreesForThreadingValue);
-        DAAL_CHECK(0l < minTreesForThreadingValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK(0l < minTreesForThreadingValue, services::ErrorHyperparameterBadValue);
         DAAL_CHECK_STATUS_VAR(st);
 
         DAAL_INT64 minNumberOfRowsForVectSeqComputeValue = 0l;
         st = hyperparameter->find(minNumberOfRowsForVectSeqCompute, minNumberOfRowsForVectSeqComputeValue);
-        DAAL_CHECK(0l < minNumberOfRowsForVectSeqComputeValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK(0l < minNumberOfRowsForVectSeqComputeValue, services::ErrorHyperparameterBadValue);
         DAAL_CHECK_STATUS_VAR(st);
 
         double scaleFactorForVectParallelComputeValue = 0.0f;
         st = hyperparameter->find(scaleFactorForVectParallelCompute, scaleFactorForVectParallelComputeValue);
-        DAAL_CHECK(0.0f < scaleFactorForVectParallelComputeValue, services::ErrorIncorrectDataRange);
+        DAAL_CHECK(0.0f < scaleFactorForVectParallelComputeValue, services::ErrorHyperparameterBadValue);
         DAAL_CHECK_STATUS_VAR(st);
 
-        _task->setHyperparams(blockSizeValue, minTreesForThreadingValue, minNumberOfRowsForVectSeqComputeValue,
+        _task->setHyperparams(blockSizeMultiplierValue, blockSizeValue, minTreesForThreadingValue, minNumberOfRowsForVectSeqComputeValue,
                               scaleFactorForVectParallelComputeValue);
     }
     else
@@ -1155,7 +1161,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIface * const pHostApp)
 {
-    DAAL_CHECK(assertHyperparameters(), services::ErrorIncorrectDataRange);
+    DAAL_CHECK(assertHyperparameters(), services::ErrorHyperparameterBadValue);
 
     const auto nTreesTotal = _model->size();
     if (_cachedData != _data)

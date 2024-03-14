@@ -32,11 +32,8 @@ std::int64_t propose_block_size(const context_cpu& ctx) {
 
 using method::by_default;
 using task::classification;
-using task::regression;
 
 template struct ONEDAL_EXPORT infer_parameters_cpu<float, by_default, classification>;
-template struct ONEDAL_EXPORT infer_parameters_cpu<float, by_default, regression>;
 template struct ONEDAL_EXPORT infer_parameters_cpu<double, by_default, task::classification>;
-template struct ONEDAL_EXPORT infer_parameters_cpu<double, by_default, regression>;
 
 } // namespace oneapi::dal::decision_forest::parameters
