@@ -15,19 +15,11 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
-
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/lapack.hpp"
-#include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/backend/primitives/reduction.hpp"
-#include "oneapi/dal/backend/primitives/stat.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/train_kernel_cov_impl.hpp"
 
 namespace oneapi::dal::pca::backend {
 
