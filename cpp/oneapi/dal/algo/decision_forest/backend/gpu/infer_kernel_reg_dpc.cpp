@@ -43,10 +43,6 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 
 template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::regression> {
-    result_t operator()(context_gpu& ctx, const descriptor_t& desc, const input_t& input) const {
-        return infer<Float>(ctx, desc, input);
-    }
-
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const param_t& infer_params,
