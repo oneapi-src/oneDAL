@@ -52,7 +52,8 @@ public:
         detail::infer_parameters res{};
         res.set_block_size(this->block_);
         res.set_min_trees_for_threading(this->min_trees_for_threading_);
-        res.set_min_number_of_rows_for_vect_seq_compute(this->min_number_of_rows_for_vect_seq_compute_);
+        res.set_min_number_of_rows_for_vect_seq_compute(
+            this->min_number_of_rows_for_vect_seq_compute_);
         res.set_scale_factor_for_vect_parallel_compute(this->scale_factor_for_vect_par_compute_);
 
         return res;
@@ -102,7 +103,10 @@ const dataset_info df_ds_ion = { "workloads/ionosphere/dataset/ionosphere",
                                  df_ds_ion_ftrs_list };
 const dataset_info df_ds_segment = { "workloads/segment/dataset/segment", 7 /* class count */ };
 
-TEMPLATE_LIST_TEST_M(df_infer_params_test, "DF classification infer params", "[df][cls][infer][params]", df_cls_types) {
+TEMPLATE_LIST_TEST_M(df_infer_params_test,
+                     "DF classification infer params",
+                     "[df][cls][infer][params]",
+                     df_cls_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
