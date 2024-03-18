@@ -25,16 +25,6 @@ template <typename Task>
 infer_parameters<Task>::infer_parameters() : impl_(new infer_parameters_impl<Task>{}) {}
 
 template <typename Task>
-std::int64_t infer_parameters<Task>::get_block_size_multiplier() const {
-    return impl_->block_size_multiplier;
-}
-
-template <typename Task>
-void infer_parameters<Task>::set_block_size_multiplier_impl(std::int64_t val) {
-    impl_->block_size_multiplier = val;
-}
-
-template <typename Task>
 std::int64_t infer_parameters<Task>::get_block_size() const {
     return impl_->block_size;
 }
@@ -76,7 +66,6 @@ void infer_parameters<Task>::set_scale_factor_for_vect_parallel_compute_impl(dou
 
 template <typename Task>
 struct infer_parameters_impl : public base {
-    std::int64_t block_size_multiplier = 8l;
     std::int64_t block_size = 32l;
     std::int64_t min_trees_for_threading = 100l;
     std::int64_t min_number_of_rows_for_vect_seq_compute = 32l;

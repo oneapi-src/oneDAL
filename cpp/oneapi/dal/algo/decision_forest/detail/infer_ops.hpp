@@ -60,8 +60,6 @@ struct infer_ops {
 
     /// Check that the hyperparameters of the algorithm belong to the expected ranges
     void check_parameters_ranges(const param_t& params, const input_t& input) const {
-        ONEDAL_ASSERT(params.get_block_size_multiplier() > 0x0l);
-        ONEDAL_ASSERT(params.get_block_size_multiplier() < 0x100l);
         ONEDAL_ASSERT(params.get_block_size() > 0x0l);
         ONEDAL_ASSERT(params.get_block_size() <= 0x10000l);
         ONEDAL_ASSERT(params.get_min_trees_for_threading() > 0x0l);

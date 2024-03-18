@@ -127,7 +127,6 @@ public:
           _cachedModel(nullptr),
           _averageTreeSize(0),
           _cachedNClasses(0),
-          _blockSizeMultiplier(0),
           _blockSize(0),
           _minTreesForThreading(0),
           _minNumberOfRowsForVectSeqCompute(0),
@@ -145,10 +144,9 @@ public:
         _votingMethod = votingMethod;
     }
 
-    void setHyperparams(const size_t blockSizeMultiplier = 8, const size_t blockSize = 32, const size_t minTreesForThreading = 100,
+    void setHyperparams(const size_t blockSize = 32, const size_t minTreesForThreading = 100,
                         const size_t minNumberOfRowsForVectSeqCompute = 32, const float scaleFactorForVectParallelCompute = 0.3)
     {
-        _blockSizeMultiplier               = blockSizeMultiplier;
         _blockSize                         = blockSize;
         _minTreesForThreading              = minTreesForThreading;
         _minNumberOfRowsForVectSeqCompute  = minNumberOfRowsForVectSeqCompute;
@@ -157,7 +155,7 @@ public:
 
     bool assertHyperparameters()
     {
-        return (_blockSizeMultiplier > 0l) && (_blockSize > 0l) && ((_blockSize % _blockSizeMultiplier) == 0) && (_minTreesForThreading > 0l)
+        return (_blockSize > 0l) && (_minTreesForThreading > 0l)
                && (_minNumberOfRowsForVectSeqCompute > 0l) && (_scaleFactorForVectParallelCompute > 0.0f);
     }
 
@@ -234,7 +232,6 @@ protected:
     size_t _nClasses;
     size_t _cachedNClasses;
     VotingMethod _votingMethod;
-    size_t _blockSizeMultiplier;
     size_t _blockSize;
     size_t _minTreesForThreading;
     size_t _minNumberOfRowsForVectSeqCompute;
@@ -280,15 +277,9 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
 
     if (hyperparameter != nullptr)
     {
-        DAAL_INT64 blockSizeMultiplierValue = 0l;
-        Status st                           = hyperparameter->find(blockSizeMultiplier, blockSizeMultiplierValue);
-        DAAL_CHECK(0l < blockSizeMultiplierValue, services::ErrorHyperparameterBadValue);
-        DAAL_CHECK_STATUS_VAR(st);
-
         DAAL_INT64 blockSizeValue = 0l;
-        st                        = hyperparameter->find(blockSize, blockSizeValue);
+        Status st                 = hyperparameter->find(blockSize, blockSizeValue);
         DAAL_CHECK(0l < blockSizeValue, services::ErrorHyperparameterBadValue);
-        DAAL_CHECK((blockSizeValue % blockSizeMultiplierValue) == 0, services::ErrorHyperparameterBadValue);
         DAAL_CHECK_STATUS_VAR(st);
 
         DAAL_INT64 minTreesForThreadingValue = 0l;
@@ -306,7 +297,7 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
         DAAL_CHECK(0.0f < scaleFactorForVectParallelComputeValue, services::ErrorHyperparameterBadValue);
         DAAL_CHECK_STATUS_VAR(st);
 
-        _task->setHyperparams(blockSizeMultiplierValue, blockSizeValue, minTreesForThreadingValue, minNumberOfRowsForVectSeqComputeValue,
+        _task->setHyperparams(blockSizeValue, minTreesForThreadingValue, minNumberOfRowsForVectSeqComputeValue,
                               scaleFactorForVectParallelComputeValue);
     }
     else
@@ -546,7 +537,7 @@ DAAL_FORCEINLINE Status PredictClassificationTask<float, avx512>::predictByTree(
         {
             checkMask = 0x0000;
             size_t i  = 0;
-            for (size_t i = 0; i < _blockSize; i += _blockSizeMultiplier)
+            for (size_t i = 0; i < _blockSize; i += 16)
             {
                 __m512i idxr = _mm512_castps_si512(_mm512_loadu_ps((float *)(idx + i)));
                 __m512 sp    = _mm512_i32gather_ps(idxr, split_point, 4);
@@ -602,7 +593,7 @@ DAAL_FORCEINLINE Status PredictClassificationTask<double, avx512>::predictByTree
         {
             checkMask = 0;
             size_t i  = 0;
-            for (size_t i = 0; i < _blockSize; i += _blockSizeMultiplier)
+            for (size_t i = 0; i < _blockSize; i += 8)
             {
                 __m256i idxr = _mm256_castps_si256(_mm256_loadu_ps((float *)(idx + i)));
                 __m512d sp   = _mm512_i32gather_pd(idxr, split_point, 8);

@@ -51,7 +51,6 @@ public:
     auto get_current_parameters() const {
         detail::infer_parameters res{};
         res.set_block_size(this->block_);
-        res.set_block_size_multiplier(512 / (8 * sizeof(float_t)));
         res.set_min_trees_for_threading(this->min_trees_for_threading_);
         res.set_min_number_of_rows_for_vect_seq_compute(this->min_number_of_rows_for_vect_seq_compute_);
         res.set_scale_factor_for_vect_parallel_compute(this->scale_factor_for_vect_par_compute_);
@@ -83,7 +82,6 @@ public:
 
 private:
     std::int64_t block_;
-    std::int64_t block_size_multiplier_;
     std::int64_t min_trees_for_threading_;
     std::int64_t min_number_of_rows_for_vect_seq_compute_;
     double scale_factor_for_vect_par_compute_;
