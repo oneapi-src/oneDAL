@@ -46,15 +46,6 @@ static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t ecx 
         : "a"(eax), "c"(ecx));
 }
 
-/// Copies the value of x86 register into the buffer of characters
-///
-/// @param[in]  reg    The x86 register value
-/// @param[out] buffer Pointer to the output character buffer
-void register_to_buffer(uint32_t reg, char* buffer) {
-    ONEDAL_ASSERT(buffer);
-    reinterpret_cast<uint32_t*>(buffer)[0] = reg;
-}
-
 /// Copies the values of x86 EBX, EDX, ECX (in that order) registers that contain the vendor ID
 /// into the buffer of characters after the call of CPUID with EAX == 0
 ///
@@ -62,10 +53,10 @@ void register_to_buffer(uint32_t reg, char* buffer) {
 /// @param[out] buffer      Pointer to the output character buffer
 void registers_to_vendor_id(const cpuid_registers& registers, char* buffer) {
     ONEDAL_ASSERT(buffer);
-    constexpr std::size_t register_size = sizeof(uint32_t);
-    register_to_buffer(registers.ebx_, buffer);
-    register_to_buffer(registers.edx_, buffer + register_size);
-    register_to_buffer(registers.ecx_, buffer + 2 * register_size);
+    uint32_t* uint32_buffer = reinterpret_cast<uint32_t*>(buffer);
+    uint32_buffer[0] = registers.ebx_;
+    uint32_buffer[1] = registers.edx_;
+    uint32_buffer[2] = registers.ecx_;
 }
 
 #endif
