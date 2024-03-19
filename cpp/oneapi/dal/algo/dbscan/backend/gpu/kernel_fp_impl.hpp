@@ -39,6 +39,31 @@ inline std::int64_t get_recommended_check_block_size(const sycl::queue& queue,
     return 1;
 }
 
+inline std::int64_t get_recommended_min_width(const sycl::queue& queue,
+                                              std::int64_t column_count = 0,
+                                              std::int64_t wg_size = 0) {
+    //This min_width values has been computed via experiments,
+    //it shows the number of columns where the subgroups usage is effective
+    return 4;
+}
+
+///  A struct that finds the core points via subgroups
+///
+/// @tparam Float Floating-point type used to perform computations
+/// @tparam use_weights bool type used to check that weights are enabled
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float, bool use_weights>
 struct get_core_wide_kernel {
     static auto run(sycl::queue& queue,
@@ -125,9 +150,26 @@ struct get_core_wide_kernel {
         });
         return event;
     }
-    static constexpr std::int64_t min_width = 4;
 };
 
+///  A struct that finds the core points without subgroups
+///  it is effective only on narrow cases
+///
+/// @tparam Float Floating-point type used to perform computations
+/// @tparam use_weights bool type used to check that weights are enabled
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float, bool use_weights>
 struct get_core_narrow_kernel {
     static auto run(sycl::queue& queue,
@@ -178,9 +220,28 @@ struct get_core_narrow_kernel {
         });
         return event;
     }
-    static constexpr std::int64_t max_width = 4;
 };
 
+///  A struct that finds the core points via subgroups
+///  on sendrecv_replaced data. It means that this function tries to
+///  update current rank cores and neighbours arrays with another rank data
+///
+/// @tparam Float Floating-point type used to perform computations
+/// @tparam use_weights bool type used to check that weights are enabled
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  data_replace  The input data from another rank of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float, bool use_weights>
 struct get_core_send_recv_replace_wide_kernel {
     static auto run(sycl::queue& queue,
@@ -266,9 +327,29 @@ struct get_core_send_recv_replace_wide_kernel {
         });
         return event;
     }
-    static constexpr std::int64_t min_width = 4;
 };
 
+///  A struct that finds the core points without subgroups
+///  on sendrecv_replaced data. It means that this function tries to
+///  update current rank cores and neighbours arrays with another rank data.
+///  It is effective only on narrow cases
+///
+/// @tparam Float Floating-point type used to perform computations
+/// @tparam use_weights bool type used to check that weights are enabled
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  data_replace  The input data from another rank of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float, bool use_weights>
 struct get_core_send_recv_replace_narrow_kernel {
     static auto run(sycl::queue& queue,
@@ -320,9 +401,25 @@ struct get_core_send_recv_replace_narrow_kernel {
         });
         return event;
     }
-    static constexpr std::int64_t max_width = 4;
 };
 
+///  A function that dispatches the local core points search function
+///  based on the column count
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float>
 template <bool use_weights>
 sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
@@ -334,7 +431,7 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
                                               std::int64_t min_observations,
                                               const bk::event_vector& deps) {
     const std::int64_t column_count = data.get_dimension(1);
-    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+    if (column_count > get_recommended_min_width(queue)) {
         return get_core_wide_kernel<Float, use_weights>::run(queue,
                                                              data,
                                                              weights,
@@ -356,6 +453,24 @@ sycl::event kernels_fp<Float>::get_cores_impl(sycl::queue& queue,
     }
 }
 
+///  A function that dispatches the sendrecv_replaced core points search function
+///  based on the column count
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  data_replace  The input data from another rank of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float>
 template <bool use_weights>
 sycl::event kernels_fp<Float>::get_cores_send_recv_replace_impl(
@@ -369,7 +484,7 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace_impl(
     std::int64_t min_observations,
     const bk::event_vector& deps) {
     const std::int64_t column_count = data.get_dimension(1);
-    if (column_count > get_core_wide_kernel<Float, use_weights>::min_width) {
+    if (column_count > get_recommended_min_width(queue)) {
         return get_core_send_recv_replace_wide_kernel<Float, use_weights>::run(queue,
                                                                                data,
                                                                                data_replace,
@@ -393,6 +508,23 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace_impl(
     }
 }
 
+///  A function that dispatches the local core points search function
+///  based on the input wieghts
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float>
 sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                          const pr::ndview<Float, 2>& data,
@@ -423,6 +555,24 @@ sycl::event kernels_fp<Float>::get_cores(sycl::queue& queue,
                                  deps);
 }
 
+///  A function that dispatches the sendrecv_replaced core points search function
+///  based on the input wieghts
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  data_replace  The input data from another rank of size `row_count` x `column_count`
+/// @param[in]  weights  The input weights of size `row_count` x `1`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  neighbours  The current neighbours of size `row_count` x `1`
+/// it contains the counter of neighbours for each point
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  min_observations  The input parameter min_observation
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays(cores and neighbours) for reading and writing
 template <typename Float>
 sycl::event kernels_fp<Float>::get_cores_send_recv_replace(sycl::queue& queue,
                                                            const pr::ndview<Float, 2>& data,
@@ -456,6 +606,16 @@ sycl::event kernels_fp<Float>::get_cores_send_recv_replace(sycl::queue& queue,
                                                    deps);
 }
 
+///  A function that finds the init/next unassigned core to start clustering
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  responses  The current responses of size `row_count` x `1`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return The index of the init/next unassigned core point
 template <typename Float>
 std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
                                                    const pr::ndview<std::int32_t, 1>& cores,
@@ -512,6 +672,17 @@ std::int32_t kernels_fp<Float>::start_next_cluster(sycl::queue& queue,
     return start_index.to_host(queue, { index_event }).at(0);
 }
 
+///  A function that sets the init point in ndview<bool, 1>& observation_indices
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  observation_indices  The bool array of size `row_count` x `1`
+/// that shows the points(current observations) which should be copied and shared across all ranks
+/// @param[in]  index  The index of the point
+/// @param[in]  value  The value, can be true or false
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated array for reading and writing
 sycl::event set_init_index(sycl::queue& queue,
                            pr::ndview<bool, 1>& observation_indices,
                            std::int32_t index,
@@ -529,23 +700,47 @@ sycl::event set_init_index(sycl::queue& queue,
     });
 }
 
+///  A function that sets the queue sizes in ndview<std::int32_t, 1>& queue_size
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  queue_size  The int32_t array of size `1`
+/// that helps to get queue sizes and storage it on GPU
+/// @param[in]  index  The index of the point
+/// @param[in]  value  The current queue size/value
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated array for reading and writing
 sycl::event set_arr_value(sycl::queue& queue,
-                          pr::ndview<std::int32_t, 1>& arr,
+                          pr::ndview<std::int32_t, 1>& queue_size,
                           std::int32_t index,
                           std::int32_t value,
                           const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(set_arr_value, queue);
 
-    auto arr_ptr = arr.get_mutable_data();
+    auto queue_size_ptr = queue_size.get_mutable_data();
 
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
-            arr_ptr[index] = value;
+            queue_size_ptr[index] = value;
         });
     });
 }
 
+///  A function that fills the queue with current observations points
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  indices  The indicies of the points which should be copied `row_count` x `1`
+/// @param[in]  current_queue  The array where points should be copied
+/// @param[in]  queue_size_arr  The count of points which should be copied
+/// @param[in]  block_start  The offset for distributed usage
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays for reading and writing
 template <typename Float>
 sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& data,
@@ -588,6 +783,25 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
     });
 }
 
+///  A struct that calculate distances between current observations and unassigned points.
+///  Also this function updates the responses and indicies of points which should be copied on the next step
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input data of size `row_count` x `column_count`
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// @param[in]  current_queue  The current observations. It is an array that contains
+/// only core points in the epsilon area of the init/next point
+/// @param[in]  responses  The current responbses of size `row_count` x `1`
+/// @param[in]  queue_size_arr  The array(1x1) that contains number of new observations
+/// @param[in]  indices_cores  The indicies of the points which should be copied `row_count` x `1`
+/// @param[in]  epsilon  The input parameter epsilon
+/// @param[in]  cluster_id  The current cluster id
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the updated arrays for reading and writing
 template <typename Float>
 sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
                                             const pr::ndview<Float, 2>& data,
@@ -674,6 +888,14 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
     return event;
 }
 
+///  A function that gets the queue sizes in ndview<std::int32_t, 1>& queue_size
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  queue_size  The int32_t array of size `1`
+/// that helps to get queue sizes and storage it on GPU
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return The queue size
 template <typename Float>
 std::int32_t kernels_fp<Float>::get_queue_size(sycl::queue& queue,
                                                const pr::ndarray<std::int32_t, 1>& queue_size,
@@ -682,6 +904,13 @@ std::int32_t kernels_fp<Float>::get_queue_size(sycl::queue& queue,
     return queue_size.to_host(queue, deps).get_data()[0];
 }
 
+///  A function that counts the number of cores
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  cores  The current cores of size `row_count` x `1`
+/// that helps to get queue sizes and storage it on GPU
+///
+/// @return The number of cores
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores) {
     const std::uint64_t row_count = cores.get_dimension(0);
     ONEDAL_ASSERT(row_count > 0);

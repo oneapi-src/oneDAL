@@ -153,7 +153,7 @@ public:
         return te::dataframe{ data.data(), row_count, column_count };
     }
 
-    //these responses have been updated via scikit-learn.
+    //these responses have been updated via scikit-learn 1.4.1.
     //Previous result was incorrect on oneDAL side as well.
     static te::dataframe get_expected_responses() {
         static std::array<float, row_count> data = {
@@ -167,7 +167,10 @@ public:
     }
 
     static double get_expected_dbi() {
-        return 0.8075699709;
+        //this value has been updated via
+        //sklearn.metrics.davies_bouldin_score function
+        //scikit-learn 1.4.1.
+        return 2.30575;
     }
 
 private:

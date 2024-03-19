@@ -18,7 +18,7 @@
 #include "oneapi/dal/algo/dbscan/test/data.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
-#include <iostream>
+
 namespace oneapi::dal::dbscan::test {
 
 namespace te = dal::test::engine;
@@ -72,7 +72,7 @@ public:
 
     result_t merge_compute_result_override(const std::vector<result_t> &results) {
         // cluster count is the same for all ranks
-        // responces are distributed accross the ranks, need to combine them into single table;
+        // responses are distributed accross the ranks, need to combine them into single table;
         std::vector<table> response_tables;
         std::vector<table> cores_tables;
         for (const auto &r : results) {
@@ -156,9 +156,8 @@ public:
         REQUIRE(cluster_count > 0);
 
         const auto responses = joined_result.get_responses();
-        const auto centroids = te::centers_of_mass(data, responses, cluster_count);
 
-        auto dbi = te::davies_bouldin_index(data, centroids, responses);
+        auto dbi = te::davies_bouldin_index(data, responses);
         REQUIRE(base_t::check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
     }
 
