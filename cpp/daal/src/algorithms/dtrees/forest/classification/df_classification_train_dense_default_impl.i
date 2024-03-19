@@ -561,14 +561,14 @@ public:
         if (noWeights)
         {
             return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
+                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
                                             static_cast<const crtp *>(this)->template findSplitOrderedFeature<true>(
                                                 featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
         }
         else
         {
             return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
+                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
                                             static_cast<const crtp *>(this)->template findSplitOrderedFeature<false>(
                                                 featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
         }
