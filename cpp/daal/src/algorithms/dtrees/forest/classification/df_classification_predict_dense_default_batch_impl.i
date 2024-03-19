@@ -144,8 +144,8 @@ public:
         _votingMethod = votingMethod;
     }
 
-    void setHyperparams(const size_t blockSize = 32, const size_t minTreesForThreading = 100,
-                        const size_t minNumberOfRowsForVectSeqCompute = 32, const float scaleFactorForVectParallelCompute = 0.3)
+    void setHyperparams(const size_t blockSize = 32, const size_t minTreesForThreading = 100, const size_t minNumberOfRowsForVectSeqCompute = 32,
+                        const float scaleFactorForVectParallelCompute = 0.3)
     {
         _blockSize                         = blockSize;
         _minTreesForThreading              = minTreesForThreading;
@@ -155,8 +155,8 @@ public:
 
     bool assertHyperparameters()
     {
-        return (_blockSize > 0l) && (_minTreesForThreading > 0l)
-               && (_minNumberOfRowsForVectSeqCompute > 0l) && (_scaleFactorForVectParallelCompute > 0.0f);
+        return (_blockSize > 0l) && (_minTreesForThreading > 0l) && (_minNumberOfRowsForVectSeqCompute > 0l)
+               && (_scaleFactorForVectParallelCompute > 0.0f);
     }
 
     Status run(services::HostAppIface * pHostApp);
@@ -280,7 +280,8 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
         DAAL_INT64 blockSizeValue = 0l;
         Status st                 = hyperparameter->find(blockSize, blockSizeValue);
         DAAL_CHECK(0l < blockSizeValue, services::ErrorHyperparameterBadValue);
-        if (cpu == avx512) {
+        if (cpu == avx512)
+        {
             // TODO: Move this check into decision_forest::detail::infer_ops::check_parameters_ranges.
             //       Now the information about enabled CPU instructions is not available in infer_ops.
             DAAL_CHECK(blockSizeValue % (512 / (8 * sizeof(algorithmFPType))) == 0, services::ErrorHyperparameterBadValue);
