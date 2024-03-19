@@ -52,7 +52,7 @@ static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t ecx 
 /// @param[out] buffer Pointer to the output character buffer
 void register_to_buffer(uint32_t reg, char* buffer) {
     ONEDAL_ASSERT(buffer);
-    reinterpret_cast<uint32_t *>(buffer)[0] = reg;
+    reinterpret_cast<uint32_t*>(buffer)[0] = reg;
 }
 
 /// Copies the values of x86 EBX, EDX, ECX (in that order) registers that contain the vendor ID
