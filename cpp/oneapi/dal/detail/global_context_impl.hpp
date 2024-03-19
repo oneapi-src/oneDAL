@@ -26,7 +26,7 @@ public:
     global_context_impl();
 
     const cpu_info_iface &get_cpu_info() const {
-        return *dynamic_cast<const cpu_info_iface *>(&cpu_info_);
+        return cpu_info_;
     }
 
 private:

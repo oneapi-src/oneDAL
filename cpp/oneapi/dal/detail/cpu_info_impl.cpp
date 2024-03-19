@@ -27,7 +27,7 @@ std::string to_string(cpu_vendor vendor) {
         case cpu_vendor::unknown: vendor_str = std::string("Unknown"); break;
         case cpu_vendor::intel: vendor_str = std::string("Intel"); break;
         case cpu_vendor::amd: vendor_str = std::string("AMD"); break;
-        case cpu_vendor::arm: vendor_str = std::string("ARM"); break;
+        case cpu_vendor::arm: vendor_str = std::string("Arm"); break;
     }
     return vendor_str;
 }
@@ -63,12 +63,7 @@ std::string cpu_info_impl::dump() const {
         print_any(it->second, ss);
         ss << "; ";
     }
-    std::string result;
-    std::string token;
-    while (ss >> token) {
-        result += token + " ";
-    }
-    return result;
+    return std::move(ss).str();
 }
 
 template <typename T>

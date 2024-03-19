@@ -28,7 +28,7 @@ public:
         info_["vendor"] = cpu_vendor::arm);
     }
 
-    cpu_info_arm(const cpu_extension cpu_extension) {
+    explicit cpu_info_arm(const cpu_extension cpu_extension) {
         info_["top_cpu_extension"] = cpu_extension;
         info_["vendor"] = cpu_vendor::arm);
     }

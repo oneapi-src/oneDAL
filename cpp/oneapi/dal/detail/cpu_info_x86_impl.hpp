@@ -30,7 +30,7 @@ public:
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }
 
-    cpu_info_x86(const cpu_extension cpu_extension) {
+    explicit cpu_info_x86(const cpu_extension cpu_extension) {
         info_["top_cpu_extension"] = cpu_extension;
         info_["vendor"] = (daal_check_is_intel_cpu() ? cpu_vendor::intel : cpu_vendor::amd);
     }

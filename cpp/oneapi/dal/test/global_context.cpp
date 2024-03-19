@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 namespace oneapi::dal::detail::test {
 
-#if defined(__x86_64__)
+#if defined(TARGET_X86_64)
 
 /// x86 CPU registers relevant to CPUID instruction
 struct cpuid_registers {
@@ -52,12 +52,7 @@ static inline void cpuid(uint32_t eax, cpuid_registers& registers, uint32_t ecx 
 /// @param[out] buffer Pointer to the output character buffer
 void register_to_buffer(uint32_t reg, char* buffer) {
     ONEDAL_ASSERT(buffer);
-    constexpr uint32_t mask = 0xFF; // lower 8 bits
-    constexpr uint32_t register_size = sizeof(uint32_t);
-    for (uint32_t i = 0; i < register_size; ++i) {
-        buffer[i] = reg & mask;
-        reg >>= 8;
-    }
+    reinterpret_cast<uint32_t *>(buffer)[0] = reg;
 }
 
 /// Copies the values of x86 EBX, EDX, ECX (in that order) registers that contain the vendor ID
@@ -67,9 +62,10 @@ void register_to_buffer(uint32_t reg, char* buffer) {
 /// @param[out] buffer      Pointer to the output character buffer
 void registers_to_vendor_id(const cpuid_registers& registers, char* buffer) {
     ONEDAL_ASSERT(buffer);
+    constexpr std::size_t register_size = sizeof(uint32_t);
     register_to_buffer(registers.ebx_, buffer);
-    register_to_buffer(registers.edx_, buffer + 4);
-    register_to_buffer(registers.ecx_, buffer + 8);
+    register_to_buffer(registers.edx_, buffer + register_size);
+    register_to_buffer(registers.ecx_, buffer + 2 * register_size);
 }
 
 #endif
