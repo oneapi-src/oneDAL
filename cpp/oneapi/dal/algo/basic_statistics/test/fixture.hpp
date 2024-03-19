@@ -336,30 +336,30 @@ public:
             const table ref = homogen_table::wrap(ref_sum2.get_array(), 1l, column_count);
             check_if_close(result.get_sum_squares(), ref, "Sum squares");
         }
-        // if (compute_mode.test(result_options::sum_squares_centered)) {
-        //     const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
-        //     check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
-        // }
-        // if (compute_mode.test(result_options::mean)) {
-        //     const table ref = homogen_table::wrap(ref_mean.get_array(), 1l, column_count);
-        //     check_if_close(result.get_mean(), ref, "Mean");
-        // }
-        // if (compute_mode.test(result_options::second_order_raw_moment)) {
-        //     const table ref = homogen_table::wrap(ref_sorm.get_array(), 1l, column_count);
-        //     check_if_close(result.get_second_order_raw_moment(), ref, "SORM");
-        // }
-        // if (compute_mode.test(result_options::variance)) {
-        //     const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
-        //     check_if_close(result.get_variance(), ref, "Variance");
-        // }
-        // if (compute_mode.test(result_options::standard_deviation)) {
-        //     const table ref = homogen_table::wrap(ref_stdev.get_array(), 1l, column_count);
-        //     check_if_close(result.get_standard_deviation(), ref, "Std");
-        // }
-        // if (compute_mode.test(result_options::variation)) {
-        //     const table ref = homogen_table::wrap(ref_vart.get_array(), 1l, column_count);
-        //     check_if_close(result.get_variation(), ref, "Variation");
-        // }
+        if (compute_mode.test(result_options::sum_squares_centered)) {
+            const table ref = homogen_table::wrap(ref_sum2cent.get_array(), 1l, column_count);
+            check_if_close(result.get_sum_squares_centered(), ref, "Sum squares centered");
+        }
+        if (compute_mode.test(result_options::mean)) {
+            const table ref = homogen_table::wrap(ref_mean.get_array(), 1l, column_count);
+            check_if_close(result.get_mean(), ref, "Mean");
+        }
+        if (compute_mode.test(result_options::second_order_raw_moment)) {
+            const table ref = homogen_table::wrap(ref_sorm.get_array(), 1l, column_count);
+            check_if_close(result.get_second_order_raw_moment(), ref, "SORM");
+        }
+        if (compute_mode.test(result_options::variance)) {
+            const table ref = homogen_table::wrap(ref_varc.get_array(), 1l, column_count);
+            check_if_close(result.get_variance(), ref, "Variance");
+        }
+        if (compute_mode.test(result_options::standard_deviation)) {
+            const table ref = homogen_table::wrap(ref_stdev.get_array(), 1l, column_count);
+            check_if_close(result.get_standard_deviation(), ref, "Std");
+        }
+        if (compute_mode.test(result_options::variation)) {
+            const table ref = homogen_table::wrap(ref_vart.get_array(), 1l, column_count);
+            check_if_close(result.get_variation(), ref, "Variation");
+        }
     }
 
     void check_for_exception_for_non_requested_results(bs::result_option_id compute_mode,

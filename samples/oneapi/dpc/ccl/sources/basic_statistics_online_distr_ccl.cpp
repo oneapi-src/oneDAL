@@ -17,6 +17,7 @@
 #include <sycl/sycl.hpp>
 #include <iomanip>
 #include <iostream>
+#include <mpi.h>
 
 #ifndef ONEDAL_DATA_PARALLEL
 #define ONEDAL_DATA_PARALLEL
@@ -32,7 +33,7 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue &queue) {
     const auto data_file_name = get_data_path("data/covcormoments_dense.csv");
-
+    const std::int64_t nBlocks = 10;
     const auto data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 
     const auto bs_desc = dal::basic_statistics::descriptor{};
@@ -43,7 +44,14 @@ void run(sycl::queue &queue) {
 
     auto input_vec = split_table_by_rows<float>(queue, data, rank_count);
 
-    const auto result = dal::preview::compute(comm, bs_desc, input_vec[rank_id]);
+    auto input_blocks = split_table_by_rows<float>(queue, input_vec[rank_id], nBlocks);
+    dal::basic_statistics::partial_compute_result<> partial_result;
+
+    for (std::int64_t i = 0; i < nBlocks; i++) {
+        partial_result = dal::partial_compute(queue, bs_desc, partial_result, input_blocks[i]);
+    }
+    const auto result = dal::preview::finalize_compute(comm, bs_desc, partial_result);
+
     if (comm.get_rank() == 0) {
         std::cout << "Minimum:\n" << result.get_min() << std::endl;
         std::cout << "Maximum:\n" << result.get_max() << std::endl;

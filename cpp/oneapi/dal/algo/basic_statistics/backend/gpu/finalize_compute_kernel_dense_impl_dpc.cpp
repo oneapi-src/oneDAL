@@ -41,7 +41,7 @@ auto compute_all_metrics(sycl::queue& q,
                          const pr::ndview<Float, 1>& sums,
                          const pr::ndview<Float, 1>& sums2,
                          const pr::ndview<Float, 1>& sums2cent,
-                         const pr::ndview<Float, 1>& nobs,
+                         std::int64_t nobs,
                          std::size_t column_count,
                          const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_all_metrics, q);
@@ -57,20 +57,29 @@ auto compute_all_metrics(sycl::queue& q,
     auto result_variation_ptr = result_variation.get_mutable_data();
     auto result_stddev_ptr = result_stddev.get_mutable_data();
 
-    auto nobs_ptr = nobs.get_data();
     auto sums_data = sums.get_data();
     auto sums2_data = sums2.get_data();
-    auto sums2cent_data = sums2cent.get_data();
+    auto sums2cent_data = sums2cent.get_mutable_data();
 
-    const Float inv_n = Float(1.0 / double(nobs_ptr[0]));
-    auto update_event = q.submit([&](sycl::handler& cgh) {
+    const Float inv_n = Float(1.0 / double(nobs));
+    //todo: optimize it
+    auto update_sums_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(column_count);
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
-            result_means_ptr[id] = sums_data[id] / nobs_ptr[0];
+            sums2cent_data[id] = sums2_data[id] - sums_data[id] * sums_data[id] / nobs;
+        });
+    });
 
-            result_variance_ptr[id] = sums2cent_data[id] / (nobs_ptr[0] - 1);
+    auto update_event = q.submit([&](sycl::handler& cgh) {
+        const auto range = sycl::range<1>(column_count);
+
+        cgh.depends_on(update_sums_event);
+        cgh.parallel_for(range, [=](sycl::item<1> id) {
+            result_means_ptr[id] = sums_data[id] / nobs;
+
+            result_variance_ptr[id] = sums2cent_data[id] / (nobs - 1);
 
             result_raw_moment_ptr[id] = sums2_data[id] * inv_n;
 
@@ -119,6 +128,11 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
 
     const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input.get_partial_n_rows());
 
+    auto rows_count_global = nobs_nd.get_data()[0];
+    {
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+        comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    }
     if (res_op.test(result_options::min)) {
         ONEDAL_ASSERT(input.get_partial_min().get_column_count() == column_count);
         const auto min =
@@ -168,7 +182,7 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
                                                          sums_nd,
                                                          sums2_nd,
                                                          sums2cent_nd,
-                                                         nobs_nd,
+                                                         rows_count_global,
                                                          column_count,
                                                          {});
 
