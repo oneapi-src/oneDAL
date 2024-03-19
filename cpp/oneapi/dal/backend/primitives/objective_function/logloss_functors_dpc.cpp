@@ -43,12 +43,10 @@ logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
           n_(data.get_row_count()),
           p_(data.get_column_count()),
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
-    std::cerr << "in hessp constructor" << std::endl;
     raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
     buffer_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
     tmp_gpu_ = ndarray<Float, 1>::empty(q_, { p_ + 1 }, sycl::usm::alloc::device);
     if (data_.get_kind() == dal::csr_table::kind()) {
-        std::cerr << "data set" << std::endl;
         sp_handle_.reset(new sparse_matrix_handle(q));
         set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
     }
@@ -406,6 +404,7 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
                                                                 grad_ndview,
                                                                 fit_intercept_,
                                                                 { fill_loss_e, prob_e });
+
         value_ = loss_batch.at_device(q_, 0, { compute_e });
 
         last_iter_e = { compute_e };
@@ -413,21 +412,6 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
         if (need_hessp) {
             auto hess_e = compute_raw_hessian(q_, probabilities_, raw_hessian, { prob_e });
             last_iter_e = last_iter_e + hess_e;
-        }
-
-        if (comm_.get_rank_count() > 1) {
-            {
-                ONEDAL_PROFILER_TASK(gradient_allreduce);
-                auto gradient_arr = dal::array<Float>::wrap(q_,
-                                                            gradient_.get_mutable_data(),
-                                                            gradient_.get_count(),
-                                                            { compute_e });
-                comm_.allreduce(gradient_arr).wait();
-            }
-            {
-                ONEDAL_PROFILER_TASK(value_allreduce);
-                comm_.allreduce(value_).wait();
-            }
         }
     }
     else {
@@ -481,20 +465,19 @@ event_vector logloss_function<Float>::update_x(const ndview<Float, 1>& x,
             // ensure that while event is running in the background data is not overwritten
             wait_or_pass(last_iter_e).wait_and_throw();
         }
-
-        if (comm_.get_rank_count() > 1) {
-            {
-                ONEDAL_PROFILER_TASK(gradient_allreduce);
-                auto gradient_arr = dal::array<Float>::wrap(q_,
-                                                            gradient_.get_mutable_data(),
-                                                            gradient_.get_count(),
-                                                            last_iter_e);
-                comm_.allreduce(gradient_arr).wait();
-            }
-            {
-                ONEDAL_PROFILER_TASK(value_allreduce);
-                comm_.allreduce(value_).wait();
-            }
+    }
+    if (comm_.get_rank_count() > 1) {
+        {
+            ONEDAL_PROFILER_TASK(gradient_allreduce);
+            auto gradient_arr = dal::array<Float>::wrap(q_,
+                                                        gradient_.get_mutable_data(),
+                                                        gradient_.get_count(),
+                                                        last_iter_e);
+            comm_.allreduce(gradient_arr).wait();
+        }
+        {
+            ONEDAL_PROFILER_TASK(value_allreduce);
+            comm_.allreduce(value_).wait();
         }
     }
 

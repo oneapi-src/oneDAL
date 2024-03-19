@@ -19,7 +19,8 @@
 
 namespace oneapi::dal::test::engine {
 
-csr_table copy_data_to_csr(const dal::array<float>& data,
+template <typename Float = float>
+csr_table copy_data_to_csr(const dal::array<Float>& data,
                            const dal::array<std::int64_t>& column_indices,
                            const dal::array<std::int64_t>& row_offsets,
                            const sparse_indexing indexing,
@@ -29,7 +30,7 @@ csr_table copy_data_to_csr(const dal::array<float>& data,
     auto data_ptr = data.get_data();
     auto col_indices_ptr = column_indices.get_data();
     auto nnz_count = row_offs_ptr[row_count] - row_offs_ptr[0];
-    const auto copied_data = dal::array<float>::empty(nnz_count);
+    const auto copied_data = dal::array<Float>::empty(nnz_count);
     const auto copied_col_indices = dal::array<std::int64_t>::empty(nnz_count);
     const auto copied_row_offsets = dal::array<std::int64_t>::empty(row_count + 1);
 
@@ -51,8 +52,9 @@ csr_table copy_data_to_csr(const dal::array<float>& data,
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
+template <typename Float = float>
 csr_table copy_data_to_csr(sycl::queue& queue,
-                           const dal::array<float>& data,
+                           const dal::array<Float>& data,
                            const dal::array<std::int64_t>& column_indices,
                            const dal::array<std::int64_t>& row_offsets,
                            const sparse_indexing indexing,
@@ -60,12 +62,12 @@ csr_table copy_data_to_csr(sycl::queue& queue,
                            const std::int64_t row_count) {
     auto row_offs_ptr = row_offsets.get_data();
     auto nnz_count = row_offs_ptr[row_count] - row_offs_ptr[0];
-    const auto copied_data = dal::array<float>::empty(queue, nnz_count, sycl::usm::alloc::device);
+    const auto copied_data = dal::array<Float>::empty(queue, nnz_count, sycl::usm::alloc::device);
     const auto copied_col_indices =
         dal::array<std::int64_t>::empty(queue, nnz_count, sycl::usm::alloc::device);
     const auto copied_row_offsets =
         dal::array<std::int64_t>::empty(queue, row_count + 1, sycl::usm::alloc::device);
-    auto data_event = queue.copy<float>(data.get_data(), copied_data.get_mutable_data(), nnz_count);
+    auto data_event = queue.copy<Float>(data.get_data(), copied_data.get_mutable_data(), nnz_count);
     auto col_indices_event = queue.copy<std::int64_t>(column_indices.get_data(),
                                                       copied_col_indices.get_mutable_data(),
                                                       nnz_count);
@@ -84,8 +86,9 @@ csr_table copy_data_to_csr(sycl::queue& queue,
 /**
 * Generates random CSR table based on inputs
 */
+template <typename Float = float>
 struct csr_table_builder {
-    using Float = float;
+    // using Float = float;
     std::int64_t row_count_, column_count_;
     float nonzero_fraction_;
     sparse_indexing indexing_;
