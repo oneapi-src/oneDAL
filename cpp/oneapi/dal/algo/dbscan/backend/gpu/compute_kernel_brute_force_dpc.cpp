@@ -108,27 +108,27 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
-    //array indicates is the point core or no
+    // array indicates if the point is a core or not
     auto [arr_cores, cores_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
 
-    //array storages the information about neighbours of the point for distributed mode
+    // array stores the information about neighbours of the point in distributed mode
     auto [arr_neighbours, neighbours_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
 
-    //array storages the information about neighbours of the point for distributed mode
+    // array stores the information about neighbours of the point in distributed mode
     auto [arr_responses, responses_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, -1, sycl::usm::alloc::device);
 
-    //array storages the information about which point are core neighbours in the current step
+    // array stores the information about which point are core neighbours in the current step
     auto [observation_indices, observation_indices_event] =
         pr::ndarray<bool, 1>::full(queue, local_row_count, false, sycl::usm::alloc::device);
 
-    //array storages the information about count of the points in queue
+    // array stores the information about count of the points in queue
     auto [queue_size, queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
-    //array storages the information about count of the local points in queue
+    // array stores the information about count of the local points in queue
     auto [local_queue_size_arr, local_queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
     sycl::event::wait({ cores_event,
