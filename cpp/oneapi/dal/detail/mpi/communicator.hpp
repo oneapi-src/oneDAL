@@ -22,6 +22,8 @@
 
 #include <mpi.h>
 #include <dlfcn.h>
+#include <string>
+#include <sstream>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 
@@ -155,6 +157,7 @@ public:
         void* handle = dlopen("libmpi.so", RTLD_LAZY);
 
         if (handle == nullptr) {
+            throw std::runtime_error("FALSE: NO HANDLE")
             return false;
         }
 
@@ -162,7 +165,32 @@ public:
 
         if (sym == nullptr) {
             dlclose(handle);
-            return false;
+
+            // Check if Intel MPI without MPIX_Query_ze_support
+            // Intel MPI 2021.1 and greater supports but not all have symbol
+            char version[MPI_MAX_LIBRARY_VERSION_STRING];
+            int len = 0;
+            MPI_Get_library_version(version, &len);
+            if (version.compare(0, 5, "Intel") != 0) {
+                throw std::runtime_error("FALSE: NOT INTEL")
+                return false;
+            }
+
+            // Extract major version based on location of period
+            size_t period_pos = mpi_info.find('.');
+            std::string major_str = mpi_info.substr(period_pos - 4, period_pos);
+
+            // Convert the substring to an integer
+            int major;
+            std::istringstream(major_str) >> major;
+
+            if (major >= 2021) {
+                throw std::runtime_error("TRUE: INTEL")
+            }
+            else {
+                throw std::runtime_error("FALSE: NOT 2021")
+            }
+            return (major >= 2021);
         }
 
         // Return status of MPI ze support using pointer to function
@@ -171,6 +199,12 @@ public:
 
         bool result = query_ze_support_ptr();
         dlclose(handle);
+        if (result) {
+            throw std::runtime_error("TRUE: SUPPORTING")
+        }
+        else {
+            throw std::runtime_error("FALSE: NOT SUPPORTING")
+        }
         return result;
     }
 
