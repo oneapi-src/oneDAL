@@ -62,7 +62,7 @@ auto compute_all_metrics(sycl::queue& q,
     auto sums2cent_data = sums2cent.get_mutable_data();
 
     const Float inv_n = Float(1.0 / double(nobs));
-    //todo: optimize it
+
     auto update_sums_event = q.submit([&](sycl::handler& cgh) {
         const auto range = sycl::range<1>(column_count);
 
