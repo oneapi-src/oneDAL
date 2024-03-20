@@ -34,7 +34,7 @@ struct kernels_fp {
                                                         const pr::ndview<Float, 2>& data_replace,
                                                         const pr::ndview<Float, 2>& weights,
                                                         pr::ndview<std::int32_t, 1>& cores,
-                                                        pr::ndview<std::int32_t, 1>& neighbours,
+                                                        pr::ndview<Float, 1>& neighbours,
                                                         Float epsilon,
                                                         std::int64_t min_observations,
                                                         const bk::event_vector& deps);
@@ -43,7 +43,7 @@ struct kernels_fp {
                                                    const pr::ndview<Float, 2>& data_replace,
                                                    const pr::ndview<Float, 2>& weights,
                                                    pr::ndview<std::int32_t, 1>& cores,
-                                                   pr::ndview<std::int32_t, 1>& neighbours,
+                                                   pr::ndview<Float, 1>& neighbours,
                                                    Float epsilon,
                                                    std::int64_t min_observations,
                                                    const bk::event_vector& deps = {});
@@ -52,7 +52,7 @@ struct kernels_fp {
                                       const pr::ndview<Float, 2>& data,
                                       const pr::ndview<Float, 2>& weights,
                                       pr::ndview<std::int32_t, 1>& cores,
-                                      pr::ndview<std::int32_t, 1>& neighbours,
+                                      pr::ndview<Float, 1>& neighbours,
                                       Float epsilon,
                                       std::int64_t min_observations,
                                       const bk::event_vector& deps);
@@ -61,7 +61,7 @@ struct kernels_fp {
                                  const pr::ndview<Float, 2>& data,
                                  const pr::ndview<Float, 2>& weights,
                                  pr::ndview<std::int32_t, 1>& cores,
-                                 pr::ndview<std::int32_t, 1>& neighbours,
+                                 pr::ndview<Float, 1>& neighbours,
                                  Float epsilon,
                                  std::int64_t min_observations,
                                  const bk::event_vector& deps = {});
