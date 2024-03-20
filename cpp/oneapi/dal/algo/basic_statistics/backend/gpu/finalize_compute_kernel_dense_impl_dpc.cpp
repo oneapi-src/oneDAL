@@ -16,11 +16,13 @@
 
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/finalize_compute_kernel.hpp"
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/finalize_compute_kernel_dense_impl.hpp"
+
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/util/common.hpp"
+
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/util/common.hpp"
 
 #include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
 

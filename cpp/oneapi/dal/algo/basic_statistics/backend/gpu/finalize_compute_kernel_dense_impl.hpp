@@ -17,10 +17,12 @@
 #pragma once
 
 #include "oneapi/dal/algo/basic_statistics/backend/gpu/finalize_compute_kernel.hpp"
+
 #include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
+
 #include "oneapi/dal/util/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/backend/communicator.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
