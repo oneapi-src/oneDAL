@@ -56,9 +56,7 @@ function install_dev-base-conda {
 }
 
 function install_arm-cross-compilers {
-    sudo apt-get install gcc-aarch64-linux-gnu -y
-    sudo apt-get install g++-aarch64-linux-gnu -y
-    sudo apt-get install gfortran-aarch64-linux-gnu -y
+    sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gfortran-aarch64-linux-gnu
 }
 
 if [ "${component}" == "dpcpp" ]; then

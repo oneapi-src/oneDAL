@@ -65,7 +65,8 @@ set_arch_dir() {
     elif [ "$arch" == "aarch64" ]; then
         arch_dir="arm"
     else
-        arch_dir="$arch"
+        echo "Unsupported arch, quitting tbb build script."
+        exit 1
     fi
     echo "${arch_dir}"
 }

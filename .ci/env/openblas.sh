@@ -55,10 +55,10 @@ CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 pushd OpenBLAS
   make clean
   if [ "${cross_compile}" == "yes" ]; then
-    echo make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 CFLAGS=\"${cflags}\"
-    make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 CFLAGS=\"${cflags}\"
+    echo make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1 CFLAGS=\"${cflags}\"
+    make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1 CFLAGS=\"${cflags}\"
   else
-    make -j${CoreCount} NO_FORTRAN=1 USE_OPENMP=0
+    make -j${CoreCount} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1
   fi
   make install PREFIX=../__deps/open_blas
 popd

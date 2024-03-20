@@ -146,7 +146,7 @@ if [[ "${ARCH}" == "32e" ]]; then
     $(pwd)/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        $(pwd)/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-toolchain.cmake --target_arch aarch64
+        $(pwd)/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
     else
         $(pwd)/.ci/env/tbb.sh
     fi
