@@ -157,7 +157,6 @@ public:
         void* handle = dlopen("libmpi.so", RTLD_LAZY);
 
         if (handle == nullptr) {
-            throw std::runtime_error("FALSE: NO HANDLE")
             return false;
         }
 
@@ -172,7 +171,6 @@ public:
             int len = 0;
             MPI_Get_library_version(version, &len);
             if (version.compare(0, 5, "Intel") != 0) {
-                throw std::runtime_error("FALSE: NOT INTEL")
                 return false;
             }
 
@@ -184,12 +182,6 @@ public:
             int major;
             std::istringstream(major_str) >> major;
 
-            if (major >= 2021) {
-                throw std::runtime_error("TRUE: INTEL")
-            }
-            else {
-                throw std::runtime_error("FALSE: NOT 2021")
-            }
             return (major >= 2021);
         }
 
@@ -199,12 +191,7 @@ public:
 
         bool result = query_ze_support_ptr();
         dlclose(handle);
-        if (result) {
-            throw std::runtime_error("TRUE: SUPPORTING")
-        }
-        else {
-            throw std::runtime_error("FALSE: NOT SUPPORTING")
-        }
+
         return result;
     }
 
