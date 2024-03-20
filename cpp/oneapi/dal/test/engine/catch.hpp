@@ -31,4 +31,4 @@
 // It is easier to debug exception via GDB if there is handler.
 #define CATCH_CONFIG_DISABLE_EXCEPTIONS
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>

@@ -83,7 +83,7 @@ public:
                                   float_t epsilon,
                                   std::int64_t min_observations,
                                   const table& ref_responses) {
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc = this->get_descriptor(epsilon, min_observations);
 
         INFO("run computation");
@@ -92,7 +92,7 @@ public:
 
         auto joined_result = this->merge_compute_result(compute_results);
 
-        INFO("check references")
+        INFO("check references");
         base_t::check_responses_against_ref(joined_result.get_responses(), ref_responses);
     }
     void run_spmd_dbi_checks(const table& data,
@@ -100,7 +100,7 @@ public:
                              std::int64_t min_observations,
                              float_t ref_dbi,
                              float_t dbi_ref_tol = 1.0e-4) {
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc = this->get_descriptor(epsilon, min_observations);
 
         INFO("run computation");

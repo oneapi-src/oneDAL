@@ -172,23 +172,23 @@ public:
     void compare_infer_results(const infer_result<task_t>& actual,
                                const infer_result<task_t>& reference) {
         if constexpr (is_classification) {
-            INFO("compare responses") {
+            SECTION("compare responses") {
                 te::check_if_tables_equal<float_t>(actual.get_responses(),
                                                    reference.get_responses());
             }
         }
 
         if constexpr (is_regression) {
-            INFO("compare responses") {
+            SECTION("compare responses") {
                 check_if_tables_close(actual.get_responses(), reference.get_responses());
             }
         }
 
         if constexpr (is_search) {
-            INFO("compare indices") {
+            SECTION("compare indices") {
                 te::check_if_tables_equal<float_t>(actual.get_indices(), reference.get_indices());
             }
-            INFO("compare distances") {
+            SECTION("compare distances") {
                 te::check_if_tables_equal<float_t>(actual.get_distances(),
                                                    reference.get_distances());
             }

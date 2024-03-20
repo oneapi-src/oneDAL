@@ -131,7 +131,7 @@ public:
                                  const Distance distance = Distance{},
                                  const voting_t voting = default_voting,
                                  const float_t tolerance = float_t(1.e-5)) {
-        INFO("check if data shape is expected")
+        INFO("check if data shape is expected");
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_responses.get_column_count() == 1);
         REQUIRE(infer_responses.get_column_count() == 1);
@@ -158,7 +158,7 @@ public:
                              const std::int64_t n_neighbors,
                              const Distance distance = Distance{},
                              const voting_t voting = default_voting) {
-        INFO("check if data shape is expected")
+        INFO("check if data shape is expected");
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_responses.get_column_count() == 1);
         REQUIRE(infer_responses.get_column_count() == 1);

@@ -28,7 +28,7 @@ template <typename Float = double>
 inline auto accuracy_score(const table& groundtruth,
                            const table& prediction,
                            const Float tolerance = Float(0)) {
-    INFO("check if label shape is expected to be equal")
+    INFO("check if label shape is expected to be equal");
     REQUIRE(prediction.get_row_count() == groundtruth.get_row_count());
     REQUIRE(prediction.get_column_count() == groundtruth.get_column_count());
 

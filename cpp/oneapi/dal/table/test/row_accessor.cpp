@@ -20,6 +20,8 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/linalg.hpp"
 
+using namespace Catch;
+
 namespace oneapi::dal {
 
 namespace te = dal::test::engine;

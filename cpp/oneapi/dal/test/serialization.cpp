@@ -43,16 +43,15 @@ TEST("mock primitive type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
-        te::mock_output_archive ar(state);
-        detail::serialize(original, ar);
+    INFO("serialize");
+    te::mock_output_archive ar(state);
+    detail::serialize(original, ar);
 
-        REQUIRE(ar.prologue_call_count == 1);
-        REQUIRE(ar.epilogue_call_count == 1);
-        REQUIRE(state.get<float>(0) == original);
-    }
+    REQUIRE(ar.prologue_call_count == 1);
+    REQUIRE(ar.epilogue_call_count == 1);
+    REQUIRE(state.get<float>(0) == original);
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         float deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -70,16 +69,15 @@ TEST("mock enum") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
-        te::mock_output_archive ar(state);
-        detail::serialize(original, ar);
+    INFO("serialize");
+    te::mock_output_archive ar(state);
+    detail::serialize(original, ar);
 
-        REQUIRE(ar.prologue_call_count == 1);
-        REQUIRE(ar.epilogue_call_count == 1);
-        REQUIRE(state.get<my_enum>(0) == original);
-    }
+    REQUIRE(ar.prologue_call_count == 1);
+    REQUIRE(ar.epilogue_call_count == 1);
+    REQUIRE(state.get<my_enum>(0) == original);
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         my_enum deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -101,19 +99,18 @@ TEST("mock POD type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
-        te::mock_output_archive ar(state);
-        detail::serialize(original, ar);
+    INFO("serialize");
+    te::mock_output_archive ar(state);
+    detail::serialize(original, ar);
 
-        REQUIRE(state.get<std::int8_t>(0) == original.x1);
-        REQUIRE(state.get<std::int16_t>(1) == original.x2);
-        REQUIRE(state.get<std::int32_t>(2) == original.x3);
-        REQUIRE(state.get<std::int64_t>(3) == original.x4);
-        REQUIRE(state.get<float>(4) == original.x5);
-        REQUIRE(state.get<double>(5) == original.x6);
-    }
+    REQUIRE(state.get<std::int8_t>(0) == original.x1);
+    REQUIRE(state.get<std::int16_t>(1) == original.x2);
+    REQUIRE(state.get<std::int32_t>(2) == original.x3);
+    REQUIRE(state.get<std::int64_t>(3) == original.x4);
+    REQUIRE(state.get<float>(4) == original.x5);
+    REQUIRE(state.get<double>(5) == original.x6);
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         pod_type deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -170,18 +167,17 @@ TEST("mock non-trivially copyable type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
-        te::mock_output_archive ar(state);
-        detail::serialize(original, ar);
+    INFO("serialize");
+    te::mock_output_archive ar(state);
+    detail::serialize(original, ar);
 
-        REQUIRE(state.get<std::int64_t>(0) == element_count);
-        for (std::int64_t i = 1; i < element_count + 1; i++) {
-            CAPTURE(i);
-            REQUIRE(state.get<float>(i) == original.vec[i - 1]);
-        }
+    REQUIRE(state.get<std::int64_t>(0) == element_count);
+    for (std::int64_t i = 1; i < element_count + 1; i++) {
+        CAPTURE(i);
+        REQUIRE(state.get<float>(i) == original.vec[i - 1]);
     }
 
-    INFO("deserialize") {
+    SECTION("deserialize") {
         vector_type deserialized;
         te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
@@ -344,15 +340,14 @@ TEST("mock polymorphic type") {
 
     te::mock_archive_state state;
 
-    INFO("serialize") {
-        te::mock_output_archive ar(state);
-        detail::serialize(original, ar);
+    INFO("serialize");
+    te::mock_output_archive ar(state);
+    detail::serialize(original, ar);
 
-        REQUIRE(state.get<std::uint8_t>(0) == 1);
-        REQUIRE(state.get<std::uint64_t>(1) == polymorphic_impl_a::serialization_id());
-        REQUIRE(state.get<float>(2) == a_x1);
-        REQUIRE(state.get<std::int64_t>(3) == a_x2);
-    }
+    REQUIRE(state.get<std::uint8_t>(0) == 1);
+    REQUIRE(state.get<std::uint64_t>(1) == polymorphic_impl_a::serialization_id());
+    REQUIRE(state.get<float>(2) == a_x1);
+    REQUIRE(state.get<std::int64_t>(3) == a_x2);
 
     SECTION("deserialize to base type") {
         polymorphic deserialized;

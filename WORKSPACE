@@ -108,9 +108,9 @@ onedal_repo(
 
 http_archive(
     name = "catch2",
-    url = "https://github.com/catchorg/Catch2/archive/v2.13.10.tar.gz",
-    sha256 = "d54a712b7b1d7708bc7a819a8e6e47b2fde9536f487b89ccbca295072a7d9943",
-    strip_prefix = "Catch2-2.13.10",
+    url = "https://github.com/catchorg/Catch2/archive/v3.5.0.tar.gz",
+    sha256 = "f6d4f8d78a9b59ec72a81d49f58d18eb317372ac07f8d9432710a079e69fd66a",
+    strip_prefix = "Catch2-3.5.0",
 )
 
 http_archive(

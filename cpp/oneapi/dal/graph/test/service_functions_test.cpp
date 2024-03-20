@@ -365,7 +365,7 @@ public:
         std::int64_t correct_value_count = 0;
         for (std::int64_t i = 0; i < vertex_count; i++) {
             for (std::int64_t j = graph_data.rows[i]; j < graph_data.rows[i + 1]; ++j) {
-                if (Approx(dal::preview::get_edge_value(g, i, graph_data.cols[j])) ==
+                if (Catch::Approx(dal::preview::get_edge_value(g, i, graph_data.cols[j])) ==
                     graph_data.edge_weights_double[j])
                     correct_value_count++;
             }
