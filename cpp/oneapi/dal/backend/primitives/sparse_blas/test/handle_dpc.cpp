@@ -27,7 +27,7 @@ TEST("can construct sparse matrix handle") {
     try {
         sparse_matrix_handle h(policy.get_queue());
     }
-    catch(...) {
+    catch (...) {
         REQUIRE(false);
     }
     SUCCEED();
