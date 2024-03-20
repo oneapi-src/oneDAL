@@ -155,6 +155,20 @@ public:
 
     //these responses have been updated via scikit-learn 1.4.1.
     //Previous result was incorrect on oneDAL side as well.
+    static te::dataframe get_weights() {
+        static std::array<float, row_count> data = {
+            -89, -24, -9,  86,  1,   -65, 11,  -68, 87,  70,  -43, 75,  80,  -89, -52, 27,  -95,
+            57,  -98, -99, -98, 82,  -45, -7,  -55, -92, 99,  95,  22,  92,  79,  21,  -92, 27,
+            56,  20,  38,  -95, -40, 71,  35,  -62, -53, -38, 68,  -99, 16,  -41, 89,  99,  -16,
+            -49, 89,  10,  -18, -69, -59, -97, 81,  94,  -33, 87,  -90, -30, 58,  22,  -6,  36,
+            56,  41,  -98, 60,  -1,  -58, 25,  88,  -83, -1,  95,  55,  65,  5,   -50, -96, -91,
+            -32, -66, 50,  88,  -97, 81,  78,  62,  33,  -99, -20, 58,  -90, 17,  49,
+        };
+        return te::dataframe{ data.data(), 100, 1 };
+    }
+
+    //these responses have been updated via scikit-learn 1.4.1.
+    //Previous result was incorrect on oneDAL side as well.
     static te::dataframe get_expected_responses() {
         static std::array<float, row_count> data = {
             0,  -1, 1,  1,  -1, 1, -1, -1, 0,  2,  -1, 0,  -1, -1, 1,  1,  1,  0,  0,  -1,
@@ -162,6 +176,17 @@ public:
             3,  1,  -1, 0,  -1, 1, -1, 0,  1,  0,  3,  1,  1,  0,  1,  1,  -1, 0,  -1, 3,
             -1, -1, 1,  -1, 1,  0, -1, 0,  1,  -1, 3,  -1, -1, -1, -1, 1,  0,  0,  1,  1,
             1,  3,  -1, -1, 1,  3, -1, 1,  -1, 1,  1,  1,  1,  1,  -1, 1,  3,  -1, 1,  3,
+        };
+        return te::dataframe{ data.data(), row_count, 1 };
+    }
+
+    static te::dataframe get_expected_responses_with_weights() {
+        static std::array<float, row_count> data = {
+            0,  -1, 1,  2,  3,  -1, 4,  -1, 5,  6,  -1, 0,  7,  -1, 1,  1,  -1, 0,  0,  -1,
+            8,  1,  1,  -1, -1, 1,  0,  6,  1,  5,  0,  6,  -1, 6,  3,  9,  10, 1,  5,  11,
+            12, 1,  -1, 5,  13, -1, 14, 5,  1,  0,  12, 1,  8,  5,  1,  -1, -1, 0,  14, 12,
+            -1, -1, -1, -1, 1,  0,  -1, 5,  8,  15, 12, 16, 2,  -1, 17, 1,  5,  0,  1,  1,
+            8,  12, -1, -1, 1,  -1, 7,  1,  -1, -1, 1,  1,  1,  1,  -1, 2,  12, -1, 8,  12,
         };
         return te::dataframe{ data.data(), row_count, 1 };
     }

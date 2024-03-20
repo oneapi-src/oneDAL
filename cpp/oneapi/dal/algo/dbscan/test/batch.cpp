@@ -223,6 +223,23 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
+                     "dbscan gold data clusters weights test",
+                     "[dbscan][batch]",
+                     dbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto x = gold_dataset::get_data().get_table(this->get_homogen_table_id());
+    const auto weights = gold_dataset::get_weights().get_table(this->get_homogen_table_id());
+    double epsilon = gold_dataset::get_epsilon();
+    std::int64_t min_observations = gold_dataset::get_min_observations();
+
+    const auto r =
+        gold_dataset::get_expected_responses_with_weights().get_table(this->get_homogen_table_id());
+
+    this->run_checks(x, weights, epsilon, min_observations, r);
+}
+
+TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                      "dbscan gold data dbi test",
                      "[dbscan][batch]",
                      dbscan_types) {

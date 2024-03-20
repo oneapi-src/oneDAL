@@ -138,13 +138,16 @@ struct get_core_wide_kernel {
                             if (local_id == 0) {
                                 neighbours_ptr[wg_id] = count;
                             }
-                            if (count >= min_observations) {
+                            if (count >= min_observations && !use_weights) {
                                 if (local_id == 0) {
                                     cores_ptr[wg_id] = count_type(1);
                                 }
                                 break;
                             }
                         }
+                    }
+                    if (neighbours_ptr[wg_id] >= min_observations) {
+                        cores_ptr[wg_id] = count_type(1);
                     }
                 });
         });
@@ -211,10 +214,14 @@ struct get_core_narrow_kernel {
                     }
                     neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
 
-                    if (neighbours_ptr[idx] >= min_observations) {
+                    if (neighbours_ptr[idx] >= min_observations && !use_weights) {
                         cores_ptr[idx] = count_type(1);
                         break;
                     }
+                }
+                //It is necesasry to check in cases with weights, due to weights could be negative
+                if (neighbours_ptr[idx] >= min_observations) {
+                    cores_ptr[idx] = count_type(1);
                 }
             });
         });
@@ -314,14 +321,19 @@ struct get_core_send_recv_replace_wide_kernel {
                             sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<Float>());
                         if (distance <= epsilon) {
                             count += use_weights ? weights_ptr[j] : count_type(1);
-                            if (count >= min_observations) {
+                            if (local_id == 0) {
+                                neighbours_ptr[wg_id] = count;
+                            }
+                            if (count >= min_observations && !use_weights) {
                                 if (local_id == 0) {
-                                    neighbours_ptr[wg_id] = count;
                                     cores_ptr[wg_id] = count_type(1);
                                 }
                                 break;
                             }
                         }
+                    }
+                    if (neighbours_ptr[wg_id] >= min_observations) {
+                        cores_ptr[wg_id] = count_type(1);
                     }
                 });
         });
@@ -392,10 +404,14 @@ struct get_core_send_recv_replace_narrow_kernel {
                     }
                     neighbours_ptr[idx] += use_weights ? weights_ptr[j] : count_type(1);
 
-                    if (neighbours_ptr[idx] >= min_observations) {
+                    if (neighbours_ptr[idx] >= min_observations && !use_weights) {
                         cores_ptr[idx] = count_type(1);
                         break;
                     }
+                }
+                //It is necesasry to check in cases with weights, due to weights could be negative
+                if (neighbours_ptr[idx] >= min_observations) {
+                    cores_ptr[idx] = count_type(1);
                 }
             });
         });
