@@ -157,6 +157,7 @@ public:
         void* handle = dlopen("libmpi.so", RTLD_LAZY);
 
         if (handle == nullptr) {
+            throw std::runtime_error("FALSE: NO HANDLE");
             return false;
         }
 
@@ -170,18 +171,26 @@ public:
             char version[MPI_MAX_LIBRARY_VERSION_STRING];
             int len = 0;
             MPI_Get_library_version(version, &len);
-            if (version.compare(0, 5, "Intel") != 0) {
+            std::string version_str(version);
+            if (version_str.compare(0, 5, "Intel") != 0) {
+                throw std::runtime_error("FALSE: NOT INTEL");
                 return false;
             }
 
             // Extract major version based on location of period
-            size_t period_pos = mpi_info.find('.');
-            std::string major_str = mpi_info.substr(period_pos - 4, period_pos);
+            size_t period_pos = version_str.find('.');
+            std::string major_str = version_str.substr(period_pos - 4, period_pos);
 
             // Convert the substring to an integer
             int major;
             std::istringstream(major_str) >> major;
 
+            if (major >= 2021) {
+                throw std::runtime_error("TRUE: INTEL");
+            }
+            else {
+                throw std::runtime_error("FALSE: NOT 2021");
+            }
             return (major >= 2021);
         }
 
@@ -191,7 +200,12 @@ public:
 
         bool result = query_ze_support_ptr();
         dlclose(handle);
-
+        if (result) {
+            throw std::runtime_error("TRUE: SUPPORTING");
+        }
+        else {
+            throw std::runtime_error("FALSE: NOT SUPPORTING");
+        }
         return result;
     }
 
