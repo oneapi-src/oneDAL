@@ -121,7 +121,7 @@ jobs:
     condition: failed()
     continueOnError: true
 
-- job: 'LinuxMakeGNU_OpenBLAS'
+- job: 'LinuxMakeGNU_OpenBLAS_x86'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
