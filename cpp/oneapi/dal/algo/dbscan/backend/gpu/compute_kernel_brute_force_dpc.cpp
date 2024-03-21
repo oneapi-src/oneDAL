@@ -90,10 +90,12 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     pr::ndarray<Float, 2> data_nd_replace;
     if (rank_count > 1) {
+        auto data_copy_count = column_count * local_row_count;
         data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
                                                        { max_local_block_size, column_count },
                                                        sycl::usm::alloc::device);
-        copy(queue, data_nd_replace, data_nd, {}).wait_and_throw();
+        bk::copy(queue, data_nd_replace.get_mutable_data(), data_nd.get_data(), data_copy_count, {})
+            .wait_and_throw();
     }
 
     bool use_weights = false;
@@ -108,10 +110,16 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
 
     pr::ndarray<Float, 2> weights_nd_replace;
     if (rank_count > 1 && use_weights) {
+        auto weights_copy_count = 1 * local_row_count;
         weights_nd_replace = pr::ndarray<Float, 2>::empty(queue,
                                                           { max_local_block_size, 1 },
                                                           sycl::usm::alloc::device);
-        copy(queue, weights_nd_replace, weights_nd, {}).wait_and_throw();
+        bk::copy(queue,
+                 weights_nd_replace.get_mutable_data(),
+                 weights_nd.get_data(),
+                 weights_copy_count,
+                 {})
+            .wait_and_throw();
     }
     const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
