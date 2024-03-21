@@ -13,3 +13,8 @@ daal_module(
         "@onedal//cpp/daal/src/algorithms/dtrees/forest:kernel",
     ],
 )
+
+daal_module(
+    name = "model_impl",
+    hdrs = glob(["*.hpp"]),
+)

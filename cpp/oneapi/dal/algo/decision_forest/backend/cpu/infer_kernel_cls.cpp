@@ -15,11 +15,14 @@
 *******************************************************************************/
 
 #include <daal/src/services/service_algo_utils.h>
+#include <daal/src/algorithms/dtrees/forest/df_hyperparameter_impl.h>
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_predict_dense_default_batch.h>
 
+#include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -31,7 +34,12 @@ using dal::backend::context_cpu;
 using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
+using param_t = detail::infer_parameters<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
+
+namespace daal_df = daal::algorithms::decision_forest;
+
+using daal_hyperparameters_t = daal_df::internal::Hyperparameter;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_cls_pred = daal_df::classification::prediction;
@@ -50,9 +58,34 @@ static daal_df::classification::ModelPtr get_daal_model(const model_t& trained_m
     return static_cast<const model_interop_cls*>(interop_model)->get_model();
 }
 
+static daal_hyperparameters_t convert_parameters(const param_t& params) {
+    using daal_df::internal::HyperparameterId;
+    using daal_df::internal::DoubleHyperparameterId;
+
+    const std::int64_t blockMultiplier = params.get_block_size_multiplier();
+    const std::int64_t block = params.get_block_size();
+    const std::int64_t minTrees = params.get_min_trees_for_threading();
+    const std::int64_t minRows = params.get_min_number_of_rows_for_vect_seq_compute();
+    const double scale = params.get_scale_factor_for_vect_parallel_compute();
+
+    daal_hyperparameters_t daal_hyperparameter;
+
+    auto status = daal_hyperparameter.set(HyperparameterId::blockSizeMultiplier, blockMultiplier);
+    status |= daal_hyperparameter.set(HyperparameterId::blockSize, block);
+    status |= daal_hyperparameter.set(HyperparameterId::minTreesForThreading, minTrees);
+    status |= daal_hyperparameter.set(HyperparameterId::minNumberOfRowsForVectSeqCompute, minRows);
+    status |=
+        daal_hyperparameter.set(DoubleHyperparameterId::scaleFactorForVectParallelCompute, scale);
+
+    interop::status_to_exception(status);
+
+    return daal_hyperparameter;
+}
+
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
+                                 const param_t& params,
                                  const model_t& trained_model,
                                  const table& data) {
     const std::int64_t row_count = data.get_row_count();
@@ -81,6 +114,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
 
     const daal_df::classification::Model* const daal_model_ptr = daal_model.get();
+    const daal_hyperparameters_t& hyperparameters = convert_parameters(params);
     interop::status_to_exception(interop::call_daal_kernel<Float, cls_dense_predict_kernel_t>(
         ctx,
         daal::services::internal::hostApp(daal_input),
@@ -89,7 +123,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_responses_res.get(),
         daal_responses_prob_res.get(),
         desc.get_class_count(),
-        daal_voting_mode));
+        daal_voting_mode,
+        &hyperparameters));
 
     result_t res;
 
@@ -109,16 +144,20 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+static result_t infer(const context_cpu& ctx,
+                      const descriptor_t& desc,
+                      const param_t& params,
+                      const input_t& input) {
+    return call_daal_kernel<Float>(ctx, desc, params, input.get_model(), input.get_data());
 }
 
 template <typename Float>
 struct infer_kernel_cpu<Float, method::by_default, task::classification> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
-        return infer<Float>(ctx, desc, input);
+        return infer<Float>(ctx, desc, params, input);
     }
 };
 
