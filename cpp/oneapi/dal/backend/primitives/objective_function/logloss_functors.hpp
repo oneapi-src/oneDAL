@@ -29,7 +29,7 @@ using comm_t = backend::communicator<spmd::device_memory_access::usm>;
 
 template <typename Float>
 class logloss_hessian_product : public base_matrix_operator<Float> {
-    friend detail::pimpl_accessor;
+    friend dal::detail::pimpl_accessor;
 
 public:
     logloss_hessian_product(sycl::queue& q,
@@ -67,12 +67,12 @@ private:
     const std::int64_t n_;
     const std::int64_t p_;
     const std::int64_t bsz_;
-    detail::pimpl<sparse_matrix_handle> sp_handle_;
+    dal::detail::pimpl<sparse_matrix_handle> sp_handle_;
 };
 
 template <typename Float>
 class logloss_function : public base_function<Float> {
-    friend detail::pimpl_accessor;
+    friend dal::detail::pimpl_accessor;
 
 public:
     logloss_function(sycl::queue& queue,
@@ -112,7 +112,7 @@ private:
     logloss_hessian_product<Float> hessp_;
     const std::int64_t dimension_;
     Float value_;
-    detail::pimpl<sparse_matrix_handle> sp_handle_;
+    dal::detail::pimpl<sparse_matrix_handle> sp_handle_;
 };
 
 } // namespace oneapi::dal::backend::primitives
