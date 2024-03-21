@@ -713,28 +713,28 @@ sycl::event set_init_index(sycl::queue& queue,
 
 ///  A function that sets the queue sizes in ndview<std::int32_t, 1>& queue_size
 ///
-/// @param[in]  queue       The SYCL queue
-/// @param[in]  queue_size  The int32_t array of size `1`
-///                         that helps to get queue sizes and storage it on GPU
-/// @param[in]  index       The index of the point
-/// @param[in]  value       The current queue size/value
-/// @param[in]  deps        Events indicating availability of the `data` for reading or writing
+/// @param[in]  queue              The SYCL queue
+/// @param[in]  points_queue_size  The int32_t array of size `1`
+///                                that helps to get queue sizes and storage it on GPU
+/// @param[in]  index              The index of the point
+/// @param[in]  value              The current queue size/value
+/// @param[in]  deps               Events indicating availability of the `data` for reading or writing
 ///
 /// @return A SYCL event indicating the availability
 /// of the updated array for reading and writing
 sycl::event set_arr_value(sycl::queue& queue,
-                          pr::ndview<std::int32_t, 1>& queue_size,
+                          pr::ndview<std::int32_t, 1>& points_queue_size,
                           std::int32_t index,
                           std::int32_t value,
                           const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(set_arr_value, queue);
 
-    auto queue_size_ptr = queue_size.get_mutable_data();
+    auto points_queue_size_ptr = points_queue_size.get_mutable_data();
 
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
-            queue_size_ptr[index] = value;
+            points_queue_size_ptr[index] = value;
         });
     });
 }
@@ -743,24 +743,26 @@ sycl::event set_arr_value(sycl::queue& queue,
 ///
 /// @tparam Float  Floating-point type used to perform computations
 ///
-/// @param[in]  queue           The SYCL queue
-/// @param[in]  data            The input data of size `row_count` x `column_count`
-/// @param[in]  indices         The indicies of the points which should be copied `row_count` x `1`
-/// @param[in]  current_queue   The array where points should be copied
-/// @param[in]  queue_size_arr  The count of points which should be copied
-/// @param[in]  block_start     The offset for distributed usage
+/// @param[in]  queue                        The SYCL queue
+/// @param[in]  data                         The input data of size `row_count` x `column_count`
+/// @param[in]  indices                      The indicies of the points which should be copied
+///                                          `row_count` x `1`
+/// @param[in]  current_points_queue         The array where points should be copied
+/// @param[in]  local_points_queue_size_arr  The count of points which should be copied
+/// @param[in]  block_start                  The offset for distributed usage
 ///
 /// @return A SYCL event indicating the availability
 /// of the updated arrays for reading and writing
 template <typename Float>
-sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
-                                                  const pr::ndview<Float, 2>& data,
-                                                  const pr::ndview<bool, 1>& indices,
-                                                  pr::ndview<Float, 2>& current_queue,
-                                                  pr::ndview<std::int32_t, 1>& queue_size_arr,
-                                                  std::int64_t block_start,
-                                                  const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(fill_current_queue, queue);
+sycl::event kernels_fp<Float>::fill_current_points_queue(
+    sycl::queue& queue,
+    const pr::ndview<Float, 2>& data,
+    const pr::ndview<bool, 1>& indices,
+    pr::ndview<Float, 2>& current_points_queue,
+    pr::ndview<std::int32_t, 1>& local_points_queue_size_arr,
+    std::int64_t block_start,
+    const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(fill_current_points_queue, queue);
 
     const std::int64_t local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
@@ -769,8 +771,8 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
 
     bool* indices_host_ptr = indices.get_mutable_data();
     const Float* data_host_ptr = data.get_data();
-    std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
-    Float* current_queue_ptr = current_queue.get_mutable_data();
+    std::int32_t* queue_size_arr_ptr = local_points_queue_size_arr.get_mutable_data();
+    Float* current_queue_ptr = current_points_queue.get_mutable_data();
 
     const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_row_count, 1);
     return queue.submit([&](sycl::handler& cgh) {
@@ -799,44 +801,44 @@ sycl::event kernels_fp<Float>::fill_current_queue(sycl::queue& queue,
 ///
 /// @tparam Float  Floating-point type used to perform computations
 ///
-/// @param[in]  queue           The SYCL queue
-/// @param[in]  data            The input data of size `row_count` x `column_count`
-/// @param[in]  cores           The current cores of size `row_count` x `1`
-/// @param[in]  current_queue   The current observations. It is an array that contains
-///                             only core points in the epsilon area of the init/next point
-/// @param[in]  responses       The current responbses of size `row_count` x `1`
-/// @param[in]  queue_size_arr  The array(1x1) that contains number of new observations
-/// @param[in]  indices_cores   The indicies of the points which should be copied `row_count` x `1`
-/// @param[in]  epsilon         The input parameter epsilon
-/// @param[in]  cluster_id      The current cluster id
-/// @param[in]  deps            Events indicating availability of the `data` for reading or writing
+/// @param[in]  queue                  The SYCL queue
+/// @param[in]  data                   The input data of size `row_count` x `column_count`
+/// @param[in]  cores                  The current cores of size `row_count` x `1`
+/// @param[in]  current_points_queue   The current observations. It is an array that contains
+///                                    only core points in the epsilon area of the init/next point
+/// @param[in]  responses              The current responbses of size `row_count` x `1`
+/// @param[in]  queue_size_arr         The array(1x1) that contains total number of new observations
+/// @param[in]  indices_cores          The indicies of the points which should be copied `row_count` x `1`
+/// @param[in]  epsilon                The input parameter epsilon
+/// @param[in]  cluster_id             The current cluster id
+/// @param[in]  deps                   Events indicating availability of the `data` for reading or writing
 ///
 /// @return A SYCL event indicating the availability
 /// of the updated arrays for reading and writing
 template <typename Float>
-sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
-                                            const pr::ndview<Float, 2>& data,
-                                            const pr::ndview<std::int32_t, 1>& cores,
-                                            pr::ndview<Float, 2>& current_queue,
-                                            pr::ndview<std::int32_t, 1>& responses,
-                                            pr::ndview<std::int32_t, 1>& queue_size_arr,
-                                            pr::ndview<bool, 1>& indices_cores,
-                                            Float epsilon,
-                                            std::int32_t cluster_id,
-                                            const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(update_queue, queue);
+sycl::event kernels_fp<Float>::update_points_queue(sycl::queue& queue,
+                                                   const pr::ndview<Float, 2>& data,
+                                                   const pr::ndview<std::int32_t, 1>& cores,
+                                                   pr::ndview<Float, 2>& current_points_queue,
+                                                   pr::ndview<std::int32_t, 1>& responses,
+                                                   pr::ndview<std::int32_t, 1>& queue_size_arr,
+                                                   pr::ndview<bool, 1>& indices_cores,
+                                                   Float epsilon,
+                                                   std::int32_t cluster_id,
+                                                   const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(update_points_queue, queue);
 
     const auto local_row_count = data.get_dimension(0);
     ONEDAL_ASSERT(local_row_count > 0);
     const std::int64_t column_count = data.get_dimension(1);
     ONEDAL_ASSERT(column_count > 0);
-    const std::int32_t queue_size = current_queue.get_dimension(0);
+    const std::int32_t queue_size = current_points_queue.get_dimension(0);
     ONEDAL_ASSERT(queue_size >= 0);
 
     const Float* data_ptr = data.get_data();
     std::int32_t* cores_ptr = cores.get_mutable_data();
     std::int32_t* queue_size_arr_ptr = queue_size_arr.get_mutable_data();
-    const Float* current_queue_ptr = current_queue.get_data();
+    const Float* current_queue_ptr = current_points_queue.get_data();
     bool* indices_cores_ptr = indices_cores.get_mutable_data();
     std::int32_t* responses_ptr = responses.get_mutable_data();
 
@@ -901,18 +903,19 @@ sycl::event kernels_fp<Float>::update_queue(sycl::queue& queue,
 
 ///  A function that gets the queue sizes in ndview<std::int32_t, 1>& queue_size
 ///
-/// @param[in]  queue       The SYCL queue
-/// @param[in]  queue_size  The int32_t array of size `1`
-///                         that helps to get queue sizes and storage it on GPU
-/// @param[in]  deps        Events indicating availability of the `data` for reading or writing
+/// @param[in]  queue              The SYCL queue
+/// @param[in]  points_queue_size  The int32_t array of size `1`
+///                                that helps to get queue sizes and storage it on GPU
+/// @param[in]  deps               Events indicating availability of the `data` for reading or writing
 ///
 /// @return The queue size
 template <typename Float>
-std::int32_t kernels_fp<Float>::get_queue_size(sycl::queue& queue,
-                                               const pr::ndarray<std::int32_t, 1>& queue_size,
-                                               const bk::event_vector& deps) {
-    ONEDAL_ASSERT(queue_size.get_dimension(0) == 1);
-    return queue_size.to_host(queue, deps).get_data()[0];
+std::int32_t kernels_fp<Float>::get_points_queue_size(
+    sycl::queue& queue,
+    const pr::ndarray<std::int32_t, 1>& points_queue_size,
+    const bk::event_vector& deps) {
+    ONEDAL_ASSERT(points_queue_size.get_dimension(0) == 1);
+    return points_queue_size.to_host(queue, deps).get_data()[0];
 }
 
 ///  A function that counts the number of cores

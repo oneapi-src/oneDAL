@@ -15,13 +15,14 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/dbscan/backend/gpu/data_keeper.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/results.hpp"
+
+#include "oneapi/dal/detail/profiler.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::dbscan::backend {
 
@@ -55,6 +56,9 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const std::int64_t column_count = local_data.get_column_count();
 
     std::int64_t global_row_count = local_row_count;
+
+    // It's necessary for correct sendrecv_replace loop work, due
+    // to all blocks should have the same sizes
     std::int64_t max_local_block_size = local_row_count;
     {
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global, queue);
@@ -83,26 +87,30 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     }
 
     const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
+
     pr::ndarray<Float, 2> data_nd_replace;
     if (rank_count > 1) {
         data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
                                                        { max_local_block_size, column_count },
                                                        sycl::usm::alloc::device);
-
         copy(queue, data_nd_replace, data_nd, {}).wait_and_throw();
     }
-    const auto weights_nd =
-        pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
+
     bool use_weights = false;
-    if (weights_nd.get_dimension(0) == data_nd.get_dimension(0)) {
+    if (local_weights.get_row_count() == data_nd.get_dimension(0)) {
         use_weights = true;
     }
+
+    pr::ndarray<Float, 2> weights_nd;
+    if (use_weights) {
+        weights_nd = pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
+    }
+
     pr::ndarray<Float, 2> weights_nd_replace;
     if (rank_count > 1 && use_weights) {
         weights_nd_replace = pr::ndarray<Float, 2>::empty(queue,
                                                           { max_local_block_size, 1 },
                                                           sycl::usm::alloc::device);
-
         copy(queue, weights_nd_replace, weights_nd, {}).wait_and_throw();
     }
     const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
@@ -112,11 +120,11 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [arr_cores, cores_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
 
-    // array stores the information about neighbours of the point in distributed mode
+    // array stores the information about neighbours of the point
     auto [arr_neighbours, neighbours_event] =
         pr::ndarray<Float, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
 
-    // array stores the information about neighbours of the point in distributed mode
+    // array stores the information about neighbours of the point
     auto [arr_responses, responses_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, -1, sycl::usm::alloc::device);
 
@@ -124,19 +132,19 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto [observation_indices, observation_indices_event] =
         pr::ndarray<bool, 1>::full(queue, local_row_count, false, sycl::usm::alloc::device);
 
-    // array stores the information about count of the points in queue
-    auto [points_queue_size, points_queue_size_event] =
+    // array stores the information about total count of the points in queue
+    auto [total_points_queue_size_arr, total_points_queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
     // array stores the information about count of the local points in queue
-    auto [local_queue_size_arr, local_queue_size_event] =
+    auto [local_points_queue_size_arr, local_points_queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
     sycl::event::wait({ cores_event,
                         neighbours_event,
                         responses_event,
                         observation_indices_event,
-                        points_queue_size_event,
-                        local_queue_size_event });
+                        total_points_queue_size_event,
+                        local_points_queue_size_event });
 
     auto get_cores_event = kernels_fp<Float>::get_cores(queue,
                                                         data_nd,
@@ -248,47 +256,50 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                 total_count += recv_counts.get_data()[i];
             }
 
-            auto [current_queue, current_queue_event] =
+            auto [current_points_queue, current_points_queue_event] =
                 pr::ndarray<Float, 2>::full(queue,
                                             { total_points_queue_size, column_count },
                                             0,
                                             sycl::usm::alloc::device);
 
-            set_arr_value(queue, points_queue_size, 0, total_points_queue_size).wait_and_throw();
+            set_arr_value(queue, total_points_queue_size_arr, 0, total_points_queue_size)
+                .wait_and_throw();
 
             sycl::event fill_queue_event;
 
             if (local_points_queue_size != 0) {
-                fill_queue_event = kernels_fp<Float>::fill_current_queue(queue,
-                                                                         data_nd,
-                                                                         observation_indices,
-                                                                         current_queue,
-                                                                         local_queue_size_arr,
-                                                                         displs_ptr[current_rank],
-                                                                         { current_queue_event });
-                set_arr_value(queue, local_queue_size_arr, 0, 0, { fill_queue_event })
+                fill_queue_event =
+                    kernels_fp<Float>::fill_current_points_queue(queue,
+                                                                 data_nd,
+                                                                 observation_indices,
+                                                                 current_points_queue,
+                                                                 local_points_queue_size_arr,
+                                                                 displs_ptr[current_rank],
+                                                                 { current_points_queue_event });
+                set_arr_value(queue, local_points_queue_size_arr, 0, 0, { fill_queue_event })
                     .wait_and_throw();
             }
             {
                 ONEDAL_PROFILER_TASK(allreduce_xtx, queue);
-                comm.allreduce(current_queue.flatten(queue, { fill_queue_event }),
+                comm.allreduce(current_points_queue.flatten(queue, { fill_queue_event }),
                                spmd::reduce_op::sum)
                     .wait();
             }
 
-            kernels_fp<Float>::update_queue(queue,
-                                            data_nd,
-                                            arr_cores,
-                                            current_queue,
-                                            arr_responses,
-                                            points_queue_size,
-                                            observation_indices,
-                                            epsilon,
-                                            cluster_count - 1,
-                                            { fill_queue_event })
+            kernels_fp<Float>::update_points_queue(queue,
+                                                   data_nd,
+                                                   arr_cores,
+                                                   current_points_queue,
+                                                   arr_responses,
+                                                   total_points_queue_size_arr,
+                                                   observation_indices,
+                                                   epsilon,
+                                                   cluster_count - 1,
+                                                   { fill_queue_event })
                 .wait_and_throw();
 
-            local_points_queue_size = kernels_fp<Float>::get_queue_size(queue, points_queue_size);
+            local_points_queue_size =
+                kernels_fp<Float>::get_points_queue_size(queue, total_points_queue_size_arr);
 
             total_points_queue_size = local_points_queue_size;
 
