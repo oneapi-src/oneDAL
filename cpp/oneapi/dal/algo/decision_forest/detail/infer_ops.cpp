@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,16 +23,16 @@
 namespace oneapi::dal::decision_forest::detail {
 namespace v1 {
 
-template <typename Context, typename Float, typename Task, typename Method>
-struct infer_ops_dispatcher<Context, Float, Task, Method> {
-    infer_result<Task> operator()(const Context& context,
+template <typename Policy, typename Float, typename Task, typename Method>
+struct infer_ops_dispatcher<Policy, Float, Task, Method> {
+    infer_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const infer_parameters<Task>& params,
                                   const infer_input<Task>& input) const {
-        return implementation(context, desc, params, input);
+        return implementation(ctx, desc, params, input);
     }
 
-    infer_parameters<Task> select_parameters(const Context& ctx,
+    infer_parameters<Task> select_parameters(const Policy& ctx,
                                              const descriptor_base<Task>& desc,
                                              const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
@@ -39,21 +40,21 @@ struct infer_ops_dispatcher<Context, Float, Task, Method> {
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
-    infer_result<Task> operator()(const Context& context,
+    infer_result<Task> operator()(const Policy& ctx,
                                   const descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
-        const auto params = select_parameters(context, desc, input);
-        return implementation(context, desc, params, input);
+        const auto params = select_parameters(ctx, desc, input);
+        return implementation(ctx, desc, params, input);
     }
 
 private:
-    inline auto implementation(const Context& context,
+    inline auto implementation(const Policy& ctx,
                                const descriptor_base<Task>& desc,
                                const infer_parameters<Task>& params,
                                const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>)>;
-        return kernel_dispatcher_t{}(context, desc, params, input);
+        return kernel_dispatcher_t{}(ctx, desc, params, input);
     }
 };
 

@@ -1,4 +1,5 @@
 /*******************************************************************************
+* Copyright 2020 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

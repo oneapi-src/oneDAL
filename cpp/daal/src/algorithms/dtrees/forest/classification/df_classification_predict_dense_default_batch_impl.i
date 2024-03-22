@@ -127,10 +127,10 @@ public:
           _cachedModel(nullptr),
           _averageTreeSize(0),
           _cachedNClasses(0),
-          _blockSize(0),
-          _minTreesForThreading(0),
-          _minNumberOfRowsForVectSeqCompute(0),
-          _scaleFactorForVectParallelCompute(0.0)
+          _blockSize(22),
+          _minTreesForThreading(100),
+          _minNumberOfRowsForVectSeqCompute(32),
+          _scaleFactorForVectParallelCompute(0.3)
     {}
 
     void setParams(const NumericTable * const x, NumericTable * const y, NumericTable * const prob, const dtrees::internal::ModelImpl * const m,
@@ -284,7 +284,10 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
         {
             // TODO: Move this check into decision_forest::detail::infer_ops::check_parameters_ranges.
             //       Now the information about enabled CPU instructions is not available in infer_ops.
-            DAAL_CHECK(blockSizeValue % (512 / (8 * sizeof(algorithmFPType))) == 0, services::ErrorHyperparameterBadValue);
+            const size_t avx512RegisterWidth = 512;
+            const size_t numberOfBitsInByte  = 8;
+            DAAL_CHECK(blockSizeValue % (avx512RegisterWidth / (numberOfBitsInByte * sizeof(algorithmFPType))) == 0,
+                       services::ErrorHyperparameterBadValue);
         }
         DAAL_CHECK_STATUS_VAR(st);
 
