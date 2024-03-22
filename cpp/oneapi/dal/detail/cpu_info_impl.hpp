@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,31 +14,37 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/policy.hpp"
+#pragma once
+
+#include "oneapi/dal/detail/cpu_info_iface.hpp"
+
+#include <any>
+#include <map>
+#include <string>
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class host_policy_impl : public base {
+std::string to_string(cpu_vendor vendor);
+std::string to_string(cpu_extension extension);
+
+class cpu_info_impl : public cpu_info_iface {
 public:
-    cpu_extension cpu_extensions_mask = detect_top_cpu_extension();
+    cpu_vendor get_cpu_vendor() const override;
+
+    cpu_extension get_top_cpu_extension() const override;
+
+    std::string dump() const override;
+
+protected:
+    std::map<std::string, std::any> info_;
+
+    template <typename T>
+    void print(const std::any& value, std::stringstream& ss) const;
+
+    void print_any(const std::any& value, std::stringstream& ss) const;
 };
 
-host_policy::host_policy() : impl_(new host_policy_impl()) {}
-
-void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
-    impl_->cpu_extensions_mask = extensions;
-}
-
-cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
-    return impl_->cpu_extensions_mask;
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-void data_parallel_policy::init_impl(const sycl::queue& queue) {
-    this->impl_ = nullptr; // reserved for future use
-}
-#endif
-
 } // namespace v1
+using v1::cpu_info_impl;
 } // namespace oneapi::dal::detail

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,31 +14,31 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/cpu_info.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class host_policy_impl : public base {
+class global_context_iface : public base {
 public:
-    cpu_extension cpu_extensions_mask = detect_top_cpu_extension();
+    virtual const cpu_info_iface& get_cpu_info() const = 0;
 };
 
-host_policy::host_policy() : impl_(new host_policy_impl()) {}
+class global_context : public global_context_iface {
+public:
+    static const global_context_iface& get_global_context();
 
-void host_policy::set_enabled_cpu_extensions_impl(const cpu_extension& extensions) noexcept {
-    impl_->cpu_extensions_mask = extensions;
-}
+    global_context(const global_context& ctx) = delete;
+    global_context& operator=(const global_context& ctx) = delete;
 
-cpu_extension host_policy::get_enabled_cpu_extensions() const noexcept {
-    return impl_->cpu_extensions_mask;
-}
-
-#ifdef ONEDAL_DATA_PARALLEL
-void data_parallel_policy::init_impl(const sycl::queue& queue) {
-    this->impl_ = nullptr; // reserved for future use
-}
-#endif
+private:
+    global_context() {}
+};
 
 } // namespace v1
+using v1::global_context;
+using v1::global_context_iface;
 } // namespace oneapi::dal::detail
