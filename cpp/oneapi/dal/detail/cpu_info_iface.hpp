@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,17 +16,28 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/dbscan/compute_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/detail/cpu.hpp"
 
-namespace oneapi::dal::dbscan::backend {
+#include <string>
 
-template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
+namespace oneapi::dal::detail {
+namespace v1 {
+
+class cpu_info_iface {
+public:
+    /// The CPU vendor
+    virtual cpu_vendor get_cpu_vendor() const = 0;
+
+    /// The highest supported CPU extension
+    virtual cpu_extension get_top_cpu_extension() const = 0;
+
+    /// The dump of all supported CPU features in the format:
+    /// feature 1: value1; feature2: value2; ...
+    virtual std::string dump() const = 0;
+
+    virtual ~cpu_info_iface() {}
 };
 
-} // namespace oneapi::dal::dbscan::backend
+} // namespace v1
+using v1::cpu_info_iface;
+} // namespace oneapi::dal::detail

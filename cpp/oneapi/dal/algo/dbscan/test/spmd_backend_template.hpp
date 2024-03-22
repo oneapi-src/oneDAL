@@ -132,9 +132,8 @@ public:
         REQUIRE(cluster_count > 0);
 
         const auto responses = result.get_responses();
-        const auto centroids = te::centers_of_mass(data, responses, cluster_count);
 
-        auto dbi = te::davies_bouldin_index(data, centroids, responses);
+        auto dbi = te::davies_bouldin_index(data, responses);
         REQUIRE(base_t::check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
     }
 };
