@@ -78,17 +78,10 @@ if [ "${cross_compile}" == "yes" ]; then
         exit 1
     fi
     target_arch=${target_arch:-aarch64}
-    arch_dir=${arch_dir:-$(set_arch_dir "${target_arch}")}
 else
-    arch=${target_arch:-$(uname -m)}
-    if [ "${arch}" == "x86_64" ]; then
-        arch_dir="intel64"
-    elif [ "${arch}" == "aarch64" ]; then
-        arch_dir="arm"
-    else
-        arch_dir=${arch}
-    fi
+    target_arch=${target_arch:-$(uname -m)}
 fi
+arch_dir=${arch_dir:-$(set_arch_dir "${target_arch}")}
 
 TBB_VERSION="v2021.10.0"
 
