@@ -1,6 +1,5 @@
-#!/bin/bash
 #===============================================================================
-# Copyright 2023 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,21 +14,21 @@
 # limitations under the License.
 #===============================================================================
 
-os=$(uname)
-ARCH=$(uname -m)
-if [ "${os}" = "Linux" ]; then
-  if [ "${ARCH}" = "x86_64" ]; then
-    echo lnx32e
-  elif [ "${ARCH}" = "aarch64" ]; then
-    echo lnxarm
-  else
-    echo "Unkown architecture: ${ARCH}"
-    exit 1
-  fi
-elif [ "${os}" = "Darwin" ]; then
-  echo mac32e
-elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
-  echo win32e
-else
-  echo "Unknown OS: ${os}"
-fi
+BACKEND_CONFIG ?= mkl
+ARCH = 32e
+ARCH_DIR_ONEDAL = intel64
+_OS := win
+_IA := intel64
+
+include dev/make/function_definitions/32e.mk
+
+# Used as $(eval $(call set_daal_rt_deps))
+define set_daal_rt_deps
+  $$(eval daaldep.win32e.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
+          $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
+  $$(eval daaldep.win32e.rt.seq  := $$(dep_seq) \
+          $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
+  $$(eval daaldep.win32e.threxport := export.def)
+
+  $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
+endef

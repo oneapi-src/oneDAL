@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/detail/cpu.hpp"
+#include "oneapi/dal/detail/global_context_impl.hpp"
+#include <daal/src/services/service_defines.h>
 
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/dbscan/compute_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+namespace oneapi::dal::detail {
+namespace v1 {
 
-namespace oneapi::dal::dbscan::backend {
+global_context_impl::global_context_impl() : cpu_info_(dal::detail::detect_top_cpu_extension()) {
+    using daal::services::Environment;
+    // Call to `getCpuId` changes global settings, in particular,
+    // changes default number of threads in the threading layer
+    Environment::getInstance()->getCpuId();
+}
 
-template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
-};
-
-} // namespace oneapi::dal::dbscan::backend
+} // namespace v1
+} // namespace oneapi::dal::detail

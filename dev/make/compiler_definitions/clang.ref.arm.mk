@@ -1,6 +1,6 @@
-#!/bin/bash
+# file: clang.ref.arm.mk
 #===============================================================================
-# Copyright 2023 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
 # limitations under the License.
 #===============================================================================
 
-os=$(uname)
-ARCH=$(uname -m)
-if [ "${os}" = "Linux" ]; then
-  if [ "${ARCH}" = "x86_64" ]; then
-    echo lnx32e
-  elif [ "${ARCH}" = "aarch64" ]; then
-    echo lnxarm
-  else
-    echo "Unkown architecture: ${ARCH}"
-    exit 1
-  fi
-elif [ "${os}" = "Darwin" ]; then
-  echo mac32e
-elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
-  echo win32e
-else
-  echo "Unknown OS: ${os}"
-fi
+#++
+#  Clang definitions for makefile
+#--
+
+include dev/make/compiler_definitions/clang.mk
+
+PLATs.clang = lnxarm
+
+COMPILER.lnx.clang= clang++ -march=armv8-a+sve \
+                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
+# Linker flags
+link.dynamic.lnx.clang = clang++ -march=armv8-a+sve
+
+pedantic.opts.lnx.clang = $(pedantic.opts.clang)
+
+# For SVE
+a8sve_OPT.clang = $(-Q)march=armv8-a+sve
