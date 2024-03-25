@@ -44,12 +44,14 @@ namespace method {
 namespace v1 {
 /// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
+struct sparse {};
 
 /// Alias tag-type for the dense_batch method
 using by_default = dense_batch;
 } // namespace v1
 
 using v1::dense_batch;
+using v1::sparse;
 using v1::by_default;
 
 } // namespace method
@@ -105,7 +107,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::dense_batch, method::sparse>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;

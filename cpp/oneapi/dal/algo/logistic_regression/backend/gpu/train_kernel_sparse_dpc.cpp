@@ -22,7 +22,7 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 
-#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 
 #include "oneapi/dal/algo/logistic_regression/common.hpp"
 #include "oneapi/dal/algo/logistic_regression/train_types.hpp"
@@ -50,14 +50,33 @@ static train_result<Task> train(const context_gpu& ctx,
     const auto sample_count = input.get_data().get_row_count();
     const auto feature_count = input.get_data().get_column_count();
     auto queue = ctx.get_queue();
-    pr::ndarray<Float, 2> data_nd =
-        pr::table2ndarray<Float>(queue, input.get_data(), sycl::usm::alloc::device);
-    table data_gpu = homogen_table::wrap(data_nd.flatten(queue, {}), sample_count, feature_count);
+
+    auto [csr_data, column_indices, row_offsets] =
+        csr_accessor<const Float>(static_cast<const csr_table&>(input.get_data()))
+            .pull(queue, { 0, -1 }, sparse_indexing::zero_based); // Why always zero based?
+
+    auto csr_data_gpu = pr::ndarray<Float, 1>::wrap(csr_data.get_data(), csr_data.get_count())
+                            .to_device(queue); //csr_data.to_device(queue);
+    auto column_indices_gpu =
+        pr::ndarray<std::int64_t, 1>::wrap(column_indices.get_data(), column_indices.get_count())
+            .to_device(queue);
+    auto row_offsets_gpu =
+        pr::ndarray<std::int64_t, 1>::wrap(row_offsets.get_data(), row_offsets.get_count())
+            .to_device(queue);
+
+    table data_gpu = csr_table::wrap(queue,
+                                     csr_data_gpu.get_data(),
+                                     column_indices_gpu.get_data(),
+                                     row_offsets_gpu.get_data(),
+                                     sample_count,
+                                     feature_count,
+                                     sparse_indexing::zero_based);
+
     return call_dal_kernel<Float, Task>(ctx, desc, params, data_gpu, input.get_responses());
 }
 
 template <typename Float, typename Task>
-struct train_kernel_gpu<Float, method::dense_batch, Task> {
+struct train_kernel_gpu<Float, method::sparse, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const detail::train_parameters<Task>& params,
@@ -66,7 +85,7 @@ struct train_kernel_gpu<Float, method::dense_batch, Task> {
     }
 };
 
-template struct train_kernel_gpu<float, method::dense_batch, task::classification>;
-template struct train_kernel_gpu<double, method::dense_batch, task::classification>;
+template struct train_kernel_gpu<float, method::sparse, task::classification>;
+template struct train_kernel_gpu<double, method::sparse, task::classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend

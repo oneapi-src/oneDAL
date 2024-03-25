@@ -34,7 +34,21 @@ struct infer_kernel_cpu<Float, method::dense_batch, Task> {
     }
 };
 
+template <typename Float, typename Task>
+struct infer_kernel_cpu<Float, method::sparse, Task> {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
+        // CHANGE ERROR NAME!!!!
+        throw unimplemented(
+            dal::detail::error_messages::log_reg_dense_batch_method_is_not_implemented_for_cpu());
+    }
+};
+
 template struct infer_kernel_cpu<float, method::dense_batch, task::classification>;
 template struct infer_kernel_cpu<double, method::dense_batch, task::classification>;
+
+template struct infer_kernel_cpu<float, method::sparse, task::classification>;
+template struct infer_kernel_cpu<double, method::sparse, task::classification>;
 
 } // namespace oneapi::dal::logistic_regression::backend
