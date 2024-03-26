@@ -39,6 +39,7 @@ public:
     table intercept;
     table coefficients;
     std::int64_t iter_cnt;
+    std::int64_t inner_iter_cnt;
 
     result_option_id options;
 
@@ -155,6 +156,24 @@ void train_result<Task>::set_iterations_count_impl(std::int64_t value) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     impl_->iter_cnt = value;
+}
+
+template <typename Task>
+std::int64_t train_result<Task>::get_inner_iterations_count() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::inner_iterations_count)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->inner_iter_cnt;
+}
+
+template <typename Task>
+void train_result<Task>::set_inner_iterations_count_impl(std::int64_t value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::inner_iterations_count)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->inner_iter_cnt = value;
 }
 
 template <typename Task>

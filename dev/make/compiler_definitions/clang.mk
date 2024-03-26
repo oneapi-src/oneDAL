@@ -1,6 +1,6 @@
-# file: cmplt.clang.mk
+# file: clang.mk
 #===============================================================================
-# Copyright 2012 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 
 #++
 #  Clang definitions for makefile
+#  This file contains definitions common to clang on all platforms.
+#  It should only be included from files which have more specializations (e.g.
+#  clang.32e.mk)
 #--
-
-PLATs.clang = lnx32e mac32e
 
 CMPLRDIRSUFF.clang = _clang
 
@@ -28,23 +29,7 @@ CORE.SERV.COMPILER.clang = generic
 -Zl.clang =
 -DEBC.clang = -g
 
-COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
-                     -Werror -Wreturn-type
-COMPILER.lnx.clang = clang++ -m64 \
-                     -Werror -Wreturn-type
-
-link.dynamic.mac.clang = clang++ -m64
-link.dynamic.lnx.clang = clang++ -m64
-
 pedantic.opts.clang = -pedantic \
                       -Wall \
                       -Wextra \
                       -Wno-unused-parameter
-
-pedantic.opts.mac.clang = $(pedantic.opts.clang)
-pedantic.opts.lnx.clang = $(pedantic.opts.clang)
-
-p4_OPT.clang   = $(-Q)march=nocona
-mc3_OPT.clang  = $(-Q)$(if $(OS_is_mac),march=nocona,march=nehalem) $(if $(OS_is_mac),$(-Q)mtune=nehalem)
-avx2_OPT.clang = $(-Q)march=haswell
-skx_OPT.clang  = $(-Q)march=skx
