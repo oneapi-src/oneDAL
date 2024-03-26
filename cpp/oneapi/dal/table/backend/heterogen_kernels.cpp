@@ -141,8 +141,7 @@ heterogen_data heterogen_row_slice(const range& rows_range,
     const detail::chunked_array_base empty{};
     auto result = heterogen_data::full(col_count, empty);
     auto* const res_ptr = result.get_mutable_data();
-
-    detail::threader_for_int64(col_count, [&](std::int64_t col) {
+    for (std::int64_t col = 0; col < col_count; ++col) {
         const auto dtype = meta.get_data_type(col);
         const auto elem_size = detail::get_data_type_size(dtype);
 
@@ -153,7 +152,7 @@ heterogen_data heterogen_row_slice(const range& rows_range,
         auto slice = column.get_slice(first_byte, last_byte);
 
         res_ptr[col] = std::move(slice);
-    });
+    };
 
     return result;
 }
@@ -206,17 +205,17 @@ void copy_buffer(const Policy& policy,
                  const heterogen_data& sliced_data,
                  sliced_buffer& sliced_buffer,
                  const array<data_type>& data_types) {
-    const auto cols_count = sliced_buffer.get_count();
-    ONEDAL_ASSERT(cols_count == sliced_data.get_count());
+    const auto col_count = sliced_buffer.get_count();
+    ONEDAL_ASSERT(col_count == sliced_data.get_count());
 
     const data_type* const dtypes = data_types.get_data();
     array<dal::byte_t>* columns = sliced_buffer.get_mutable_data();
-    detail::threader_for_int64(cols_count, [&](std::int64_t col) {
+    for (std::int64_t col = 0; col < col_count; ++col) {
         const auto element_size = detail::get_data_type_size(dtypes[col]);
         auto size = detail::check_mul_overflow(element_size, rows_count);
         auto col_slice = columns[col].get_slice(0l, size);
         detail::copy(col_slice, sliced_data[col]);
-    });
+    };
 }
 
 template <>

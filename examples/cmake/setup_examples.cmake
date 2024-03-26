@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2023 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,6 +61,15 @@ function (set_common_compiler_options)
         add_compile_options(${DIAG_DISABLE})
         add_link_options(${DIAG_DISABLE})
     endif()
+    if(ONEDAL_USE_DPCPP STREQUAL "yes" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # link huge device code for DPCPP
+        # without this flag build fails with relocation errors
+        if(WIN32)
+            add_link_options("/flink-huge-device-code")
+        else()
+            add_link_options("-flink-huge-device-code")
+        endif()
+    endif()
     message(STATUS "Common compiler params set")
     message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
     message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
@@ -92,6 +102,16 @@ endfunction()
 function (add_examples examples_paths)
     foreach(example_file_path ${examples_paths})
         get_filename_component(example ${example_file_path} NAME_WE)
+
+        # Detect CPU architecture
+        if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
+            set(CPU_ARCHITECTURE "intel_intel64")
+        elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "aarch64")
+            set(CPU_ARCHITECTURE "arm_aarch64")
+        else()
+            message(FATAL_ERROR "Unkown architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+        endif()
+
         add_executable(${example} ${example_file_path})
         target_include_directories(${example} PRIVATE ${oneDAL_INCLUDE_DIRS})
         if (UNIX AND NOT APPLE)
@@ -101,7 +121,7 @@ function (add_examples examples_paths)
         endif()
         target_compile_options(${example} PRIVATE ${ONEDAL_CUSTOM_COMPILE_OPTIONS})
         target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS})
-        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${LINK_TYPE}")
+        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/${CPU_ARCHITECTURE}_${LINK_TYPE}")
     endforeach()
     set_common_compiler_options()
 endfunction()

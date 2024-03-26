@@ -25,6 +25,7 @@ dal_test_suite(
         "test/convert.cpp",
         "test/table_builder.cpp",
         "test/table_adapter.cpp",
+        "detail/test/csr_utils.cpp",
         "detail/test/homogen_utils.cpp",
         "detail/test/metadata_utils.cpp",
         "backend/test/copy_convert_cpp.cpp",

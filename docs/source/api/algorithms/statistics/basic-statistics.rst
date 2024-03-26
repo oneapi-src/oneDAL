@@ -78,14 +78,23 @@ Operation
    Preconditions
       | :expr:`input.data.is_empty == false`
 
--------------
-Usage Example
--------------
+.. _basic_statistics_p_api:
 
-.. include:: ../../../includes/statistics/basic-statistics-usage-examples.rst
+Partial Training
+----------------
+.. _basic_statistics_p_api_input:
 
---------
-Examples
---------
+Partial Input
+~~~~~~~~~~~~~
+.. onedal_class:: oneapi::dal::basic_statistics::partial_compute_input
 
-.. include:: ../../../includes/statistics/basic-statistics-examples.rst
+.. _basic_statistics_p_api_result:
+
+Partial Result and Finalize Input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. onedal_class:: oneapi::dal::basic_statistics::partial_compute_result
+
+.. _basic_statistics_f_api:
+
+Finalize Training
+-----------------

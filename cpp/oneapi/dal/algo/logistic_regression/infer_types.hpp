@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::classification` or :expr:`task::search`.
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -45,8 +45,8 @@ class infer_input : public base {
 public:
     using task_t = Task;
 
-    /// Creates a new instance of the class with the given :literal:`model`
-    /// and :literal:`data` property values
+    /// Creates a new instance of the class with the given :literal:`data`
+    /// and :literal:`model` property values
     infer_input(const table& data, const model<Task>& model);
 
     /// The dataset for inference $X'$
@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    /// The trained k-NN model
+    /// The trained Logistic Regression model
     /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
@@ -76,7 +76,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::regression`.
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class infer_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -91,7 +91,7 @@ public:
     /// @remark default = table{}
     const table& get_responses() const;
 
-    /// The predicted responses
+    /// The predicted probabilities
     /// @remark default = table{}
     const table& get_probabilities() const;
 

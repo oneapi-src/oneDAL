@@ -184,7 +184,7 @@ TEST_CASE_METHOD(empty_heterogen_table_serialization_test,
 }
 
 TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
-                     "Random heterogen table - device",
+                     "Random heterogen table - host",
                      "[empty][heterogen][host]",
                      heterogen_types) {
     const std::int64_t column_count = GENERATE(1, 9, 99, 999);
@@ -196,7 +196,7 @@ TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
 
 #ifdef ONEDAL_DATA_PARALLEL
 TEMPLATE_LIST_TEST_M(heterogen_table_serialization_test,
-                     "Random heterogen table - host",
+                     "Random heterogen table - device",
                      "[empty][heterogen][device]",
                      heterogen_types) {
     const std::int64_t column_count = GENERATE(1, 10, 101, 1'001);

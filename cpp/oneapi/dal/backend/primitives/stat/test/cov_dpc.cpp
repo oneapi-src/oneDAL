@@ -54,8 +54,7 @@ public:
             ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
         auto means = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
         auto vars = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-        auto tmp = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-        return std::make_tuple(sums, corr, cov, means, vars, tmp);
+        return std::make_tuple(sums, corr, cov, means, vars);
     }
 
     void check_nans(const ndarray<Float, 2>& corr) {
@@ -233,8 +232,9 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
     // [ 0 0 x ]
     // [ 0 0 0 ]
     const auto data = this->generate_diagonal_data(row_count, column_count, diag_element);
+    const bool bias = false;
 
-    auto [sums, corr, cov, means, vars, tmp] = this->allocate_arrays(column_count);
+    auto [sums, corr, cov, means, vars] = this->allocate_arrays(column_count);
     auto sums_event = sums.fill(this->get_queue(), diag_element);
     INFO("run correlation");
     auto gemm_event_cov =
@@ -247,9 +247,14 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
                                     float_t(0),
                                     { gemm_event_cov });
     pr::means(this->get_queue(), data.get_dimension(0), sums, means, { gemm_event_corr });
-    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { gemm_event_corr });
-    pr::variances(this->get_queue(), cov, vars, { gemm_event_corr });
-    correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr })
+    auto cov_event = pr::covariance(this->get_queue(),
+                                    data.get_dimension(0),
+                                    sums,
+                                    cov,
+                                    bias,
+                                    { gemm_event_corr });
+    pr::variances(this->get_queue(), cov, vars, { cov_event }).wait_and_throw();
+    correlation(this->get_queue(), data.get_dimension(0), sums, corr, { gemm_event_corr })
         .wait_and_throw();
 
     // The upper part of data matrix is diagonal. In diagonal matrix each column
@@ -287,8 +292,9 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     const float data_ptr[column_count] = { 0.1f, 0.2f, 0.3f };
     const auto data_host = ndarray<float_t, 2>::wrap(data_ptr, { 1, column_count });
     const auto data = data_host.to_device(this->get_queue());
+    const bool bias = false;
 
-    auto [sums, corr, cov, means, vars, tmp] = this->allocate_arrays(column_count);
+    auto [sums, corr, cov, means, vars] = this->allocate_arrays(column_count);
 
     auto sums_event = sums.assign(this->get_queue(), data.get_data(), column_count);
     auto gemm_event_cov =
@@ -296,11 +302,15 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     auto gemm_event_corr =
         pr::gemm(this->get_queue(), data.t(), data, corr, float_t(1), float_t(0), {});
 
-    auto cov_event =
-        pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { gemm_event_cov });
+    auto cov_event = pr::covariance(this->get_queue(),
+                                    data.get_dimension(0),
+                                    sums,
+                                    cov,
+                                    bias,
+                                    { gemm_event_cov });
     auto var_event = pr::variances(this->get_queue(), cov, vars, { cov_event });
     auto corr_event =
-        correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr });
+        correlation(this->get_queue(), data.get_dimension(0), sums, corr, { gemm_event_corr });
 
     INFO("check if there is no NaNs in correlation matrix");
     corr_event.wait_and_throw();
@@ -319,7 +329,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
     SKIP_IF(this->not_float64_friendly());
 
     auto [data, sums] = this->get_gold_input();
-    auto [_, corr, cov, means, vars, tmp] = this->allocate_arrays(data.get_dimension(1));
+    auto [_, corr, cov, means, vars] = this->allocate_arrays(data.get_dimension(1));
+    const bool bias = false;
     INFO("run correlation");
     auto gemm_event_cov = pr::gemm(this->get_queue(), data.t(), data, cov, float_t(1), float_t(0));
     auto gemm_event_corr = pr::gemm(this->get_queue(),
@@ -330,9 +341,9 @@ TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
                                     float_t(0),
                                     { gemm_event_cov });
     pr::means(this->get_queue(), data.get_dimension(0), sums, means, { gemm_event_corr });
-    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, { gemm_event_corr });
+    pr::covariance(this->get_queue(), data.get_dimension(0), sums, cov, bias, { gemm_event_corr });
     pr::variances(this->get_queue(), cov, vars, { gemm_event_corr });
-    correlation(this->get_queue(), data.get_dimension(0), sums, corr, tmp, { gemm_event_corr })
+    correlation(this->get_queue(), data.get_dimension(0), sums, corr, { gemm_event_corr })
         .wait_and_throw();
 
     this->check_gold_results(corr, means, vars);

@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/dbscan/compute_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 

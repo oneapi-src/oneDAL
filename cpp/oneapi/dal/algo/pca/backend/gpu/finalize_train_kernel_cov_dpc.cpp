@@ -15,11 +15,14 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/finalize_train_kernel.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
+
 #include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -30,57 +33,11 @@ namespace pr = oneapi::dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
-using model_t = model<task::dim_reduction>;
+
 using task_t = task::dim_reduction;
 using input_t = partial_train_result<task_t>;
 using result_t = train_result<task_t>;
-using descriptor_t = detail::descriptor_base<task::dim_reduction>;
-
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto host_corr = corr.to_host(q, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
-
-template <typename Float>
-auto compute_correlation(sycl::queue& q,
-                         std::int64_t row_count,
-                         const pr::ndview<Float, 2>& xtx,
-                         const pr::ndarray<Float, 1>& sums,
-                         const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_correlation, q);
-    ONEDAL_ASSERT(sums.has_data());
-    ONEDAL_ASSERT(xtx.has_data());
-    ONEDAL_ASSERT(xtx.get_dimension(1) > 0);
-
-    const std::int64_t column_count = xtx.get_dimension(1);
-
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-
-    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
-
-    auto copy_event = copy(q, corr, xtx, { deps });
-
-    auto corr_event = pr::correlation(q, row_count, sums, corr, tmp, { copy_event });
-
-    auto smart_event = bk::smart_event{ corr_event }.attach(tmp);
-    return std::make_tuple(corr, smart_event);
-}
+using descriptor_t = detail::descriptor_base<task_t>;
 
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
@@ -88,12 +45,15 @@ static train_result<Task> train(const context_gpu& ctx,
                                 const partial_train_result<Task>& input) {
     auto& q = ctx.get_queue();
 
+    constexpr bool bias = false; // Currently we use only unbiased covariance for PCA computation.
+
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
+    ONEDAL_ASSERT(component_count > 0);
 
     dal::detail::check_mul_overflow(column_count, column_count);
-    dal::detail::check_mul_overflow(component_count, column_count);
 
     auto result = train_result<task_t>{}.set_result_options(desc.get_result_options());
 
@@ -102,42 +62,83 @@ static train_result<Task> train(const context_gpu& ctx,
 
     const auto sums =
         pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
+
+    if (desc.get_result_options().test(result_options::means)) {
+        auto [means, means_event] = compute_means(q, sums, rows_count_global, {});
+        result.set_means(homogen_table::wrap(means.flatten(q, { means_event }), 1, column_count));
+    }
+
     const auto xtx =
         pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
+    auto [cov, cov_event] = compute_covariance(q, rows_count_global, xtx, sums, {});
 
-    auto [corr, corr_event] = compute_correlation(q, rows_count_global, xtx, sums);
+    auto [vars, vars_event] = compute_variances(q, cov, { cov_event });
 
-    if (desc.get_result_options().test(result_options::eigenvectors |
-                                       result_options::eigenvalues)) {
-        auto [eigvecs, eigvals] =
-            compute_eigenvectors_on_host(q, std::move(corr), component_count, { corr_event });
-        if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
-        }
+    if (desc.get_result_options().test(result_options::vars)) {
+        result.set_variances(homogen_table::wrap(vars.flatten(q, { vars_event }), 1, column_count));
+    }
 
-        if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
-        }
-        if (desc.get_result_options().test(result_options::eigenvectors)) {
-            const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-            result.set_model(model);
-        }
+    auto data_to_compute = cov;
+
+    sycl::event corr_event;
+    if (desc.get_normalization_mode() == normalization::zscore) {
+        auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc::device);
+        corr_event =
+            pr::correlation_from_covariance(q, rows_count_global, cov, corr, bias, { cov_event });
+        data_to_compute = corr;
+    }
+
+    auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q,
+                                                           std::move(data_to_compute),
+                                                           component_count,
+                                                           { corr_event, vars_event, cov_event });
+    if (desc.get_result_options().test(result_options::eigenvalues)) {
+        result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+    }
+
+    if (desc.get_result_options().test(result_options::singular_values)) {
+        auto singular_values =
+            compute_singular_values_on_host(q,
+                                            eigvals,
+                                            rows_count_global,
+                                            { corr_event, vars_event, cov_event });
+        result.set_singular_values(
+            homogen_table::wrap(singular_values.flatten(), 1, component_count));
+    }
+
+    if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
+        auto vars_host = vars.to_host(q);
+        auto explained_variances_ratio =
+            compute_explained_variances_on_host(q,
+                                                eigvals,
+                                                vars_host,
+                                                { corr_event, vars_event, cov_event });
+        result.set_explained_variances_ratio(
+            homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
+    }
+
+    if (desc.get_deterministic()) {
+        sign_flip(eigvecs);
+    }
+
+    if (desc.get_result_options().test(result_options::eigenvectors)) {
+        result.set_eigenvectors(
+            homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
     }
 
     return result;
 }
 
 template <typename Float>
-struct finalize_train_kernel_gpu<Float, method::cov, task::dim_reduction> {
+struct finalize_train_kernel_gpu<Float, method::cov, task_t> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return train<Float, task::dim_reduction>(ctx, desc, input);
+        return train<Float, task_t>(ctx, desc, input);
     }
 };
 
-template struct finalize_train_kernel_gpu<float, method::cov, task::dim_reduction>;
-template struct finalize_train_kernel_gpu<double, method::cov, task::dim_reduction>;
+template struct finalize_train_kernel_gpu<float, method::cov, task_t>;
+template struct finalize_train_kernel_gpu<double, method::cov, task_t>;
 
 } // namespace oneapi::dal::pca::backend

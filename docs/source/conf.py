@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'oneDAL'
-copyright = '2014 - 2022, Intel Corporation' # pylint: disable=redefined-builtin
+copyright = 'Intel Corporation' # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags
 # release = '2021'
@@ -81,10 +81,10 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
                     'daal/includes/*', 'onedal/algorithms/.*/includes/*', 'index-toc.rst']
 
 extlinks = {
-    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', None),
-    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', None),
-    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sklearnex/%s', None),
-    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', None)
+    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/main/examples/daal/cpp/source/%s', None),
+    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/main/examples/daal4py/%s', None),
+    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/main/examples/sklearnex/%s', None),
+    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/main/samples/daal/cpp/%s', None)
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -106,13 +106,16 @@ html_theme_options = {
     'use_issues_button': True,
     'use_edit_page_button': True,
     'repository_branch': 'master',
-    'extra_footer': '<p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>'
 }
 
 html_theme_options = {
     "logo": {
         "text": "oneDAL Documentation",
     }
+}
+
+html_theme_options = {
+    "extra_footer": "<div><a href='https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html' data-cookie-notice='true'>Cookies</a> <a href='https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html'>| Privacy</a> <a data-wap_ref='dns' id='wap_dns' href='https://www.intel.com/content/www/us/en/privacy/intel-cookie- notice.html'>| Do Not Share My Personal Information</a> </div><div>&copy; Intel Corporation. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may be claimed as the property of others. No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document, with the sole exception that code included in this document is licensed subject to the Zero-Clause BSD open source license (OBSD), <a href='http://opensource.org/licenses/0BSD'>http://opensource.org/licenses/0BSD</a>. </div><br><div>oneDAL is licensed under Apache License Version 2.0. Refer to the <a href='https://github.com/oneapi-src/oneDAL/blob/main/LICENSE'>LICENSE </a> file for the full license text and copyright notice.</div>"
 }
 
 # oneDAL project directory is needed for `dalapi` extension
@@ -159,6 +162,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::train_input'),
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
+    ('cpp:identifier', 'task::search'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
     ('cpp:identifier', 'detail::enable_if_search_t<T>'),
     ('cpp:identifier', 'detail::enable_if_not_classification_t<T>'),
@@ -199,6 +203,29 @@ nitpick_ignore = [
     # logloss_objective
     ('cpp:identifier', 'logloss_objective'),
     ('cpp:identifier', 'logloss_objective::descriptor'),
+    # logistic_regression
+    ('cpp:identifier', 'logistic_regression'),
+    ('cpp:identifier', 'oneapi::dal::logistic_regression'),
+    ('cpp:identifier', 'logistic_regression::descriptor'),
+    ('cpp:identifier', 'logistic_regression::train_result'),
+    ('cpp:identifier', 'logistic_regression::train_input'),
+    ('cpp:identifier', 'logistic_regression::infer_result'),
+    ('cpp:identifier', 'logistic_regression::infer_input'),
+    ('cpp:identifier', 'optimizer_t'),
+    # linear_regression
+    ('cpp:identifier', 'linear_regression'),
+    ('cpp:identifier', 'oneapi::dal::linear_regression'),
+    ('cpp:identifier', 'linear_regression::descriptor'),
+    ('cpp:identifier', 'linear_regression::train_result'),
+    ('cpp:identifier', 'linear_regression::train_input'),
+    ('cpp:identifier', 'linear_regression::infer_result'),
+    ('cpp:identifier', 'linear_regression::infer_input'),
+    # newton_cg
+    ('cpp:identifier', 'newton_cg'),
+    ('cpp:identifier', 'oneapi::dal::newton_cg'),
+    ('cpp:identifier', 'oneapi::dal::newton_cg::descriptor<Float>'),
+    ('cpp:identifier', 'tol'),
+    ('cpp:identifier', 'maxiter'),
     # pca
     ('cpp:identifier', 'pca'),
     ('cpp:identifier', 'pca::descriptor'),

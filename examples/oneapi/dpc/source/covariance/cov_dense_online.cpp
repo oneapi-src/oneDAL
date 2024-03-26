@@ -43,7 +43,7 @@ void run(sycl::queue &q) {
     }
     auto result = dal::finalize_compute(q, cov_desc, partial_result);
 
-    std::cout << "Cov:\n" << result.get_cov_matrix() << std::endl;
+    std::cout << "Sample covariance:\n" << result.get_cov_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

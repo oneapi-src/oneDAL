@@ -23,9 +23,19 @@
     - :ref:`dpc_cor_dense_batch.cpp`
     - :ref:`dpc_cov_dense_batch.cpp`
 
+    Online Processing:
+
+    - :ref:`dpc_cor_dense_online.cpp`
+    - :ref:`dpc_cov_dense_online.cpp`
+
   .. group-tab:: oneAPI C++
 
     Batch Processing:
 
     - :ref:`cpp_cor_dense_batch.cpp`
+    - :ref:`cpp_cov_dense_batch.cpp`
+
+    Online Processing:
+
+    - :ref:`cpp_cor_dense_online.cpp`
     - :ref:`cpp_cov_dense_batch.cpp`

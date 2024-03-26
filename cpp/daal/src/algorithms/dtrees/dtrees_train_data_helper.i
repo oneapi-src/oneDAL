@@ -115,6 +115,7 @@ struct SplitData
 
     SplitData()
         : impurityDecrease(-daal::services::internal::MaxVal<algorithmFPType>::get()),
+          left {},
           featureValue(0.0),
           nLeft(0),
           iStart(0),

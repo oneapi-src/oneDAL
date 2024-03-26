@@ -22,13 +22,14 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace pca = oneapi::dal::pca;
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, method::svd));
+using pca_types_cov = COMBINE_TYPES((float, double), (pca::method::cov));
+using pca_types_svd = COMBINE_TYPES((float, double), (pca::method::svd));
 using pca_types_precomputed = COMBINE_TYPES((float, double), (method::precomputed));
 
 template <typename TestType>
 class pca_batch_test : public pca_test<TestType, pca_batch_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
@@ -51,7 +52,6 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca on gold data",
                      "[pca][integration][batch][gold]",
                      pca_types) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
@@ -78,7 +78,6 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca common flow higgs",
                      "[external-dataset][pca][integration][batch]",
                      pca_types) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
@@ -94,7 +93,6 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca with cov",
                      "[pca][integration][precomputed][batch]",
                      pca_types_precomputed) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;

@@ -71,9 +71,9 @@ public:
 
         const auto cov_desc = base_t::get_descriptor(compute_mode);
 
-        const auto compute_result = this->compute(cov_desc, data);
+        const auto compute_result = this->compute_override(cov_desc, data);
 
-        base_t::check_compute_result(data, compute_result);
+        base_t::check_compute_result(cov_desc, data, compute_result);
     }
 
 private:

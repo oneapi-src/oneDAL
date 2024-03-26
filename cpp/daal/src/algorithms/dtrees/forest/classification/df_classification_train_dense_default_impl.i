@@ -594,6 +594,7 @@ public:
     void finalizeBestSplit(const IndexType * aIdx, const BinIndexType * binIndex, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit,
                            TSplitData & bestSplit, IndexType * bestSplitIdx) const;
     void simpleSplit(const algorithmFPType * featureVal, const IndexType * aIdx, TSplitData & split) const;
+    void singleSwap(const IndexType aIdx, TSplitData & split) const;
 
     TResponse predict(const dtrees::internal::Tree & t, const algorithmFPType * x) const
     {
@@ -748,6 +749,16 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::simpleSplit(const algorithmFPTy
     split.nLeft                 = 1;
     split.leftWeights           = this->_aWeights[aIdx[0]].val;
     split.totalWeights          = this->_aWeights[aIdx[0]].val + this->_aWeights[aIdx[1]].val;
+}
+
+template <typename algorithmFPType, CpuType cpu, typename crtp>
+void RespHelperBase<algorithmFPType, cpu, crtp>::singleSwap(const IndexType aIdx, TSplitData & split) const
+{
+    split.left.init(this->_nClasses);
+    const ClassIndexType iClass = this->_aResponse[aIdx].val;
+    split.left.hist[iClass]     = this->_aWeights[aIdx].val;
+    split.nLeft                 = 1;
+    split.leftWeights           = this->_aWeights[aIdx].val;
 }
 
 template <typename algorithmFPType, CpuType cpu, typename crtp>

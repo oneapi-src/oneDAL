@@ -46,6 +46,7 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
+    bool bias = false;
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -53,8 +54,18 @@ template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <typename Task>
+bool descriptor_base<Task>::get_bias() const {
+    return impl_->bias;
+}
+
+template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_bias_impl(const bool& value) {
+    impl_->bias = value;
 }
 
 template <typename Task>

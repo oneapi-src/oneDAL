@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-    - master
+    - main
     - releases
     - rls/*
   paths:
@@ -15,7 +15,7 @@ trigger:
 pr:
   branches:
     include:
-    - master
+    - main
     - releases
     - rls/*
   paths:
@@ -27,7 +27,7 @@ pr:
     - .ci/pipeline/docs.yml
 
 pool:
-  vmImage: 'ubuntu-20.04'
+  vmImage: 'ubuntu-latest'
 
 steps:
 - script: |

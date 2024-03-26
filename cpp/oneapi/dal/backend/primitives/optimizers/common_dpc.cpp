@@ -90,6 +90,33 @@ sycl::event l1_norm(sycl::queue& queue,
     });
 }
 
+template <typename Float>
+sycl::event max_abs(sycl::queue& queue,
+                    const ndview<Float, 1>& x,
+                    Float* res_gpu,
+                    Float* res_host,
+                    const event_vector& deps) {
+    const std::int64_t n = x.get_dimension(0);
+    auto* const x_ptr = x.get_mutable_data();
+
+    sycl::event fill_res_event = queue.fill(res_gpu, Float(0), 1, deps);
+
+    auto reduction_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(fill_res_event);
+        const auto range = make_range_1d(n);
+        auto max_reduction = sycl::reduction(res_gpu, sycl::maximum<>());
+        cgh.parallel_for(range, max_reduction, [=](sycl::id<1> idx, auto& mx) {
+            const Float val = x_ptr[idx];
+            mx.combine(sycl::fabs(val));
+        });
+    });
+
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(reduction_event);
+        cgh.memcpy(res_host, res_gpu, sizeof(Float));
+    });
+}
+
 #define INSTANTIATE(F)                                        \
     template sycl::event dot_product<F>(sycl::queue&,         \
                                         const ndview<F, 1>&,  \
@@ -98,6 +125,11 @@ sycl::event l1_norm(sycl::queue& queue,
                                         F*,                   \
                                         const event_vector&); \
     template sycl::event l1_norm<F>(sycl::queue&,             \
+                                    const ndview<F, 1>&,      \
+                                    F*,                       \
+                                    F*,                       \
+                                    const event_vector&);     \
+    template sycl::event max_abs<F>(sycl::queue&,             \
                                     const ndview<F, 1>&,      \
                                     F*,                       \
                                     F*,                       \

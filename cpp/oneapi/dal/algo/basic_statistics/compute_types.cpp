@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/basic_statistics/compute_types.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::basic_statistics {

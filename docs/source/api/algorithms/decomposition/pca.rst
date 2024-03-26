@@ -38,6 +38,10 @@ All types and functions in this section are declared in the
 ``oneapi::dal::pca`` namespace and be available via inclusion of the
 ``oneapi/dal/algo/pca.hpp`` header file.
 
+Enum classes
+------------
+.. onedal_enumclass:: oneapi::dal::pca::normalization
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::pca::descriptor
@@ -54,7 +58,6 @@ Model
 -----
 .. onedal_class:: oneapi::dal::pca::model
 
-
 .. _pca_t_api:
 
 Training :cpp:expr:`train(...)`
@@ -65,11 +68,10 @@ Input
 ~~~~~
 .. onedal_class:: oneapi::dal::pca::train_input
 
-
 .. _pca_t_api_result:
 
-Result
-~~~~~~
+Result and Finalize Result
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. onedal_class:: oneapi::dal::pca::train_result
 
 Operation
@@ -96,6 +98,27 @@ Operation
       | :expr:`result.model.eigenvectors.row_count == 1`
       | :expr:`result.model.eigenvectors.column_count == desc.component_count`
 
+.. _pca_p_api:
+
+Partial Training
+----------------
+.. _pca_p_api_input:
+
+Partial Input
+~~~~~~~~~~~~~
+.. onedal_class:: oneapi::dal::pca::partial_train_input
+
+.. _pca_p_api_result:
+
+Partial Result and Finalize Input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. onedal_class:: oneapi::dal::pca::partial_train_result
+
+.. _pca_f_api:
+
+Finalize Training
+-----------------
+
 .. _pca_i_api:
 
 Inference :cpp:expr:`infer(...)`
@@ -105,7 +128,6 @@ Inference :cpp:expr:`infer(...)`
 Input
 ~~~~~
 .. onedal_class:: oneapi::dal::pca::infer_input
-
 
 .. _pca_i_api_result:
 
