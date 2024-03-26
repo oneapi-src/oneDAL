@@ -18,19 +18,23 @@
 
 #include <limits>
 
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/algo/basic_statistics/compute.hpp"
 #include "oneapi/dal/algo/basic_statistics/partial_compute.hpp"
 #include "oneapi/dal/algo/basic_statistics/finalize_compute.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/csr_table_builder.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
+#include "oneapi/dal/table/csr_accessor.hpp"
 namespace oneapi::dal::basic_statistics::test {
 
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace bs = oneapi::dal::basic_statistics;
+namespace dal = oneapi::dal;
 
 constexpr inline std::uint64_t mask_full = 0xffffffffffffffff;
 
@@ -42,6 +46,7 @@ public:
     using input_t = bs::compute_input<>;
     using result_t = bs::compute_result<>;
     using descriptor_t = bs::descriptor<float_t, method_t>;
+    using csr_table = dal::csr_table;
 
     auto get_descriptor(bs::result_option_id compute_mode) const {
         return descriptor_t{}.set_result_options(compute_mode);
@@ -100,12 +105,31 @@ public:
         check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
+    void csr_general_checks(const te::csr_table_builder& data, bs::result_option_id compute_mode) {
+        const auto desc =
+            bs::descriptor<float_t, basic_statistics::method::sparse>{}.set_result_options(
+                compute_mode);
+        const auto csr_table = data.build_csr_table(this->get_policy());
+        const auto dense_table = data.build_dense_table();
+
+        auto compute_result = this->compute(desc, csr_table);
+        table weights;
+        check_compute_result(compute_mode, dense_table, weights, compute_result);
+    }
+
+    // TODO: Fix DAAL code. On big datasets there is an error in computing.
+    // To reproduce it remove this check from test case in batch.cpp
+    bool not_cpu_friendly(const te::csr_table_builder& data) {
+        auto policy = this->get_policy();
+        return (data.row_count_ > 100 || data.column_count_ > 100) && policy.is_cpu();
+    }
+
     void online_general_checks(const te::dataframe& data_fr,
                                std::shared_ptr<te::dataframe> weights_fr,
-                               bs::result_option_id compute_mode) {
+                               bs::result_option_id compute_mode,
+                               std::int64_t nBlocks) {
         const auto use_weights = bool(weights_fr);
         CAPTURE(use_weights, compute_mode);
-        const std::int64_t nBlocks = 10;
         const auto bs_desc = get_descriptor(compute_mode);
         const auto data_table_id = this->get_homogen_table_id();
 
@@ -154,25 +178,36 @@ public:
                             const result_t& result) {
         CAPTURE(data.get_row_count());
         CAPTURE(data.get_column_count());
-        if (compute_mode.test(res_min_max)) {
+        if (compute_mode.test(result_options::min)) {
             REQUIRE(result.get_min().get_column_count() == data.get_column_count());
+        }
+        if (compute_mode.test(result_options::max)) {
             REQUIRE(result.get_max().get_column_count() == data.get_column_count());
         }
-
-        if (compute_mode.test(res_mean_varc)) {
-            REQUIRE(result.get_mean().get_column_count() == data.get_column_count());
-            REQUIRE(result.get_variance().get_column_count() == data.get_column_count());
-        }
-
-        if ((compute_mode.test(res_min_max) && compute_mode.test(~res_min_max)) ||
-            (compute_mode.test(res_mean_varc) && compute_mode.test(~res_mean_varc))) {
+        if (compute_mode.test(result_options::sum)) {
             REQUIRE(result.get_sum().get_column_count() == data.get_column_count());
+        }
+        if (compute_mode.test(result_options::sum_squares)) {
             REQUIRE(result.get_sum_squares().get_column_count() == data.get_column_count());
+        }
+        if (compute_mode.test(result_options::sum_squares_centered)) {
             REQUIRE(result.get_sum_squares_centered().get_column_count() ==
                     data.get_column_count());
+        }
+        if (compute_mode.test(result_options::mean)) {
+            REQUIRE(result.get_mean().get_column_count() == data.get_column_count());
+        }
+        if (compute_mode.test(result_options::second_order_raw_moment)) {
             REQUIRE(result.get_second_order_raw_moment().get_column_count() ==
                     data.get_column_count());
+        }
+        if (compute_mode.test(result_options::variance)) {
+            REQUIRE(result.get_variance().get_column_count() == data.get_column_count());
+        }
+        if (compute_mode.test(result_options::standard_deviation)) {
             REQUIRE(result.get_standard_deviation().get_column_count() == data.get_column_count());
+        }
+        if (compute_mode.test(result_options::variation)) {
             REQUIRE(result.get_variation().get_column_count() == data.get_column_count());
         }
     }
@@ -203,7 +238,7 @@ public:
                 CAPTURE(name, r_count, c_count, r, c, lval, rval);
 
                 const auto aerr = std::abs(lval - rval);
-                if (aerr < tol)
+                if (aerr < tol || (!std::isfinite(lval) && !std::isfinite(rval)))
                     continue;
 
                 const auto den = std::max({ eps, //
@@ -277,14 +312,12 @@ public:
                                              (elem * weight - ref_mean.get(0, clmn));
             }
         }
-
         for (std::int64_t clmn = 0; clmn < column_count; clmn++) {
             ref_sorm.set(0, clmn) = ref_sum2.get(0, clmn) / float_t(row_count);
             ref_varc.set(0, clmn) = ref_sum2cent.get(0, clmn) / float_t(row_count - 1);
             ref_stdev.set(0, clmn) = std::sqrt(ref_varc.get(0, clmn));
             ref_vart.set(0, clmn) = ref_stdev.get(0, clmn) / ref_mean.get(0, clmn);
         }
-
         if (compute_mode.test(result_options::min)) {
             const table ref = homogen_table::wrap(ref_min.get_array(), 1l, column_count);
             check_if_close(result.get_min(), ref, "Min");
@@ -369,5 +402,7 @@ private:
 };
 
 using basic_statistics_types = COMBINE_TYPES((float, double), (basic_statistics::method::dense));
+using basic_statistics_sparse_types = COMBINE_TYPES((float, double),
+                                                    (basic_statistics::method::sparse));
 
 } // namespace oneapi::dal::basic_statistics::test

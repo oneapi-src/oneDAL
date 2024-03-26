@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Intel(R) oneDAL string class.
+//  Intel(R) oneAPI Data Analytics Library (oneDAL) string class.
 //--
 */
 

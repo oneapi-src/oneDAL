@@ -192,6 +192,9 @@ public:
 
     // Algorithms - KMeans
     ID(8010000000, kmeans_clustering_model_impl_id);
+
+    // Algorithms - Logistic Regression
+    ID(9010000000, logistic_regression_model_impl_id);
 };
 
 #undef ID

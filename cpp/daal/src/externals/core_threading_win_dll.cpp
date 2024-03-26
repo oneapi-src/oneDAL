@@ -837,7 +837,7 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     #define CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)
 #endif
 
-/* Used directly in Intel oneDAL */
+/* Used directly in Intel(R) oneAPI Data Analytics Library (oneDAL) */
 CALL_VOID_FUNC_FROM_DLL(fpk_blas_, dsyrk,
                         (const char * uplo, const char * trans, const DAAL_INT * n, const DAAL_INT * k, const double * alpha, const double * a,
                          const DAAL_INT * lda, const double * beta, double * c, const DAAL_INT * ldc),
@@ -1109,7 +1109,7 @@ typedef signed int Ipp32s;
 typedef float Ipp32f;
 typedef double Ipp64f;
 
-/* Used in Intel oneDAL via SS */
+/* Used in Intel(R) oneAPI Data Analytics Library (oneDAL) via SS */
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f * pSrcDst, Ipp64f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f * pSrcDst, Ipp32f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 

@@ -38,11 +38,11 @@ The following algorithms are available in oneDAL:
    * - :ref:`alg_covariance`
      - :ref:`batch <batch>`, :ref:`online <online>`, :ref:`distributed <distributed>`
    * - :ref:`alg_pca`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - :ref:`batch <batch>`, :ref:`online <online>`, :ref:`distributed <distributed>`
    * - Logistic Regression
      - :ref:`batch <batch>`
    * - Linear Regression
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - :ref:`batch <batch>`, :ref:`online <online>`, :ref:`distributed <distributed>`
    * - :ref:`alg_df`
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
    * - Extra Trees 
@@ -54,7 +54,7 @@ The following algorithms are available in oneDAL:
    * - :ref:`alg_dbscan`
      - :ref:`batch <batch>`, :ref:`distributed <distributed>`
    * - :ref:`alg_basic_statistics`
-     - :ref:`batch <batch>`, :ref:`distributed <distributed>`
+     - :ref:`batch <batch>`, :ref:`online <online>`, :ref:`distributed <distributed>`
 
 
 .. toctree::

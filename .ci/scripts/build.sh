@@ -1,6 +1,7 @@
 #! /bin/bash
 #===============================================================================
 # Copyright 2019 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,39 +16,76 @@
 # limitations under the License.
 #===============================================================================
 
+# Obtain platform, OS and arch details automatically
+PLATFORM=$(bash dev/make/identify_os.sh)
+OS=${PLATFORM::3}
+ARCH=${PLATFORM:3:3}
+
+# set default values for optimisation based on arch, these values can be overidden by passed arguments to the script.
+if [[ "${ARCH}" == "32e" ]]
+then
+optimizations=${optimizations:-avx2}
+elif [[ "${ARCH}" == "arm" ]]
+then
+optimizations=${optimizations:-sve}
+else
+echo "Unknown architecture '${ARCH}'"
+exit 1
+fi
+
+# set PLAT based on OS
+if [[ "${OS}" == "lnx" ]]; then
+    if [[ "${ARCH}" == "32e" ]]; then
+        PLAT=lnx32e
+    elif [[ "${ARCH}" == "arm" ]]; then
+        PLAT=lnxarm
+    fi
+elif [[ "${OS}" == "win" ]]; then
+    if [[ "${ARCH}" == "32e" ]]; then
+        PLAT=win2e
+    fi
+elif [[ "${OS}" == "mac" ]]; then
+    if [[ "${ARCH}" == "32e" ]]; then
+        PLAT=mac32e
+    fi
+fi
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
         --compiler)
         compiler="$2"
-        ;;
+        shift;;
         --optimizations)
         optimizations="$2"
-        ;;
+        shift;;
         --target)
         target="$2"
-        ;;
+        shift;;
         --backend_config)
         backend_config="$2"
-        ;;
+        shift;;
         --conda-env)
         conda_env="$2"
+        shift;;
+        --cross_compile)
+        cross_compile="yes"
         ;;
+        --arch)
+        ARCH="$2"
+        shift;;
+        --plat)
+        PLAT="$2"
+        shift;;
         *)
         echo "Unknown option: $1"
         exit 1
         ;;
     esac
     shift
-    shift
 done
 
-PLATFORM=$(bash dev/make/identify_os.sh)
-OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
-
-optimizations=${optimizations:-avx2}
 backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
 
@@ -58,6 +96,7 @@ if [ "${OS}" == "lnx" ]; then
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
+
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
             with_gpu="true"
@@ -92,17 +131,45 @@ if [ "${backend_config}" == "mkl" ]; then
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
-        $(pwd)/.ci/env/openblas.sh
+        if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
+            $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
+        else
+            $(pwd)/.ci/env/openblas.sh
+        fi
     fi
 else
     echo "Not supported backend env"
 fi
-$(pwd)/dev/download_tbb.sh
+
+# TBB setup
+if [[ "${ARCH}" == "32e" ]]; then
+    $(pwd)/dev/download_tbb.sh
+elif [[ "${ARCH}" == "arm" ]]; then
+    if [[ "${cross_compile}" == "yes" ]]; then
+        $(pwd)/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
+    else
+        $(pwd)/.ci/env/tbb.sh
+    fi
+fi
+
+if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
+    export CXX=aarch64-linux-gnu-g++
+    export CC=aarch64-linux-gnu-gcc 
+fi
+
 echo "Calling make"
+echo $CXX
+echo $CC
+echo make ${target:-daal_c} ${make_op} \
+    COMPILER=${compiler} \
+    REQCPU="${optimizations}" \
+    BACKEND_CONFIG="${backend_config}" \
+    PLAT=$PLAT
 make ${target:-daal_c} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}"
+    BACKEND_CONFIG="${backend_config}" \
+    PLAT=${PLAT}
 err=$?
 
 if [ ${err} -ne 0 ]; then

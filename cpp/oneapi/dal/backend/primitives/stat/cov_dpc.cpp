@@ -17,6 +17,7 @@
 #include "oneapi/dal/backend/primitives/stat/cov.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/loops.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include <sycl/ext/oneapi/experimental/builtins.hpp>
 
@@ -56,6 +57,7 @@ inline sycl::event compute_covariance(sycl::queue& q,
                                       std::int64_t row_count,
                                       const ndview<Float, 1>& sums,
                                       ndview<Float, 2>& cov,
+                                      bool bias,
                                       const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
@@ -66,7 +68,8 @@ inline sycl::event compute_covariance(sycl::queue& q,
     const std::int64_t n = row_count;
     const std::int64_t p = sums.get_count();
     const Float inv_n = Float(1.0 / double(n));
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float inv_n1 = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float multiplier = bias ? inv_n : inv_n1;
     const Float* sums_ptr = sums.get_data();
     Float* cov_ptr = cov.get_mutable_data();
 
@@ -80,9 +83,8 @@ inline sycl::event compute_covariance(sycl::queue& q,
             const std::int64_t j = id.get_id(1);
 
             if (i < p && j < p) {
-                Float c = cov_ptr[gi];
-                c -= inv_n * sums_ptr[i] * sums_ptr[j];
-                cov_ptr[gi] = c * inv_n1;
+                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j];
+                cov_ptr[gi] *= multiplier;
             }
         });
     });
@@ -93,6 +95,7 @@ sycl::event covariance(sycl::queue& q,
                        std::int64_t row_count,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
+                       bool bias,
                        const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
@@ -100,7 +103,7 @@ sycl::event covariance(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
-    auto compute_event = compute_covariance(q, row_count, sums, cov, deps);
+    auto compute_event = compute_covariance(q, row_count, sums, cov, bias, deps);
     return compute_event;
 }
 
@@ -216,17 +219,15 @@ sycl::event correlation(sycl::queue& q,
                         std::int64_t row_count,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
-                        ndview<Float, 1>& tmp,
                         const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
 
+    auto tmp = ndarray<Float, 1>::empty(q, { corr.get_dimension(0) }, sycl::usm::alloc::device);
     auto prepare_event = prepare_correlation(q, row_count, sums, corr, tmp, deps);
     auto finalize_event = finalize_correlation(q, row_count, sums, tmp, corr, { prepare_event });
     return finalize_event;
@@ -237,6 +238,7 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
                                                        std::int64_t row_count,
                                                        const ndview<Float, 2>& cov,
                                                        ndview<Float, 1>& tmp,
+                                                       bool bias,
                                                        const event_vector& deps) {
     ONEDAL_ASSERT(cov.has_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
@@ -246,7 +248,9 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float unbiased_multiplier = (n > 1) ? Float(n - 1) : Float(1);
+    const Float biased_multiplier = Float(n);
+    const Float multiplier = bias ? biased_multiplier : unbiased_multiplier;
 
     const Float* cov_ptr = cov.get_data();
 
@@ -259,12 +263,11 @@ inline sycl::event prepare_correlation_from_covariance(sycl::queue& q,
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            Float c = cov_ptr[idx * p + idx] / inv_n1;
-            const Float v = c;
+            Float c = cov_ptr[idx * p + idx] * multiplier;
 
             // If $Var[x_i] > 0$ is close to zero, add $\varepsilon$
             // to avoid NaN/Inf in the resulting correlation matrix
-            tmp_ptr[idx] = v + eps * Float(v < eps);
+            tmp_ptr[idx] = c + eps * Float(c < eps);
         });
     });
 }
@@ -275,6 +278,7 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
                                                         const ndview<Float, 2>& cov,
                                                         const ndview<Float, 1>& tmp,
                                                         ndview<Float, 2>& corr,
+                                                        bool bias,
                                                         const event_vector& deps) {
     ONEDAL_ASSERT(cov.has_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
@@ -288,7 +292,9 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
 
     const auto n = row_count;
     const auto p = cov.get_dimension(1);
-    const Float inv_n1 = (n > Float(1)) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float unbiased_multiplier = (n > 1) ? Float(n - 1) : Float(1);
+    const Float biased_multiplier = Float(n);
+    const Float multiplier = bias ? biased_multiplier : unbiased_multiplier;
     const Float* tmp_ptr = tmp.get_data();
     Float* corr_ptr = corr.get_mutable_data();
     const Float* cov_ptr = cov.get_data();
@@ -301,8 +307,7 @@ inline sycl::event finalize_correlation_from_covariance(sycl::queue& q,
             const std::int64_t j = idx[1];
             const std::int64_t gi = i * p + j;
             const Float is_diag = Float(i == j);
-
-            const Float c = cov_ptr[gi] / inv_n1 * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
+            Float c = cov_ptr[gi] * multiplier * sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
             corr_ptr[gi] = c * (Float(1.0) - is_diag) + is_diag;
         });
     });
@@ -313,21 +318,19 @@ sycl::event correlation_from_covariance(sycl::queue& q,
                                         std::int64_t row_count,
                                         const ndview<Float, 2>& cov,
                                         ndview<Float, 2>& corr,
-                                        ndview<Float, 1>& tmp,
+                                        bool bias,
                                         const event_vector& deps) {
     ONEDAL_ASSERT(cov.has_mutable_data());
     ONEDAL_ASSERT(corr.has_mutable_data());
-    ONEDAL_ASSERT(tmp.has_mutable_data());
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
                   "Correlation matrix must be square");
     ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
     ONEDAL_ASSERT(is_known_usm(q, corr.get_mutable_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
-    ONEDAL_ASSERT(is_known_usm(q, tmp.get_mutable_data()));
-
-    auto prepare_event = prepare_correlation_from_covariance(q, row_count, cov, tmp, deps);
+    auto tmp = ndarray<Float, 1>::empty(q, { cov.get_dimension(0) }, sycl::usm::alloc::device);
+    auto prepare_event = prepare_correlation_from_covariance(q, row_count, cov, tmp, bias, deps);
     auto finalize_event =
-        finalize_correlation_from_covariance(q, row_count, cov, tmp, corr, { prepare_event });
+        finalize_correlation_from_covariance(q, row_count, cov, tmp, corr, bias, { prepare_event });
     finalize_event.wait_and_throw();
     return finalize_event;
 }
@@ -347,6 +350,7 @@ INSTANTIATE_MEANS(double)
                                                      std::int64_t,        \
                                                      const ndview<F, 1>&, \
                                                      ndview<F, 2>&,       \
+                                                     bool,                \
                                                      const event_vector&);
 
 INSTANTIATE_COV(float)
@@ -357,7 +361,7 @@ INSTANTIATE_COV(double)
                                                                       std::int64_t,        \
                                                                       const ndview<F, 2>&, \
                                                                       ndview<F, 2>&,       \
-                                                                      ndview<F, 1>&,       \
+                                                                      bool,                \
                                                                       const event_vector&);
 
 INSTANTIATE_COR_FROM_COV(float)
@@ -368,7 +372,6 @@ INSTANTIATE_COR_FROM_COV(double)
                                                       std::int64_t,        \
                                                       const ndview<F, 1>&, \
                                                       ndview<F, 2>&,       \
-                                                      ndview<F, 1>&,       \
                                                       const event_vector&);
 
 INSTANTIATE_COR(float)

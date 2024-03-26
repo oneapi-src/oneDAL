@@ -51,7 +51,7 @@ namespace v1 {
 // - If a new mathematical operator introduced, stick to LaTeX
 //   conventions as well.
 //
-// - For oneDAL specific terms use the following shortening:
+// - For Intel(R) oneAPI Data Analytics Library (oneDAL) specific terms use the following shortening:
 //
 //   row count      rc
 //   column count   cc
@@ -163,6 +163,7 @@ public:
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
+    MSG(conv_tol_lt_zero);
     MSG(input_data_is_empty);
     MSG(input_data_rc_neq_input_responses_rc);
     MSG(input_data_rc_neq_input_weights_rc);
@@ -188,6 +189,7 @@ public:
     MSG(invalid_value_for_min_bin_size);
     MSG(invalid_value_for_observations_per_tree_fraction);
     MSG(not_enough_memory_to_build_one_tree);
+    MSG(not_enough_local_memory_for_hist);
     MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */
@@ -240,6 +242,13 @@ public:
 
     /* Linear Regression */
     MSG(intercept_result_option_requires_intercept_flag);
+
+    /* Logistic Regression */
+    MSG(class_count_neq_two);
+    MSG(inverse_regularization_leq_zero);
+    MSG(l1_coef_neq_zero);
+    MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu);
+    MSG(unknown_optimizer);
 
     /* Louvain */
     MSG(negative_resolution);

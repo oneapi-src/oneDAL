@@ -149,6 +149,7 @@ MSG(archive_is_in_invalid_state,
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
+MSG(conv_tol_lt_zero, "Convergence tolerance is less than zero")
 MSG(input_data_is_empty, "Input data is empty")
 MSG(input_data_rc_neq_input_responses_rc,
     "Input data row count is not equal to input responses row count")
@@ -302,6 +303,16 @@ MSG(input_y_is_empty, "Input y is empty")
 MSG(intercept_result_option_requires_intercept_flag,
     "Intercept result option requires intercept flag")
 
+/* Logistic Regression */
+MSG(class_count_neq_two,
+    "Only binary classification is supported so class count should be equal to 2")
+MSG(inverse_regularization_leq_zero, "Inverse regularization factor should be a positive number")
+MSG(l1_coef_neq_zero,
+    "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
+MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
+    "LogisticRegression is not implemented for CPU")
+MSG(unknown_optimizer, "Custom optimizers are not supported, use on of provided by the library")
+
 /* Decision Forest */
 MSG(bootstrap_is_incompatible_with_error_metric,
     "Values of bootstrap and error metric parameters provided "
@@ -315,6 +326,7 @@ MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
 MSG(not_enough_memory_to_build_one_tree, "There isn't enough memory to build one tree")
+MSG(not_enough_local_memory_for_hist, "There is not enough local memory to build one histogram")
 MSG(invalid_number_of_trees, "Invalid number of trees")
 MSG(invalid_number_of_min_observations_in_leaf_node,
     "Invalid number of min observations in leaf node")

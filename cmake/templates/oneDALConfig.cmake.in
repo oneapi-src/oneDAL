@@ -31,6 +31,11 @@ endif()
 # ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
 unset(DAL_LIBS)
 
+# default CMAKE_BUILD_TYPE to Release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type not specified, defaulting to Release" FORCE)
+endif()
+
 if(WIN32)
     message(STATUS "Optimization library is not enabled on Windows")
     set(ONEDAL_USE_PARAMETERS_LIBRARY no)
@@ -82,10 +87,12 @@ else()
     set(DAL_DEBUG_SUFFIX "")
 endif()
 
+message(STATUS "CMAKE_BUILD_TYPE:        ${CMAKE_BUILD_TYPE}")
 message(STATUS "ONEDAL_LINK:             ${ONEDAL_LINK}")
 message(STATUS "ONEDAL_USE_DPCPP:        ${ONEDAL_USE_DPCPP}")
 message(STATUS "ONEDAL_INTERFACE:        ${ONEDAL_INTERFACE}")
 message(STATUS "ONEDAL_SET_TBB_MANUALLY: ${ONEDAL_SET_TBB_MANUALLY}")
+message(STATUS "ONEDAL_USE_DPCPP:        ${ONEDAL_USE_DPCPP}")
 
 if (NOT DAL_LIBRARIES)
     set(DAL_LIBRARIES "")
@@ -113,6 +120,9 @@ if (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "no")
     list(APPEND DAL_LIBS onedal_sycl${DAL_DEBUG_SUFFIX})
 elseif (ONEDAL_USE_DPCPP STREQUAL "no" AND ONEDAL_INTERFACE STREQUAL "yes")
     list(APPEND DAL_LIBS onedal${DAL_DEBUG_SUFFIX})
+    if(ONEDAL_USE_PARAMETERS_LIBRARY)
+        list(APPEND DAL_LIBS onedal_parameters${DAL_DEBUG_SUFFIX})
+    endif()
 elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "yes")
     list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX} onedal_sycl${DAL_DEBUG_SUFFIX})
     if(ONEDAL_USE_PARAMETERS_LIBRARY)
@@ -121,9 +131,6 @@ elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "yes")
 endif()
 
 list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX})
-if(ONEDAL_USE_PARAMETERS_LIBRARY)
-    list(APPEND DAL_LIBS onedal_parameters${DAL_DEBUG_SUFFIX})
-endif()
 
 set(THREADING_TYPE "parallel")
 set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})
@@ -202,14 +209,14 @@ foreach (_dal_component ${DAL_LIBS})
         find_library(
             _dal_lib
             NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
-            PATH_SUFFIXES "lib/intel64"
+            PATH_SUFFIXES "lib/@ARCH_DIR_ONEDAL@"
             PATHS "${_dal_root}")
     elseif (${ONEDAL_LINK} STREQUAL "dynamic")
         add_library(oneDAL::${_dal_component} SHARED IMPORTED)
         find_library(
             _dal_lib
             NAMES "${LIB_PREFIX}${_dal_component}${DLL_EXT}"
-            PATH_SUFFIXES "lib/intel64"
+            PATH_SUFFIXES "lib/@ARCH_DIR_ONEDAL@"
             PATHS "${_dal_root}")
     endif()
 

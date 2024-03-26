@@ -31,6 +31,9 @@ class train_result_impl;
 template <typename Task>
 struct train_parameters_impl;
 
+template <typename Task>
+class partial_train_result_impl;
+
 template <typename Task = task::by_default>
 class train_parameters : public base {
 public:
@@ -61,6 +64,7 @@ private:
 using v1::train_parameters;
 using v1::train_input_impl;
 using v1::train_result_impl;
+using v1::partial_train_result_impl;
 
 } // namespace detail
 
@@ -74,6 +78,8 @@ class train_input : public base {
 
 public:
     using task_t = Task;
+
+    train_input();
 
     /// Creates a new instance of the class with the given :literal:`data`
     /// and :literal:`responses` property values
@@ -173,9 +179,99 @@ private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;
 };
 
+template <typename Task = task::by_default>
+class partial_train_result : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
+public:
+    using task_t = Task;
+
+    partial_train_result();
+
+    /// The partial_xtx matrix.
+    /// @remark default = table{}
+    const table& get_partial_xtx() const;
+
+    auto& set_partial_xtx(const table& value) {
+        set_partial_xtx_impl(value);
+        return *this;
+    }
+
+    /// The partial_xty matrix.
+    /// @remark default = table{}
+    const table& get_partial_xty() const;
+
+    auto& set_partial_xty(const table& value) {
+        set_partial_xty_impl(value);
+        return *this;
+    }
+
+protected:
+    void set_partial_xtx_impl(const table&);
+    void set_partial_xty_impl(const table&);
+
+private:
+    dal::detail::pimpl<detail::partial_train_result_impl<Task>> impl_;
+};
+
+template <typename Task = task::by_default>
+class partial_train_input : protected train_input<Task> {
+public:
+    using task_t = Task;
+
+    partial_train_input();
+
+    partial_train_input(const table& data);
+
+    partial_train_input(const table& data, const table& responses);
+
+    partial_train_input(const partial_train_result<Task>& prev, const table& data);
+
+    partial_train_input(const partial_train_result<Task>& prev,
+                        const table& data,
+                        const table& responses);
+
+    partial_train_input(const partial_train_result<Task>& prev,
+                        const partial_train_input<Task>& input);
+
+    const table& get_data() const {
+        return train_input<Task>::get_data();
+    }
+
+    auto& set_data(const table& value) {
+        train_input<Task>::set_data(value);
+        return *this;
+    }
+
+    /// Vector of responses y for the training set X
+    /// @remark default = table{}
+    const table& get_responses() const {
+        return train_input<Task>::get_responses();
+    }
+
+    auto& set_responses(const table& responses) {
+        train_input<Task>::set_responses(responses);
+        return *this;
+    }
+
+    const partial_train_result<Task>& get_prev() const {
+        return prev_;
+    }
+
+    auto& set_prev(const partial_train_result<Task>& value) {
+        prev_ = value;
+        return *this;
+    }
+
+private:
+    partial_train_result<Task> prev_;
+};
+
 } // namespace v1
 
 using v1::train_input;
 using v1::train_result;
+using v1::partial_train_input;
+using v1::partial_train_result;
 
 } // namespace oneapi::dal::linear_regression

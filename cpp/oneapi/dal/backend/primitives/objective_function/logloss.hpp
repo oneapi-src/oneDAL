@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -103,14 +104,22 @@ sycl::event compute_raw_hessian(sycl::queue& q,
                                 ndview<Float, 1>& out_hessian,
                                 const event_vector& deps = {});
 
+using comm_t = backend::communicator<spmd::device_memory_access::usm>;
+
 template <typename Float>
-class LogLossHessianProduct : public BaseMatrixOperator<Float> {
+class logloss_hessian_product : public base_matrix_operator<Float> {
 public:
-    LogLossHessianProduct(sycl::queue& q,
-                          const table& data,
-                          Float L2 = Float(0),
-                          bool fit_intercept = true,
-                          std::int64_t bsz = -1);
+    logloss_hessian_product(sycl::queue& q,
+                            const table& data,
+                            Float L2 = Float(0),
+                            bool fit_intercept = true,
+                            std::int64_t bsz = -1);
+    logloss_hessian_product(sycl::queue& q,
+                            comm_t comm,
+                            const table& data,
+                            Float L2 = Float(0),
+                            bool fit_intercept = true,
+                            std::int64_t bsz = -1);
     sycl::event operator()(const ndview<Float, 1>& vec,
                            ndview<Float, 1>& out,
                            const event_vector& deps) final;
@@ -125,28 +134,37 @@ private:
                                               const event_vector& deps);
 
     sycl::queue q_;
+    comm_t comm_;
     const table data_;
     Float L2_;
     bool fit_intercept_;
     ndarray<Float, 1> raw_hessian_;
     ndarray<Float, 1> buffer_;
+    ndarray<Float, 1> tmp_gpu_;
     const std::int64_t n_;
     const std::int64_t p_;
     const std::int64_t bsz_;
 };
 
 template <typename Float>
-class LogLossFunction : public BaseFunction<Float> {
+class logloss_function : public base_function<Float> {
 public:
-    LogLossFunction(sycl::queue queue,
-                    const table& data,
-                    ndview<std::int32_t, 1>& labels,
-                    Float L2 = 0.0,
-                    bool fit_intercept = true,
-                    std::int64_t bsz = -1);
+    logloss_function(sycl::queue queue,
+                     const table& data,
+                     const ndview<std::int32_t, 1>& labels,
+                     Float L2 = 0.0,
+                     bool fit_intercept = true,
+                     std::int64_t bsz = -1);
+    logloss_function(sycl::queue queue,
+                     comm_t comm,
+                     const table& data,
+                     const ndview<std::int32_t, 1>& labels,
+                     Float L2 = 0.0,
+                     bool fit_intercept = true,
+                     std::int64_t bsz = -1);
     Float get_value() final;
     ndview<Float, 1>& get_gradient() final;
-    BaseMatrixOperator<Float>& get_hessian_product() final;
+    base_matrix_operator<Float>& get_hessian_product() final;
 
     event_vector update_x(const ndview<Float, 1>& x,
                           bool need_hessp = false,
@@ -154,8 +172,9 @@ public:
 
 private:
     sycl::queue q_;
+    comm_t comm_;
     const table data_;
-    ndview<std::int32_t, 1> labels_;
+    const ndview<std::int32_t, 1> labels_;
     const std::int64_t n_;
     const std::int64_t p_;
     Float L2_;
@@ -164,7 +183,7 @@ private:
     ndarray<Float, 1> probabilities_;
     ndarray<Float, 1> gradient_;
     ndarray<Float, 1> buffer_;
-    LogLossHessianProduct<Float> hessp_;
+    logloss_hessian_product<Float> hessp_;
     const std::int64_t dimension_;
     Float value_;
 };

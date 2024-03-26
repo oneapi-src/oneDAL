@@ -47,7 +47,7 @@ void run(sycl::queue& queue) {
 
     const auto result = dal::preview::compute(comm, cov_desc, input_vec[rank_id]);
     if (comm.get_rank() == 0) {
-        std::cout << "Covariance:\n" << result.get_cov_matrix() << std::endl;
+        std::cout << "Sample covariance:\n" << result.get_cov_matrix() << std::endl;
     }
 }
 

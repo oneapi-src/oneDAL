@@ -16,6 +16,9 @@
 
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
+#include "oneapi/dal/algo/pca/partial_train.hpp"
+#include "oneapi/dal/algo/pca/finalize_train.hpp"
+
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
@@ -101,6 +104,33 @@ public:
     te::table_id get_homogen_table_id() const {
         return te::table_id::homogen<Float>();
     }
+
+    template <typename Float>
+    std::vector<dal::table> split_table_by_rows(const dal::table& t, std::int64_t split_count) {
+        ONEDAL_ASSERT(0l < split_count);
+        ONEDAL_ASSERT(split_count <= t.get_row_count());
+
+        const std::int64_t row_count = t.get_row_count();
+        const std::int64_t column_count = t.get_column_count();
+        const std::int64_t block_size_regular = row_count / split_count;
+        const std::int64_t block_size_tail = row_count % split_count;
+
+        std::vector<dal::table> result(split_count);
+
+        std::int64_t row_offset = 0;
+        for (std::int64_t i = 0; i < split_count; i++) {
+            const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+            const std::int64_t block_size = block_size_regular + tail;
+
+            const auto row_range = dal::range{ row_offset, row_offset + block_size };
+            const auto block = dal::row_accessor<const Float>{ t }.pull(row_range);
+            result[i] = dal::homogen_table::wrap(block, block_size, column_count);
+            row_offset += block_size;
+        }
+
+        return result;
+    }
+
     void general_checks(const te::dataframe& data,
                         std::int64_t component_count,
                         const te::table_id& data_table_id) {
@@ -118,6 +148,31 @@ public:
         check_infer_result(pca_desc, data, infer_result);
     }
 
+    void online_general_checks(const te::dataframe& data,
+                               std::int64_t component_count,
+                               const te::table_id& data_table_id,
+                               std::int64_t nBlocks) {
+        CAPTURE(component_count);
+
+        const table x = data.get_table(this->get_policy(), data_table_id);
+
+        INFO("create descriptor")
+        const auto pca_desc = get_descriptor(component_count);
+        INFO("run training");
+        auto partial_result = dal::pca::partial_train_result();
+        auto input_table = split_table_by_rows<float>(x, nBlocks);
+        for (std::int64_t i = 0; i < nBlocks; ++i) {
+            partial_result = this->partial_train(pca_desc, partial_result, input_table[i]);
+        }
+        auto train_result = this->finalize_train(pca_desc, partial_result);
+
+        const auto model = train_result.get_model();
+        check_train_result_online(pca_desc, data, train_result);
+        INFO("run inference");
+        const auto infer_result = this->infer(pca_desc, model, x);
+        check_infer_result(pca_desc, data, infer_result);
+    }
+
     void check_train_result(const pca::descriptor<Float, Method>& desc,
                             const te::dataframe& data,
                             const pca::train_result<>& result) {
@@ -127,7 +182,7 @@ public:
         check_nans(result);
 
         INFO("check if eigenvectors order is descending")
-        this->check_eigenvalues_order(eigenvalues);
+        check_eigenvalues_order(eigenvalues);
 
         INFO("check if eigenvectors matrix is orthogonal")
         check_eigenvectors_orthogonality(eigenvectors);
@@ -141,9 +196,41 @@ public:
         check_variances(bs, variances);
     }
 
+    void check_train_result_online(const pca::descriptor<Float, Method>& desc,
+                                   const te::dataframe& data,
+                                   const pca::train_result<>& result) {
+        const auto [eigenvalues, eigenvectors] = unpack_online_result(result);
+
+        check_online_shapes(desc, data, result);
+        check_nans(result);
+
+        INFO("check if eigenvectors order is descending")
+        check_eigenvalues_order(eigenvalues);
+
+        INFO("check if eigenvectors matrix is orthogonal")
+        check_eigenvectors_orthogonality(eigenvectors);
+    }
+
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
                             const te::dataframe& data,
                             const pca::infer_result<>& result) {}
+
+    void check_online_shapes(const pca::descriptor<Float, Method>& desc,
+                             const te::dataframe& data,
+                             const pca::train_result<>& result) {
+        const auto [eigenvalues, eigenvectors] = unpack_online_result(result);
+
+        const std::int64_t expected_component_count =
+            (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
+
+        INFO("check if eigenvalues shape is expected")
+        REQUIRE(eigenvalues.get_row_count() == 1);
+        REQUIRE(eigenvalues.get_column_count() == expected_component_count);
+
+        INFO("check if eigenvectors shape is expected")
+        REQUIRE(eigenvectors.get_row_count() == expected_component_count);
+        REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
+    }
 
     void check_shapes(const pca::descriptor<Float, Method>& desc,
                       const te::dataframe& data,
@@ -236,6 +323,12 @@ public:
     }
 
 private:
+    static auto unpack_online_result(const pca::train_result<>& result) {
+        const auto eigenvalues = result.get_eigenvalues();
+        const auto eigenvectors = result.get_eigenvectors();
+        return std::make_tuple(eigenvalues, eigenvectors);
+    }
+
     static auto unpack_result(const pca::train_result<>& result) {
         const auto means = result.get_means();
         const auto variances = result.get_variances();

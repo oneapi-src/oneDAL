@@ -70,7 +70,7 @@ void add_regularization(sycl::queue& q_,
                 ans_loss_ptr[0] *= inv_n;
                 for (std::int64_t i = 1; i < p + 1; ++i) {
                     ans_loss_ptr[0] +=
-                        L2 * params_ptr[i] * params_ptr[i] + L1 * sycl::abs(params_ptr[i]);
+                        L2 * params_ptr[i] * params_ptr[i] + L1 * sycl::fabs(params_ptr[i]);
                 }
             });
         });

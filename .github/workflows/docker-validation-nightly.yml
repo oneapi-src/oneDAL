@@ -5,7 +5,7 @@ on:
     - cron: "0 23 * * *"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
@@ -13,20 +13,24 @@ on:
       - .ci/scripts
   push:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
       - .ci/env
       - .ci/scripts
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: Docker validation
+    if: github.repository == 'oneapi-src/oneDAL'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - name: Build docker image
         run: docker build . --file dev/docker/onedal-dev.Dockerfile --tag onedal-dev:latest
       - name: Building oneDAL

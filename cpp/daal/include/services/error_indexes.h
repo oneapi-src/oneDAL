@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Details of errors in Intel(R) oneDAL.
+//  Details of errors in Intel(R) oneAPI Data Analytics Library (oneDAL).
 //--
 */
 
@@ -267,6 +267,8 @@ enum ErrorID
                                                                              computation modes */
     ErrorIncorrectNComponents                               = -7805, /*!< Incorrect nComponents parameter: nComponents should be less or equal
                                                                              to number of columns in testing dataset */
+    ErrorIncorrectEigenValuesSum                            = -7806, /*!< The sum of eigenvalues is less or equal to zero */
+    ErrorIncorrectSingularValuesDenominator                 = -7807, /*!< The denominator of eigenvalues is less or equal to zero */
 
     // QR errors: -8000..-8199
     ErrorQRInternal             = -8000, /*!< QR internal error */
@@ -378,6 +380,7 @@ enum ErrorID
     // GBT error: -30000..-30099
     ErrorGbtIncorrectNumberOfTrees             = -30000, /*!< Number of trees in the model is not consistent with the number of classes */
     ErrorGbtPredictIncorrectNumberOfIterations = -30001, /*!< Number of iterations value in GBT parameter is not consistent with the model */
+    ErrorGbtPredictShapOptions                 = -30002, /*< For SHAP values, calculate either contributions or interactions, not both */
 
     // Data management errors:  -80001..
     ErrorUserAllocatedMemory = -80001, /*!< Couldn't free memory allocated by user */

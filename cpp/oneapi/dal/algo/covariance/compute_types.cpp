@@ -20,8 +20,10 @@
 
 namespace oneapi::dal::covariance {
 
+namespace detail::v1 {
+
 template <typename Task>
-class detail::v1::compute_input_impl : public base {
+class compute_input_impl : public base {
 public:
     compute_input_impl() : data(table()){};
     compute_input_impl(const table& data) : data(data){};
@@ -29,7 +31,7 @@ public:
 };
 
 template <typename Task>
-class detail::v1::compute_result_impl : public base {
+class compute_result_impl : public base {
 public:
     table cov_matrix;
     table cor_matrix;
@@ -38,16 +40,49 @@ public:
 };
 
 template <typename Task>
-class detail::v1::partial_compute_result_impl : public base {
+class partial_compute_result_impl : public base {
 public:
     table nobs;
     table crossproduct;
     table sums;
 };
 
+/// Structure that contains all the hyperparameters of the covariance algorithm.
+///
+/// @tparam Task    The variant of the computations.
+///                 Covariance algorithm supports only :expr:`compute`.
+template <typename Task>
+struct compute_parameters_impl : public base {
+    /// To compute the variance-covariance matrix input data set is being split into blocks of rows.
+    /// This value defines the default number of rows in the block on CPU.
+    std::int64_t cpu_macro_block = 140l;
+};
+
+template <typename Task>
+compute_parameters<Task>::compute_parameters() : impl_(new compute_parameters_impl<Task>{}) {}
+
+/// Choose the number of rows in the data block used in variance-covariance matrix computations on CPU.
+///
+/// @tparam Task    The variant of the computations.
+///                 Covariance algorithm supports only :expr:`compute`.
+template <typename Task>
+std::int64_t compute_parameters<Task>::get_cpu_macro_block() const {
+    return impl_->cpu_macro_block;
+}
+
+template <typename Task>
+void compute_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
+    impl_->cpu_macro_block = val;
+}
+
+template class ONEDAL_EXPORT compute_parameters<task::compute>;
+
+} // namespace detail::v1
+
 using detail::v1::compute_input_impl;
 using detail::v1::compute_result_impl;
 using detail::v1::partial_compute_result_impl;
+using detail::v1::compute_parameters;
 
 namespace v1 {
 

@@ -35,12 +35,13 @@ class compute_kernel_dense_impl {
     using input_t = compute_input<task_t>;
     using result_t = compute_result<task_t>;
     using descriptor_t = detail::descriptor_base<task_t>;
+    using parameters_t = detail::compute_parameters<task_t>;
 
 public:
     compute_kernel_dense_impl(const bk::context_gpu& ctx)
             : q_(ctx.get_queue()),
               comm_(ctx.get_communicator()) {}
-    result_t operator()(const descriptor_t& desc, const input_t& input);
+    result_t operator()(const descriptor_t& desc, const parameters_t& params, const input_t& input);
 
 private:
     sycl::queue q_;

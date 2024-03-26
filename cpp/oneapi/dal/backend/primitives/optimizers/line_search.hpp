@@ -21,8 +21,8 @@
 
 namespace oneapi::dal::backend::primitives {
 
-// Decrease alpha while Armicho condition is not satisfied
-// Armicho condition phi(alpha) <= phi(0) + c1 * alpha * phi'(0)
+// Decrease alpha while Armijo condition is not satisfied
+// Armijo condition phi(alpha) <= phi(0) + c1 * alpha * phi'(0)
 // phi(alpha) = f(x + alpha * d)
 // phi'(alpha) = <f'(x + alpha * d), d>
 /// @brief
@@ -33,13 +33,13 @@ namespace oneapi::dal::backend::primitives {
 /// @param direction - descent direction
 /// @param result - x + alpha * direction will be written here
 /// @param alpha - initial constant, should be equal to 1.0 for newton methods
-/// @param c1 - constant for Armicho condition
+/// @param c1 - constant for Armijo condition
 /// @param x0_initialized - if function f is computed at point x
 /// @param deps
 /// @return
 template <typename Float>
 Float backtracking(sycl::queue queue,
-                   BaseFunction<Float>& f,
+                   base_function<Float>& f,
                    const ndview<Float, 1>& x,
                    const ndview<Float, 1>& direction,
                    ndview<Float, 1>& result,

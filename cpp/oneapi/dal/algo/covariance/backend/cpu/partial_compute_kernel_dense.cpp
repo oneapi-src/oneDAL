@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +23,12 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+
+#if defined(TARGET_X86_64)
+#define CPU_EXTENSION dal::detail::cpu_extension::avx512
+#elif defined(TARGET_ARM)
+#define CPU_EXTENSION dal::detail::cpu_extension::sve
+#endif
 
 namespace oneapi::dal::covariance::backend {
 
@@ -49,7 +56,18 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
 
     auto data = input.get_data();
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-
+    daal_covariance::internal::Hyperparameter daal_hyperparameter;
+    /// the logic of block size calculation is copied from DAAL,
+    /// to be changed to passing the values from the performance model
+    std::int64_t blockSize = 140;
+    if (ctx.get_enabled_cpu_extensions() == CPU_EXTENSION) {
+        const std::int64_t row_count = data.get_row_count();
+        if (5000 < row_count && row_count <= 50000) {
+            blockSize = 1024;
+        }
+    }
+    interop::status_to_exception(
+        daal_hyperparameter.set(daal_covariance::internal::denseUpdateStepBlockSize, blockSize));
     auto result = partial_compute_result();
 
     const bool has_nobs_data = input_.get_partial_n_rows().has_data();
@@ -66,7 +84,8 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
                                                                        daal_nobs_matrix.get(),
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
-                                                                       &daal_parameter));
+                                                                       &daal_parameter,
+                                                                       &daal_hyperparameter));
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
         result.set_partial_n_rows(
             interop::convert_from_daal_homogen_table<Float>(daal_nobs_matrix));
@@ -90,7 +109,8 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
                                                                        daal_nobs_matrix.get(),
                                                                        daal_crossproduct.get(),
                                                                        daal_sums.get(),
-                                                                       &daal_parameter));
+                                                                       &daal_parameter,
+                                                                       &daal_hyperparameter));
 
         result.set_partial_sum(interop::convert_from_daal_homogen_table<Float>(daal_sums));
         result.set_partial_n_rows(

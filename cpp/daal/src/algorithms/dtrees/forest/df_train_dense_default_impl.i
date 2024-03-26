@@ -818,7 +818,25 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         if (_par.varImportance == training::MDI) addImpurityDecrease(iFeature, n, curImpurity, split);
         typename DataHelper::NodeType::Base * left =
             buildDepthFirst(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses, split.leftWeights);
-        _helper.convertLeftImpToRight(n, curImpurity, split);
+
+        /* The split information can be converted from the left-side of the split
+           to the right-side without accessing the raw data by using the cost function
+           values, weights, and number of elements from the parent node and new left
+           node. This is faster but accumulates floating point arithmetic error.
+           When the right-side is a single value, the raw value can be directly
+           used and the cost function can be immediately calculated. This removes
+           the error for single-element right nodes and is important in unlimited-
+           depth decision forest fits. The if statement separates these two
+           methods and checks for single element right splits.*/
+        if (n - split.nLeft != 1)
+        {
+            _helper.convertLeftImpToRight(n, curImpurity, split);
+        }
+        else
+        {
+            _helper.singleSwap(_aSample.get()[iStart + nLeft], split);
+        }
+
         if (!_memorySavingMode && !_useConstFeatures)
         {
             for (size_t i = _nConstFeature; i > 0; --i)
@@ -929,8 +947,8 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, BinInd
         double improvement;
         algorithmFPType leftWeights;
         algorithmFPType totalWeights;
-        typename DataHelper::ImpurityData impurityLeft;
-        typename DataHelper::ImpurityData impurityRight;
+        typename DataHelper::ImpurityData impurityLeft {};
+        typename DataHelper::ImpurityData impurityRight {};
         typename DataHelper::NodeType::Split * node;
 
         WorkItem()
@@ -1114,7 +1132,7 @@ NodeSplitResult TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cp
     /* zero-based index of best split */
     int64_t iBestSplit               = -1;
     int64_t idxFeatureValueBestSplit = -1;
-    typename DataHelper::TSplitData split;
+    typename DataHelper::TSplitData split {};
     /* RNG for sample drawing */
     RNGsInst<IndexType, cpu> rng;
     /* index for swapping samples in Fisher-Yates sampling */

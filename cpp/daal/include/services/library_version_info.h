@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Intel(R) oneDAL version information.
+//  Intel(R) oneAPI Data Analytics Library (oneDAL) version information.
 //--
 */
 

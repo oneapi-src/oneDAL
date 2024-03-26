@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +31,7 @@ struct daal_cpu_value {
     constexpr static daal::CpuType value = cpu;
 };
 
+#if defined(TARGET_X86_64)
 template <>
 struct to_daal_cpu_type<cpu_dispatch_default> : daal_cpu_value<daal::sse2> {};
 template <>
@@ -39,10 +41,24 @@ struct to_daal_cpu_type<cpu_dispatch_avx2> : daal_cpu_value<daal::avx2> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_avx512> : daal_cpu_value<daal::avx512> {};
 
+#elif defined(TARGET_ARM)
+template <>
+struct to_daal_cpu_type<cpu_dispatch_sve> : daal_cpu_value<daal::sve> {};
+
+#endif
+
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
 inline auto call_daal_kernel(const context_cpu& ctx, Args&&... args) {
     return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
         return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().compute(
+            std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_finalize_merge(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().finalizeMerge(
             std::forward<Args>(args)...);
     });
 }
