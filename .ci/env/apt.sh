@@ -22,18 +22,17 @@ function update {
 }
 
 function add_repo {
-    wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-    sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-    rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+    wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+    sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+    rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
     echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
     sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
     sudo apt-get update
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-dpcpp-cpp-compiler-2023.2.1
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.0
     sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
-    sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
 }
 
 function install_mkl {
