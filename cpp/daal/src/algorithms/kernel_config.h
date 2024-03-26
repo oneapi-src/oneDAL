@@ -42,8 +42,6 @@
     int cpuid = DAAL_BASE_CPU; \
     DAAL_SAFE_CPU_CALL((cpuid = daalEnv->cpuid), (cpuid = DAAL_BASE_CPU))
 
-#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
-
 #define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SAFE(ContainerTemplate, Mode, ...)                                                               \
     __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID_SAFE, \
                                      __VA_ARGS__)
