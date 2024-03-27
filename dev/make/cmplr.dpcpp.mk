@@ -19,6 +19,8 @@
 #  DPC++ Compiler definitions for makefile
 #--
 
+# This line to trigger Azure tests
+
 PLATs.dpcpp = lnx32e win32e
 
 CMPLRDIRSUFF.dpcpp = _dpcpp
