@@ -75,10 +75,10 @@ OS=${PLAT::3}
 ARCH=${PLAT:3:3}
 
 backend_config=${backend_config:-mkl}
-conda_init_path=/usr/share/miniconda/etc/profile.d/conda.sh
 
 if [ "${OS}" == "lnx" ]; then
     if [ "${conda_env}" != "" ]; then
+        conda_init_path=/usr/share/miniconda/etc/profile.d/conda.sh
         if [ -f ${conda_init_path} ] ; then
             source ${conda_init_path}
         fi
@@ -95,6 +95,7 @@ if [ "${OS}" == "lnx" ]; then
     fi
 elif [ "${OS}" == "mac" ]; then
     if [ "${conda_env}" != "" ]; then
+        conda_init_path=/usr/local/miniconda/etc/profile.d/conda.sh
         if [ -f ${conda_init_path} ]; then
             source ${conda_init_path}
         fi
