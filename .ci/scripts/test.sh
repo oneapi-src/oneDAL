@@ -129,15 +129,19 @@ for link_mode in ${link_modes}; do
     fi
     if [ "$build_system" == "cmake" ]; then
         if [[ ${compiler} == gnu ]]; then
-            export CC=gcc
-            export CXX=g++
+            CC=gcc
+            CXX=g++
         elif [[ ${compiler} == clang ]]; then
-            export CC=clang
-            export CXX=clang++
+            CC=clang
+            CXX=clang++
         elif [[ ${compiler} == icx ]]; then
-            export CC=icx
-            export CXX=icpx
+            CC=icx
+            CXX=icpx
         fi
+
+        export CC
+        export CXX
+
         echo "============== Configuration: =============="
         echo Compiler:  ${compiler}
         echo Link mode: ${link_mode}
@@ -173,11 +177,24 @@ for link_mode in ${link_modes}; do
         output_result=
         err=
         cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
-        for p in ${cmake_results_dir}/*; do
+
+        if [ "$TEST_KIND" = "samples" ]; then
+            cd Build;
+            cmake_results_dir="../_cmake_results/${arch_dir}_${lib_ext}"
+        fi
+
+        for p in "${cmake_results_dir}"/*; do
             e=$(basename "$p")
-            ${p} 2>&1 > ${e}.res
+
+            if [ "$TEST_KIND" = "samples" ]; then
+                run_command="make run_${e}"
+            else
+                run_command="$p"
+            fi
+
+            ${run_command} > "${e}.res" 2>&1
             err=$?
-            output_result=$(cat ${e}.res)
+            output_result=$(cat "${e}.res")
             mv -f ${e}.res ${cmake_results_dir}/
             status_ex=
             if [ ${err} -ne 0 ]; then
@@ -191,6 +208,8 @@ for link_mode in ${link_modes}; do
             fi
             echo -e $status_ex
         done
+        # Go back from "Build" directory in case of samples testing
+        [ "$TEST_KIND" = "samples" ] && cd ..
     else
         build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
         echo "Building ${TEST_KIND} ${build_command}"
