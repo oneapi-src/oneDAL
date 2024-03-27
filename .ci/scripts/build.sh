@@ -90,8 +90,8 @@ backend_config=${backend_config:-mkl}
 GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
-    source /usr/share/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
+        command -v conda >/dev/null 2>&1 || source /usr/share/miniconda/etc/profile.d/conda.sh
         conda activate ${conda_env}
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
@@ -104,8 +104,8 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
-    source /usr/local/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
+        command -v conda >/dev/null 2>&1 || source /usr/local/miniconda/etc/profile.d/conda.sh
         conda activate ${conda_env}
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
