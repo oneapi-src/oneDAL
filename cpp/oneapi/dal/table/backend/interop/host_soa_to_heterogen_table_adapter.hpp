@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,4 +14,19 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#pragma once
+
+#include <daal/include/data_management/data/soa_numeric_table.h>
+
+#include "oneapi/dal/table/heterogen.hpp"
+#include "oneapi/dal/table/detail/metadata_utils.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/daal_object_owner.hpp"
+#include "oneapi/dal/table/backend/interop/host_soa_table_adapter.hpp"
+
+namespace oneapi::dal::backend::interop {
+
+ONEDAL_EXPORT heterogen_table convert_to_heterogen(const soa_table_t& t);
+ONEDAL_EXPORT heterogen_table convert_to_heterogen(const soa_table_ptr_t& t);
+
+} // namespace oneapi::dal::backend::interop
