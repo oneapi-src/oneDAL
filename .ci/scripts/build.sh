@@ -141,10 +141,12 @@ if [[ "${ARCH}" == "32e" ]]; then
     "${ONEDAL_DIR}"/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        "${ONEDAL_DIR}"/.ci/env/tbb.sh --cross_compile --toolchain_file "$(pwd)"/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh --cross-compile --toolchain-file "$(pwd)"/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target-arch aarch64
     else
         "${ONEDAL_DIR}"/.ci/env/tbb.sh
     fi
+    export TBBROOT="$ONEDAL_DIR/__deps/tbb-aarch64"
+    export LD_LIBRARY_PATH=${TBBROOT}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 fi
 
 if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
