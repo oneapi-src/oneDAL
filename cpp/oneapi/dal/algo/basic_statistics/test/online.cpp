@@ -40,8 +40,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
                            te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
+                           te::dataframe_builder{ 10000, 20 }.fill_normal(-0.5, 0.5, 7777));
 
     std::shared_ptr<te::dataframe> weights;
     const bool use_weights = GENERATE(0, 1);

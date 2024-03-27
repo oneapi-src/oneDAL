@@ -45,6 +45,8 @@ public:
     using method_t = std::tuple_element_t<1, TestType>;
     using input_t = bs::compute_input<>;
     using result_t = bs::compute_result<>;
+    using partial_input_t = bs::partial_compute_input<>;
+    using partial_result_t = bs::partial_compute_result<>;
     using descriptor_t = bs::descriptor<float_t, method_t>;
     using csr_table = dal::csr_table;
 
