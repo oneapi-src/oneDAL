@@ -75,7 +75,7 @@ bool __daal_internal_is_intel_cpu()
     return abcd[1] == genu && abcd[2] == ntel && abcd[3] == inei;
 }
 
-bool daal_check_is_intel_cpu()
+DAAL_EXPORT bool daal_check_is_intel_cpu()
 {
     static const bool result = __daal_internal_is_intel_cpu();
     return result;

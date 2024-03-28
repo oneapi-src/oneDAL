@@ -32,7 +32,7 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available();
 DAAL_EXPORT int __daal_serv_cpu_detect(int);
 
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd);
-bool daal_check_is_intel_cpu();
+DAAL_EXPORT bool daal_check_is_intel_cpu();
 
 #if defined(TARGET_X86_64)
     #define DAAL_BASE_CPU daal::sse2
