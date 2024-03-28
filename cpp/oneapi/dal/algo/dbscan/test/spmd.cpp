@@ -142,7 +142,10 @@ public:
                              float_t ref_dbi,
                              float_t dbi_ref_tol = 1.0e-4) {
         INFO("create descriptor");
-        const auto dbscan_desc = this->get_descriptor(epsilon, min_observations);
+        const auto dbscan_desc =
+            dbscan::descriptor<float_t, method_t>(epsilon, min_observations)
+                .set_mem_save_mode(true)
+                .set_result_options(result_options::responses | result_options::core_flags);
 
         INFO("run computation");
         const auto compute_results =
