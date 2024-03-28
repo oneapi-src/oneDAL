@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +27,14 @@ template <typename Context, typename Float, typename Task, typename Method, type
 struct infer_ops_dispatcher {
     infer_result<Task> operator()(const Context&,
                                   const descriptor_base<Task>&,
+                                  const infer_parameters<Task>&,
                                   const infer_input<Task>&) const;
+    infer_result<Task> operator()(const Context&,
+                                  const descriptor_base<Task>&,
+                                  const infer_input<Task>&) const;
+    infer_parameters<Task> select_parameters(const Context&,
+                                             const descriptor_base<Task>&,
+                                             const infer_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -36,6 +44,7 @@ struct infer_ops {
     using method_t = method::by_default;
     using input_t = infer_input<task_t>;
     using result_t = infer_result<task_t>;
+    using param_t = infer_parameters<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
@@ -50,13 +59,40 @@ struct infer_ops {
                               const input_t& input,
                               const result_t& result) const {}
 
+    /// Check that the hyperparameters of the algorithm belong to the expected ranges
+    void check_parameters_ranges(const param_t& params, const input_t& input) const {
+        ONEDAL_ASSERT(params.get_block_size() > 0x0l);
+        ONEDAL_ASSERT(params.get_block_size() <= 0x10000l);
+        ONEDAL_ASSERT(params.get_min_trees_for_threading() > 0x0l);
+        ONEDAL_ASSERT(params.get_min_number_of_rows_for_vect_seq_compute() >= 0x0l);
+        ONEDAL_ASSERT(params.get_scale_factor_for_vect_parallel_compute() > 0.0f);
+        ONEDAL_ASSERT(params.get_scale_factor_for_vect_parallel_compute() < 1.0f);
+    }
+
     template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+    auto select_parameters(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+        check_preconditions(desc, input);
+        return infer_ops_dispatcher<Context, float_t, task_t, method_t>{}.select_parameters(ctx,
+                                                                                            desc,
+                                                                                            input);
+    }
+
+    template <typename Context>
+    auto operator()(const Context& ctx,
+                    const Descriptor& desc,
+                    const param_t& params,
+                    const input_t& input) const {
         check_preconditions(desc, input);
         const auto result =
-            infer_ops_dispatcher<Context, float_t, task_t, method_t>()(ctx, desc, input);
+            infer_ops_dispatcher<Context, float_t, task_t, method_t>{}(ctx, desc, params, input);
         check_postconditions(desc, input, result);
         return result;
+    }
+
+    template <typename Context>
+    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
+        const auto params = select_parameters(ctx, desc, input);
+        return this->operator()(ctx, desc, params, input);
     }
 };
 
