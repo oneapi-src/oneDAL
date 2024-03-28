@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 
 
-<html lang="en" >
+<html >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Minkowski distance &#8212; oneDAL  documentation</title>
   
@@ -38,11 +38,12 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link rel="icon" href="../../../_static/favicons.png"/>
+    <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Chebyshev distance" href="chebyshev-distance.html" />
@@ -160,8 +161,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/cor_dense_online.html">cor_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/cov_dense_batch.html">cov_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/cov_dense_biased_batch.html">cov_dense_biased_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/cov_dense_biased_online.html">cov_dense_biased_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/cov_dense_online.html">cov_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/csr_accessor.html">csr_accessor.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/csr_table.html">csr_table.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/dbscan_brute_force_batch.html">dbscan_brute_force_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch_random.html">df_cls_hist_batch_random.cpp</a></li>
@@ -169,6 +173,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch_random.html">df_reg_hist_batch_random.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/df_reg_traverse_model.html">df_reg_traverse_model.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/heterogen_table.html">heterogen_table.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/homogen_table.html">homogen_table.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -180,8 +186,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/logistic_regression_dense_batch.html">logistic_regression_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_cov_dense_batch.html">pca_cov_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_cov_dense_online.html">pca_cov_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_precomputed_cor_dense_batch.html">pca_precomputed_cor_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_precomputed_cov_dense_batch.html">pca_precomputed_cov_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/pca_svd_dense_batch.html">pca_svd_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
 </ul>
@@ -194,13 +203,18 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/cor_dense_online.html">cor_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/cov_dense_batch.html">cov_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/cov_dense_biased_batch.html">cov_dense_biased_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/cov_dense_biased_online.html">cov_dense_biased_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/cov_dense_online.html">cov_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/csr_accessor.html">csr_accessor.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/csr_table.html">csr_table.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/dbscan_brute_force_batch.html">dbscan_brute_force_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/directed_graph.html">directed_graph.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/graph_service_functions.html">graph_service_functions.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/heterogen_table.html">heterogen_table.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/homogen_table.html">homogen_table.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/jaccard_batch.html">jaccard_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/jaccard_batch_app.html">jaccard_batch_app.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
@@ -213,9 +227,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/linear_regression_dense_online.html">linear_regression_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/logloss_dense_batch.html">logloss_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/louvain_batch.html">louvain_batch.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_dense_online.html">pca_dense_online.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cor_dense_online.html">pca_cor_dense_online.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cov_dense_batch.html">pca_cov_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_cov_dense_online.html">pca_cov_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_precomputed_dense_batch.html">pca_precomputed_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_svd_dense_batch.html">pca_svd_dense_batch.cpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/pca_svd_dense_online.html">pca_svd_dense_online.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/cpp/shortest_paths_batch.html">shortest_paths_batch.cpp</a></li>
@@ -299,44 +317,51 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/kernel-functions/sigmoid-kernel.html">Sigmoid kernel</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../onedal/algorithms/logistic-regression/index.html">Logistic Regression</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/linear-regression/index.html">Linear Regression</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/linear-regression/linear-regression.html">Linear Regression</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html">k-Nearest Neighbors Classification, Regression, and Search (k-NN)</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/objective-function/index.html">Objective function</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/objective-function/index.html">Objective function</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/objective-function/logloss.html">Logistic Loss</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/index.html">Pairwise Distances</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../onedal/algorithms/optimizers/index.html">Optimizers</a></li>
+
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/index.html">Pairwise Distances</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/minkowski-distance.html">Minkowski distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/chebyshev-distance.html">Chebyshev distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/cosine-distance.html">Cosine distance</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/statistics/index.html">Statistics</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/statistics/index.html">Statistics</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/statistics/basic-statistics.html">Basic Statistics</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/svm/index.html">Support Vector Machines</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../onedal/algorithms/svm/index.html">Support Vector Machines</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../onedal/spmd/index.html">Single Program Multiple Data</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../onedal/appendix/index.html">Appendix</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../onedal/appendix/index.html">Appendix</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-24"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../onedal/appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../onedal/appendix/kd_tree.html">k-d Tree</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../daal-interfaces.html">DAAL Interfaces</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-24"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../daal-interfaces.html">DAAL Interfaces</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-25"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../daal/cpu-vs-gpu.html">CPU and GPU Support</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/usage/index.html">Library Usage</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-25"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/usage/index.html">Library Usage</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-26"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/usage/algorithms.html">Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/usage/computation-modes.html">Computation Modes</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/usage/training-and-prediction/index.html">Training and Prediction</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-26"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/usage/training-and-prediction/index.html">Training and Prediction</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-27"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/usage/training-and-prediction/classification.html">Classification Usage Model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/usage/training-and-prediction/regression.html">Regression Usage Model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/usage/training-and-prediction/recommendation-systems.html">Recommendation Systems Usage Model</a></li>
@@ -344,8 +369,8 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/data-management/data-management.html">Data Management</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-27"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/data-management/numeric-tables.html">Numeric Tables</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-28"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/data-management/data-management.html">Data Management</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-28"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/data-management/numeric-tables.html">Numeric Tables</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-29"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/generic-interfaces.html">Generic Interfaces</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/essential-interfaces.html">Essential Interfaces for Algorithms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/data-management/numeric-tables-types.html">Types of Numeric Tables</a></li>
@@ -357,140 +382,140 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/data-management/data-model.html">Data Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/analysis.html">Analysis</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-29"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-30"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/analysis.html">Analysis</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-30"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-31"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/initialization-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/initialization-distributed.html">Distributed Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/computation-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/dbscan/index.html">Density-Based Spatial Clustering of Applications with Noise</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-31"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/dbscan/index.html">Density-Based Spatial Clustering of Applications with Noise</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-32"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/dbscan/computation-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/dbscan/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-32"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-33"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/covariance/computation-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/covariance/computation-online.html">Online Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/covariance/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/pca/principal-component-analysis.html">Principal Component Analysis</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-33"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/pca/principal-component-analysis.html">Principal Component Analysis</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-34"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/pca/computation-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/pca/computation-online.html">Online Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/pca/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/algorithms/pca/transform.html">Principal Components Analysis Transform</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/svd/singular-value-decomposition.html">Singular Value Decomposition</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-34"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/svd/singular-value-decomposition.html">Singular Value Decomposition</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-35"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/svd/computation-batch-online.html">Batch and Online Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/svd/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/association_rules/association-rules.html">Association Rules</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-35"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/association_rules/association-rules.html">Association Rules</a><input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-36"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/kernel_function/kernel-functions.html">Kernel Functions</a><input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-36"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/kernel_function/kernel-functions.html">Kernel Functions</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-37"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/em/expectation-maximization.html">Expectation-Maximization</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-37"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/em/expectation-maximization.html">Expectation-Maximization</a><input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-38"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/algorithms/cholesky/cholesky.html">Cholesky Decomposition</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/qr/qr-decomposition.html">QR Decomposition</a><input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-38"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/qr/qr-decomposition.html">QR Decomposition</a><input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-39"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/qr/qr-without-pivoting.html">QR Decomposition without Pivoting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/qr/qr-pivoted.html">Pivoted QR Decomposition</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/outlier_detection/index.html">Outlier Detection</a><input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-39"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/outlier_detection/index.html">Outlier Detection</a><input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-40"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/outlier_detection/multivariate.html">Multivariate Outlier Detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/outlier_detection/multivariate-bacon.html">Multivariate BACON Outlier Detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/outlier_detection/univariate.html">Univariate Outlier Detection</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/distance/index.html">Distance Matrix</a><input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-40"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/distance/index.html">Distance Matrix</a><input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-41"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distance/correlation.html">Correlation Distance Matrix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distance/cosine.html">Cosine Distance Matrix</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/distributions/index.html">Distributions</a><input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-41"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/distributions/index.html">Distributions</a><input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-42"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distributions/uniform.html">Uniform Distribution</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distributions/normal.html">Normal Distribution</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/distributions/bernoulli.html">Bernoulli Distribution</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/engines/index.html">Engines</a><input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-42"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/engines/index.html">Engines</a><input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-43"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/engines/mt19937.html">mt19937</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/engines/mcg59.html">mcg59</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/engines/mt2203.html">mt2203</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/moments/moments-of-low-order.html">Moments of Low Order</a><input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-43"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/moments/moments-of-low-order.html">Moments of Low Order</a><input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-44"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/moments/computation-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/moments/computation-online.html">Online Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/moments/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/algorithms/quantiles/index.html">Quantile</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/quality_metrics/index.html">Quality Metrics</a><input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-44"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/quality_metrics/index.html">Quality Metrics</a><input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-45"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/quality_metrics/default-metric-set.html">Working with the Default Metric Set</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/quality_metrics/user-defined.html">Working with User-defined Quality Metrics</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/algorithms/sorting/index.html">Sorting</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/normalization/index.html">Normalization</a><input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-45"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/normalization/index.html">Normalization</a><input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-46"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/normalization/z-score.html">Z-score</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/normalization/min-max.html">Min-max</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/optimization-solvers/optimization-solvers.html">Optimization Solvers</a><input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-46"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/optimization-solvers/optimization-solvers.html">Optimization Solvers</a><input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-47"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/optimization-solvers/objective-function.html">Objective Function</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/optimization-solvers/iterative-solver.html">Iterative Solver</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/training-prediction.html">Training and Prediction</a><input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-47"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/decision_forest/index.html">Decision Forest</a><input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-48"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/training-prediction.html">Training and Prediction</a><input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-48"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/decision_forest/index.html">Decision Forest</a><input class="toctree-checkbox" id="toctree-checkbox-49" name="toctree-checkbox-49" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-49"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_forest/decision-forest.html">Decision Forest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_forest/decision-forest-regression.html">Regression Decision Forest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_forest/decision-forest-classification.html">Classification Decision Forest</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/decision_tree/index.html">Decision Trees</a><input class="toctree-checkbox" id="toctree-checkbox-49" name="toctree-checkbox-49" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-49"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/decision_tree/index.html">Decision Trees</a><input class="toctree-checkbox" id="toctree-checkbox-50" name="toctree-checkbox-50" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-50"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_tree/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_tree/decision-tree-regression.html">Regression Decision Tree</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/decision_tree/decision-tree-classification.html">Classification Decision Tree</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/index.html">Gradient Boosted Trees</a><input class="toctree-checkbox" id="toctree-checkbox-50" name="toctree-checkbox-50" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-50"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/index.html">Gradient Boosted Trees</a><input class="toctree-checkbox" id="toctree-checkbox-51" name="toctree-checkbox-51" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-51"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/gradient-boosted-trees.html">Gradient Boosted Trees</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html">Regression Gradient Boosted Trees</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html">Classification Gradient Boosted Trees</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/stump/index.html">Stump</a><input class="toctree-checkbox" id="toctree-checkbox-51" name="toctree-checkbox-51" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-51"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/stump/index.html">Stump</a><input class="toctree-checkbox" id="toctree-checkbox-52" name="toctree-checkbox-52" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-52"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/stump/classification.html">Classification Stump</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/stump/regression.html">Regression Stump</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/index.html">Linear and Ridge Regressions</a><input class="toctree-checkbox" id="toctree-checkbox-52" name="toctree-checkbox-52" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-52"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/index.html">Linear and Ridge Regressions</a><input class="toctree-checkbox" id="toctree-checkbox-53" name="toctree-checkbox-53" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-53"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/linear-regression.html">Linear Regression</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/ridge-regression.html">Ridge Regression</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html">Linear and Ridge Regressions Computation</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a><input class="toctree-checkbox" id="toctree-checkbox-53" name="toctree-checkbox-53" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-53"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/index.html">LASSO and Elastic Net Regressions</a><input class="toctree-checkbox" id="toctree-checkbox-54" name="toctree-checkbox-54" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-54"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/lasso.html">LASSO</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/elastic-net.html">Elastic Net</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/lasso-elasticnet-computation.html">LASSO and Elastic Net Computation</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-54" name="toctree-checkbox-54" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-54"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-55" name="toctree-checkbox-55" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-55"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a><input class="toctree-checkbox" id="toctree-checkbox-55" name="toctree-checkbox-55" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-55"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a><input class="toctree-checkbox" id="toctree-checkbox-56" name="toctree-checkbox-56" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-56"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/implicit_als/initialization-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/implicit_als/initialization-distributed.html">Distributed Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/implicit_als/computation-batch.html">Batch Processing</a></li>
@@ -498,22 +523,22 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/implicit_als/computation-distributed-prediction.html">Distributed Processing: Prediction of Ratings</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/logistic_regression/logistic-regression.html">Logistic Regression</a><input class="toctree-checkbox" id="toctree-checkbox-56" name="toctree-checkbox-56" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-56"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/logistic_regression/logistic-regression.html">Logistic Regression</a><input class="toctree-checkbox" id="toctree-checkbox-57" name="toctree-checkbox-57" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-57"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-57" name="toctree-checkbox-57" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-57"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-58" name="toctree-checkbox-58" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-58"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/naive_bayes/computation-batch.html">Batch Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/naive_bayes/computation-online.html">Online Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/naive_bayes/computation-distributed.html">Distributed Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/svm/support-vector-machine-classifier.html">Support Vector Machine Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-58" name="toctree-checkbox-58" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-58"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/svm/support-vector-machine-classifier.html">Support Vector Machine Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-59" name="toctree-checkbox-59" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-59"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/svm_multi_class/multi-class-classifier.html">Multi-class Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-59" name="toctree-checkbox-59" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-59"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/svm_multi_class/multi-class-classifier.html">Multi-class Classifier</a><input class="toctree-checkbox" id="toctree-checkbox-60" name="toctree-checkbox-60" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-60"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/boosting/index.html">Boosting</a><input class="toctree-checkbox" id="toctree-checkbox-60" name="toctree-checkbox-60" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-60"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../daal/algorithms/boosting/index.html">Boosting</a><input class="toctree-checkbox" id="toctree-checkbox-61" name="toctree-checkbox-61" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-61"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/boosting/adaboost.html">AdaBoost Classifier</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/boosting/adaboost-multiclass.html">AdaBoost Multiclass Classifier</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/boosting/brownboost.html">BrownBoost Classifier</a></li>
@@ -522,7 +547,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/services/services.html">Services</a><input class="toctree-checkbox" id="toctree-checkbox-61" name="toctree-checkbox-61" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-61"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../daal/services/services.html">Services</a><input class="toctree-checkbox" id="toctree-checkbox-62" name="toctree-checkbox-62" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-62"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/services/extracting-version-information.html">Extracting Version Information</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/services/handling-errors.html">Handling Errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/services/managing-memory.html">Managing Memory</a></li>
@@ -537,93 +562,105 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Reference</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-62" name="toctree-checkbox-62" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-62"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../data-management/index.html">Data Management</a><input class="toctree-checkbox" id="toctree-checkbox-63" name="toctree-checkbox-63" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-63"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">C++ API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-63" name="toctree-checkbox-63" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-63"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../data-management/index.html">Data Management</a><input class="toctree-checkbox" id="toctree-checkbox-64" name="toctree-checkbox-64" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-64"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../data-management/array.html">Array</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/accessors.html">Accessors</a><input class="toctree-checkbox" id="toctree-checkbox-64" name="toctree-checkbox-64" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-64"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/accessors.html">Accessors</a><input class="toctree-checkbox" id="toctree-checkbox-65" name="toctree-checkbox-65" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-65"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/accessor/column.html">Column Accessor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/accessor/csr.html">Compressed Sparse Rows (CSR) Accessor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/accessor/row.html">Row Accessor</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/data-sources.html">Data Sources</a><input class="toctree-checkbox" id="toctree-checkbox-65" name="toctree-checkbox-65" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-65"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/data-sources.html">Data Sources</a><input class="toctree-checkbox" id="toctree-checkbox-66" name="toctree-checkbox-66" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-66"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/data-source/csv.html">CSV data source</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/graphs.html">Graphs</a><input class="toctree-checkbox" id="toctree-checkbox-66" name="toctree-checkbox-66" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-66"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/graphs.html">Graphs</a><input class="toctree-checkbox" id="toctree-checkbox-67" name="toctree-checkbox-67" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-67"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/graph/undirected-adjacency-vector-graph.html">Undirected adjacency vector graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/graph/directed-adjacency-vector-graph.html">Directed adjacency vector graph</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/graph-service.html">Graph Service</a><input class="toctree-checkbox" id="toctree-checkbox-67" name="toctree-checkbox-67" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-67"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/graph-service.html">Graph Service</a><input class="toctree-checkbox" id="toctree-checkbox-68" name="toctree-checkbox-68" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-68"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/graph-service/undirected-adjacency-vector-graph.html">Undirected adjacency vector graph service</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/graph-service/directed-adjacency-vector-graph.html">Directed adjacency vector graph service</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/tables.html">Tables</a><input class="toctree-checkbox" id="toctree-checkbox-68" name="toctree-checkbox-68" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-68"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../data-management/tables.html">Tables</a><input class="toctree-checkbox" id="toctree-checkbox-69" name="toctree-checkbox-69" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-69"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/table/homogen.html">Homogeneous table</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../data-management/table/csr.html">Compressed Sparse Rows (CSR) Table</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Algorithms</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-69" name="toctree-checkbox-69" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-69"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 has-children"><a class="reference internal" href="../clustering/index.html">Clustering</a><input class="toctree-checkbox" id="toctree-checkbox-70" name="toctree-checkbox-70" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-70"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Algorithms</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-70" name="toctree-checkbox-70" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-70"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../clustering/index.html">Clustering</a><input class="toctree-checkbox" id="toctree-checkbox-71" name="toctree-checkbox-71" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-71"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../clustering/dbscan.html">DBSCAN</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../clustering/kmeans.html">K-Means</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../clustering/kmeans-init.html">K-Means initialization</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../covariance/index.html">Covariance</a><input class="toctree-checkbox" id="toctree-checkbox-71" name="toctree-checkbox-71" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-71"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../covariance/index.html">Covariance</a><input class="toctree-checkbox" id="toctree-checkbox-72" name="toctree-checkbox-72" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-72"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../covariance/covariance.html">Covariance</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../decomposition/index.html">Decomposition</a><input class="toctree-checkbox" id="toctree-checkbox-72" name="toctree-checkbox-72" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-72"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../decomposition/index.html">Decomposition</a><input class="toctree-checkbox" id="toctree-checkbox-73" name="toctree-checkbox-73" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-73"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../ensembles/index.html">Ensembles</a><input class="toctree-checkbox" id="toctree-checkbox-73" name="toctree-checkbox-73" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-73"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../ensembles/index.html">Ensembles</a><input class="toctree-checkbox" id="toctree-checkbox-74" name="toctree-checkbox-74" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-74"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../graph/index.html">Graph</a><input class="toctree-checkbox" id="toctree-checkbox-74" name="toctree-checkbox-74" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-74"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../graph/index.html">Graph</a><input class="toctree-checkbox" id="toctree-checkbox-75" name="toctree-checkbox-75" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-75"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../graph/subgraph-isomorphism.html">Subgraph Isomorphism</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../graph/connected-components.html">Connected Components</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../kernel-functions/index.html">Kernel Functions</a><input class="toctree-checkbox" id="toctree-checkbox-75" name="toctree-checkbox-75" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-75"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../kernel-functions/index.html">Kernel Functions</a><input class="toctree-checkbox" id="toctree-checkbox-76" name="toctree-checkbox-76" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-76"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../kernel-functions/linear-kernel.html">Linear kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernel-functions/sigmoid-kernel.html">Sigmoid kernel</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><input class="toctree-checkbox" id="toctree-checkbox-76" name="toctree-checkbox-76" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-76"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../logistic-regression/index.html">Logistic Regression</a><input class="toctree-checkbox" id="toctree-checkbox-77" name="toctree-checkbox-77" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-77"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../logistic-regression/logistic-regression.html">Logistic Regression</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../linear-regression/index.html">Linear Regression</a><input class="toctree-checkbox" id="toctree-checkbox-78" name="toctree-checkbox-78" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-78"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../linear-regression/linear-regression.html">Linear Regression</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><input class="toctree-checkbox" id="toctree-checkbox-79" name="toctree-checkbox-79" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-79"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../objective-function/index.html">Objective function</a><input class="toctree-checkbox" id="toctree-checkbox-77" name="toctree-checkbox-77" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-77"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../optimizers/index.html">Optimizers</a><input class="toctree-checkbox" id="toctree-checkbox-80" name="toctree-checkbox-80" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-80"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../optimizers/newton-cg.html">Newton-CG Optimizer</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../objective-function/index.html">Objective function</a><input class="toctree-checkbox" id="toctree-checkbox-81" name="toctree-checkbox-81" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-81"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../objective-function/objective-function.html">Objective function</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../objective-function/logloss.html">Logistic Loss</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Pairwise Distances</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-78" name="toctree-checkbox-78" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-78"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Pairwise Distances</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-82" name="toctree-checkbox-82" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-82"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">Minkowski distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="chebyshev-distance.html">Chebyshev distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="cosine-distance.html">Cosine distance</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../statistics/index.html">Statistics</a><input class="toctree-checkbox" id="toctree-checkbox-79" name="toctree-checkbox-79" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-79"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../statistics/index.html">Statistics</a><input class="toctree-checkbox" id="toctree-checkbox-83" name="toctree-checkbox-83" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-83"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../statistics/basic-statistics.html">Basic Statistics</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../svm/index.html">Support Vector Machines</a><input class="toctree-checkbox" id="toctree-checkbox-80" name="toctree-checkbox-80" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-80"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../svm/index.html">Support Vector Machines</a><input class="toctree-checkbox" id="toctree-checkbox-84" name="toctree-checkbox-84" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-84"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../spmd/index.html">Distributed Model: Single Process Multiple Data</a><input class="toctree-checkbox" id="toctree-checkbox-81" name="toctree-checkbox-81" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-81"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../spmd/index.html">Distributed Model: Single Process Multiple Data</a><input class="toctree-checkbox" id="toctree-checkbox-85" name="toctree-checkbox-85" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-85"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../spmd/overview.html">Distributed SPMD model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../spmd/communicator.html">Communicators</a></li>
 </ul>
@@ -801,12 +838,17 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="minkowski-distance">
-<span id="api-minkowski-distance"></span><h1>Minkowski distance<a class="headerlink" href="#minkowski-distance" title="Permalink to this heading">#</a></h1>
+<span id="api-minkowski-distance"></span><h1>Minkowski distance<a class="headerlink" href="#minkowski-distance" title="Permalink to this headline">#</a></h1>
 <p>The Minkowski distances are the set of distance metrics with different degree
 <span class="math notranslate nohighlight">\((p &gt; 0)\)</span> and are widely used for distance computation in different algorithms.
 The most commonly used distance metric, Euclidean distance, is also a Minkowski
 distance with <span class="math notranslate nohighlight">\(p = 2.0\)</span>.</p>
 <table class="table">
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 41%" />
+<col style="width: 24%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><strong>Operation</strong></p></td>
 <td colspan="2"><p><strong>Computational  methods</strong></p></td>
@@ -818,20 +860,20 @@ distance with <span class="math notranslate nohighlight">\(p = 2.0\)</span>.</p>
 </tbody>
 </table>
 <section id="mathematical-formulation">
-<h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this heading">#</a></h2>
+<h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">#</a></h2>
 <p>Refer to <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/minkowski-distance.html#alg-minkowski-distance"><span class="std std-ref">Developer Guide: Minkowski distance</span></a>.</p>
 </section>
 <section id="programming-interface">
-<h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this heading">#</a></h2>
+<h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">#</a></h2>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal::minkowski_distance</span></code> namespace.</p>
 <section id="descriptor">
-<h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this heading">#</a></h3>
+<h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this headline">#</a></h3>
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE">
 <span id="_CPPv3I000EN6oneapi3dal18minkowski_distance10descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal18minkowski_distance10descriptorE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Float</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="kt"><span class="pre">float</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Method</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal18minkowski_distance6method10by_defaultE" title="oneapi::dal::minkowski_distance::method::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Task</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N6oneapi3dal18minkowski_distance4task10by_defaultE" title="oneapi::dal::minkowski_distance::task::by_default"><span class="n"><span class="pre">by_default</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">descriptor</span></span></span><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="Permalink to this definition">#</a><br /></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <span class="cpp-expr sig sig-inline cpp"><span class="kt">float</span></span> or <span class="cpp-expr sig sig-inline cpp"><span class="kt">double</span></span>.</p></li>
 <li><p><strong>Method</strong> – Tag-type that specifies an the implementation of the algorithm. Can be <span class="cpp-expr sig sig-inline cpp"><span class="n">method</span><span class="p">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal18minkowski_distance6method5denseE" title="oneapi::dal::minkowski_distance::method::dense"><span class="n">dense</span></a></span>.</p></li>
@@ -869,7 +911,7 @@ distance with <span class="math notranslate nohighlight">\(p = 2.0\)</span>.</p>
 </dd></dl>
 
 <section id="method-tags">
-<h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this heading">#</a></h4>
+<h4>Method tags<a class="headerlink" href="#method-tags" title="Permalink to this headline">#</a></h4>
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18minkowski_distance6method5denseE">
 <span id="_CPPv3N6oneapi3dal18minkowski_distance6method5denseE"></span><span id="_CPPv2N6oneapi3dal18minkowski_distance6method5denseE"></span><span id="oneapi::dal::minkowski_distance::method::dense"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dense</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal18minkowski_distance6method5denseE" title="Permalink to this definition">#</a><br /></dt>
@@ -883,7 +925,7 @@ distance with <span class="math notranslate nohighlight">\(p = 2.0\)</span>.</p>
 
 </section>
 <section id="task-tags">
-<h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this heading">#</a></h4>
+<h4>Task tags<a class="headerlink" href="#task-tags" title="Permalink to this headline">#</a></h4>
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv4N6oneapi3dal18minkowski_distance4task7computeE">
 <span id="_CPPv3N6oneapi3dal18minkowski_distance4task7computeE"></span><span id="_CPPv2N6oneapi3dal18minkowski_distance4task7computeE"></span><span id="oneapi::dal::minkowski_distance::task::compute"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute</span></span></span><a class="headerlink" href="#_CPPv4N6oneapi3dal18minkowski_distance4task7computeE" title="Permalink to this definition">#</a><br /></dt>
@@ -991,7 +1033,7 @@ distance with <span class="math notranslate nohighlight">\(p = 2.0\)</span>.</p>
   <div class="footer-item">
     
 <div class="extra_footer">
-  <div><a href='https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html' data-cookie-notice='true'>Cookies</a> <a href='https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html'>| Privacy</a> <a data-wap_ref='dns' id='wap_dns' href='https://www.intel.com/content/www/us/en/privacy/intel-cookie- notice.html'>| Do Not Share My Personal Information</a> </div><div>&copy; Intel Corporation. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may be claimed as the property of others. No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document, with the sole exception that code included in this document is licensed subject to the Zero-Clause BSD open source license (OBSD), <a href='http://opensource.org/licenses/0BSD'>http://opensource.org/licenses/0BSD</a>. </div><br><div>oneDAL is licensed under Apache License Version 2.0. Refer to the <a href='https://github.com/oneapi-src/oneDAL/blob/master/LICENSE'>LICENSE </a> file for the full license text and copyright notice.</div>
+  <div><a href='https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html' data-cookie-notice='true'>Cookies</a> <a href='https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html'>| Privacy</a> <a data-wap_ref='dns' id='wap_dns' href='https://www.intel.com/content/www/us/en/privacy/intel-cookie- notice.html'>| Do Not Share My Personal Information</a> </div><div>&copy; Intel Corporation. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may be claimed as the property of others. No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document, with the sole exception that code included in this document is licensed subject to the Zero-Clause BSD open source license (OBSD), <a href='http://opensource.org/licenses/0BSD'>http://opensource.org/licenses/0BSD</a>. </div><br><div>oneDAL is licensed under Apache License Version 2.0. Refer to the <a href='https://github.com/oneapi-src/oneDAL/blob/main/LICENSE'>LICENSE </a> file for the full license text and copyright notice.</div>
 </div>
   </div>
   
