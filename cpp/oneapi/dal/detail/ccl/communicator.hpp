@@ -325,6 +325,14 @@ public:
         return default_root_;
     }
 
+    bool get_mpi_gpu_support() override {
+        auto ccl_backend = ccl::get_library_version().cl_backend_name;
+        if (ccl_backend == "DPCPP") {
+            return true;
+        }
+        return false;
+    }
+
     void barrier() override {
         ccl::barrier(host_comm_->get_ref()).wait();
     }
