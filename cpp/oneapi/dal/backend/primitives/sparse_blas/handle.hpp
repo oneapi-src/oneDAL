@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,5 +16,26 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
-#include "oneapi/dal/backend/primitives/objective_function/logloss_functors.hpp"
+#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/detail/sparse_matrix_handle_impl.hpp"
+
+namespace oneapi::dal::backend::primitives {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+/// Handle that is used to store the information about the data in starse format
+class sparse_matrix_handle {
+    friend dal::detail::pimpl_accessor;
+
+public:
+    sparse_matrix_handle(sycl::queue& queue);
+
+private:
+    dal::detail::pimpl<dal::detail::sparse_matrix_handle_impl> impl_;
+};
+
+#endif // ONEDAL_DATA_PARALLEL
+
+} // namespace oneapi::dal::backend::primitives

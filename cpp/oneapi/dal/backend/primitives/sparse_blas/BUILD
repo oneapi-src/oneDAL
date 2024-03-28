@@ -5,13 +5,28 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "objective_function",
+    name = "sparse_blas",
     auto = True,
     dal_deps = [
+        "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:blas",
-        "@onedal//cpp/oneapi/dal/backend/primitives/optimizers",
-        "@onedal//cpp/oneapi/dal/backend/primitives:sparse_blas",
+    ],
+)
+
+dal_test_suite(
+    name = "perf_tests",
+    framework = "catch2",
+    compile_as = [ "dpc++" ],
+    private = True,
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
+    srcs = glob([
+        "test/*perf_dpc.cpp",
+    ]),
+    dal_deps = [
+        ":sparse_blas",
     ],
 )
 
@@ -29,20 +44,6 @@ dal_test_suite(
         "test/*perf*.cpp",
     ]),
     dal_deps = [
-        ":objective_function",
-        "@onedal//cpp/oneapi/dal/backend/primitives:rng",
-    ],
-)
-
-dal_test_suite(
-    name = "perf_tests",
-    framework = "catch2",
-    compile_as = [ "dpc++" ],
-    private = True,
-    srcs = glob([
-        "test/*perf_dpc.cpp",
-    ]),
-    dal_deps = [
-        ":objective_function",
+        ":sparse_blas",
     ],
 )
