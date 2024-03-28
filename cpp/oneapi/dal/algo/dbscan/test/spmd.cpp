@@ -107,11 +107,11 @@ public:
 
         const auto compute_result_batch =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data);
-        INFO("check references")
+        INFO("check references");
         this->check_if_close(joined_result.get_core_flags(),
                              compute_result_batch.get_core_flags(),
                              "Cores");
-        INFO("check references")
+        INFO("check references");
         this->check_if_close(joined_result.get_responses(),
                              compute_result_batch.get_responses(),
                              "responses");
