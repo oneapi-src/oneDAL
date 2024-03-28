@@ -46,11 +46,11 @@ void run(sycl::queue &queue) {
     dal::dbscan::compute_input local_input{ input_vec[rank_id], dal::table() };
     const auto result_compute = dal::preview::compute(comm, dbscan_desc, local_input);
 
-    auto final_responces = combine_tables(comm, result_compute.get_responses());
+    auto final_responses = combine_tables(comm, result_compute.get_responses());
 
     if (comm.get_rank() == 0) {
         std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;
-        std::cout << "Responses:\n" << final_responces << std::endl;
+        std::cout << "Responses:\n" << final_responses << std::endl;
     }
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,17 +16,23 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/utils.hpp"
-#include "oneapi/dal/algo/dbscan/compute_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/detail/global_context.hpp"
 
-namespace oneapi::dal::dbscan::backend {
+namespace oneapi::dal::detail {
+namespace v1 {
 
-template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
+class global_context_impl : public global_context_iface {
+public:
+    global_context_impl();
+
+    const cpu_info_iface &get_cpu_info() const {
+        return cpu_info_;
+    }
+
+private:
+    detail::cpu_info cpu_info_;
 };
 
-} // namespace oneapi::dal::dbscan::backend
+} // namespace v1
+using v1::global_context_impl;
+} // namespace oneapi::dal::detail
