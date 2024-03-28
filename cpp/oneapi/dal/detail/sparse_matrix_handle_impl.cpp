@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,16 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/detail/sparse_matrix_handle_impl.hpp"
 
-#include "oneapi/dal/backend/common.hpp"
+namespace oneapi::dal::detail {
 
-namespace oneapi::dal::backend::primitives {
+namespace v1 {
 
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
-};
+#ifdef ONEDAL_DATA_PARALLEL
 
-} // namespace oneapi::dal::backend::primitives
+sparse_matrix_handle_impl::sparse_matrix_handle_impl(sycl::queue& queue) : queue_(queue) {
+    mkl::sparse::init_matrix_handle(&handle_);
+}
+
+sparse_matrix_handle_impl::~sparse_matrix_handle_impl() {
+    mkl::sparse::release_matrix_handle(queue_, &handle_, {}).wait();
+}
+
+#endif // ONEDAL_DATA_PARALLEL
+
+} // namespace v1
+} // namespace oneapi::dal::detail

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,16 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 
-#include "oneapi/dal/backend/common.hpp"
+namespace oneapi::dal::backend::primitives::test {
 
-namespace oneapi::dal::backend::primitives {
+TEST("can construct sparse matrix handle") {
+    DECLARE_TEST_POLICY(policy);
+    // DPC++ Sparse BLAS from micro MKL libs is not supported on CPU
+    SKIP_IF(policy.is_cpu());
 
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
-};
+    try {
+        sparse_matrix_handle h(policy.get_queue());
+    }
+    catch(...) {
+        REQUIRE(false);
+    }
+    SUCCEED();
+}
 
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend::primitives::test
