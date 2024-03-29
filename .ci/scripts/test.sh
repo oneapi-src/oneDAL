@@ -16,45 +16,53 @@
 # limitations under the License.
 #===============================================================================
 
+# Obtain platform, OS and arch details automatically
+PLATFORM=$(bash dev/make/identify_os.sh)
+OS=${PLATFORM::3}
+ARCH=${PLATFORM:3:3}
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
         --test-kind)
         TEST_KIND="$2"
-        ;;
+        shift;;
         --build-dir)
         BUILD_DIR="$2"
-        ;;
+        shift;;
         --compiler)
         compiler="$2"
-        ;;
+        shift;;
         --interface)
         interface="$2"
-        ;;
+        shift;;
         --conda-env)
         conda_env="$2"
-        ;;
+        shift;;
         --build_system)
         build_system="$2"
-        ;;
+        shift;;
         --backend)
         backend="$2"
+        shift;;
+        --cross_compile)
+        cross_compile="yes"
         ;;
+        --arch)
+        ARCH="$2"
+        shift;;
         *)
         echo "Unknown option: $1"
         exit 1
         ;;
     esac
     shift
-    shift
 done
 
 #Global exit code for testing script
 TESTING_RETURN=0
-PLATFORM=$(bash dev/make/identify_os.sh)
-OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
+
 if [ "$ARCH" == "32e" ]; then
     full_arch=intel64
     arch_dir=intel_intel64
@@ -97,19 +105,37 @@ else
 fi
 
 #setup env for DAL
+if [ "${ARCH}" == "arm" ]; then
+    export ARCH_ONEDAL=aarch64
+fi
 source ${BUILD_DIR}/daal/latest/env/vars.sh
 
 #setup env for TBB
-export TBBROOT=$(pwd)/__deps/tbb/${OS}
+# Check if path exists
+tbb_root_path=$(pwd)/__deps/tbb/${OS}
+if [[ -e $tbb_root_path ]]; then
+    export TBBROOT=$tbb_root_path
+else
+    export TBBROOT=$(pwd)/__deps/tbb
+fi
+
+# Check if path exists
+tbb_dir_path=${TBBROOT}/lib/cmake/tbb
+if [[ -e $tbb_dir_path ]]; then
+    export TBB_DIR=$tbb_dir_path
+else
+    export TBB_DIR=${TBBROOT}/lib/cmake/TBB
+fi
 export CPATH=${TBBROOT}/include:$CPATH
-export CMAKE_MODULE_PATH=${TBBROOT}/lib/cmake/tbb:${CMAKE_MODULE_PATH}
+export CMAKE_MODULE_PATH=${TBB_DIR}:${CMAKE_MODULE_PATH}
+export TOOLCHAIN_FOLDER=$(pwd)/.ci/env
 
 if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
     export LIBRARY_PATH=${TBBROOT}/lib:${LIBRARY_PATH}
 else
-    export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
-    export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LD_LIBRARY_PATH}
+    export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${TBBROOT}/lib:${LIBRARY_PATH}
 fi
 
 interface=${interface:-daal/cpp}
@@ -138,12 +164,23 @@ for link_mode in ${link_modes}; do
             export CC=icx
             export CXX=icpx
         fi
-        echo "============== Configuration: =============="
-        echo Compiler:  ${compiler}
-        echo Link mode: ${link_mode}
-        echo CC: ${CC}
-        echo CXX: ${CXX}
-        echo "============================================"
+
+        if [ "${cross_compile}" == "yes" ]; then
+            unset CXX
+            unset CC
+            echo "============== Configuration: =============="
+            echo Compiler:  ${compiler}
+            echo Link mode: ${link_mode}
+            echo Using Cross-compiler.
+            echo "============================================"
+        else
+            echo "============== Configuration: =============="
+            echo Compiler:  ${compiler}
+            echo Link mode: ${link_mode}
+            echo CC: ${CC}
+            echo CXX: ${CXX}
+            echo "============================================"
+        fi
 
         if [ -d "Build" ]; then
             rm -rf Build/*
@@ -156,7 +193,14 @@ for link_mode in ${link_modes}; do
             ref_backend="ON"
         fi
 
-        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb -DREF_BACKEND=${ref_backend}
+        if [ "${cross_compile}" == "yes" ]; then
+            if [ "${ARCH}" == "arm" ]; then
+                cmake -B Build -S . -G "Unix Makefiles" -DCMAKE_HOST_SYSTEM_PROCESSOR=aarch64 -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FOLDER}/arm-gcc-crosscompile-toolchain.cmake -DCMAKE_PREFIX_PATH=${TBBROOT} -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBB_DIR} -DREF_BACKEND=${ref_backend} -DOUTPUT_DIR=arm
+            fi
+        else
+            cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBB_DIR} -DREF_BACKEND=${ref_backend}
+        fi
+
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
@@ -175,7 +219,11 @@ for link_mode in ${link_modes}; do
         cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
         for p in ${cmake_results_dir}/*; do
             e=$(basename "$p")
-            ${p} 2>&1 > ${e}.res
+            if [ "${ARCH}" == "arm" ] && [ "${cross_compile}" == "yes" ]; then
+                qemu-aarch64-static -L /usr/aarch64-linux-gnu/ ${p} 2>&1 > ${e}.res
+            else
+                ${p} 2>&1 > ${e}.res
+            fi
             err=$?
             output_result=$(cat ${e}.res)
             mv -f ${e}.res ${cmake_results_dir}/

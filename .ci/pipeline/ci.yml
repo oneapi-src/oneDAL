@@ -120,6 +120,22 @@ jobs:
     displayName: 'Uploading on fail'
     condition: failed()
     continueOnError: true
+  - script: |
+      .ci/env/apt.sh arm-emulator
+    displayName: 'arm-emulator installation'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build_system cmake --backend ref --cross_compile --arch arm
+    displayName: 'daal/cpp examples'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build_system cmake --backend ref --cross_compile --arch arm
+    displayName: 'oneapi/cpp examples'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
 
 - job: 'LinuxMakeGNU_OpenBLAS_x86'
   timeoutInMinutes: 0

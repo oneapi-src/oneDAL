@@ -58,6 +58,11 @@ function install_arm-cross-compilers {
     sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gfortran-aarch64-linux-gnu
 }
 
+function install_arm-emulator {
+    sudo apt-get install -y libc6-dev-arm64-cross
+    sudo apt-get install -y qemu qemu-user-static
+}
+
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
@@ -67,6 +72,9 @@ elif [ "${component}" == "mkl" ]; then
 elif [ "${component}" == "arm-compiler" ]; then
     update
     install_arm-cross-compilers
+elif [ "${component}" == "arm-emulator" ]; then
+    update
+    install_arm-emulator
 elif [ "${component}" == "clang-format" ]; then
     update
     install_clang-format

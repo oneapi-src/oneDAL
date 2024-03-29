@@ -115,13 +115,3 @@ make install
 popd
 popd
 rm -rf onetbb-src
-
-pushd __deps/tbb
-    mkdir -p lnx
-    mv lib/ lnx/
-    mv include/ lnx/ 
-    pushd lnx
-        mkdir -p lib/${arch_dir}/gcc4.8
-        mv lib/libtbb* lib/${arch_dir}/gcc4.8
-    popd
-popd 
