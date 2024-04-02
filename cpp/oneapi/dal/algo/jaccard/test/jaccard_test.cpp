@@ -211,7 +211,7 @@ public:
         const auto jaccard_coeffs_data = coeffs.get_data<float>();
         int correct_coeff_count = 0;
         for (std::int64_t i = 0; i < nonzero_coeff_count; i++) {
-            if (Approx(jaccard_coeffs_data[i]) == correct_jaccard_coeffs[i])
+            if (Catch::Approx(jaccard_coeffs_data[i]) == correct_jaccard_coeffs[i])
                 correct_coeff_count++;
         }
         REQUIRE(correct_coeff_count == nonzero_coeff_count);

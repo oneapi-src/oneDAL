@@ -15,17 +15,21 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/dbscan/backend/gpu/data_keeper.hpp"
 #include "oneapi/dal/algo/dbscan/backend/gpu/results.hpp"
 
 #include "oneapi/dal/detail/profiler.hpp"
+
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
+
+namespace oneapi::dal::dbscan::backend {
 
 namespace bk = oneapi::dal::backend;
 namespace pr = oneapi::dal::backend::primitives;
 namespace spmd = oneapi::dal::preview::spmd;
 namespace de = oneapi::dal::detail;
-
-namespace oneapi::dal::dbscan::backend {
 
 using dal::backend::context_gpu;
 
@@ -41,78 +45,217 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto& comm = ctx.get_communicator();
     auto& queue = ctx.get_queue();
 
-    std::int64_t rank = comm.get_rank();
     std::int64_t rank_count = comm.get_rank_count();
 
-    data_keeper<Float> keeper(ctx);
-    keeper.init(local_data, local_weights);
+    auto current_rank = comm.get_rank();
 
-    const std::int64_t block_size = keeper.get_block_size();
-    const std::int64_t block_start = keeper.get_block_start();
-    const std::int64_t block_end = block_start + block_size;
-    const std::int64_t row_count = keeper.get_row_count();
-    auto arr_data = keeper.get_data();
-    auto arr_weights = keeper.get_weights();
+    auto prev_node = (current_rank - 1 + rank_count) % rank_count;
+    auto next_node = (current_rank + 1) % rank_count;
 
-    const double epsilon = desc.get_epsilon() * desc.get_epsilon();
+    const std::int64_t local_row_count = local_data.get_row_count();
+    const std::int64_t column_count = local_data.get_column_count();
+
+    std::int64_t global_row_count = local_row_count;
+
+    // It's necessary for correct sendrecv_replace loop work, due
+    // to all blocks should have the same sizes
+    std::int64_t max_local_block_size = local_row_count;
+    {
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global, queue);
+        comm.allreduce(max_local_block_size, spmd::reduce_op::max).wait();
+    }
+
+    auto send_recv_replace_local_size = array<std::int64_t>::zeros(1);
+    send_recv_replace_local_size.get_mutable_data()[0] = local_row_count;
+
+    auto global_rank_offsets = array<std::int64_t>::zeros(rank_count);
+    global_rank_offsets.get_mutable_data()[current_rank] = local_row_count;
+    {
+        ONEDAL_PROFILER_TASK(allreduce_recv_counts, queue);
+        comm.allreduce(global_rank_offsets, spmd::reduce_op::sum).wait();
+    }
+    {
+        ONEDAL_PROFILER_TASK(allreduce_rows_count_global, queue);
+        comm.allreduce(global_row_count, spmd::reduce_op::sum).wait();
+    }
+
+    std::int64_t local_offset = 0;
+
+    for (std::int64_t i = 0; i < current_rank; i++) {
+        ONEDAL_ASSERT(global_rank_offsets.get_data()[i] >= 0);
+        local_offset += global_rank_offsets.get_data()[i];
+    }
+
+    const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
+
+    pr::ndarray<Float, 2> data_nd_replace;
+    if (rank_count > 1) {
+        auto data_copy_count = column_count * local_row_count;
+        data_nd_replace = pr::ndarray<Float, 2>::empty(queue,
+                                                       { max_local_block_size, column_count },
+                                                       sycl::usm::alloc::device);
+        bk::copy(queue, data_nd_replace.get_mutable_data(), data_nd.get_data(), data_copy_count, {})
+            .wait_and_throw();
+    }
+
+    bool use_weights = false;
+    if (local_weights.get_row_count() == data_nd.get_dimension(0)) {
+        use_weights = true;
+    }
+
+    pr::ndarray<Float, 2> weights_nd;
+    if (use_weights) {
+        weights_nd = pr::table2ndarray<Float>(queue, local_weights, sycl::usm::alloc::device);
+    }
+
+    pr::ndarray<Float, 2> weights_nd_replace;
+    if (rank_count > 1 && use_weights) {
+        auto weights_copy_count = 1 * local_row_count;
+        weights_nd_replace = pr::ndarray<Float, 2>::empty(queue,
+                                                          { max_local_block_size, 1 },
+                                                          sycl::usm::alloc::device);
+        bk::copy(queue,
+                 weights_nd_replace.get_mutable_data(),
+                 weights_nd.get_data(),
+                 weights_copy_count,
+                 {})
+            .wait_and_throw();
+    }
+    const Float epsilon = desc.get_epsilon() * desc.get_epsilon();
     const std::int64_t min_observations = desc.get_min_observations();
 
+    // array indicates if the point is a core or not
     auto [arr_cores, cores_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, block_size, 0, sycl::usm::alloc::device);
+        pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
+
+    // array stores the information about neighbours of the point
+    auto [arr_neighbours, neighbours_event] =
+        pr::ndarray<Float, 1>::full(queue, local_row_count, 0, sycl::usm::alloc::device);
+
+    // array stores the information about neighbours of the point
     auto [arr_responses, responses_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, block_size, -1, sycl::usm::alloc::device);
-    auto [arr_queue, queue_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
-    auto [arr_queue_front, queue_front_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, local_row_count, -1, sycl::usm::alloc::device);
+
+    // array stores the information about which point are core neighbours in the current step
+    auto [observation_indices, observation_indices_event] =
+        pr::ndarray<bool, 1>::full(queue, local_row_count, false, sycl::usm::alloc::device);
+
+    // array stores the information about total count of the points in queue
+    auto [total_points_queue_size_arr, total_points_queue_size_event] =
         pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
 
-    sycl::event::wait({ cores_event, responses_event, queue_event, queue_front_event });
+    // array stores the information about count of the local points in queue
+    auto [local_points_queue_size_arr, local_points_queue_size_event] =
+        pr::ndarray<std::int32_t, 1>::full(queue, 1, 0, sycl::usm::alloc::device);
+    sycl::event::wait({ cores_event,
+                        neighbours_event,
+                        responses_event,
+                        observation_indices_event,
+                        total_points_queue_size_event,
+                        local_points_queue_size_event });
 
-    kernels_fp<Float>::get_cores(queue,
-                                 arr_data,
-                                 arr_weights,
-                                 arr_cores,
-                                 epsilon,
-                                 min_observations,
-                                 block_start,
-                                 block_end)
-        .wait_and_throw();
+    auto get_cores_event = kernels_fp<Float>::get_cores(queue,
+                                                        data_nd,
+                                                        weights_nd,
+                                                        arr_cores,
+                                                        arr_neighbours,
+                                                        epsilon,
+                                                        min_observations);
+
+    for (std::int64_t j = 0; j < rank_count - 1; j++) {
+        comm.sendrecv_replace(queue,
+                              data_nd_replace.get_mutable_data(),
+                              max_local_block_size * column_count,
+                              prev_node,
+                              next_node)
+            .wait();
+        if (use_weights) {
+            comm.sendrecv_replace(queue,
+                                  weights_nd_replace.get_mutable_data(),
+                                  max_local_block_size,
+                                  prev_node,
+                                  next_node)
+                .wait();
+        }
+        comm.sendrecv_replace(send_recv_replace_local_size.get_mutable_data(),
+                              1,
+                              prev_node,
+                              next_node)
+            .wait();
+        auto local_row_block_count = send_recv_replace_local_size.get_data()[0];
+        auto actual_current_block = data_nd_replace.get_row_slice(0, local_row_block_count);
+        if (use_weights) {
+            auto actual_weights = weights_nd_replace.get_row_slice(0, local_row_block_count);
+            kernels_fp<Float>::get_cores_send_recv_replace(queue,
+                                                           data_nd,
+                                                           actual_current_block,
+                                                           actual_weights,
+                                                           arr_cores,
+                                                           arr_neighbours,
+                                                           epsilon,
+                                                           min_observations,
+                                                           { get_cores_event })
+                .wait_and_throw();
+        }
+        else {
+            kernels_fp<Float>::get_cores_send_recv_replace(queue,
+                                                           data_nd,
+                                                           actual_current_block,
+                                                           weights_nd,
+                                                           arr_cores,
+                                                           arr_neighbours,
+                                                           epsilon,
+                                                           min_observations,
+                                                           { get_cores_event })
+                .wait_and_throw();
+        }
+    }
 
     std::int64_t cluster_count = 0;
+
     std::int32_t cluster_index =
-        kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
-    cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
+        kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses, { get_cores_event });
+    cluster_index =
+        cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
     {
-        ONEDAL_PROFILER_TASK(allreduce_cluster_index);
+        ONEDAL_PROFILER_TASK(allreduce_cluster_index, queue);
         comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
     }
+
     if (cluster_index < 0) {
-        return make_results(queue, desc, arr_data, arr_responses, arr_cores, 0, 0);
+        return make_results(queue, desc, data_nd, arr_responses, arr_cores, 0, 0);
     }
-    std::int32_t queue_begin = 0;
-    std::int32_t queue_end = 0;
-    while (cluster_index < de::integral_cast<std::int32_t>(row_count)) {
+
+    while (cluster_index < de::integral_cast<std::int32_t>(global_row_count)) {
         cluster_count++;
-        bool in_range = cluster_index >= block_start && cluster_index < block_end;
+        bool in_range =
+            cluster_index >= local_offset && cluster_index < local_offset + local_row_count;
+
+        std::int32_t local_points_queue_size = 0;
+
         if (in_range) {
-            set_arr_value(queue, arr_responses, cluster_index - block_start, cluster_count - 1)
+            set_arr_value(queue, arr_responses, cluster_index - local_offset, cluster_count - 1)
                 .wait_and_throw();
-            set_queue_ptr(queue, arr_queue, arr_queue_front, cluster_index).wait_and_throw();
-            queue_end++;
+            set_init_index(queue, observation_indices, cluster_index - local_offset, true)
+                .wait_and_throw();
+            local_points_queue_size++;
         }
-        std::int32_t local_queue_size = queue_end - queue_begin;
-        std::int32_t total_queue_size = local_queue_size;
+
+        std::int32_t total_points_queue_size = local_points_queue_size;
+
         {
-            ONEDAL_PROFILER_TASK(allreduce_total_queue_size_outer);
-            comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
+            ONEDAL_PROFILER_TASK(allreduce_total_points_queue_size_outer, queue);
+            comm.allreduce(total_points_queue_size, spmd::reduce_op::sum).wait();
         }
-        while (total_queue_size > 0) {
+
+        while (total_points_queue_size != 0) {
             auto recv_counts = array<std::int64_t>::zeros(rank_count);
-            recv_counts.get_mutable_data()[rank] = local_queue_size;
+            recv_counts.get_mutable_data()[current_rank] = local_points_queue_size;
             {
-                ONEDAL_PROFILER_TASK(allreduce_recv_counts);
+                ONEDAL_PROFILER_TASK(allreduce_recv_counts, queue);
                 comm.allreduce(recv_counts, spmd::reduce_op::sum).wait();
             }
+
             auto displs = array<std::int64_t>::zeros(rank_count);
             auto displs_ptr = displs.get_mutable_data();
             std::int64_t total_count = 0;
@@ -120,60 +263,70 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
                 displs_ptr[i] = total_count;
                 total_count += recv_counts.get_data()[i];
             }
-            ONEDAL_ASSERT(total_count > 0);
-            auto send_array = recv_counts[rank] > 0
-                                  ? arr_queue.slice(queue_begin, recv_counts[rank]).flatten(queue)
-                                  : array<std::int32_t>::wrap(queue, arr_queue.get_data(), 0);
-            if (rank_count > 1 && recv_counts[rank] > 0) {
-                auto [arr_copy, arr_event] =
-                    pr::ndarray<std::int32_t, 1>::copy(queue,
-                                                       arr_queue.get_data() + queue_begin,
-                                                       recv_counts[rank],
-                                                       sycl::usm::alloc::device);
-                arr_event.wait_and_throw();
-                send_array = arr_copy.flatten(queue);
-            }
-            auto recv_array = arr_queue.slice(queue_begin, total_count).flatten(queue);
-            {
-                ONEDAL_PROFILER_TASK(allgather_cluster_data);
-                comm.allgatherv(send_array, recv_array, recv_counts.get_data(), displs.get_data())
-                    .wait();
-            }
-            queue_end = queue_begin + total_queue_size;
-            arr_queue_front.fill(queue, queue_end).wait_and_throw();
 
-            kernels_fp<Float>::update_queue(queue,
-                                            arr_data,
-                                            arr_cores,
-                                            arr_queue,
-                                            queue_begin,
-                                            queue_end,
-                                            arr_responses,
-                                            arr_queue_front,
-                                            epsilon,
-                                            cluster_count - 1,
-                                            block_start,
-                                            block_end)
+            auto [current_points_queue, current_points_queue_event] =
+                pr::ndarray<Float, 2>::full(queue,
+                                            { total_points_queue_size, column_count },
+                                            0,
+                                            sycl::usm::alloc::device);
+
+            set_arr_value(queue, total_points_queue_size_arr, 0, total_points_queue_size)
                 .wait_and_throw();
 
-            queue_begin = queue_end;
-            queue_end = kernels_fp<Float>::get_queue_front(queue, arr_queue_front);
-            local_queue_size = queue_end - queue_begin;
-            total_queue_size = local_queue_size;
+            sycl::event fill_queue_event;
+
+            if (local_points_queue_size != 0) {
+                fill_queue_event =
+                    kernels_fp<Float>::fill_current_points_queue(queue,
+                                                                 data_nd,
+                                                                 observation_indices,
+                                                                 current_points_queue,
+                                                                 local_points_queue_size_arr,
+                                                                 displs_ptr[current_rank],
+                                                                 { current_points_queue_event });
+                set_arr_value(queue, local_points_queue_size_arr, 0, 0, { fill_queue_event })
+                    .wait_and_throw();
+            }
             {
-                ONEDAL_PROFILER_TASK(allreduce_total_queue_size_inner);
-                comm.allreduce(total_queue_size, spmd::reduce_op::sum).wait();
+                ONEDAL_PROFILER_TASK(allreduce_xtx, queue);
+                comm.allreduce(current_points_queue.flatten(queue, { fill_queue_event }),
+                               spmd::reduce_op::sum)
+                    .wait();
+            }
+
+            kernels_fp<Float>::update_points_queue(queue,
+                                                   data_nd,
+                                                   arr_cores,
+                                                   current_points_queue,
+                                                   arr_responses,
+                                                   total_points_queue_size_arr,
+                                                   observation_indices,
+                                                   epsilon,
+                                                   cluster_count - 1,
+                                                   { fill_queue_event })
+                .wait_and_throw();
+
+            local_points_queue_size =
+                kernels_fp<Float>::get_points_queue_size(queue, total_points_queue_size_arr);
+
+            total_points_queue_size = local_points_queue_size;
+
+            {
+                ONEDAL_PROFILER_TASK(allreduce_total_points_queue_size_inner, queue);
+                comm.allreduce(total_points_queue_size, spmd::reduce_op::sum).wait();
             }
         }
 
         cluster_index = kernels_fp<Float>::start_next_cluster(queue, arr_cores, arr_responses);
-        cluster_index = cluster_index < block_size ? cluster_index + block_start : row_count;
+        cluster_index =
+            cluster_index < local_row_count ? cluster_index + local_offset : global_row_count;
         {
-            ONEDAL_PROFILER_TASK(cluster_index);
+            ONEDAL_PROFILER_TASK(cluster_index, queue);
             comm.allreduce(cluster_index, spmd::reduce_op::min).wait();
         }
     }
-    return make_results(queue, desc, arr_data, arr_responses, arr_cores, cluster_count);
+
+    return make_results(queue, desc, data_nd, arr_responses, arr_cores, cluster_count);
 }
 
 template <typename Float>
