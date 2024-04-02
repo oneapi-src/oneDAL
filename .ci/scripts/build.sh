@@ -153,12 +153,12 @@ fi
 echo "Calling make"
 echo $CXX
 echo $CC
-echo make ${target:-daal} ${make_op} \
+echo make ${target:-onedal_c} ${make_op} \
     COMPILER=${compiler} \
-    REQCPU=\"${optimizations}\" \
-    BACKEND_CONFIG=\"${backend_config}\" \
+    REQCPU="${optimizations}" \
+    BACKEND_CONFIG="${backend_config}" \
     PLAT=${PLAT}
-make ${target:-daal} ${make_op} \
+make ${target:-onedal_c} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}" \
     BACKEND_CONFIG="${backend_config}" \
