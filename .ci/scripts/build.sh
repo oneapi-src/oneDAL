@@ -120,14 +120,14 @@ fi
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
-    $ONEDAL_DIR/dev/download_micromkl.sh with_gpu=${with_gpu}
+    ${ONEDAL_DIR}/dev/download_micromkl.sh with_gpu=${with_gpu}
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
         if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
-            $ONEDAL_DIR/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
+            ${ONEDAL_DIR}/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
         else
-            $ONEDAL_DIR/.ci/env/openblas.sh
+            ${ONEDAL_DIR}/.ci/env/openblas.sh
         fi
     fi
 else
@@ -136,12 +136,12 @@ fi
 
 # TBB setup
 if [[ "${ARCH}" == "32e" ]]; then
-    $ONEDAL_DIR/dev/download_tbb.sh
+    ${ONEDAL_DIR}/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        $ONEDAL_DIR/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
+        ${ONEDAL_DIR}/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
     else
-        $ONEDAL_DIR/.ci/env/tbb.sh
+        ${ONEDAL_DIR}/.ci/env/tbb.sh
     fi
 fi
 
@@ -156,10 +156,10 @@ echo $CC
 echo make ${target:-daal} ${make_op} \
     COMPILER=${compiler} \
     REQCPU=\"${optimizations}\" \
-    BACKEND_CONFIG=${backend_config} \
+    BACKEND_CONFIG=\"${backend_config}\" \
     PLAT=${PLAT}
 make ${target:-daal} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}" \
-    BACKEND_CONFIG=${backend_config} \
+    BACKEND_CONFIG="${backend_config}" \
     PLAT=${PLAT}
