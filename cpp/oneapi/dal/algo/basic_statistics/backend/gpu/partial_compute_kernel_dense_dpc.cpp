@@ -135,7 +135,8 @@ auto update_partial_sums(sycl::queue& q,
             result_sums_ptr[id] = current_sums_ptr[id] + sums_data[id];
 
             result_sums2_ptr[id] = current_sums2_ptr[id] + sums2_data[id];
-
+            // These sums are centered across one node and able only from partial_result object.
+            // They are recomputed in finalize_compute step.
             result_sums2cent_ptr[id] =
                 result_sums2_ptr[id] - result_sums_ptr[id] * result_sums_ptr[id] / nobs_ptr[0];
         });

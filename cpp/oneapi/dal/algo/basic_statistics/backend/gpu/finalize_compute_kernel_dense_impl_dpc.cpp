@@ -70,6 +70,7 @@ auto compute_all_metrics(sycl::queue& q,
 
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<1> id) {
+            // This computation is necessary for correct sum2cent values across several device
             sums2cent_data[id] = sums2_data[id] - sums_data[id] * sums_data[id] / nobs;
         });
     });
