@@ -241,7 +241,7 @@ public:
             values.idx = idx_default;
             values.dst = dst_default;
         }
-        sg.barrier();
+        sycl::group_barrier(sg);
 
         std::int32_t k_written = 0;
         dst_t worst_val = dst_default;
@@ -263,7 +263,7 @@ public:
                 pbuff_dst[prev_count] = val;
                 prev_count = pbuff_count;
             }
-            sg.barrier();
+            sycl::group_barrier(sg);
 
             // writing temporary best values into heap
             std::int32_t cid_to_handle, handle_this;
@@ -288,7 +288,7 @@ public:
                     }
                     pbuff_count = 0;
                 }
-                sg.barrier();
+                sycl::group_barrier(sg);
             } while (cid_to_handle > -1);
         }
 
@@ -297,7 +297,7 @@ public:
         if (cid == 0) {
             sort_heap(curr_heap, curr_heap + k_);
         }
-        sg.barrier();
+        sycl::group_barrier(sg);
 
         // Writing output from heap
         for (std::int32_t i = cid; i < k_; i += sg_width) {

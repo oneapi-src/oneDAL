@@ -193,7 +193,7 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
                         min_idx = handle ? col : min_idx;
                     }
 
-                    sg.barrier();
+                    sycl::group_barrier(sg);
 
                     const auto final_min_val = sycl::reduce_over_group(sg, min_val, minimum_val);
                     const auto handle = (min_val == final_min_val)
