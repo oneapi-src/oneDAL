@@ -136,7 +136,7 @@ auto update_partial_sums(sycl::queue& q,
 
             result_sums2_ptr[id] = current_sums2_ptr[id] + sums2_data[id];
             // These sums are centered across one node and able only from partial_result object.
-            // They are recomputed in finalize_compute step.
+            // These sums are recomputed in the finalize_compute step.
             result_sums2cent_ptr[id] =
                 result_sums2_ptr[id] - result_sums_ptr[id] * result_sums_ptr[id] / nobs_ptr[0];
         });
@@ -155,6 +155,7 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
 
     auto kernel = compute_kernel_gpu<Float, method::dense, task::compute>{};
     auto compute_result_ = compute_result();
+    // This local_desc marks the necessary results for the partial_compute step.
     auto local_desc = get_desc_to_compute<Float>(desc);
     const auto res_op = local_desc.get_result_options();
 

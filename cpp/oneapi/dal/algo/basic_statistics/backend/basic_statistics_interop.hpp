@@ -38,7 +38,7 @@ using descriptor_t = detail::descriptor_base<task_t>;
 ///
 /// @param[in]  desc  The input descriptor for the algorithm
 ///
-/// @return A descriptor for partial part of the online alogrithm
+/// @return The descriptor for partial part of the online alogrithm
 template <typename Float>
 inline auto get_desc_to_compute(const descriptor_t& desc) {
     const auto res_op = desc.get_result_options();
@@ -103,7 +103,7 @@ inline auto get_daal_estimates_to_compute(const descriptor_t& desc) {
 /// @param[in]  desc         The input descriptor for the algorithm
 /// @param[in]  daal_result  The DAAL format results
 ///
-/// @return oneDAL format results
+/// @return oneDAL format basic statistics results
 template <typename Float, typename Task>
 inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_result) {
     compute_result<Task> res;

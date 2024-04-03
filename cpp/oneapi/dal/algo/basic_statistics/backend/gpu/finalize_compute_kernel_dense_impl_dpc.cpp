@@ -38,6 +38,24 @@ using input_t = partial_compute_result<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
+///  A function that computes the necessary statistics based on the partial result
+///
+/// @tparam Float  Floating-point type used to perform computations
+///
+/// @param[in]  q             The SYCL queue
+/// @param[in]  sums          The allreuced input partial sums
+/// @param[in]  sums2         The allreuced partial sums squared
+/// @param[in]  sums2cent     The local partial sums squared centered. These sums are
+///                           centered across local node and will be recalculated for all ranks
+/// @param[in]  nobs          The total number of rows
+/// @param[in]  column_count  The total number of rows
+/// @param[in]  deps          Events indicating availability of the results for reading or writing
+///
+/// @return A tuple of six elements, where the first element is the resulting means,
+/// the second is the resulting variances, the third is the resulting raw moment,
+/// the fourth is the resulting variations, the fifth is the resulting stddev
+/// and the six element is a SYCL event indicating the availability
+/// of the all arrays for reading and writing
 template <typename Float>
 auto compute_all_metrics(sycl::queue& q,
                          const pr::ndview<Float, 1>& sums,
@@ -126,6 +144,7 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
 
     ONEDAL_ASSERT(column_count > 0);
 
+    // These result options mark the necessary results for the finalize_compute step.
     const auto res_op = desc.get_result_options();
     res.set_result_options(desc.get_result_options());
 
