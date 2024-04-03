@@ -1,4 +1,4 @@
-# file: cmplt.clang.mk
+# file: clang.32e.mk
 #===============================================================================
 # Copyright 2012 Intel Corporation
 #
@@ -16,17 +16,15 @@
 #===============================================================================
 
 #++
-#  Clang defenitions for makefile
+#  Clang definitions for makefile.
+#  This file contains definitions common to clang on a 32e (intel64) platform.
+#  It should only be included from files which have more specializations (e.g.
+#  clang.mkl.32e.mk)
 #--
 
+include dev/make/compiler_definitions/clang.mk
+
 PLATs.clang = lnx32e mac32e
-
-CMPLRDIRSUFF.clang = _clang
-
-CORE.SERV.COMPILER.clang = generic
-
--Zl.clang =
--DEBC.clang = -g
 
 COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
                      -Werror -Wreturn-type
@@ -35,11 +33,6 @@ COMPILER.lnx.clang = clang++ -m64 \
 
 link.dynamic.mac.clang = clang++ -m64
 link.dynamic.lnx.clang = clang++ -m64
-
-pedantic.opts.clang = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wno-unused-parameter
 
 pedantic.opts.mac.clang = $(pedantic.opts.clang)
 pedantic.opts.lnx.clang = $(pedantic.opts.clang)

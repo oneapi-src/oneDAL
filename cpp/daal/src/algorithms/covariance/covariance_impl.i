@@ -1,6 +1,7 @@
 /* file: covariance_impl.i */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -135,8 +136,14 @@ static inline size_t getBlockSize(size_t nrows)
     return 140;
 }
 
+#if defined(TARGET_X86_64)
+    #define DAAL_CPU_TYPE avx512
+#elif defined(TARGET_ARM)
+    #define DAAL_CPU_TYPE sve
+#endif
+
 template <>
-inline size_t getBlockSize<avx512>(size_t nrows)
+inline size_t getBlockSize<DAAL_CPU_TYPE>(size_t nrows)
 {
     return (nrows > 5000 && nrows <= 50000) ? 1024 : 140;
 }

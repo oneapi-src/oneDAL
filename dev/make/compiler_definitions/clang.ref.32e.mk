@@ -1,5 +1,6 @@
+# file: clang.ref.32e.mk
 #===============================================================================
-# Copyright 2022 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,32 +16,10 @@
 #===============================================================================
 
 #++
-#  Intel compiler defenitions for makefile
+#  Clang definitions for makefile
 #--
 
-PLATs.icx = lnx32e mac32e
+include dev/make/compiler_definitions/clang.32e.mk
 
-CMPLRDIRSUFF.icx = _icx
-
-CORE.SERV.COMPILER.icx = generic
-
--Zl.icx =  -no-intel-lib=libirc
--DEBC.icx = -g
-
-COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type
-
-
-link.dynamic.lnx.icx = icpx -m64
-
-pedantic.opts.icx = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wno-unused-parameter
-
-pedantic.opts.lnx.icx = $(pedantic.opts.icx)
-
-p4_OPT.icx   = $(-Q)march=nocona
-mc3_OPT.icx  = $(-Q)march=nehalem
-avx2_OPT.icx = $(-Q)march=haswell
-skx_OPT.icx  = $(-Q)march=skx
+COMPILER.mac.clang = $(COMPILER.mac.clang) -DDAAL_REF -DONEDAL_REF
+COMPILER.lnx.clang = $(COMPILER.lnx.clang) -DDAAL_REF -DONEDAL_REF

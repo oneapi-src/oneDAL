@@ -1,6 +1,7 @@
 /* file: service_topo.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,9 +58,12 @@ typedef cpuset_t cpu_set_t;
 
         #define __cdecl
 
-        #ifdef __x86_64__
+        #if defined(TARGET_X86_64)
             #define LNX_PTR2INT unsigned long long
             #define LNX_MY1CON  1LL
+        #elif defined(TARGET_ARM)
+using LNX_PTR2INT                = uintptr_t;
+constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
         #else
             #define LNX_PTR2INT unsigned int
             #define LNX_MY1CON  1

@@ -19,8 +19,11 @@
 ##******************************************************************************
 
 MPI  =  basic_statistics_distr_ccl            \
+        basic_statistics_online_distr_ccl     \
         cor_distr_ccl                         \
+        cov_biased_distr_ccl                  \
         cov_distr_ccl                         \
+        cov_online_distr_ccl                  \
         dbscan_distr_ccl                      \
         decision_forest_cls_hist_distr_ccl    \
         decision_forest_reg_hist_distr_ccl    \

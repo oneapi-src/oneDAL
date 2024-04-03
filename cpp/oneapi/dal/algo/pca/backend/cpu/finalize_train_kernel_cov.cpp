@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/include/services/daal_defines.h>
+
 #include <daal/src/algorithms/pca/pca_dense_correlation_online_kernel.h>
 #include <daal/src/algorithms/covariance/covariance_hyperparameter_impl.h>
 #include "daal/src/algorithms/covariance/covariance_kernel.h"
@@ -25,6 +28,12 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+
+#if defined(TARGET_X86_64)
+#define CPU_EXTENSION dal::detail::cpu_extension::avx512
+#elif defined(TARGET_ARM)
+#define CPU_EXTENSION dal::detail::cpu_extension::sve
+#endif
 
 namespace oneapi::dal::pca::backend {
 
@@ -84,7 +93,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     /// the logic of block size calculation is copied from DAAL,
     /// to be changed to passing the values from the performance model
     std::int64_t blockSize = 140;
-    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
+    if (ctx.get_enabled_cpu_extensions() == CPU_EXTENSION) {
         if (5000 < row_count && row_count <= 50000) {
             blockSize = 1024;
         }

@@ -113,6 +113,10 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         result.set_iterations_count(iter_num);
     }
 
+    if (options.test(result_options::inner_iterations_count)) {
+        result.set_inner_iterations_count(opt_impl->get_inner_iter());
+    }
+
     return result;
 }
 

@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +23,7 @@
 #endif
 
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/cpu.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -58,14 +60,6 @@ inline constexpr bool is_host_policy_v = is_host_policy<T>::value;
 
 template <typename T>
 inline constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::value;
-
-enum class cpu_extension : uint64_t {
-    none = 0U,
-    sse2 = 1U << 0,
-    sse42 = 1U << 2,
-    avx2 = 1U << 4,
-    avx512 = 1U << 5
-};
 
 class ONEDAL_EXPORT default_host_policy {};
 
@@ -143,7 +137,6 @@ using v1::is_distributed_policy_v;
 using v1::is_host_policy_v;
 using v1::is_data_parallel_policy_v;
 
-using v1::cpu_extension;
 using v1::default_host_policy;
 using v1::host_policy;
 

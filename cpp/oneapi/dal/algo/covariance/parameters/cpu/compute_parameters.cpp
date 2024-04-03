@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 *******************************************************************************/
 
 #include <algorithm>
+#include <daal/include/services/daal_defines.h>
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
@@ -26,6 +28,12 @@
 #include "oneapi/dal/algo/covariance/compute_types.hpp"
 
 #include "oneapi/dal/algo/covariance/parameters/cpu/compute_parameters.hpp"
+
+#if defined(TARGET_X86_64)
+#define CPU_EXTENSION dal::detail::cpu_extension::avx512
+#elif defined(TARGET_ARM)
+#define CPU_EXTENSION dal::detail::cpu_extension::sve
+#endif
 
 namespace oneapi::dal::covariance::parameters {
 
@@ -46,7 +54,7 @@ std::int64_t propose_block_size(const context_cpu& ctx, const std::int64_t row_c
     /// The constants are defined as the values that show the best performance results
     /// in the series of performance measurements with the varying block sizes and dataset sizes.
     std::int64_t block_size = 140l;
-    if (ctx.get_enabled_cpu_extensions() == dal::detail::cpu_extension::avx512) {
+    if (ctx.get_enabled_cpu_extensions() == CPU_EXTENSION) {
         /// Here if AVX512 extensions are available on CPU
         if (5000l < row_count && row_count <= 50000l) {
             block_size = 1024l;
