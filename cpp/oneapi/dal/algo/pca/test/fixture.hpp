@@ -145,7 +145,7 @@ public:
         check_train_result(pca_desc, data, train_result);
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
-        check_infer_result(pca_desc, data, infer_result);
+        check_infer_result(pca_desc, model, x, infer_result);
     }
 
     void online_general_checks(const te::dataframe& data,
@@ -170,7 +170,7 @@ public:
         check_train_result_online(pca_desc, data, train_result);
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
-        check_infer_result(pca_desc, data, infer_result);
+        check_infer_result(pca_desc, model, x, infer_result);
     }
 
     void check_train_result(const pca::descriptor<Float, Method>& desc,
@@ -212,8 +212,19 @@ public:
     }
 
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
-                            const te::dataframe& data,
-                            const pca::infer_result<>& result) {}
+                            const pca::model<>& model,
+                            const table& data,
+                            const pca::infer_result<>& result) {
+
+        const auto eigenvectors = model.get_eigenvectors();
+        const auto transformed_data = result.get_transformed_data();
+
+        CAPTURE(desc.whiten());
+        CAPTURE(desc.get_normalization_mode());
+        
+        check_infer_nans(transformed_data);
+        check_infer_shapes(transformed_data, eigenvectors, data);
+    }
 
     void check_online_shapes(const pca::descriptor<Float, Method>& desc,
                              const te::dataframe& data,
@@ -257,6 +268,15 @@ public:
         REQUIRE(variances.get_column_count() == data.get_column_count());
     }
 
+    void check_infer_shapes(const table& transformed_data,
+                            const table& eigenvectors,
+                            const table& data) {
+        INFO("check if transformed data shape is expected");
+
+        REQUIRE(transformed_data.get_column_count() == eigenvectors.get_row_count());
+        REQUIRE(transformed_data.get_row_count() == data.get_row_count());
+    }
+
     void check_nans(const pca::train_result<>& result) {
         const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
 
@@ -271,6 +291,11 @@ public:
 
         INFO("check if there is no NaN in variances");
         REQUIRE(te::has_no_nans(variances));
+    }
+
+    void check_infer_nans(const table& transformed_data) {
+        INFO("check if there is no NaN in transformed_data");
+        REQUIRE(te::has_no_nans(transformed_data));
     }
 
     void check_eigenvalues_order(const table& eigenvalues) const {
