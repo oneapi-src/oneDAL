@@ -36,7 +36,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 #include "src/externals/service_profiler.h"
-#include <iostream>
+
 using namespace daal::internal;
 using namespace daal::services::internal;
 
@@ -152,9 +152,10 @@ inline size_t getBlockSize<DAAL_CPU_TYPE>(size_t nrows)
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatures, size_t nVectors, NumericTable * dataTable,
                                                 algorithmFPType * crossProduct, algorithmFPType * sums, algorithmFPType * nObservations,
-                                                const Hyperparameter * hyperparameter, bool assumeСentered = false)
+                                                const Parameter * parameter, const Hyperparameter * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateDenseCrossProductAndSums);
+    bool assumeСentered = parameter->assumeСentered;
     if (((isNormalized) || ((!isNormalized) && ((method == defaultDense) || (method == sumDense)))))
     {
         /* Inverse number of rows (for normalization) */

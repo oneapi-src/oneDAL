@@ -65,7 +65,7 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums,
-                                                                           &nObservations, hyperparameter, parameter->assumeСentered);
+                                                                           &nObservations, parameter, hyperparameter);
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= finalizeCovariance<algorithmFPType, cpu>(nFeatures, nObservations, crossProduct, sums, crossProduct, sums, parameter, hyperparameter);
