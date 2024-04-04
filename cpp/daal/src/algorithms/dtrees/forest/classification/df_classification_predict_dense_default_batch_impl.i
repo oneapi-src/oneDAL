@@ -280,7 +280,7 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
         DAAL_INT64 blockSizeValue = 0l;
         Status st                 = hyperparameter->find(blockSize, blockSizeValue);
         DAAL_CHECK(0l < blockSizeValue, services::ErrorHyperparameterBadValue);
-        if (cpu == avx512)
+#if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         {
             // TODO: Move this check into decision_forest::detail::infer_ops::check_parameters_ranges.
             //       Now the information about enabled CPU instructions is not available in infer_ops.
@@ -289,6 +289,7 @@ Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIfa
             DAAL_CHECK(blockSizeValue % (avx512RegisterWidth / (numberOfBitsInByte * sizeof(algorithmFPType))) == 0,
                        services::ErrorHyperparameterBadValue);
         }
+#endif // if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
         DAAL_CHECK_STATUS_VAR(st);
 
         DAAL_INT64 minTreesForThreadingValue = 0l;
