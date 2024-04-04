@@ -108,8 +108,17 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
     if (desc.get_result_options().test(result_options::means)) {
-        auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
-        result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
+        if (!assume_centered) {
+            auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
+            result.set_means(
+                homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
+        }
+        else {
+            auto [zero_means, zeros_event] =
+                pr::ndarray<Float, 1>::zeros(q_, { column_count }, sycl::usm::alloc::device);
+            result.set_means(
+                homogen_table::wrap(zero_means.flatten(q_, { zeros_event }), 1, column_count));
+        }
     }
     return result;
 }

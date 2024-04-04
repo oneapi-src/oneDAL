@@ -157,8 +157,9 @@ auto compute_covariance(sycl::queue& queue,
     auto cov = pr::ndarray<Float, 2>::empty(queue, { column_count, column_count }, alloc::device);
 
     auto copy_event = copy(queue, cov, xtx, { deps });
-
-    auto cov_event = pr::covariance(queue, row_count, sums, cov, bias, { copy_event });
+    bool assume_centering = false;
+    auto cov_event =
+        pr::covariance(queue, row_count, sums, cov, bias, assume_centering, { copy_event });
     return std::make_tuple(cov, cov_event);
 }
 
