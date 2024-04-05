@@ -637,7 +637,7 @@ DAAL_FORCEINLINE Status PredictClassificationTask<double, avx512>::predictByTree
         return predictByTreeCommon(x, sizeOfBlock, nCols, feat_idx, left_son, split_point, resPtr, iTree);
     }
 }
-#endif
+#endif // if defined(__AVX512F__) && defined(DAAL_INTEL_CPP_COMPILER)
 
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const size_t nTreesTotal, const DimType & dim)
