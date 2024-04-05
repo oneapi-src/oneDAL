@@ -58,7 +58,7 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
     SECTION("check eigenvectors") {
         const auto gold_eigenvectors = this->get_gold_eigenvectors();
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
-    }    
+    }
 }
 
 TEMPLATE_LIST_TEST_M(pca_online_test,

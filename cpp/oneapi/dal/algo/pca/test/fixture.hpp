@@ -215,13 +215,12 @@ public:
                             const pca::model<>& model,
                             const table& data,
                             const pca::infer_result<>& result) {
-
         const auto eigenvectors = model.get_eigenvectors();
         const auto transformed_data = result.get_transformed_data();
 
         CAPTURE(desc.whiten());
         CAPTURE(desc.get_normalization_mode());
-        
+
         check_infer_nans(transformed_data);
         check_infer_shapes(transformed_data, eigenvectors, data);
     }
