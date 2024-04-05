@@ -59,7 +59,7 @@ pushd OpenBLAS
     echo "make ${make_options}"
     make ${make_options}
   else
-    make_options="-j${CoreCount} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1"
+    make_options="-j${CoreCount} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1"
     make ${make_options}
   fi
   # The install needs to be done with the same options as the build
