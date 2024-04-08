@@ -77,11 +77,7 @@ target=${target:-ARMV8}
 host_compiler=${host_compiler:-gcc}
 compiler=${compiler:-aarch64-linux-gnu-gcc}
 
-if [[ -z "${target_arch}" ]] ; then
-  echo "The target architecture must be specified with the --target-arch option"
-  exit 1
-fi
-
+target_arch=${target_arch:-$(uname -m)}
 blas_prefix="${ONEDAL_DIR}/__deps/openblas_${target_arch}"
 
 sudo apt-get update
