@@ -96,7 +96,6 @@ pushd "${blas_src_dir}"
   # USE_THREAD=0.
   # The library may still be used in a multithreaded environment, so we set
   # USE_LOCKING=1 to ensure thread safety
-  make clean
   if [ "${cross_compile}" == "yes" ]; then
     make_options=(-j"${CoreCount}"
         TARGET="${target}"
@@ -114,6 +113,10 @@ pushd "${blas_src_dir}"
         USE_THREAD=0
         USE_LOCKING=1)
   fi
+  # Clean
+  echo make "${make_options[@]}" clean
+  make "${make_options[@]}" clean
+  # Build
   echo make "${make_options[@]}"
   make "${make_options[@]}"
   # The install needs to be done with the same options as the build
