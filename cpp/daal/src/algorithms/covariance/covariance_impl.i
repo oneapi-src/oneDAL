@@ -155,7 +155,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                                                 const Parameter * parameter, const Hyperparameter * hyperparameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateDenseCrossProductAndSums);
-    bool assumeСentered = parameter->assumeСentered;
+    bool assumeCentered = parameter->assumeCentered;
     if (((isNormalized) || ((!isNormalized) && ((method == defaultDense) || (method == sumDense)))))
     {
         /* Inverse number of rows (for normalization) */
@@ -217,7 +217,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                                                        (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
             }
 
-            if (!isNormalized && (method == defaultDense) && !assumeСentered)
+            if (!isNormalized && (method == defaultDense) && !assumeCentered)
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
                 /* Sum input array elements in case of non-normalized data */
@@ -249,7 +249,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             }
 
             /* Update sums vector in case of non-normalized data */
-            if (!isNormalized && (method == defaultDense) && !assumeСentered)
+            if (!isNormalized && (method == defaultDense) && !assumeCentered)
             {
                 if (tls_data_local->sums)
                 {
@@ -266,7 +266,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         });
 
         /* If data is not normalized, perform subtractions of(sums[i]*sums[j])/n */
-        if (!isNormalized && !assumeСentered)
+        if (!isNormalized && !assumeCentered)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemmSums);
             for (size_t i = 0; i < nFeatures; i++)
