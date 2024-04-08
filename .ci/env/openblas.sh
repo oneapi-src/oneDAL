@@ -16,6 +16,26 @@
 # limitations under the License.
 #===============================================================================
 
+set -eo pipefail
+
+SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../..")
+OPENBLAS_DEFAULT_SOURCE_DIR="${ONEDAL_DIR}/__work/openblas"
+
+show_help() {
+  echo "Usage: $0 [--help]"
+  column -t -s":" <<< '--help:Display this information
+--target <target>:The OpenBLAS target to build for
+--target-arch <arch>:The target architecture to build for. This is used when generating install directory names, and should match the target architecture for building oneDAL
+--compiler <path>:Path to the C compiler executable to use
+--host-compiler <path>:Path to the host compiler (suggests that that the target compiler given with '--compiler' is for another platform)
+--cflags <flags>:Any extra flags to be added to the C compile line
+--cross-compile:Indicates that we are doing cross compilation
+--blas-src:The path to an existing OpenBLAS source dircetory. The source is cloned if this parameter is omitted
+'
+}
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
@@ -23,17 +43,27 @@ while [[ $# -gt 0 ]]; do
         --target)
         target="$2"
         shift;;
+        --target-arch)
+        target_arch="$2"
+        shift;;
         --compiler)
         compiler="$2"
         shift;;
-        --host_compiler)
+        --host-compiler)
         host_compiler="$2"
         shift;;
         --cflags)
         cflags="$2"
         shift;;
-        --cross_compile)
+        --cross-compile)
         cross_compile="yes"
+        ;;
+        --blas-src)
+        blas_src_dir="$2"
+        shift;;
+        --help)
+        show_help
+        exit 0
         ;;
         *)
         echo "Unknown option: $1"
@@ -46,23 +76,50 @@ done
 target=${target:-ARMV8}
 host_compiler=${host_compiler:-gcc}
 compiler=${compiler:-aarch64-linux-gnu-gcc}
-cflags=${cflags:--march=armv8-a+sve}
+
+if [[ -z "${target_arch}" ]] ; then
+  echo "The target architecture must be specified with the --target-arch option"
+  exit 1
+fi
+
+blas_prefix="${ONEDAL_DIR}/__deps/openblas_${target_arch}"
 
 sudo apt-get update
 sudo apt-get -y install build-essential gcc gfortran
-git clone https://github.com/xianyi/OpenBLAS.git
-CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
-pushd OpenBLAS
+blas_src_dir=${blas_src_dir:-$OPENBLAS_DEFAULT_SOURCE_DIR}
+if [[ ! -d "${blas_src_dir}" ]] ; then
+  git clone https://github.com/xianyi/OpenBLAS.git "${blas_src_dir}"
+fi
+
+CoreCount=$(nproc --all)
+pushd "${blas_src_dir}"
+  # oneDAL does not need the Fortan interface. To avoid carrying around a false
+  # dependence on libgfortran, we set NO_FORTRAN=1
+  # Multi-threading is done through oneTBB, so we don't want OpenBLAS to spawn
+  # threads through either OpenMP or pthreads. We set USE_OPENMP=0,
+  # USE_THREAD=0.
+  # The library may still be used in a multithreaded environment, so we set
+  # USE_LOCKING=1 to ensure thread safety
   make clean
   if [ "${cross_compile}" == "yes" ]; then
-    make_options=(-j"${CoreCount}" TARGET="${target}" HOSTCC="${host_compiler}" CC="${compiler}" NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1 CFLAGS="${cflags}")
-    echo make "${make_options[@]}"
-    make "${make_options[@]}"
+    make_options=(-j"${CoreCount}"
+        TARGET="${target}"
+        HOSTCC="${host_compiler}"
+        CC="${compiler}"
+        NO_FORTRAN=1
+        USE_OPENMP=0
+        USE_THREAD=0
+        USE_LOCKING=1
+        CFLAGS="${cflags}")
   else
-    make_options=(-j"${CoreCount}" NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1)
-    echo make "${make_options[@]}"
-    make "${make_options[@]}"
+    make_options=(-j"${CoreCount}"
+        NO_FORTRAN=1
+        USE_OPENMP=0
+        USE_THREAD=0
+        USE_LOCKING=1)
   fi
+  echo make "${make_options[@]}"
+  make "${make_options[@]}"
   # The install needs to be done with the same options as the build
-  make install "${make_options[@]}" PREFIX=../__deps/open_blas
+  make install "${make_options[@]}" PREFIX="${blas_prefix}"
 popd
