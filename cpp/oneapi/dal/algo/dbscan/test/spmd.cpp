@@ -107,11 +107,11 @@ public:
 
         const auto compute_result_batch =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data);
-        INFO("check references")
+        INFO("check references");
         this->check_if_close(joined_result.get_core_flags(),
                              compute_result_batch.get_core_flags(),
                              "Cores");
-        INFO("check references")
+        INFO("check references");
         this->check_if_close(joined_result.get_responses(),
                              compute_result_batch.get_responses(),
                              "responses");
@@ -133,7 +133,7 @@ public:
 
         auto joined_result = this->merge_compute_result(compute_results);
 
-        INFO("check references")
+        INFO("check references");
         base_t::check_responses_against_ref(joined_result.get_responses(), ref_responses);
     }
     void run_spmd_dbi_checks(const table &data,
@@ -141,7 +141,7 @@ public:
                              std::int64_t min_observations,
                              float_t ref_dbi,
                              float_t dbi_ref_tol = 1.0e-4) {
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc =
             dbscan::descriptor<float_t, method_t>(epsilon, min_observations)
                 .set_mem_save_mode(true)

@@ -173,12 +173,12 @@ public:
 
     void compare_infer_results(const infer_result<task_t>& actual,
                                const infer_result<task_t>& reference) {
-        INFO("compare responses") {
+        SECTION("compare responses") {
             te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
         }
 
         if constexpr (std::is_same_v<task_t, task::classification>) {
-            INFO("compare decision function") {
+            SECTION("compare decision function") {
                 // TODO: We observe run-to-run instabilities in SVM inference, so we compare
                 //       decision function with some tolerance. This should be replaced by
                 //       exact comparison once instability is gone.
