@@ -47,11 +47,7 @@
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
-    #ifdef __DAAL_IMPLEMENTATION
-        #define DAAL_EXPORT __declspec(dllexport)
-    #else
-        #define DAAL_EXPORT
-    #endif
+    #define DAAL_EXPORT __declspec(dllexport)
 #else
     #define DAAL_EXPORT
 #endif
