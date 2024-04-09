@@ -18,7 +18,7 @@
 #  Intel compiler definitions for makefile
 #--
 
-PLATs.icx = lnx32e win32e
+PLATs.icx = lnx32e win32e mac32e
 
 CMPLRDIRSUFF.icx = _icx
 
