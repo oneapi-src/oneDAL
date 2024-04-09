@@ -915,9 +915,9 @@ Status TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::getCandidates(Ho
                 s |= this->copyPoints(candidatesBD.get() + _nCandidates * this->_data.dim, this->_lastAddedCenter.get(), nNewCandidates);
                 const size_t iFirstNewCandidate = _nCandidates;
                 _nCandidates += nNewCandidates;
-                bDone = ((iRound + 1 >= _R) && (_nCandidates > this->_nClusters));
                 DAAL_CHECK_STATUS(s, this->updateMinDist(iFirstNewCandidate, nNewCandidates));
             }
+            bDone = ((iRound + 1 >= _R) && (_nCandidates > this->_nClusters));
         }
     }
     if (_nCandidates < maxNumberOfCandidates) pCandidates->resize(_nCandidates);
