@@ -62,7 +62,7 @@ TEMPLATE_LIST_TEST_M(pca_online_test,
 }
 
 TEMPLATE_LIST_TEST_M(pca_online_test,
-                     "pca fill_normal flow svd",
+                     "pca fill_uniform flow cov",
                      "[pca][integration][online]",
                      pca_types_cov) {
     SKIP_IF(this->not_float64_friendly());
