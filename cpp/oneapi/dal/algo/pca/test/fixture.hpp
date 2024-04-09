@@ -131,6 +131,7 @@ public:
         return result;
     }
 
+    // TODO: add more checks, for example, check if eigenvectors are correct, checks for all possible values of normalization/whitening, check for infer gold data.
     void general_checks(const te::dataframe& data,
                         std::int64_t component_count,
                         const te::table_id& data_table_id) {
@@ -145,7 +146,7 @@ public:
         check_train_result(pca_desc, data, train_result);
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
-        check_infer_result(pca_desc, model, x, infer_result);
+        check_infer_result(pca_desc, model, data, infer_result);
     }
 
     void online_general_checks(const te::dataframe& data,
@@ -170,7 +171,7 @@ public:
         check_train_result_online(pca_desc, data, train_result);
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
-        check_infer_result(pca_desc, model, x, infer_result);
+        check_infer_result(pca_desc, model, data, infer_result);
     }
 
     void check_train_result(const pca::descriptor<Float, Method>& desc,
@@ -213,7 +214,7 @@ public:
 
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
                             const pca::model<>& model,
-                            const table& data,
+                            const te::dataframe& data,
                             const pca::infer_result<>& result) {
         const auto eigenvectors = model.get_eigenvectors();
         const auto transformed_data = result.get_transformed_data();
@@ -266,7 +267,7 @@ public:
 
     void check_infer_shapes(const table& transformed_data,
                             const table& eigenvectors,
-                            const table& data) {
+                            const te::dataframe& data) {
         INFO("check if transformed data shape is expected");
 
         REQUIRE(transformed_data.get_column_count() == eigenvectors.get_row_count());
