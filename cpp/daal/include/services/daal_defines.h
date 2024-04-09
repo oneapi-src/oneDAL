@@ -50,10 +50,10 @@
     #ifdef __DAAL_IMPLEMENTATION
         #define DAAL_EXPORT __declspec(dllexport)
     #else
-        #define DAAL_EXPORT __declspec(dllexport)
+        #define DAAL_EXPORT
     #endif
 #else
-    #define DAAL_EXPORT __declspec(dllexport)
+    #define DAAL_EXPORT
 #endif
 
 #if (defined(__INTEL_CXX11_MODE__) || __cplusplus > 199711L)
