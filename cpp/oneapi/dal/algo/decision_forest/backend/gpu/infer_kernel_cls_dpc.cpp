@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
@@ -23,6 +24,7 @@ using dal::backend::context_gpu;
 using model_t = model<task::classification>;
 using input_t = infer_input<task::classification>;
 using result_t = infer_result<task::classification>;
+using param_t = detail::infer_parameters<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 template <typename Float>
@@ -43,6 +45,7 @@ template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::classification> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
         return infer<Float>(ctx, desc, input);
     }
