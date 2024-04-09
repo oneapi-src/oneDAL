@@ -50,7 +50,7 @@
     #ifdef __DAAL_IMPLEMENTATION
         #define DAAL_EXPORT __declspec(dllexport)
     #else
-        #define DAAL_EXPORT __declspec(dllimport)
+        #define DAAL_EXPORT
     #endif
 #else
     #define DAAL_EXPORT
