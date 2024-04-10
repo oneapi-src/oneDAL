@@ -59,8 +59,7 @@ function install_arm-cross-compilers {
 }
 
 function install_arm-emulator {
-    sudo apt-get install -y libc6-dev-arm64-cross
-    sudo apt-get install -y qemu qemu-user-static
+    sudo apt-get install -y qemu-user 
 }
 
 if [ "${component}" == "dpcpp" ]; then

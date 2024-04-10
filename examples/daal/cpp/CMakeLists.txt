@@ -51,6 +51,37 @@ if(REF_BACKEND)
 )
 endif()
 
+if(ARCH STREQUAL "arm")
+    set(EXCLUDE_LIST
+        ${EXCLUDE_LIST}
+        "source/association_rules/assoc_rules_apriori_batch.cpp"
+        "source/optimization_solvers/cd_dense_batch.cpp"
+        "source/cholesky/cholesky_dense_batch.cpp"
+        "source/covariance/cor_csr_distr.cpp"
+        "source/covariance/cor_csr_online.cpp"
+        "source/covariance/cor_dense_distr.cpp"
+        "source/covariance/cor_dense_online.cpp"
+        "source/covariance/cov_csr_distr.cpp"
+        "source/covariance/cov_csr_online.cpp"
+        "source/covariance/cov_dense_batch.cpp"
+        "source/covariance/cov_dense_distr.cpp"
+        "source/covariance/cov_dense_online.cpp"
+        "source/elastic_net/elastic_net_dense_batch.cpp"
+        "source/enable_thread_pinning/enable_thread_pinning.cpp"
+        "source/lasso_regression/lasso_reg_dense_batch.cpp"
+        "source/quality_metrics/lin_reg_metrics_dense_batch.cpp"
+        "source/linear_regression/lin_reg_qr_dense_batch.cpp"
+        "source/linear_regression/lin_reg_qr_dense_online.cpp"
+        "source/moments/low_order_moms_csr_distr.cpp"
+        "source/moments/low_order_moms_csr_online.cpp"
+        "source/moments/low_order_moms_dense_batch.cpp"
+        "source/moments/low_order_moms_dense_distr.cpp"
+        "source/moments/low_order_moms_dense_online.cpp"
+        "source/outlier_detection/out_detect_mult_dense_batch.cpp"
+        "source/pivoted_qr/pivoted_qr_dense_batch.cpp"
+)
+endif()
+
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
 

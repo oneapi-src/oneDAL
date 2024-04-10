@@ -165,22 +165,19 @@ for link_mode in ${link_modes}; do
             export CXX=icpx
         fi
 
+        echo "============== Configuration: =============="
+        echo Compiler:  ${compiler}
+        echo Link mode: ${link_mode}
+        echo Backend: ${backend}
         if [ "${cross_compile}" == "yes" ]; then
             unset CXX
             unset CC
-            echo "============== Configuration: =============="
-            echo Compiler:  ${compiler}
-            echo Link mode: ${link_mode}
             echo Using Cross-compiler.
-            echo "============================================"
         else
-            echo "============== Configuration: =============="
-            echo Compiler:  ${compiler}
-            echo Link mode: ${link_mode}
             echo CC: ${CC}
             echo CXX: ${CXX}
-            echo "============================================"
         fi
+        echo "============================================"
 
         if [ -d "Build" ]; then
             rm -rf Build/*
@@ -195,7 +192,7 @@ for link_mode in ${link_modes}; do
 
         if [ "${cross_compile}" == "yes" ]; then
             if [ "${ARCH}" == "arm" ]; then
-                cmake -B Build -S . -G "Unix Makefiles" -DCMAKE_HOST_SYSTEM_PROCESSOR=aarch64 -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FOLDER}/arm-gcc-crosscompile-toolchain.cmake -DCMAKE_PREFIX_PATH=${TBBROOT} -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBB_DIR} -DREF_BACKEND=${ref_backend} -DOUTPUT_DIR=arm
+                cmake -B Build -S . -G "Unix Makefiles" -DCMAKE_HOST_SYSTEM_PROCESSOR=aarch64 -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FOLDER}/arm-gcc-crosscompile-toolchain.cmake -DCMAKE_PREFIX_PATH=${TBBROOT} -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBB_DIR} -DREF_BACKEND=${ref_backend} -DOUTPUT_DIR=arm -DARCH=arm
             fi
         else
             cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBB_DIR} -DREF_BACKEND=${ref_backend}
@@ -220,7 +217,7 @@ for link_mode in ${link_modes}; do
         for p in ${cmake_results_dir}/*; do
             e=$(basename "$p")
             if [ "${ARCH}" == "arm" ] && [ "${cross_compile}" == "yes" ]; then
-                qemu-aarch64-static -L /usr/aarch64-linux-gnu/ ${p} 2>&1 > ${e}.res
+                qemu-aarch64 -cpu max,sve-default-vector-length=256 -L /usr/aarch64-linux-gnu/ ${p} 2>&1 > ${e}.res
             else
                 ${p} 2>&1 > ${e}.res
             fi

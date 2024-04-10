@@ -48,6 +48,13 @@ if(REF_BACKEND)
 )
 endif()
 
+if(ARCH STREQUAL "arm")
+    set(EXCLUDE_LIST
+        ${EXCLUDE_LIST}
+        "source/basic_statistics/basic_statistics_dense_online.cpp"
+)
+endif()
+
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
 
