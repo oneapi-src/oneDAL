@@ -60,6 +60,7 @@ while [[ $# -gt 0 ]]; do
         ;;
         --help)
         show_help_text
+        exit 0
         ;;
         *)
         echo "Unknown option: $1"
