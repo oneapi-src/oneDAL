@@ -84,7 +84,7 @@ sudo apt-get update
 sudo apt-get -y install build-essential gcc gfortran
 blas_src_dir=${blas_src_dir:-$OPENBLAS_DEFAULT_SOURCE_DIR}
 if [[ ! -d "${blas_src_dir}" ]] ; then
-  git clone https://github.com/xianyi/OpenBLAS.git "${blas_src_dir}"
+  git clone https://github.com/OpenMathLib/OpenBLAS "${blas_src_dir}"
 fi
 
 CoreCount=$(nproc --all)
