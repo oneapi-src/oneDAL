@@ -491,7 +491,8 @@ $(eval $(call append_uarch_copt,$(CORE.objs_a)))
 
 $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
 $(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
-$(CORE.objs_y): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
+$(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
+                        -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
@@ -844,6 +845,7 @@ $(THR.objs_a): COPT += @$(THR.tmpdir_a)/thr_inc_a_folders.txt
 
 $(THR.objs_y): $(THR.tmpdir_y)/thr_inc_y_folders.txt
 $(THR.objs_y): COPT += @$(THR.tmpdir_y)/thr_inc_y_folders.txt
+$(THR.objs_y): COPT += -D__DAAL_IMPLEMENTATION
 
 $(THR.tmpdir_a)/thr_inc_a_folders.txt: makefile.lst | $(THR.tmpdir_a)/. $(CORE.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(CORE.incdirs)),$(space))
 $(THR.tmpdir_y)/thr_inc_y_folders.txt: makefile.lst | $(THR.tmpdir_y)/. $(CORE.incdirs) ; $(call WRITE.PREREQS,$(addprefix -I, $(CORE.incdirs)),$(space))

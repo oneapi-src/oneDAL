@@ -46,14 +46,15 @@
     #define __int64 long long int
 #endif
 
-#ifndef DAAL_EXPORT
-    #if defined(_WIN32) || defined(_WIN64)
-        /// @brief Microsoft-specific dllexport storage-class attribute
+#if defined(_WIN32) || defined(_WIN64)
+    #ifdef __DAAL_IMPLEMENTATION
         #define DAAL_EXPORT __declspec(dllexport)
     #else
         #define DAAL_EXPORT
     #endif
-#endif     // DAAL_EXPORT
+#else
+    #define DAAL_EXPORT
+#endif
 
 #if (defined(__INTEL_CXX11_MODE__) || __cplusplus > 199711L)
     #define DAAL_C11_OVERRIDE override
