@@ -56,9 +56,9 @@ struct isinfornan {
     using tag_t = reduce_unary_op_tag;
     bool operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return static_cast<bool>(sycl::isinf(arg)) || static_cast<bool>(sycl::isnan(arg));
+        return static_cast<T>(sycl::isinf(arg) || sycl::isnan(arg));
 #else
-        return isinf(arg) || (arg != arg);
+        return static_cast<T>(isinf(arg) || (arg != arg));
 #endif
     }
 };
@@ -68,9 +68,9 @@ struct isinf {
     using tag_t = reduce_unary_op_tag;
     bool operator()(const T& arg) const {
 #ifdef ONEDAL_DATA_PARALLEL
-        return static_cast<bool>(sycl::isinf(arg));
+        return static_cast<T>(sycl::isinf(arg));
 #else
-        return isinf(arg);
+        return static_cast<T>(isinf(arg));
 #endif
     }
 };
