@@ -40,9 +40,11 @@ link.dynamic.lnx.icx = icx -m64
 pedantic.opts.icx = -pedantic \
                       -Wall \
                       -Wextra \
+                      -Wwritable-strings \
                       -Wno-unused-parameter
 
 pedantic.opts.lnx.icx = $(pedantic.opts.icx)
+pedantic.opts.win.icx = $(pedantic.opts.icx)
 
 p4_OPT.icx   = -march=nocona
 mc3_OPT.icx  = -march=nehalem
