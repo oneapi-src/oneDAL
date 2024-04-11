@@ -83,8 +83,6 @@ if [ "${OS}" == "lnx" ]; then
             source ${conda_init_path}
             conda activate ${conda_env}
             echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
-        else
-            echo ${conda_init_path}
         fi
     fi
     compiler=${compiler:-gnu}
@@ -102,8 +100,6 @@ elif [ "${OS}" == "mac" ]; then
             source ${conda_init_path}
             conda activate ${conda_env}
             echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
-        else
-            echo ${conda_init_path}
         fi
     fi
     compiler=${compiler:-clang}
