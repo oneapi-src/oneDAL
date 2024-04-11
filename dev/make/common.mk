@@ -67,10 +67,10 @@ md5sum.cmd.win = md5sum
 md5sum.cmd.mac = md5 -q
 
 # Enable compiler-provided defences as recommended by Intel Security Development Lifecycle document (SW.01)
-secure.opts.icc.win = -GS
-secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+secure.opts.icx.win = -GS
+secure.opts.icx.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
 
-secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
+secure.opts.icx.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT
 secure.opts.link.lnx = -z relro -z now -z noexecstack
@@ -81,11 +81,11 @@ RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
 # Used as $(eval $(call set_c_compile,$(COMPILER),$(_OS),$(gcc_toolchain))
 C.COMPILE = $(if $(COMPILER.$(_OS).$(COMPILER)),$(COMPILER.$(_OS).$(COMPILER)),$(error COMPILER.$(_OS).$(COMPILER) must be defined)) \
             $(if $(C.COMPILE.gcc_toolchain),--gcc-toolchain=$(C.COMPILE.gcc_toolchain)) \
-            -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
+            -c $(secure.opts.icx.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
 
 DPC.COMPILE = $(if $(COMPILER.$(_OS).dpcpp),$(COMPILER.$(_OS).dpcpp),$(error COMPILER.$(_OS).dpcpp must be defined)) \
               $(if $(DPC.COMPILE.gcc_toolchain),--gcc-toolchain=$(DPC.COMPILE.gcc_toolchain)) \
-              -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
+              -c $(secure.opts.icx.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
 
 # Enable additional options to follow ISO C++ standards
 pedantic.opts = $(pedantic.opts.$(_OS).$(COMPILER))

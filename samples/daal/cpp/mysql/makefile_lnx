@@ -84,7 +84,7 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 
 
 ifeq ($(compiler),intel)
-    CC = icc
+    CC = icx
 endif
 
 ifeq ($(compiler),gnu)

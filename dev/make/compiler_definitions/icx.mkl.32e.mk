@@ -29,15 +29,13 @@ CORE.SERV.COMPILER.icx = generic
 
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
-COMPILER.lnx.icx = icpx -m64 \
+COMPILER.lnx.icx = icx -m64 \
                      -Werror -Wreturn-type
 
 
-COMPILER.win.icx = icpx -m64 \
-                     -Werror -Wreturn-type
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -WX -Wno-error -Qopenmp-simd -Wno-deprecated-declarations -Wno-error=unused-command-line-argument
 
-link.dynamic.lnx.icx = icpx -m64
-link.dynamic.win.icx = icpx -m64
+link.dynamic.lnx.icx = icx -m64
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
@@ -45,7 +43,6 @@ pedantic.opts.icx = -pedantic \
                       -Wno-unused-parameter
 
 pedantic.opts.lnx.icx = $(pedantic.opts.icx)
-pedantic.opts.win.icx = $(pedantic.opts.icx)
 
 p4_OPT.icx   = -march=nocona
 mc3_OPT.icx  = -march=nehalem
