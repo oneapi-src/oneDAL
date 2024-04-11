@@ -25,6 +25,8 @@ namespace oneapi::dal::algo::louvain::test {
 
 namespace dal = oneapi::dal;
 
+using namespace Catch;
+
 class graph_base_data {
 protected:
     graph_base_data() = default;

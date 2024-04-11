@@ -244,6 +244,9 @@ void status_to_exception(const daal::services::Status& s) {
         case ErrorID::ErrorPrecomputedMinNotAvailable:
         case ErrorID::ErrorPrecomputedMaxNotAvailable:
         case ErrorID::ErrorSourceDataNotAvailable:
+        case ErrorID::ErrorHyperparameterNotFound:
+        case ErrorID::ErrorHyperparameterCanNotBeSet:
+        case ErrorID::ErrorHyperparameterBadValue:
         case ErrorID::ErrorFeatureNamesNotAvailable: throw internal_error(description);
         case ErrorID::ErrorMemoryAllocationFailed:
         case ErrorID::ErrorZlibMemoryAllocationFailed:

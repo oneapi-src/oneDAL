@@ -150,6 +150,14 @@ public:
         return *this;
     }
 
+    /// Number of optimizer subiterations
+    std::int64_t get_inner_iterations_count() const;
+
+    auto& set_inner_iterations_count(std::int64_t value) {
+        set_inner_iterations_count_impl(value);
+        return *this;
+    }
+
     /// Table of Logistic Regression coefficients and intercept
     const table& get_packed_coefficients() const;
 
@@ -173,6 +181,7 @@ protected:
     void set_coefficients_impl(const table&);
     void set_packed_coefficients_impl(const table&);
     void set_iterations_count_impl(std::int64_t);
+    void set_inner_iterations_count_impl(std::int64_t);
 
     void set_result_options_impl(const result_option_id&);
 
