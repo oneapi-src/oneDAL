@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
     auto cov_desc = dal::covariance::descriptor{}
                         .set_result_options(dal::covariance::result_options::cov_matrix)
                         .set_bias(true)
-                        .set_assume_centered(true);
+                        .set_assume_centered(false);
 
     auto result = dal::compute(cov_desc, input);
 
