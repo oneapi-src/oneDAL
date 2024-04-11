@@ -170,7 +170,7 @@ elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
         tbb_options=(--cross-compile
           --toolchain-file
-          "${ONEDAL_DIR}"/.ci/env/arm-gcc-crosscompile-toolchain.cmake
+          "${ONEDAL_DIR}"/.ci/env/arm-${compiler}-crosscompile-toolchain.cmake
           --target-arch aarch64
         )
         echo "${ONEDAL_DIR}"/.ci/env/tbb.sh "${tbb_options[@]}"

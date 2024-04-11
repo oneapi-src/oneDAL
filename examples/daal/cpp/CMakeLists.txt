@@ -48,8 +48,10 @@ if(REF_BACKEND)
         "source/pca/pca_cor*"
         "source/qr/qr_dense*"
         "source/svd/svd_dense_batch.cpp"
-)
+    )
 endif()
+
+include("target_excludes.cmake")
 
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")

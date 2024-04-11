@@ -30,6 +30,8 @@ function show_help_text {
 --conda-env:The Conda environment to load
 --build-system:The type of build to perform, e.g. cmake
 --backend:The backend C library to use. Must be one of [mkl, ref]
+--platform:Explicitly pass the platform. This is the same as is passed to the top-level oneDAL build script
+--cross-compile:Indicates whether cross-compilation is being performed
 '
 }
 
@@ -39,24 +41,38 @@ while [[ $# -gt 0 ]]; do
     case $key in
         --test-kind)
         TEST_KIND="$2"
+        shift
         ;;
         --build-dir)
         BUILD_DIR="$2"
+        shift
         ;;
         --compiler)
         compiler="$2"
+        shift
         ;;
         --interface)
         interface="$2"
+        shift
         ;;
         --conda-env)
         conda_env="$2"
+        shift
         ;;
         --build-system)
         build_system="$2"
+        shift
         ;;
         --backend)
         backend="$2"
+        shift
+        ;;
+        --platform)
+        platform="$2"
+        shift
+        ;;
+        --cross-compile)
+        cross_compile="yes"
         ;;
         --help)
         show_help_text
@@ -68,12 +84,11 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
     shift
-    shift
 done
 
 #Global exit code for testing script
 TESTING_RETURN=0
-PLATFORM=${PLATFORM:-$(bash dev/make/identify_os.sh)}
+PLATFORM=${platform:-$(bash dev/make/identify_os.sh)}
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 if [ "$ARCH" == "32e" ]; then
@@ -125,17 +140,21 @@ fi
 source "${BUILD_DIR}"/daal/latest/env/vars.sh
 
 #setup env for TBB
-TBBROOT="${TBBROOT:-${ONEDAL_DIR}/__deps/tbb/${OS}}"
-export TBBROOT
+export TBBROOT="${TBBROOT:-${ONEDAL_DIR}/__deps/tbb/${OS}}"
 export CPATH="${TBBROOT}/include${CPATH:+:$CPATH}"
-export CMAKE_MODULE_PATH="${TBBROOT}/lib/cmake/tbb${CMAKE_MODULE_PATH:+:$CMAKE_MODULE_PATH}"
+export CMAKE_PREFIX_PATH="${TBBROOT}${CMAKE_PREFIX_PATH:+:${CMAKE_PREFIX_PATH}}"
 
 if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
     export LIBRARY_PATH=${TBBROOT}/lib:${LIBRARY_PATH}
 else
-    export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
-    export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LIBRARY_PATH}
+    if [ -d "${TBBROOT}/lib/${full_arch}/gcc4.8"] ; then
+        TBB_LIB_DIR="${TBBROOT}/lib/${full_arch}/gcc4.8"
+    else
+        TBB_LIB_DIR="${TBBROOT}/lib"
+    fi
+    export LD_LIBRARY_PATH=${TBB_LIB_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+    export LIBRARY_PATH=${TBB_LIB_DIR}${LIBRARY_PATH:+:${LIBRARY_PATH}}
 fi
 
 interface=${interface:-daal/cpp}
@@ -177,12 +196,26 @@ for link_mode in "${link_modes[@]}"; do
             mkdir Build
         fi
 
-        ref_backend="OFF"
-        if [ "${backend}" == "ref" ]; then
+        if [ "${backend}" == "ref" ] ; then
             ref_backend="ON"
+        else
+            ref_backend="OFF"
         fi
 
-        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK="${link_mode}" -DTBB_DIR="${TBBROOT}"/lib/cmake/tbb -DREF_BACKEND=${ref_backend}
+        cmake_options=(-B Build
+            -S .
+            -G "Unix Makefiles"
+            -DONEDAL_LINK="${link_mode}"
+            -DREF_BACKEND=${ref_backend})
+
+        if [ "${cross_compile}" == "yes" ] ; then
+            # Set the cmake toolchain file to set up the cross-compilation
+            # correctly
+            cmake_options+=(-DCMAKE_TOOLCHAIN_FILE="${ONEDAL_DIR}"/.ci/env/"${ARCH}"-"${compiler}"-crosscompile-toolchain.cmake)
+        fi
+
+        echo cmake "${cmake_options[@]}"
+        cmake "${cmake_options[@]}"
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
@@ -201,7 +234,7 @@ for link_mode in "${link_modes[@]}"; do
         cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
         for p in "${cmake_results_dir}"/*; do
             e=$(basename "$p")
-            ${p} > "${e}".res 2>&1
+            ${p} &> "${e}".res
             err=$?
             output_result=$(cat "${e}".res)
             mv -f "${e}".res ${cmake_results_dir}/
@@ -210,7 +243,6 @@ for link_mode in "${link_modes[@]}"; do
                 echo "${output_result}"
                 status_ex="$(date +'%H:%M:%S') FAILED\t\t${e} with errno ${err}"
                 TESTING_RETURN=${err}
-                continue
             else
                 echo "${output_result}" | grep -i "error\|warn"
                 status_ex="$(date +'%H:%M:%S') PASSED\t\t${e}"
