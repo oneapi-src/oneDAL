@@ -1,5 +1,4 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,38 +16,24 @@
 
 #pragma once
 
-#include <daal/include/services/daal_defines.h>
+#include "oneapi/dal/detail/cpu_info_impl.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-#if defined(TARGET_X86_64)
-struct cpu_dispatch_sse2 {};
-struct cpu_dispatch_sse42 {};
-struct cpu_dispatch_avx2 {};
-struct cpu_dispatch_avx512 {};
-using cpu_dispatch_default = cpu_dispatch_sse2;
-#elif defined(TARGET_ARM)
-struct cpu_dispatch_sve {};
-using cpu_dispatch_default = cpu_dispatch_sve;
-#elif defined(TARGET_RISCV64)
-struct cpu_dispatch_rv64 {};
-using cpu_dispatch_default = cpu_dispatch_rv64;
-#endif
+class cpu_info_riscv64 : public cpu_info_impl {
+public:
+    cpu_info_riscv64() {
+        info_["top_cpu_extension"] = cpu_extension::rv64;
+        info_["vendor"] = cpu_vendor::riscv64;
+    }
+
+    explicit cpu_info_riscv64(const cpu_extension cpu_extension) {
+        info_["top_cpu_extension"] = cpu_extension;
+        info_["vendor"] = cpu_vendor::riscv64;
+    }
+};
 
 } // namespace v1
-
-#if defined(TARGET_X86_64)
-using v1::cpu_dispatch_sse2;
-using v1::cpu_dispatch_sse42;
-using v1::cpu_dispatch_avx2;
-using v1::cpu_dispatch_avx512;
-#elif defined(TARGET_ARM)
-using v1::cpu_dispatch_sve;
-#elif defined(TARGET_RISCV64)
-using v1::cpu_dispatch_rv64;
-#endif
-
-using v1::cpu_dispatch_default;
-
+using v1::cpu_info_iface;
 } // namespace oneapi::dal::detail

@@ -230,6 +230,8 @@ if [ "${ARCH_ONEDAL}" = "x86_64" ]; then
     ARCH_DIR_ONEDAL="intel64"
 elif [ "${ARCH_ONEDAL}" = "aarch64" ]; then
     ARCH_DIR_ONEDAL="arm"
+elif [ "${ARCH_ONEDAL}" = "riscv64" ]; then
+    ARCH_DIR_ONEDAL="riscv64"
 else
     echo "Unsupported CPU architecture '${ARCH_ONEDAL}'"
     exit 1

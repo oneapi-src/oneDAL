@@ -90,13 +90,16 @@ done
 TESTING_RETURN=0
 PLATFORM=${platform:-$(bash dev/make/identify_os.sh)}
 OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
+ARCH=${PLATFORM:3}
 if [ "$ARCH" == "32e" ]; then
     full_arch=intel64
     arch_dir=intel_intel64
 elif [ "$ARCH" == "arm" ]; then
     full_arch=arm
     arch_dir=arm_aarch64
+elif [ "$ARCH" == "riscv64" ]; then
+    full_arch=riscv64
+    arch_dir=riscv64_riscv64
 else
     echo "Unknown architecture ${ARCH} detected for platform ${PLATFORM}"
     exit 1

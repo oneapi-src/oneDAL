@@ -64,6 +64,9 @@ typedef cpuset_t cpu_set_t;
         #elif defined(TARGET_ARM)
 using LNX_PTR2INT                = uintptr_t;
 constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
+        #elif defined(TARGET_RISCV64)
+            #define LNX_PTR2INT uintptr_t
+            #define LNX_MY1CON 1LL
         #else
             #define LNX_PTR2INT unsigned int
             #define LNX_MY1CON  1

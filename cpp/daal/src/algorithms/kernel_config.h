@@ -34,6 +34,8 @@
     #include "src/algorithms/kernel_inst_x86.h"
 #elif defined(TARGET_ARM)
     #include "src/algorithms/kernel_inst_arm.h"
+#elif defined(TARGET_RISCV64)
+    #include "src/algorithms/kernel_inst_riscv64.h"
 #endif
 
 #define __DAAL_GET_CPUID int cpuid = daalEnv->cpuid;

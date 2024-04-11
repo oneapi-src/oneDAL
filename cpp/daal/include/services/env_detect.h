@@ -52,6 +52,9 @@ enum CpuType
 #elif defined(TARGET_ARM)
     sve         = 0, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
     lastCpuType = sve
+#elif defined(TARGET_RISCV64)
+    rv64      = 0,
+    lastCpuType = rv64
 #endif
 };
 
@@ -102,6 +105,8 @@ public:
         avx512 = 2 /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
 #elif defined(TARGET_ARM)
         sve = 2, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
+#elif defined(TARGET_RISCV64)
+        rv64 = 1
 #endif
     };
 

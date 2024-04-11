@@ -29,6 +29,9 @@
     #include <immintrin.h>
 #elif defined(TARGET_ARM)
     #include <arm_sve.h>
+#elif defined(TARGET_RISCV64)
+    // TODO: Include vector if and when we need to use some vector intrinsics in
+    // here
 #endif
 
 #include "src/services/service_defines.h"
@@ -228,6 +231,26 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 {
     // TODO: ARM implementation for cpuid
+}
+
+bool daal_check_is_intel_cpu()
+{
+    return false;
+}
+#elif defined(TARGET_RISCV64)
+DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
+{
+    return 0;
+}
+
+DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
+{
+    return daal::rv64;
+}
+
+void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
+{
+    // TODO: riscv64 implementation for cpuid
 }
 
 bool daal_check_is_intel_cpu()
