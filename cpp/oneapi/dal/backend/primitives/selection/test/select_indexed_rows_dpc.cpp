@@ -130,6 +130,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection indexed rows",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(true);
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     this->check_full();

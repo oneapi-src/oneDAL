@@ -16,39 +16,22 @@
 # limitations under the License.
 #===============================================================================
 
-# Obtain platform, OS and arch details automatically
-PLATFORM=$(bash dev/make/identify_os.sh)
-OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
+set -eo pipefail
 
-# set default values for optimisation based on arch, these values can be overidden by passed arguments to the script.
-if [[ "${ARCH}" == "32e" ]]
-then
-optimizations=${optimizations:-avx2}
-elif [[ "${ARCH}" == "arm" ]]
-then
-optimizations=${optimizations:-sve}
-else
-echo "Unknown architecture '${ARCH}'"
-exit 1
-fi
+SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../../")
 
-# set PLAT based on OS
-if [[ "${OS}" == "lnx" ]]; then
-    if [[ "${ARCH}" == "32e" ]]; then
-        PLAT=lnx32e
-    elif [[ "${ARCH}" == "arm" ]]; then
-        PLAT=lnxarm
-    fi
-elif [[ "${OS}" == "win" ]]; then
-    if [[ "${ARCH}" == "32e" ]]; then
-        PLAT=win2e
-    fi
-elif [[ "${OS}" == "mac" ]]; then
-    if [[ "${ARCH}" == "32e" ]]; then
-        PLAT=mac32e
-    fi
-fi
+show_help() {
+    echo "Usage: $0 [--help]"
+    echo -e "  --help \t\tShow this help message"
+    echo -e "  --compiler \t\tThe compiler toolchain to use. This is a value that is recognised by the oneDAL top level Makefile"
+    echo -e "  --optimizations \t\tThe microarchitecture to optimize the build for. This is a value that is recognised by the oneDAL top level Makefile"
+    echo -e "  --target \t\tThe oneDAL target to build. This is passed directly to the oneDAL top level Makefile. Multiple targets can be passed by supplying a space-separated string as an argument"
+    echo -e "  --backend-config \t\tThe optimised backend CPU library to use. Must be one of [mkl, ref]"
+    echo -e "  --conda-env \t\tThe name of the conda environment to load"
+    echo -e "  --cross-compile \t\tIndicates that the target platform to build for is not the host platform"
+    echo -e "  --plat \t\tThe platform to build for. This is passed to the oneDAL top level Makefile"
+}
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -63,21 +46,22 @@ while [[ $# -gt 0 ]]; do
         --target)
         target="$2"
         shift;;
-        --backend_config)
+        --backend-config)
         backend_config="$2"
         shift;;
         --conda-env)
         conda_env="$2"
         shift;;
-        --cross_compile)
+        --cross-compile)
         cross_compile="yes"
         ;;
-        --arch)
-        ARCH="$2"
-        shift;;
         --plat)
         PLAT="$2"
         shift;;
+        --help)
+        show_help
+        exit 0
+        ;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -86,12 +70,18 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+PLAT=${PLAT:-$(bash ${ONEDAL_DIR}/dev/make/identify_os.sh)}
+OS=${PLAT::3}
+ARCH=${PLAT:3:3}
+
 backend_config=${backend_config:-mkl}
-GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
-    source /usr/share/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
+        conda_init_path=/usr/share/miniconda/etc/profile.d/conda.sh
+        if [ -f ${conda_init_path} ] ; then
+            source ${conda_init_path}
+        fi
         conda activate ${conda_env}
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
@@ -104,8 +94,11 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
-    source /usr/local/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
+        conda_init_path=/usr/local/miniconda/etc/profile.d/conda.sh
+        if [ -f ${conda_init_path} ]; then
+            source ${conda_init_path}
+        fi
         conda activate ${conda_env}
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
@@ -127,14 +120,14 @@ fi
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
-    $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
+    ${ONEDAL_DIR}/dev/download_micromkl.sh with_gpu=${with_gpu}
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "__deps/open_blas" ]; then
         if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
-            $(pwd)/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
+            ${ONEDAL_DIR}/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
         else
-            $(pwd)/.ci/env/openblas.sh
+            ${ONEDAL_DIR}/.ci/env/openblas.sh
         fi
     fi
 else
@@ -143,12 +136,12 @@ fi
 
 # TBB setup
 if [[ "${ARCH}" == "32e" ]]; then
-    $(pwd)/dev/download_tbb.sh
+    ${ONEDAL_DIR}/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        $(pwd)/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
+        ${ONEDAL_DIR}/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
     else
-        $(pwd)/.ci/env/tbb.sh
+        ${ONEDAL_DIR}/.ci/env/tbb.sh
     fi
 fi
 
@@ -160,21 +153,13 @@ fi
 echo "Calling make"
 echo $CXX
 echo $CC
-echo make ${target:-daal_c} ${make_op} \
-    COMPILER=${compiler} \
-    REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}" \
-    PLAT=$PLAT
-make ${target:-daal_c} ${make_op} \
+echo make ${target:-onedal_c} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${optimizations}" \
     BACKEND_CONFIG="${backend_config}" \
     PLAT=${PLAT}
-err=$?
-
-if [ ${err} -ne 0 ]; then
-    status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
-    GLOBAL_RETURN=${err}
-fi
-
-exit ${GLOBAL_RETURN}
+make ${target:-onedal_c} ${make_op} \
+    COMPILER=${compiler} \
+    REQCPU="${optimizations}" \
+    BACKEND_CONFIG="${backend_config}" \
+    PLAT=${PLAT}
