@@ -770,7 +770,7 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
 #endif
 
 #define CALL_VOID_FUNC_FROM_DLL(fn_dpref, fn_name, argdecl, argcall)          \
-    typedef void(*##fn_dpref##fn_name##_t)##argdecl;                          \
+    typedef void(*fn_dpref##fn_name##_t)##argdecl;                          \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;              \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx2_, fn_name, argdecl, argcall)   \
@@ -781,11 +781,11 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     extern "C" DAAL_EXPORT void fn_dpref##fn_cpu##fn_name##argdecl                                               \
     {                                                                                                            \
         load_daal_thr_dll();                                                                                     \
-        if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
+        if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
         {                                                                                                        \
-            ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+            fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
         }                                                                                                        \
-        ##fn_dpref##fn_name##_ptr##argcall;                                                                      \
+        fn_dpref##fn_name##_ptr##argcall;                                                                      \
     }
 
 #if defined(_WIN64)
@@ -793,18 +793,18 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
         extern "C" DAAL_EXPORT void fn_dpref##fn_cpu##fn_name##argdecl                                               \
         {                                                                                                            \
             load_daal_thr_dll();                                                                                     \
-            if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
+            if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
             {                                                                                                        \
-                ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+                fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
             }                                                                                                        \
-            ##fn_dpref##fn_name##_ptr##argcall;                                                                      \
+            fn_dpref##fn_name##_ptr##argcall;                                                                      \
         }
 #else
     #define CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, fn_cpu, fn_name, argdecl, argcall)
 #endif
 
 #define CALL_RET_FUNC_FROM_DLL(ret_type, fn_dpref, fn_name, argdecl, argcall)          \
-    typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                               \
+    typedef ret_type(*fn_dpref##fn_name##_t)##argdecl;                               \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                       \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx2_, fn_name, argdecl, argcall)   \
@@ -815,9 +815,9 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     extern "C" DAAL_EXPORT ret_type fn_dpref##fn_cpu##fn_name##argdecl                                           \
     {                                                                                                            \
         load_daal_thr_dll();                                                                                     \
-        if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
+        if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
         {                                                                                                        \
-            ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+            fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
         }                                                                                                        \
         return fn_dpref##fn_name##_ptr##argcall;                                                                 \
     }
@@ -827,15 +827,16 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
         extern "C" DAAL_EXPORT ret_type fn_dpref##fn_cpu##fn_name##argdecl                                           \
         {                                                                                                            \
             load_daal_thr_dll();                                                                                     \
-            if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
+            if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
             {                                                                                                        \
-                ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+                fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
             }                                                                                                        \
             return fn_dpref##fn_name##_ptr##argcall;                                                                 \
         }
 #else
     #define CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)
 #endif
+
 
 /* Used directly in Intel(R) oneAPI Data Analytics Library (oneDAL) */
 CALL_VOID_FUNC_FROM_DLL(fpk_blas_, dsyrk,
