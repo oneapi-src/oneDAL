@@ -148,7 +148,7 @@ if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
     export LIBRARY_PATH=${TBBROOT}/lib:${LIBRARY_PATH}
 else
-    if [ -d "${TBBROOT}/lib/${full_arch}/gcc4.8"] ; then
+    if [ -d "${TBBROOT}/lib/${full_arch}/gcc4.8" ] ; then
         TBB_LIB_DIR="${TBBROOT}/lib/${full_arch}/gcc4.8"
     else
         TBB_LIB_DIR="${TBBROOT}/lib"
@@ -206,7 +206,7 @@ for link_mode in "${link_modes[@]}"; do
             -S .
             -G "Unix Makefiles"
             -DONEDAL_LINK="${link_mode}"
-            -DREF_BACKEND=${ref_backend})
+            -DREF_BACKEND="${ref_backend}")
 
         if [ "${cross_compile}" == "yes" ] ; then
             # Set the cmake toolchain file to set up the cross-compilation
