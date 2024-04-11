@@ -127,7 +127,7 @@ template <typename T>
 struct logical_or {
     using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = false;
-#ifdef __SYCL_DEVICE_ONLY__
+#ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::logical_or<T> native{};
 #else
     constexpr static inline std::logical_or<T> native{};
