@@ -39,7 +39,11 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>
                                    std::tuple<float, sum<float>, abs<float>>,
                                    std::tuple<double, sum<double>, identity<double>>,
                                    std::tuple<double, sum<double>, square<double>>,
-                                   std::tuple<double, sum<double>, abs<double>>>;
+                                   std::tuple<double, sum<double>, abs<double>>,
+                                   std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                   std::tuple<float, logical_or<float>, isinf<float>>,
+                                   std::tuple<double, logical_or<double>, isinfornan<double>>,
+                                   std::tuple<double, logical_or<double>, isinf<double>>>;
 
 template <typename Param>
 class reduction_rm_test_uniform : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {

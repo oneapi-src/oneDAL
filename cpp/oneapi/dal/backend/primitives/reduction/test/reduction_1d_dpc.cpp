@@ -32,7 +32,9 @@ namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<double, sum<double>, square<double>>>;
+                                   std::tuple<double, sum<double>, square<double>>,
+                                   std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                   std::tuple<double, logical_or<double>, isinfornan<double>>>;
 
 template <typename Param>
 class reduction_test_random_1d : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
