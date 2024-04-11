@@ -35,7 +35,7 @@ void run(sycl::queue &q) {
                         .set_result_options(dal::covariance::result_options::cov_matrix |
                                             dal::covariance::result_options::means)
                         .set_bias(true)
-                        .set_assume_centered(true);
+                        .set_assume_centered(false);
 
     auto result = dal::compute(q, cov_desc, input);
 

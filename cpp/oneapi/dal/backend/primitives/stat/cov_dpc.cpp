@@ -52,6 +52,19 @@ sycl::event means(sycl::queue& q,
     });
 }
 
+///  A kernel that computes 2d array of covariance matrix from 2d xtx array
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  q          The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  sums       The input sums of size `column_count`
+/// @param[in]  cov        The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  bias       The input bias value
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the covariance matrix array for reading and writing
 template <typename Float>
 inline sycl::event compute_covariance(sycl::queue& q,
                                       std::int64_t row_count,
@@ -87,6 +100,20 @@ inline sycl::event compute_covariance(sycl::queue& q,
     });
 }
 
+///  A kernel that computes 2d array of covariance matrix from 2d xtx array
+///  based on the information that the input data was centering
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  q          The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  sums       The input sums of size `column_count`
+/// @param[in]  cov        The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  bias       The input bias value
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the covariance matrix array for reading and writing
 template <typename Float>
 inline sycl::event compute_covariance_centered(sycl::queue& q,
                                                std::int64_t row_count,
@@ -109,12 +136,9 @@ inline sycl::event compute_covariance_centered(sycl::queue& q,
     Float* cov_ptr = cov.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_range_2d(p, p);
-
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::item<2> id) {
-            const std::int64_t gi = id.get_linear_id();
-            cov_ptr[gi] *= multiplier;
+        cgh.parallel_for(make_range_1d(p * p), [=](sycl::id<1> idx) {
+            cov_ptr[idx] *= multiplier;
         });
     });
 }

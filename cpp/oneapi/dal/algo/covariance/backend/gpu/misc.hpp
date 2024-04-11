@@ -51,9 +51,7 @@ auto compute_sums(sycl::queue& q,
 
     const std::int64_t column_count = data.get_dimension(1);
     if (assume_centered) {
-        auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-        auto fill_event = pr::fill(q, sums, Float(0), deps);
-        return std::make_tuple(sums, fill_event);
+        return pr::ndarray<Float, 1>::zeros(q, { column_count }, alloc::device);
     }
     else {
         auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
@@ -68,10 +66,10 @@ auto compute_sums(sycl::queue& q,
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The SYCL queue
-/// @param[in]  sums  The input sums of size `column_count`
+/// @param[in]  queue      The SYCL queue
+/// @param[in]  sums       The input sums of size `column_count`
 /// @param[in]  row_count  The number of `row_count` of the input data
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
 ///
 /// @return A tuple of two elements, where the first element is the resulting 1d array of means
 /// of size `column_count` and the second element is a SYCL event indicating the availability
@@ -95,12 +93,12 @@ auto compute_means(sycl::queue& q,
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The SYCL queue
+/// @param[in]  queue      The SYCL queue
 /// @param[in]  row_count  The number of `row_count` of the input data
-/// @param[in]  xtx  The input xtx matrix of size `column_count` x `column_count`
-/// @param[in]  sums  The input sums of size `column_count`
-/// @param[in]  bias  The input bias value
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+/// @param[in]  xtx        The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  sums       The input sums of size `column_count`
+/// @param[in]  bias       The input bias value
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
 ///
 /// @return A tuple of two elements, where the first element is the resulting 2d array of covariance matrix
 /// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
@@ -132,11 +130,11 @@ auto compute_covariance(sycl::queue& q,
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The SYCL queue
+/// @param[in]  queue      The SYCL queue
 /// @param[in]  row_count  The number of `row_count` of the input data
-/// @param[in]  xtx  The input xtx matrix of size  `column_count` x `column_count`
-/// @param[in]  sums  The input sums of size `column_count`
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+/// @param[in]  xtx        The input xtx matrix of size  `column_count` x `column_count`
+/// @param[in]  sums       The input sums of size `column_count`
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
 ///
 /// @return A tuple of two elements, where the first element is the resulting 2d array of correlation matrix
 /// of size `column_count` x `column_count` and the second element is a SYCL event indicating the availability
@@ -200,9 +198,9 @@ auto compute_crossproduct(sycl::queue& q,
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The SYCL queue
+/// @param[in]  queue      The SYCL queue
 /// @param[in]  row_count  The number of `row_count` of the input data
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
 ///
 /// @return A tuple of two elements, where the first element is the resulting number of rows
 /// and the second element is a SYCL event indicating the availability
@@ -233,14 +231,14 @@ auto init(sycl::queue& q,
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  queue The SYCL queue
-/// @param[in]  crossproducts  The new crossproducts of size `column_count` x `column_count`
-/// @param[in]  sums  The new sums of size `column_count`
+/// @param[in]  queue                  The SYCL queue
+/// @param[in]  crossproducts          The new crossproducts of size `column_count` x `column_count`
+/// @param[in]  sums                   The new sums of size `column_count`
 /// @param[in]  current_crossproducts  The current crossproducts of size `column_count` x `column_count`
-/// @param[in]  current_sums  The current sums of size `column_count`
-/// @param[in]  current_nobs  The current nobs of size `1`
-/// @param[in]  row_count  The number of `row_count` of the input data
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+/// @param[in]  current_sums           The current sums of size `column_count`
+/// @param[in]  current_nobs           The current nobs of size `1`
+/// @param[in]  row_count              The number of `row_count` of the input data
+/// @param[in]  deps                   Events indicating availability of the `data` for reading or writing
 ///
 /// @return A tuple of four elements, where the first element is the resulting sums,
 /// the second is the resulting crossproducts, the third is the resulting number of partial rows
