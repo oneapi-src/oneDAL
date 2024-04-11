@@ -130,8 +130,7 @@ struct logical_or {
 #ifdef __SYCL_DEVICE_ONLY__
     constexpr static inline sycl::logical_or<T> native{};
 #else
-    constexpr static inline auto native = [](const T& a, const T& b) {
-        return std::logical_or<T>(a, b);
+    constexpr static inline std::logical_or<T> native{};
     };
 #endif
     T operator()(const T& a, const T& b) const {
