@@ -34,8 +34,11 @@ and regression algorithms, as well as association rules discovery.
    ensembles/index.rst
    graph/index.rst
    kernel-functions/index.rst
+   logistic-regression/index.rst
+   linear-regression/index.rst
    nearest-neighbors/index.rst
    objective-function/index.rst
+   optimizers/index.rst
    pairwise-distances/index.rst
    statistics/index.rst
    svm/index.rst
