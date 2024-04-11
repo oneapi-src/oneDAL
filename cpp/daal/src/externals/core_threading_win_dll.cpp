@@ -791,7 +791,7 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
 
 
 #define CALL_RET_FUNC_FROM_DLL(ret_type, fn_dpref, fn_name, argdecl, argcall)          \
-    typedef ret_type(*fn_dpref##fn_name##_t)argdecl;                               \
+    typedef ret_type(*fn_dpref##fn_name##_t)##argdecl;                               \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                       \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx2_, fn_name, argdecl, argcall)   \
@@ -1086,7 +1086,7 @@ CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f *
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f * pSrcDst, Ipp32f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 
 #define CALL_VOID_FUNC_FROM_DLL_ALONE(fn_dpref, fn_name, argdecl, argcall)                               \
-    typedef void(*##fn_dpref##fn_name##_t)argdecl;                                                     \
+    typedef void(*##fn_dpref##fn_name##_t)##argdecl;                                                     \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
     extern "C" DAAL_EXPORT void fn_dpref##fn_name##argdecl                                               \
     {                                                                                                    \
@@ -1095,11 +1095,11 @@ CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f *
         {                                                                                                \
             ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
         }                                                                                                \
-        ##fn_dpref##fn_name##_ptr argcall;                                                              \
+        ##fn_dpref##fn_name##_pt##argcall;                                                              \
     }
 
 #define CALL_RET_FUNC_FROM_DLL_ALONE(ret_type, fn_dpref, fn_name, argdecl, argcall)                      \
-    typedef ret_type(*##fn_dpref##fn_name##_t)argdecl;                                                 \
+    typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                                                 \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
     extern "C" DAAL_EXPORT ret_type fn_dpref##fn_name##argdecl                                           \
     {                                                                                                    \
