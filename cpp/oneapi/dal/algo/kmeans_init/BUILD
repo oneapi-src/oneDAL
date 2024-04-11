@@ -37,7 +37,7 @@ dal_test_suite(
 
 dal_test_suite(
     name = "tests",
-    host_tests = [
+    tests = [
         ":interface_tests",
     ],
 )

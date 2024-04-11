@@ -55,10 +55,14 @@ CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
 pushd OpenBLAS
   make clean
   if [ "${cross_compile}" == "yes" ]; then
-    echo make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1 CFLAGS=\"${cflags}\"
-    make -j${CoreCount} TARGET=${target} HOSTCC=${host_compiler} CC=${compiler} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1 CFLAGS=\"${cflags}\"
+    make_options=(-j"${CoreCount}" TARGET="${target}" HOSTCC="${host_compiler}" CC="${compiler}" NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1 CFLAGS="${cflags}")
+    echo make "${make_options[@]}"
+    make "${make_options[@]}"
   else
-    make -j${CoreCount} NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1
+    make_options=(-j"${CoreCount}" NO_FORTRAN=1 USE_OPENMP=0 USE_THREAD=0 USE_LOCKING=1)
+    echo make "${make_options[@]}"
+    make "${make_options[@]}"
   fi
-  make install PREFIX=../__deps/open_blas
+  # The install needs to be done with the same options as the build
+  make install "${make_options[@]}" PREFIX=../__deps/open_blas
 popd
