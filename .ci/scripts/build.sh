@@ -81,9 +81,11 @@ if [ "${OS}" == "lnx" ]; then
         conda_init_path=/usr/share/miniconda/etc/profile.d/conda.sh
         if [ -f ${conda_init_path} ] ; then
             source ${conda_init_path}
+            conda activate ${conda_env}
+            echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+        else
+            echo ${conda_init_path}
         fi
-        conda activate ${conda_env}
-        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
 
@@ -98,9 +100,11 @@ elif [ "${OS}" == "mac" ]; then
         conda_init_path=/usr/local/miniconda/etc/profile.d/conda.sh
         if [ -f ${conda_init_path} ]; then
             source ${conda_init_path}
+            conda activate ${conda_env}
+            echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+        else
+            echo ${conda_init_path}
         fi
-        conda activate ${conda_env}
-        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
     with_gpu="false"
