@@ -22,6 +22,7 @@ SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../..")
 OPENBLAS_DEFAULT_SOURCE_DIR="${ONEDAL_DIR}/__work/openblas"
+BLAS_DEFAULT_VERSION="v0.3.27"
 
 show_help() {
   echo "Usage: $0 [--help]"
@@ -33,6 +34,8 @@ show_help() {
 --cflags <flags>:Any extra flags to be added to the C compile line
 --cross-compile:Indicates that we are doing cross compilation
 --blas-src:The path to an existing OpenBLAS source dircetory. The source is cloned if this parameter is omitted
+--prefix:The path where OpenBLAS will be installed
+--version:The version of OpenBLAS to install. This is a git reference from the OpenBLAS repo, and defaults to ${BLAS_DEFAULT_VERSION}
 '
 }
 
@@ -61,6 +64,12 @@ while [[ $# -gt 0 ]]; do
         --blas-src)
         blas_src_dir="$2"
         shift;;
+        --prefix)
+        PREFIX="$2"
+        shift;;
+        --version)
+        BLAS_VERSION="$2"
+        shift;;
         --help)
         show_help
         exit 0
@@ -78,13 +87,15 @@ host_compiler=${host_compiler:-gcc}
 compiler=${compiler:-aarch64-linux-gnu-gcc}
 
 target_arch=${target_arch:-$(uname -m)}
-blas_prefix="${ONEDAL_DIR}/__deps/openblas_${target_arch}"
+OPENBLAS_DEFAULT_PREFIX="${ONEDAL_DIR}/__deps/openblas_${target_arch}"
+blas_prefix="${PREFIX:-${OPENBLAS_DEFAULT_PREFIX}}"
+BLAS_VERSION="${BLAS_VERSION:-${BLAS_DEFAULT_VERSION}}"
 
 sudo apt-get update
 sudo apt-get -y install build-essential gcc gfortran
 blas_src_dir=${blas_src_dir:-$OPENBLAS_DEFAULT_SOURCE_DIR}
 if [[ ! -d "${blas_src_dir}" ]] ; then
-  git clone https://github.com/OpenMathLib/OpenBLAS "${blas_src_dir}"
+  git clone --depth=1 --branch "${BLAS_VERSION}" https://github.com/OpenMathLib/OpenBLAS "${blas_src_dir}"
 fi
 
 CoreCount=$(nproc --all)
