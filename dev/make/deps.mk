@@ -77,6 +77,8 @@ $1 = $$(if $$(or $$(.sources-changed),$$(and $$(.mkfiles-changed),$$(call .trigg
 # Enhance build commands with support for dependency generation
 # (does not depend on macro from which particular command if called, only on command executable name)
 dep-gen-enhanced-common   = $(call $(SELF),$1 $(.copt-gen-deps)) && $(.keep-raw-deps) sed -n $(sed.-i) $(sed.fix-deps) $(sed.rm-abs-paths) -e '/./{ p; $(sed.mk-phony-targets)}' $(.dep-file-tmp)
+dep-gen-enhanced.icc   = $(dep-gen-enhanced-common)
+dep-gen-enhanced.icl   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.icx   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.g++   = $(dep-gen-enhanced-common)
 dep-gen-enhanced.dpcpp = $(if $(OS_is_win),,$(dep-gen-enhanced-common))
