@@ -122,7 +122,7 @@ ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
                                                        const F *data,                      \
                                                        const std::int64_t *column_indices, \
                                                        const std::int64_t *row_offsets,    \
-                                                       const event_vector & deps);
+                                                       const event_vector &deps);
 
 INSTANTIATE(float)
 INSTANTIATE(double)
