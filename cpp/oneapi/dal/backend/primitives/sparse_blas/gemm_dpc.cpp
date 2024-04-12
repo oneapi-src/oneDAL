@@ -27,7 +27,7 @@ sycl::event gemm(sycl::queue& queue,
                  ndview<Float, 2, co>& c,
                  const Float alpha,
                  const Float beta,
-                 const std::vector<sycl::event>& dependencies) {
+                 const event_vector& dependencies) {
     ONEDAL_ASSERT(b.get_dimension(1) == c.get_dimension(1));
     ONEDAL_ASSERT(c.has_mutable_data());
 
@@ -73,7 +73,7 @@ sycl::event gemm(sycl::queue& queue,
                                                        ndview<F, 2, co>& c,       \
                                                        const F alpha,             \
                                                        const F beta,              \
-                                                       const std::vector<sycl::event>& deps);
+                                                       const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(bo, co) \
     INSTANTIATE(float, bo, co)    \

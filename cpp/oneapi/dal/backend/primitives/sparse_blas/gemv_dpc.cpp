@@ -27,7 +27,7 @@ sycl::event gemv(sycl::queue& queue,
                  ndview<Float, 1>& y,
                  const Float alpha,
                  const Float beta,
-                 const std::vector<sycl::event>& dependencies) {
+                 const event_vector& dependencies) {
     ONEDAL_ASSERT(x.has_data());
     ONEDAL_ASSERT(y.has_mutable_data());
 
@@ -49,7 +49,7 @@ sycl::event gemv(sycl::queue& queue,
                                                ndview<F, 1>& y,          \
                                                const F alpha,            \
                                                const F beta,             \
-                                               const std::vector<sycl::event>& deps);
+                                               const event_vector& deps);
 
 INSTANTIATE(float);
 INSTANTIATE(double);

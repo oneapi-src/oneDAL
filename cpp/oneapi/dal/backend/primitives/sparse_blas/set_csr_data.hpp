@@ -56,7 +56,7 @@ sycl::event set_csr_data(sycl::queue &queue,
                          const dal::array<const Float> &data,
                          const dal::array<const std::int64_t> &column_indices,
                          const dal::array<const std::int64_t> &row_offsets,
-                         const std::vector<sycl::event> &dependencies = {});
+                         const event_vector &dependencies = {});
 
 /// Fill the internal CSR data structure of the matrix handle with the data
 /// provided as 3 memory blocks in CSR layout.
@@ -88,7 +88,7 @@ sycl::event set_csr_data(sycl::queue &queue,
                          const Float *data,
                          const std::int64_t *column_indices,
                          const std::int64_t *row_offsets,
-                         const std::vector<sycl::event> &dependencies = {});
+                         const event_vector &dependencies = {});
 
 /// Fill the internal CSR data structure of the matrix handle with the data
 /// provided as a reference to `csr_table` object.
@@ -104,7 +104,7 @@ sycl::event set_csr_data(sycl::queue &queue,
 sycl::event set_csr_data(sycl::queue &queue,
                          sparse_matrix_handle &handle,
                          const dal::csr_table &table,
-                         const std::vector<sycl::event> &dependencies = {});
+                         const event_vector &dependencies = {});
 
 #endif // ifdef ONEDAL_DATA_PARALLEL
 
