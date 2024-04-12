@@ -131,7 +131,7 @@ struct logical_or {
     constexpr static inline sycl::logical_or<T> native{};
 #else
     constexpr static inline std::logical_or<T> native{};
-    };
+};
 #endif
     T operator()(const T& a, const T& b) const {
         return native(a, b);
