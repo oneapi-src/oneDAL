@@ -136,6 +136,9 @@ INSTANTIATE_FLOAT(sum, identity)
 INSTANTIATE_FLOAT(sum, abs)
 INSTANTIATE_FLOAT(sum, square)
 
+INSTANTIATE_FLOAT(logical_or, isinfornan)
+INSTANTIATE_FLOAT(logical_or, isinf)
+
 #undef INSTANTIATE_FLOAT
 
 #undef INSTANTIATE
