@@ -27,7 +27,7 @@ CORE.SERV.COMPILER.icx = generic
 -Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib=libirc
 -DEBC.icx = -g
 
--Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
+-Qopt = $(if $(OS_is_win),-qopt-,-qopt-)
 
 COMPILER.lnx.icx = icx -m64 \
                      -Werror -Wreturn-type
