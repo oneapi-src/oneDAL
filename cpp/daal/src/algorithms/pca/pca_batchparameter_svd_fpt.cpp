@@ -33,20 +33,20 @@ namespace interface3
 {
 /** Constructs PCA parameters */
 template <typename algorithmFPType>
-DAAL_EXPORT BatchParameter<algorithmFPType, svdDense>::BatchParameter(const services::SharedPtr<normalization::zscore::BatchImpl> & normalization)
+BatchParameter<algorithmFPType, svdDense>::BatchParameter(const services::SharedPtr<normalization::zscore::BatchImpl> & normalization)
     : normalization(normalization) {};
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status BatchParameter<algorithmFPType, svdDense>::check() const
+services::Status BatchParameter<algorithmFPType, svdDense>::check() const
 {
     DAAL_CHECK(normalization, services::ErrorNullAuxiliaryAlgorithm);
     return services::Status();
 }
 
-template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter(
+template BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter(
     const services::SharedPtr<normalization::zscore::BatchImpl> & normalization);
 
-template DAAL_EXPORT services::Status BatchParameter<DAAL_FPTYPE, svdDense>::check() const;
+template services::Status BatchParameter<DAAL_FPTYPE, svdDense>::check() const;
 
 } // namespace interface3
 } // namespace pca
