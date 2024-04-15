@@ -71,7 +71,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__INPUT"></a>
  * \brief %Input objects for engines
  */
-class DAAL_EXPORT Input : public daal::algorithms::Input
+class Input : public daal::algorithms::Input
 {
 public:
     /**
@@ -111,7 +111,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the engine
  */
-class DAAL_EXPORT Result : public daal::algorithms::Result
+class Result : public daal::algorithms::Result
 {
 public:
     /** \brief Constructor */
