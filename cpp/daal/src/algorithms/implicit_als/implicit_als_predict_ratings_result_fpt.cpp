@@ -56,8 +56,7 @@ Status Result::allocate(const daal::algorithms::Input * input, const daal::algor
     return st;
 }
 
-template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                          const int method);
+template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace interface1
 } // namespace ratings

@@ -30,10 +30,9 @@ namespace algorithms
 namespace pca
 {
 template services::Status PartialResult<svdDense>::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                                     const daal::algorithms::Parameter * parameter, const int method);
+                                                                         const daal::algorithms::Parameter * parameter, const int method);
 template services::Status PartialResult<svdDense>::initialize<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                                       const daal::algorithms::Parameter * parameter,
-                                                                                       const int method);
+                                                                           const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace pca
 } // namespace algorithms

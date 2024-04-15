@@ -785,8 +785,7 @@ public:
         * \param[in] method        Computation method
         */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
-                                          const Method method);
+    services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const Method method);
 
     /**
     * Checks the results of the PCA algorithm

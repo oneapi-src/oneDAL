@@ -42,8 +42,8 @@ using daal::data_management::internal::SyclHomogenNumericTable;
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daal::algorithms::Input * input,
-                                                                       const daal::algorithms::Parameter * parameter, const int method)
+services::Status PartialResult<correlationDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                           const int method)
 {
     services::Status s;
 
@@ -75,8 +75,8 @@ DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daa
 };
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<correlationDense>::initialize(const daal::algorithms::Input * input,
-                                                                         const daal::algorithms::Parameter * parameter, const int method)
+services::Status PartialResult<correlationDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                             const int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, get(nObservationsCorrelation)->assign((algorithmFPType)0.0))

@@ -76,8 +76,7 @@ Status Result::allocate(const daal::algorithms::Input * input, const daal::algor
     return status;
 }
 
-template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
-                                                          const int method);
+template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
 } // namespace transform
 } // namespace pca

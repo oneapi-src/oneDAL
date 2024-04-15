@@ -57,8 +57,7 @@ Status Result::allocate(const daal::algorithms::Input * input, const Parameter *
     return s;
 }
 
-template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
-                                                                    const int method);
+template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, const int method);
 
 } // namespace training
 } // namespace elastic_net

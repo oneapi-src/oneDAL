@@ -41,8 +41,8 @@ namespace pca
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                               const int method)
+services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                   const int method)
 {
     services::Status s;
     set(nObservationsSVD, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTableIface::doAllocate, 0, &s));
@@ -55,8 +55,8 @@ DAAL_EXPORT services::Status PartialResult<svdDense>::allocate(const daal::algor
 };
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<svdDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                                 const int method)
+services::Status PartialResult<svdDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, get(nObservationsSVD)->assign((algorithmFPType)0.0))

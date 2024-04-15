@@ -43,8 +43,7 @@ services::Status BatchParameter<algorithmFPType, svdDense>::check() const
     return services::Status();
 }
 
-template BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter(
-    const services::SharedPtr<normalization::zscore::BatchImpl> & normalization);
+template BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter(const services::SharedPtr<normalization::zscore::BatchImpl> & normalization);
 
 template services::Status BatchParameter<DAAL_FPTYPE, svdDense>::check() const;
 

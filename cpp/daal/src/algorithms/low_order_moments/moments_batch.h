@@ -78,8 +78,7 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
  * \param[in] method            Computation method
  */
 template <typename algorithmFPType>
-services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
-                                              const int method)
+services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
 {
     size_t nFeatures;
     services::Status s;
