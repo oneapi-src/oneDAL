@@ -29,9 +29,9 @@ namespace algorithms
 {
 namespace pca
 {
-template DAAL_EXPORT services::Status PartialResult<svdDense>::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+template services::Status PartialResult<svdDense>::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                                      const daal::algorithms::Parameter * parameter, const int method);
-template DAAL_EXPORT services::Status PartialResult<svdDense>::initialize<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+template services::Status PartialResult<svdDense>::initialize<DAAL_FPTYPE>(const daal::algorithms::Input * input,
                                                                                        const daal::algorithms::Parameter * parameter,
                                                                                        const int method);
 
