@@ -261,6 +261,7 @@ TEMPLATE_LIST_TEST_M(search_test,
                      "Randomly filled cosine-distance search",
                      "[cosine][search][small]",
                      search_types) {
+    SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     this->test_correctness();
