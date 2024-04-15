@@ -30,12 +30,11 @@ CORE.SERV.COMPILER.dpcpp = generic
 
 COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
-COMPILER.win.dpcpp = icpx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -WX \
-                     -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
-                     -Werror -Wreturn-type-Wno-deprecated-declarations -fsycl-device-code-split=per_kernel -E -dM
+COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
+                     -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
 
 link.dynamic.lnx.dpcpp = icpx -fsycl -m64 -fsycl-device-code-split=per_kernel
-link.dynamic.win.dpcpp = icpx -fsycl -m64 -fsycl-device-code-split=per_kernel
+link.dynamic.win.dpcpp = icx -fsycl -m64 -fsycl-device-code-split=per_kernel
 
 pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \
