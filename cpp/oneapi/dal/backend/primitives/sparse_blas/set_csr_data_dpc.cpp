@@ -69,10 +69,10 @@ sycl::event set_csr_data(sycl::queue &queue,
                                      deps);
 }
 
-ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
-                                       sparse_matrix_handle &handle,
-                                       const dal::csr_table &table,
-                                       const event_vector &deps) {
+sycl::event set_csr_data(sycl::queue &queue,
+                         sparse_matrix_handle &handle,
+                         const dal::csr_table &table,
+                         const event_vector &deps) {
     ONEDAL_ASSERT(table.has_data());
     data_type dtype = table.get_metadata().get_data_type(0);
     ONEDAL_ASSERT(dtype == data_type::float32 || dtype == data_type::float64);
