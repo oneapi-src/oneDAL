@@ -41,7 +41,11 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
 DAAL_EXPORT HMODULE load_onedal_thread_dll()
 {
+#ifdef _DEBUG
+    return DAAL_LOAD_DLL("onedal_threadd.2.dll");
+#else
     return DAAL_LOAD_DLL("onedal_thread.2.dll");
+#endif
 }
 
 static void load_daal_thr_dll(void)

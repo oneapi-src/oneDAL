@@ -50,6 +50,10 @@ if [ -x "$(command -v clang)" ]; then
     echo "Clang:"
     clang --version
 fi
+if [ -x "$(command -v icc)" ]; then
+    echo "ICC:"
+    icc --version
+fi
 if [ -x "$(command -v icx)" ]; then
     echo "ICX:"
     icx --version
