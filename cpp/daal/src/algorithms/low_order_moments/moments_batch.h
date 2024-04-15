@@ -42,7 +42,7 @@ namespace low_order_moments
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     size_t nFeatures = 0;
@@ -78,7 +78,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
  * \param[in] method            Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
                                               const int method)
 {
     size_t nFeatures;
