@@ -33,7 +33,7 @@ COMPILER.lnx.icx = icx -m64 \
                      -Werror -Wreturn-type
 
 
-COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -WX -Wno-error -Qopenmp-simd -Wno-deprecated-declarations -Wno-error=unused-command-line-argument
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -WX -Qopenmp-simd -Wno-deprecated-declarations
 
 link.dynamic.lnx.icx = icx -m64
 
