@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/covariance/common.hpp"
+#include "oneapi/dal/detail/system_parameters.hpp"
 
 namespace oneapi::dal::covariance {
 
@@ -35,7 +36,7 @@ template <typename Task>
 class partial_compute_result_impl;
 
 template <typename Task = task::by_default>
-class compute_parameters : public base {
+class compute_parameters : public dal::detail::system_parameters {
 public:
     explicit compute_parameters();
     compute_parameters(compute_parameters&&) = default;
