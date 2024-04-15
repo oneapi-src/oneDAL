@@ -129,7 +129,7 @@ public:
  *      - Result class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = lloydDense>
-class DAAL_EXPORT Distributed
+class Distributed
 {};
 
 /**
@@ -146,7 +146,7 @@ class DAAL_EXPORT Distributed
  *      - \ref ResultId Identifiers of results of K-Means algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::kmeans::Input InputType;
@@ -294,7 +294,7 @@ private:
  *      - Input  class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::kmeans::DistributedStep2MasterInput InputType;
