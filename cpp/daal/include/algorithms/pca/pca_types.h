@@ -167,7 +167,7 @@ namespace interface1
 /**
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__INPUTIFACE"></a>
     * \brief Abstract class that specifies interface for classes that declare input of the PCA algorithm */
-class DAAL_EXPORT InputIface : public daal::algorithms::Input
+class InputIface : public daal::algorithms::Input
 {
 public:
     InputIface(size_t nElements);
@@ -195,7 +195,7 @@ protected:
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__INPUT"></a>
     * \brief Input objects for the PCA algorithm
     */
-class DAAL_EXPORT Input : public InputIface
+class Input : public InputIface
 {
 public:
     Input();
@@ -269,7 +269,7 @@ class PartialResult : public PartialResultBase
     *        in the online or distributed processing mode
     */
 template <>
-class DAAL_EXPORT PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
+class PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
@@ -318,7 +318,7 @@ public:
         * \return Status of allocation
         */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
         * Initializes memory to store partial results of the PCA  SVD algorithm
@@ -328,7 +328,7 @@ public:
         * \return Status of initialization
         */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 protected:
     services::Status checkImpl(size_t nFeatures) const;
@@ -347,7 +347,7 @@ protected:
     *         in the online or distributed processing mode
     */
 template <>
-class DAAL_EXPORT PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
+class PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
@@ -425,7 +425,7 @@ public:
         * \return Status of allocation
         */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
         * Initializes memory to store partial results of the PCA  SVD algorithm
@@ -435,7 +435,7 @@ public:
         * \return Status of initialization
         */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 protected:
     services::Status checkImpl(size_t nFeatures) const;
@@ -453,7 +453,7 @@ protected:
     * \brief Class that specifies the common parameters of the PCA algorithm
     */
 template <typename algorithmFPType, Method method = correlationDense>
-class DAAL_EXPORT BaseParameter : public daal::algorithms::Parameter
+class BaseParameter : public daal::algorithms::Parameter
 {
 public:
     /** Constructs PCA parameters */
@@ -473,7 +473,7 @@ class OnlineParameter : public BaseParameter<algorithmFPType, method>
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the online computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT OnlineParameter<algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
+class OnlineParameter<algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
 {
 public:
     /** Constructs PCA parameters */
@@ -495,7 +495,7 @@ public:
     * \brief Class that specifies the parameters of the PCA SVD algorithm in the online computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT OnlineParameter<algorithmFPType, svdDense> : public BaseParameter<algorithmFPType, svdDense>
+class OnlineParameter<algorithmFPType, svdDense> : public BaseParameter<algorithmFPType, svdDense>
 {
 public:
     /** Constructs PCA parameters */
@@ -521,7 +521,7 @@ class DistributedParameter : public BaseParameter<algorithmFPType, method>
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the distributed computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT DistributedParameter<step2Master, algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
+class DistributedParameter<step2Master, algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
 {
 public:
     /** Constructs PCA parameters */
@@ -551,7 +551,7 @@ class DistributedInput
     * \brief Input objects for the PCA Correlation algorithm in the distributed processing mode
     */
 template <>
-class DAAL_EXPORT DistributedInput<correlationDense> : public InputIface
+class DistributedInput<correlationDense> : public InputIface
 {
 public:
     DistributedInput();
@@ -604,7 +604,7 @@ public:
     * \brief Input objects of the PCA SVD algorithm in the distributed processing mode
     */
 template <>
-class DAAL_EXPORT DistributedInput<svdDense> : public InputIface
+class DistributedInput<svdDense> : public InputIface
 {
 public:
     DistributedInput();
@@ -663,7 +663,7 @@ namespace interface3
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__BASEBATCHPARAMETER"></a>
 * \brief Class that specifies the common parameters of the PCA Batch algorithms
 */
-class DAAL_EXPORT BaseBatchParameter : public daal::algorithms::Parameter
+class BaseBatchParameter : public daal::algorithms::Parameter
 {
 public:
     /** Constructs PCA parameters */
@@ -689,7 +689,7 @@ class BatchParameter
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the batch computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
+class BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
@@ -711,7 +711,7 @@ public:
 * \brief Class that specifies the parameters of the PCA SVD algorithm in the batch computing mode
 */
 template <typename algorithmFPType>
-class DAAL_EXPORT BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
+class BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
@@ -732,7 +732,7 @@ public:
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__RESULT"></a>
     * \brief Provides methods to access results obtained with the PCA algorithm
     */
-class DAAL_EXPORT Result : public daal::algorithms::Result
+class Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -777,7 +777,7 @@ public:
         * \param[in] method Computation method
         */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method);
+    services::Status allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method);
 
     /**
         * Allocates memory for storing partial results of the PCA algorithm     * \param[in] partialResult Pointer to an object containing input data
@@ -785,7 +785,7 @@ public:
         * \param[in] method        Computation method
         */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+    services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
                                           const Method method);
 
     /**

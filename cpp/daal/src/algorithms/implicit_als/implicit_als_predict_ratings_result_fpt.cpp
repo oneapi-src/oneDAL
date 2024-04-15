@@ -45,7 +45,7 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     const InputIface * algInput = static_cast<const InputIface *>(input);
 
@@ -56,7 +56,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     return st;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                           const int method);
 
 } // namespace interface1

@@ -38,7 +38,7 @@ using namespace daal::data_management;
 using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     const Input * in           = static_cast<const Input *>(input);
     size_t nVectors            = in->get(data)->getNumberOfRows();
@@ -59,7 +59,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     return st;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                                           const int method);
 
 } // namespace prediction
