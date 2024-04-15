@@ -43,8 +43,13 @@ pedantic.opts.icx = -pedantic \
                       -Wwritable-strings \
                       -Wno-unused-parameter
 
+pedantic.opts.icx_win = -Wall \
+                      -Wextra \
+                      -Wwritable-strings \
+                      -Wno-unused-parameter
+
 pedantic.opts.lnx.icx = $(pedantic.opts.icx)
-pedantic.opts.win.icx = $(pedantic.opts.icx)
+pedantic.opts.win.icx = $(pedantic.opts.icx_win)
 
 p4_OPT.icx   = -march=nocona
 mc3_OPT.icx  = -march=nehalem
