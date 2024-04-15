@@ -116,7 +116,7 @@ scr    := $(if $(OS_is_win),bat,sh)
 y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -Fo    := $(if $(OS_is_win),-Fo,-o)
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
--cxx17 := $(if $(COMPILER_is_vc),/std:c++17,-std=c++17)
+-cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
