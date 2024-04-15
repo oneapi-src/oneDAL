@@ -41,7 +41,7 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
 DAAL_EXPORT HMODULE load_onedal_thread_dll()
 {
-    return DAAL_LOAD_DLL(_DLL_SUFFIX("onedal_thread"));
+    return DAAL_LOAD_DLL("onedal_thread.2.dll");
 }
 
 static void load_daal_thr_dll(void)
@@ -770,68 +770,68 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
 #endif
 
 #define CALL_VOID_FUNC_FROM_DLL(fn_dpref, fn_name, argdecl, argcall)          \
-    typedef void(*fn_dpref##fn_name##_t)##argdecl;                          \
+    typedef void(*fn_dpref##fn_name##_t) argdecl;                             \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;              \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, avx2_, fn_name, argdecl, argcall)   \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, sse42_, fn_name, argdecl, argcall)  \
     CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, sse2_, fn_name, argdecl, argcall)
 
-#define CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, fn_cpu, fn_name, argdecl, argcall)                                 \
-    extern "C" DAAL_EXPORT void fn_dpref##fn_cpu##fn_name##argdecl                                               \
-    {                                                                                                            \
-        load_daal_thr_dll();                                                                                     \
-        if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
-        {                                                                                                        \
-            ##fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
-        }                                                                                                        \
-        ##fn_dpref##fn_name##_ptr##argcall;                                                                      \
+#define CALL_VOID_FUNC_FROM_DLL_CPU(fn_dpref, fn_cpu, fn_name, argdecl, argcall)                             \
+    extern "C" DAAL_EXPORT void fn_dpref##fn_cpu##fn_name argdecl                                            \
+    {                                                                                                        \
+        load_daal_thr_dll();                                                                                 \
+        if (fn_dpref##fn_name##_ptr == NULL)                                                                 \
+        {                                                                                                    \
+            fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+        }                                                                                                    \
+        fn_dpref##fn_name##_ptr argcall;                                                                     \
     }
 
 #if defined(_WIN64)
-    #define CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, fn_cpu, fn_name, argdecl, argcall)                             \
-        extern "C" DAAL_EXPORT void fn_dpref##fn_cpu##fn_name##argdecl                                               \
-        {                                                                                                            \
-            load_daal_thr_dll();                                                                                     \
-            if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
-            {                                                                                                        \
-                ##fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
-            }                                                                                                        \
-            ##fn_dpref##fn_name##_ptr##argcall;                                                                      \
+    #define CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, fn_cpu, fn_name, argdecl, argcall)                         \
+        extern "C" DAAL_EXPORT void fn_dpref##fn_cpu##fn_name argdecl                                            \
+        {                                                                                                        \
+            load_daal_thr_dll();                                                                                 \
+            if (fn_dpref##fn_name##_ptr == NULL)                                                                 \
+            {                                                                                                    \
+                fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+            }                                                                                                    \
+            fn_dpref##fn_name##_ptr argcall;                                                                     \
         }
 #else
     #define CALL_VOID_FUNC_FROM_DLL_CPU_MIC(fn_dpref, fn_cpu, fn_name, argdecl, argcall)
 #endif
 
 #define CALL_RET_FUNC_FROM_DLL(ret_type, fn_dpref, fn_name, argdecl, argcall)          \
-    typedef ret_type(*fn_dpref##fn_name##_t)##argdecl;                               \
+    typedef ret_type(*fn_dpref##fn_name##_t) argdecl;                                  \
     static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                       \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx512_, fn_name, argdecl, argcall) \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, avx2_, fn_name, argdecl, argcall)   \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, sse42_, fn_name, argdecl, argcall)  \
     CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, sse2_, fn_name, argdecl, argcall)
 
-#define CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)                        \
-    extern "C" DAAL_EXPORT ret_type fn_dpref##fn_cpu##fn_name##argdecl                                           \
-    {                                                                                                            \
-        load_daal_thr_dll();                                                                                     \
-        if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
-        {                                                                                                        \
+#define CALL_RET_FUNC_FROM_DLL_CPU(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)                    \
+    extern "C" DAAL_EXPORT ret_type fn_dpref##fn_cpu##fn_name argdecl                                        \
+    {                                                                                                        \
+        load_daal_thr_dll();                                                                                 \
+        if (fn_dpref##fn_name##_ptr == NULL)                                                                 \
+        {                                                                                                    \
             fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
-        }                                                                                                        \
-        return fn_dpref##fn_name##_ptr##argcall;                                                                 \
+        }                                                                                                    \
+        return fn_dpref##fn_name##_ptr argcall;                                                              \
     }
 
 #if defined(_WIN64)
-    #define CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)                    \
-        extern "C" DAAL_EXPORT ret_type fn_dpref##fn_cpu##fn_name##argdecl                                           \
-        {                                                                                                            \
-            load_daal_thr_dll();                                                                                     \
-            if (fn_dpref##fn_name##_ptr == NULL)                                                                   \
-            {                                                                                                        \
+    #define CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)                \
+        extern "C" DAAL_EXPORT ret_type fn_dpref##fn_cpu##fn_name argdecl                                        \
+        {                                                                                                        \
+            load_daal_thr_dll();                                                                                 \
+            if (fn_dpref##fn_name##_ptr == NULL)                                                                 \
+            {                                                                                                    \
                 fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
-            }                                                                                                        \
-            return fn_dpref##fn_name##_ptr##argcall;                                                                 \
+            }                                                                                                    \
+            return fn_dpref##fn_name##_ptr argcall;                                                              \
         }
 #else
     #define CALL_RET_FUNC_FROM_DLL_CPU_MIC(ret_type, fn_dpref, fn_cpu, fn_name, argdecl, argcall)
@@ -1114,30 +1114,30 @@ typedef double Ipp64f;
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f * pSrcDst, Ipp64f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f * pSrcDst, Ipp32f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 
-#define CALL_VOID_FUNC_FROM_DLL_ALONE(fn_dpref, fn_name, argdecl, argcall)                               \
-    typedef void(*fn_dpref##fn_name##_t)##argdecl;                                                     \
-    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
-    extern "C" DAAL_EXPORT void fn_dpref##fn_name##argdecl                                               \
-    {                                                                                                    \
-        load_daal_thr_dll();                                                                             \
-        if (fn_dpref##fn_name##_ptr == NULL)                                                           \
-        {                                                                                                \
-            ##fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
-        }                                                                                                \
-        ##fn_dpref##fn_name##_ptr##argcall;                                                              \
+#define CALL_VOID_FUNC_FROM_DLL_ALONE(fn_dpref, fn_name, argdecl, argcall)                           \
+    typedef void(*fn_dpref##fn_name##_t) argdecl;                                                    \
+    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                     \
+    extern "C" DAAL_EXPORT void fn_dpref##fn_name argdecl                                            \
+    {                                                                                                \
+        load_daal_thr_dll();                                                                         \
+        if (fn_dpref##fn_name##_ptr == NULL)                                                         \
+        {                                                                                            \
+            fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
+        }                                                                                            \
+        fn_dpref##fn_name##_ptr argcall;                                                             \
     }
 
-#define CALL_RET_FUNC_FROM_DLL_ALONE(ret_type, fn_dpref, fn_name, argdecl, argcall)                      \
-    typedef ret_type(*fn_dpref##fn_name##_t)##argdecl;                                                 \
-    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
-    extern "C" DAAL_EXPORT ret_type fn_dpref##fn_name##argdecl                                           \
-    {                                                                                                    \
-        load_daal_thr_dll();                                                                             \
-        if (fn_dpref##fn_name##_ptr == NULL)                                                           \
-        {                                                                                                \
-            ##fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
-        }                                                                                                \
-        return fn_dpref##fn_name##_ptr##argcall;                                                         \
+#define CALL_RET_FUNC_FROM_DLL_ALONE(ret_type, fn_dpref, fn_name, argdecl, argcall)                  \
+    typedef ret_type(*fn_dpref##fn_name##_t) argdecl;                                                \
+    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                     \
+    extern "C" DAAL_EXPORT ret_type fn_dpref##fn_name argdecl                                        \
+    {                                                                                                \
+        load_daal_thr_dll();                                                                         \
+        if (fn_dpref##fn_name##_ptr == NULL)                                                         \
+        {                                                                                            \
+            fn_dpref##fn_name##_ptr = (fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
+        }                                                                                            \
+        return fn_dpref##fn_name##_ptr argcall;                                                      \
     }
 
 CALL_VOID_FUNC_FROM_DLL_ALONE(fpk_serv_, set_num_threads, (int nth), (nth));
@@ -1161,4 +1161,3 @@ CALL_VOID_FUNC_FROM_DLL_ALONE(fpk_vsl_serv_, threader_sections, (DAAL_INT thread
 CALL_VOID_FUNC_FROM_DLL_ALONE(fpk_vsl_serv_, threader_ordered, (DAAL_INT i, DAAL_INT th_idx, DAAL_INT th_num, void * a, func_type func),
                               (i, th_idx, th_num, a, func));
 CALL_RET_FUNC_FROM_DLL_ALONE(DAAL_INT, fpk_vsl_serv_, threader_get_num_threads_limit, (void), ());
-
