@@ -36,7 +36,7 @@ namespace interface1
   * Check the correctness of the %Parameter object
   */
 template <typename algorithmFPType>
-  services::Status Parameter<algorithmFPType>::check() const
+services::Status Parameter<algorithmFPType>::check() const
 {
     DAAL_CHECK_EX(sigma > 0, services::ErrorIncorrectParameter, services::ParameterName, sigmaStr());
     return services::Status();

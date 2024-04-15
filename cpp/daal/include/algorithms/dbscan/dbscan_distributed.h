@@ -448,7 +448,7 @@ public:
  *      - Result class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Distributed
+class Distributed
 {};
 
 /**
@@ -465,7 +465,7 @@ class DAAL_EXPORT Distributed
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step1Local> InputType;
@@ -585,7 +585,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step2Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step2Local> InputType;
@@ -705,7 +705,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step3Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step3Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step3Local> InputType;
@@ -827,7 +827,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step4Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step4Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step4Local> InputType;
@@ -949,7 +949,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step5Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step5Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step5Local> InputType;
@@ -1070,7 +1070,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step6Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step6Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step6Local> InputType;
@@ -1192,7 +1192,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step7Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step7Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step7Master> InputType;
@@ -1298,7 +1298,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step8Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step8Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step8Local> InputType;
@@ -1418,7 +1418,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step9Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step9Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step9Master> InputType;
@@ -1544,7 +1544,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step10Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step10Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step10Local> InputType;
@@ -1664,7 +1664,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step11Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step11Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step11Local> InputType;
@@ -1784,7 +1784,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step12Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step12Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step12Local> InputType;
@@ -1904,7 +1904,7 @@ private:
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step13Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step13Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step13Local> InputType;
