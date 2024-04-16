@@ -663,7 +663,7 @@ namespace interface3
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__BASEBATCHPARAMETER"></a>
 * \brief Class that specifies the common parameters of the PCA Batch algorithms
 */
-class BaseBatchParameter : public daal::algorithms::Parameter
+class DAAL_EXPORT BaseBatchParameter : public daal::algorithms::Parameter
 {
 public:
     /** Constructs PCA parameters */
