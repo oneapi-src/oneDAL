@@ -20,7 +20,7 @@
 
 OPENBLASDIR:= $(if $(wildcard $(DIR)/__deps/open_blas/*),$(DIR)/__deps/open_blas,                            \
                 $(if $(wildcard $(OPENBLASROOT)/include/*),$(subst \,/,$(OPENBLASROOT)),                              \
-                    $(error Can`t find OPENBLAS libs nether in $(DIR)/__deps/open_blas not in OPENBLASROOT.)))
+                    $(error Can`t find OPENBLAS libs in $(DIR)/__deps/open_blas or OPENBLASROOT.)))
 OPENBLASDIR.include := $(OPENBLASDIR)/include
 OPENBLASDIR.libia := $(OPENBLASDIR)/lib
 
