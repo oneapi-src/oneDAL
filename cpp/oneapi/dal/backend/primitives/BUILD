@@ -94,6 +94,7 @@ dal_collect_test_suites(
         "rng",
         "selection",
         "sort",
+        "sparse_blas",
         "stat",
         "voting",
     ],
