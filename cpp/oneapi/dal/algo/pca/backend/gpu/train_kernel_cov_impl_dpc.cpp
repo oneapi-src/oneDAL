@@ -115,7 +115,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-        corr_event = pr::correlation_from_covariance(q_, row_count, cov, corr, bias, { cov_event });
+        corr_event = pr::correlation_from_covariance(q_, rows_count_global, cov, corr, bias, { cov_event });
         data_to_compute = corr;
     }
 
@@ -132,7 +132,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         auto singular_values =
             compute_singular_values_on_host(q_,
                                             eigvals,
-                                            row_count,
+                                            rows_count_global,
                                             { cov_event, corr_event, vars_event });
         result.set_singular_values(
             homogen_table::wrap(singular_values.flatten(), 1, component_count));
