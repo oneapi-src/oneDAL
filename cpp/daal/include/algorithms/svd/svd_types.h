@@ -161,7 +161,7 @@ namespace interface1
  * <a name="DAAL-STRUCT-ALGORITHMS__SVD__PARAMETER"></a>
  * \brief Parameters for the computation method of the SVD algorithm
  */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
     /**
      *  Default constructor
@@ -181,7 +181,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief Input objects for the SVD algorithm in the batch processing and online processing modes, and the first step in the distributed
  * processing mode
  */
-class DAAL_EXPORT Input : public daal::algorithms::Input
+class Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -222,7 +222,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__SVD__DISTRIBUTEDSTEP2INPUT"></a>
  * \brief %Input objects for the second step of  the SVD algorithm in the distributed processing mode
  */
-class DAAL_EXPORT DistributedStep2Input : public daal::algorithms::Input
+class DistributedStep2Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -279,7 +279,7 @@ protected:
  * <a name="DAAL-CLASS-ALGORITHMS__SVD__DISTRIBUTEDSTEP3INPUT"></a>
  * \brief %Input objects for the third step of the SVD algorithm in the distributed processing mode
  */
-class DAAL_EXPORT DistributedStep3Input : public daal::algorithms::Input
+class DistributedStep3Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -318,7 +318,7 @@ public:
  * \brief Provides methods to access partial results obtained with the compute() method of  the SVD algorithm in the online processing mode or
  * the first step in the distributed processing mode
  */
-class DAAL_EXPORT OnlinePartialResult : public daal::algorithms::PartialResult
+class OnlinePartialResult : public daal::algorithms::PartialResult
 {
 public:
     DECLARE_SERIALIZABLE_CAST(OnlinePartialResult)
@@ -335,7 +335,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes additional memory to store partial results of the SVD algorithm for each subsequent compute() method
@@ -345,7 +345,7 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates additional memory to store partial results of the SVD algorithm for each subsequent compute() method
@@ -355,7 +355,7 @@ public:
      * \param[in]  par  Reference to the object with the algorithm parameters
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status addPartialResultStorage(size_t m, size_t n, Parameter & par);
+    services::Status addPartialResultStorage(size_t m, size_t n, Parameter & par);
 
     /**
      * Returns partial results of the SVD algorithm
@@ -401,7 +401,7 @@ typedef services::SharedPtr<OnlinePartialResult> OnlinePartialResultPtr;
  * \brief Provides methods to access final results obtained with the compute() method of the SVD algorithm in the batch processing mode
  *        or with the finalizeCompute() method in the online processing mode or steps 2 and 3 in the distributed processing mode
  */
-class DAAL_EXPORT Result : public daal::algorithms::Result
+class Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -425,7 +425,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store final results of the SVD algorithm
@@ -435,7 +435,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+    services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
                                           const int method);
 
     /**
@@ -470,7 +470,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocateImpl(size_t m, size_t n);
+    services::Status allocateImpl(size_t m, size_t n);
 
 protected:
     /** \private */
@@ -487,7 +487,7 @@ typedef services::SharedPtr<Result> ResultPtr;
  * \brief Provides methods to access partial results obtained with the compute() method of the SVD algorithm in the second step in the
  * distributed processing mode
  */
-class DAAL_EXPORT DistributedPartialResult : public daal::algorithms::PartialResult
+class DistributedPartialResult : public daal::algorithms::PartialResult
 {
 public:
     DECLARE_SERIALIZABLE_CAST(DistributedPartialResult)
@@ -501,7 +501,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store partial results of the SVD algorithm based on the known structure of partial results from step 1 in the
@@ -514,7 +514,7 @@ public:
      * \param[out] nBlocks         Number of rows in the input data set
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status setPartialResultStorage(data_management::KeyValueDataCollection * inCollection, size_t & nBlocks);
+    services::Status setPartialResultStorage(data_management::KeyValueDataCollection * inCollection, size_t & nBlocks);
 
     /**
      * Returns partial results of the SVD algorithm.
@@ -586,7 +586,7 @@ typedef services::SharedPtr<DistributedPartialResult> DistributedPartialResultPt
  * \brief Provides methods to access partial results obtained with the compute() method of the SVD algorithm
  *        in the third step in the distributed processing mode
  */
-class DAAL_EXPORT DistributedPartialResultStep3 : public daal::algorithms::PartialResult
+class DistributedPartialResultStep3 : public daal::algorithms::PartialResult
 {
 public:
     DECLARE_SERIALIZABLE_CAST(DistributedPartialResultStep3)
@@ -603,7 +603,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store partial results of the SVD algorithm obtained in the third step in the distributed processing mode
@@ -611,7 +611,7 @@ public:
      * \param[in]  qCollection  DataCollection of all partial results from step 1 of the SVD algorithm in the distributed processing mode
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status setPartialResultStorage(data_management::DataCollection * qCollection);
+    services::Status setPartialResultStorage(data_management::DataCollection * qCollection);
 
     /**
      * Returns results of the SVD algorithm with singular values and the left orthogonal matrix calculated

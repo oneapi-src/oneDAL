@@ -64,7 +64,7 @@ namespace interface1
 * \snippet pca/pca_quality_metric_set_types.h Parameter source code
 */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nComponents = 0, size_t nFeatures = 0);
 
@@ -87,7 +87,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm
  *        specialized for using with the pca algorithm
  */
-class DAAL_EXPORT ResultCollection : public algorithms::quality_metric_set::ResultCollection
+class ResultCollection : public algorithms::quality_metric_set::ResultCollection
 {
 public:
     ResultCollection() {}
@@ -107,7 +107,7 @@ typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
  * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm
  *        specialized for using with the pca algorithm
  */
-class DAAL_EXPORT InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
+class InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
 {
 public:
     InputDataCollection() {}

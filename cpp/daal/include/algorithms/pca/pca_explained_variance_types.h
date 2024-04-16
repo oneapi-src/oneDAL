@@ -87,7 +87,7 @@ namespace interface1
  * \snippet pca/pca_explained_variance_types.h Parameter source code
  */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nFeatures, size_t nComponents);
     virtual ~Parameter() {}
@@ -108,7 +108,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__INPUT"></a>
 * \brief %Input objects for explained variance quality metrics
 */
-class DAAL_EXPORT Input : public daal::algorithms::Input
+class Input : public daal::algorithms::Input
 {
 public:
     DAAL_CAST_OPERATOR(Input)
@@ -148,7 +148,7 @@ typedef services::SharedPtr<Input> InputPtr;
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__RESULT"></a>
 * \brief Provides interface for the result of linear regression quality metrics
 */
-class DAAL_EXPORT Result : public daal::algorithms::Result
+class Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -179,7 +179,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Checks the result of linear regression quality metrics

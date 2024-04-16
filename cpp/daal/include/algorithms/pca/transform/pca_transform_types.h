@@ -106,7 +106,7 @@ namespace interface1
  * \brief Input objects for the PCA transformation algorithm in the batch and online processing modes and for the first distributed step of the
  * algorithm.
  */
-class DAAL_EXPORT Input : public daal::algorithms::Input
+class Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -176,7 +176,7 @@ public:
  *        in the batch processing mode or finalizeCompute() method of algorithm in the online processing mode
  *        or on the second and third steps of the algorithm in the distributed processing mode
  */
-class DAAL_EXPORT Result : public daal::algorithms::Result
+class Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -199,7 +199,7 @@ public:
      * \param[in] method    Algorithm method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Sets an input object for the PCA transformation algorithm
@@ -226,7 +226,7 @@ typedef services::SharedPtr<daal::algorithms::pca::transform::interface1::Result
  * <a name="DAAL-STRUCT-ALGORITHMS__PCA__TRANSFORM__PARAMETER"></a>
  * \brief Parameters for the PCA transformation compute method
  */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
     /**
      *  Parameter constructor
