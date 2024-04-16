@@ -113,7 +113,7 @@ namespace interface1
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__INPUT"></a>
 * \brief %Input objects for the z-score normalization algorithm
 */
-class Input : public daal::algorithms::Input
+class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
