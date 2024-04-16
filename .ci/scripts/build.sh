@@ -18,7 +18,8 @@
 
 set -eo pipefail
 
-SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../../")
 
 show_help() {
@@ -70,7 +71,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-PLAT=${PLAT:-$(bash ${ONEDAL_DIR}/dev/make/identify_os.sh)}
+PLAT=${PLAT:-$(bash "${ONEDAL_DIR}"/dev/make/identify_os.sh)}
 OS=${PLAT::3}
 ARCH=${PLAT:3:3}
 
@@ -81,9 +82,9 @@ if [ "${OS}" == "lnx" ]; then
         conda_init_path=/usr/share/miniconda/etc/profile.d/conda.sh
         if [ -f ${conda_init_path} ] ; then
             source ${conda_init_path}
+            conda activate ${conda_env}
+            echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
         fi
-        conda activate ${conda_env}
-        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
 
@@ -98,9 +99,9 @@ elif [ "${OS}" == "mac" ]; then
         conda_init_path=/usr/local/miniconda/etc/profile.d/conda.sh
         if [ -f ${conda_init_path} ]; then
             source ${conda_init_path}
+            conda activate ${conda_env}
+            echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
         fi
-        conda activate ${conda_env}
-        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
     with_gpu="false"
@@ -109,9 +110,9 @@ else
     exit 1
 fi
 
-#setting build parrlelization based on number of thereads
+#setting build parallelization based on number of threads
 if [ "$(uname)" == "Linux" ]; then
-    make_op="-j$(grep -c processor /proc/cpuinfo)"
+    make_op="-j$(nproc --all)"
 else
     make_op="-j$(sysctl -n hw.physicalcpu)"
 fi
@@ -120,28 +121,29 @@ fi
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
-    ${ONEDAL_DIR}/dev/download_micromkl.sh with_gpu=${with_gpu}
+    "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
-    if [ ! -d "__deps/open_blas" ]; then
+    if [ ! -d "${ONEDAL_DIR}/__deps/openblas_${ARCH}" ]; then
         if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
-            ${ONEDAL_DIR}/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
+            "${ONEDAL_DIR}"/.ci/env/openblas.sh --target ARMV8 --host-compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross-compile --target-arch "${ARCH}"
         else
-            ${ONEDAL_DIR}/.ci/env/openblas.sh
+            "${ONEDAL_DIR}"/.ci/env/openblas.sh --target-arch "${ARCH}"
         fi
     fi
+    export OPENBLASROOT="${ONEDAL_DIR}/__deps/openblas_${ARCH}"
 else
     echo "Not supported backend env"
 fi
 
 # TBB setup
 if [[ "${ARCH}" == "32e" ]]; then
-    ${ONEDAL_DIR}/dev/download_tbb.sh
+    "${ONEDAL_DIR}"/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        ${ONEDAL_DIR}/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh --cross_compile --toolchain_file "$(pwd)"/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
     else
-        ${ONEDAL_DIR}/.ci/env/tbb.sh
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh
     fi
 fi
 
@@ -151,15 +153,14 @@ if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
 fi
 
 echo "Calling make"
-echo $CXX
-echo $CC
-echo make ${target:-onedal_c} ${make_op} \
-    COMPILER=${compiler} \
-    REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}" \
-    PLAT=${PLAT}
-make ${target:-onedal_c} ${make_op} \
-    COMPILER=${compiler} \
-    REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}" \
-    PLAT=${PLAT}
+echo "CXX=$CXX"
+echo "CC=$CC"
+make_options=("${target:-onedal_c}"
+    "${make_op}"
+    COMPILER="${compiler}"
+    REQCPU="${optimizations}"
+    BACKEND_CONFIG="${backend_config}"
+    PLAT="${PLAT}"
+)
+echo make "${make_options[@]}"
+make "${make_options[@]}"

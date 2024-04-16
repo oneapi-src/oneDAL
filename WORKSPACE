@@ -33,8 +33,8 @@ micromkl_repo(
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20231019.tgz",
-    sha256 = "c0321dc22c7353e0ec1a8fa98cf61b5142bc8bca0985ae7c83dbc8a295573360",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_2024-02-20.tgz",
+    sha256 = "1c60914461aafa5e5512181c7d5c1fdbdeff83746dbd980fe97074a3b65fc1ed",
 )
 
 load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
@@ -108,9 +108,9 @@ onedal_repo(
 
 http_archive(
     name = "catch2",
-    url = "https://github.com/catchorg/Catch2/archive/v3.5.0.tar.gz",
-    sha256 = "f6d4f8d78a9b59ec72a81d49f58d18eb317372ac07f8d9432710a079e69fd66a",
-    strip_prefix = "Catch2-3.5.0",
+    url = "https://github.com/catchorg/Catch2/archive/v3.5.4.tar.gz",
+    sha256 = "b7754b711242c167d8f60b890695347f90a1ebc95949a045385114165d606dbb",
+    strip_prefix = "Catch2-3.5.4",
 )
 
 http_archive(

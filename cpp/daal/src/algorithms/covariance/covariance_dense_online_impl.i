@@ -83,7 +83,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
     if (method == singlePassDense)
     {
         status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, crossProduct, sums,
-                                                                               nObservations, hyperparameter);
+                                                                               nObservations, parameter, hyperparameter);
         DAAL_CHECK_STATUS_VAR(status);
     }
     else
@@ -102,7 +102,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
         algorithmFPType * partialCrossProduct = partialCrossProductArray.get();
 
         status |= updateDenseCrossProductAndSums<algorithmFPType, method, cpu>(isNormalized, nFeatures, nVectors, dataTable, partialCrossProduct,
-                                                                               userSums, &partialNObservations, hyperparameter);
+                                                                               userSums, &partialNObservations, parameter, hyperparameter);
         DAAL_CHECK_STATUS_VAR(status);
 
         mergeCrossProductAndSums<algorithmFPType, cpu>(nFeatures, partialCrossProduct, userSums, &partialNObservations, crossProduct, sums,

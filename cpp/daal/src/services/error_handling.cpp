@@ -718,6 +718,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorNullByteInjection, "Null byte injection has been detected");
     add(ErrorBufferSizeIntegerOverflow, "Integer overflow is occured");
     add(ErrorHyperparameterNotFound, "Cannot find a hyperparameter");
+    add(ErrorHyperparameterBadValue, "Hyperparameter has bad value");
 
     // Environment errors: -2000..-2999
     add(ErrorCpuNotSupported, "CPU not supported");
