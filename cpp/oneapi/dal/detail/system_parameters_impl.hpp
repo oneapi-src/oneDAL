@@ -50,12 +50,6 @@ public:
 protected:
     std::map<std::string, std::any> sys_info_;
 
-    template <typename T>
-    void print(const std::any& value, std::stringstream& ss) const;
-
-    template <typename T>
-    void print_primitive(const std::any& value, std::stringstream& ss) const;
-
     void print_any(const std::any& value, std::stringstream& ss) const;
 };
 

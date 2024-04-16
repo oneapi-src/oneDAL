@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/cpu_info_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/system_parameters_impl.hpp"
 #include <daal/src/services/service_defines.h>
 
@@ -27,8 +28,8 @@ system_parameters_impl::system_parameters_impl()
 {
     using daal::services::Environment;
     Environment * env = Environment::getInstance();
-    sys_info_["top_enabled_cpu_extension"] = env->getCpuId();
-    sys_info_["max_number_of_threads"] = env->getNumberOfThreads();
+    sys_info_["top_enabled_cpu_extension"] = from_daal_cpu_type(daal::CpuType(env->getCpuId()));
+    sys_info_["max_number_of_threads"] = static_cast<std::uint32_t>(env->getNumberOfThreads());
 }
 
 cpu_extension system_parameters_impl::get_top_enabled_cpu_extension() const {
@@ -39,23 +40,15 @@ std::uint32_t system_parameters_impl::get_max_number_of_threads() const {
     return std::any_cast<std::uint32_t>(sys_info_.find("max_number_of_threads")->second);
 }
 
-template <typename T>
-void system_parameters_impl::print(const std::any& value, std::stringstream& ss) const {
-    T typed_value = std::any_cast<T>(value);
-    ss << to_string(typed_value);
-}
-
-template <typename T>
-void system_parameters_impl::print_primitive(const std::any& value, std::stringstream& ss) const {
-    ss << std::any_cast<T>(value);
-}
-
 void system_parameters_impl::print_any(const std::any& value, std::stringstream& ss) const {
     const std::type_info& ti = value.type();
     if (ti == typeid(cpu_extension)) {
-        print<cpu_extension>(value, ss);
+        ss << to_string(std::any_cast<cpu_extension>(value));
     } else if (ti == typeid(std::uint32_t)) {
-        print_primitive<std::uint32_t>(value, ss);
+        ss << std::any_cast<std::uint32_t>(value);
+    }
+    else {
+        throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
     }
 }
 

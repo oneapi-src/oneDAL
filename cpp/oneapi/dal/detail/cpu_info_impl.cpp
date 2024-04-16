@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/cpu_info_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 #include <sstream>
 
@@ -79,6 +80,9 @@ void cpu_info_impl::print_any(const std::any& value, std::stringstream& ss) cons
     }
     else if (ti == typeid(cpu_vendor)) {
         print<cpu_vendor>(value, ss);
+    }
+    else {
+        throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
     }
 }
 

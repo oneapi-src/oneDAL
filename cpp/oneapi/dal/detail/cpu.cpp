@@ -15,24 +15,10 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/cpu.hpp"
-#include <daal/src/services/service_defines.h>
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
-    switch (cpu) {
-#if defined(TARGET_X86_64)
-        case daal::sse2: return cpu_extension::sse2;
-        case daal::sse42: return cpu_extension::sse42;
-        case daal::avx2: return cpu_extension::avx2;
-        case daal::avx512: return cpu_extension::avx512;
-#elif defined(TARGET_ARM)
-        case daal::sve: return cpu_extension::sve;
-#endif
-    }
-    return cpu_extension::none;
-}
 cpu_extension detect_top_cpu_extension() {
     if (!__daal_serv_cpu_extensions_available()) {
 #if defined(TARGET_X86_64)

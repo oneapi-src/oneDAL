@@ -20,18 +20,12 @@ namespace oneapi::dal {
 
 namespace detail {
 
-system_parameters::system_parameters() : impl_(detail::pimpl<system_parameters_impl>(new system_parameters_impl())) {}
-
-cpu_extension system_parameters::get_top_enabled_cpu_extension() const {
-    return impl_->get_top_enabled_cpu_extension();
+std::uint32_t system_parameters::get_max_workgroup_size(sycl::queue& queue) const {
+    return impl_->get_max_workgroup_size(queue);
 }
 
-std::uint32_t system_parameters::get_max_number_of_threads() const {
-    return impl_->get_max_number_of_threads();
-}
-
-std::string system_parameters::dump() const {
-    return impl_->dump();
+std::string system_parameters::dump(sycl::queue& queue) const {
+    return impl_->dump(queue);
 }
 
 } // namespace detail

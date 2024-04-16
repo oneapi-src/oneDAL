@@ -88,4 +88,18 @@ TEMPLATE_LIST_TEST_M(covariance_params_test,
     this->general_checks(input, input_data_table_id);
 }
 
+TEST("can dump system-related parameters") {
+    detail::compute_parameters hp{};
+    std::string hp_dump;
+#ifdef ONEDAL_DATA_PARALLEL
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+    hp_dump = hp.dump(q);
+#else
+    hp_dump = hp.dump();
+#endif
+    std::cout << "System-related parameters: " << hp_dump << std::endl;
+    REQUIRE(hp_dump.size() > 0);
+}
+
 } // namespace oneapi::dal::covariance::test
