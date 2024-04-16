@@ -689,7 +689,7 @@ class BatchParameter
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the batch computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
+class BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
@@ -711,7 +711,7 @@ public:
 * \brief Class that specifies the parameters of the PCA SVD algorithm in the batch computing mode
 */
 template <typename algorithmFPType>
-class DAAL_EXPORT BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
+class BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
