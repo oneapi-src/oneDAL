@@ -151,7 +151,7 @@ public:
  *      - \ref Method   SVD computation methods
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Distributed : public daal::algorithms::Analysis<distributed>
+class DAAL_EXPORT Distributed : public daal::algorithms::Analysis<distributed>
 {};
 
 /**
