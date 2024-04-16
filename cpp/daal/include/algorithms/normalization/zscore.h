@@ -78,7 +78,7 @@ public:
 * \brief Abstract class that specifies interface of the algorithms
 *        for computing correlation or variance-covariance matrix in the batch processing mode
 */
-class DAAL_EXPORT BatchImpl : public daal::algorithms::Analysis<batch>
+class BatchImpl : public daal::algorithms::Analysis<batch>
 {
 public:
     typedef algorithms::normalization::zscore::Input InputType;
@@ -174,7 +174,7 @@ private:
  *      - daal::algorithms::normalization::zscore::ResulToComputetId Identifiers of z-score normalization optional result to compute
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Batch : public BatchImpl
+class Batch : public BatchImpl
 {
 public:
     typedef BatchImpl super;
