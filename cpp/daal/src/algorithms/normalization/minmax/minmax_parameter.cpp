@@ -37,14 +37,14 @@ namespace minmax
 namespace interface1
 {
 /** Constructs min-max normalization parameters */
-ParameterBase::ParameterBase(double lowerBound, double upperBound, const SharedPtr<low_order_moments::BatchImpl> & moments)
+DAAL_EXPORT ParameterBase::ParameterBase(double lowerBound, double upperBound, const SharedPtr<low_order_moments::BatchImpl> & moments)
     : lowerBound(lowerBound), upperBound(upperBound), moments(moments)
 {}
 
 /**
  * Check the correctness of the %ParameterBase object
  */
-Status ParameterBase::check() const
+DAAL_EXPORT Status ParameterBase::check() const
 {
     DAAL_CHECK(moments, ErrorNullParameterNotSupported);
     DAAL_CHECK(lowerBound < upperBound, ErrorLowerBoundGreaterThanOrEqualToUpperBound);

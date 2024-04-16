@@ -663,7 +663,7 @@ namespace interface3
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__BASEBATCHPARAMETER"></a>
 * \brief Class that specifies the common parameters of the PCA Batch algorithms
 */
-class BaseBatchParameter : public daal::algorithms::Parameter
+class DAAL_EXPORT BaseBatchParameter : public daal::algorithms::Parameter
 {
 public:
     /** Constructs PCA parameters */
@@ -689,7 +689,7 @@ class BatchParameter
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the batch computing mode
     */
 template <typename algorithmFPType>
-class BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
+class DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
@@ -711,7 +711,7 @@ public:
 * \brief Class that specifies the parameters of the PCA SVD algorithm in the batch computing mode
 */
 template <typename algorithmFPType>
-class BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
+class DAAL_EXPORT BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
