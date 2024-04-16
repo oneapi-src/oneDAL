@@ -20,6 +20,7 @@ set -eo pipefail
 SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../..")
+TBB_DEFAULT_VERSION="v2021.10.0"
 
 # Function to display help
 show_help() {
@@ -33,6 +34,7 @@ show_help() {
 --tbb-src <path>:The path to an existing TBB source directory. This is downloaded if not passed
 --prefix <path>:The path to install oneTBB into. Defaults to ${ONEDAL_DIR}/__deps/tbb-$${target_arch}
 --build-dir <path>:The path to build in. Defaults to ${ONEDAL_DIR}/__work/tbb-$${target_arch}
+--version <version string>:The version of oneTBB to fetch and build. Must be a valid git reference in the upstream oneTBB repo
 '
 }
 
@@ -67,6 +69,9 @@ while [[ $# -gt 0 ]]; do
         shift;;
         --build-dir)
         build_dir="$2"
+        shift;;
+        --version)
+        TBB_VERSION="$2"
         shift;;
         *)
         echo "Unknown option: $1"
@@ -112,7 +117,7 @@ sudo apt-get update
 sudo apt-get install build-essential gcc gfortran cmake -y
 tbb_src=${tbb_src:-${ONEDAL_DIR}/__work/onetbb-src}
 if [[ ! -d "${tbb_src}" ]] ; then
-  TBB_VERSION="v2021.10.0"
+  TBB_VERSION="${TBB_VERSION:-${TBB_DEFAULT_VERSION}}"
   git clone --depth 1 --branch "${TBB_VERSION}" https://github.com/oneapi-src/oneTBB.git "${tbb_src}"
 fi
 

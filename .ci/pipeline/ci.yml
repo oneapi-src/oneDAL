@@ -89,6 +89,10 @@ jobs:
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnxarm'
+    OPENBLAS_VERSION : 'v0.3.27'
+    OPENBLAS_CACHE_DIR: $(Pipeline.Workspace)/openblas-aarch64-gnu
+    TBB_VERSION : 'v2021.10.0'
+    TBB_CACHE_DIR: $(Pipeline.Workspace)/tbb-aarch64-gnu
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
@@ -104,11 +108,29 @@ jobs:
   - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
+  - task: Cache@2
+    inputs:
+      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)"'
+      path: $(OPENBLAS_CACHE_DIR)
+      cacheHitVar: OPENBLAS_RESTORED
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend-config ref --conda-env ci-env --cross-compile --plat lnxarm
+      .ci/env/openblas.sh --target ARMV8 --host-compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross-compile --target-arch aarch64 --prefix $(OPENBLAS_CACHE_DIR) --version $(OPENBLAS_VERSION)
+    displayName: 'Build OpenBLAS'
+    condition: ne(variables.OPENBLAS_RESTORED, 'true')
+  - task: Cache@2
+    inputs:
+      key: '"gcc" | "aarch64" | "tbb" | "$(TBB_VERSION)"'
+      path: $(TBB_CACHE_DIR)
+      cacheHitVar: TBB_RESTORED
+  - script: |
+      .ci/env/tbb.sh --cross-compile --toolchain-file $(Build.Repository.LocalPath)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target-arch aarch64 --prefix $(TBB_CACHE_DIR) --version $(TBB_VERSION)
+    displayName: 'Build oneTBB'
+    condition: ne(variables.TBB_RESTORED, 'true')
+  - script: |
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend-config ref --conda-env ci-env --cross-compile --plat lnxarm --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend-config ref --cross-compile --plat lnxarm
+      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend-config ref --cross-compile --plat lnxarm --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -143,6 +165,8 @@ jobs:
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
+    OPENBLAS_VERSION: 'v0.3.27'
+    OPENBLAS_CACHE_DIR: $(Pipeline.Workspace)/openblas-x86_64-gnu
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
@@ -152,11 +176,20 @@ jobs:
   - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
+  - task: Cache@2
+    inputs:
+      key: '"gnu" | "x86_64" | "tbb" | "$(OPENBLAS_VERSION)"'
+      path: $(OPENBLAS_CACHE_DIR)
+      cacheHitVar: OPENBLAS_RESTORED
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend-config ref --conda-env ci-env
+      .ci/env/openblas.sh --target-arch x86_64 --prefix $(OPENBLAS_CACHE_DIR) --version $(OPENBLAS_VERSION)
+    displayName: 'Build OpenBLAS'
+    condition: ne(variables.OPENBLAS_RESTORED, 'true')
+  - script: |
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend-config ref --conda-env ci-env --blas-dir $(OPENBLAS_CACHE_DIR)
     displayName: 'make daal'
   - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c --backend-config ref
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c --backend-config ref --blas-dir $(OPENBLAS_CACHE_DIR)
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
