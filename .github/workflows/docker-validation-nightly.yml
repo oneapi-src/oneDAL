@@ -9,16 +9,16 @@ on:
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
-      - .ci/env
-      - .ci/scripts
+      - '.ci/env/**'
+      - '.ci/scripts/**'
   push:
     branches:
       - main
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
-      - .ci/env
-      - .ci/scripts
+      - '.ci/env/**'
+      - '.ci/scripts/**'
 
 permissions:
   contents: read
