@@ -51,6 +51,8 @@ public:
 
     using PCADenseBase<algorithmFPType, cpu>::computeExplainedVariancesRatio;
 
+    using PCADenseBase<algorithmFPType, cpu>::signFlipEigenvectors;
+
     services::Status compute(const data_management::NumericTablePtr & pData, PartialResult<correlationDense> * partialResult,
                              const OnlineParameter<algorithmFPType, correlationDense> * parameter);
 

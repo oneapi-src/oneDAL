@@ -75,6 +75,45 @@ public:
 
         return result;
     }
+    void general_checks_assume_centered(const te::dataframe& input,
+                                        const te::table_id& input_table_id) {
+        const table data = input.get_table(this->get_policy(), input_table_id);
+
+        INFO("create descriptor means assume centered");
+        auto cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                            .set_result_options(covariance::result_options::means)
+                            .set_assume_centered(true);
+        INFO("run compute optional: means assume centered");
+        auto compute_result = this->compute(cov_desc, data);
+        check_compute_result(cov_desc, data, compute_result);
+
+        INFO("create descriptor cov assume centered");
+        cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                       .set_result_options(covariance::result_options::cov_matrix)
+                       .set_assume_centered(true);
+        INFO("run compute optional: cov assume centered");
+        compute_result = this->compute(cov_desc, data);
+        check_compute_result(cov_desc, data, compute_result);
+
+        INFO("create descriptor cov means");
+        cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                       .set_result_options(covariance::result_options::cov_matrix |
+                                           covariance::result_options::means)
+                       .set_assume_centered(true);
+        INFO("run compute optional: cov means");
+        compute_result = this->compute(cov_desc, data);
+        check_compute_result(cov_desc, data, compute_result);
+
+        INFO("create descriptor cov cor means");
+        cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                       .set_result_options(covariance::result_options::cov_matrix |
+                                           covariance::result_options::cor_matrix |
+                                           covariance::result_options::means)
+                       .set_assume_centered(true);
+        INFO("run compute optional: cov cor means");
+        compute_result = this->compute(cov_desc, data);
+        check_compute_result(cov_desc, data, compute_result);
+    }
     void general_checks(const te::dataframe& input, const te::table_id& input_table_id) {
         const table data = input.get_table(this->get_policy(), input_table_id);
 
@@ -272,30 +311,34 @@ public:
             INFO("check if there is no NaN in means table");
             REQUIRE(te::has_no_nans(means));
             INFO("check if means values are expected");
-            check_means_values(data, means);
+            check_means_values(desc, data, means);
         }
     }
 
-    void check_means_values(const table& data, const table& means) {
-        const auto reference_means = compute_reference_means(data);
+    void check_means_values(const covariance::descriptor<Float, Method>& desc,
+                            const table& data,
+                            const table& means) {
+        const auto reference_means = compute_reference_means(data, desc.get_assume_centered());
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
         const double diff = te::abs_error(reference_means, means);
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_means(const table& data) {
+    la::matrix<double> compute_reference_means(const table& data, bool assume_centered = false) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count_data = data_matrix.get_row_count();
         const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = la::matrix<double>::full({ 1, column_count_data }, 0.0);
-
-        for (std::int64_t i = 0; i < column_count_data; i++) {
-            double sum = 0;
-            for (std::int64_t j = 0; j < row_count_data; j++) {
-                sum += data_matrix.get(j, i);
+        if (!assume_centered) {
+            for (std::int64_t i = 0; i < column_count_data; i++) {
+                double sum = 0;
+                for (std::int64_t j = 0; j < row_count_data; j++) {
+                    sum += data_matrix.get(j, i);
+                }
+                reference_means.set(0, i) = sum / row_count_data;
             }
-            reference_means.set(0, i) = sum / row_count_data;
         }
+
         return reference_means;
     }
 
@@ -314,7 +357,7 @@ public:
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count_data = data_matrix.get_row_count();
         const auto column_count_data = data_matrix.get_column_count();
-        auto reference_means = compute_reference_means(data);
+        auto reference_means = compute_reference_means(data, desc.get_assume_centered());
         auto reference_cov =
             la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
         auto multiplier = 1 / static_cast<double>(row_count_data - 1);
@@ -346,7 +389,7 @@ public:
                                              const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto column_count_data = data_matrix.get_column_count();
-        auto reference_means = compute_reference_means(data);
+        auto reference_means = compute_reference_means(data, desc.get_assume_centered());
         auto reference_cov = compute_reference_cov(desc, data);
         auto reference_cor =
             la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
