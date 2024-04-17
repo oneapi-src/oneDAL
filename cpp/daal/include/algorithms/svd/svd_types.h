@@ -401,7 +401,7 @@ typedef services::SharedPtr<OnlinePartialResult> OnlinePartialResultPtr;
  * \brief Provides methods to access final results obtained with the compute() method of the SVD algorithm in the batch processing mode
  *        or with the finalizeCompute() method in the online processing mode or steps 2 and 3 in the distributed processing mode
  */
-class Result : public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)

@@ -43,7 +43,7 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     const Input * in = static_cast<const Input *>(input);
     return allocateImpl<algorithmFPType>(in->get(data)->getNumberOfColumns(), in->get(data)->getNumberOfRows());
@@ -56,7 +56,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
  * \param[in] method         Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
 {
     const OnlinePartialResult * in = static_cast<const OnlinePartialResult *>(partialResult);
     return allocateImpl<algorithmFPType>(in->getNumberOfColumns(), in->getNumberOfRows());
