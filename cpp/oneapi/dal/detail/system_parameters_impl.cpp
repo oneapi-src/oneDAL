@@ -25,11 +25,11 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-system_parameters_impl::system_parameters_impl()
-{
+system_parameters_impl::system_parameters_impl() {
     using daal::services::Environment;
-    Environment * env = Environment::getInstance();
-    sys_info_["top_enabled_cpu_extension"] = from_daal_cpu_type(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID);
+    Environment* env = Environment::getInstance();
+    sys_info_["top_enabled_cpu_extension"] =
+        from_daal_cpu_type(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID);
     sys_info_["max_number_of_threads"] = static_cast<std::uint32_t>(env->getNumberOfThreads());
 }
 
@@ -45,7 +45,8 @@ void system_parameters_impl::print_any(const std::any& value, std::ostringstream
     const std::type_info& ti = value.type();
     if (ti == typeid(cpu_extension)) {
         ss << to_string(std::any_cast<cpu_extension>(value));
-    } else if (ti == typeid(std::uint32_t)) {
+    }
+    else if (ti == typeid(std::uint32_t)) {
         ss << std::any_cast<std::uint32_t>(value);
     }
     else {

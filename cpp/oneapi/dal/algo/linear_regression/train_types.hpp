@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/linear_regression/common.hpp"
+#include "oneapi/dal/detail/system_parameters.hpp"
 
 namespace oneapi::dal::linear_regression {
 
