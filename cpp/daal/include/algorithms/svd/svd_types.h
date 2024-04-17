@@ -335,7 +335,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes additional memory to store partial results of the SVD algorithm for each subsequent compute() method
@@ -345,7 +345,7 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates additional memory to store partial results of the SVD algorithm for each subsequent compute() method
@@ -425,7 +425,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store final results of the SVD algorithm
@@ -500,7 +500,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store partial results of the SVD algorithm based on the known structure of partial results from step 1 in the
@@ -602,7 +602,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store partial results of the SVD algorithm obtained in the third step in the distributed processing mode
@@ -610,7 +610,7 @@ public:
      * \param[in]  qCollection  DataCollection of all partial results from step 1 of the SVD algorithm in the distributed processing mode
      */
     template <typename algorithmFPType>
-    services::Status setPartialResultStorage(data_management::DataCollection * qCollection);
+    DAAL_EXPORT services::Status setPartialResultStorage(data_management::DataCollection * qCollection);
 
     /**
      * Returns results of the SVD algorithm with singular values and the left orthogonal matrix calculated

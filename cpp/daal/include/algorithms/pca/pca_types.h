@@ -318,7 +318,7 @@ public:
         * \return Status of allocation
         */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
         * Initializes memory to store partial results of the PCA  SVD algorithm
@@ -328,7 +328,7 @@ public:
         * \return Status of initialization
         */
     template <typename algorithmFPType>
-    services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 protected:
     services::Status checkImpl(size_t nFeatures) const;
@@ -425,7 +425,7 @@ public:
         * \return Status of allocation
         */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
         * Initializes memory to store partial results of the PCA  SVD algorithm
@@ -435,7 +435,7 @@ public:
         * \return Status of initialization
         */
     template <typename algorithmFPType>
-    services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 protected:
     services::Status checkImpl(size_t nFeatures) const;
@@ -777,7 +777,7 @@ public:
         * \param[in] method Computation method
         */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method);
 
     /**
         * Allocates memory for storing partial results of the PCA algorithm     * \param[in] partialResult Pointer to an object containing input data
@@ -785,7 +785,8 @@ public:
         * \param[in] method        Computation method
         */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const Method method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                          const Method method);
 
     /**
     * Checks the results of the PCA algorithm

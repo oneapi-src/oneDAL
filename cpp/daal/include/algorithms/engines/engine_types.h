@@ -111,7 +111,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the engine
  */
-class Result : public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     /** \brief Constructor */
