@@ -273,7 +273,7 @@ class PartialResult<daal::algorithms::pca::correlationDense> : public PartialRes
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
-    PartialResult();
+    DAAL_EXPORT PartialResult();
 
     /**
         * Gets partial results of the PCA Correlation algorithm
@@ -351,7 +351,7 @@ class PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
-    PartialResult();
+    DAAL_EXPORT PartialResult();
 
     /**
     * Gets partial results of the PCA SVD algorithm
@@ -554,8 +554,8 @@ template <>
 class DistributedInput<correlationDense> : public InputIface
 {
 public:
-    DistributedInput();
-    DistributedInput(const DistributedInput & other);
+    DAAL_EXPORT DistributedInput();
+    DAAL_EXPORT DistributedInput(const DistributedInput & other);
 
     /**
         * Sets input objects for the PCA on the second step in the distributed processing mode
@@ -582,7 +582,7 @@ public:
         * \param[in] id      Identifier of the argument
         * \param[in] value   Pointer to the argument
         */
-    void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<correlationDense> > & value);
+    DAAL_EXPORT void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<correlationDense> > & value);
 
     /**
         * Returns the number of columns in the input data set
@@ -607,8 +607,8 @@ template <>
 class DistributedInput<svdDense> : public InputIface
 {
 public:
-    DistributedInput();
-    DistributedInput(const DistributedInput & other);
+    DAAL_EXPORT DistributedInput();
+    DAAL_EXPORT DistributedInput(const DistributedInput & other);
 
     /**
         * Sets input objects for the PCA on the second step in the distributed processing mode

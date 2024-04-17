@@ -199,7 +199,7 @@ public:
      * \param[in] method    Algorithm method
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Sets an input object for the PCA transformation algorithm
