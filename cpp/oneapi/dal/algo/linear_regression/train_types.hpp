@@ -35,7 +35,7 @@ template <typename Task>
 class partial_train_result_impl;
 
 template <typename Task = task::by_default>
-class train_parameters : public base {
+class train_parameters : public dal::detail::system_parameters {
 public:
     explicit train_parameters();
     train_parameters(train_parameters&&) = default;

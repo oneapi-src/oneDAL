@@ -27,8 +27,9 @@ std::uint32_t system_parameters_impl::get_max_workgroup_size(sycl::queue& queue)
 }
 
 std::string system_parameters_impl::dump(sycl::queue& queue) const {
-    std::stringstream ss(dump());
-    ss << "max_workgroup_size" << " : " << get_max_workgroup_size(queue) << " ; ";
+    std::ostringstream ss;
+    ss << "max_workgroup_size" << " : " << get_max_workgroup_size(queue) << "; ";
+    ss << dump();
     return std::move(ss).str();
 }
 
