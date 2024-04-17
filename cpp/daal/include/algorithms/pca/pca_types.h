@@ -260,7 +260,7 @@ public:
     *        PCA algorithm in the online or distributed processing mode
     */
 template <Method method>
-class DAAL_EXPORT PartialResult : public PartialResultBase
+class PartialResult : public PartialResultBase
 {};
 
 /**
@@ -543,7 +543,7 @@ public:
     * \brief Input objects for the PCA algorithm in the distributed processing mode
     */
 template <Method method>
-class DAAL_EXPORT DistributedInput
+class DistributedInput
 {};
 
 /**
