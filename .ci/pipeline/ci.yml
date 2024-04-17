@@ -123,7 +123,7 @@ jobs:
       path: $(TBB_CACHE_DIR)
       cacheHitVar: TBB_RESTORED
   - script: |
-      .ci/env/tbb.sh --cross-compile --toolchain-file $(Build.Repository.LocalPath)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target-arch aarch64 --prefix $(TBB_CACHE_DIR) --version $(TBB_VERSION)
+      .ci/env/tbb.sh --cross-compile --toolchain-file $(Build.Repository.LocalPath)/.ci/env/arm-gnu-crosscompile-toolchain.cmake --target-arch aarch64 --prefix $(TBB_CACHE_DIR) --version $(TBB_VERSION)
     displayName: 'Build oneTBB'
     condition: ne(variables.TBB_RESTORED, 'true')
   - script: |
