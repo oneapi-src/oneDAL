@@ -435,7 +435,8 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Sets the final result of the SVD algorithm

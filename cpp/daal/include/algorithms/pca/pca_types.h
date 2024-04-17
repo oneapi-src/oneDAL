@@ -629,7 +629,7 @@ public:
         * \param[in] id      Identifier of the input object
         * \param[in] value   Pointer to the input object
         */
-    void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<svdDense> > & value);
+    DAAL_EXPORT void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<svdDense> > & value);
 
     /**
         * Retrieves specific partial result from the input objects of the PCA algorithm on the second step in the distributed processing mode
