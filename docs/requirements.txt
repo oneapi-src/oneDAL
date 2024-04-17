@@ -23,7 +23,7 @@ requests==2.31.0
 six==1.16.0
 snowballstemmer==2.2.0
 soupsieve==2.5
-Sphinx==6.2.1
+Sphinx==7.3.6
 sphinx-book-theme==1.0.1
 sphinx-notfound-page==1.0.0
 sphinx-prompt==1.6.0
