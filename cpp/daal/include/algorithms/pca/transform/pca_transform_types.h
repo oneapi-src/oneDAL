@@ -176,7 +176,7 @@ public:
  *        in the batch processing mode or finalizeCompute() method of algorithm in the online processing mode
  *        or on the second and third steps of the algorithm in the distributed processing mode
  */
-class Result : public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)

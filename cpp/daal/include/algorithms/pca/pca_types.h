@@ -195,7 +195,7 @@ protected:
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__INPUT"></a>
     * \brief Input objects for the PCA algorithm
     */
-class Input : public InputIface
+class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
@@ -260,7 +260,7 @@ public:
     *        PCA algorithm in the online or distributed processing mode
     */
 template <Method method>
-class PartialResult : public PartialResultBase
+class DAAL_EXPORT PartialResult : public PartialResultBase
 {};
 
 /**
@@ -453,7 +453,7 @@ protected:
     * \brief Class that specifies the common parameters of the PCA algorithm
     */
 template <typename algorithmFPType, Method method = correlationDense>
-class BaseParameter : public daal::algorithms::Parameter
+class DAAL_EXPORT BaseParameter : public daal::algorithms::Parameter
 {
 public:
     /** Constructs PCA parameters */
@@ -465,7 +465,7 @@ public:
     * \brief Class that specifies the parameters of the PCA algorithm in the online computing mode
     */
 template <typename algorithmFPType, Method method>
-class OnlineParameter : public BaseParameter<algorithmFPType, method>
+class DAAL_EXPORT OnlineParameter : public BaseParameter<algorithmFPType, method>
 {};
 
 /**
@@ -732,7 +732,7 @@ public:
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__RESULT"></a>
     * \brief Provides methods to access results obtained with the PCA algorithm
     */
-class Result : public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
