@@ -37,6 +37,16 @@ void run(sycl::queue &q) {
     double epsilon = 0.04;
     std::int64_t min_observations = 45;
 
+    // add example for both scenarios
+    // investigate more consistency with algos structure
+
+    const auto type = x_data.get_metadata().get_data_type(0);
+    switch (type) {
+        case dal::data_type::float64: std::cout << "x_train data type double " << std::endl; break;
+        case dal::data_type::float32: std::cout << "x_train data type float " << std::endl; break;
+        default: std::cout << "x_train data type null " << std::endl; break;
+    }
+
     auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
     dbscan_desc.set_result_options(dal::dbscan::result_options::responses);
 

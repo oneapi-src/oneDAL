@@ -27,6 +27,9 @@ namespace oneapi::dal::csv {
 namespace detail {
 namespace v1 {
 
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
 struct data_source_tag {};
 class data_source_impl;
 
@@ -70,8 +73,12 @@ using v1::data_source_base;
 
 namespace v1 {
 
+template <typename Float = double>
 class data_source : public detail::data_source_base {
+    // static_assert(detail::is_valid_float_v<Float>);
 public:
+    using float_t = Float;
+
     explicit data_source(const char* file_name) : data_source_base(file_name) {}
 
     explicit data_source(const std::string& file_name) : data_source_base(file_name.c_str()) {}
