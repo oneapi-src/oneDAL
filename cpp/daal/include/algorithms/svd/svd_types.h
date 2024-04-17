@@ -222,7 +222,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__SVD__DISTRIBUTEDSTEP2INPUT"></a>
  * \brief %Input objects for the second step of  the SVD algorithm in the distributed processing mode
  */
-class DistributedStep2Input : public daal::algorithms::Input
+class DAAL_EXPORT DistributedStep2Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -279,7 +279,7 @@ protected:
  * <a name="DAAL-CLASS-ALGORITHMS__SVD__DISTRIBUTEDSTEP3INPUT"></a>
  * \brief %Input objects for the third step of the SVD algorithm in the distributed processing mode
  */
-class DistributedStep3Input : public daal::algorithms::Input
+class DAAL_EXPORT DistributedStep3Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -318,7 +318,7 @@ public:
  * \brief Provides methods to access partial results obtained with the compute() method of  the SVD algorithm in the online processing mode or
  * the first step in the distributed processing mode
  */
-class OnlinePartialResult : public daal::algorithms::PartialResult
+class DAAL_EXPORT OnlinePartialResult : public daal::algorithms::PartialResult
 {
 public:
     DECLARE_SERIALIZABLE_CAST(OnlinePartialResult)
@@ -486,7 +486,7 @@ typedef services::SharedPtr<Result> ResultPtr;
  * \brief Provides methods to access partial results obtained with the compute() method of the SVD algorithm in the second step in the
  * distributed processing mode
  */
-class DistributedPartialResult : public daal::algorithms::PartialResult
+class DAAL_EXPORT DistributedPartialResult : public daal::algorithms::PartialResult
 {
 public:
     DECLARE_SERIALIZABLE_CAST(DistributedPartialResult)
@@ -585,7 +585,7 @@ typedef services::SharedPtr<DistributedPartialResult> DistributedPartialResultPt
  * \brief Provides methods to access partial results obtained with the compute() method of the SVD algorithm
  *        in the third step in the distributed processing mode
  */
-class DistributedPartialResultStep3 : public daal::algorithms::PartialResult
+class DAAL_EXPORT DistributedPartialResultStep3 : public daal::algorithms::PartialResult
 {
 public:
     DECLARE_SERIALIZABLE_CAST(DistributedPartialResultStep3)
