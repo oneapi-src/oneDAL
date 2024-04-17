@@ -137,7 +137,15 @@ set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})
 
 if (ONEDAL_SET_TBB_MANUALLY STREQUAL "no")
     find_package(TBB REQUIRED tbb tbbmalloc)
-    list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+    if (NOT TBB_IMPORTED_TARGETS)
+        # The TBB_IMPORTED_TARGETS is not set if a TBBConfig.cmake from a source
+        # build of oneTBB is found. Add the extra imported lib targets
+        list(APPEND oneDAL_IMPORTED_TARGETS TBB::tbb TBB::tbbmalloc)
+    else()
+        # TBB_IMPORTED_ARGETS is set when oneTBB is downloaded with the
+        # dev/download_tbb.sh script
+        list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+    endif()
 endif()
 
 if(UNIX)

@@ -19,10 +19,11 @@
 # Common macros
 #===============================================================================
 
+IDENTIFIED_PLAT=$(shell bash dev/make/identify_os.sh)
 ifeq (help,$(MAKECMDGOALS))
-    PLAT:=win32e
+    PLAT := win32e
 else ifeq ($(PLAT),)
-    PLAT:=$(shell bash dev/make/identify_os.sh)
+    PLAT := $(IDENTIFIED_PLAT)
 endif
 
 # Check that we know how to build for the identified platform
@@ -44,6 +45,7 @@ MSVC_RUNTIME_VERSION ?= release
 $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 COMPILER_is_$(COMPILER)            := yes
+COMPILER_is_cross                  := $(if $(filter $(PLAT),$(IDENTIFIED_PLAT)),no,yes)
 OS_is_$(_OS)                       := yes
 IA_is_$(_IA)                       := yes
 PLAT_is_$(PLAT)                    := yes
