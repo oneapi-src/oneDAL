@@ -106,7 +106,7 @@ namespace interface1
  * \brief Input objects for the PCA transformation algorithm in the batch and online processing modes and for the first distributed step of the
  * algorithm.
  */
-class Input : public daal::algorithms::Input
+class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
@@ -226,7 +226,7 @@ typedef services::SharedPtr<daal::algorithms::pca::transform::interface1::Result
  * <a name="DAAL-STRUCT-ALGORITHMS__PCA__TRANSFORM__PARAMETER"></a>
  * \brief Parameters for the PCA transformation compute method
  */
-struct Parameter : public daal::algorithms::Parameter
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     /**
      *  Parameter constructor

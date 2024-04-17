@@ -543,7 +543,7 @@ public:
     * \brief Input objects for the PCA algorithm in the distributed processing mode
     */
 template <Method method>
-class DistributedInput
+class DAAL_EXPORT DistributedInput
 {};
 
 /**
@@ -681,7 +681,7 @@ public:
 * \brief Class that specifies the parameters of the PCA algorithm in the batch computing mode
 */
 template <typename algorithmFPType, Method method>
-class BatchParameter
+class DAAL_EXPORT BatchParameter
 {};
 
 /**
