@@ -181,7 +181,7 @@ struct Parameter : public daal::algorithms::Parameter
  * \brief Input objects for the SVD algorithm in the batch processing and online processing modes, and the first step in the distributed
  * processing mode
  */
-class Input : public daal::algorithms::Input
+class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     /** Default constructor */
