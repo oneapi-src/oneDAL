@@ -186,7 +186,7 @@ private:
                                          private_indices[pos] = index;
                                      }
                                  }
-                                 sg.barrier();
+                                 sycl::group_barrier(sg);
 
                                  std::int32_t bias = 0;
                                  Float final_values[simd_width];

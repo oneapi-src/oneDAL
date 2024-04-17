@@ -461,7 +461,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                             counters[value] += count;
                         }
                     }
-                    sbg.barrier();
+                    sycl::group_barrier(sbg);
                 }
                 //  Parallel scan on counters to generate offsets in place
                 Integer offset = 0;
@@ -473,7 +473,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                     offset += partial_offset;
                 }
 
-                sbg.barrier();
+                sycl::group_barrier(sbg);
                 for (std::uint32_t j = local_id; j < group_aligned_size + local_size;
                      j += local_size) {
                     bool exists = j < group_aligned_size || local_id < rem;
@@ -510,7 +510,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                             counters[value] += count;
                         }
                     }
-                    sbg.barrier();
+                    sycl::group_barrier(sbg);
                     if (exists)
                         output[local_offset] = input[j];
                 }
