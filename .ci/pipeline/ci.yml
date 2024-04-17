@@ -141,14 +141,14 @@ jobs:
   - script: |
       export QEMU_LD_PREFIX=/usr/aarch64-linux-gnu
       export QEMU_CPU="max,sve-default-vector-length=256"
-      export TBBROOT=$(Build.Repository.LocalPath)/__deps/tbb-aarch64
+      export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=aarch64
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
     displayName: 'daal/cpp examples'
   - script: |
       export QEMU_LD_PREFIX=/usr/aarch64-linux-gnu
       export QEMU_CPU="max,sve-default-vector-length=256"
-      export TBBROOT=$(Build.Repository.LocalPath)/__deps/tbb-aarch64
+      export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=aarch64
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
     displayName: 'oneapi/cpp examples'
