@@ -30,13 +30,13 @@ using namespace daal::internal;
 
 typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 
-const uint32_t floatExpMask  = 0x7f800000u;
-const uint32_t floatFracMask = 0x007fffffu;
-const uint32_t floatZeroBits = 0x00000000u;
+constexpr uint32_t floatExpMask  = 0x7f800000u;
+constexpr uint32_t floatFracMask = 0x007fffffu;
+constexpr uint32_t floatZeroBits = 0x00000000u;
 
-const uint64_t doubleExpMask  = 0x7ff0000000000000uLL;
-const uint64_t doubleFracMask = 0x000fffffffffffffuLL;
-const uint64_t doubleZeroBits = 0x0000000000000000uLL;
+constexpr uint64_t doubleExpMask  = 0x7ff0000000000000ull;
+constexpr uint64_t doubleFracMask = 0x000fffffffffffffull;
+constexpr uint64_t doubleZeroBits = 0x0000000000000000ull;
 
 bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN);
 
