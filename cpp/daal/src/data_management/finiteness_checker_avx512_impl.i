@@ -67,7 +67,6 @@ double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, cons
     return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
-
 // CAN BE TEMPLATED
 double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {

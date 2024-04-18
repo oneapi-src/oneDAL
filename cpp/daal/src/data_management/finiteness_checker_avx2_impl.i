@@ -3,13 +3,12 @@
 #ifndef __FINITENESS_CHECKER_AVX2_IMPL_I__
 #define __FINITENESS_CHECKER_AVX2_IMPL_I__
 
-
 template <typename DataType>
 DataType sumWithAVX2(size_t n, const DataType * dataPtr)
 {
     constexpr size_t avx2RegisterLength = 256;
     constexpr size_t numberOfBitsInByte = 8;
-    constexpr size_t nPerInstr = avx2RegisterLength / (numberOfBitsInByte * sizeof(DataType));
+    constexpr size_t nPerInstr          = avx2RegisterLength / (numberOfBitsInByte * sizeof(DataType));
     DataType sum;
     if (sizeof(DataType) == 4)
     {

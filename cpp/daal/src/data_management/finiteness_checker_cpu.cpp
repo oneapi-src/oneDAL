@@ -150,8 +150,6 @@ DataType getInf()
 
     #endif // __CPUID__(DAAL_CPU) == __avx2__
 
-
-    #endif
 #endif
 
 template <typename DataType, daal::CpuType cpu>
