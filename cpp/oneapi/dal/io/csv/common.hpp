@@ -68,14 +68,16 @@ protected:
 using v1::data_source_tag;
 using v1::data_source_impl;
 using v1::data_source_base;
+using v1::is_valid_float_v;
 
 } // namespace detail
 
 namespace v1 {
 
-template <typename Float = double>
+template <typename Float = float>
 class data_source : public detail::data_source_base {
-    // static_assert(detail::is_valid_float_v<Float>);
+    static_assert(detail::is_valid_float_v<Float>);
+
 public:
     using float_t = Float;
 

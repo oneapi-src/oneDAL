@@ -60,19 +60,18 @@ struct read_kernel_gpu<table, Float> {
 
         auto nt = daal_data_source.getNumericTable();
 
-        daal_dm::BlockDescriptor<DAAL_DATA_TYPE> block;
+        daal_dm::BlockDescriptor<Float> block;
         const std::int64_t row_count = nt->getNumberOfRows();
         const std::int64_t column_count = nt->getNumberOfColumns();
 
         interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal_dm::readOnly, block));
-        DAAL_DATA_TYPE* data = block.getBlockPtr();
+        Float* data = block.getBlockPtr();
 
-        auto arr =
-            array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
+        auto arr = array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
         dal::detail::memcpy_host2usm(queue,
                                      arr.get_mutable_data(),
                                      data,
-                                     sizeof(DAAL_DATA_TYPE) * row_count * column_count);
+                                     sizeof(Float) * row_count * column_count);
 
         interop::status_to_exception(nt->releaseBlockOfRows(block));
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,28 +22,26 @@
 #define ONEDAL_DATA_PARALLEL
 #endif
 
-#include "oneapi/dal/algo/dbscan.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
-
+template <typename TableReadType>
 void run(sycl::queue &q) {
-    const auto data_file_name = get_data_path("dbscan_dense.csv");
+    const auto data_file_name = get_data_path("covcormoments_dense.csv");
 
-    const auto x_data = dal::read<dal::table>(q, dal::csv::data_source{ data_file_name });
+    const auto table =
+        dal::read<dal::table>(q, dal::csv::data_source<TableReadType>{ data_file_name });
 
-    double epsilon = 0.04;
-    std::int64_t min_observations = 45;
+    const auto type = table.get_metadata().get_data_type(0);
+    switch (type) {
+        case dal::data_type::float64: std::cout << "table data type: double " << std::endl; break;
+        case dal::data_type::float32: std::cout << "table data type: float " << std::endl; break;
+        default: std::cout << "table data type: null " << std::endl; break;
+    }
 
-    auto dbscan_desc = dal::dbscan::descriptor<>(epsilon, min_observations);
-    dbscan_desc.set_result_options(dal::dbscan::result_options::responses);
-
-    const auto result_compute = dal::compute(q, dbscan_desc, x_data);
-
-    std::cout << "Cluster count: " << result_compute.get_cluster_count() << std::endl;
-    std::cout << "Responses:\n" << result_compute.get_responses() << std::endl;
+    std::cout << table << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
@@ -52,7 +50,9 @@ int main(int argc, char const *argv[]) {
                   << ", " << d.get_info<sycl::info::device::name>() << "\n"
                   << std::endl;
         auto q = sycl::queue{ d };
-        run(q);
+        run<float>(q);
+        run<double>(q);
     }
+
     return 0;
 }

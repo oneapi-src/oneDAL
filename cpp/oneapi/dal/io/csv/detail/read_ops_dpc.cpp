@@ -34,5 +34,10 @@ table read_ops_dispatcher<table, Float, data_parallel_policy>::operator()(
     return kernel_dispatcher_t{}(ctx, ds, args);
 }
 
+#define INSTANTIATE(F) \
+    template struct ONEDAL_EXPORT read_ops_dispatcher<table, F, data_parallel_policy>;
+INSTANTIATE(float)
+INSTANTIATE(double)
+
 } // namespace v1
 } // namespace oneapi::dal::csv::detail
