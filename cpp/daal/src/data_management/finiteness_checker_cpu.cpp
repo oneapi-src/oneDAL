@@ -1,6 +1,6 @@
-/** file finiteness_checker.cpp */
+/** file: finiteness_checker_cpu.cpp */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,6 +50,10 @@ DataType getInf()
         *((uint64_t *)(&inf)) = doubleExpMask;
     return inf;
 }
+
+// These functions are used for both AVX2 and AVX512
+// and are therefore outside of their separate
+// implementations
 
 template <typename DataType, daal::CpuType cpu>
 DataType sumWithAVX(size_t n, const DataType * dataPtr);
