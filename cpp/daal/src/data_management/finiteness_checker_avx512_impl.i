@@ -351,4 +351,4 @@ bool checkFinitenessSOA<avx512>(NumericTable & table, bool allowNaN, services::S
     return checkFinitenessSOAAVX512Impl(table, allowNaN, st);
 }
 
-#endif __FINITENESS_CHECKER_AVX512_IMPL_I__
+#endif // __FINITENESS_CHECKER_AVX512_IMPL_I__

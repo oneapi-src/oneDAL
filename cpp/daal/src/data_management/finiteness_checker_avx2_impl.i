@@ -365,4 +365,4 @@ bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Sta
     return checkFinitenessSOAAVX2Impl(table, allowNaN, st);
 }
 
-#endif __FINITENESS_CHECKER_AVX2_IMPL_I__
+#endif // __FINITENESS_CHECKER_AVX2_IMPL_I__
