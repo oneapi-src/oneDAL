@@ -4,7 +4,7 @@
 #define __FINITENESS_CHECKER_AVX2_IMPL_I__
 
 template <typename DataType>
-DataType sumWithAVX2(size_t n, const DataType * dataPtr)
+DataType sumWithAVX<DataType, avx2>(size_t n, const DataType * dataPtr)
 {
     constexpr size_t avx2RegisterLength = 256;
     constexpr size_t numberOfBitsInByte = 8;
@@ -46,43 +46,9 @@ DataType sumWithAVX2(size_t n, const DataType * dataPtr)
 }
 
 template <typename DataType>
-DataType computeSumAVX2Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
+DataType computeSum<DataType, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    size_t nElements    = nDataPtrs * nElementsPerPtr;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    daal::services::internal::TArray<DataType, avx2> partialSumsArr(nTotalBlocks);
-    DataType * pSums = partialSumsArr.get();
-    if (!pSums) return getInf<DataType>();
-    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
-
-    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
-        size_t ptrIdx        = iBlock / nBlocksPerPtr;
-        size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
-        size_t start         = blockIdxInPtr * nPerBlock;
-        size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
-
-        pSums[iBlock] = sumWithAVX2<DataType>(end - start, dataPtrs[ptrIdx] + start);
-    });
-
-    return sumWithAVX2<DataType>(nTotalBlocks, pSums);
-}
-
-template <>
-float computeSum<float, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
-{
-    return computeSumAVX2Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
-
-template <>
-double computeSum<double, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
-{
-    return computeSumAVX2Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
+    return computeSumAVX<Datatype, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 double computeSumSOAAVX2Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
