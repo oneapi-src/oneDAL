@@ -1,4 +1,4 @@
-/** file: finiteness_checker_impli.i */
+/** file: finiteness_checker_impl.i */
 /*******************************************************************************
 * Copyright contributors to the oneDAL project
 *

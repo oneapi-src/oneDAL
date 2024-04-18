@@ -1,4 +1,4 @@
-/** file: finiteness_checker_avx512_impli.i */
+/** file: finiteness_checker_avx512_impl.i */
 /*******************************************************************************
 * Copyright contributors to the oneDAL project
 *
@@ -21,7 +21,9 @@
 template <>
 float sumWithAVX<float, avx512>(size_t n, const float * dataPtr)
 {
-    const size_t nPerInstr = 64 / sizeof(float);
+    constexpr size_t avx512RegisterLength = 512;
+    constexpr size_t numberOfBitsInByte   = 8;
+    constexpr size_t nPerInstr            = avx512RegisterLength / (numberOfBitsInByte * sizeof(float));
     float sum;
 
     __m512 sums     = _mm512_set1_ps(0);
@@ -37,7 +39,9 @@ float sumWithAVX<float, avx512>(size_t n, const float * dataPtr)
 template <>
 double sumWithAVX<double, avx512>(size_t n, const double * dataPtr)
 {
-    const size_t nPerInstr = 64 / sizeof(double);
+    constexpr size_t avx512RegisterLength = 512;
+    constexpr size_t numberOfBitsInByte   = 8;
+    constexpr size_t nPerInstr            = avx512RegisterLength / (numberOfBitsInByte * sizeof(double));
     double sum;
 
     __m512d sums     = _mm512_set1_pd(0);
@@ -73,7 +77,9 @@ services::Status checkFinitenessInBlocks<avx512>(const float ** dataPtrs, bool i
                                                  size_t nPerBlock, size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
-    const size_t nPerInstr = 16;
+    constexpr size_t avx512RegisterLength = 512;
+    constexpr size_t numberOfBitsInByte   = 8;
+    constexpr size_t nPerInstr            = avx512RegisterLength / (numberOfBitsInByte * sizeof(float));
     services::internal::TArray<bool, avx512> notFiniteArr(nTotalBlocks);
     bool * notFinitePtr = notFiniteArr.get();
     DAAL_CHECK_MALLOC(notFinitePtr);
@@ -132,7 +138,9 @@ services::Status checkFinitenessInBlocks<avx512>(const double ** dataPtrs, bool 
                                                  size_t nPerBlock, size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
-    const size_t nPerInstr = 8;
+    constexpr size_t avx512RegisterLength = 512;
+    constexpr size_t numberOfBitsInByte   = 8;
+    constexpr size_t nPerInstr            = avx512RegisterLength / (numberOfBitsInByte * sizeof(double));
     services::internal::TArray<bool, avx512> notFiniteArr(nTotalBlocks);
     bool * notFinitePtr = notFiniteArr.get();
     DAAL_CHECK_MALLOC(notFinitePtr);

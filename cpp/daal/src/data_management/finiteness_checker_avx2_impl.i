@@ -1,4 +1,4 @@
-/** file: finiteness_checker_avx2_impli.i */
+/** file: finiteness_checker_avx2_impl.i */
 /*******************************************************************************
 * Copyright contributors to the oneDAL project
 *
@@ -93,7 +93,9 @@ services::Status checkFinitenessInBlocks<avx2>(const float ** dataPtrs, bool inP
                                                size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
-    constexpr size_t nPerInstr = 8;
+    constexpr size_t avx2RegisterLength = 256;
+    constexpr size_t numberOfBitsInByte = 8;
+    constexpr size_t nPerInstr          = avx2RegisterLength / (numberOfBitsInByte * sizeof(float));
     services::internal::TArray<bool, avx2> notFiniteArr(nTotalBlocks);
     bool * notFinitePtr = notFiniteArr.get();
     DAAL_CHECK_MALLOC(notFinitePtr);
@@ -150,7 +152,9 @@ services::Status checkFinitenessInBlocks<avx2>(const double ** dataPtrs, bool in
                                                size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
-    const size_t nPerInstr = 4;
+    constexpr size_t avx2RegisterLength = 256;
+    constexpr size_t numberOfBitsInByte = 8;
+    constexpr size_t nPerInstr          = avx2RegisterLength / (numberOfBitsInByte * sizeof(double));
     services::internal::TArray<bool, avx2> notFiniteArr(nTotalBlocks);
     bool * notFinitePtr = notFiniteArr.get();
     DAAL_CHECK_MALLOC(notFinitePtr);
