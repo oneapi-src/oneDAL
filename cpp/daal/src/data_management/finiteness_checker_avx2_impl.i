@@ -73,7 +73,8 @@ double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::S
     return computeSumSOAAVX<avx2>(table, sumIsFinite, st);
 }
 
-services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+template <>
+services::Status checkFinitenessInBlocks<avx2>(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -129,7 +130,8 @@ services::Status checkFinitenessInBlocks256(const float ** dataPtrs, bool inPara
     return s;
 }
 
-services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+template <>
+services::Status checkFinitenessInBlocks<avx2>(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                             size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
@@ -186,98 +188,22 @@ services::Status checkFinitenessInBlocks256(const double ** dataPtrs, bool inPar
     return s;
 }
 
-template <typename DataType>
-bool checkFinitenessAVX2Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    bool finiteness;
-    checkFinitenessInBlocks256(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
-    return finiteness;
-}
-
 template <>
 bool checkFiniteness<float, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
-    return checkFinitenessAVX2Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+    return checkFiniteness<float, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFiniteness<double, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
-    return checkFinitenessAVX2Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
-}
-
-bool checkFinitenessSOAAVX2Impl(NumericTable & table, bool allowNaN, services::Status & st)
-{
-    SafeStatus safeStat;
-    bool valuesAreFinite                        = true;
-    bool breakFlag                              = false;
-    const size_t nRows                          = table.getNumberOfRows();
-    const size_t nCols                          = table.getNumberOfColumns();
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
-
-    daal::TlsMem<bool, avx2, services::internal::ScalableCalloc<bool, avx2> > tlsNotFinite(1);
-
-    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
-        bool * localNotFinite = tlsNotFinite.local();
-        DAAL_CHECK_MALLOC_THR(localNotFinite);
-
-        switch ((*tableFeaturesDict)[i].getIndexType())
-        {
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        {
-            ReadColumns<float, avx2> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const float * colPtr = colBlock.get();
-            *localNotFinite |= !checkFiniteness<float, avx2>(nRows, 1, nRows, &colPtr, allowNaN);
-            break;
-        }
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        {
-            ReadColumns<double, avx2> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const double * colPtr = colBlock.get();
-            *localNotFinite |= !checkFiniteness<double, avx2>(nRows, 1, nRows, &colPtr, allowNaN);
-            break;
-        }
-        default: break;
-        }
-
-        if (*localNotFinite)
-        {
-            needBreak = true;
-            breakFlag = true;
-        }
-    });
-
-    st |= safeStat.detach();
-    if (!st)
-    {
-        return false;
-    }
-
-    if (breakFlag)
-    {
-        valuesAreFinite = false;
-    }
-    else
-    {
-        tlsNotFinite.reduce([&](bool * localNotFinite) { valuesAreFinite &= !*localNotFinite; });
-    }
-
-    return valuesAreFinite;
+    return checkFiniteness<double, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Status & st)
 {
-    return checkFinitenessSOAAVX2Impl(table, allowNaN, st);
+    return checkFinitenessSOA<avx2>(table, allowNaN, st);
 }
 
 #endif // __FINITENESS_CHECKER_AVX2_IMPL_I__
