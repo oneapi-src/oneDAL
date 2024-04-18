@@ -280,7 +280,7 @@ public:
         * \param[in] id    Identifier of the input object
         * \return          Input object that corresponds to the given identifier
         */
-    data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
+    DAAL_EXPORT data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
 
     virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
@@ -289,7 +289,7 @@ public:
         * \param[in] id      Identifier of the result
         * \param[in] value   Pointer to the object
         */
-    void set(const PartialCorrelationResultId id, const data_management::NumericTablePtr & value);
+    DAAL_EXPORT void set(const PartialCorrelationResultId id, const data_management::NumericTablePtr & value);
 
     virtual ~PartialResult() {};
 
@@ -300,7 +300,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks partial results of the PCA Ccorrelation algorithm
@@ -308,7 +308,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
         * Allocates memory to store partial results of the PCA  SVD algorithm
@@ -358,7 +358,7 @@ public:
         * \param[in] id    Identifier of the input object
         * \return          Input object that corresponds to the given identifier
     */
-    data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
+    DAAL_EXPORT data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
 
     virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
@@ -382,7 +382,7 @@ public:
         * \param[in] id      Identifier of the result
         * \param[in] value   Pointer to  the object
         */
-    void set(PartialSVDTableResultId id, const data_management::NumericTablePtr & value);
+    DAAL_EXPORT void set(PartialSVDTableResultId id, const data_management::NumericTablePtr & value);
 
     /**
         * Sets partial result of the PCA SVD algorithm
@@ -562,7 +562,7 @@ public:
         * \param[in] id    Identifier of the input object
         * \param[in] ptr   Input object that corresponds to the given identifier
         */
-    void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
+    DAAL_EXPORT void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
         * Gets input objects for the PCA on the second step in the distributed processing mode

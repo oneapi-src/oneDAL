@@ -514,7 +514,7 @@ public:
      * \param[out] nBlocks         Number of rows in the input data set
      */
     template <typename algorithmFPType>
-    services::Status setPartialResultStorage(data_management::KeyValueDataCollection * inCollection, size_t & nBlocks);
+    DAAL_EXPORT services::Status setPartialResultStorage(data_management::KeyValueDataCollection * inCollection, size_t & nBlocks);
 
     /**
      * Returns partial results of the SVD algorithm.

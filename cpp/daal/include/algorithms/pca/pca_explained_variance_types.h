@@ -108,7 +108,7 @@ struct Parameter : public daal::algorithms::Parameter
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__INPUT"></a>
 * \brief %Input objects for explained variance quality metrics
 */
-class Input : public daal::algorithms::Input
+class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     DAAL_CAST_OPERATOR(Input)
@@ -140,7 +140,7 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Input> InputPtr;
 
@@ -148,7 +148,7 @@ typedef services::SharedPtr<Input> InputPtr;
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__RESULT"></a>
 * \brief Provides interface for the result of linear regression quality metrics
 */
-class Result : public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -189,7 +189,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     using daal::algorithms::interface1::Result::check;
