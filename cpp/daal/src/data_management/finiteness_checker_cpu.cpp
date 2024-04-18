@@ -139,34 +139,6 @@ DataType getInf()
     return inf;
 }
 
-template <typename DataType, daal::CpuType cpu>
-DataType computeSumAVX(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    size_t nElements    = nDataPtrs * nElementsPerPtr;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    daal::services::internal::TArray<DataType, avx2> partialSumsArr(nTotalBlocks);
-    DataType * pSums = partialSumsArr.get();
-    if (!pSums) return getInf<DataType>();
-    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
-
-    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
-        size_t ptrIdx        = iBlock / nBlocksPerPtr;
-        size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
-        size_t start         = blockIdxInPtr * nPerBlock;
-        size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
-
-        pSums[iBlock] = sumWithAVX<DataType, cpu>(end - start, dataPtrs[ptrIdx] + start);
-    });
-
-    return sumWithAVX<DataType, cpu>(nTotalBlocks, pSums);
-}
-
     #if (__CPUID__(DAAL_CPU) == __avx512__)
 
         #include "finiteness_checker_avx512_impl.i"
