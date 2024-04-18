@@ -3,142 +3,54 @@
 #ifndef __FINITENESS_CHECKER_AVX512_IMPL_I__
 #define __FINITENESS_CHECKER_AVX512_IMPL_I__
 
-template <typename DataType>
-DataType sumWithAVX512(size_t n, const DataType * dataPtr)
+template <>
+float sumWithAVX<float, avx512>(size_t n, const float * dataPtr)
 {
-    const size_t nPerInstr = 64 / sizeof(DataType);
-    DataType sum;
-    if (sizeof(DataType) == 4)
-    {
-        __m512 sums     = _mm512_set1_ps(0);
-        __m512 * ptr512 = (__m512 *)dataPtr;
-        for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_ps(sums, ptr512[i]);
-        sum = _mm512_reduce_add_ps(sums);
-    }
-    else
-    {
-        __m512d sums     = _mm512_set1_pd(0);
-        __m512d * ptr512 = (__m512d *)dataPtr;
-        for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_pd(sums, ptr512[i]);
-        sum = _mm512_reduce_add_pd(sums);
-    }
+    const size_t nPerInstr = 64 / sizeof(float);
+    float sum;
+
+    __m512 sums     = _mm512_set1_ps(0);
+    __m512 * ptr512 = (__m512 *)dataPtr;
+    for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_ps(sums, ptr512[i]);
+    sum = _mm512_reduce_add_ps(sums);
+
     for (size_t i = (n / nPerInstr) * nPerInstr; i < n; ++i) sum += dataPtr[i];
 
     return sum;
 }
 
-template <typename DataType>
-DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
-{
-    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
-    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
-    size_t nElements    = nDataPtrs * nElementsPerPtr;
-    bool inParallel     = !(nElements < THREADING_BORDER);
-    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
-    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
-    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
-
-    daal::services::internal::TArray<DataType, avx512> partialSumsArr(nTotalBlocks);
-    DataType * pSums = partialSumsArr.get();
-    if (!pSums) return getInf<DataType>();
-    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
-
-    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
-        size_t ptrIdx        = iBlock / nBlocksPerPtr;
-        size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
-        size_t start         = blockIdxInPtr * nPerBlock;
-        size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
-
-        pSums[iBlock] = sumWithAVX512<DataType>(end - start, dataPtrs[ptrIdx] + start);
-    });
-
-    return sumWithAVX512<DataType>(nTotalBlocks, pSums);
-}
-
 template <>
-float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
+double sumWithAVX<double, avx512>(size_t n, const double * dataPtr)
 {
-    return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
+    const size_t nPerInstr = 64 / sizeof(double);
+    double sum;
 
-template <>
-double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
-{
-    return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
-}
+    __m512d sums     = _mm512_set1_pd(0);
+    __m512d * ptr512 = (__m512d *)dataPtr;
+    for (size_t i = 0; i < n / nPerInstr; i++) sums = _mm512_add_pd(sums, ptr512[i]);
+    sum = _mm512_reduce_add_pd(sums);
 
-// CAN BE TEMPLATED
-double computeSumSOAAVX512Impl(NumericTable & table, bool & sumIsFinite, services::Status & st)
-{
-    SafeStatus safeStat;
-    double sum                                  = 0;
-    bool breakFlag                              = false;
-    const size_t nRows                          = table.getNumberOfRows();
-    const size_t nCols                          = table.getNumberOfColumns();
-    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
-
-    daal::TlsMem<double, avx512, services::internal::ScalableCalloc<double, avx512> > tlsSum(1);
-    daal::TlsMem<bool, avx512, services::internal::ScalableCalloc<bool, avx512> > tlsNotFinite(1);
-
-    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
-        double * localSum     = tlsSum.local();
-        bool * localNotFinite = tlsNotFinite.local();
-        DAAL_CHECK_MALLOC_THR(localSum);
-        DAAL_CHECK_MALLOC_THR(localNotFinite);
-
-        switch ((*tableFeaturesDict)[i].getIndexType())
-        {
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        {
-            ReadColumns<float, avx512> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const float * colPtr = colBlock.get();
-            *localSum += static_cast<double>(computeSum<float, avx512>(1, nRows, &colPtr));
-            break;
-        }
-        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        {
-            ReadColumns<double, avx512> colBlock(table, i, 0, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
-            const double * colPtr = colBlock.get();
-            *localSum += computeSum<double, avx512>(1, nRows, &colPtr);
-            break;
-        }
-        default: break;
-        }
-
-        *localNotFinite |= valuesAreNotFinite(localSum, 1, false);
-        if (*localNotFinite)
-        {
-            needBreak = true;
-            breakFlag = true;
-        }
-    });
-
-    st |= safeStat.detach();
-    if (!st)
-    {
-        return 0;
-    }
-
-    if (breakFlag)
-    {
-        sum         = getInf<double>();
-        sumIsFinite = false;
-    }
-    else
-    {
-        tlsSum.reduce([&](double * localSum) { sum += *localSum; });
-        tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
-    }
+    for (size_t i = (n / nPerInstr) * nPerInstr; i < n; ++i) sum += dataPtr[i];
 
     return sum;
 }
 
 template <>
+float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
+{
+    return computeSumAVX<float, avx512>(nDataPtrs, nElementsPerPtr, dataPtrs);
+}
+
+template <>
+double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
+{
+    return computeSumAVX<double, avx512>(nDataPtrs, nElementsPerPtr, dataPtrs);
+}
+
+template <>
 double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
-    return computeSumSOAAVX512Impl(table, sumIsFinite, st);
+    return computeSumSOAAVX<avx512>(table, sumIsFinite, st);
 }
 
 services::Status checkFinitenessInBlocks512(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,

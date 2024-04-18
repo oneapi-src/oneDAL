@@ -139,6 +139,105 @@ DataType getInf()
     return inf;
 }
 
+template <typename DataType, daal::CpuType cpu>
+DataType sumWithAVX(size_t n, const DataType * dataPtr);
+
+template <typename DataType, daal::CpuType cpu>
+DataType computeSumAVX(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
+{
+    size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
+    if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
+    size_t nElements    = nDataPtrs * nElementsPerPtr;
+    bool inParallel     = !(nElements < THREADING_BORDER);
+    size_t nPerBlock    = nElementsPerPtr / nBlocksPerPtr;
+    size_t nSurplus     = nElementsPerPtr % nBlocksPerPtr;
+    size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
+
+    daal::services::internal::TArray<DataType, cpu> partialSumsArr(nTotalBlocks);
+    DataType * pSums = partialSumsArr.get();
+    if (!pSums) return getInf<DataType>();
+    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
+
+    daal::conditional_threader_for(inParallel, nTotalBlocks, [&](size_t iBlock) {
+        size_t ptrIdx        = iBlock / nBlocksPerPtr;
+        size_t blockIdxInPtr = iBlock - nBlocksPerPtr * ptrIdx;
+        size_t start         = blockIdxInPtr * nPerBlock;
+        size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
+
+        pSums[iBlock] = sumWithAVX<DataType, cpu>(end - start, dataPtrs[ptrIdx] + start);
+    });
+
+    return sumWithAVX<DataType, cpu>(nTotalBlocks, pSums);
+}
+
+template <daal::CpuType cpu>
+double computeSumSOAAVX(NumericTable & table, bool & sumIsFinite, services::Status & st)
+{
+    SafeStatus safeStat;
+    double sum                                  = 0;
+    bool breakFlag                              = false;
+    const size_t nRows                          = table.getNumberOfRows();
+    const size_t nCols                          = table.getNumberOfColumns();
+    NumericTableDictionaryPtr tableFeaturesDict = table.getDictionarySharedPtr();
+
+    daal::TlsMem<double, cpu, services::internal::ScalableCalloc<double, cpu> > tlsSum(1);
+    daal::TlsMem<bool, cpu, services::internal::ScalableCalloc<bool, cpu> > tlsNotFinite(1);
+
+    daal::threader_for_break(nCols, nCols, [&](size_t i, bool & needBreak) {
+        double * localSum     = tlsSum.local();
+        bool * localNotFinite = tlsNotFinite.local();
+        DAAL_CHECK_MALLOC_THR(localSum);
+        DAAL_CHECK_MALLOC_THR(localNotFinite);
+
+        switch ((*tableFeaturesDict)[i].getIndexType())
+        {
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
+        {
+            ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const float * colPtr = colBlock.get();
+            *localSum += static_cast<double>(computeSum<float, cpu>(1, nRows, &colPtr));
+            break;
+        }
+        case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
+        {
+            ReadColumns<double, cpu> colBlock(table, i, 0, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
+            const double * colPtr = colBlock.get();
+            *localSum += computeSum<double, cpu>(1, nRows, &colPtr);
+            break;
+        }
+        default: break;
+        }
+
+        *localNotFinite |= valuesAreNotFinite(localSum, 1, false);
+        if (*localNotFinite)
+        {
+            needBreak = true;
+            breakFlag = true;
+        }
+    });
+
+    st |= safeStat.detach();
+    if (!st)
+    {
+        return 0;
+    }
+
+    if (breakFlag)
+    {
+        sum         = getInf<double>();
+        sumIsFinite = false;
+    }
+    else
+    {
+        tlsSum.reduce([&](double * localSum) { sum += *localSum; });
+        tlsNotFinite.reduce([&](bool * localNotFinite) { sumIsFinite &= !*localNotFinite; });
+    }
+
+    return sum;
+}
+
     #if (__CPUID__(DAAL_CPU) == __avx512__)
 
         #include "finiteness_checker_avx512_impl.i"
