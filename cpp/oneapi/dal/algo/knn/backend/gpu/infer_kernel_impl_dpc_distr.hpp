@@ -277,15 +277,10 @@ public:
                                                 min_indc_dest,
                                                 { select_resp_event });
         if (last_iteration_) {
-            sycl::event copy_sqrt_event;
-            if (this->compute_sqrt_) {
-                copy_sqrt_event =
-                    copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { select_indc_event });
-            }
             auto final_event = this->output_responses(bounds,
                                                       indices_,
                                                       distances_,
-                                                      { select_indc_event, copy_sqrt_event });
+                                                      { select_indc_event });
             return final_event;
         }
         return select_indc_event;
