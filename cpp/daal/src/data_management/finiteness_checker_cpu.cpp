@@ -33,9 +33,7 @@ namespace internal
 {
 using namespace daal::internal;
 
-
 #include "finiteness_checker_impl.i"
-
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
@@ -154,11 +152,11 @@ double computeSumSOAAVX(NumericTable & table, bool & sumIsFinite, services::Stat
 
 template <daal::CpuType cpu>
 services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness);
+                                         size_t nSurplus, bool allowNaN, bool & finiteness);
 
 template <daal::CpuType cpu>
 services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness);
+                                         size_t nSurplus, bool allowNaN, bool & finiteness);
 
 template <typename DataType, daal::CpuType cpu>
 bool checkFinitenessAVX(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
@@ -236,7 +234,6 @@ bool checkFinitenessSOAAVX(NumericTable & table, bool allowNaN, services::Status
 
     return valuesAreFinite;
 }
-
 
     #if (__CPUID__(DAAL_CPU) == __avx512__)
 

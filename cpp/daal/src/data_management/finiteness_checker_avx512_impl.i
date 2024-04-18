@@ -54,8 +54,8 @@ double computeSumSOA<avx512>(NumericTable & table, bool & sumIsFinite, services:
 }
 
 template <>
-services::Status checkFinitenessInBlocks<avx512>(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness)
+services::Status checkFinitenessInBlocks<avx512>(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr,
+                                                 size_t nPerBlock, size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 16;
@@ -112,10 +112,9 @@ services::Status checkFinitenessInBlocks<avx512>(const float ** dataPtrs, bool i
     return s;
 }
 
-
 template <>
-services::Status checkFinitenessInBlocks<avx512>(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                                            size_t nSurplus, bool allowNaN, bool & finiteness)
+services::Status checkFinitenessInBlocks<avx512>(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr,
+                                                 size_t nPerBlock, size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 8;
