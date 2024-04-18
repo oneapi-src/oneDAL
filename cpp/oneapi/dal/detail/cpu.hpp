@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <daal/src/services/service_defines.h>
+#include <daal/include/services/env_detect.h>
 
 #include <cstdint>
 
