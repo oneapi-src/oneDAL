@@ -272,7 +272,7 @@ template <>
 class PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
 {
 public:
-    DAAL_EXPORT DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
+    DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
     DAAL_EXPORT PartialResult();
 
     /**
@@ -351,7 +351,7 @@ template <>
 class PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
 {
 public:
-    DAAL_EXPORT DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
+    DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
     DAAL_EXPORT PartialResult();
 
     /**
