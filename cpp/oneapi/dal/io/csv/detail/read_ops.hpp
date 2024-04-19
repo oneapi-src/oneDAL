@@ -41,7 +41,7 @@ struct read_ops_dispatcher<Object, Float, dal::detail::host_policy> {
 };
 
 template <typename Float>
-struct ONEDAL_EXPORT read_ops_dispatcher<table, Float, dal::detail::host_policy> {
+struct read_ops_dispatcher<table, Float, dal::detail::host_policy> {
     table operator()(const dal::detail::host_policy& policy,
                      const data_source_base& ds,
                      const dal::csv::read_args<table>& args) const;
@@ -50,7 +50,7 @@ struct ONEDAL_EXPORT read_ops_dispatcher<table, Float, dal::detail::host_policy>
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float>
-struct ONEDAL_EXPORT read_ops_dispatcher<table, Float, dal::detail::data_parallel_policy> {
+struct read_ops_dispatcher<table, Float, dal::detail::data_parallel_policy> {
     table operator()(const dal::detail::data_parallel_policy& ctx,
                      const data_source_base& ds,
                      const dal::csv::read_args<table>& args) const;
