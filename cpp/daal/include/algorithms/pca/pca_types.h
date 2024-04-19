@@ -300,7 +300,8 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                       int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks partial results of the PCA Ccorrelation algorithm
