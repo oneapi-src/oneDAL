@@ -18,6 +18,15 @@
 #ifndef __FINITENESS_CHECKER_IMPL_I__
 #define __FINITENESS_CHECKER_IMPL_I__
 
+namespace daal
+{
+namespace data_management
+{
+namespace internal
+{
+using namespace daal::internal;
+
+
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
@@ -107,4 +116,9 @@ bool checkFinitenessSOA(NumericTable & table, bool allowNaN, services::Status & 
 
     return valuesAreFinite;
 }
+
+} // namespace internal
+} // namespace data_management
+} // namespace daal
+
 #endif // __FINITENESS_CHECKER_IMPL_I__

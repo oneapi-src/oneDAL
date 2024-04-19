@@ -25,6 +25,10 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/data_management/finiteness_checker.h"
 
+
+#include "src/data_management/finiteness_checker_impl.i"
+
+
 namespace daal
 {
 namespace data_management
@@ -32,8 +36,6 @@ namespace data_management
 namespace internal
 {
 using namespace daal::internal;
-
-#include "src/data_management/finiteness_checker_impl.i"
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
