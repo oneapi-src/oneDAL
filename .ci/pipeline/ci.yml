@@ -23,10 +23,15 @@ pr:
     - docs
     - .ci/pipeline/docs.yml
 
+variables:
+  OPENBLAS_VERSION : 'v0.3.27'
+  TBB_VERSION : 'v2021.10.0'
+  VM_IMAGE : 'ubuntu-22.04'
+
 jobs:
 - job: 'ClangFormat'
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
   steps:
     - script: |
         .ci/env/apt.sh clang-format
@@ -42,7 +47,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
   steps:
   - script: |
       .ci/env/apt.sh dev-base
@@ -89,12 +94,10 @@ jobs:
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnxarm'
-    OPENBLAS_VERSION : 'v0.3.27'
     OPENBLAS_CACHE_DIR: $(Pipeline.Workspace)/openblas-aarch64-gnu
-    TBB_VERSION : 'v2021.10.0'
     TBB_CACHE_DIR: $(Pipeline.Workspace)/tbb-aarch64-gnu
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
   steps:
   - script: |
       .ci/env/apt.sh dev-base
@@ -110,7 +113,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)"'
+      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -119,7 +122,7 @@ jobs:
     condition: ne(variables.OPENBLAS_RESTORED, 'true')
   - task: Cache@2
     inputs:
-      key: '"gcc" | "aarch64" | "tbb" | "$(TBB_VERSION)"'
+      key: '"gcc" | "aarch64" | "tbb" | "$(TBB_VERSION)" | "$(VM_IMAGE)"'
       path: $(TBB_CACHE_DIR)
       cacheHitVar: TBB_RESTORED
   - script: |
@@ -165,10 +168,9 @@ jobs:
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
-    OPENBLAS_VERSION: 'v0.3.27'
     OPENBLAS_CACHE_DIR: $(Pipeline.Workspace)/openblas-x86_64-gnu
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
   steps:
   - script: |
       .ci/env/apt.sh dev-base
@@ -178,7 +180,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gnu" | "x86_64" | "tbb" | "$(OPENBLAS_VERSION)"'
+      key: '"gnu" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -217,7 +219,7 @@ jobs:
     release.dir: '__release_lnx_icx'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
   steps:
   - script: |
       .ci/env/apt.sh dev-base
@@ -265,7 +267,7 @@ jobs:
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
   variables:
     platform.type : 'lnx32e'
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
@@ -380,7 +382,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: '$(VM_IMAGE)'
     maxParallel: 2
   strategy:
     matrix:
