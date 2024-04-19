@@ -48,7 +48,7 @@ services::Status Parameter::check() const
     return services::Status();
 }
 
-void Batch::initializeQualityMetrics()
+DAAL_EXPORT void Batch::initializeQualityMetrics()
 {
     inputAlgorithms[explainedVariancesMetrics] = SharedPtr<pca::quality_metric::explained_variance::Batch<> >(
         new pca::quality_metric::explained_variance::Batch<>(parameter.nFeatures, parameter.nComponents));

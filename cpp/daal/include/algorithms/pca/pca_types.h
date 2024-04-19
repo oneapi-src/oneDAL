@@ -282,7 +282,7 @@ public:
         */
     DAAL_EXPORT data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
 
-    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
     /**
         * Sets partial result of the PCA Correlation algorithm
@@ -390,7 +390,7 @@ public:
         * \param[in] id      Identifier of the result
         * \param[in] value   Pointer to the object
         */
-    void set(PartialSVDCollectionResultId id, const data_management::DataCollectionPtr & value);
+    DAAL_EXPORT void set(PartialSVDCollectionResultId id, const data_management::DataCollectionPtr & value);
 
     /**
         * Adds partial result of the PCA SVD algorithm
@@ -406,7 +406,8 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                       int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks partial results of the PCA SVD algorithm
@@ -414,7 +415,7 @@ public:
     * \param[in] par        %Parameter of algorithm
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     virtual ~PartialResult() {};
 
@@ -616,7 +617,7 @@ public:
         * \param[in] id    Identifier of the input object
         * \param[in] ptr   Input object that corresponds to the given identifier
         */
-    void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
+    DAAL_EXPORT void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
         * Gets input objects for the PCA algorithm on the second step in the distributed processing mode

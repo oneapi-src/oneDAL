@@ -66,7 +66,7 @@ namespace interface1
 /* [Parameter source code] */
 struct Parameter : public daal::algorithms::Parameter
 {
-    Parameter(size_t nComponents = 0, size_t nFeatures = 0);
+    DAAL_EXPORT Parameter(size_t nComponents = 0, size_t nFeatures = 0);
 
     virtual ~Parameter() {}
 
@@ -78,7 +78,7 @@ struct Parameter : public daal::algorithms::Parameter
     *
      * \return Status of computations
      */
-    virtual services::Status check() const;
+    DAAL_EXPORT virtual services::Status check() const;
 };
 /* [Parameter source code] */
 
@@ -98,7 +98,7 @@ public:
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
      */
-    algorithms::ResultPtr getResult(QualityMetricId id) const;
+    DAAL_EXPORT algorithms::ResultPtr getResult(QualityMetricId id) const;
 };
 typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
 
@@ -118,7 +118,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-    algorithms::InputPtr getInput(QualityMetricId id) const;
+    DAAL_EXPORT algorithms::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
 

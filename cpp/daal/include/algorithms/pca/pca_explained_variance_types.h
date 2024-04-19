@@ -89,7 +89,7 @@ namespace interface1
 /* [Parameter source code] */
 struct Parameter : public daal::algorithms::Parameter
 {
-    Parameter(size_t nFeatures, size_t nComponents);
+    DAAL_EXPORT Parameter(size_t nFeatures, size_t nComponents);
     virtual ~Parameter() {}
 
     size_t nFeatures;   /*!< Number of features */
@@ -179,7 +179,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Checks the result of linear regression quality metrics
