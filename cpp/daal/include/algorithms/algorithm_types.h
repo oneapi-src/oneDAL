@@ -352,7 +352,7 @@ public:
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
      */
-    DAAL_EXPORT virtual int getSerializationTag() const { return 0; }
+    virtual int getSerializationTag() const { return 0; }
 
     /**
      * Retrieves the initialization flag
@@ -423,7 +423,7 @@ public:
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
      */
-    DAAL_EXPORT virtual int getSerializationTag() const { return 0; }
+    virtual int getSerializationTag() const { return 0; }
 
     /**
      * Checks the correctness of the final results structure
