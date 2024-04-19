@@ -78,6 +78,7 @@ namespace v1 {
 ///
 /// @tparam Float The type of the floating-point that the data source will operate with.
 ///               Must be a floating-point type.
+template <typename Float>
 class data_source : public detail::data_source_base {
     static_assert(detail::is_valid_float_v<Float>);
 
