@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/cpu.hpp"
+#include <daal/src/services/service_defines.h>
 
 namespace oneapi::dal::detail {
 namespace v1 {
