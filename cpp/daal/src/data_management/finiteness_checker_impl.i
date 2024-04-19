@@ -26,7 +26,6 @@ namespace internal
 {
 using namespace daal::internal;
 
-
 template <typename DataType, daal::CpuType cpu>
 DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {

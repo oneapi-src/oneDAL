@@ -25,9 +25,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/data_management/finiteness_checker.h"
 
-
-#include "src/data_management/finiteness_checker_impl.i"
-
+#include "finiteness_checker_impl.i"
 
 namespace daal
 {
