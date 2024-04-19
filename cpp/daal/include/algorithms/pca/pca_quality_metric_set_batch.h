@@ -99,7 +99,7 @@ public:
     }
 
 protected:
-    virtual void initializeQualityMetrics();
+    DAAL_EXPORT virtual void initializeQualityMetrics();
 };
 /** @} */
 } // namespace interface1
