@@ -106,13 +106,13 @@ public:
     using binary_t = std::tuple_element_t<1, Param>;
     using unary_t = std::tuple_element_t<2, Param>;
     
-    void generate(bool maxval) {
+    void generate(bool infval) {
         n_ = GENERATE(17, 999, 1, 5, 1001);
         CAPTURE(n_);
-        generate_input(maxval);
+        generate_input(infval);
     }
 
-    void generate_input(bool maxval) {
+    void generate_input(bool infval) {
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(-0.2, 0.5));
         auto inner_iter_count_arr_host = train_dataframe.get_array();

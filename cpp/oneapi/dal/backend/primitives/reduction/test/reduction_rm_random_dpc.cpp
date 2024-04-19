@@ -269,7 +269,7 @@ public:
         stride_ = GENERATE(707, 812, 1024);
         height_ = GENERATE(17, 999, 1, 1001);
         CAPTURE(width_, stride_, height_);
-        generate_input(infval);
+        generate_input(maxval);
     }
     
     void generate_input(bool maxval) {
