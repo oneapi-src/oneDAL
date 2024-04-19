@@ -33,7 +33,7 @@ namespace internal
 {
 using namespace daal::internal;
 
-#include "finiteness_checker_impl.i"
+#include "src/data_management/finiteness_checker_impl.i"
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
 
