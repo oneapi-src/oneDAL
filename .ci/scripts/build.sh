@@ -32,6 +32,8 @@ show_help() {
 --conda-env:The name of the conda environment to load
 --cross-compile:Indicates that the target platform to build for is not the host platform
 --plat:The platform to build for. This is passed to the oneDAL top level Makefile
+--blas-dir:The BLAS installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
+--tbb-dir:The TBB installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
 '
 }
 
@@ -59,6 +61,12 @@ while [[ $# -gt 0 ]]; do
         ;;
         --plat)
         PLAT="$2"
+        shift;;
+        --blas-dir)
+        BLAS_INSTALL_DIR=$(readlink -f "$2")
+        shift;;
+        --tbb-dir)
+        TBB_INSTALL_DIR=$(readlink -f "$2")
         shift;;
         --help)
         show_help
@@ -142,6 +150,8 @@ echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
     "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
+elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
+    export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "${ONEDAL_DIR}/__deps/openblas_${ARCH}" ]; then
@@ -164,7 +174,10 @@ else
 fi
 
 # TBB setup
-if [[ "${ARCH}" == "32e" ]]; then
+if [[ ! -z "${TBB_INSTALL_DIR}" ]] ; then
+    export TBBROOT="${TBB_INSTALL_DIR}"
+    export LD_LIBRARY_PATH="${TBBROOT}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+elif [[ "${ARCH}" == "32e" ]]; then
     "${ONEDAL_DIR}"/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
