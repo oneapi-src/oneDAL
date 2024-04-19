@@ -171,10 +171,10 @@ public:
         }
         if (std::is_same_v<logical_or<float_t>, binary_t>) {
             if (std::is_same_v<isinf<float_t>, unary_t>) {
-                return static_cast<float>(std::isinf(arg_));
+                return static_cast<float_t>(std::isinf(arg_));
             }
             if (std::is_same_v<isinfornan<float_t>, unary_t>) {
-                return static_cast<float>(std::isinf(arg_) || std::isnan(arg_));
+                return static_cast<float_t>(std::isinf(arg_) || std::isnan(arg_));
             }
         }
         ONEDAL_ASSERT(false);
