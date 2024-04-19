@@ -277,10 +277,15 @@ public:
                                                 min_indc_dest,
                                                 { select_resp_event });
         if (last_iteration_) {
+            sycl::event copy_sqrt_event;
+            if (this->compute_sqrt_) {
+                copy_sqrt_event =
+                    copy_with_sqrt(queue_, min_dist_dest, min_dist_dest, { select_indc_event });
+            }
             auto final_event = this->output_responses(bounds,
                                                       indices_,
                                                       distances_,
-                                                      { select_indc_event });
+                                                      { select_indc_event, copy_sqrt_event });
             return final_event;
         }
         return select_indc_event;
@@ -342,16 +347,10 @@ protected:
 
         const auto& [first, last] = bnds;
         ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
-
-        bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
-        auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
-        if (this->compute_sqrt_)
-            ndeps.push_back(sq_event);
 
         auto out_rps = this->responses_.get_slice(first, last);
         ONEDAL_ASSERT((last - first) == out_rps.get_count());
-        return (*(this->distance_voting_))(tmp_rps, inp_dts, out_rps, ndeps);
+        return (*(this->distance_voting_))(tmp_rps, inp_dts, out_rps, deps);
     }
 
     template <typename T = Task, typename = detail::enable_if_regression_t<T>>
@@ -366,16 +365,10 @@ protected:
 
         const auto& [first, last] = bnds;
         ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
-
-        bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
-        auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
-        if (this->compute_sqrt_)
-            ndeps.push_back(sq_event);
 
         auto out_rps = this->responses_.get_slice(first, last);
         ONEDAL_ASSERT((last - first) == out_rps.get_count());
-        return (*(this->distance_regression_))(tmp_rps, inp_dts, out_rps, ndeps);
+        return (*(this->distance_regression_))(tmp_rps, inp_dts, out_rps, deps);
     }
 
     sycl::event output_responses(const std::pair<idx_t, idx_t>& bnds,
