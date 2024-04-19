@@ -25,6 +25,8 @@
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
 
+#include "oneapi/dal/algo/dbscan/test/data.hpp"
+
 namespace oneapi::dal::dbscan::test {
 
 namespace te = dal::test::engine;
@@ -46,25 +48,62 @@ public:
             .set_mem_save_mode(true)
             .set_result_options(result_options::responses);
     }
+    void check_if_close(const table &left,
+                        const table &right,
+                        std::string name = "",
+                        double tol = 1e-2) {
+        constexpr auto eps = std::numeric_limits<float_t>::epsilon();
 
-    void run_checks(const table& data,
-                    const table& weights,
+        const auto c_count = left.get_column_count();
+        const auto r_count = left.get_row_count();
+
+        REQUIRE(right.get_column_count() == c_count);
+        REQUIRE(right.get_row_count() == r_count);
+
+        row_accessor<const float_t> lacc(left);
+        row_accessor<const float_t> racc(right);
+
+        const auto larr = lacc.pull({ 0, -1 });
+        const auto rarr = racc.pull({ 0, -1 });
+
+        for (std::int64_t r = 0; r < r_count; ++r) {
+            for (std::int64_t c = 0; c < c_count; ++c) {
+                const auto lval = larr[r * c_count + c];
+                const auto rval = rarr[r * c_count + c];
+
+                CAPTURE(name, r_count, c_count, r, c, lval, rval);
+
+                const auto aerr = std::abs(lval - rval);
+                if (aerr < tol || (!std::isfinite(lval) && !std::isfinite(rval)))
+                    continue;
+
+                const auto den = std::max({ eps, //
+                                            std::abs(lval),
+                                            std::abs(rval) });
+
+                const auto rerr = aerr / den;
+                CAPTURE(aerr, rerr, den, r, c, lval, rval);
+                REQUIRE(rerr < tol);
+            }
+        }
+    }
+    void run_checks(const table &data,
+                    const table &weights,
                     float_t epsilon,
                     std::int64_t min_observations,
-                    const table& ref_responses) {
+                    const table &ref_responses) {
         CAPTURE(epsilon, min_observations);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc = get_descriptor(epsilon, min_observations);
 
         INFO("run compute");
         const auto compute_result =
             oneapi::dal::test::engine::compute(this->get_policy(), dbscan_desc, data, weights);
-
         check_responses_against_ref(compute_result.get_responses(), ref_responses);
     }
 
-    void check_responses_against_ref(const table& responses, const table& ref_responses) {
+    void check_responses_against_ref(const table &responses, const table &ref_responses) {
         ONEDAL_ASSERT(responses.get_row_count() == ref_responses.get_row_count());
         ONEDAL_ASSERT(responses.get_column_count() == ref_responses.get_column_count());
         ONEDAL_ASSERT(responses.get_column_count() == 1);
@@ -75,12 +114,12 @@ public:
             REQUIRE(ref_rows[i] == rows[i]);
         }
     }
-    void dbi_determenistic_checks(const table& data,
+    void dbi_determenistic_checks(const table &data,
                                   double epsilon,
                                   std::int64_t min_observations,
                                   float_t ref_dbi,
                                   float_t dbi_ref_tol = 1.0e-4) {
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc = get_descriptor(epsilon, min_observations);
 
         INFO("run compute");
@@ -92,9 +131,7 @@ public:
 
         const auto responses = compute_result.get_responses();
 
-        const auto centroids = te::centers_of_mass(data, responses, cluster_count);
-
-        auto dbi = te::davies_bouldin_index(data, centroids, responses);
+        auto dbi = te::davies_bouldin_index(data, responses);
         CAPTURE(dbi, ref_dbi);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
     }
@@ -108,13 +145,13 @@ public:
     }
 
     void mode_checks(result_option_id compute_mode,
-                     const table& data,
-                     const table& weights,
+                     const table &data,
+                     const table &weights,
                      float_t epsilon,
                      std::int64_t min_observations) {
         CAPTURE(epsilon, min_observations);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc =
             get_descriptor(epsilon, min_observations).set_result_options(compute_mode);
 
@@ -127,7 +164,7 @@ public:
     }
 
     void check_for_exception_for_non_requested_results(result_option_id compute_mode,
-                                                       const result_t& result) {
+                                                       const result_t &result) {
         if (!compute_mode.test(result_options::responses)) {
             REQUIRE_THROWS_AS(result.get_responses(), domain_error);
         }

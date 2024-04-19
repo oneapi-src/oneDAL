@@ -16,30 +16,67 @@
 # limitations under the License.
 #===============================================================================
 
+SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../..")
+
+function show_help_text {
+    echo "Usage: $0"
+    column -t -s":" <<< '--help:Display this information
+--test-kind:Which tests to run. Must be one of [samples, examples]
+--build-dir:The directory in which oneDAL was built
+--compiler:The compiler suite to use to build the test programs
+--interface:The interface to test, e.g. {oneapi,daal}/cpp
+--conda-env:The Conda environment to load
+--build-system:The type of build to perform, e.g. cmake
+--backend:The backend C library to use. Must be one of [mkl, ref]
+--platform:Explicitly pass the platform. This is the same as is passed to the top-level oneDAL build script
+--cross-compile:Indicates whether cross-compilation is being performed
+'
+}
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
         --test-kind)
         TEST_KIND="$2"
+        shift
         ;;
         --build-dir)
         BUILD_DIR="$2"
+        shift
         ;;
         --compiler)
         compiler="$2"
+        shift
         ;;
         --interface)
         interface="$2"
+        shift
         ;;
         --conda-env)
         conda_env="$2"
+        shift
         ;;
-        --build_system)
+        --build-system)
         build_system="$2"
+        shift
         ;;
         --backend)
         backend="$2"
+        shift
+        ;;
+        --platform)
+        platform="$2"
+        shift
+        ;;
+        --cross-compile)
+        cross_compile="yes"
+        ;;
+        --help)
+        show_help_text
+        exit 0
         ;;
         *)
         echo "Unknown option: $1"
@@ -47,12 +84,11 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
     shift
-    shift
 done
 
 #Global exit code for testing script
 TESTING_RETURN=0
-PLATFORM=$(bash dev/make/identify_os.sh)
+PLATFORM=${platform:-$(bash dev/make/identify_os.sh)}
 OS=${PLATFORM::3}
 ARCH=${PLATFORM:3:3}
 if [ "$ARCH" == "32e" ]; then
@@ -70,52 +106,61 @@ build_system=${build_system:-cmake}
 backend=${backend:-mkl}
 
 if [ "${OS}" == "lnx" ]; then
-    source /usr/share/miniconda/etc/profile.d/conda.sh
+    if [ -f /usr/share/miniconda/etc/profile.d/conda.sh ] ; then
+        source /usr/share/miniconda/etc/profile.d/conda.sh
+    fi
     if [ "${conda_env}" != "" ]; then
-        conda activate ${conda_env}
+        conda activate "${conda_env}"
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-gnu}
-    link_modes="static dynamic"
+    link_modes=(static dynamic)
 elif [ "${OS}" == "mac" ]; then
-    source /usr/local/miniconda/etc/profile.d/conda.sh
+    if [ -f /usr/local/miniconda/etc/profile.d/conda.sh ] ; then
+        source /usr/local/miniconda/etc/profile.d/conda.sh
+    fi
     if [ "${conda_env}" != "" ]; then
-        conda activate ${conda_env}
+        conda activate "${conda_env}"
         echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
     fi
     compiler=${compiler:-clang}
-    link_modes="static dynamic"
+    link_modes=(static dynamic)
 else
     echo "Error not supported OS: ${OS}"
     exit 1
 fi
 
 if [ "$(uname)" == "Linux" ]; then
-    make_op="-j$(grep -c processor /proc/cpuinfo)"
+    make_op="-j$(nproc --all)"
 else
     make_op="-j$(sysctl -n hw.physicalcpu)"
 fi
 
 #setup env for DAL
-source ${BUILD_DIR}/daal/latest/env/vars.sh
+source "${BUILD_DIR}"/daal/latest/env/vars.sh
 
 #setup env for TBB
-export TBBROOT=$(pwd)/__deps/tbb/${OS}
-export CPATH=${TBBROOT}/include:$CPATH
-export CMAKE_MODULE_PATH=${TBBROOT}/lib/cmake/tbb:${CMAKE_MODULE_PATH}
+export TBBROOT="${TBBROOT:-${ONEDAL_DIR}/__deps/tbb/${OS}}"
+export CPATH="${TBBROOT}/include${CPATH:+:$CPATH}"
+export CMAKE_PREFIX_PATH="${TBBROOT}${CMAKE_PREFIX_PATH:+:${CMAKE_PREFIX_PATH}}"
 
 if [ "${OS}" == "mac" ]; then
     export DYLD_LIBRARY_PATH=${TBBROOT}/lib:${DYLD_LIBRARY_PATH}
     export LIBRARY_PATH=${TBBROOT}/lib:${LIBRARY_PATH}
 else
-    export LD_LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LD_LIBRARY_PATH}
-    export LIBRARY_PATH=${TBBROOT}/lib/${full_arch}/gcc4.8:${LIBRARY_PATH}
+    if [ -d "${TBBROOT}/lib/${full_arch}/gcc4.8" ] ; then
+        TBB_LIB_DIR="${TBBROOT}/lib/${full_arch}/gcc4.8"
+    else
+        TBB_LIB_DIR="${TBBROOT}/lib"
+    fi
+    export LD_LIBRARY_PATH=${TBB_LIB_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+    export LIBRARY_PATH=${TBB_LIB_DIR}${LIBRARY_PATH:+:${LIBRARY_PATH}}
 fi
 
 interface=${interface:-daal/cpp}
-cd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}"
+pushd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}" || exit 1
 
-for link_mode in ${link_modes}; do
+for link_mode in "${link_modes[@]}"; do
     if [ "${link_mode}" == "static" ]; then
         lib_ext="a"
         l="lib"
@@ -139,8 +184,8 @@ for link_mode in ${link_modes}; do
             export CXX=icpx
         fi
         echo "============== Configuration: =============="
-        echo Compiler:  ${compiler}
-        echo Link mode: ${link_mode}
+        echo Compiler:  "${compiler}"
+        echo Link mode: "${link_mode}"
         echo CC: ${CC}
         echo CXX: ${CXX}
         echo "============================================"
@@ -151,19 +196,33 @@ for link_mode in ${link_modes}; do
             mkdir Build
         fi
 
-        ref_backend="OFF"
-        if [ "${backend}" == "ref" ]; then
+        if [ "${backend}" == "ref" ] ; then
             ref_backend="ON"
+        else
+            ref_backend="OFF"
         fi
 
-        cmake -B Build -S . -G "Unix Makefiles" -DONEDAL_LINK=${link_mode} -DTBB_DIR=${TBBROOT}/lib/cmake/tbb -DREF_BACKEND=${ref_backend}
+        cmake_options=(-B Build
+            -S .
+            -G "Unix Makefiles"
+            -DONEDAL_LINK="${link_mode}"
+            -DREF_BACKEND="${ref_backend}")
+
+        if [ "${cross_compile}" == "yes" ] ; then
+            # Set the cmake toolchain file to set up the cross-compilation
+            # correctly
+            cmake_options+=(-DCMAKE_TOOLCHAIN_FILE="${ONEDAL_DIR}"/.ci/env/"${ARCH}"-"${compiler}"-crosscompile-toolchain.cmake)
+        fi
+
+        echo cmake "${cmake_options[@]}"
+        cmake "${cmake_options[@]}"
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') CMAKE GENERATE FAILED\t\t"
             TESTING_RETURN=${err}
             continue
         fi
-        make ${make_op} -C Build
+        make "${make_op}" -C Build
         err=$?
         if [ ${err} -ne 0 ]; then
             echo -e "$(date +'%H:%M:%S') BUILD FAILED\t\t"
@@ -173,23 +232,22 @@ for link_mode in ${link_modes}; do
         output_result=
         err=
         cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
-        for p in ${cmake_results_dir}/*; do
+        for p in "${cmake_results_dir}"/*; do
             e=$(basename "$p")
-            ${p} 2>&1 > ${e}.res
+            ${p} &> "${e}".res
             err=$?
-            output_result=$(cat ${e}.res)
-            mv -f ${e}.res ${cmake_results_dir}/
+            output_result=$(cat "${e}".res)
+            mv -f "${e}".res ${cmake_results_dir}/
             status_ex=
             if [ ${err} -ne 0 ]; then
                 echo "${output_result}"
                 status_ex="$(date +'%H:%M:%S') FAILED\t\t${e} with errno ${err}"
                 TESTING_RETURN=${err}
-                continue
             else
                 echo "${output_result}" | grep -i "error\|warn"
                 status_ex="$(date +'%H:%M:%S') PASSED\t\t${e}"
             fi
-            echo -e $status_ex
+            echo -e "$status_ex"
         done
     else
         build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
@@ -216,6 +274,8 @@ for link_mode in ${link_modes}; do
         fi
     fi
 done
+
+popd || exit 1
 
 #exit with overall testing status
 exit ${TESTING_RETURN}

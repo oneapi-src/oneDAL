@@ -52,6 +52,19 @@ sycl::event means(sycl::queue& q,
     });
 }
 
+///  A kernel that computes 2d array of covariance matrix from 2d xtx array
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  q          The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  sums       The input sums of size `column_count`
+/// @param[in]  cov        The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  bias       The input bias value
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the covariance matrix array for reading and writing
 template <typename Float>
 inline sycl::event compute_covariance(sycl::queue& q,
                                       std::int64_t row_count,
@@ -70,6 +83,7 @@ inline sycl::event compute_covariance(sycl::queue& q,
     const Float inv_n = Float(1.0 / double(n));
     const Float inv_n1 = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
     const Float multiplier = bias ? inv_n : inv_n1;
+
     const Float* sums_ptr = sums.get_data();
     Float* cov_ptr = cov.get_mutable_data();
 
@@ -79,13 +93,52 @@ inline sycl::event compute_covariance(sycl::queue& q,
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::item<2> id) {
             const std::int64_t gi = id.get_linear_id();
-            const std::int64_t i = id.get_id(0);
-            const std::int64_t j = id.get_id(1);
 
-            if (i < p && j < p) {
-                cov_ptr[gi] -= inv_n * sums_ptr[i] * sums_ptr[j];
-                cov_ptr[gi] *= multiplier;
-            }
+            cov_ptr[gi] -= inv_n * sums_ptr[id.get_id(0)] * sums_ptr[id.get_id(1)];
+            cov_ptr[gi] *= multiplier;
+        });
+    });
+}
+
+///  A kernel that computes 2d array of covariance matrix from 2d xtx array
+///  based on the information that the input data was centering
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  q          The SYCL queue
+/// @param[in]  row_count  The number of `row_count` of the input data
+/// @param[in]  sums       The input sums of size `column_count`
+/// @param[in]  cov        The input xtx matrix of size `column_count` x `column_count`
+/// @param[in]  bias       The input bias value
+/// @param[in]  deps       Events indicating availability of the `data` for reading or writing
+///
+/// @return A SYCL event indicating the availability
+/// of the covariance matrix array for reading and writing
+template <typename Float>
+inline sycl::event compute_covariance_centered(sycl::queue& q,
+                                               std::int64_t row_count,
+                                               const ndview<Float, 1>& sums,
+                                               ndview<Float, 2>& cov,
+                                               bool bias,
+                                               const event_vector& deps) {
+    ONEDAL_ASSERT(sums.has_data());
+    ONEDAL_ASSERT(cov.has_mutable_data());
+    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
+    ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
+    ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
+
+    const std::int64_t n = row_count;
+    const std::int64_t p = sums.get_count();
+    const Float inv_n = Float(1.0 / double(n));
+    const Float inv_n1 = (n > 1) ? Float(1.0 / double(n - 1)) : Float(1);
+    const Float multiplier = bias ? inv_n : inv_n1;
+
+    Float* cov_ptr = cov.get_mutable_data();
+
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(make_range_1d(p * p), [=](sycl::id<1> idx) {
+            cov_ptr[idx] *= multiplier;
         });
     });
 }
@@ -96,6 +149,7 @@ sycl::event covariance(sycl::queue& q,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
                        bool bias,
+                       bool assume_centered,
                        const event_vector& deps) {
     ONEDAL_ASSERT(sums.has_data());
     ONEDAL_ASSERT(cov.has_mutable_data());
@@ -103,8 +157,12 @@ sycl::event covariance(sycl::queue& q,
     ONEDAL_ASSERT(is_known_usm(q, sums.get_data()));
     ONEDAL_ASSERT(is_known_usm(q, cov.get_mutable_data()));
 
-    auto compute_event = compute_covariance(q, row_count, sums, cov, bias, deps);
-    return compute_event;
+    if (assume_centered) {
+        return compute_covariance_centered(q, row_count, sums, cov, bias, deps);
+    }
+    else {
+        return compute_covariance(q, row_count, sums, cov, bias, deps);
+    }
 }
 
 template <typename Float>
@@ -350,6 +408,7 @@ INSTANTIATE_MEANS(double)
                                                      std::int64_t,        \
                                                      const ndview<F, 1>&, \
                                                      ndview<F, 2>&,       \
+                                                     bool,                \
                                                      bool,                \
                                                      const event_vector&);
 

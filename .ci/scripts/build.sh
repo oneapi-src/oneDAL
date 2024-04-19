@@ -16,24 +16,53 @@
 # limitations under the License.
 #===============================================================================
 
+set -eo pipefail
+
+SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../../")
+
+show_help() {
+    echo "Usage: $0 [--help]"
+    column -t -s":" <<< '--help:Show this help message
+--compiler:The compiler toolchain to use. This is a value that is recognised by the oneDAL top level Makefile, and must be one of [gnu, clang, icx]
+--optimizations:The microarchitecture to optimize the build for. This is a value that is recognised by the oneDAL top level Makefile
+--target:The oneDAL target to build. This is passed directly to the oneDAL top level Makefile. Multiple targets can be passed by supplying a space-separated string as an argument
+--backend-config:The optimised backend CPU library to use. Must be one of [mkl, ref]
+--conda-env:The name of the conda environment to load
+--cross-compile:Indicates that the target platform to build for is not the host platform
+--plat:The platform to build for. This is passed to the oneDAL top level Makefile
+'
+}
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
         --compiler)
         compiler="$2"
-        ;;
+        shift;;
         --optimizations)
         optimizations="$2"
-        ;;
+        shift;;
         --target)
         target="$2"
-        ;;
-        --backend_config)
+        shift;;
+        --backend-config)
         backend_config="$2"
-        ;;
+        shift;;
         --conda-env)
         conda_env="$2"
+        shift;;
+        --cross-compile)
+        cross_compile="yes"
+        ;;
+        --plat)
+        PLAT="$2"
+        shift;;
+        --help)
+        show_help
+        exit 0
         ;;
         *)
         echo "Unknown option: $1"
@@ -41,34 +70,25 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
     shift
-    shift
 done
 
-PLATFORM=$(bash dev/make/identify_os.sh)
-OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
-
-if [[ "${ARCH}" == "32e" ]]
-then
-optimizations=${optimizations:-avx2}
-elif [[ "${ARCH}" == "arm" ]]
-then
-optimizations=${optimizations:-sve}
-else
-echo "Unknown architecture '${ARCH}'"
-exit 1
-fi
+PLAT=${PLAT:-$(bash "${ONEDAL_DIR}"/dev/make/identify_os.sh)}
+OS=${PLAT::3}
+ARCH=${PLAT:3:3}
 
 backend_config=${backend_config:-mkl}
-GLOBAL_RETURN=0
 
 if [ "${OS}" == "lnx" ]; then
-    source /usr/share/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
-        conda activate ${conda_env}
-        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+        conda_init_path=/usr/share/miniconda/etc/profile.d/conda.sh
+        if [ -f ${conda_init_path} ] ; then
+            source ${conda_init_path}
+            conda activate ${conda_env}
+            echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+        fi
     fi
     compiler=${compiler:-gnu}
+
     #gpu support is only for Linux 64 bit
     if [ "${ARCH}" == "32e" ]; then
             with_gpu="true"
@@ -76,10 +96,13 @@ if [ "${OS}" == "lnx" ]; then
             with_gpu="false"
     fi
 elif [ "${OS}" == "mac" ]; then
-    source /usr/local/miniconda/etc/profile.d/conda.sh
     if [ "${conda_env}" != "" ]; then
-        conda activate ${conda_env}
-        echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+        conda_init_path=/usr/local/miniconda/etc/profile.d/conda.sh
+        if [ -f ${conda_init_path} ]; then
+            source ${conda_init_path}
+            conda activate ${conda_env}
+            echo "conda '${conda_env}' env activated at ${CONDA_PREFIX}"
+        fi
     fi
     compiler=${compiler:-clang}
     with_gpu="false"
@@ -88,46 +111,87 @@ else
     exit 1
 fi
 
-#setting build parrlelization based on number of thereads
+#setting build parallelization based on number of threads
 if [ "$(uname)" == "Linux" ]; then
-    make_op="-j$(grep -c processor /proc/cpuinfo)"
+    make_op="-j$(nproc --all)"
 else
     make_op="-j$(sysctl -n hw.physicalcpu)"
+fi
+
+# Override the compilers. We know which compilers we want in
+# the case that we are using a GNU or LLVM toolchain
+if [ "${ARCH}" == "arm" ] && [ "${cross_compile}" == "yes" ] && [ "${compiler}" == "gnu" ] ; then
+    export CXX=aarch64-linux-gnu-g++
+    export CC=aarch64-linux-gnu-gcc
+elif [ "${compiler}" == "clang" ] ; then
+    export CXX=clang++
+    export CC=clang
+elif [ "${compiler}" == "gnu" ] ; then
+    export CXX=g++
+    export CC=gcc
+elif [ "${compiler}" == "icx" ] ; then
+    export CXX=icpx
+    export CC=icx
+else
+    echo "Unsupported compiler '${compiler}'"
+    exit 1
 fi
 
 #main actions
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
-    $(pwd)/dev/download_micromkl.sh with_gpu=${with_gpu}
+    "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
-    if [ ! -d "__deps/open_blas" ]; then
-        $(pwd)/.ci/env/openblas.sh
+    if [ ! -d "${ONEDAL_DIR}/__deps/openblas_${ARCH}" ]; then
+        if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
+            openblas_options=(--target ARMV8
+                --host-compiler gcc
+                --compiler "${CC}"
+                --cflags -march=armv8-a+sve
+                --cross-compile
+                --target-arch "${ARCH}")
+            echo "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
+            "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
+        else
+            "${ONEDAL_DIR}"/.ci/env/openblas.sh --target-arch "${ARCH}"
+        fi
     fi
+    export OPENBLASROOT="${ONEDAL_DIR}/__deps/openblas_${ARCH}"
 else
     echo "Not supported backend env"
 fi
 
-#TBB setup
-if [[ "${ARCH}" == "32e" ]]
-then
-$(pwd)/dev/download_tbb.sh
-elif [[ "${ARCH}" == "arm" ]]
-then
-$(pwd)/.ci/env/tbb.sh
+# TBB setup
+if [[ "${ARCH}" == "32e" ]]; then
+    "${ONEDAL_DIR}"/dev/download_tbb.sh
+elif [[ "${ARCH}" == "arm" ]]; then
+    if [[ "${cross_compile}" == "yes" ]]; then
+        tbb_options=(--cross-compile
+          --toolchain-file
+          "${ONEDAL_DIR}"/.ci/env/arm-${compiler}-crosscompile-toolchain.cmake
+          --target-arch aarch64
+        )
+        echo "${ONEDAL_DIR}"/.ci/env/tbb.sh "${tbb_options[@]}"
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh "${tbb_options[@]}"
+    else
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh
+    fi
+    export TBBROOT="$ONEDAL_DIR/__deps/tbb-aarch64"
+    export LD_LIBRARY_PATH=${TBBROOT}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 fi
+
+make_options=("${target:-onedal_c}"
+    "${make_op}"
+    COMPILER="${compiler}"
+    REQCPU="${optimizations}"
+    BACKEND_CONFIG="${backend_config}"
+    PLAT="${PLAT}"
+)
 
 echo "Calling make"
-make ${target:-daal_c} ${make_op} \
-    COMPILER=${compiler} \
-    REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}"
-err=$?
-
-if [ ${err} -ne 0 ]; then
-    status_ex="$(date +'%H:%M:%S') BUILD FAILED with errno ${err}"
-    GLOBAL_RETURN=${err}
-fi
-
-exit ${GLOBAL_RETURN}
+echo "CXX=$CXX"
+echo "CC=$CC"
+echo make "${make_options[@]}"
+make "${make_options[@]}"

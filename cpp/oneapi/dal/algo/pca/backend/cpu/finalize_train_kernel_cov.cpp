@@ -136,6 +136,18 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     }
 
     {
+        if (desc.get_deterministic()) {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_pca_cor_kernel_t<Float, cpu_type>().signFlipEigenvectors(
+                    *daal_eigenvectors);
+            });
+
+            interop::status_to_exception(status);
+        }
+    }
+
+    {
         const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
             constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
             return daal_pca_cor_kernel_t<Float, cpu_type>().computeSingularValues(
