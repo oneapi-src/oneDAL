@@ -123,6 +123,14 @@ public:
                 return (arg_ * arg_);
             }
         }
+        if (std::is_same_v<logical_or<float_t>, binary_t>) {
+            if (std::is_same_v<isinf<float_t>, unary_t>) {
+                return static_cast<float>(std::isinf(arg_));
+            }
+            if (std::is_same_v<isinfornan<float_t>, unary_t>) {
+                return static_cast<float>(std::isinf(arg_) || std::isnan(arg_));
+            }
+        }
         ONEDAL_ASSERT(false);
         return 0;
     }
@@ -159,6 +167,14 @@ public:
             }
             if (std::is_same_v<square<float_t>, unary_t>) {
                 return (arg_ * arg_);
+            }
+        }
+        if (std::is_same_v<logical_or<float_t>, binary_t>) {
+            if (std::is_same_v<isinf<float_t>, unary_t>) {
+                return static_cast<float>(std::isinf(arg_));
+            }
+            if (std::is_same_v<isinfornan<float_t>, unary_t>) {
+                return static_cast<float>(std::isinf(arg_) || std::isnan(arg_));
             }
         }
         ONEDAL_ASSERT(false);

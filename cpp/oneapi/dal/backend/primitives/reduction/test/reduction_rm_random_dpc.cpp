@@ -43,11 +43,14 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>
                                    std::tuple<double, sum<double>, square<double>>,
                                    std::tuple<double, sum<double>, abs<double>>,
                                    std::tuple<double, max<double>, identity<double>>,
-                                   std::tuple<double, min<double>, identity<double>>,
-                                   std::tuple<float, logical_or<float>, isinfornan<float>>,
-                                   std::tuple<float, logical_or<float>, isinf<float>>,
-                                   std::tuple<double, logical_or<double>, isinfornan<double>>,
-                                   std::tuple<double, logical_or<double>, isinf<double>>>;
+                                   std::tuple<double, min<double>, identity<double>>>
+
+using finiteness_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
+                                    std::tuple<double, sum<double>, identity<double>>,
+                                    std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                    std::tuple<float, logical_or<float>, isinf<float>>,
+                                    std::tuple<double, logical_or<double>, isinfornan<double>>,
+                                    std::tuple<double, logical_or<double>, isinf<double>>>;
 
 template <typename Param>
 class reduction_rm_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -246,7 +249,7 @@ public:
         check_output_cw(out_array);
     }
 
-private:
+protected:
     const binary_t binary_{};
     const unary_t unary_{};
     std::int64_t width_;
@@ -254,6 +257,29 @@ private:
     std::int64_t height_;
     table input_table_;
 };
+
+template <typename Param>
+class infinte_sum_rm_test_random : reduction_rm_test_random<Param>{
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+    void generate(bool maxval) {
+        width_ = GENERATE(7, 707, 5);
+        stride_ = GENERATE(707, 812, 1024);
+        height_ = GENERATE(17, 999, 1, 1001);
+        CAPTURE(width_, stride_, height_);
+        generate_input(infval);
+    }
+    
+    void generate_input(bool maxval) {
+        float_t inp = 0.9 * (float_t) maxval * services::internal::MaxVal<float_t> + 4.0;
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ height_, width_ }.fill_uniform(-3.0, inp));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+
+    }
+}
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction",
@@ -273,6 +299,43 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      reduction_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_atomic();
+    this->test_raw_cw_reduce_wrapper();
+}
+
+TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
+                     "Randomly filled Row-Major Row-Wise reduction with infinte sum",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate(true);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
+    
+    this->generate(false);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
+}
+
+TEMPLATE_LIST_TEST_M(infinte_sum_rm_test_random,
+                     "Randomly filled Row-Major Col-Wise reduction with single inf or nan",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    this->generate(true);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_atomic();
+    this->test_raw_cw_reduce_wrapper();
+
+    this->generate(false);
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_atomic();
