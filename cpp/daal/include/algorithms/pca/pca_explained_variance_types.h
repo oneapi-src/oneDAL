@@ -100,7 +100,7 @@ struct Parameter : public daal::algorithms::Parameter
     *
     * \return Status of computations
     */
-    virtual services::Status check() const;
+    DAAL_EXPORT virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

@@ -282,6 +282,8 @@ public:
         */
     DAAL_EXPORT data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
 
+    DAAL_EXPORT virtual size_t getSerializationTag() const DAAL_C11_OVERRIDE;
+
     DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
     /**
@@ -361,14 +363,16 @@ public:
     */
     DAAL_EXPORT data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
 
-    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    DAAL_EXPORT virtual size_t getSerializationTag() const DAAL_C11_OVERRIDE;
+
+    DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
     /**
     * Gets partial results of the PCA SVD algorithm
         * \param[in] id    Identifier of the input object
         * \return          Input object that corresponds to the given identifier
     */
-    data_management::DataCollectionPtr get(PartialSVDCollectionResultId id) const;
+    DAAL_EXPORT data_management::DataCollectionPtr get(PartialSVDCollectionResultId id) const;
 
     /**
     * Gets partial results of the PCA SVD algorithm
