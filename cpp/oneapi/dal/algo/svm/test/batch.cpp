@@ -99,7 +99,7 @@ public:
         const auto model = train_result.get_model();
         check_train_result(train_data, train_result, support_vector_count, support_indices);
 
-        INFO("check if first and second class response is expected");
+        INFO("check if first and second class response is expected")
         REQUIRE(model.get_first_class_response() == expected_responses[0]);
         REQUIRE(model.get_second_class_response() == expected_responses[1]);
     }
@@ -124,7 +124,7 @@ public:
         const auto infer_result = this->infer(desc, model, test_data);
         const auto decision_function = infer_result.get_decision_function();
 
-        INFO("check if decision fuction is expected");
+        INFO("check if decision fuction is expected")
         check_table_match(expected_decision_function, decision_function);
     }
 
@@ -135,7 +135,7 @@ public:
         check_shapes(train_data, result, support_vector_count);
         check_nans(result);
 
-        INFO("check if support_indices values is expected");
+        INFO("check if support_indices values is expected")
         check_table_match(support_indices, result.get_support_indices());
     }
 
@@ -147,11 +147,11 @@ public:
         check_nans(result);
 
         if (decision_function.has_data()) {
-            INFO("check if decision_function values is expected");
+            INFO("check if decision_function values is expected")
             check_table_match(decision_function, result.get_decision_function());
         }
 
-        INFO("check if responses values is expected");
+        INFO("check if responses values is expected")
         check_table_match(responses, result.get_responses());
     }
 
@@ -166,18 +166,18 @@ public:
                       const std::int64_t support_vector_count) {
         const auto [support_vectors, support_indices, coeffs] = unpack_result(result);
 
-        INFO("check if support_vector_count is expected");
+        INFO("check if support_vector_count is expected")
         REQUIRE(result.get_support_vector_count() == support_vector_count);
 
-        INFO("check if support_vectors shape is expected");
+        INFO("check if support_vectors shape is expected")
         REQUIRE(support_vectors.get_row_count() == support_vector_count);
         REQUIRE(support_vectors.get_column_count() == train_data.get_column_count());
 
-        INFO("check if support_indices shape is expected");
+        INFO("check if support_indices shape is expected")
         REQUIRE(support_indices.get_row_count() == support_vector_count);
         REQUIRE(support_indices.get_column_count() == 1);
 
-        INFO("check if coeffs shape is expected");
+        INFO("check if coeffs shape is expected")
         REQUIRE(coeffs.get_row_count() == support_vector_count);
         REQUIRE(coeffs.get_column_count() == 1);
     }
@@ -185,24 +185,24 @@ public:
     void check_nans(const svm::train_result<>& result) {
         const auto [support_vectors, support_indices, coeffs] = unpack_result(result);
 
-        INFO("check if there is no NaN in support_vectors");
+        INFO("check if there is no NaN in support_vectors")
         REQUIRE(te::has_no_nans(support_vectors));
 
-        INFO("check if there is no NaN in support_indices");
+        INFO("check if there is no NaN in support_indices")
         REQUIRE(te::has_no_nans(support_indices));
 
-        INFO("check if there is no NaN in coeffs");
+        INFO("check if there is no NaN in coeffs")
         REQUIRE(te::has_no_nans(coeffs));
     }
 
     void check_shapes(const table& infer_data, const svm::infer_result<>& result) {
         const auto [responses, decision_function] = unpack_result(result);
 
-        INFO("check if responses shape is expected");
+        INFO("check if responses shape is expected")
         REQUIRE(responses.get_row_count() == infer_data.get_row_count());
         REQUIRE(responses.get_column_count() == 1);
 
-        INFO("check if decision_function shape is expected");
+        INFO("check if decision_function shape is expected")
         REQUIRE(decision_function.get_row_count() == infer_data.get_row_count());
         REQUIRE(decision_function.get_column_count() == 1);
     }
@@ -210,10 +210,10 @@ public:
     void check_nans(const svm::infer_result<>& result) {
         const auto [responses, decision_function] = unpack_result(result);
 
-        INFO("check if there is no NaN in responses");
+        INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));
 
-        INFO("check if there is no NaN in decision_function");
+        INFO("check if there is no NaN in decision_function")
         REQUIRE(te::has_no_nans(decision_function));
     }
 

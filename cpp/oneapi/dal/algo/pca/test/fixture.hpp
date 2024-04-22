@@ -138,7 +138,7 @@ public:
         CAPTURE(component_count);
         const table x = data.get_table(this->get_policy(), data_table_id);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
         INFO("run training");
         const auto train_result = this->train(pca_desc, x);
@@ -157,7 +157,7 @@ public:
 
         const table x = data.get_table(this->get_policy(), data_table_id);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
         INFO("run training");
         auto partial_result = dal::pca::partial_train_result();
@@ -182,18 +182,18 @@ public:
         check_shapes(desc, data, result);
         check_nans(result);
 
-        INFO("check if eigenvectors order is descending");
+        INFO("check if eigenvectors order is descending")
         check_eigenvalues_order(eigenvalues);
 
-        INFO("check if eigenvectors matrix is orthogonal");
+        INFO("check if eigenvectors matrix is orthogonal")
         check_eigenvectors_orthogonality(eigenvectors);
 
         const auto bs = te::compute_basic_statistics<double>(data);
 
-        INFO("check if means are expected");
+        INFO("check if means are expected")
         check_means(bs, means);
 
-        INFO("check if variances are expected");
+        INFO("check if variances are expected")
         check_variances(bs, variances);
     }
 
@@ -205,10 +205,10 @@ public:
         check_online_shapes(desc, data, result);
         check_nans(result);
 
-        INFO("check if eigenvectors order is descending");
+        INFO("check if eigenvectors order is descending")
         check_eigenvalues_order(eigenvalues);
 
-        INFO("check if eigenvectors matrix is orthogonal");
+        INFO("check if eigenvectors matrix is orthogonal")
         check_eigenvectors_orthogonality(eigenvectors);
     }
 
@@ -231,11 +231,11 @@ public:
         const std::int64_t expected_component_count =
             (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
 
-        INFO("check if eigenvalues shape is expected");
+        INFO("check if eigenvalues shape is expected")
         REQUIRE(eigenvalues.get_row_count() == 1);
         REQUIRE(eigenvalues.get_column_count() == expected_component_count);
 
-        INFO("check if eigenvectors shape is expected");
+        INFO("check if eigenvectors shape is expected")
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
     }
@@ -248,19 +248,19 @@ public:
         const std::int64_t expected_component_count =
             (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
 
-        INFO("check if eigenvalues shape is expected");
+        INFO("check if eigenvalues shape is expected")
         REQUIRE(eigenvalues.get_row_count() == 1);
         REQUIRE(eigenvalues.get_column_count() == expected_component_count);
 
-        INFO("check if eigenvectors shape is expected");
+        INFO("check if eigenvectors shape is expected")
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
 
-        INFO("check if means shape is expected");
+        INFO("check if means shape is expected")
         REQUIRE(means.get_row_count() == 1);
         REQUIRE(means.get_column_count() == data.get_column_count());
 
-        INFO("check if variances shape is expected");
+        INFO("check if variances shape is expected")
         REQUIRE(variances.get_row_count() == 1);
         REQUIRE(variances.get_column_count() == data.get_column_count());
     }
@@ -277,16 +277,16 @@ public:
     void check_nans(const pca::train_result<>& result) {
         const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
 
-        INFO("check if there is no NaN in eigenvalues");
+        INFO("check if there is no NaN in eigenvalues")
         REQUIRE(te::has_no_nans(eigenvalues));
 
-        INFO("check if there is no NaN in eigenvectors");
+        INFO("check if there is no NaN in eigenvectors")
         REQUIRE(te::has_no_nans(eigenvectors));
 
-        INFO("check if there is no NaN in means");
+        INFO("check if there is no NaN in means")
         REQUIRE(te::has_no_nans(means));
 
-        INFO("check if there is no NaN in variances");
+        INFO("check if there is no NaN in variances")
         REQUIRE(te::has_no_nans(variances));
     }
 

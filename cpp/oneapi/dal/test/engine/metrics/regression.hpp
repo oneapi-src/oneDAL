@@ -26,7 +26,7 @@ namespace oneapi::dal::test::engine {
 
 template <typename Float = double>
 inline auto mse_score(const table& groundtruth, const table& prediction) {
-    INFO("check if response shape is expected to be equal");
+    INFO("check if response shape is expected to be equal")
     REQUIRE(prediction.get_row_count() == groundtruth.get_row_count());
     REQUIRE(prediction.get_column_count() == groundtruth.get_column_count());
 

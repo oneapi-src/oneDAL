@@ -96,7 +96,7 @@ public:
                            const Distance distance = Distance{},
                            const voting_t voting = default_voting,
                            const float_t tolerance = float_t(1.e-5)) {
-        INFO("check if data shape is expected");
+        INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_responses.get_column_count() == 1);
         REQUIRE(infer_responses.get_column_count() == 1);
@@ -124,7 +124,7 @@ public:
                        const std::int64_t n_neighbors,
                        const Distance distance = Distance{},
                        const voting_t voting = default_voting) {
-        INFO("check if data shape is expected");
+        INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_responses.get_column_count() == 1);
         REQUIRE(infer_responses.get_column_count() == 1);
@@ -155,7 +155,7 @@ public:
 
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
-        INFO("check if data shape is expected");
+        INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(infer_data.get_row_count() == responses.get_row_count());
         REQUIRE(responses.get_column_count() == 1);
@@ -239,7 +239,7 @@ public:
     void check_nans(const knn::infer_result<Task>& result) {
         const auto [responses] = unpack_result(result);
 
-        INFO("check if there is no NaN in responses");
+        INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));
     }
 

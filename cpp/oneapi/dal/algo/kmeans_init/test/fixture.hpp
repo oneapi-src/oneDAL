@@ -46,7 +46,7 @@ public:
     void dense_checks(std::int64_t cluster_count, const table& data) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto desc = get_descriptor(cluster_count);
 
         INFO("compute");

@@ -27,7 +27,7 @@ namespace oneapi::dal::test::engine {
 
 template <typename Float = double>
 Float davies_bouldin_index(const table& data, const table& centroids, const table& assignments) {
-    INFO("check if data shape is expected to be consistent");
+    INFO("check if data shape is expected to be consistent")
     REQUIRE(data.get_row_count() == assignments.get_row_count());
     REQUIRE(data.get_column_count() == centroids.get_column_count());
     REQUIRE(assignments.get_column_count() == 1);
@@ -93,7 +93,7 @@ Float davies_bouldin_index(const table& data, const table& centroids, const tabl
 //this function works as sklearn.metrics.davies_bouldin_score
 template <typename Float = double>
 Float davies_bouldin_index(const table& data, const table& assignments) {
-    INFO("check if data shape is expected to be consistent");
+    INFO("check if data shape is expected to be consistent")
     REQUIRE(data.get_row_count() == assignments.get_row_count());
     REQUIRE(assignments.get_column_count() == 1);
 
@@ -178,7 +178,7 @@ Float davies_bouldin_index(const table& data, const table& assignments) {
 
 template <typename Float = double>
 table centers_of_mass(const table& data, const table& assignments, std::int64_t cluster_count) {
-    INFO("check if data shape is expected to be consistent");
+    INFO("check if data shape is expected to be consistent")
     REQUIRE(data.get_row_count() == assignments.get_row_count());
     REQUIRE(assignments.get_column_count() == 1);
 

@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <random>
-
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"

@@ -177,13 +177,15 @@ template <typename T, typename U = T>
 void serialize_deserialize(const T& original, U& deserialized) {
     mock_archive_state state;
 
-    INFO("serialize");
-    mock_output_archive input_ar(state);
-    detail::serialize(original, input_ar);
+    INFO("serialize") {
+        mock_output_archive ar(state);
+        detail::serialize(original, ar);
+    }
 
-    INFO("deserialize");
-    mock_input_archive output_ar(state);
-    detail::deserialize(deserialized, output_ar);
+    INFO("deserialize") {
+        mock_input_archive ar(state);
+        detail::deserialize(deserialized, ar);
+    }
 }
 
 template <typename T>
