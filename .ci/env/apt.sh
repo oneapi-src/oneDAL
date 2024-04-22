@@ -32,7 +32,7 @@ function add_repo {
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.0
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.1
     sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
 }
 
@@ -58,6 +58,10 @@ function install_arm-cross-compilers {
     sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gfortran-aarch64-linux-gnu
 }
 
+function install_qemu_emulation {
+    sudo apt-get install -y qemu-user-static
+}
+
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
@@ -74,6 +78,9 @@ elif [ "${component}" == "dev-base" ]; then
     update
     install_dev-base
     install_dev-base-conda
+elif [ "${component}" == "qemu-emulation" ]; then
+    update
+    install_qemu_emulation
 else
     echo "Usage:"
     echo "   $0 [dpcpp|mkl|arm-compiler|clang-format|dev-base]"
