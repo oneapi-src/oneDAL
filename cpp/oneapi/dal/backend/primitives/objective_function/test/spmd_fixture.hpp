@@ -54,7 +54,7 @@ public:
         return result;
     }
 
-    std::vector<logloss_function<float_t>> get_functors(comm_t comm,
+    std::vector<logloss_function<float_t>> get_functors(comm_t& comm,
                                                         std::int64_t thr_cnt,
                                                         table data,
                                                         ndview<std::int32_t, 1>& labels,

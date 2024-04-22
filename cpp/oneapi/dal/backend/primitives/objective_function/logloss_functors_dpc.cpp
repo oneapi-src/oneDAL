@@ -31,6 +31,17 @@ std::int64_t get_block_size(std::int64_t n, std::int64_t p) {
 }
 
 template <typename Float>
+void logloss_hessian_product<Float>::reserve_memory() {
+    raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
+    buffer_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
+    tmp_gpu_ = ndarray<Float, 1>::empty(q_, { p_ + 1 }, sycl::usm::alloc::device);
+    if (data_.get_kind() == dal::csr_table::kind()) {
+        sp_handle_.reset(new sparse_matrix_handle(q_));
+        set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
+    }
+}
+
+template <typename Float>
 logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
                                                         const table& data,
                                                         Float L2,
@@ -43,13 +54,7 @@ logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
           n_(data.get_row_count()),
           p_(data.get_column_count()),
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
-    raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
-    buffer_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
-    tmp_gpu_ = ndarray<Float, 1>::empty(q_, { p_ + 1 }, sycl::usm::alloc::device);
-    if (data_.get_kind() == dal::csr_table::kind()) {
-        sp_handle_.reset(new sparse_matrix_handle(q));
-        set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
-    }
+    this->reserve_memory();
 }
 
 template <typename Float>
@@ -67,13 +72,7 @@ logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
           n_(data.get_row_count()),
           p_(data.get_column_count()),
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
-    raw_hessian_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
-    buffer_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
-    tmp_gpu_ = ndarray<Float, 1>::empty(q_, { p_ + 1 }, sycl::usm::alloc::device);
-    if (data_.get_kind() == dal::csr_table::kind()) {
-        sp_handle_.reset(new sparse_matrix_handle(q));
-        set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
-    }
+    this->reserve_memory();
 }
 
 template <typename Float>
@@ -98,7 +97,7 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
 
     sycl::event fill_out_event = fill<Float>(q_, out, Float(0), deps);
 
-    Float v0 = vec.at_device(q_, 0, deps);
+    const Float v0 = vec.at_device(q_, 0, deps);
     event_vector last_iter_deps = { fill_buffer_event, fill_out_event };
 
     if (data_.get_kind() == dal::csr_table::kind()) {
@@ -317,6 +316,17 @@ sycl::event logloss_hessian_product<Float>::operator()(const ndview<Float, 1>& v
 }
 
 template <typename Float>
+void logloss_function<Float>::reserve_memory() {
+    probabilities_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
+    gradient_ = ndarray<Float, 1>::empty(q_, { dimension_ }, sycl::usm::alloc::device);
+    buffer_ = ndarray<Float, 1>::empty(q_, { p_ + 2 }, sycl::usm::alloc::device);
+    if (data_.get_kind() == dal::csr_table::kind()) {
+        sp_handle_.reset(new sparse_matrix_handle(q_));
+        set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
+    }
+}
+
+template <typename Float>
 logloss_function<Float>::logloss_function(sycl::queue& q,
                                           const table& data,
                                           const ndview<std::int32_t, 1>& labels,
@@ -330,17 +340,11 @@ logloss_function<Float>::logloss_function(sycl::queue& q,
           p_(data.get_column_count()),
           L2_(L2),
           fit_intercept_(fit_intercept),
-          bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz),
+          bsz_(bsz == -1l ? get_block_size(n_, p_) : bsz),
           hessp_(q, data, L2, fit_intercept, bsz_),
           dimension_(fit_intercept ? p_ + 1 : p_) {
     ONEDAL_ASSERT(labels.get_dimension(0) == n_);
-    probabilities_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
-    gradient_ = ndarray<Float, 1>::empty(q_, { dimension_ }, sycl::usm::alloc::device);
-    buffer_ = ndarray<Float, 1>::empty(q_, { p_ + 2 }, sycl::usm::alloc::device);
-    if (data_.get_kind() == dal::csr_table::kind()) {
-        sp_handle_.reset(new sparse_matrix_handle(q));
-        set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
-    }
+    this->reserve_memory();
 }
 
 template <typename Float>
@@ -363,13 +367,7 @@ logloss_function<Float>::logloss_function(sycl::queue& q,
           hessp_(q, comm, data, L2, fit_intercept, bsz_),
           dimension_(fit_intercept ? p_ + 1 : p_) {
     ONEDAL_ASSERT(labels.get_dimension(0) == n_);
-    probabilities_ = ndarray<Float, 1>::empty(q_, { n_ }, sycl::usm::alloc::device);
-    gradient_ = ndarray<Float, 1>::empty(q_, { dimension_ }, sycl::usm::alloc::device);
-    buffer_ = ndarray<Float, 1>::empty(q_, { p_ + 2 }, sycl::usm::alloc::device);
-    if (data_.get_kind() == dal::csr_table::kind()) {
-        sp_handle_.reset(new sparse_matrix_handle(q));
-        set_csr_data(q_, *sp_handle_, static_cast<const csr_table&>(data_));
-    }
+    this->reserve_memory();
 }
 
 template <typename Float>

@@ -404,8 +404,8 @@ public:
     float_t naive_logloss(const ndview<float_t, 2>& data_host,
                           const ndview<float_t, 1>& params_host,
                           const ndview<std::int32_t, 1>& labels_host,
-                          const float_t L1,
-                          const float_t L2,
+                          float_t L1,
+                          float_t L2,
                           bool fit_intercept) {
         const std::int64_t n = data_host.get_dimension(0);
         const std::int64_t p = data_host.get_dimension(1);
@@ -589,7 +589,8 @@ public:
             for (std::int64_t i = st; i < p + 1; ++i) {
                 double correct = 0;
                 for (std::int64_t j = st; j < p + 1; ++j) {
-                    correct += (double)vec_host.at(j - st) * (double)hessian_host.at(i, j);
+                    correct += static_cast<double>(vec_host.at(j - st)) *
+                               static_cast<double>(hessian_host.at(i, j));
                 }
                 IS_CLOSE(float_t, out_vector_host.at(i - st), (float_t)correct, rtol, atol);
             }

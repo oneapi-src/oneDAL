@@ -44,7 +44,7 @@ TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3);
+    this->run_test(0.0f, 1.3f);
 }
 
 TEMPLATE_TEST_M(logloss_test,
@@ -54,28 +54,28 @@ TEMPLATE_TEST_M(logloss_test,
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3, false);
+    this->run_test(0.0f, 1.3f, false);
 }
 
 TEMPLATE_TEST_M(logloss_test, "batch test - double", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3, true, true);
+    this->run_test(0.0f, 1.3f, true, true);
 }
 
 TEMPLATE_TEST_M(logloss_test, "batch test - double - no fit intercept", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3, false, true);
+    this->run_test(0.0f, 1.3f, false, true);
 }
 
 TEMPLATE_TEST_M(logloss_test, "test random input - double with L1", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.4, 1.3);
+    this->run_test(0.4f, 1.3f);
 }
 
 TEMPLATE_TEST_M(logloss_test,
@@ -85,47 +85,47 @@ TEMPLATE_TEST_M(logloss_test,
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.4, 1.3, false);
+    this->run_test(0.4f, 1.3f, false);
 }
 
 TEMPLATE_TEST_M(logloss_test, "test random input - float", "[logloss]", float) {
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.4, 1.3);
+    this->run_test(0.4f, 1.3f);
 }
 
 TEMPLATE_TEST_M(logloss_test, "test random input - float - no fit intercept", "[logloss]", float) {
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.4, 1.3, false);
+    this->run_test(0.4f, 1.3f, false);
 }
 
 TEMPLATE_TEST_M(logloss_test, "sparse data test - float", "[logloss]", float) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_sparse_input();
-    this->run_sparse_test(0.0, true);
+    this->run_sparse_test(0.0f, true);
 }
 
 TEMPLATE_TEST_M(logloss_test, "sparse data test - float - no fit intercept", "[logloss]", float) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_sparse_input();
-    this->run_sparse_test(0.0, false);
+    this->run_sparse_test(0.0f, false);
 }
 
 TEMPLATE_TEST_M(logloss_test, "sparse data test - double", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_sparse_input();
-    this->run_sparse_test(1.3, true);
+    this->run_sparse_test(1.3f, true);
 }
 
 TEMPLATE_TEST_M(logloss_test, "sparse data test - double - no fit intercept", "[logloss]", double) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_sparse_input();
-    this->run_sparse_test(1.3, false);
+    this->run_sparse_test(1.3f, false);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

@@ -49,6 +49,8 @@ public:
     ndview<Float, 1>& get_raw_hessian();
 
 private:
+    void reserve_memory();
+
     sycl::event compute_with_fit_intercept(const ndview<Float, 1>& vec,
                                            ndview<Float, 1>& out,
                                            const event_vector& deps);
@@ -97,6 +99,8 @@ public:
                           const event_vector& deps = {}) final;
 
 private:
+    void reserve_memory();
+
     sycl::queue& q_;
     comm_t comm_;
     const table data_;
