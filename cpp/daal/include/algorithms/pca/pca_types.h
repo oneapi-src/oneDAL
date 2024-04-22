@@ -251,8 +251,6 @@ public:
 
     virtual size_t getNFeatures() const = 0;
 
-    virtual int getSerializationTag() const = 0;
-
     virtual ~PartialResultBase() {};
 };
 
@@ -271,7 +269,7 @@ class PartialResult : public PartialResultBase
     *        in the online or distributed processing mode
     */
 template <>
-class PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
+class DAAL_EXPORT PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
@@ -285,8 +283,6 @@ public:
     DAAL_EXPORT data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
 
     DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
-
-    DAAL_EXPORT virtual int getSerializationTag() const DAAL_C11_OVERRIDE;
 
     /**
         * Sets partial result of the PCA Correlation algorithm
@@ -352,7 +348,7 @@ protected:
     *         in the online or distributed processing mode
     */
 template <>
-class PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
+class DAAL_EXPORT PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
@@ -367,7 +363,6 @@ public:
 
     DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
-    DAAL_EXPORT virtual int getSerializationTag() const DAAL_C11_OVERRIDE;
     /**
     * Gets partial results of the PCA SVD algorithm
         * \param[in] id    Identifier of the input object
