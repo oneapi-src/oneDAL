@@ -138,7 +138,7 @@ jobs:
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: '$(platform.type) ARM OpenBLAS build'
+      artifactName: '$(platform.type) ARM OpenBLAS gnu build'
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
@@ -226,7 +226,7 @@ jobs:
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: '$(platform.type) ARM OpenBLAS build'
+      artifactName: '$(platform.type) ARM OpenBLAS LLVM build'
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
     continueOnError: true
