@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -280,6 +281,31 @@ public:
     }
 }
 
+template <typename Param>
+class single_infinte_rm_test_random : reduction_rm_test_random<Param>{
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+    void generate(bool infval) {
+        width_ = GENERATE(7, 707, 5);
+        stride_ = GENERATE(707, 812, 1024);
+        height_ = GENERATE(17, 999, 1, 1001);
+        CAPTURE(width_, stride_, height_);
+        generate_input(infval);
+    }
+    
+    void generate_input(bool infval) {
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(-0.2, 0.5));
+        auto inner_iter_count_arr_host = train_dataframe.get_array();
+
+        inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity : std::numeric_limits<float_t>::quiet_NaN();
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+}
+
+
 TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
@@ -322,7 +348,45 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
     this->test_raw_rw_reduce_wrapper();
 }
 
-TEMPLATE_LIST_TEST_M(infinte_sum_rm_test_random,
+TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
+                     "Randomly filled Row-Major Col-Wise reduction with infinte sum",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate(true);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_cw_reduce_wide();
+    this->test_raw_cw_reduce_narrow();
+    this->test_raw_cw_reduce_wrapper();
+    
+    this->generate(false);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_cw_reduce_wide();
+    this->test_raw_cw_reduce_narrow();
+    this->test_raw_cw_reduce_wrapper();
+}
+
+
+TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
+                     "Randomly filled Row-Major Row-Wise reduction with single inf or nan",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    this->generate(true);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_naive();
+    this->test_raw_rw_reduce_atomic();
+    this->test_raw_rw_reduce_wrapper();
+
+    this->generate(false);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_naive();
+    this->test_raw_rw_reduce_atomic();
+    this->test_raw_rw_reduce_wrapper();
+}
+
+TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
                      "Randomly filled Row-Major Col-Wise reduction with single inf or nan",
                      "[reduction][rm][small]",
                      finiteness_types) {

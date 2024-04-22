@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
