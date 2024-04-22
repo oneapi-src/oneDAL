@@ -40,5 +40,4 @@ link.dynamic.lnx.clang = clang++ \
 pedantic.opts.lnx.clang = $(pedantic.opts.clang)
 
 # For the base ISA
-rv64_OPT.clang = $(-Q)march=rv64gc_v1p0
-
+rv64_OPT.clang = $(-Q)march=rv64gc_v1p0_zvl128b
