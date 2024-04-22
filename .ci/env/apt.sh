@@ -63,11 +63,10 @@ function install_qemu_emulation_apt {
 }
 
 function install_qemu_emulation_deb {
-    sudo apt-get install -y binfmt-support
     qemu_deb=qemu-user-static_8.2.2+ds-2+b1_amd64.deb
     wget http://ftp.de.debian.org/debian/pool/main/q/qemu/${qemu_deb}
     sudo dpkg -i ${qemu_deb}
-    sudo update-binfmts --importdir "$1" --import "qemu-$2"
+    sudo systemctl restart systemd-binfmt.service
 }
 
 function install_llvm_version {
@@ -119,7 +118,7 @@ elif [ "${component}" == "qemu-apt" ]; then
     install_qemu_emulation_apt
 elif [ "${component}" == "qemu-deb" ]; then
     update
-    install_qemu_emulation_deb "$2" "$3"
+    install_qemu_emulation_deb
 elif [ "${component}" == "llvm-version" ] ; then
     update
     install_llvm_version "$2"
