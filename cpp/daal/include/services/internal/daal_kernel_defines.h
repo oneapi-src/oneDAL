@@ -33,11 +33,12 @@
  * @{
  */
 
+#define DAAL_KERNEL_SSE2
+#define DAAL_KERNEL_SSE42
+#define DAAL_KERNEL_AVX2
+#define DAAL_KERNEL_AVX512
+
 #if defined(TARGET_X86_64)
-    #define DAAL_KERNEL_SSE2
-    #define DAAL_KERNEL_SSE42
-    #define DAAL_KERNEL_AVX2
-    #define DAAL_KERNEL_AVX512
     #include "services/internal/x86_64/x86_64_kernel_defines.h"
 #elif defined(TARGET_ARM)
     #include "services/internal/aarch64/aarch64_kernel_defines.h"
