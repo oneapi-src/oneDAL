@@ -210,19 +210,19 @@ services::Status checkFinitenessInBlocks<avx2>(const double ** dataPtrs, bool in
 template <>
 bool checkFiniteness<float, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
-    return checkFiniteness<float, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+    return checkFinitenessAVX<float, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFiniteness<double, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
-    return checkFiniteness<double, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+    return checkFinitenessAVX<double, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Status & st)
 {
-    return checkFinitenessSOA<avx2>(table, allowNaN, st);
+    return checkFinitenessSOAAVX<avx2>(table, allowNaN, st);
 }
 
 #endif // __FINITENESS_CHECKER_AVX2_IMPL_I__
