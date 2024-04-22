@@ -69,7 +69,7 @@ public:
      * Returns a serialization tag, a unique identifier of this class used in serialization
      * \return Serialization tag
      */
-    DAAL_EXPORT virtual int getSerializationTag() const = 0;
+    virtual int getSerializationTag() const = 0;
 
     /**
      *  Interfaces for the implementation of serialization
