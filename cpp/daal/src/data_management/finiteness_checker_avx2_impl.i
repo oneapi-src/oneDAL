@@ -73,18 +73,21 @@ double sumWithAVX<double, avx2>(size_t n, const double * dataPtr)
 template <>
 float computeSum<float, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
 {
+    // computeSumAVX defined in finiteness_checker_cpu.cpp
     return computeSumAVX<float, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSum<double, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
+    // computeSumAVX defined in finiteness_checker_cpu.cpp
     return computeSumAVX<double, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
+    // computeSumSOAAVX defined in finiteness_checker_cpu.cpp
     return computeSumSOAAVX<avx2>(table, sumIsFinite, st);
 }
 
@@ -210,18 +213,21 @@ services::Status checkFinitenessInBlocks<avx2>(const double ** dataPtrs, bool in
 template <>
 bool checkFiniteness<float, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
+    // checkFinitenessAVX defined in finiteness_checker_cpu.cpp
     return checkFinitenessAVX<float, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFiniteness<double, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
+    // checkFinitenessAVX defined in finiteness_checker_cpu.cpp
     return checkFinitenessAVX<double, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Status & st)
 {
+    // checkFinitenessSOAAVX defined in finiteness_checker_cpu.cpp
     return checkFinitenessSOAAVX<avx2>(table, allowNaN, st);
 }
 

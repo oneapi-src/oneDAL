@@ -80,6 +80,7 @@ DataType computeSumAVX(size_t nDataPtrs, size_t nElementsPerPtr, const DataType 
         size_t start         = blockIdxInPtr * nPerBlock;
         size_t end           = blockIdxInPtr == nBlocksPerPtr - 1 ? start + nPerBlock + nSurplus : start + nPerBlock;
 
+        //sumWithAVX defined for AVX2 and AVX512 in finiteness_checker_avx2_impl.i and finiteness_checker_avx512_impl.i
         pSums[iBlock] = sumWithAVX<DataType, cpu>(end - start, dataPtrs[ptrIdx] + start);
     });
 
@@ -112,6 +113,7 @@ double computeSumSOAAVX(NumericTable & table, bool & sumIsFinite, services::Stat
             ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
+            // computeSum defined in the finiteness_checker_*impl.i files
             *localSum += static_cast<double>(computeSum<float, cpu>(1, nRows, &colPtr));
             break;
         }
@@ -173,6 +175,7 @@ bool checkFinitenessAVX(const size_t nElements, size_t nDataPtrs, size_t nElemen
     size_t nTotalBlocks = nBlocksPerPtr * nDataPtrs;
 
     bool finiteness;
+    // defined in finiteness_checker_avx2_impl.i and finiteness_checker_avx512_impl.i for avx2 and avx512 respectively
     checkFinitenessInBlocks<cpu>(dataPtrs, inParallel, nTotalBlocks, nBlocksPerPtr, nPerBlock, nSurplus, allowNaN, finiteness);
     return finiteness;
 }
@@ -200,6 +203,7 @@ bool checkFinitenessSOAAVX(NumericTable & table, bool allowNaN, services::Status
             ReadColumns<float, cpu> colBlock(table, i, 0, nRows);
             DAAL_CHECK_BLOCK_STATUS_THR(colBlock);
             const float * colPtr = colBlock.get();
+            // defined in finiteness_checker_avx2_impl.i and finiteness_checker_avx512_impl.i for avx2 and avx512 respectively
             *localNotFinite |= !checkFiniteness<float, cpu>(nRows, 1, nRows, &colPtr, allowNaN);
             break;
         }
@@ -291,6 +295,7 @@ services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, boo
     bool valuesAreFinite = true;
     if (layout == NTLayout::soa)
     {
+        // defined in finiteness_checker_avx2_impl.i and finiteness_checker_avx512_impl.i for avx2 and avx512 respectively
         valuesAreFinite = checkFinitenessSOA<cpu>(table, allowNaN, s);
     }
     else
