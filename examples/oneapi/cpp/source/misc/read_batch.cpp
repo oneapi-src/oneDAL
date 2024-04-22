@@ -30,7 +30,7 @@ void run() {
     switch (type) {
         case dal::data_type::float64: std::cout << "table data type: double " << std::endl; break;
         case dal::data_type::float32: std::cout << "table data type: float " << std::endl; break;
-        default: std::cout << "table data type: null " << std::endl; break;
+        default: break;
     }
 
     std::cout << table << std::endl;
