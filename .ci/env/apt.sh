@@ -1,6 +1,7 @@
 #!/bin/bash
 #===============================================================================
 # Copyright 2021 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,9 +32,8 @@ function add_repo {
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.0
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.1
     sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
-    sudo mv -f /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga /opt/intel/oneapi/compiler/latest/linux/lib/oclfpga_
 }
 
 function install_mkl {
@@ -54,12 +54,23 @@ function install_dev-base-conda {
     conda env create -f .ci/env/environment.yml
 }
 
+function install_arm-cross-compilers {
+    sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gfortran-aarch64-linux-gnu
+}
+
+function install_qemu_emulation {
+    sudo apt-get install -y qemu-user-static
+}
+
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
 elif [ "${component}" == "mkl" ]; then
     add_repo
     install_mkl
+elif [ "${component}" == "arm-compiler" ]; then
+    update
+    install_arm-cross-compilers
 elif [ "${component}" == "clang-format" ]; then
     update
     install_clang-format
@@ -67,8 +78,11 @@ elif [ "${component}" == "dev-base" ]; then
     update
     install_dev-base
     install_dev-base-conda
+elif [ "${component}" == "qemu-emulation" ]; then
+    update
+    install_qemu_emulation
 else
     echo "Usage:"
-    echo "   $0 [dpcpp|mkl|clang-format|dev-base]"
+    echo "   $0 [dpcpp|mkl|arm-compiler|clang-format|dev-base]"
     exit 1
 fi

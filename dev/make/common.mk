@@ -78,6 +78,7 @@ secure.opts.link.mac =
 
 RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
 
+# Used as $(eval $(call set_c_compile,$(COMPILER),$(_OS),$(gcc_toolchain))
 C.COMPILE = $(if $(COMPILER.$(_OS).$(COMPILER)),$(COMPILER.$(_OS).$(COMPILER)),$(error COMPILER.$(_OS).$(COMPILER) must be defined)) \
             $(if $(C.COMPILE.gcc_toolchain),--gcc-toolchain=$(C.COMPILE.gcc_toolchain)) \
             -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<

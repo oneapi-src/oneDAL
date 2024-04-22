@@ -32,13 +32,16 @@ void run(sycl::queue &q) {
 
     const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
     auto cov_desc = dal::covariance::descriptor{}
-                        .set_result_options(dal::covariance::result_options::cov_matrix)
-                        .set_bias(true);
+                        .set_result_options(dal::covariance::result_options::cov_matrix |
+                                            dal::covariance::result_options::means)
+                        .set_bias(true)
+                        .set_assume_centered(false);
 
     auto result = dal::compute(q, cov_desc, input);
 
     std::cout << "Maximum likelihood covariance estimation:\n"
               << result.get_cov_matrix() << std::endl;
+    std::cout << "Means:\n" << result.get_means() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

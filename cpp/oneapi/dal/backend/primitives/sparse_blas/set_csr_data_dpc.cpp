@@ -30,7 +30,7 @@ sycl::event set_csr_data(sycl::queue &queue,
                          const dal::array<Float> &data,
                          const dal::array<std::int64_t> &column_indices,
                          const dal::array<std::int64_t> &row_offsets,
-                         const std::vector<sycl::event> &deps) {
+                         const event_vector &deps) {
     ONEDAL_ASSERT(data.get_count());
     ONEDAL_ASSERT(column_indices.get_count());
     ONEDAL_ASSERT(row_offsets.get_count() == row_count + 1);
@@ -54,7 +54,7 @@ sycl::event set_csr_data(sycl::queue &queue,
                          const Float *data,
                          const std::int64_t *column_indices,
                          const std::int64_t *row_offsets,
-                         const std::vector<sycl::event> &deps) {
+                         const event_vector &deps) {
     ONEDAL_ASSERT(data);
     ONEDAL_ASSERT(column_indices);
     ONEDAL_ASSERT(row_offsets);
@@ -69,10 +69,10 @@ sycl::event set_csr_data(sycl::queue &queue,
                                      deps);
 }
 
-ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
-                                       sparse_matrix_handle &handle,
-                                       const dal::csr_table &table,
-                                       const std::vector<sycl::event> &deps) {
+sycl::event set_csr_data(sycl::queue &queue,
+                         sparse_matrix_handle &handle,
+                         const dal::csr_table &table,
+                         const event_vector &deps) {
     ONEDAL_ASSERT(table.has_data());
     data_type dtype = table.get_metadata().get_data_type(0);
     ONEDAL_ASSERT(dtype == data_type::float32 || dtype == data_type::float64);
@@ -112,7 +112,7 @@ ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
         const dal::array<F> &data,                                                         \
         const dal::array<std::int64_t> &column_indices,                                    \
         const dal::array<std::int64_t> &row_offsets,                                       \
-        const std::vector<sycl::event> &deps);                                             \
+        const event_vector &deps);                                                         \
                                                                                            \
     template ONEDAL_EXPORT sycl::event set_csr_data<F>(sycl::queue & queue,                \
                                                        sparse_matrix_handle & handle,      \
@@ -122,7 +122,7 @@ ONEDAL_EXPORT sycl::event set_csr_data(sycl::queue &queue,
                                                        const F *data,                      \
                                                        const std::int64_t *column_indices, \
                                                        const std::int64_t *row_offsets,    \
-                                                       const std::vector<sycl::event> &deps);
+                                                       const event_vector &deps);
 
 INSTANTIATE(float)
 INSTANTIATE(double)

@@ -57,7 +57,7 @@ sycl::event gemv(sycl::queue& queue,
                  ndview<Float, 1>& y,
                  const Float alpha,
                  const Float beta,
-                 const std::vector<sycl::event>& dependencies = {});
+                 const event_vector& dependencies = {});
 
 /// Computes a sparse matrix - dense vector product:
 ///         y = op(A) * x
@@ -85,7 +85,7 @@ sycl::event gemv(sycl::queue& queue,
                  sparse_matrix_handle& a,
                  const ndview<Float, 1>& x,
                  ndview<Float, 1>& y,
-                 const std::vector<sycl::event>& dependencies = {}) {
+                 const event_vector& dependencies = {}) {
     return gemv<Float>(queue, transpose_a, a, x, y, Float(1), Float(0), dependencies);
 }
 

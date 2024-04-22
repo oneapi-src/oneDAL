@@ -40,6 +40,7 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
     this->general_checks(input, input_data_table_id);
+    this->general_checks_assume_centered(input, input_data_table_id);
 }
 
 TEMPLATE_LIST_TEST_M(covariance_batch_test,
@@ -47,7 +48,6 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
                      "[covariance][integration][batch]",
                      covariance_types) {
     SKIP_IF(this->not_float64_friendly());
-
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
 
@@ -72,6 +72,7 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
     this->general_checks(input, input_data_table_id);
+    this->general_checks_assume_centered(input, input_data_table_id);
 }
 
 TEMPLATE_LIST_TEST_M(covariance_batch_test,
@@ -88,6 +89,7 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
     this->general_checks(input, input_data_table_id);
+    this->general_checks_assume_centered(input, input_data_table_id);
 }
 
 } // namespace oneapi::dal::covariance::test

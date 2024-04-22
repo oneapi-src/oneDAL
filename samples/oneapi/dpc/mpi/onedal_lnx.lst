@@ -19,6 +19,7 @@
 ##******************************************************************************
 
 MPI  =  basic_statistics_distr_mpi              \
+        basic_statistics_online_distr_mpi       \
         cor_distr_mpi                           \
         cov_biased_distr_mpi                    \
         cov_distr_mpi                           \
