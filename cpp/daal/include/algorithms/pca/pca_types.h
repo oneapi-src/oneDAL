@@ -284,7 +284,6 @@ public:
 
     DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
-    DAAL_EXPORT int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_PCA_CORRELATION_DENSE_ID; }
     /**
         * Sets partial result of the PCA Correlation algorithm
         * \param[in] id      Identifier of the result
@@ -363,11 +362,6 @@ public:
     DAAL_EXPORT data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
 
     DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
-
-    /**
-     * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
-     */
-    DAAL_EXPORT int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_PCA_SVD_DENSE_ID; }
 
     /**
     * Gets partial results of the PCA SVD algorithm
