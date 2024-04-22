@@ -33,7 +33,7 @@ namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<double, sum<double>, square<double>>>
+                                   std::tuple<double, sum<double>, square<double>>>;
 
     using finiteness_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
                                         std::tuple<double, sum<double>, identity<double>>,
@@ -114,12 +114,12 @@ public:
     }
 
     void generate_input(bool maxval) {
-        float_t inp = 0.9 * (float_t)maxval * services::internal::MaxVal<float_t>;
+        float_t inp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>.max();
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(0.0, inp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
-}
+};
 
 template <typename Param>
 class single_infinite_test_random_1d : public reduction_test_random_1d<Param> {
@@ -143,7 +143,7 @@ public:
                                               : std::numeric_limits<float_t>::quiet_NaN();
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
-}
+};
 
 TEMPLATE_LIST_TEST_M(reduction_test_random_1d,
                      "Randomly filled array",

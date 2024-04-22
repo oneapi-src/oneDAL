@@ -44,7 +44,7 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>
                                    std::tuple<double, sum<double>, square<double>>,
                                    std::tuple<double, sum<double>, abs<double>>,
                                    std::tuple<double, max<double>, identity<double>>,
-                                   std::tuple<double, min<double>, identity<double>>>
+                                   std::tuple<double, min<double>, identity<double>>>;
 
 using finiteness_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
                                     std::tuple<double, sum<double>, identity<double>>,
@@ -274,12 +274,12 @@ public:
     }
     
     void generate_input(bool maxval) {
-        float_t inp = 0.9 * (float_t) maxval * services::internal::MaxVal<float_t> + 4.0;
+        float_t inp = 0.9 * (float_t) maxval * std::numeric_limits<float_t>.max() + 4.0;
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ height_, width_ }.fill_uniform(-3.0, inp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
-}
+};
 
 template <typename Param>
 class single_infinte_rm_test_random : reduction_rm_test_random<Param>{
@@ -303,7 +303,7 @@ public:
         inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity : std::numeric_limits<float_t>::quiet_NaN();
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
-}
+};
 
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
