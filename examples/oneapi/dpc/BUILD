@@ -41,6 +41,17 @@ dal_example_suite(
     extra_deps = _TEST_DEPS,
 )
 
+dal_example_suite(
+    name = "misc",
+    compile_as = [ "dpc++" ],
+    srcs = glob(["source/misc/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal:io",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS,
+)
+
 dal_algo_example_suite(
     algos = [
         "basic_statistics",
