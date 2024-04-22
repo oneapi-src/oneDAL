@@ -20,7 +20,7 @@
 
 PLATs.icx = lnx32e win32e
 
-CMPLRDIRSUFF.icx = _icx
+CMPLRDIRSUFF.icx =
 
 CORE.SERV.COMPILER.icx = generic
 
