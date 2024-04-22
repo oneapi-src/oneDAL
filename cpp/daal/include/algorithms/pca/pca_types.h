@@ -269,7 +269,7 @@ class PartialResult : public PartialResultBase
     *        in the online or distributed processing mode
     */
 template <>
-class DAAL_EXPORT PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
+class PartialResult<daal::algorithms::pca::correlationDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
@@ -348,7 +348,7 @@ protected:
     *         in the online or distributed processing mode
     */
 template <>
-class DAAL_EXPORT PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
+class PartialResult<daal::algorithms::pca::svdDense> : public PartialResultBase
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
