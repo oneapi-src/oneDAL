@@ -294,7 +294,7 @@ public:
         generate_offset();
     }
 
-    void generate_input(bool infval) {
+    void generate_input(bool maxval) {
         float_t inp = 0.9 * (float_t)maxval * services::internal::MaxVal<float_t> + 4.0;
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ height_, width_ }.fill_uniform(-3.0, inp));
