@@ -68,4 +68,3 @@
 #else
 #define ONEDAL_IF_CPU_DISPATCH_RV64(x)
 #endif
-

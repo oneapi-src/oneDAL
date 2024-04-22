@@ -30,8 +30,8 @@
 #elif defined(TARGET_ARM)
     #include <arm_sve.h>
 #elif defined(TARGET_RISCV64)
-    // TODO: Include vector if and when we need to use some vector intrinsics in
-    // here
+// TODO: Include vector if and when we need to use some vector intrinsics in
+// here
 #endif
 
 #include "src/services/service_defines.h"

@@ -53,7 +53,7 @@ enum CpuType
     sve         = 0, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
     lastCpuType = sve
 #elif defined(TARGET_RISCV64)
-    rv64      = 0,
+    rv64        = 0,
     lastCpuType = rv64
 #endif
 };
