@@ -137,7 +137,7 @@ public:
     void generate_input(bool infval) {
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(-0.2, 0.5));
-        auto inner_iter_count_arr_host = train_dataframe.get_array();
+        auto inner_iter_count_arr_host = train_dataframe.get_array().get_data();
 
         inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity
                                               : std::numeric_limits<float_t>::quiet_NaN();
