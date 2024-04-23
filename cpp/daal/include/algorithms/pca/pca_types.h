@@ -300,8 +300,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                       int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks partial results of the PCA Ccorrelation algorithm
@@ -406,8 +405,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                       int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks partial results of the PCA SVD algorithm
