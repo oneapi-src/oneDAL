@@ -49,7 +49,7 @@ float sumWithSIMD<float, avx2>(size_t n, const float * dataPtr)
 }
 
 /*
-// Computes sum of the elements of input array of type `double` with AVX512 instructions.
+// Computes sum of the elements of input array of type `double` with AVX2 instructions.
 */
 template <>
 double sumWithSIMD<double, avx2>(size_t n, const double * dataPtr)
