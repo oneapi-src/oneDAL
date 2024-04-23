@@ -275,7 +275,7 @@ public:
     }
 
     void generate_input(bool maxval) {
-        float_t inp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>.max() + 0.5;
+        float_t inp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>::max() + 0.5;
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, inp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
@@ -356,14 +356,14 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
     SKIP_IF(this->not_float64_friendly());
     this->generate(true);
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_cw_reduce_wide();
-    this->test_raw_cw_reduce_narrow();
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 
     this->generate(false);
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_cw_reduce_wide();
-    this->test_raw_cw_reduce_narrow();
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
 
