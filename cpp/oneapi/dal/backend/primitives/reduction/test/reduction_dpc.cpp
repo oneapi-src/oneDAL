@@ -279,7 +279,7 @@ protected:
 };
 
 template <typename Param>
-class infinte_sum_test_random : public reduction_test_random<Param> {
+class infinite_sum_test_random : public reduction_test_random<Param> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
@@ -291,7 +291,7 @@ public:
         this->override_init_ = GENERATE(0, 1);
         CAPTURE(this->override_init_, this->width_, this->height_);
         generate_input(maxval);
-        generate_offset();
+        this->generate_offset();
     }
 
     void generate_input(bool maxval) {
@@ -315,7 +315,7 @@ public:
         this->override_init_ = GENERATE(0, 1);
         CAPTURE(this->override_init_, this->width_, this->height_);
         generate_input(infval);
-        generate_offset();
+        this->generate_offset();
     }
 
     void generate_input(bool infval) {

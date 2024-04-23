@@ -260,7 +260,7 @@ protected:
 };
 
 template <typename Param>
-class infinte_sum_rm_test_random : public reduction_rm_test_random<Param> {
+class infinite_sum_rm_test_random : public reduction_rm_test_random<Param> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
@@ -283,7 +283,7 @@ public:
 };
 
 template <typename Param>
-class single_infinte_rm_test_random : public reduction_rm_test_random<Param> {
+class single_infinite_rm_test_random : public reduction_rm_test_random<Param> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
