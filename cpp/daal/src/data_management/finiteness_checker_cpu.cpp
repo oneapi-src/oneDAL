@@ -190,7 +190,7 @@ bool checkFinitenessSIMD(const size_t nElements, size_t nDataPtrs, size_t nEleme
 }
 
 /*
-// Computes finiteness for a SOA numeric table via summation and by isinf/isnan (if necessary) using SIMD calls
+// Computes finiteness for a SOA numeric table by isinf/isnan using SIMD calls
 */
 template <daal::CpuType cpu>
 bool checkFinitenessSOASIMD(NumericTable & table, bool allowNaN, services::Status & st)
@@ -268,6 +268,10 @@ bool checkFinitenessSOASIMD(NumericTable & table, bool allowNaN, services::Statu
 
 #endif
 
+/*
+// Check all values of table are finite via summation and if necessary, via isinf/isnan
+// if allowNan == True, then NaN is considered a finite value.
+*/
 template <typename DataType, daal::CpuType cpu>
 services::Status allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finiteness)
 {
