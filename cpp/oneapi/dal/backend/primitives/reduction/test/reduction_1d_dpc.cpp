@@ -108,15 +108,15 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate(bool maxval) {
-        n_ = GENERATE(17, 999, 1, 5, 1001);
-        CAPTURE(n_);
+        this->n_ = GENERATE(17, 999, 1, 5, 1001);
+        CAPTURE(this->n_);
         generate_input(maxval);
     }
 
     void generate_input(bool maxval) {
         float_t inp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>.max();
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(0.0, inp));
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(-0.2, inp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
@@ -129,14 +129,14 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate(bool infval) {
-        n_ = GENERATE(17, 999, 1, 5, 1001);
-        CAPTURE(n_);
+        this->n_ = GENERATE(17, 999, 1, 5, 1001);
+        CAPTURE(this->n_);
         generate_input(infval);
     }
 
     void generate_input(bool infval) {
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ 1, n_ }.fill_uniform(-0.2, 0.5));
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(-0.2, 0.5));
         auto inner_iter_count_arr_host = train_dataframe.get_array();
 
         inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity

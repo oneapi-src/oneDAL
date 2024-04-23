@@ -286,10 +286,10 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate(bool maxval) {
-        height_ = GENERATE(17, 999, 1, 5, 1001);
-        width_ = GENERATE(7, 707, 1, 251, 5);
-        override_init_ = GENERATE(0, 1);
-        CAPTURE(override_init_, width_, height_);
+        this->height_ = GENERATE(17, 999, 1, 5, 1001);
+        this->width_ = GENERATE(7, 707, 1, 251, 5);
+        this->override_init_ = GENERATE(0, 1);
+        CAPTURE(this->override_init_, this->width_, this->height_);
         generate_input(maxval);
         generate_offset();
     }
@@ -297,7 +297,7 @@ public:
     void generate_input(bool maxval) {
         float_t inp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>.max() + 4.0;
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ height_, width_ }.fill_uniform(-3.0, inp));
+            GENERATE_DATAFRAME(te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-3.0, inp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
@@ -310,17 +310,17 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate(bool infval) {
-        height_ = GENERATE(17, 999, 1, 5, 1001);
-        width_ = GENERATE(7, 707, 1, 251, 5);
-        override_init_ = GENERATE(0, 1);
-        CAPTURE(override_init_, width_, height_);
+        this->height_ = GENERATE(17, 999, 1, 5, 1001);
+        this->width_ = GENERATE(7, 707, 1, 251, 5);
+        this->override_init_ = GENERATE(0, 1);
+        CAPTURE(this->override_init_, this->width_, this->height_);
         generate_input(infval);
         generate_offset();
     }
 
     void generate_input(bool infval) {
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ height_, width_ }.fill_uniform(-3.0, 4.0));
+            GENERATE_DATAFRAME(te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-3.0, 4.0));
         auto inner_iter_count_arr_host = train_dataframe.get_array();
 
         inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity
