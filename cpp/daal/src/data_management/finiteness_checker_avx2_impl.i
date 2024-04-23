@@ -18,8 +18,11 @@
 #ifndef __FINITENESS_CHECKER_AVX2_IMPL_I__
 #define __FINITENESS_CHECKER_AVX2_IMPL_I__
 
+/*
+// Computes sum of the elements of input array of type `float` with AVX2 instructions.
+*/
 template <>
-float sumWithAVX<float, avx2>(size_t n, const float * dataPtr)
+float sumWithSIMD<float, avx2>(size_t n, const float * dataPtr)
 {
     constexpr size_t avx2RegisterLength = 256;
     constexpr size_t numberOfBitsInByte = 8;
@@ -45,8 +48,11 @@ float sumWithAVX<float, avx2>(size_t n, const float * dataPtr)
     return sum;
 }
 
+/*
+// Computes sum of the elements of input array of type `double` with AVX512 instructions.
+*/
 template <>
-double sumWithAVX<double, avx2>(size_t n, const double * dataPtr)
+double sumWithSIMD<double, avx2>(size_t n, const double * dataPtr)
 {
     constexpr size_t avx2RegisterLength = 256;
     constexpr size_t numberOfBitsInByte = 8;
@@ -73,24 +79,27 @@ double sumWithAVX<double, avx2>(size_t n, const double * dataPtr)
 template <>
 float computeSum<float, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
 {
-    // computeSumAVX defined in finiteness_checker_cpu.cpp
-    return computeSumAVX<float, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
+    // computeSumSIMD defined in finiteness_checker_cpu.cpp
+    return computeSumSIMD<float, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSum<double, avx2>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
-    // computeSumAVX defined in finiteness_checker_cpu.cpp
-    return computeSumAVX<double, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
+    // computeSumSIMD defined in finiteness_checker_cpu.cpp
+    return computeSumSIMD<double, avx2>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
 double computeSumSOA<avx2>(NumericTable & table, bool & sumIsFinite, services::Status & st)
 {
-    // computeSumSOAAVX defined in finiteness_checker_cpu.cpp
-    return computeSumSOAAVX<avx2>(table, sumIsFinite, st);
+    // computeSumSOASIMD defined in finiteness_checker_cpu.cpp
+    return computeSumSOASIMD<avx2>(table, sumIsFinite, st);
 }
 
+/*
+// Computes finiteness for float data using multi-threading and AVX2 instructions which match isnan and isinf
+*/
 template <>
 services::Status checkFinitenessInBlocks<avx2>(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                                size_t nSurplus, bool allowNaN, bool & finiteness)
@@ -150,6 +159,9 @@ services::Status checkFinitenessInBlocks<avx2>(const float ** dataPtrs, bool inP
     return s;
 }
 
+/*
+// Computes finiteness for double data using multi-threading and AVX2 instructions which match isnan and isinf
+*/
 template <>
 services::Status checkFinitenessInBlocks<avx2>(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                                                size_t nSurplus, bool allowNaN, bool & finiteness)
@@ -213,22 +225,22 @@ services::Status checkFinitenessInBlocks<avx2>(const double ** dataPtrs, bool in
 template <>
 bool checkFiniteness<float, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
-    // checkFinitenessAVX defined in finiteness_checker_cpu.cpp
-    return checkFinitenessAVX<float, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+    // checkFinitenessSIMD defined in finiteness_checker_cpu.cpp
+    return checkFinitenessSIMD<float, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFiniteness<double, avx2>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
-    // checkFinitenessAVX defined in finiteness_checker_cpu.cpp
-    return checkFinitenessAVX<double, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
+    // checkFinitenessSIMD defined in finiteness_checker_cpu.cpp
+    return checkFinitenessSIMD<double, avx2>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
 bool checkFinitenessSOA<avx2>(NumericTable & table, bool allowNaN, services::Status & st)
 {
-    // checkFinitenessSOAAVX defined in finiteness_checker_cpu.cpp
-    return checkFinitenessSOAAVX<avx2>(table, allowNaN, st);
+    // checkFinitenessSOASIMD defined in finiteness_checker_cpu.cpp
+    return checkFinitenessSOASIMD<avx2>(table, allowNaN, st);
 }
 
 #endif // __FINITENESS_CHECKER_AVX2_IMPL_I__
