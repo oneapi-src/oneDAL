@@ -323,7 +323,7 @@ public:
             te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-3.0, 4.0));
         auto inner_iter_count_arr_host = train_dataframe.get_array().get_data();
 
-        inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity
+        inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity()
                                               : std::numeric_limits<float_t>::quiet_NaN();
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
@@ -359,7 +359,7 @@ TEMPLATE_LIST_TEST_M(infinite_sum_test_random,
     this->test_cm_rw_reduce();
 }
 
-TEMPLATE_LIST_TEST_M(single_nonfinite_test_random,
+TEMPLATE_LIST_TEST_M(single_infinite_test_random,
                      "Randomly filled reduction with single inf or nan",
                      "[reduction][rm][small]",
                      finiteness_types) {
