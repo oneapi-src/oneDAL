@@ -423,7 +423,7 @@ public:
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
      */
-    virtual int getSerializationTag() const { return 0; }
+    DAAL_EXPORT virtual int getSerializationTag() const { return 0; }
 
     /**
      * Checks the correctness of the final results structure
