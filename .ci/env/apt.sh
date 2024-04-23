@@ -74,8 +74,8 @@ function install_llvm_version {
     curl -o llvm.sh https://apt.llvm.org/llvm.sh
     chmod u+x llvm.sh
     sudo ./llvm.sh "$1"
-    sudo update-alternatives --install /usr/bin/clang clang "/usr/bin/clang-$1" "$1"
-    sudo update-alternatives --install /usr/bin/clang++ clang++ "/usr/bin/clang++-$1" "$1"
+    sudo update-alternatives --install /usr/bin/clang clang "/usr/bin/clang-$1" "${1}00"
+    sudo update-alternatives --install /usr/bin/clang++ clang++ "/usr/bin/clang++-$1" "${1}00"
 }
 
 function build_sysroot {
