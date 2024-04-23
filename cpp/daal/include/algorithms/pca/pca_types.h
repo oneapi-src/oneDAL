@@ -273,23 +273,23 @@ class DAAL_EXPORT PartialResult<daal::algorithms::pca::correlationDense> : publi
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::correlationDense>)
-    DAAL_EXPORT PartialResult();
+    PartialResult();
 
     /**
         * Gets partial results of the PCA Correlation algorithm
         * \param[in] id    Identifier of the input object
         * \return          Input object that corresponds to the given identifier
         */
-    DAAL_EXPORT data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
+    data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
 
-    DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
     /**
         * Sets partial result of the PCA Correlation algorithm
         * \param[in] id      Identifier of the result
         * \param[in] value   Pointer to the object
         */
-    DAAL_EXPORT void set(const PartialCorrelationResultId id, const data_management::NumericTablePtr & value);
+    void set(const PartialCorrelationResultId id, const data_management::NumericTablePtr & value);
 
     virtual ~PartialResult() {};
 
@@ -300,7 +300,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                        int method) const DAAL_C11_OVERRIDE;
 
     /**
@@ -309,7 +309,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    DAAL_EXPORT services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
         * Allocates memory to store partial results of the PCA  SVD algorithm
@@ -352,23 +352,23 @@ class DAAL_EXPORT PartialResult<daal::algorithms::pca::svdDense> : public Partia
 {
 public:
     DECLARE_SERIALIZABLE_CAST(PartialResult<daal::algorithms::pca::svdDense>)
-    DAAL_EXPORT PartialResult();
+    PartialResult();
 
     /**
     * Gets partial results of the PCA SVD algorithm
         * \param[in] id    Identifier of the input object
         * \return          Input object that corresponds to the given identifier
     */
-    DAAL_EXPORT data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
+    data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
 
-    DAAL_EXPORT virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
 
     /**
     * Gets partial results of the PCA SVD algorithm
         * \param[in] id    Identifier of the input object
         * \return          Input object that corresponds to the given identifier
     */
-    DAAL_EXPORT data_management::DataCollectionPtr get(PartialSVDCollectionResultId id) const;
+    data_management::DataCollectionPtr get(PartialSVDCollectionResultId id) const;
 
     /**
     * Gets partial results of the PCA SVD algorithm
@@ -383,14 +383,14 @@ public:
         * \param[in] id      Identifier of the result
         * \param[in] value   Pointer to  the object
         */
-    DAAL_EXPORT void set(PartialSVDTableResultId id, const data_management::NumericTablePtr & value);
+    void set(PartialSVDTableResultId id, const data_management::NumericTablePtr & value);
 
     /**
         * Sets partial result of the PCA SVD algorithm
         * \param[in] id      Identifier of the result
         * \param[in] value   Pointer to the object
         */
-    DAAL_EXPORT void set(PartialSVDCollectionResultId id, const data_management::DataCollectionPtr & value);
+    void set(PartialSVDCollectionResultId id, const data_management::DataCollectionPtr & value);
 
     /**
         * Adds partial result of the PCA SVD algorithm
@@ -406,7 +406,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    DAAL_EXPORT services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                        int method) const DAAL_C11_OVERRIDE;
 
     /**
@@ -415,7 +415,7 @@ public:
     * \param[in] par        %Parameter of algorithm
     * \return Errors detected while checking
     */
-    DAAL_EXPORT services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     virtual ~PartialResult() {};
 
