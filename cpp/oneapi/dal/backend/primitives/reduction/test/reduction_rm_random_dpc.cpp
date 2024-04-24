@@ -300,7 +300,7 @@ public:
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
         auto inner_iter_count_arr_host =
-            train_dataframe.get_array().need_mutable_data().get_mutable_data();
+            train_dataframe.get_array().get_mutable_data();
 
         inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity()
                                               : std::numeric_limits<float_t>::quiet_NaN();
@@ -376,14 +376,14 @@ TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
 
     this->generate(true);
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_rw_reduce_naive();
-    this->test_raw_rw_reduce_atomic();
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
 
     this->generate(false);
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_rw_reduce_naive();
-    this->test_raw_rw_reduce_atomic();
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
 }
 
