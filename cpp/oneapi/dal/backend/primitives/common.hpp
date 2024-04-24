@@ -17,13 +17,3 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
-
-namespace oneapi::dal::backend::primitives {
-
-/// Specifies whether an input matrix should be transposed
-enum class transpose {
-    nontrans, /* do not transpose the matrix */
-    trans /* transpose the matrix */
-};
-
-} // namespace oneapi::dal::backend::primitives
