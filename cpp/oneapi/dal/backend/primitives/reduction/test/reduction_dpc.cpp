@@ -346,13 +346,8 @@ TEMPLATE_LIST_TEST_M(infinite_sum_test_random,
                      "[reduction][rm][small]",
                      finiteness_types) {
     SKIP_IF(this->not_float64_friendly());
-    this->generate(true);
-    this->test_rm_rw_reduce();
-    this->test_rm_cw_reduce();
-    this->test_cm_cw_reduce();
-    this->test_cm_rw_reduce();
-
-    this->generate(false);
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
     this->test_rm_rw_reduce();
     this->test_rm_cw_reduce();
     this->test_cm_cw_reduce();
@@ -364,13 +359,8 @@ TEMPLATE_LIST_TEST_M(single_infinite_test_random,
                      "[reduction][rm][small]",
                      finiteness_types) {
     SKIP_IF(this->not_float64_friendly());
-    this->generate(true);
-    this->test_rm_rw_reduce();
-    this->test_rm_cw_reduce();
-    this->test_cm_cw_reduce();
-    this->test_cm_rw_reduce();
-
-    this->generate(false);
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
     this->test_rm_rw_reduce();
     this->test_rm_cw_reduce();
     this->test_cm_cw_reduce();

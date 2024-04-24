@@ -159,9 +159,9 @@ TEMPLATE_LIST_TEST_M(infinite_sum_test_random_1d,
                      "[reduction][1d][small]",
                      finiteness_types) {
     SKIP_IF(this->not_float64_friendly());
-    this->generate(true);
-    this->test_1d_reduce();
-    this->generate(false);
+
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
     this->test_1d_reduce();
 }
 
@@ -170,9 +170,9 @@ TEMPLATE_LIST_TEST_M(single_infinite_test_random_1d,
                      "[reduction][1d][small]",
                      finiteness_types) {
     SKIP_IF(this->not_float64_friendly());
-    this->generate(true);
-    this->test_1d_reduce();
-    this->generate(false);
+
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
     this->test_1d_reduce();
 }
 
