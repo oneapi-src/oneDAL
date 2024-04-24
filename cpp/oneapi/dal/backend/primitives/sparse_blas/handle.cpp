@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/backend/primitives/sparse_blas/handle.hpp"
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/io/csv/read_types.hpp"
+namespace oneapi::dal::backend::primitives {
 
-namespace oneapi::dal::csv::backend {
+#ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Object, typename Float>
-struct read_kernel_gpu {
-    Object operator()(const dal::backend::context_gpu& ctx,
-                      const detail::data_source_base& ds,
-                      const read_args<Object>& args) const;
-};
+sparse_matrix_handle::sparse_matrix_handle(sycl::queue& queue)
+        : impl_(new detail::sparse_matrix_handle_impl(queue)) {}
 
-} // namespace oneapi::dal::csv::backend
+#endif // ONEDAL_DATA_PARALLEL
+
+} // namespace oneapi::dal::backend::primitives

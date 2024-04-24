@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,16 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/io/csv/read_types.hpp"
-
-namespace oneapi::dal::csv::backend {
-
-template <typename Object, typename Float>
-struct read_kernel_gpu {
-    Object operator()(const dal::backend::context_gpu& ctx,
-                      const detail::data_source_base& ds,
-                      const read_args<Object>& args) const;
-};
-
-} // namespace oneapi::dal::csv::backend
+#include "oneapi/dal/backend/primitives/sparse_blas/set_csr_data.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/gemm.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/gemv.hpp"

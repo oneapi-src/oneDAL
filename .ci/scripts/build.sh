@@ -18,19 +18,24 @@
 
 set -eo pipefail
 
-SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../../")
 
 show_help() {
     echo "Usage: $0 [--help]"
-    echo -e "  --help \t\tShow this help message"
-    echo -e "  --compiler \t\tThe compiler toolchain to use. This is a value that is recognised by the oneDAL top level Makefile"
-    echo -e "  --optimizations \t\tThe microarchitecture to optimize the build for. This is a value that is recognised by the oneDAL top level Makefile"
-    echo -e "  --target \t\tThe oneDAL target to build. This is passed directly to the oneDAL top level Makefile. Multiple targets can be passed by supplying a space-separated string as an argument"
-    echo -e "  --backend-config \t\tThe optimised backend CPU library to use. Must be one of [mkl, ref]"
-    echo -e "  --conda-env \t\tThe name of the conda environment to load"
-    echo -e "  --cross-compile \t\tIndicates that the target platform to build for is not the host platform"
-    echo -e "  --plat \t\tThe platform to build for. This is passed to the oneDAL top level Makefile"
+    column -t -s":" <<< '--help:Show this help message
+--compiler:The compiler toolchain to use. This is a value that is recognised by the oneDAL top level Makefile, and must be one of [gnu, clang, icx]
+--optimizations:The microarchitecture to optimize the build for. This is a value that is recognised by the oneDAL top level Makefile
+--target:The oneDAL target to build. This is passed directly to the oneDAL top level Makefile. Multiple targets can be passed by supplying a space-separated string as an argument
+--backend-config:The optimised backend CPU library to use. Must be one of [mkl, ref]
+--conda-env:The name of the conda environment to load
+--cross-compile:Indicates that the target platform to build for is not the host platform
+--plat:The platform to build for. This is passed to the oneDAL top level Makefile
+--blas-dir:The BLAS installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
+--tbb-dir:The TBB installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
+--sysroot:The sysroot to use, in the case that clang is used as the cross-compiler
+'
 }
 
 while [[ $# -gt 0 ]]; do
@@ -58,6 +63,15 @@ while [[ $# -gt 0 ]]; do
         --plat)
         PLAT="$2"
         shift;;
+        --blas-dir)
+        BLAS_INSTALL_DIR=$(readlink -f "$2")
+        shift;;
+        --tbb-dir)
+        TBB_INSTALL_DIR=$(readlink -f "$2")
+        shift;;
+        --sysroot)
+        sysroot="$2"
+        shift;;
         --help)
         show_help
         exit 0
@@ -70,7 +84,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-PLAT=${PLAT:-$(bash ${ONEDAL_DIR}/dev/make/identify_os.sh)}
+PLAT=${PLAT:-$(bash "${ONEDAL_DIR}"/dev/make/identify_os.sh)}
 OS=${PLAT::3}
 ARCH=${PLAT:3:3}
 
@@ -109,57 +123,107 @@ else
     exit 1
 fi
 
-#setting build parrlelization based on number of thereads
+#setting build parallelization based on number of threads
 if [ "$(uname)" == "Linux" ]; then
-    make_op="-j$(grep -c processor /proc/cpuinfo)"
+    make_op="-j$(nproc --all)"
 else
     make_op="-j$(sysctl -n hw.physicalcpu)"
+fi
+
+# Override the compilers. We know which compilers we want in
+# the case that we are using a GNU or LLVM toolchain
+if [ "${ARCH}" == "arm" ] && [ "${cross_compile}" == "yes" ] && [ "${compiler}" == "gnu" ] ; then
+    export CXX=aarch64-linux-gnu-g++
+    export CC=aarch64-linux-gnu-gcc
+elif [ "${compiler}" == "clang" ] ; then
+    export CXX=clang++
+    export CC=clang
+elif [ "${compiler}" == "gnu" ] ; then
+    export CXX=g++
+    export CC=gcc
+elif [ "${compiler}" == "icx" ] ; then
+    export CXX=icpx
+    export CC=icx
+else
+    echo "Unsupported compiler '${compiler}'"
+    exit 1
+fi
+
+if [ "${cross-compile}" == "yes" ] && [ "${compiler}" == "clang" ] ; then
+    if [[ -z "${sysroot}" ]] ; then
+        echo "--sysroot must be specified when cross-compiling with clang"
+        exit 1
+    fi
+    export ONEDAL_SYSROOT="${sysroot}"
 fi
 
 #main actions
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
-    ${ONEDAL_DIR}/dev/download_micromkl.sh with_gpu=${with_gpu}
+    "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
+elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
+    export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
-    if [ ! -d "__deps/open_blas" ]; then
+    if [ ! -d "${ONEDAL_DIR}/__deps/openblas_${ARCH}" ]; then
         if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
-            ${ONEDAL_DIR}/.ci/env/openblas.sh --target ARMV8 --host_compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross_compile
+            openblas_options=(--target ARMV8
+                --host-compiler gcc
+                --compiler "${CC}"
+                --cflags -march=armv8-a+sve
+                --cross-compile
+                --target-arch "${ARCH}")
+            if [ "${compiler}" == "clang" ] ; then
+                openblas_options+=(--sysroot "${sysroot}")
+            fi
+            echo "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
+            "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
         else
-            ${ONEDAL_DIR}/.ci/env/openblas.sh
+            "${ONEDAL_DIR}"/.ci/env/openblas.sh --target-arch "${ARCH}"
         fi
     fi
+    export OPENBLASROOT="${ONEDAL_DIR}/__deps/openblas_${ARCH}"
 else
     echo "Not supported backend env"
 fi
 
 # TBB setup
-if [[ "${ARCH}" == "32e" ]]; then
-    ${ONEDAL_DIR}/dev/download_tbb.sh
+if [[ ! -z "${TBB_INSTALL_DIR}" ]] ; then
+    export TBBROOT="${TBB_INSTALL_DIR}"
+    export LD_LIBRARY_PATH="${TBBROOT}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+elif [[ "${ARCH}" == "32e" ]]; then
+    "${ONEDAL_DIR}"/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
-        ${ONEDAL_DIR}/.ci/env/tbb.sh --cross_compile --toolchain_file $(pwd)/.ci/env/arm-gcc-crosscompile-toolchain.cmake --target_arch aarch64
+        tbb_options=(--cross-compile
+          --toolchain-file
+          "${ONEDAL_DIR}"/.ci/env/arm-${compiler}-crosscompile-toolchain.cmake
+          --target-arch aarch64
+        )
+        echo "${ONEDAL_DIR}"/.ci/env/tbb.sh "${tbb_options[@]}"
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh "${tbb_options[@]}"
     else
-        ${ONEDAL_DIR}/.ci/env/tbb.sh
+        "${ONEDAL_DIR}"/.ci/env/tbb.sh
     fi
+    export TBBROOT="$ONEDAL_DIR/__deps/tbb-aarch64"
+    export LD_LIBRARY_PATH=${TBBROOT}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 fi
 
-if [ "${optimizations}" == "sve" ] && [ "${cross_compile}" == "yes" ]; then
-    export CXX=aarch64-linux-gnu-g++
-    export CC=aarch64-linux-gnu-gcc 
+make_options=("${target:-onedal_c}"
+    "${make_op}"
+    COMPILER="${compiler}"
+    REQCPU="${optimizations}"
+    BACKEND_CONFIG="${backend_config}"
+    PLAT="${PLAT}"
+)
+
+if [ "${cross_compile}" == "yes" ] && [ "${compiler}" == "clang" ] ; then
+    make_options+=(SYSROOT="${sysroot}")
 fi
 
 echo "Calling make"
-echo $CXX
-echo $CC
-echo make ${target:-onedal_c} ${make_op} \
-    COMPILER=${compiler} \
-    REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}" \
-    PLAT=${PLAT}
-make ${target:-onedal_c} ${make_op} \
-    COMPILER=${compiler} \
-    REQCPU="${optimizations}" \
-    BACKEND_CONFIG="${backend_config}" \
-    PLAT=${PLAT}
+echo "CXX=$CXX"
+echo "CC=$CC"
+echo make "${make_options[@]}"
+make "${make_options[@]}"

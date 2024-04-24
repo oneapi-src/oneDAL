@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/io/csv/read_types.hpp"
+#include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::csv::backend {
+#include <mkl_dal_sycl.hpp>
 
-template <typename Object, typename Float>
-struct read_kernel_gpu {
-    Object operator()(const dal::backend::context_gpu& ctx,
-                      const detail::data_source_base& ds,
-                      const read_args<Object>& args) const;
-};
+namespace oneapi::dal::backend::primitives {
 
-} // namespace oneapi::dal::csv::backend
+namespace mkl = oneapi::fpk;
+
+/// Convert oneDAL `sparse_indexing` to oneMKL `index_base`
+inline constexpr mkl::index_base sparse_indexing_to_mkl(const sparse_indexing indexing) {
+    return (indexing == sparse_indexing::zero_based) ? mkl::index_base::zero : mkl::index_base::one;
+}
+
+} // namespace oneapi::dal::backend::primitives
