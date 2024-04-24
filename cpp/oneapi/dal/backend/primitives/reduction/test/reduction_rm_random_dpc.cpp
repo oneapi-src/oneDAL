@@ -338,7 +338,7 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
     SKIP_IF(this->not_float64_friendly());
 
     const bool use_infnan = GENERATE(0, 1);
-    this->generate(use_ifnan);
+    this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
@@ -352,7 +352,7 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
     SKIP_IF(this->not_float64_friendly());
 
     const bool use_infnan = GENERATE(0, 1);
-    this->generate(use_ifnan);
+    this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_atomic();
