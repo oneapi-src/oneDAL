@@ -30,10 +30,10 @@ CORE.SERV.COMPILER.icx = generic
 -Qopt = $(if $(OS_is_win),-qopt-,-qopt-)
 
 COMPILER.lnx.icx = icx -m64 \
-                     -Werror -Wreturn-type -O2 -O3
+                     -Werror -Wreturn-type -O3
 
 
-COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -O2 -O3 -WX -Qopenmp-simd -Wno-deprecated-declarations
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -O3 -WX -Qopenmp-simd -Wno-deprecated-declarations
 
 link.dynamic.lnx.icx = icx -m64
 

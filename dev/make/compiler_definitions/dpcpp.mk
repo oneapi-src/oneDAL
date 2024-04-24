@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.dpcpp = generic
 -Zl.dpcpp =
 -DEBC.dpcpp = -g
 
-COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
+COMPILER.lnx.dpcpp = icpx -fsycl -O0 -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
 COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
                      -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
