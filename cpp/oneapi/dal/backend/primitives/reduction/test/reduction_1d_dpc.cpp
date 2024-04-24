@@ -137,10 +137,10 @@ public:
     void generate_input(bool infval) {
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(-0.2, 0.5));
-        auto inner_iter_count_arr_host = train_dataframe.get_array().get_mutable_data();
+        auto train_data = train_dataframe.get_array().get_mutable_data();
 
-        inner_iter_count_arr_host[5] = infval ? std::numeric_limits<float_t>::infinity()
-                                              : std::numeric_limits<float_t>::quiet_NaN();
+        train_data[5] = infval ? std::numeric_limits<float_t>::infinity()
+                               : std::numeric_limits<float_t>::quiet_NaN();
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
