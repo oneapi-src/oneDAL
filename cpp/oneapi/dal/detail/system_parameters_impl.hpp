@@ -36,11 +36,9 @@ public:
     std::uint32_t get_max_number_of_threads() const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    /// DPC++ related parameters
     std::uint32_t get_max_workgroup_size(sycl::queue& queue) const;
 #endif
 
-    /// Logging
     std::string dump() const;
 
 #ifdef ONEDAL_DATA_PARALLEL

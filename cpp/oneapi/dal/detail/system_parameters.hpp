@@ -25,23 +25,40 @@ namespace oneapi::dal {
 
 namespace detail {
 
+/// Stores system-related parameters that affect the performance of the algorithms.
+/// Those parameters can differ from the `get_global_context().get_cpu_info()`.
+///
+/// `cpu_info` reports the parameters available in hardware, when `system_parameters`
+/// are the software-enabled parameters that can differ from `cpu_info`.
 class system_parameters : public base {
 public:
+    /// Creates a new default ``system_parameters`` instance.
     explicit system_parameters();
 
-    /// C++ related parameters
+    /// Host related parameters.
+
+    /// Top enabled CPU instruction set.
     cpu_extension get_top_enabled_cpu_extension() const;
+
+    /// Maximal number of threads available to the algorithm.
     std::uint32_t get_max_number_of_threads() const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    /// DPC++ related parameters
+    /// Device related parameters.
+
+    /// Maximal SYCL workgroup size on the device.
+    ///
+    /// @param queue                  The SYCL* queue object
     std::uint32_t get_max_workgroup_size(sycl::queue& queue) const;
 #endif
 
-    /// Logging
+    /// Logs host parameters in the format: name_1: value_1; ... ; name_N: value_N.
     std::string dump() const;
 
 #ifdef ONEDAL_DATA_PARALLEL
+    /// Logs host and device parameters in the format: name_1: value_1; ... ; name_N: value_N.
+    ///
+    /// @param queue                  The SYCL* queue object
     std::string dump(sycl::queue& queue) const;
 #endif
 
