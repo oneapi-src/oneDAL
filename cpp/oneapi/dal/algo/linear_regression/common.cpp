@@ -42,6 +42,8 @@ public:
     explicit descriptor_impl() = default;
 
     bool compute_intercept = true;
+    double alpha = 0;
+
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -69,6 +71,16 @@ template <typename Task>
 descriptor_base<Task>::descriptor_base(bool compute_intercept)
         : impl_(new descriptor_impl<Task>{}) {
     impl_->compute_intercept = compute_intercept;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_alpha() const {
+    return impl_->alpha;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_alpha_impl(double value) {
+    impl_->alpha = value;
 }
 
 template <typename Task>
