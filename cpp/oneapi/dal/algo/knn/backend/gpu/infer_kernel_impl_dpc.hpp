@@ -289,8 +289,8 @@ protected:
 
         bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
         if (this->compute_sqrt_) {
-            auto sq_event = copy_with_sqrt(this->queue_, inp_dts, inp_dts, deps);
-            ndeps.push_back(sq_event);
+            auto sqrt_event = copy_with_sqrt(this->queue_, inp_dts, inp_dts, deps);
+            ndeps.push_back(sqrt_event);
         }
 
         auto out_rps = this->responses_.get_slice(first, last);
