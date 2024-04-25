@@ -100,7 +100,7 @@ public:
             row_accessor<const float_t> offset{ offset_table_ };
             const auto off_acc = offset.pull({ 0, 1 });
             for (std::int64_t i = 0; i < width_; ++i) {
-                res_ptr[i] = override_init_ ? off_acc[i] : binary_.init_value;
+                res_ptr[i] = override_init_ ? binary_.init_value : off_acc[i];
             }
         }
         row_accessor<const float_t> input{ input_table_ };
@@ -121,7 +121,7 @@ public:
             row_accessor<const float_t> offset{ offset_table_ };
             const auto off_acc = offset.pull({ 0, 1 });
             for (std::int64_t j = 0; j < height_; ++j) {
-                res_ptr[j] = override_init_ ? off_acc[j] : binary_.init_value;
+                res_ptr[j] = override_init_ ? binary_.init_value : off_acc[j];
             }
         }
         row_accessor<const float_t> input{ input_table_ };
@@ -288,7 +288,7 @@ public:
     void generate(bool maxval) {
         this->height_ = GENERATE(17, 999, 1, 5, 1001);
         this->width_ = GENERATE(7, 707, 1, 251, 5);
-        this->override_init_ = false;
+        this->override_init_ = true; // poorly named variable
         CAPTURE(this->override_init_, this->width_, this->height_, maxval);
         generate_input(maxval);
         this->generate_offset();
@@ -312,7 +312,7 @@ public:
     void generate(bool infval) {
         this->height_ = GENERATE(17, 999, 1, 5, 1001);
         this->width_ = GENERATE(7, 707, 1, 251, 5);
-        this->override_init_ = false;
+        this->override_init_ = true; // poorly named variable
         CAPTURE(this->override_init_, this->width_, this->height_, infval);
         generate_input(infval);
         this->generate_offset();
