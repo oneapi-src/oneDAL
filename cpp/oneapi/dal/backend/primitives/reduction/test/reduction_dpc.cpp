@@ -100,7 +100,7 @@ public:
             row_accessor<const float_t> offset{ offset_table_ };
             const auto off_acc = offset.pull({ 0, 1 });
             for (std::int64_t i = 0; i < width_; ++i) {
-                res_ptr[i] = override_init_ ? binary_.init_value : off_acc[i];
+                res_ptr[i] = override_init_ ? off_acc[i] : binary_.init_value;
             }
         }
         row_accessor<const float_t> input{ input_table_ };
@@ -121,7 +121,7 @@ public:
             row_accessor<const float_t> offset{ offset_table_ };
             const auto off_acc = offset.pull({ 0, 1 });
             for (std::int64_t j = 0; j < height_; ++j) {
-                res_ptr[j] = override_init_ ? binary_.init_value : off_acc[j];
+                res_ptr[j] = override_init_ ? off_acc[j] : binary_.init_value;
             }
         }
         row_accessor<const float_t> input{ input_table_ };
