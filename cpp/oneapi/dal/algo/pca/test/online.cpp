@@ -28,7 +28,41 @@ template <typename TestType>
 class pca_online_test : public pca_test<TestType, pca_online_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(pca_online_test,
-                     "pca common flow",
+                     "pca online on gold data",
+                     "[pca][integration][online][gold]",
+                     pca_types_cov) {
+    SKIP_IF(this->not_float64_friendly());
+    const int64_t nBlocks = GENERATE(1, 3, 10);
+
+    const std::int64_t component_count = 0;
+    const bool deterministic = true;
+    const auto pca_desc = this->get_descriptor(component_count, deterministic);
+    const auto gold_data = this->get_gold_data();
+
+    auto partial_result = dal::pca::partial_train_result();
+    auto input_table = this->template split_table_by_rows<float>(gold_data, nBlocks);
+    for (std::int64_t i = 0; i < nBlocks; ++i) {
+        partial_result = this->partial_train(pca_desc, partial_result, input_table[i]);
+    }
+
+    const auto pca_result = this->finalize_train(pca_desc, partial_result);
+
+    const auto eigenvalues = pca_result.get_eigenvalues();
+    const auto eigenvectors = pca_result.get_eigenvectors();
+
+    SECTION("check eigenvalues") {
+        const auto gold_eigenvalues = this->get_gold_eigenvalues();
+        this->check_eigenvalues(gold_eigenvalues, eigenvalues);
+    }
+
+    SECTION("check eigenvectors") {
+        const auto gold_eigenvectors = this->get_gold_eigenvectors();
+        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
+    }
+}
+
+TEMPLATE_LIST_TEST_M(pca_online_test,
+                     "pca fill_uniform flow cov",
                      "[pca][integration][online]",
                      pca_types_cov) {
     SKIP_IF(this->not_float64_friendly());

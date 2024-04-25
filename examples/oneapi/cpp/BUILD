@@ -53,6 +53,17 @@ dal_example_suite(
 )
 
 dal_example_suite(
+    name = "misc",
+    compile_as = [ "c++" ],
+    srcs = glob(["source/misc/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal:io",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS,
+)
+
+dal_example_suite(
     name = "jaccard",
     compile_as = [ "c++" ],
     srcs = glob(["source/jaccard/*.cpp"]),

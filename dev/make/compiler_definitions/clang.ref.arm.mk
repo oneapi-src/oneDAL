@@ -23,10 +23,19 @@ include dev/make/compiler_definitions/clang.mk
 
 PLATs.clang = lnxarm
 
+COMPILER.lnx.clang.target = $(if $(filter yes,$(COMPILER_is_cross)),--target=aarch64-linux-gnu)
+
+COMPILER.sysroot = $(if $(SYSROOT),--sysroot $(SYSROOT))
+
 COMPILER.lnx.clang= clang++ -march=armv8-a+sve \
-                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type
+                     -DDAAL_REF -DONEDAL_REF -DDAAL_CPU=sve -Werror -Wreturn-type \
+                     $(COMPILER.lnx.clang.target) \
+                     $(COMPILER.sysroot)
+
 # Linker flags
-link.dynamic.lnx.clang = clang++ -march=armv8-a+sve
+link.dynamic.lnx.clang = clang++ -march=armv8-a+sve \
+                         $(COMPILER.lnx.clang.target) \
+                         $(COMPILER.sysroot)
 
 pedantic.opts.lnx.clang = $(pedantic.opts.clang)
 

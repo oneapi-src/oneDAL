@@ -38,6 +38,8 @@
 #define DAAL_KERNEL_AVX2
 #define DAAL_KERNEL_AVX512
 
+#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #if defined(TARGET_X86_64)
     #include "services/internal/x86_64/x86_64_kernel_defines.h"
 #elif defined(TARGET_ARM)

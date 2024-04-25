@@ -34,26 +34,32 @@ namespace oneapi::dal::csv::backend {
 namespace interop = dal::backend::interop;
 namespace daal_dm = daal::data_management;
 
-template <>
-table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
-                                         const detail::data_source_base& ds,
-                                         const read_args<table>& args) const {
-    daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
-        daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,
-                           daal_dm::CsvDataSourceOptions::createDictionaryFromContext),
-        (ds.get_parse_header() ? daal_dm::CsvDataSourceOptions::parseHeader
-                               : daal_dm::CsvDataSourceOptions::byDefault)));
+template <typename Float>
+struct read_kernel_cpu<table, Float> {
+    table operator()(const dal::backend::context_cpu& ctx,
+                     const detail::data_source_base& ds,
+                     const read_args<table>& args) const {
+        daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
+            daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,
+                               daal_dm::CsvDataSourceOptions::createDictionaryFromContext),
+            (ds.get_parse_header() ? daal_dm::CsvDataSourceOptions::parseHeader
+                                   : daal_dm::CsvDataSourceOptions::byDefault)));
 
-    daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(),
-                                                                         csv_options);
-    interop::status_to_exception(daal_data_source.status());
+        daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(
+            ds.get_file_name().c_str(),
+            csv_options);
+        interop::status_to_exception(daal_data_source.status());
 
-    daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
-    daal_data_source.loadDataBlock();
-    interop::status_to_exception(daal_data_source.status());
+        daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
+        daal_data_source.loadDataBlock();
+        interop::status_to_exception(daal_data_source.status());
 
-    return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(
-        daal_data_source.getNumericTable());
-}
+        return oneapi::dal::backend::interop::convert_from_daal_homogen_table<Float>(
+            daal_data_source.getNumericTable());
+    }
+};
+
+template struct read_kernel_cpu<table, float>;
+template struct read_kernel_cpu<table, double>;
 
 } // namespace oneapi::dal::csv::backend
