@@ -109,7 +109,7 @@ public:
 
     void generate(bool maxval) {
         this->n_ = GENERATE(17, 999, 1, 5, 1001);
-        CAPTURE(this->n_);
+        CAPTURE(this->n_, maxval);
         generate_input(maxval);
     }
 
@@ -130,7 +130,7 @@ public:
 
     void generate(bool infval) {
         this->n_ = GENERATE(17, 999, 1, 5, 1001);
-        CAPTURE(this->n_);
+        CAPTURE(this->n_, infval);
         generate_input(infval);
     }
 

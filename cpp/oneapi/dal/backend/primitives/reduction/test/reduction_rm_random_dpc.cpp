@@ -270,7 +270,7 @@ public:
         this->width_ = GENERATE(7, 707, 5);
         this->stride_ = GENERATE(707, 812, 1024);
         this->height_ = GENERATE(17, 999, 1, 1001);
-        CAPTURE(this->width_, this->stride_, this->height_);
+        CAPTURE(this->width_, this->stride_, this->height_, maxval);
         generate_input(maxval);
     }
 
@@ -292,7 +292,7 @@ public:
         this->width_ = GENERATE(7, 707, 5);
         this->stride_ = GENERATE(707, 812, 1024);
         this->height_ = GENERATE(17, 999, 1, 1001);
-        CAPTURE(this->width_, this->stride_, this->height_);
+        CAPTURE(this->width_, this->stride_, this->height_, infval);
         generate_input(infval);
     }
 
