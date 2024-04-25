@@ -1159,6 +1159,7 @@ def _impl(ctx):
         ctx = ctx,
         features = features,
         action_configs = action_configs,
+        #add absolut path for compiler
         cxx_builtin_include_directories = ctx.attr.cxx_builtin_include_directories,
         toolchain_identifier = ctx.attr.toolchain_identifier,
         host_system_name = ctx.attr.host_system_name,
