@@ -135,7 +135,7 @@ public:
         for (auto i = 0; i < height_; ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
-                CAPTURE(gtv[i], arr[i], diff, tol);
+                CAPTURE(i, gtv[i], arr[i], diff, tol);
                 FAIL();
             }
         }
@@ -148,7 +148,7 @@ public:
         for (auto i = 0; i < width_; ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
-                CAPTURE(gtv[i], arr[i], diff, tol);
+                CAPTURE(i, gtv[i], arr[i], diff, tol);
                 FAIL();
             }
         }
