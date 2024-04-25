@@ -81,7 +81,7 @@ public:
 
     void generate_input() {
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ height_, stride_ }.fill_uniform(-0.2, 0.5));
+            GENERATE_DATAFRAME(te::dataframe_builder{ height_, width_ }.fill_uniform(-0.2, 0.5));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 
@@ -277,7 +277,7 @@ public:
     void generate_input(bool maxval) {
         float_t inp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>::max() + 0.5;
         const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, inp));
+            te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-0.2, inp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
@@ -298,7 +298,7 @@ public:
 
     void generate_input(bool infval) {
         const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
+            te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-0.2, 0.5));
         auto train_data = train_dataframe.get_array().get_mutable_data();
 
         train_data[5] = infval ? std::numeric_limits<float_t>::infinity()

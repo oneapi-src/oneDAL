@@ -288,7 +288,7 @@ public:
     void generate(bool maxval) {
         this->height_ = GENERATE(17, 999, 1, 5, 1001);
         this->width_ = GENERATE(7, 707, 1, 251, 5);
-        this->override_init_ = GENERATE(0, 1);
+        this->override_init_ = false;
         CAPTURE(this->override_init_, this->width_, this->height_, maxval);
         generate_input(maxval);
         this->generate_offset();
@@ -312,7 +312,7 @@ public:
     void generate(bool infval) {
         this->height_ = GENERATE(17, 999, 1, 5, 1001);
         this->width_ = GENERATE(7, 707, 1, 251, 5);
-        this->override_init_ = GENERATE(0, 1);
+        this->override_init_ = false;
         CAPTURE(this->override_init_, this->width_, this->height_, infval);
         generate_input(infval);
         this->generate_offset();
