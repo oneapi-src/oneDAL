@@ -28,11 +28,11 @@ namespace detail {
 /// Stores system-related parameters that affect the performance of the algorithms.
 /// Those parameters can differ from the `get_global_context().get_cpu_info()`.
 ///
-/// `cpu_info` reports the parameters available in hardware, when `system_parameters`
+/// `cpu_info` reports the parameters available in hardware, where `system_parameters`
 /// are the software-enabled parameters that can differ from `cpu_info`.
 class system_parameters : public base {
 public:
-    /// Creates a new default ``system_parameters`` instance.
+    /// Creates a new default `system_parameters` instance.
     explicit system_parameters();
 
     /// Host related parameters.

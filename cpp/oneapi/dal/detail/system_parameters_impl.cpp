@@ -56,9 +56,9 @@ void system_parameters_impl::print_any(const std::any& value, std::ostringstream
 
 std::string system_parameters_impl::dump() const {
     std::ostringstream ss;
-    for (auto it = sys_info_.begin(); it != sys_info_.end(); ++it) {
-        ss << it->first << " : ";
-        print_any(it->second, ss);
+    for (auto const &[name, value] : sys_info_) {
+        ss << name << " : ";
+        print_any(value, ss);
         ss << "; ";
     }
     return std::move(ss).str();
