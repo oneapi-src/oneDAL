@@ -14,6 +14,11 @@
     "matchUpdateTypes": ["patch", "minor"],
     "schedule": ["before 2am on the first day of the month"],
     "matchFileNames": ["docs/requirements.txt"]
+    },
+    {
+    "groupName": "Dockerfile",
+    "schedule": ["before 2am on the first day of the month"],
+    "matchFileNames": ["**/*.Dockerfile"]
     }
   ]
 }
