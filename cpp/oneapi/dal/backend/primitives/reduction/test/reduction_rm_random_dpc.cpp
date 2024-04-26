@@ -299,10 +299,14 @@ public:
     }
 
     void generate_input(bool infval) {
-        //double infinp = infval ? std::numeric_limits<double>::infinity()
-        //                       : std::numeric_limits<double>::quiet_NaN();
+        float infinp = infval ? std::numeric_limits<float>::infinity()
+                               : std::numeric_limits<float>::quiet_NaN();
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
+        
+        // train_data is a float ndarray
+        auto train_data = train_dataframe.get_array().get_mutable_data();
+        train_data[0] = infinp;
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
         // no inf added to see what will happen in testing
     }
