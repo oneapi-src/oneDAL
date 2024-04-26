@@ -139,9 +139,9 @@ public:
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(-0.2, 0.5));
         auto train_data = train_dataframe.get_array().get_mutable_data();
-
-        train_data[5] = infval ? std::numeric_limits<float_t>::infinity()
-                               : std::numeric_limits<float_t>::quiet_NaN();
+        // train_data is a float ndarray
+        train_data[5] = infval ? std::numeric_limits<float>::infinity()
+                               : std::numeric_limits<float>::quiet_NaN();
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
