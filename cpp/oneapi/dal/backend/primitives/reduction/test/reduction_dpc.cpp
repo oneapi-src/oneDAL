@@ -295,8 +295,8 @@ public:
     }
 
     void generate_input(bool maxval) {
-        float_t mininp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>::max();
-        float_t maxinp = (float_t)maxval * std::numeric_limits<float_t>::max();
+        double mininp = 0.9 * (double)maxval * std::numeric_limits<double>::max() - 1.0f;
+        double maxinp = (double)maxval * std::numeric_limits<double>::max();
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(mininp, maxinp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
@@ -324,8 +324,9 @@ public:
             te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-3.0, 4.0));
         auto train_data = train_dataframe.get_array().get_mutable_data();
 
-        train_data[5] = infval ? std::numeric_limits<float_t>::infinity()
-                               : std::numeric_limits<float_t>::quiet_NaN();
+        // train_data is a float array
+        train_data[5] = infval ? std::numeric_limits<float>::infinity()
+                               : std::numeric_limits<float>::quiet_NaN();
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };

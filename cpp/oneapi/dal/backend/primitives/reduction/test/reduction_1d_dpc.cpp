@@ -114,8 +114,8 @@ public:
     }
 
     void generate_input(bool maxval) {
-        float_t mininp = 0.9 * (float_t)maxval * std::numeric_limits<float_t>::max();
-        float_t maxinp = (float_t)maxval * std::numeric_limits<float_t>::max();
+        double mininp = 0.9 * (double)maxval * std::numeric_limits<double>::max() - 1.0f;
+        double maxinp = (double)maxval * std::numeric_limits<double>::max();
         const auto train_dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(mininp, maxinp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
