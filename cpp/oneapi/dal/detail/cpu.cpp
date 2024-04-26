@@ -29,6 +29,8 @@ inline constexpr cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
         case daal::avx512: return cpu_extension::avx512;
 #elif defined(TARGET_ARM)
         case daal::sve: return cpu_extension::sve;
+#elif defined(TARGET_RISCV64)
+        case daal::rv64: return cpu_extension::rv64;
 #endif
     }
     return cpu_extension::none;
@@ -39,6 +41,8 @@ cpu_extension detect_top_cpu_extension() {
         return detail::cpu_extension::sse2;
 #elif defined(TARGET_ARM)
         return detail::cpu_extension::sve;
+#elif defined(TARGET_RISCV64)
+        return detail::cpu_extension::rv64;
 #endif
     }
     const auto daal_cpu = (daal::CpuType)__daal_serv_cpu_detect(0);

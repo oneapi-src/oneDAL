@@ -14,23 +14,19 @@
 # limitations under the License.
 #===============================================================================
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
-    # If we are not cross-compiling, we don't currently have any tests to pass
-    # here
-    return()
-endif()
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-    # Some of the tests fail when run under emulation. For now, exclude the ones
-    # that do segfault. Running on native hardware passes for aarch64, at least,
-    # so that is a better test than running through emulation anyway
-    set(EXCLUDE_LIST
-        ${EXCLUDE_LIST}
-        "basic_statistics_dense_online"
-    )
-elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "riscv64")
-    set(EXCLUDE_LIST
-        ${EXCLUDE_LIST}
-        "basic_statistics_dense_online"
-    )
-endif()
+SET(MAKE_CROSS_COMPILING TRUE)
+SET(CMAKE_SYSTEM_NAME "Linux")
+SET(CMAKE_SYSTEM_PROCESSOR "riscv64")
+
+SET(CMAKE_SYSROOT $ENV{ONEDAL_SYSROOT})
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+find_program(CMAKE_C_COMPILER NAMES clang)
+SET(CMAKE_C_COMPILER_TARGET riscv64-linux-gnu)
+
+find_program(CMAKE_CXX_COMPILER NAMES clang++)
+SET(CMAKE_CXX_COMPILER_TARGET riscv64-linux-gnu)
+
