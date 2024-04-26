@@ -59,7 +59,7 @@ cpu_extension cpu_info_impl::get_top_cpu_extension() const {
 
 std::string cpu_info_impl::dump() const {
     std::ostringstream ss;
-    for (auto const &[name, value] : info_) {
+    for (auto const& [name, value] : info_) {
         ss << name << " : ";
         print_any(value, ss);
         ss << "; ";
