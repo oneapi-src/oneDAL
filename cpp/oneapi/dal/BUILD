@@ -67,9 +67,6 @@ dal_public_includes(
         "@onedal//cpp/oneapi/dal/detail/ccl",
         "@onedal//cpp/oneapi/dal/algo:parameters",
     ],
-    dpc_deps = [
-        "@micromkl_dpc//:headers",
-    ],
 )
 
 dal_static_lib(

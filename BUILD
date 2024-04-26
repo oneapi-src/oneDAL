@@ -14,7 +14,6 @@ release(
             hdrs = [ "@onedal//cpp/daal:kernel_defines" ],
             add_prefix = "services/internal",
         ),
-        //Necessary to avoid externals headers usage issue
         release_include(
             hdrs = [ "@micromkl_dpc//:headers" ],
             skip_prefix = "external/micromkl_dpc/include/",
@@ -33,9 +32,13 @@ release(
         "@onedal//cpp/oneapi/dal:dynamic",
         "@onedal//cpp/oneapi/dal:static_parameters",
         "@onedal//cpp/oneapi/dal:dynamic_parameters",
-        "@onedal//cpp/oneapi/dal:static_dpc",
-        "@onedal//cpp/oneapi/dal:dynamic_dpc",
-        "@onedal//cpp/oneapi/dal:static_parameters_dpc",
-        "@onedal//cpp/oneapi/dal:dynamic_parameters_dpc",
-    ]
+    ] + select({
+        "@config//:release_dpc_enabled": [
+            "@onedal//cpp/oneapi/dal:static_dpc",
+            "@onedal//cpp/oneapi/dal:dynamic_dpc",
+            "@onedal//cpp/oneapi/dal:static_parameters_dpc",
+            "@onedal//cpp/oneapi/dal:dynamic_parameters_dpc",
+        ],
+        "//conditions:default": [],
+    }),
 )
