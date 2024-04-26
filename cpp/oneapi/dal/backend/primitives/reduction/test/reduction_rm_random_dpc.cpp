@@ -276,8 +276,8 @@ public:
     }
 
     void generate_input(bool maxval) {
-        double mininp = 0.9 * (double)maxval * std::numeric_limits<double>::max() - 1.0f;
-        double maxinp = (double)maxval * std::numeric_limits<double>::max();
+        float mininp = 0.9 * (float)maxval * std::numeric_limits<float>::max() - 1.0f;
+        float maxinp = (float)maxval * std::numeric_limits<float>::max();
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(mininp, maxinp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
@@ -301,10 +301,10 @@ public:
     void generate_input(bool infval) {
         double infinp = infval ? std::numeric_limits<double>::infinity()
                                : std::numeric_limits<double>::quiet_NaN();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->height_, this->stride_ }.fill_diag(infinp));
-        // fill_diag takes a double, but returns a float ndarray
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ height_, stride_ }.fill_uniform(-0.2, 0.5));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+        // no inf added to see what will happen in testing
     }
 };
 
