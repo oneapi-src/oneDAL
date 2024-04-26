@@ -1,6 +1,7 @@
 load("@onedal//dev/bazel:release.bzl",
     "release",
     "release_include",
+    "release_env"
 )
 
 release(
@@ -41,4 +42,5 @@ release(
         ],
         "//conditions:default": [],
     }),
+    env = release_env()
 )
