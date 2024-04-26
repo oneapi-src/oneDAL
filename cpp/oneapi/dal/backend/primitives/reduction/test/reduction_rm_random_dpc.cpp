@@ -302,7 +302,7 @@ public:
         double infinp = infval ? std::numeric_limits<double>::infinity()
                                : std::numeric_limits<double>::quiet_NaN();
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ height_, stride_ }.fill_uniform(-0.2, 0.5));
+            GENERATE_DATAFRAME(te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
         // no inf added to see what will happen in testing
     }
