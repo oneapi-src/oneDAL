@@ -32,6 +32,9 @@ show_help() {
 --conda-env:The name of the conda environment to load
 --cross-compile:Indicates that the target platform to build for is not the host platform
 --plat:The platform to build for. This is passed to the oneDAL top level Makefile
+--blas-dir:The BLAS installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
+--tbb-dir:The TBB installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
+--sysroot:The sysroot to use, in the case that clang is used as the cross-compiler
 '
 }
 
@@ -59,6 +62,15 @@ while [[ $# -gt 0 ]]; do
         ;;
         --plat)
         PLAT="$2"
+        shift;;
+        --blas-dir)
+        BLAS_INSTALL_DIR=$(readlink -f "$2")
+        shift;;
+        --tbb-dir)
+        TBB_INSTALL_DIR=$(readlink -f "$2")
+        shift;;
+        --sysroot)
+        sysroot="$2"
         shift;;
         --help)
         show_help
@@ -137,11 +149,21 @@ else
     exit 1
 fi
 
+if [ "${cross-compile}" == "yes" ] && [ "${compiler}" == "clang" ] ; then
+    if [[ -z "${sysroot}" ]] ; then
+        echo "--sysroot must be specified when cross-compiling with clang"
+        exit 1
+    fi
+    export ONEDAL_SYSROOT="${sysroot}"
+fi
+
 #main actions
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
     echo "Sourcing MKL env"
     "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
+elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
+    export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"
     if [ ! -d "${ONEDAL_DIR}/__deps/openblas_${ARCH}" ]; then
@@ -152,6 +174,9 @@ elif [ "${backend_config}" == "ref" ]; then
                 --cflags -march=armv8-a+sve
                 --cross-compile
                 --target-arch "${ARCH}")
+            if [ "${compiler}" == "clang" ] ; then
+                openblas_options+=(--sysroot "${sysroot}")
+            fi
             echo "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
             "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
         else
@@ -164,7 +189,10 @@ else
 fi
 
 # TBB setup
-if [[ "${ARCH}" == "32e" ]]; then
+if [[ ! -z "${TBB_INSTALL_DIR}" ]] ; then
+    export TBBROOT="${TBB_INSTALL_DIR}"
+    export LD_LIBRARY_PATH="${TBBROOT}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+elif [[ "${ARCH}" == "32e" ]]; then
     "${ONEDAL_DIR}"/dev/download_tbb.sh
 elif [[ "${ARCH}" == "arm" ]]; then
     if [[ "${cross_compile}" == "yes" ]]; then
@@ -189,6 +217,10 @@ make_options=("${target:-onedal_c}"
     BACKEND_CONFIG="${backend_config}"
     PLAT="${PLAT}"
 )
+
+if [ "${cross_compile}" == "yes" ] && [ "${compiler}" == "clang" ] ; then
+    make_options+=(SYSROOT="${sysroot}")
+fi
 
 echo "Calling make"
 echo "CXX=$CXX"

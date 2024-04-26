@@ -62,6 +62,34 @@ function install_qemu_emulation {
     sudo apt-get install -y qemu-user-static
 }
 
+function install_llvm_version {
+    sudo apt-get install -y curl
+    curl -o llvm.sh https://apt.llvm.org/llvm.sh
+    chmod u+x llvm.sh
+    sudo ./llvm.sh "$1"
+    sudo update-alternatives --install /usr/bin/clang clang "/usr/bin/clang-$1" "$1"
+    sudo update-alternatives --install /usr/bin/clang++ clang++ "/usr/bin/clang++-$1" "$1"
+}
+
+function build_sysroot {
+    # Usage:
+    #   build_sysroot working-dir arch os-name out-dir
+    # where the architecture and OS name need to be recognised by debootstrap,
+    # e.g. arch=arm64, os-name=jammy. The output directory path is relative to
+    # the working directory
+    mkdir -p "$1"
+    pushd "$1" || exit
+    sudo apt-get install -y debootstrap build-essential
+    sudo debootstrap --arch="$2" --verbose --include=fakeroot,symlinks,libatomic1 --resolve-deps --variant=minbase --components=main,universe "$3" "$4"
+    sudo chroot "$4" symlinks -cr .
+    sudo chown "${USER}" -R "$4"
+    rm -rf "${4:?}"/{dev,proc,run,sys,var}
+    rm -rf "${4:?}"/usr/{sbin,bin,share}
+    rm -rf "${4:?}"/usr/lib/{apt,gcc,udev,systemd}
+    rm -rf "${4:?}"/usr/libexec/gcc
+    popd || exit
+}
+
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
@@ -81,8 +109,14 @@ elif [ "${component}" == "dev-base" ]; then
 elif [ "${component}" == "qemu-emulation" ]; then
     update
     install_qemu_emulation
+elif [ "${component}" == "llvm-version" ] ; then
+    update
+    install_llvm_version "$2"
+elif [ "${component}" == "build-sysroot" ] ; then
+    update
+    build_sysroot "$2" "$3" "$4" "$5"
 else
     echo "Usage:"
-    echo "   $0 [dpcpp|mkl|arm-compiler|clang-format|dev-base]"
+    echo "   $0 [dpcpp|mkl|arm-compiler|clang-format|dev-base|qemu-emulation|llvm-version|build-sysroot]"
     exit 1
 fi

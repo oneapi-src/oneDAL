@@ -36,45 +36,50 @@ namespace oneapi::dal::csv::backend {
 namespace interop = dal::backend::interop;
 namespace daal_dm = daal::data_management;
 
-template <>
-table read_kernel_gpu<table>::operator()(const dal::backend::context_gpu& ctx,
-                                         const detail::data_source_base& ds,
-                                         const read_args<table>& args) const {
-    auto& queue = ctx.get_queue();
+template <typename Float>
+struct read_kernel_gpu<table, Float> {
+    table operator()(const dal::backend::context_gpu& ctx,
+                     const detail::data_source_base& ds,
+                     const read_args<table>& args) const {
+        auto& queue = ctx.get_queue();
 
-    daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
-        daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,
-                           daal_dm::CsvDataSourceOptions::createDictionaryFromContext),
-        (ds.get_parse_header() ? daal_dm::CsvDataSourceOptions::parseHeader
-                               : daal_dm::CsvDataSourceOptions::byDefault)));
+        daal_dm::CsvDataSourceOptions csv_options(daal_dm::operator|(
+            daal_dm::operator|(daal_dm::CsvDataSourceOptions::allocateNumericTable,
+                               daal_dm::CsvDataSourceOptions::createDictionaryFromContext),
+            (ds.get_parse_header() ? daal_dm::CsvDataSourceOptions::parseHeader
+                                   : daal_dm::CsvDataSourceOptions::byDefault)));
 
-    daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(ds.get_file_name().c_str(),
-                                                                         csv_options);
-    interop::status_to_exception(daal_data_source.status());
+        daal_dm::FileDataSource<daal_dm::CSVFeatureManager> daal_data_source(
+            ds.get_file_name().c_str(),
+            csv_options);
+        interop::status_to_exception(daal_data_source.status());
 
-    daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
-    daal_data_source.loadDataBlock();
-    interop::status_to_exception(daal_data_source.status());
+        daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
+        daal_data_source.loadDataBlock();
+        interop::status_to_exception(daal_data_source.status());
 
-    auto nt = daal_data_source.getNumericTable();
+        auto nt = daal_data_source.getNumericTable();
 
-    daal_dm::BlockDescriptor<DAAL_DATA_TYPE> block;
-    const std::int64_t row_count = nt->getNumberOfRows();
-    const std::int64_t column_count = nt->getNumberOfColumns();
+        daal_dm::BlockDescriptor<Float> block;
+        const std::int64_t row_count = nt->getNumberOfRows();
+        const std::int64_t column_count = nt->getNumberOfColumns();
 
-    interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal_dm::readOnly, block));
-    DAAL_DATA_TYPE* data = block.getBlockPtr();
+        interop::status_to_exception(nt->getBlockOfRows(0, row_count, daal_dm::readOnly, block));
+        Float* data = block.getBlockPtr();
 
-    auto arr =
-        array<DAAL_DATA_TYPE>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
-    dal::detail::memcpy_host2usm(queue,
-                                 arr.get_mutable_data(),
-                                 data,
-                                 sizeof(DAAL_DATA_TYPE) * row_count * column_count);
+        auto arr = array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
+        dal::detail::memcpy_host2usm(queue,
+                                     arr.get_mutable_data(),
+                                     data,
+                                     sizeof(Float) * row_count * column_count);
 
-    interop::status_to_exception(nt->releaseBlockOfRows(block));
+        interop::status_to_exception(nt->releaseBlockOfRows(block));
 
-    return dal::detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
-}
+        return dal::detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
+    }
+};
+
+template struct read_kernel_gpu<table, float>;
+template struct read_kernel_gpu<table, double>;
 
 } // namespace oneapi::dal::csv::backend
