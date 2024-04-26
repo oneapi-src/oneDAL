@@ -106,7 +106,8 @@ public:
         auto res = array<float_t>::full(width_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
         for (std::int64_t j = 0; j < height_; ++j) {
-            const auto row_acc = row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+            //input_table_ is a float ndarray
+            const auto row_acc = row_accessor<const float>{ input_table_ }.pull({ j, j + 1 });
             for (std::int64_t i = 0; i < width_; ++i) {
                 const auto val = row_acc[i];
                 res_ptr[i] = binary_(res_ptr[i], unary_(val));
@@ -119,7 +120,7 @@ public:
         auto res = array<float_t>::full(height_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
         for (std::int64_t j = 0; j < height_; ++j) {
-            const auto row_acc = row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+            const auto row_acc = row_accessor<const float>{ input_table_ }.pull({ j, j + 1 });
             for (std::int64_t i = 0; i < width_; ++i) {
                 const auto val = row_acc[i];
                 res_ptr[j] = binary_(res_ptr[j], unary_(val));
