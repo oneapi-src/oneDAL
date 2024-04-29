@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@ namespace de = dal::detail;
 template <typename Param>
 class logloss_spmd_test : public logloss_test<Param> {
 public:
-    using float_t = Param;
+    using float_t = std::tuple_element_t<0, Param>;
+    bool fit_intercept_ = std::tuple_element_t<1, Param>::value;
+    // using float_t = Param;
     using comm_t = te::thread_communicator<spmd::device_memory_access::usm>;
 
     std::vector<std::pair<table, ndview<std::int32_t, 1>>>

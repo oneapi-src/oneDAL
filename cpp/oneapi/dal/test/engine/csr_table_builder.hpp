@@ -88,7 +88,6 @@ csr_table copy_data_to_csr(sycl::queue& queue,
 */
 template <typename Float = float>
 struct csr_table_builder {
-    // using Float = float;
     std::int64_t row_count_, column_count_;
     float nonzero_fraction_;
     sparse_indexing indexing_;

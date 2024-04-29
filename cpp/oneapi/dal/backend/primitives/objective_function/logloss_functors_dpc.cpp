@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,10 +49,10 @@ logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
                                                         std::int64_t bsz)
         : q_(q),
           data_(data),
-          L2_(L2),
-          fit_intercept_(fit_intercept),
           n_(data.get_row_count()),
           p_(data.get_column_count()),
+          L2_(L2),
+          fit_intercept_(fit_intercept),
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
     this->reserve_memory();
 }
@@ -67,10 +67,10 @@ logloss_hessian_product<Float>::logloss_hessian_product(sycl::queue& q,
         : q_(q),
           comm_(comm),
           data_(data),
-          L2_(L2),
-          fit_intercept_(fit_intercept),
           n_(data.get_row_count()),
           p_(data.get_column_count()),
+          L2_(L2),
+          fit_intercept_(fit_intercept),
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz) {
     this->reserve_memory();
 }
@@ -104,7 +104,6 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
         const auto* const hess_ptr = raw_hessian_.get_data();
         auto* const out_ptr = out.get_mutable_data();
         auto* const buffer_ptr = buffer_.get_mutable_data();
-
         sycl::event event_xv = gemv(q_,
                                     transpose::nontrans,
                                     *sp_handle_,
@@ -341,8 +340,8 @@ logloss_function<Float>::logloss_function(sycl::queue& q,
           L2_(L2),
           fit_intercept_(fit_intercept),
           bsz_(bsz == -1l ? get_block_size(n_, p_) : bsz),
-          hessp_(q, data, L2, fit_intercept, bsz_),
-          dimension_(fit_intercept ? p_ + 1 : p_) {
+          dimension_(fit_intercept ? p_ + 1 : p_),
+          hessp_(q, data, L2, fit_intercept, bsz_) {
     ONEDAL_ASSERT(labels.get_dimension(0) == n_);
     this->reserve_memory();
 }
@@ -364,8 +363,8 @@ logloss_function<Float>::logloss_function(sycl::queue& q,
           L2_(L2),
           fit_intercept_(fit_intercept),
           bsz_(bsz == -1 ? get_block_size(n_, p_) : bsz),
-          hessp_(q, comm, data, L2, fit_intercept, bsz_),
-          dimension_(fit_intercept ? p_ + 1 : p_) {
+          dimension_(fit_intercept ? p_ + 1 : p_),
+          hessp_(q, comm, data, L2, fit_intercept, bsz_) {
     ONEDAL_ASSERT(labels.get_dimension(0) == n_);
     this->reserve_memory();
 }

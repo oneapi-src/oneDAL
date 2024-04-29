@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,18 +58,17 @@ private:
                                               ndview<Float, 1>& out,
                                               const event_vector& deps);
     sycl::queue& q_;
-
     comm_t comm_;
     const table data_;
-    Float L2_;
-    bool fit_intercept_;
+    dal::detail::pimpl<sparse_matrix_handle> sp_handle_;
     ndarray<Float, 1> raw_hessian_;
     ndarray<Float, 1> buffer_;
     ndarray<Float, 1> tmp_gpu_;
     const std::int64_t n_;
     const std::int64_t p_;
+    Float L2_;
+    bool fit_intercept_;
     const std::int64_t bsz_;
-    dal::detail::pimpl<sparse_matrix_handle> sp_handle_;
 };
 
 template <typename Float>
@@ -104,19 +103,19 @@ private:
     sycl::queue& q_;
     comm_t comm_;
     const table data_;
+    dal::detail::pimpl<sparse_matrix_handle> sp_handle_;
     const ndview<std::int32_t, 1> labels_;
+    ndarray<Float, 1> probabilities_;
+    ndarray<Float, 1> gradient_;
+    ndarray<Float, 1> buffer_;
     const std::int64_t n_;
     const std::int64_t p_;
     Float L2_;
     bool fit_intercept_;
     const std::int64_t bsz_;
-    ndarray<Float, 1> probabilities_;
-    ndarray<Float, 1> gradient_;
-    ndarray<Float, 1> buffer_;
-    logloss_hessian_product<Float> hessp_;
     const std::int64_t dimension_;
     Float value_;
-    dal::detail::pimpl<sparse_matrix_handle> sp_handle_;
+    logloss_hessian_product<Float> hessp_;
 };
 
 } // namespace oneapi::dal::backend::primitives

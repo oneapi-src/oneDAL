@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,22 +31,34 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 
-template <ndorder order>
-struct order_tag {
-    static constexpr ndorder value = order;
+template <bool fit_intercept>
+struct fit_intercept_tag {
+    static constexpr bool value = fit_intercept;
 };
 
-using c_order = order_tag<ndorder::c>;
-using f_order = order_tag<ndorder::f>;
+using use_fit_intercept = fit_intercept_tag<true>;
+using no_fit_intercept = fit_intercept_tag<false>;
+
+using logloss_types = COMBINE_TYPES((float, double), (use_fit_intercept, no_fit_intercept));
 
 #define IS_CLOSE(ftype, real, expected, rtol, atol) \
     REQUIRE(abs(real - expected) < atol);           \
     REQUIRE(abs(real - expected) / std::max(std::abs(expected), (ftype)1.0) < rtol);
 
+// template <typename TestType>
+// class bs_badarg_test : public te::algo_fixture {
+// public:
+//     using Float = std::tuple_element_t<0, TestType>;
+//     using Method = std::tuple_element_t<1, TestType>;
+
+// float_algo_fixture<std::tuple_element_t<0, TestType>>
+
 template <typename Param>
-class logloss_test : public te::float_algo_fixture<Param> {
+class logloss_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
-    using float_t = Param;
+    using float_t = std::tuple_element_t<0, Param>;
+    bool fit_intercept_ = std::tuple_element_t<1, Param>::value;
+    // using float_t = Param;
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
@@ -57,7 +69,6 @@ public:
             this->n_ = n;
             this->p_ = p;
         }
-
         const auto dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-0.5, 0.5));
         const auto parameters =
@@ -613,7 +624,7 @@ public:
         if (batch_test) {
             bsz = GENERATE(4, 8, 16, 20, 37, 512);
         }
-        // logloss_function has different regularization so we need to multiply it by 2 to allign with other implementations
+        // logloss_function has different regularization so we need to multiply it by 2 to align with other implementations
 
         auto functor = logloss_function<float_t>(this->get_queue(),
                                                  data,
