@@ -17,8 +17,6 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
-using namespace Catch;
-
 namespace oneapi::dal::test {
 
 TEST("can construct empty array") {

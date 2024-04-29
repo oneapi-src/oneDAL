@@ -117,7 +117,7 @@ public:
     void general_checks(const te::dataframe& input, const te::table_id& input_table_id) {
         const table data = input.get_table(this->get_policy(), input_table_id);
 
-        INFO("create descriptor cov cor means");
+        INFO("create descriptor cov cor means")
         auto cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
@@ -126,7 +126,7 @@ public:
         auto compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov");
+        INFO("create descriptor cov")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix);
@@ -134,7 +134,7 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov biased");
+        INFO("create descriptor cov biased")
         cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
                        .set_result_options(covariance::result_options::cov_matrix)
                        .set_bias(true);
@@ -142,7 +142,7 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cor");
+        INFO("create descriptor cor")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cor_matrix);
@@ -150,7 +150,7 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor means");
+        INFO("create descriptor means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::means);
@@ -158,7 +158,7 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov cor");
+        INFO("create descriptor cov cor")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix);
@@ -166,7 +166,7 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov means");
+        INFO("create descriptor cov means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::means);
@@ -174,7 +174,7 @@ public:
         compute_result = this->compute(cov_desc, data);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cor means");
+        INFO("create descriptor cor means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cor_matrix | covariance::result_options::means);
@@ -187,7 +187,7 @@ public:
                                const te::table_id& input_table_id,
                                const std::int64_t nBlocks) {
         const table data = input.get_table(this->get_policy(), input_table_id);
-        INFO("create descriptor cov cor means");
+        INFO("create descriptor cov cor means")
         auto cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
@@ -201,7 +201,7 @@ public:
         auto compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov");
+        INFO("create descriptor cov")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix);
@@ -214,7 +214,7 @@ public:
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cor");
+        INFO("create descriptor cor")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cor_matrix);
@@ -227,7 +227,7 @@ public:
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor means");
+        INFO("create descriptor means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::means);
@@ -240,7 +240,7 @@ public:
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov cor");
+        INFO("create descriptor cov cor")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::cor_matrix);
@@ -253,7 +253,7 @@ public:
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cov means");
+        INFO("create descriptor cov means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cov_matrix | covariance::result_options::means);
@@ -266,7 +266,7 @@ public:
         compute_result = this->finalize_compute(cov_desc, partial_result);
         check_compute_result(cov_desc, data, compute_result);
 
-        INFO("create descriptor cor means");
+        INFO("create descriptor cor means")
         cov_desc =
             covariance::descriptor<Float, Method, covariance::task::compute>().set_result_options(
                 covariance::result_options::cor_matrix | covariance::result_options::means);
@@ -285,32 +285,32 @@ public:
                               const covariance::compute_result<>& result) {
         if (result.get_result_options().test(result_options::cov_matrix)) {
             const auto cov_matrix = result.get_cov_matrix();
-            INFO("check if cov matrix table shape is expected");
+            INFO("check if cov matrix table shape is expected")
             REQUIRE(cov_matrix.get_row_count() == data.get_column_count());
             REQUIRE(cov_matrix.get_column_count() == data.get_column_count());
-            INFO("check if there is no NaN in cov matrix table");
+            INFO("check if there is no NaN in cov matrix table")
             REQUIRE(te::has_no_nans(cov_matrix));
-            INFO("check if cov matrix values are expected");
+            INFO("check if cov matrix values are expected")
             check_cov_matrix_values(desc, data, cov_matrix);
         }
         if (result.get_result_options().test(result_options::cor_matrix)) {
             const auto cor_matrix = result.get_cor_matrix();
-            INFO("check if cor matrix table shape is expected");
+            INFO("check if cor matrix table shape is expected")
             REQUIRE(cor_matrix.get_row_count() == data.get_column_count());
             REQUIRE(cor_matrix.get_column_count() == data.get_column_count());
-            INFO("check if there is no NaN in cor matrix table");
+            INFO("check if there is no NaN in cor matrix table")
             REQUIRE(te::has_no_nans(cor_matrix));
-            INFO("check if cor matrix values are expected");
+            INFO("check if cor matrix values are expected")
             check_cor_matrix_values(desc, data, cor_matrix);
         }
         if (result.get_result_options().test(result_options::means)) {
             const auto means = result.get_means();
-            INFO("check if means table shape is expected");
+            INFO("check if means table shape is expected")
             REQUIRE(means.get_row_count() == 1);
             REQUIRE(means.get_column_count() == data.get_column_count());
-            INFO("check if there is no NaN in means table");
+            INFO("check if there is no NaN in means table")
             REQUIRE(te::has_no_nans(means));
-            INFO("check if means values are expected");
+            INFO("check if means values are expected")
             check_means_values(desc, data, means);
         }
     }

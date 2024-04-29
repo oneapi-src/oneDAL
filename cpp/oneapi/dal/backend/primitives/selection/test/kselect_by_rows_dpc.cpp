@@ -43,14 +43,14 @@ public:
                         std::int64_t row_count,
                         std::int64_t col_count,
                         std::int64_t k) {
-        SECTION("Output of selected values") {
+        INFO("Output of selected values") {
             ndarray<std::int32_t, 2> dummy_array;
             auto value_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
             sel(get_queue(), data, k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
         }
-        SECTION("Output of selected indices") {
+        INFO("Output of selected indices") {
             ndarray<float_t, 2> dummy_array;
             auto index_array = ndarray<std::int32_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
@@ -58,7 +58,7 @@ public:
             check_results<false, true>(data, dummy_array, index_array);
         }
 
-        SECTION("Output of both") {
+        INFO("Output of both") {
             auto value_array = ndarray<float_t, 2>::empty(get_queue(), { row_count, k });
             auto index_array = ndarray<std::int32_t, 2>::empty(get_queue(), { row_count, k });
             kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);

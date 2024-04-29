@@ -63,12 +63,12 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     const auto eigenvalues = pca_result.get_eigenvalues();
     const auto eigenvectors = pca_result.get_eigenvectors();
 
-    SECTION("check eigenvalues") {
+    INFO("check eigenvalues") {
         const auto gold_eigenvalues = this->get_gold_eigenvalues();
         this->check_eigenvalues(gold_eigenvalues, eigenvalues);
     }
 
-    SECTION("check eigenvectors") {
+    INFO("check eigenvectors") {
         const auto gold_eigenvectors = this->get_gold_eigenvectors();
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
     }
@@ -105,12 +105,12 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
 
     const auto eigenvectors = pca_result.get_eigenvectors();
 
-    SECTION("check eigenvalues") {
+    INFO("check eigenvalues") {
         const auto gold_eigenvalues = this->get_gold_eigenvalues();
         this->check_eigenvalues(gold_eigenvalues, eigenvalues);
     }
 
-    SECTION("check eigenvectors") {
+    INFO("check eigenvectors") {
         const auto gold_eigenvectors = this->get_gold_eigenvectors();
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
     }

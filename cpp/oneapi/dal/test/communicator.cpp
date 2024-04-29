@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include <mutex>
-#include <random>
 #include "oneapi/dal/spmd/detail/communicator_utils.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"

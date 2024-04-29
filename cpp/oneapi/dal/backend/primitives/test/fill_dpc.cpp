@@ -30,10 +30,11 @@ TEST("fill device USM and copy to host", "[usm]") {
 
     std::vector<float> data_host_vec(element_count);
     float* data_host = data_host_vec.data();
-    INFO("copy to host");
-    q.memcpy(data_host, data, sizeof(float) * element_count).wait_and_throw();
+    INFO("copy to host") {
+        q.memcpy(data_host, data, sizeof(float) * element_count).wait_and_throw();
+    }
 
-    SECTION("check filler on host") {
+    INFO("check filler on host") {
         for (std::int64_t i = 0; i < element_count; i++) {
             const float x = data_host[i];
             CAPTURE(i);

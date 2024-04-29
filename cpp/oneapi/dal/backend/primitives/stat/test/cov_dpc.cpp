@@ -188,21 +188,21 @@ public:
         const auto [gold_corr, gold_means, gold_vars] = get_gold_result();
         const double eps = te::get_tolerance<Float>(1e-4, 1e-7);
 
-        SECTION("compare correlation matrix with gold") {
+        INFO("compare correlation matrix with gold") {
             const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
             const auto gold_corr_mat = la::matrix<Float>::wrap_nd(gold_corr);
 
             REQUIRE(la::equal_approx(corr_mat, gold_corr_mat, eps).all());
         }
 
-        SECTION("compare means with gold") {
+        INFO("compare means with gold") {
             const auto means_mat = la::matrix<Float>::wrap_nd(means.to_host(this->get_queue()));
             const auto gold_means_mat = la::matrix<Float>::wrap_nd(gold_means);
 
             REQUIRE(la::equal_approx(means_mat, gold_means_mat, eps).all());
         }
 
-        SECTION("compare vars with gold") {
+        INFO("compare vars with gold") {
             const auto vars_mat = la::matrix<Float>::wrap_nd(vars.to_host(this->get_queue()));
             const auto gold_vars_mat = la::matrix<Float>::wrap_nd(gold_vars);
 
@@ -264,19 +264,19 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
     // variances for each feature can be computed trivially using `diag_element`
     // value.
 
-    SECTION("check if correlation matrix for diagonal matrix") {
+    INFO("check if correlation matrix for diagonal matrix") {
         const double n = row_count;
         const double off_diag_element = -1.0 / (n - 1.0);
         this->check_correlation_for_diagonal_matrix(corr, off_diag_element);
     }
 
-    SECTION("check if mean is expected") {
+    INFO("check if mean is expected") {
         const double n = row_count;
         const double expected_mean = double(diag_element) / n;
         this->check_constant_mean(means, n, expected_mean);
     }
 
-    SECTION("check if variance is expected") {
+    INFO("check if variance is expected") {
         const double n = row_count;
         const double d = double(diag_element) * double(diag_element);
         ONEDAL_ASSERT(n > 1);

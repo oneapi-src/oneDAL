@@ -178,7 +178,7 @@ public:
 
     void compare_infer_results(const infer_result<task_t>& actual,
                                const infer_result<task_t>& reference) {
-        SECTION("compare responses") {
+        INFO("compare responses") {
             te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
         }
     }

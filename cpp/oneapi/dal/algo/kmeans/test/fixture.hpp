@@ -80,7 +80,7 @@ public:
                       bool test_convergence = false) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -109,7 +109,7 @@ public:
                                       bool test_convergence = false) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -148,7 +148,7 @@ public:
         const std::int64_t max_iteration_count = 100;
         const float_t accuracy_threshold = 0.0;
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -163,7 +163,7 @@ public:
                              expected_centroids.get_column_count(),
                              match_map);
 
-        SECTION("check if centroids close to gold") {
+        INFO("check if centroids close to gold") {
             const double rel_tol = 1e-7;
             check_centroid_match_with_rel_tol(match_map, rel_tol, expected_centroids, centroids);
         }
@@ -172,11 +172,11 @@ public:
         const auto infer_result = this->infer(kmeans_desc, model, data);
         const auto responses = infer_result.get_responses();
 
-        SECTION("check if responses are expected") {
+        INFO("check if responses are expected") {
             check_response_match(match_map, expected_responses, responses);
         }
 
-        SECTION("check if objective function value is expected") {
+        INFO("check if objective function value is expected") {
             const double objective = train_result.get_objective_function_value();
             const double expected_objective = gold_dataset::get_expected_objective();
             CAPTURE(objective, expected_objective);
@@ -365,7 +365,7 @@ public:
                                   float_t dbi_ref_tol = 1.0e-4) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -402,7 +402,7 @@ public:
                                                    float_t dbi_ref_tol = 1.0e-4) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -453,7 +453,7 @@ public:
                                                  float_t dbi_ref_tol = 1.0e-4) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -484,7 +484,7 @@ public:
                                              float_t accuracy_threshold) {
         CAPTURE(cluster_count);
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -500,7 +500,7 @@ public:
                       float_t ref_objective_function = -1.0) {
         CAPTURE(model.get_cluster_count());
 
-        INFO("create descriptor");
+        INFO("create descriptor")
         const auto kmeans_desc = get_descriptor(model.get_cluster_count());
 
         INFO("run inference");
@@ -561,7 +561,7 @@ public:
 
         check_nans(result);
 
-        INFO("check if non-negative objective function value is expected");
+        INFO("check if non-negative objective function value is expected")
         REQUIRE(objective_function >= 0.0);
 
         float_t rel_tol = 1.0e-5;
@@ -592,11 +592,11 @@ public:
     }
 
     void check_centroid_match_with_rel_tol(float_t rel_tol, const table& left, const table& right) {
-        INFO("check if centroid shape is expected");
+        INFO("check if centroid shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
 
-        INFO("check if centroid match is expected");
+        INFO("check if centroid match is expected")
         const auto left_rows = row_accessor<const float_t>(left).pull();
         const auto right_rows = row_accessor<const float_t>(right).pull();
         const float_t alpha = std::numeric_limits<float_t>::min();
@@ -617,11 +617,11 @@ public:
                                            float_t rel_tol,
                                            const table& left,
                                            const table& right) {
-        INFO("check if centroid shape is expected");
+        INFO("check if centroid shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
 
-        INFO("check if centroid match is expected");
+        INFO("check if centroid match is expected")
         const auto left_rows = row_accessor<const float_t>(left).pull();
         const auto right_rows = row_accessor<const float_t>(right).pull();
         const float_t alpha = std::numeric_limits<float_t>::min();
@@ -687,11 +687,11 @@ public:
     }
 
     void check_response_match(const table& left, const table& right) {
-        INFO("check if response shape is expected");
+        INFO("check if response shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
         REQUIRE(left.get_column_count() == 1);
-        INFO("check if response match is expected");
+        INFO("check if response match is expected")
         const auto left_rows = row_accessor<const float_t>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const float_t>(right).pull({ 0, -1 });
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
@@ -707,12 +707,12 @@ public:
     void check_response_match(const array<float_t>& match_map,
                               const table& left,
                               const table& right) {
-        INFO("check if response shape is expected");
+        INFO("check if response shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
         REQUIRE(left.get_column_count() == 1);
 
-        INFO("check if response match is expected");
+        INFO("check if response match is expected")
         const auto left_rows = row_accessor<const float_t>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const float_t>(right).pull({ 0, -1 });
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
@@ -728,20 +728,20 @@ public:
     void check_nans(const train_result_t& result) {
         const auto [centroids, responses, iteration_count] = unpack_result(result);
 
-        INFO("check if there is no NaN in centroids");
+        INFO("check if there is no NaN in centroids")
         REQUIRE(te::has_no_nans(centroids));
 
-        INFO("check if there is no NaN in responses");
+        INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));
     }
 
     void check_nans(const infer_result_t& result) {
         const auto [responses, objective_function] = unpack_result(result);
 
-        INFO("check if there is no NaN in objective function values");
+        INFO("check if there is no NaN in objective function values")
         REQUIRE(te::has_no_nans(homogen_table::wrap(&objective_function, 1, 1)));
 
-        INFO("check if there is no NaN in responses");
+        INFO("check if there is no NaN in responses")
         REQUIRE(te::has_no_nans(responses));
     }
 
