@@ -45,20 +45,11 @@ using logloss_types = COMBINE_TYPES((float, double), (use_fit_intercept, no_fit_
     REQUIRE(abs(real - expected) < atol);           \
     REQUIRE(abs(real - expected) / std::max(std::abs(expected), (ftype)1.0) < rtol);
 
-// template <typename TestType>
-// class bs_badarg_test : public te::algo_fixture {
-// public:
-//     using Float = std::tuple_element_t<0, TestType>;
-//     using Method = std::tuple_element_t<1, TestType>;
-
-// float_algo_fixture<std::tuple_element_t<0, TestType>>
-
 template <typename Param>
 class logloss_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     bool fit_intercept_ = std::tuple_element_t<1, Param>::value;
-    // using float_t = Param;
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {

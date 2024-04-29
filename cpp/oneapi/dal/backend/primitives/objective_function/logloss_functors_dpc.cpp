@@ -104,15 +104,19 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
         const auto* const hess_ptr = raw_hessian_.get_data();
         auto* const out_ptr = out.get_mutable_data();
         auto* const buffer_ptr = buffer_.get_mutable_data();
-        sycl::event event_xv = gemv(q_,
-                                    transpose::nontrans,
-                                    *sp_handle_,
-                                    vec_suf,
-                                    buffer_,
-                                    Float(1),
-                                    v0,
-                                    last_iter_deps);
-        event_xv.wait_and_throw();
+        sycl::event event_xv;
+        {
+            event_xv = gemv(q_,
+                            transpose::nontrans,
+                            *sp_handle_,
+                            vec_suf,
+                            buffer_,
+                            Float(1),
+                            v0,
+                            last_iter_deps);
+            // to ensure sparse blas kernel stability
+            event_xv.wait_and_throw();
+        }
 
         sycl::event event_dxv = q_.submit([&](sycl::handler& cgh) {
             cgh.depends_on({ event_xv });
@@ -123,16 +127,19 @@ sycl::event logloss_hessian_product<Float>::compute_with_fit_intercept(const ndv
                 sum_v0 += buffer_ptr[idx];
             });
         });
-
-        sycl::event event_xtdxv = gemv(q_,
-                                       transpose::trans,
-                                       *sp_handle_,
-                                       buffer_,
-                                       out_suf,
-                                       Float(1),
-                                       Float(0),
-                                       { event_dxv });
-        event_xtdxv.wait_and_throw();
+        sycl::event event_xtdxv;
+        {
+            event_xtdxv = gemv(q_,
+                               transpose::trans,
+                               *sp_handle_,
+                               buffer_,
+                               out_suf,
+                               Float(1),
+                               Float(0),
+                               { event_dxv });
+            // To ensure sparse blas kernel stability
+            event_xtdxv.wait_and_throw();
+        }
         last_iter_deps = { event_xtdxv };
     }
     else {

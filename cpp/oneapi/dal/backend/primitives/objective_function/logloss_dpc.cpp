@@ -100,6 +100,8 @@ sycl::event compute_probabilities_sparse(sycl::queue& q,
                           Float(1),
                           w0,
                           { fill_event });
+        // To ensure sparse blas kernel stability
+        gemv_event.wait_and_throw();
     }
 
     auto* const prob_ptr = probabilities.get_mutable_data();
@@ -207,9 +209,6 @@ sycl::event compute_logloss_with_der_sparse(sycl::queue& q,
             der_obj_ptr[idx] = prob - label;
         });
     });
-    //-------
-    loss_event.wait_and_throw();
-    //-------
     sycl::event derw0_event = sycl::event{};
     if (fit_intercept) {
         derw0_event = q.submit([&](sycl::handler& cgh) {
