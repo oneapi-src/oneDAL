@@ -33,6 +33,8 @@
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
 #elif defined(TARGET_ARM)
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
+#elif defined(TARGET_RISCV64)
+#define CPU_EXTENSION dal::detail::cpu_extension::rv64
 #endif
 
 namespace oneapi::dal::covariance::parameters {

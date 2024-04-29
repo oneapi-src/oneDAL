@@ -187,5 +187,20 @@ template <>
 ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_sve>(std::uint64_t a) {
     return __builtin_popcountl(a);
 }
+#elif defined(TARGET_RISCV64)
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_rv64>(std::uint32_t a) {
+    return __builtin_clz(a);
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_rv64>(std::uint64_t a) {
+    return __builtin_clzl(a);
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_rv64>(std::uint64_t a) {
+    return __builtin_popcountl(a);
+}
 #endif
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
