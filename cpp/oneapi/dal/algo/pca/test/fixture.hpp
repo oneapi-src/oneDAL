@@ -40,6 +40,8 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
     using input_t = pca::train_input<>;
     using result_t = pca::train_result<>;
+    using partial_input_t = pca::partial_train_input<>;
+    using partial_result_t = pca::partial_train_result<>;
     using descriptor_t = pca::descriptor<Float, Method>;
 
     bool not_available_on_device() {

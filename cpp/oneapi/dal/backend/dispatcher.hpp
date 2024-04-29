@@ -46,6 +46,8 @@ struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
 #elif defined(TARGET_ARM)
 struct cpu_dispatch_sve {};
+#elif defined(TARGET_RISCV64)
+struct cpu_dispatch_rv64 {};
 #endif
 
 #if defined(TARGET_X86_64)
@@ -62,6 +64,10 @@ using cpu_dispatch_default = cpu_dispatch_sve;
 
 #define __CPU_TAG_ARMV8SVE__ oneapi::dal::backend::cpu_dispatch_sve
 
+#elif defined(TARGET_RISCV64)
+using cpu_dispatch_default = cpu_dispatch_rv64;
+
+#define __CPU_TAG_RISCV64GC__ oneapi::dal::backend::cpu_dispatch_rv64
 #endif
 
 template <typename MemoryAccessKind>
@@ -304,6 +310,10 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 #elif defined(TARGET_ARM)
     ONEDAL_IF_CPU_DISPATCH_A8SVE(
         if (test_cpu_extension(cpu_ex, cpu_extension::sve)) { return op(cpu_dispatch_sve{}); })
+
+#elif defined(TARGET_RISCV64)
+    ONEDAL_IF_CPU_DISPATCH_RV64(
+        if (test_cpu_extension(cpu_ex, cpu_extension::rv64)) { return op(cpu_dispatch_rv64{}); })
 #endif
 
     return op(cpu_dispatch_default{});

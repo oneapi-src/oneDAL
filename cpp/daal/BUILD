@@ -115,7 +115,7 @@ daal_module(
 
 daal_module(
     name = "data_management",
-    hdrs = glob(["src/data_management/**/*.h"]),
+    hdrs = glob(["src/data_management/**/*.h", "src/data_management/**/*.i"]),
     srcs = glob(["src/data_management/**/*.cpp"]),
     deps = [
         ":services",
