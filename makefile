@@ -27,7 +27,7 @@ else ifeq ($(PLAT),)
 endif
 
 # Check that we know how to build for the identified platform
-PLATs := lnx32e mac32e win32e lnxarm
+PLATs := lnx32e mac32e win32e lnxarm lnxriscv64
 $(if $(filter $(PLAT),$(PLATs)),,$(error Unknown platform $(PLAT)))
 
 # Non-platform or architecture specific defines live in common.mk
@@ -363,7 +363,7 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 # List examples files to populate release/examples.
 expat = %.cpp %.h %.hpp %.txt %.csv %.cmake
 expat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %_$(_OS).sh)
-release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
+release.EXAMPLES.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
@@ -381,8 +381,9 @@ release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
+spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob %.cmake
 spat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %makefile_$(_OS) %.sh)
+release.SAMPLES.CMAKE := $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cmake -type f))
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
@@ -1006,8 +1007,7 @@ $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daa
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
-$(foreach x,$(release.EXAMPLES.COMMON_CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
-$(foreach x,$(release.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
+$(foreach x,$(release.EXAMPLES.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 
 #----- releasing environment scripts
 define .release.x
@@ -1040,6 +1040,7 @@ $2: $1 | $(dir $2)/. ; $(value cpy)
 endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
 $(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_oneapi_dpc)))
+$(foreach d,$(release.SAMPLES.CMAKE),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$d),_release_common)))
 
 $(CORE.incdirs): _release_c_h
 

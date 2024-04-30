@@ -28,4 +28,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         ${EXCLUDE_LIST}
         "basic_statistics_dense_online"
     )
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "riscv64")
+    set(EXCLUDE_LIST
+        ${EXCLUDE_LIST}
+        "basic_statistics_dense_online"
+    )
 endif()

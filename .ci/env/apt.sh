@@ -54,12 +54,47 @@ function install_dev-base-conda {
     conda env create -f .ci/env/environment.yml
 }
 
-function install_arm-cross-compilers {
-    sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gfortran-aarch64-linux-gnu
+function install_gnu-cross-compilers {
+    sudo apt-get install -y "gcc-$1-linux-gnu" "g++-$1-linux-gnu" "gfortran-$1-linux-gnu"
 }
 
-function install_qemu_emulation {
+function install_qemu_emulation_apt {
     sudo apt-get install -y qemu-user-static
+}
+
+function install_qemu_emulation_deb {
+    qemu_deb=qemu-user-static_8.2.2+ds-2+b1_amd64.deb
+    wget http://ftp.de.debian.org/debian/pool/main/q/qemu/${qemu_deb}
+    sudo dpkg -i ${qemu_deb}
+    sudo systemctl restart systemd-binfmt.service
+}
+
+function install_llvm_version {
+    sudo apt-get install -y curl
+    curl -o llvm.sh https://apt.llvm.org/llvm.sh
+    chmod u+x llvm.sh
+    sudo ./llvm.sh "$1"
+    sudo update-alternatives --install /usr/bin/clang clang "/usr/bin/clang-$1" "${1}00"
+    sudo update-alternatives --install /usr/bin/clang++ clang++ "/usr/bin/clang++-$1" "${1}00"
+}
+
+function build_sysroot {
+    # Usage:
+    #   build_sysroot working-dir arch os-name out-dir
+    # where the architecture and OS name need to be recognised by debootstrap,
+    # e.g. arch=arm64, os-name=jammy. The output directory path is relative to
+    # the working directory
+    mkdir -p "$1"
+    pushd "$1" || exit
+    sudo apt-get install -y debootstrap build-essential
+    sudo debootstrap --arch="$2" --verbose --include=fakeroot,symlinks,libatomic1 --resolve-deps --variant=minbase --components=main,universe "$3" "$4"
+    sudo chroot "$4" symlinks -cr .
+    sudo chown "${USER}" -R "$4"
+    rm -rf "${4:?}"/{dev,proc,run,sys,var}
+    rm -rf "${4:?}"/usr/{sbin,bin,share}
+    rm -rf "${4:?}"/usr/lib/{apt,gcc,udev,systemd}
+    rm -rf "${4:?}"/usr/libexec/gcc
+    popd || exit
 }
 
 if [ "${component}" == "dpcpp" ]; then
@@ -68,9 +103,9 @@ if [ "${component}" == "dpcpp" ]; then
 elif [ "${component}" == "mkl" ]; then
     add_repo
     install_mkl
-elif [ "${component}" == "arm-compiler" ]; then
+elif [ "${component}" == "gnu-cross-compilers" ]; then
     update
-    install_arm-cross-compilers
+    install_gnu-cross-compilers "$2"
 elif [ "${component}" == "clang-format" ]; then
     update
     install_clang-format
@@ -78,11 +113,20 @@ elif [ "${component}" == "dev-base" ]; then
     update
     install_dev-base
     install_dev-base-conda
-elif [ "${component}" == "qemu-emulation" ]; then
+elif [ "${component}" == "qemu-apt" ]; then
     update
-    install_qemu_emulation
+    install_qemu_emulation_apt
+elif [ "${component}" == "qemu-deb" ]; then
+    update
+    install_qemu_emulation_deb
+elif [ "${component}" == "llvm-version" ] ; then
+    update
+    install_llvm_version "$2"
+elif [ "${component}" == "build-sysroot" ] ; then
+    update
+    build_sysroot "$2" "$3" "$4" "$5"
 else
     echo "Usage:"
-    echo "   $0 [dpcpp|mkl|arm-compiler|clang-format|dev-base]"
+    echo "   $0 [dpcpp|mkl|gnu-cross-compilers|clang-format|dev-base|qemu-apt|qemu-deb|llvm-version|build-sysroot]"
     exit 1
 fi

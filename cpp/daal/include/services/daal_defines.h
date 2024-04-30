@@ -37,6 +37,10 @@
     #define TARGET_ARM
 #endif
 
+#if defined(__riscv) && (__riscv_xlen == 64)
+    #define TARGET_RISCV64
+#endif
+
 #if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
     #define DAAL_INTEL_CPP_COMPILER
 #endif
@@ -75,6 +79,8 @@
     #if defined(_WIN64) || defined(__x86_64__)
         #define DAAL_INT __int64
     #elif defined(TARGET_ARM)
+        #define DAAL_INT __int64
+    #elif defined(TARGET_RISCV64)
         #define DAAL_INT __int64
     #else
         #define DAAL_INT __int32
