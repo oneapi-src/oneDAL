@@ -33,7 +33,7 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& queue) {
     const auto data_file_name = get_data_path("data/pca_normalized.csv");
-
+    const std::int64_t nBlocks = 10;
     const auto data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 
     const auto pca_desc = dal::pca::descriptor{};
