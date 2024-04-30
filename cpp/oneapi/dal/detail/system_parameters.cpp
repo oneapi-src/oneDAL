@@ -36,5 +36,17 @@ std::string system_parameters::dump() const {
     return impl_->dump();
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
+
+std::uint32_t system_parameters::get_max_workgroup_size(sycl::queue& queue) const {
+    return impl_->get_max_workgroup_size(queue);
+}
+
+std::string system_parameters::dump(sycl::queue& queue) const {
+    return impl_->dump(queue);
+}
+
+#endif
+
 } // namespace detail
 } // namespace oneapi::dal

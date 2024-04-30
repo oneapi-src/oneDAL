@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/cpu_info_impl.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/system_parameters_impl.hpp"
@@ -34,11 +35,19 @@ system_parameters_impl::system_parameters_impl() {
 }
 
 cpu_extension system_parameters_impl::get_top_enabled_cpu_extension() const {
-    return std::any_cast<cpu_extension>(sys_info_.find("top_enabled_cpu_extension")->second);
+    const auto entry = sys_info_.find("top_enabled_cpu_extension");
+    if (entry == sys_info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<cpu_extension>(entry->second);
 }
 
 std::uint32_t system_parameters_impl::get_max_number_of_threads() const {
-    return std::any_cast<std::uint32_t>(sys_info_.find("max_number_of_threads")->second);
+    const auto entry = sys_info_.find("max_number_of_threads");
+    if (entry == sys_info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<std::uint32_t>(entry->second);
 }
 
 void system_parameters_impl::print_any(const std::any& value, std::ostringstream& ss) const {
@@ -63,6 +72,22 @@ std::string system_parameters_impl::dump() const {
     }
     return std::move(ss).str();
 }
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+std::uint32_t system_parameters_impl::get_max_workgroup_size(sycl::queue& queue) const {
+    return dal::backend::device_max_wg_size(queue);
+}
+
+std::string system_parameters_impl::dump(sycl::queue& queue) const {
+    std::ostringstream ss;
+    ss << "max_workgroup_size"
+       << " : " << get_max_workgroup_size(queue) << "; ";
+    ss << dump();
+    return std::move(ss).str();
+}
+
+#endif
 
 } // namespace v1
 } // namespace oneapi::dal::detail
