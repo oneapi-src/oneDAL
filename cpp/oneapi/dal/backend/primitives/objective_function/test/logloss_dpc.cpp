@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,86 +18,45 @@
 
 namespace oneapi::dal::backend::primitives::test {
 
-TEMPLATE_TEST_M(logloss_test, "gold input test - double", "[logloss]", double) {
+TEMPLATE_LIST_TEST_M(logloss_test, "gold input test", "[logloss]", logloss_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
-    this->test_gold_input();
+    this->test_gold_input(this->fit_intercept_);
 }
 
-TEMPLATE_TEST_M(logloss_test, "gold input test - double - no fit_intercept", "[logloss]", double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->test_gold_input(false);
-}
-
-TEMPLATE_TEST_M(logloss_test, "gold input test - float", "[logloss]", float) {
-    SKIP_IF(this->get_policy().is_cpu());
-    this->test_gold_input();
-}
-
-TEMPLATE_TEST_M(logloss_test, "gold input test - float - no fit intercept", "[logloss]", float) {
-    SKIP_IF(this->get_policy().is_cpu());
-    this->test_gold_input(false);
-}
-
-TEMPLATE_TEST_M(logloss_test, "test random input - double without L1", "[logloss]", double) {
+TEMPLATE_LIST_TEST_M(logloss_test, "test random input without L1", "[logloss]", logloss_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3);
+    this->run_test(0.0f, 1.3f, this->fit_intercept_);
 }
 
-TEMPLATE_TEST_M(logloss_test,
-                "test random input - double without L1 - no fit intercept",
-                "[logloss]",
-                double) {
+TEMPLATE_LIST_TEST_M(logloss_test, "batch test", "[logloss]", logloss_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3, false);
+    this->run_test(0.0f, 1.3f, this->fit_intercept_, true);
 }
 
-TEMPLATE_TEST_M(logloss_test, "batch test - double", "[logloss]", double) {
+TEMPLATE_LIST_TEST_M(logloss_test, "test random input with L1", "[logloss]", logloss_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();
-    this->run_test(0.0, 1.3, true, true);
+    this->run_test(0.4f, 1.3f, this->fit_intercept_);
 }
 
-TEMPLATE_TEST_M(logloss_test, "batch test - double - no fit intercept", "[logloss]", double) {
+TEMPLATE_LIST_TEST_M(logloss_test, "sparse data test without L2", "[logloss]", logloss_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_test(0.0, 1.3, false, true);
+    this->generate_sparse_input();
+    this->run_sparse_test(0.0f, this->fit_intercept_);
 }
 
-TEMPLATE_TEST_M(logloss_test, "test random input - double with L1", "[logloss]", double) {
+TEMPLATE_LIST_TEST_M(logloss_test, "sparse data test", "[logloss]", logloss_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_test(0.4, 1.3);
-}
-
-TEMPLATE_TEST_M(logloss_test,
-                "test random input - double with L1 -- no fit intercept",
-                "[logloss]",
-                double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_test(0.4, 1.3, false);
-}
-
-TEMPLATE_TEST_M(logloss_test, "test random input - float", "[logloss]", float) {
-    SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_test(0.4, 1.3);
-}
-
-TEMPLATE_TEST_M(logloss_test, "test random input - float - no fit intercept", "[logloss]", float) {
-    SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_test(0.4, 1.3, false);
+    this->generate_sparse_input();
+    this->run_sparse_test(1.3f, this->fit_intercept_);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

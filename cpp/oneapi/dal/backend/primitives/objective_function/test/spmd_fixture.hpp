@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@ namespace de = dal::detail;
 template <typename Param>
 class logloss_spmd_test : public logloss_test<Param> {
 public:
-    using float_t = Param;
+    using float_t = std::tuple_element_t<0, Param>;
+    bool fit_intercept_ = std::tuple_element_t<1, Param>::value;
+    // using float_t = Param;
     using comm_t = te::thread_communicator<spmd::device_memory_access::usm>;
 
     std::vector<std::pair<table, ndview<std::int32_t, 1>>>
@@ -54,7 +56,7 @@ public:
         return result;
     }
 
-    std::vector<logloss_function<float_t>> get_functors(comm_t comm,
+    std::vector<logloss_function<float_t>> get_functors(comm_t& comm,
                                                         std::int64_t thr_cnt,
                                                         table data,
                                                         ndview<std::int32_t, 1>& labels,
@@ -138,12 +140,12 @@ public:
 
         this->naive_probabilities(data_host, params_host, this->labels_, probs_gth, fit_intercept);
 
-        double logloss_gth = this->naive_logloss(data_host,
-                                                 params_host,
-                                                 this->labels_,
-                                                 float_t(0.0),
-                                                 float_t(L2),
-                                                 fit_intercept);
+        float_t logloss_gth = this->naive_logloss(data_host,
+                                                  params_host,
+                                                  this->labels_,
+                                                  float_t(0.0),
+                                                  float_t(L2),
+                                                  fit_intercept);
         this->naive_derivative(data_host,
                                probs_gth,
                                params_host,
@@ -153,13 +155,13 @@ public:
                                float_t(L2),
                                fit_intercept);
         for (std::int64_t k = 0; k < thr_cnt; ++k) {
-            this->check_val(std::get<0>(results[k]), logloss_gth, rtol, atol);
+            IS_CLOSE(float_t, std::get<0>(results[k]), logloss_gth, rtol, atol);
         }
 
         for (int k = 0; k < thr_cnt; ++k) {
             auto grad_host = std::get<1>(results[k]).to_host(this->get_queue());
             for (int j = 0; j < dim; ++j) {
-                this->check_val(grad_host.at(j), grad_gth.at(j), rtol, atol);
+                IS_CLOSE(float_t, grad_host.at(j), grad_gth.at(j), rtol, atol);
             }
         }
 
@@ -179,7 +181,7 @@ public:
             for (std::int64_t k = 0; k < thr_cnt; ++k) {
                 auto hessp_host = std::get<2>(results[k])[ij].to_host(this->get_queue());
                 for (std::int64_t j = 0; j < dim; ++j) {
-                    this->check_val(hessp_host.at(j), hessp_gth.at(j), rtol, atol);
+                    IS_CLOSE(float_t, hessp_host.at(j), hessp_gth.at(j), rtol, atol);
                 }
             }
         }
