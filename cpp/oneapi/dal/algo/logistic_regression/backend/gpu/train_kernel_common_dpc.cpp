@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -126,6 +126,5 @@ template train_result<task::classification> call_dal_kernel<double, task::classi
     const detail::train_parameters<task::classification>&,
     const table&,
     const table&);
-// template static train_result<double> call_dal_kernel(const context_gpu&, const detail::descriptor_base<task::classification>&, const detail::train_parameters<task::classification>&, const table&, const table&);
 
 } // namespace oneapi::dal::logistic_regression::backend

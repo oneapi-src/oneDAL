@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ namespace method {
 namespace v1 {
 /// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
+/// Tag-type that denotes :ref:`sparse <logreg_t_math_sparse>` computational method.
 struct sparse {};
 
 /// Alias tag-type for the dense_batch method
@@ -171,7 +172,7 @@ namespace v1 {
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
-///                     be :expr:`method::dense_batch`.
+///                     be :expr:`method::dense_batch` or :expr:`method::sparse`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::classification`.
 /// @tparam Optimizer   The descriptor of the optimizer used for minimization. Can

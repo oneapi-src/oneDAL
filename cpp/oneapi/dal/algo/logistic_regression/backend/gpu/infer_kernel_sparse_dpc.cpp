@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -74,10 +74,10 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto [csr_data, column_indices, row_offsets] =
         csr_accessor<const Float>(static_cast<const csr_table&>(infer))
-            .pull(queue, { 0, -1 }, sparse_indexing::zero_based); // Why always zero based?
+            .pull(queue, { 0, -1 }, sparse_indexing::zero_based);
 
-    auto csr_data_gpu = pr::ndarray<Float, 1>::wrap(csr_data.get_data(), csr_data.get_count())
-                            .to_device(queue); //csr_data.to_device(queue);
+    auto csr_data_gpu =
+        pr::ndarray<Float, 1>::wrap(csr_data.get_data(), csr_data.get_count()).to_device(queue);
     auto column_indices_gpu =
         pr::ndarray<std::int64_t, 1>::wrap(column_indices.get_data(), column_indices.get_count())
             .to_device(queue);

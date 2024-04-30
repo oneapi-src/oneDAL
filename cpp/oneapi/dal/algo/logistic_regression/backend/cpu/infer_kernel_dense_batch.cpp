@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,9 +39,8 @@ struct infer_kernel_cpu<Float, method::sparse, Task> {
     infer_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
-        // CHANGE ERROR NAME!!!!
         throw unimplemented(
-            dal::detail::error_messages::log_reg_dense_batch_method_is_not_implemented_for_cpu());
+            dal::detail::error_messages::log_reg_sparse_method_is_not_implemented_for_cpu());
     }
 };
 

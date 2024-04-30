@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public:
             val += ptr[j] * params_ptr[j];
         }
         val += intercept;
-        return float_t(1) / (1 + std::exp(-val));
+        return float_t(1.0) / (1.0 + std::exp(-val));
     }
 
     void gen_input(bool fit_intercept = true, double C = 1.0, std::int64_t seed = 2007) {
@@ -211,10 +211,6 @@ public:
             if (resp == *(y_train_host_.get_mutable_data() + i)) {
                 train_acc += 1;
             }
-            // if (i >= train_size) {
-            //     REQUIRE(abs(val - *(prob_host.get_mutable_data() + i - train_size)) < 1e-5);
-            //     REQUIRE(*(resp_host.get_mutable_data() + i - train_size) == resp);
-            // }
         }
 
         std::int64_t acc_algo = 0;
@@ -236,7 +232,10 @@ public:
         }
 
         float_t min_train_acc = 0.95;
-        float_t min_test_acc = n_ < 500 ? 0.65 : 0.85;
+        float_t min_test_acc = n_ < 500 ? 0.7 : 0.85;
+        if (this->is_sparse() && n_ < 500) {
+            min_test_acc = 0.65;
+        }
 
         REQUIRE(train_size_ * min_train_acc < train_acc);
         REQUIRE(test_size_ * min_test_acc < test_acc);
@@ -251,7 +250,6 @@ protected:
     std::int64_t p_ = 0;
     std::int64_t train_size_ = 0;
     std::int64_t test_size_ = 0;
-    // array<float_t> X_host_;
     array<float_t> X_train_host_;
     array<float_t> X_test_host_;
     array<float_t> params_host_;
