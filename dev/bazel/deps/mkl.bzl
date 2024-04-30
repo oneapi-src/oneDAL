@@ -21,9 +21,9 @@ mkl_repo = repos.prebuilt_libs_repo_rule(
         "include",
     ],
     libs = [
-        "lib/libmkl_core.a",
-        "lib/libmkl_sequential.a",
-        "lib/libmkl_intel_ilp64.a",
+        "lib/intel64/libmkl_core.a",
+        "lib/intel64/libmkl_sequential.a",
+        "lib/intel64/libmkl_intel_ilp64.a",
     ],
     build_template = "@onedal//dev/bazel/deps:mkl.tpl.BUILD",
     download_mapping = {

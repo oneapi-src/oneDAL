@@ -25,7 +25,8 @@
 #define __SERVICE_MATH_MKL_H__
 
 #include <math.h>
-#include "vmlvsl.h"
+//#include "vmlvsl.h"
+#include <mkl.h>
 #include "src/services/service_defines.h"
 
 #if !defined(__DAAL_CONCAT5)
@@ -33,8 +34,11 @@
     #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
 #endif
 
-#define VMLFN(f_cpu, f_name, f_suff)       __DAAL_CONCAT5(fpk_vml_, f_name, _, f_cpu, f_suff)
-#define VMLFN_CALL(f_name, f_suff, f_args) VMLFN_CALL1(f_name, f_suff, f_args)
+#define VMLFN(f_cpu, f_name, f_suff) __DAAL_CONCAT5(fpk_vml_, f_name, _, f_cpu, f_suff)
+// #define VMLFN_CALL(f_name, f_suff, f_args) VMLFN_CALL1(f_name, f_suff, f_args)
+#define VMLFN_CALL(f_name, f_suff, f_args) \
+    v##f_name f_args;                      \
+    return;
 
 #if defined(__APPLE__)
     #define __DAAL_MKLVML_SSE2  E9

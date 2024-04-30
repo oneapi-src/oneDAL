@@ -18,11 +18,11 @@
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-#include <mkl_dal_sycl.hpp>
+#include <oneapi/mkl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
-namespace mkl = oneapi::fpk;
+namespace mkl = oneapi::mkl;
 
 /// Convert oneDAL `ndorder` to oneMKL `layout`
 inline constexpr mkl::layout order_as_layout(ndorder order) {

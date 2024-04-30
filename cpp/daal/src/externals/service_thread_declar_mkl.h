@@ -1,4 +1,4 @@
-/* file: mkl_dal.h */
+/* file: service_thread_declar_mkl.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
 *
@@ -15,22 +15,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
-
-#ifdef __clang__
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN() _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wreorder-ctor\"")
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()   _Pragma("clang diagnostic pop")
-#else
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()
-#endif
-
-DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
-#include <oneapi/mkl.hpp>
-DISABLE_MKL_DAL_SYCL_WARNINGS_END()
-
-#undef DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN
-#undef DISABLE_MKL_DAL_SYCL_WARNINGS_END
-
-#endif
+namespace daal
+{
+namespace internal
+{
+namespace mkl
+{
+int fpk_serv_set_num_threads_local(int nthreads);
+}
+} // namespace internal
+} // namespace daal
