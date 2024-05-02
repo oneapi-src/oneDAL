@@ -30,7 +30,7 @@ dal_module(
         "@onedal//cpp/daal:data_management",
     ],
     dpc_deps = [
-        "@micromkl_dpc//:mkl_dpc",
+        "@mkl//:mkl_dpc",
     ],
 )
 

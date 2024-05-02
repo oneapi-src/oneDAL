@@ -18,7 +18,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ ],
         "//conditions:default": [
-                                    "@micromkl//:vml_ipp",
+                                    "@mkl//:vml_ipp",
                                     # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
                                     #       Remove TBB from deps once problem with vml_ipp is resolved
                                     "@tbb//:tbb_binary",
@@ -32,7 +32,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ "@openblas//:openblas",
                                  ],
-        "//conditions:default": [ "@micromkl//:mkl_thr",
+        "//conditions:default": [ "@mkl//:mkl_thr",
                                 ],
         }),
 )
@@ -64,8 +64,7 @@ daal_module(
                                  ],
         "//conditions:default": [
                                   ":public_includes",
-                                  "@micromkl//:headers",
-                                  "@micromkl_dpc//:headers",
+                                  "@mkl//:headers",
                                 ],
         }),
 )
@@ -86,8 +85,7 @@ daal_module(
     ],
     deps = [
         ":includes",
-                                  "@micromkl//:headers",
-                                  "@micromkl_dpc//:headers",
+                                  "@mkl//:headers",
     ],
 )
 
@@ -112,8 +110,7 @@ daal_module(
         ":service_headers",
         ":threading_headers",
         ":microvmlipp",
- "@micromkl//:headers",
-                                  "@micromkl_dpc//:headers",
+ "@mkl//:headers",
     ],
 )
 
@@ -138,7 +135,7 @@ daal_module(
             "//conditions:default": [
                                     ":services",
                                     "@onedal//cpp/daal/src/algorithms/engines:kernel",
-                                    "@micromkl_dpc//:headers",
+                                    "@mkl//:headers",
                                     ],
         }),
 )

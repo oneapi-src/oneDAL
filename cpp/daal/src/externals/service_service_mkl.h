@@ -25,7 +25,6 @@
 #define __SERVICE_SERVICE_MKL_H__
 
 #include "services/daal_defines.h"
-// #include "mkl_daal.h"
 #include <mkl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,11 +40,11 @@ namespace mkl
 {
 struct MklService
 {
-    static void * serv_malloc(size_t size, size_t alignment) { return serv_malloc(size, alignment); }
+    static void * serv_malloc(size_t size, size_t alignment) { return mkl_malloc(size, alignment); }
 
-    static void serv_free(void * ptr) { serv_free(ptr); }
+    static void serv_free(void * ptr) { mkl_free(ptr); }
 
-    static void serv_free_buffers() { serv_free_buffers(); }
+    static void serv_free_buffers() { mkl_free_buffers(); }
 
     static int serv_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize) { return serv_memcpy_s(dest, destSize, src, srcSize); }
 
@@ -57,7 +56,7 @@ struct MklService
 
     static int serv_get_ncorespercpu() { return serv_get_ncorespercpu(); }
 
-    static int serv_set_memory_limit(int type, size_t limit) { return serv_set_memory_limit(type, limit); }
+    static int serv_set_memory_limit(int type, size_t limit) { return mkl_set_memory_limit(type, limit); }
 
     // Added for interface compatibility - not expected to be called
     static size_t serv_strnlen_s(const char * src, size_t slen)

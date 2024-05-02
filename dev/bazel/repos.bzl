@@ -92,6 +92,7 @@ def _download(repo_ctx):
 # TODO: Delete hardcoded package keywords after release
 def _prebuilt_libs_repo_impl(repo_ctx):
     root = repo_ctx.os.environ.get(repo_ctx.attr.root_env_var)
+    print(root)
     if root:
         if "2017u1" in root:
             mapping = repo_ctx.attr._local_mapping
