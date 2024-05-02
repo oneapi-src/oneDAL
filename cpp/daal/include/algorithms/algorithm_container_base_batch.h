@@ -154,6 +154,9 @@ class DAAL_EXPORT AlgorithmDispatchContainer<batch, sse2Container DAAL_KERNEL_SS
 #elif defined(TARGET_ARM)
 template <typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
 class DAAL_EXPORT AlgorithmDispatchContainer<batch, SVEContainer DAAL_KERNEL_SVE_ONLY(sveContainer)> : public AlgorithmContainerImpl<batch>
+#elif defined(TARGET_RISCV64)
+template <typename RV64Container DAAL_KERNEL_RV64_ONLY(typename rv64Container)>
+class DAAL_EXPORT AlgorithmDispatchContainer<batch, RV64Container DAAL_KERNEL_RV64_ONLY(rv64Container)> : public AlgorithmContainerImpl<batch>
 #endif
 {
 public:

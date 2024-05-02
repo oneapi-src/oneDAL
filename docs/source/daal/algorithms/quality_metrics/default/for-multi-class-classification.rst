@@ -47,7 +47,7 @@ Further definitions use the following notations:
    * - :math:`\text{fp}_i`
      - false positive
      - the number of observations that were incorrectly assigned to the class :math:`C_1`
-   * - :math:`\text{fn_i}`
+   * - :math:`\text{fn}_i`
      - false negative
      - the number of observations that were not recognized as belonging to the class :math:`C_1`
 

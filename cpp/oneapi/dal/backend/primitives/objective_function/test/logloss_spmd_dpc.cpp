@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,15 +18,12 @@
 
 namespace oneapi::dal::backend::primitives::test {
 
-TEMPLATE_TEST_M(logloss_spmd_test, "spmd test - double", "[logloss spmd]", double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->generate_input();
-    this->run_spmd(-1, 1.0, true);
-    this->run_spmd(-1, 1.0, false);
-}
+using logloss_spmd_types = COMBINE_TYPES((float, double), (use_fit_intercept));
 
-TEMPLATE_TEST_M(logloss_spmd_test, "spmd test - float", "[logloss spmd]", float) {
+TEMPLATE_LIST_TEST_M(logloss_spmd_test,
+                     "spmd test - double",
+                     "[logloss spmd]",
+                     logloss_spmd_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->generate_input();

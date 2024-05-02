@@ -28,6 +28,7 @@ std::string to_string(cpu_vendor vendor) {
         case cpu_vendor::intel: vendor_str = std::string("Intel"); break;
         case cpu_vendor::amd: vendor_str = std::string("AMD"); break;
         case cpu_vendor::arm: vendor_str = std::string("Arm"); break;
+        case cpu_vendor::riscv64: vendor_str = std::string("RISCV-V"); break;
     }
     return vendor_str;
 }
@@ -43,6 +44,8 @@ std::string to_string(cpu_extension extension) {
         case cpu_extension::avx512: extension_str = std::string("avx512"); break;
 #elif defined(TARGET_ARM)
         case cpu_extension::sve: extension_str = std::string("sve"); break;
+#elif defined(TARGET_RISCV64)
+        case cpu_extension::rv64: extension_str = std::string("rv64"); break;
 #endif
     }
     return extension_str;
