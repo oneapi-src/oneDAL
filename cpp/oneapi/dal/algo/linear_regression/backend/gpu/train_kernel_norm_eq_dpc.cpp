@@ -37,6 +37,29 @@ using dal::backend::context_gpu;
 namespace be = dal::backend;
 namespace pr = be::primitives;
 
+template <typename Float>
+sycl::event add_ridge_penalty(sycl::queue& q,
+                              pr::ndview<Float, 2>& xtx,
+                              double alpha,
+                              const be::event_vector& deps) {
+    ONEDAL_ASSERT(xtx.has_mutable_data());
+    ONEDAL_ASSERT(be::is_known_usm(q, xtx.get_mutable_data()));
+    ONEDAL_ASSERT(xtx.get_dimension(0) == xtx.get_dimension(1));
+
+    Float* xtx_ptr = xtx.get_mutable_data();
+    std::int64_t feature_count = xtx.get_dimension(0);
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = be::make_range_1d(feature_count);
+        cgh.depends_on(deps);
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            const std::int64_t diag_idx =
+                idx * (feature_count + 1);
+            xtx_ptr[diag_idx] += alpha;
+        });
+    });
+}
+
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
@@ -104,6 +127,11 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     }
 
     const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
+
+    double alpha = desc.get_alpha();
+    if (alpha != 0) {
+        last_xtx_event = add_ridge_penalty<Float>(queue, xtx, desc.get_alpha(), { last_xtx_event });
+    }
 
     auto& comm = ctx.get_communicator();
     if (comm.get_rank_count() > 1) {

@@ -170,7 +170,7 @@ public:
     explicit descriptor(bool compute_intercept, double alpha) : base_t(compute_intercept) {
         set_alpha(alpha);
     }
-    
+
     explicit descriptor(double alpha) : base_t(true) {
         set_alpha(alpha);
     }
