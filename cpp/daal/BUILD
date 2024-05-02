@@ -86,6 +86,8 @@ daal_module(
     ],
     deps = [
         ":includes",
+                                  "@micromkl//:headers",
+                                  "@micromkl_dpc//:headers",
     ],
 )
 
@@ -110,6 +112,8 @@ daal_module(
         ":service_headers",
         ":threading_headers",
         ":microvmlipp",
+ "@micromkl//:headers",
+                                  "@micromkl_dpc//:headers",
     ],
 )
 

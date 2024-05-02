@@ -25,7 +25,6 @@
 #define __SERVICE_BLAS_MKL_H__
 
 #include "services/daal_defines.h"
-// #include "mkl_daal.h
 #include <mkl.h>
 
 #if !defined(__DAAL_CONCAT4)

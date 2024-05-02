@@ -8,21 +8,32 @@ cc_library(
         "MKL_ILP64"
     ],
 )
+cc_library(
+    name = "headers_",
+    hdrs = glob(["include/*.h"]),
+    includes = [ "include" ],
+    defines = [
+        "MKL_ILP64"
+    ],
+)
 
 cc_library(
     name = "mkl_core",
     srcs = [
-        "lib/intel64/libmkl_core.a",
+        "lib/libmkl_core.a",
     ],
     linkopts = [
         "-lpthread",
     ],
+    deps = [
+        ":headers_",
+    ]
 )
 
 cc_library(
     name = "mkl_intel_ilp64",
     srcs = [
-        "lib/intel64/libmkl_intel_ilp64.a",
+        "lib/libmkl_intel_ilp64.a",
     ],
     deps = [
         ":mkl_core",
@@ -32,7 +43,7 @@ cc_library(
 cc_library(
     name = "libmkl_sequential",
     srcs = [
-        "lib/intel64/libmkl_sequential.a",
+        "lib/libmkl_sequential.a",
     ],
     deps = [
         ":mkl_core",
