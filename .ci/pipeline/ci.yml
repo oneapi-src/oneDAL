@@ -363,7 +363,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gnu" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
+      key: '"gcc" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
