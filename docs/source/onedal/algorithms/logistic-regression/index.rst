@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2023 Intel Corporation
+.. * Copyright contributors to the oneDAL project
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -59,6 +59,14 @@ Since Logistic Loss is a convex function, you can use one of the iterative solve
 During training, the data is divided into batches, and the gradients from each batch are summed up.
 
 Refer to :ref:`Mathematical formulation: Newton-CG <newton_cg_c_math>`.
+
+.. _logreg_t_math_sparse:
+
+Training Method: *sparse*
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using this method you can train Logistic Regression model on sparse data. All you need is to provide matrix with feature vectors as 
+sparse table. Find more info about sparse tables here :ref:`Compressed Sparse Rows (CSR) Table: <csr_table>`.
 
 .. _logreg_i_math:
 
