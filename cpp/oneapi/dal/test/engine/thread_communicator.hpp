@@ -382,7 +382,7 @@ public:
         return ctx_.get_thread_count();
     }
 
-    bool get_mpi_gpu_support() override {
+    bool get_mpi_offload_support() override {
         return false;
     }
 

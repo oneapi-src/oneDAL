@@ -149,7 +149,7 @@ public:
         return default_root_;
     }
 
-    bool get_mpi_gpu_support() override {
+    bool get_mpi_offload_support() override {
         // TODO: explore additional conditions (i.e. GPU type, data parallel, etc.)
         // TODO: make this function bool convert() and instead determine if conversion necessary?
 

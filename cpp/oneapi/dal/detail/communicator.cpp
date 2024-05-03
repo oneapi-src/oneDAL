@@ -53,7 +53,9 @@ spmd::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
     const std::int64_t dtype_size = get_data_type_size(dtype);
     const std::int64_t size = check_mul_overflow(dtype_size, count);
 
-    if (get_mpi_gpu_support()) {
+    const bool gpu_offloading = get_mpi_offload_support();
+
+    if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.bcast_gpu, q);
         wait_request(bcast(send_buf, count, dtype, root));
     }
@@ -111,7 +113,9 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
     const std::int64_t send_size = check_mul_overflow(dtype_size, send_count);
     const std::int64_t total_recv_size = check_mul_overflow(dtype_size, total_recv_count);
 
-    if (get_mpi_gpu_support()) {
+    const bool gpu_offloading = get_mpi_offload_support();
+
+    if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.allgatherv_gpu, q);
         wait_request(
             allgatherv(send_buf, send_count, recv_buf, recv_counts_host, displs_host, dtype));
@@ -181,7 +185,9 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
     const std::int64_t dtype_size = get_data_type_size(dtype);
     const std::int64_t byte_count = check_mul_overflow(dtype_size, count);
 
-    if (get_mpi_gpu_support()) {
+    const bool gpu_offloading = get_mpi_offload_support();
+
+    if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.allreduce_gpu, q);
         wait_request(allreduce(send_buf, recv_buf, count, dtype, op));
     }
@@ -228,7 +234,9 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
     const std::int64_t dtype_size = get_data_type_size(dtype);
     const std::int64_t size = check_mul_overflow(dtype_size, count);
 
-    if (get_mpi_gpu_support()) {
+    const bool gpu_offloading = get_mpi_offload_support();
+
+    if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
         wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
     }

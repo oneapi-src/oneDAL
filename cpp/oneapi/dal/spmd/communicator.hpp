@@ -66,7 +66,7 @@ public:
     virtual std::int64_t get_rank() = 0;
     virtual std::int64_t get_rank_count() = 0;
     virtual std::int64_t get_default_root_rank() = 0;
-    virtual bool get_mpi_gpu_support() = 0;
+    virtual bool get_mpi_offload_support() = 0;
 
     virtual void barrier() = 0;
 
