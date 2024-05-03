@@ -37,7 +37,6 @@
 
 namespace oneapi::dal::logistic_regression::backend {
 
-using daal::services::Status;
 using dal::backend::context_gpu;
 
 namespace be = dal::backend;
@@ -49,8 +48,6 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
                                           const table& infer,
                                           const model<Task>& m) {
-    using dal::detail::check_mul_overflow;
-
     auto queue = ctx.get_queue();
     ONEDAL_PROFILER_TASK(logreg_infer_kernel, queue);
 
@@ -96,14 +93,14 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     dal::backend::primitives::sparse_matrix_handle sp_handle(queue);
     set_csr_data(queue, sp_handle, static_cast<const csr_table&>(data_gpu));
 
-    sycl::event prob_e =
+    sycl::event probabilities_e =
         compute_probabilities_sparse(queue, params_suf, sp_handle, probs, fit_intercept, {});
 
     const auto* const prob_ptr = probs.get_data();
     auto* const resp_ptr = responses.get_mutable_data();
 
     auto fill_resp_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(prob_e);
+        cgh.depends_on(probabilities_e);
         const auto range = be::make_range_1d(sample_count);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             constexpr Float half = 0.5f;
@@ -113,7 +110,8 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto resp_table =
         homogen_table::wrap(responses.flatten(queue, { fill_resp_event }), sample_count, 1);
-    auto prob_table = homogen_table::wrap(probs.flatten(queue, { prob_e }), sample_count, 1);
+    auto prob_table =
+        homogen_table::wrap(probs.flatten(queue, { probabilities_e }), sample_count, 1);
 
     auto result = infer_result<Task>().set_responses(resp_table).set_probabilities(prob_table);
 
