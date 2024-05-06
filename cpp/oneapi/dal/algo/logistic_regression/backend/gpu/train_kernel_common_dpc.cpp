@@ -14,22 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/profiler.hpp"
-
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/gpu/train_kernel_common.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/model_impl.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/optimizer_impl.hpp"
+#include "oneapi/dal/algo/logistic_regression/common.hpp"
+#include "oneapi/dal/algo/logistic_regression/train_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-
-#include "oneapi/dal/algo/logistic_regression/common.hpp"
-#include "oneapi/dal/algo/logistic_regression/train_types.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/model_impl.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/backend/primitives/objective_function.hpp"
 #include "oneapi/dal/backend/primitives/optimizers.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/optimizer_impl.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/gpu/train_kernel_common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::logistic_regression::backend {
 

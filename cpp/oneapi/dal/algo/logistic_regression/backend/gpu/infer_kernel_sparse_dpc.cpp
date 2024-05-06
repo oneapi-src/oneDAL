@@ -93,14 +93,14 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     dal::backend::primitives::sparse_matrix_handle sp_handle(queue);
     set_csr_data(queue, sp_handle, static_cast<const csr_table&>(data_gpu));
 
-    sycl::event probabilities_e =
+    sycl::event probabilities_event =
         compute_probabilities_sparse(queue, params_suf, sp_handle, probs, fit_intercept, {});
 
     const auto* const prob_ptr = probs.get_data();
     auto* const resp_ptr = responses.get_mutable_data();
 
     auto fill_resp_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(probabilities_e);
+        cgh.depends_on(probabilities_event);
         const auto range = be::make_range_1d(sample_count);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
             constexpr Float half = 0.5f;
@@ -111,7 +111,7 @@ static infer_result<Task> call_dal_kernel(const context_gpu& ctx,
     auto resp_table =
         homogen_table::wrap(responses.flatten(queue, { fill_resp_event }), sample_count, 1);
     auto prob_table =
-        homogen_table::wrap(probs.flatten(queue, { probabilities_e }), sample_count, 1);
+        homogen_table::wrap(probs.flatten(queue, { probabilities_event }), sample_count, 1);
 
     auto result = infer_result<Task>().set_responses(resp_table).set_probabilities(prob_table);
 
