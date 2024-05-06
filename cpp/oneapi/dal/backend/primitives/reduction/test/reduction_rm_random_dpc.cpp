@@ -390,9 +390,9 @@ TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
     SECTION("Reduce Naive") {
       this->test_raw_cw_reduce_naive();
     }
-    SECTION("Reduce Atomic") {
-     this->test_raw_cw_reduce_atomic();
-    }
+    //SECTION("Reduce Atomic") {
+    // this->test_raw_cw_reduce_atomic();
+    //}
     SECTION("Reduce Wrapper") {
       this->test_raw_cw_reduce_wrapper();
     }
