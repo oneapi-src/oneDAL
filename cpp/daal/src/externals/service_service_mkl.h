@@ -26,6 +26,7 @@
 
 #include "services/daal_defines.h"
 #include <mkl.h>
+#include <mkl_service.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

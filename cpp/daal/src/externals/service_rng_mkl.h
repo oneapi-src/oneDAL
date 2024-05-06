@@ -27,6 +27,8 @@
 #include <mkl.h>
 #include <mkl_vml.h>
 #include <mkl_vsl.h>
+#include <mkl_vsl_functions.h>
+#include <mkl_vml_functions.h>
 #include "src/externals/service_stat_rng_mkl.h"
 #include "src/externals/service_rng_common.h"
 
@@ -108,7 +110,7 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
         }
         else
         {
-            unsigned __int64 * cr = (unsigned __int64 *)r;
+            unsigned long long * cr = (unsigned long long *)r;
 
             size_t len     = b - a;
             size_t rem     = (size_t)(-1) % len;
@@ -120,8 +122,8 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
             {
                 dv = len;
                 for (int i = 0; i < 64; i++) dv /= 2.0;
-                int nn                = (int)n;
-                unsigned __int64 * rr = cr;
+                int nn                  = (int)n;
+                unsigned long long * rr = cr;
                 __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits64, (method, stream, nn, rr), errcode);
 
                 if (errcode != 0)
@@ -135,9 +137,9 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
                 size_t pos = 0;
                 while (pos < cn)
                 {
-                    n                     = cn - pos;
-                    int nn                = (int)n;
-                    unsigned __int64 * rr = cr + pos;
+                    n                       = cn - pos;
+                    int nn                  = (int)n;
+                    unsigned long long * rr = cr + pos;
                     __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits64, (method, stream, nn, rr), errcode);
 
                     if (errcode != 0)

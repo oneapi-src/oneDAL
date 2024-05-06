@@ -25,8 +25,8 @@
 #define __SERVICE_LAPACK_MKL_H__
 
 #include "services/daal_defines.h"
-// #include "mkl_daal.h
 #include <mkl.h>
+#include <mkl_lapack.h>
 
 #if !defined(__DAAL_CONCAT4)
     #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)

@@ -25,6 +25,7 @@
 #define __SERVICE_STAT_MKL_H__
 
 #include <mkl.h>
+#include <mkl_vsl_functions.h>
 #include "src/externals/service_memory.h"
 #include "src/externals/service_stat_rng_mkl.h"
 

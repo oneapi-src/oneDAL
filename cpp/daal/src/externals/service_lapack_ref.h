@@ -26,7 +26,7 @@
 
 #include "service_lapack_declar_ref.h"
 #include "service_thread_declar_ref.h"
-
+#include <mkl_lapack.h>
 namespace daal
 {
 namespace internal

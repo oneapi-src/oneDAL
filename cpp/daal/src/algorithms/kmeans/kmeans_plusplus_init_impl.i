@@ -122,8 +122,8 @@ public:
         const size_t * colIdx         = _ntDataBD.cols();
         const size_t * rowIdx         = _ntDataBD.rows();
 
-        SpBlasInst<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, pData, (const DAAL_INT *)colIdx,
-                                                  (const DAAL_INT *)rowIdx, pCenters, &_p, &beta, gemmResult, &_n);
+        // SpBlasInst<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, pData, (const DAAL_INT *)colIdx,
+        //                                           (const DAAL_INT *)rowIdx, pCenters, &_p, &beta, gemmResult, &_n);
     }
 
     algorithmFPType getRowSumSq(size_t iRow, const algorithmFPType * cen)

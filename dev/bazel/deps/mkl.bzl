@@ -21,11 +21,11 @@ mkl_repo = repos.prebuilt_libs_repo_rule(
         "include",
     ],
     libs = [
+        "lib/libmkl_sycl.a",
         "lib/libmkl_core.a",
         "lib/libmkl_sequential.a",
-        "lib/libmkl_tbb_thread.a",
         "lib/libmkl_intel_ilp64.a",
-        "lib/libmkl_sycl.a",
+        "lib/libmkl_tbb_thread.a",
     ],
     build_template = "@onedal//dev/bazel/deps:mkl.tpl.BUILD",
     download_mapping = {

@@ -311,10 +311,10 @@ services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors,
                                               size_t * rowOffsets, algorithmFPType * crossProduct, algorithmFPType * sums,
                                               algorithmFPType * nObservations, const Hyperparameter * hyperparameter)
 {
-    char transa = 'T';
-    SpBlasInst<algorithmFPType, cpu>::xcsrmultd(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, (DAAL_INT *)&nFeatures, dataBlock,
-                                                (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, dataBlock, (DAAL_INT *)colIndices,
-                                                (DAAL_INT *)rowOffsets, crossProduct, (DAAL_INT *)&nFeatures);
+    // char transa = 'T';
+    // SpBlasInst<algorithmFPType, cpu>::xcsrmultd(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, (DAAL_INT *)&nFeatures, dataBlock,
+    //                                             (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, dataBlock, (DAAL_INT *)colIndices,
+    //                                             (DAAL_INT *)rowOffsets, crossProduct, (DAAL_INT *)&nFeatures);
 
     if (method != sumCSR)
     {
@@ -335,8 +335,8 @@ services::Status updateCSRCrossProductAndSums(size_t nFeatures, size_t nVectors,
         matdescra[2] = (char)0;
         matdescra[4] = (char)0;
         matdescra[5] = (char)0;
-        SpBlasInst<algorithmFPType, cpu>::xcsrmv(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, &one, matdescra, dataBlock,
-                                                 (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, (DAAL_INT *)rowOffsets + 1, ones, &one, sums);
+        // SpBlasInst<algorithmFPType, cpu>::xcsrmv(&transa, (DAAL_INT *)&nVectors, (DAAL_INT *)&nFeatures, &one, matdescra, dataBlock,
+        //                                          (DAAL_INT *)colIndices, (DAAL_INT *)rowOffsets, (DAAL_INT *)rowOffsets + 1, ones, &one, sums);
     }
 
     nObservations[0] += (algorithmFPType)nVectors;
