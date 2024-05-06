@@ -278,6 +278,18 @@ protected:
     bool override_init_;
 };
 
+TEMPLATE_LIST_TEST_M(reduction_test_random,
+                     "Randomly filled reduction",
+                     "[reduction][rm][small]",
+                     reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate();
+    this->test_rm_rw_reduce();
+    this->test_rm_cw_reduce();
+    this->test_cm_cw_reduce();
+    this->test_cm_rw_reduce();
+}
+
 template <typename Param>
 class infinite_sum_test_random : public reduction_test_random<Param> {
 public:
@@ -302,6 +314,27 @@ public:
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
+
+TEMPLATE_LIST_TEST_M(infinite_sum_test_random,
+                     "Randomly filled reduction with infinte sum",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SECTION("Reduce Row-Major by Rows") {
+        this->test_rm_rw_reduce();
+    }
+    SECTION("Reduce Row-Major by Cols") {
+        this->test_rm_cw_reduce();
+    }
+    SECTION("Reduce Col-Major by Rows") {
+        this->test_cm_cw_reduce();
+    }
+    SECTION("Reduce Row-Major by Cols") {
+        this->test_cm_rw_reduce();
+    }
+}
 
 template <typename Param>
 class single_infinite_test_random : public reduction_test_random<Param> {
@@ -331,31 +364,6 @@ public:
     }
 };
 
-TEMPLATE_LIST_TEST_M(reduction_test_random,
-                     "Randomly filled reduction",
-                     "[reduction][rm][small]",
-                     reduction_types) {
-    SKIP_IF(this->not_float64_friendly());
-    this->generate();
-    this->test_rm_rw_reduce();
-    this->test_rm_cw_reduce();
-    this->test_cm_cw_reduce();
-    this->test_cm_rw_reduce();
-}
-
-TEMPLATE_LIST_TEST_M(infinite_sum_test_random,
-                     "Randomly filled reduction with infinte sum",
-                     "[reduction][rm][small]",
-                     finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
-    const bool use_infnan = GENERATE(0, 1);
-    this->generate(use_infnan);
-    this->test_rm_rw_reduce();
-    this->test_rm_cw_reduce();
-    this->test_cm_cw_reduce();
-    this->test_cm_rw_reduce();
-}
-
 TEMPLATE_LIST_TEST_M(single_infinite_test_random,
                      "Randomly filled reduction with single inf or nan",
                      "[reduction][rm][small]",
@@ -363,10 +371,17 @@ TEMPLATE_LIST_TEST_M(single_infinite_test_random,
     SKIP_IF(this->not_float64_friendly());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
-    this->test_rm_rw_reduce();
-    this->test_rm_cw_reduce();
-    this->test_cm_cw_reduce();
-    this->test_cm_rw_reduce();
-}
+    SECTION("Reduce Row-Major by Rows") {
+        this->test_rm_rw_reduce();
+        SECTION("Reduce Row-Major by Cols") {
+            this->test_rm_cw_reduce();
+        }
+        SECTION("Reduce Col-Major by Rows") {
+            this->test_cm_cw_reduce();
+        }
+        SECTION("Reduce Col-Major by Cols") {
+            this->test_cm_rw_reduce();
+        }
+    }
 
 } // namespace oneapi::dal::backend::primitives::test

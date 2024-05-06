@@ -100,6 +100,15 @@ protected:
     std::int64_t n_;
 };
 
+TEMPLATE_LIST_TEST_M(reduction_test_random_1d,
+                     "Randomly filled array",
+                     "[reduction][1d][small]",
+                     reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate();
+    this->test_1d_reduce();
+}
+
 template <typename Param>
 class infinite_sum_test_random_1d : public reduction_test_random_1d<Param> {
 public:
@@ -121,6 +130,17 @@ public:
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
+
+TEMPLATE_LIST_TEST_M(infinite_sum_test_random_1d,
+                     "Randomly filled array with infinite sum",
+                     "[reduction][1d][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    this->test_1d_reduce();
+}
 
 template <typename Param>
 class single_infinite_test_random_1d : public reduction_test_random_1d<Param> {
@@ -145,26 +165,6 @@ public:
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 };
-
-TEMPLATE_LIST_TEST_M(reduction_test_random_1d,
-                     "Randomly filled array",
-                     "[reduction][1d][small]",
-                     reduction_types) {
-    SKIP_IF(this->not_float64_friendly());
-    this->generate();
-    this->test_1d_reduce();
-}
-
-TEMPLATE_LIST_TEST_M(infinite_sum_test_random_1d,
-                     "Randomly filled array with infinite sum",
-                     "[reduction][1d][small]",
-                     finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
-
-    const bool use_infnan = GENERATE(0, 1);
-    this->generate(use_infnan);
-    this->test_1d_reduce();
-}
 
 TEMPLATE_LIST_TEST_M(single_infinite_test_random_1d,
                      "Randomly filled array with a single inf or nan",
