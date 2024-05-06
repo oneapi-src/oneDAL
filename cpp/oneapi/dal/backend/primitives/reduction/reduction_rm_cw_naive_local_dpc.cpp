@@ -41,7 +41,7 @@ public:
               lstride_{ lstride },
               override_init_{ override_init } {}
 
-    void operator()(sycl::nd_item<2> it) const {
+    SYCL_EXTERNAL void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
         const auto col_idx = it.get_global_id(0);
         const auto loc_idx = it.get_local_id(1);

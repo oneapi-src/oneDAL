@@ -57,7 +57,7 @@ sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
 
             integer_t ind_start = group_id * elems_for_sbg;
             integer_t ind_end =
-                sycl::min(static_cast<integer_t>((group_id + 1) * elems_for_sbg), elem_count);
+                sycl::fmin(static_cast<integer_t>((group_id + 1) * elems_for_sbg), elem_count);
 
             integer_t sum = 0;
 
@@ -158,7 +158,7 @@ sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
 
             integer_t ind_start = group_id * elems_for_sbg;
             integer_t ind_end =
-                sycl::min(static_cast<integer_t>((group_id + 1) * elems_for_sbg), elem_count);
+                sycl::fmin(static_cast<integer_t>((group_id + 1) * elems_for_sbg), elem_count);
 
             integer_t group_offset = part_prefix_sum_ptr[group_id];
 

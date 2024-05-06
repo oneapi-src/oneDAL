@@ -296,8 +296,8 @@ struct split_smp {
                             Float(node_class_hist_ptr[class_id] - si.left_hist[class_id]) * divR;
         }
 
-        sc.left_imp = sycl::max(sc.left_imp, Float(0));
-        sc.right_imp = sycl::max(sc.right_imp, Float(0));
+        sc.left_imp = sycl::fmax(sc.left_imp, Float(0));
+        sc.right_imp = sycl::fmax(sc.right_imp, Float(0));
 
         sc.imp_dec =
             node_imp - (Float(sc.left_count) * sc.left_imp + Float(sc.right_count) * sc.right_imp) /

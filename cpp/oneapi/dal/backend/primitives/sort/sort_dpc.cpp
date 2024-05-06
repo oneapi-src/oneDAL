@@ -71,7 +71,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =
-                sycl::min(static_cast<Index>((group_id + 1) * elems_for_sbg), elem_count);
+                sycl::fmin(static_cast<Index>((group_id + 1) * elems_for_sbg), elem_count);
 
             Index offset[radix_range_];
             for (std::uint32_t i = 0; i < radix_range_; i++) {
@@ -201,7 +201,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =
-                sycl::min(static_cast<Index>((group_id + 1) * elems_for_sbg), elem_count);
+                sycl::fmin(static_cast<Index>((group_id + 1) * elems_for_sbg), elem_count);
 
             Index offset[radix_range_];
 

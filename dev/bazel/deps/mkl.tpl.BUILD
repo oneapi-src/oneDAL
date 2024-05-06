@@ -38,22 +38,13 @@ cc_library(
     name = "mkl_core",
     srcs = [
         "lib/libmkl_core.a",
+        "lib/libmkl_intel_ilp64.a",
     ],
     linkopts = [
         "-lpthread",
     ],
     deps = [
         ":headers",
-    ]
-)
-
-cc_library(
-    name = "mkl_intel_ilp64",
-    srcs = [
-        "lib/libmkl_intel_ilp64.a",
-    ],
-    deps = [
-        ":mkl_core",
     ]
 )
 
@@ -77,6 +68,7 @@ cc_library(
     ],
     deps = [
         ":headers",
+        ":mkl_core",
     ]
 )
 
@@ -85,9 +77,14 @@ cc_library(
     deps = [
         ":headers",
         ":mkl_core",
-        ":mkl_intel_ilp64",
         ":libmkl_sequential",
     ],
+)
+
+cc_library(
+    name = "headers_dpc",
+    hdrs = glob(["include/*.h", "include/*.hpp"]),
+    includes = [ "include" ],
 )
 
 cc_library(
@@ -96,6 +93,6 @@ cc_library(
         "lib/libmkl_sycl.a",
     ],
     deps = [
-        ":headers",
+        ":headers_dpc",
     ],
 )

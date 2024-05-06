@@ -41,11 +41,11 @@ namespace mkl
 {
 struct MklService
 {
-    static void * serv_malloc(size_t size, size_t alignment) { return mkl_malloc(size, alignment); }
+    static void * serv_malloc(size_t size, size_t alignment) { return MKL_malloc(size, alignment); }
 
-    static void serv_free(void * ptr) { mkl_free(ptr); }
+    static void serv_free(void * ptr) { MKL_free(ptr); }
 
-    static void serv_free_buffers() { mkl_free_buffers(); }
+    static void serv_free_buffers() { MKL_Free_Buffers(); }
 
     static int serv_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize) { return serv_memcpy_s(dest, destSize, src, srcSize); }
 

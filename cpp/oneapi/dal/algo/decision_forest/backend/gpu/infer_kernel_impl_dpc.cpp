@@ -160,7 +160,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
 
                 const Index ind_start = group_id * elem_count;
                 const Index ind_end =
-                    sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                    sycl::fmin(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
                 if (tree_id < tree_count) {
                     const Index* tree_ftr_idx = ftr_idx_list_ptr + tree_id * max_tree_size;
@@ -265,7 +265,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
 
                 const Index ind_start = group_id * elem_count;
                 const Index ind_end =
-                    sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                    sycl::fmin(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
                 if (tree_id < tree_count) {
                     const Index* tree_ftr_idx = ftr_idx_list_ptr + tree_id * max_tree_size;
@@ -364,7 +364,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
 
             const Index ind_start = group_id * elem_count;
             const Index ind_end =
-                sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                sycl::fmin(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
             // obs_response_list_ptr each row contains certain class values from each tree for this observation
             // obs_response_list_ptr[0] = obs0_cls0_val_from_tree0, obs0_cls0_val_from_tree1 ... obs0_cls1_val_from_tree0, obs0_cls1_val_from_tree1 ...
@@ -443,7 +443,7 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& c
 
             const Index ind_start = group_id * elem_count;
             const Index ind_end =
-                sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                sycl::fmin(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 Float class_count_max = (Float)0;

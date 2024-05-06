@@ -29,7 +29,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ "@openblas//:openblas",
                                  ],
-        "//conditions:default": [ "@mkl//:mkl_seq",
+        "//conditions:default": [ "@mkl//:mkl_thr",
                                 ],
         }),
 )

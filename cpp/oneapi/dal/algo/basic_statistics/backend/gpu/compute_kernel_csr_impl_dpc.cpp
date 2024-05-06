@@ -250,11 +250,11 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             for (std::int64_t block_id = 1; block_id < num_data_blocks; ++block_id) {
                 const auto block_idx = block_id * res_opt_count_ * column_count;
                 cur_min =
-                    sycl::min(cur_min,
-                              result_data_ptr[stat::min * column_count + block_idx + col_idx]);
+                    sycl::fmin(cur_min,
+                               result_data_ptr[stat::min * column_count + block_idx + col_idx]);
                 cur_max =
-                    sycl::max(cur_max,
-                              result_data_ptr[stat::max * column_count + block_idx + col_idx]);
+                    sycl::fmax(cur_max,
+                               result_data_ptr[stat::max * column_count + block_idx + col_idx]);
                 cur_sum += result_data_ptr[stat::sum * column_count + block_idx + col_idx];
                 cur_sum2 += result_data_ptr[stat::sum2 * column_count + block_idx + col_idx];
             }
@@ -354,8 +354,8 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             if (row_count != cur_row_count) {
                 auto cur_min = result_data_ptr[stat::min * column_count + col_idx];
                 auto cur_max = result_data_ptr[stat::max * column_count + col_idx];
-                result_data_ptr[stat::min * column_count + col_idx] = sycl::min<Float>(cur_min, 0);
-                result_data_ptr[stat::max * column_count + col_idx] = sycl::max<Float>(cur_max, 0);
+                result_data_ptr[stat::min * column_count + col_idx] = cur_min;
+                result_data_ptr[stat::max * column_count + col_idx] = cur_max;
                 cur_sum2_cent += Float(row_count - cur_row_count) * mean_val * mean_val;
             }
             result_data_ptr[stat::sum2_cent * column_count + col_idx] = cur_sum2_cent;

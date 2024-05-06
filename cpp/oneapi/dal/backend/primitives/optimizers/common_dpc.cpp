@@ -104,7 +104,7 @@ sycl::event max_abs(sycl::queue& queue,
     auto reduction_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_res_event);
         const auto range = make_range_1d(n);
-        auto max_reduction = sycl::reduction(res_gpu, sycl::maximum<>());
+        auto max_reduction = sycl::reduction(res_gpu, sycl::fmaximum<>());
         cgh.parallel_for(range, max_reduction, [=](sycl::id<1> idx, auto& mx) {
             const Float val = x_ptr[idx];
             mx.combine(sycl::fabs(val));

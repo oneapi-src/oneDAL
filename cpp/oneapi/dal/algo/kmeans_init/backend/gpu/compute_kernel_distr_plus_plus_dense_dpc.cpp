@@ -104,7 +104,7 @@ sycl::event min_number(sycl::queue& queue,
                        pr::ndview<Type, ax1>& array,
                        const pr::ndview<Type, ax2> minimum,
                        const bk::event_vector& deps = {}) {
-    constexpr sycl::minimum<Type> kernel{};
+    constexpr sycl::fminimum<Type> kernel{};
     ONEDAL_ASSERT(array.has_mutable_data());
     return element_wise(queue, kernel, array, minimum, array, deps);
 }
