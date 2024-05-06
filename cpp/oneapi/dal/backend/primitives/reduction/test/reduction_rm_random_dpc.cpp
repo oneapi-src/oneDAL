@@ -260,58 +260,6 @@ protected:
     table input_table_;
 };
 
-template <typename Param>
-class infinite_sum_rm_test_random : public reduction_rm_test_random<Param> {
-public:
-    using float_t = std::tuple_element_t<0, Param>;
-    using binary_t = std::tuple_element_t<1, Param>;
-    using unary_t = std::tuple_element_t<2, Param>;
-
-    void generate(bool maxval) {
-        this->width_ = GENERATE(7, 707, 5);
-        this->stride_ = GENERATE(707, 812, 1024);
-        this->height_ = GENERATE(17, 999, 1, 1001);
-        CAPTURE(this->width_, this->stride_, this->height_, maxval);
-        generate_input(maxval);
-    }
-
-    void generate_input(bool maxval) {
-        float mininp = 0.9 * (float)maxval * std::numeric_limits<float>::max() - 1.0f;
-        float maxinp = (float)maxval * std::numeric_limits<float>::max();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(mininp, maxinp));
-        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
-    }
-};
-
-template <typename Param>
-class single_infinite_rm_test_random : public reduction_rm_test_random<Param> {
-public:
-    using float_t = std::tuple_element_t<0, Param>;
-    using binary_t = std::tuple_element_t<1, Param>;
-    using unary_t = std::tuple_element_t<2, Param>;
-    void generate(bool infval) {
-        this->width_ = GENERATE(7, 707, 5);
-        this->stride_ = GENERATE(707, 812, 1024);
-        this->height_ = GENERATE(17, 999, 1, 1001);
-        CAPTURE(this->width_, this->stride_, this->height_, infval);
-        generate_input(infval);
-    }
-
-    void generate_input(bool infval) {
-        float infinp = infval ? std::numeric_limits<float>::infinity()
-                              : std::numeric_limits<float>::quiet_NaN();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
-
-        // train_data is a float ndarray
-        auto train_data = train_dataframe.get_array().get_mutable_data();
-        train_data[0] = infinp;
-        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
-        // no inf added to see what will happen in testing
-    }
-};
-
 TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
@@ -335,6 +283,30 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
     this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
+
+template <typename Param>
+class infinite_sum_rm_test_random : public reduction_rm_test_random<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+
+    void generate(bool maxval) {
+        this->width_ = GENERATE(7, 707, 5);
+        this->stride_ = GENERATE(707, 812, 1024);
+        this->height_ = GENERATE(17, 999, 1, 1001);
+        CAPTURE(this->width_, this->stride_, this->height_, maxval);
+        generate_input(maxval);
+    }
+
+    void generate_input(bool maxval) {
+        float mininp = 0.9 * (float)maxval * std::numeric_limits<float>::max() - 1.0f;
+        float maxinp = (float)maxval * std::numeric_limits<float>::max();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(mininp, maxinp));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+};
 
 TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction with infinte sum",
@@ -363,6 +335,34 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
     this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
 }
+
+template <typename Param>
+class single_infinite_rm_test_random : public reduction_rm_test_random<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+    void generate(bool infval) {
+        this->width_ = GENERATE(7, 707, 5);
+        this->stride_ = GENERATE(707, 812, 1024);
+        this->height_ = GENERATE(17, 999, 1, 1001);
+        CAPTURE(this->width_, this->stride_, this->height_, infval);
+        generate_input(infval);
+    }
+
+    void generate_input(bool infval) {
+        float infinp = infval ? std::numeric_limits<float>::infinity()
+                              : std::numeric_limits<float>::quiet_NaN();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
+
+        // train_data is a float ndarray
+        auto train_data = train_dataframe.get_array().get_mutable_data();
+        train_data[0] = infinp;
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+        // no inf added to see what will happen in testing
+    }
+};
 
 TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction with single inf or nan",
