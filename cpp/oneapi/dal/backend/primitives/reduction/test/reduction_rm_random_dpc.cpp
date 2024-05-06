@@ -388,13 +388,14 @@ TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
     this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
     SECTION("Reduce Naive") {
-      this->test_raw_cw_reduce_naive();
+        this->test_raw_cw_reduce_naive();
     }
+    // Investigation into atomic reduction discrepancies ongoing
     //SECTION("Reduce Atomic") {
     // this->test_raw_cw_reduce_atomic();
     //}
     SECTION("Reduce Wrapper") {
-      this->test_raw_cw_reduce_wrapper();
+        this->test_raw_cw_reduce_wrapper();
     }
 }
 
