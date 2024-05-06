@@ -373,15 +373,16 @@ TEMPLATE_LIST_TEST_M(single_infinite_test_random,
     this->generate(use_infnan);
     SECTION("Reduce Row-Major by Rows") {
         this->test_rm_rw_reduce();
-        SECTION("Reduce Row-Major by Cols") {
-            this->test_rm_cw_reduce();
-        }
-        SECTION("Reduce Col-Major by Rows") {
-            this->test_cm_cw_reduce();
-        }
-        SECTION("Reduce Col-Major by Cols") {
-            this->test_cm_rw_reduce();
-        }
     }
+    SECTION("Reduce Row-Major by Cols") {
+        this->test_rm_cw_reduce();
+    }
+    SECTION("Reduce Col-Major by Rows") {
+        this->test_cm_cw_reduce();
+    }
+    SECTION("Reduce Col-Major by Cols") {
+        this->test_cm_rw_reduce();
+    }
+}
 
 } // namespace oneapi::dal::backend::primitives::test
