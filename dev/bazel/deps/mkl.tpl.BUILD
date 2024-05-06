@@ -35,26 +35,6 @@ cc_library(
 )
 
 cc_library(
-    name = "vml_ipp",
-    srcs = [
-        "lib/libmkl_tbb_thread.a",
-    ],
-    deps = [
-        ":headers",
-    ],
-)
-
-cc_library(
-    name = "mkl_thr",
-    srcs = [
-        "lib/libmkl_tbb_thread.a",
-    ],
-    deps = [
-        ":headers",
-    ],
-)
-
-cc_library(
     name = "mkl_core",
     srcs = [
         "lib/libmkl_core.a",
@@ -84,6 +64,19 @@ cc_library(
     ],
     deps = [
         ":mkl_core",
+    ]
+)
+
+cc_library(
+    name = "mkl_thr",
+    srcs = [
+        "lib/libmkl_tbb_thread.a",
+    ],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        ":headers",
     ]
 )
 

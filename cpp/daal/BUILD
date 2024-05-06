@@ -18,10 +18,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ ],
         "//conditions:default": [
-                                    "@mkl//:vml_ipp",
-                                    # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
-                                    #       Remove TBB from deps once problem with vml_ipp is resolved
-                                    "@tbb//:tbb_binary",
+                                    "@mkl//:mkl_thr"
                                 ],
         }),
 )
@@ -32,7 +29,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ "@openblas//:openblas",
                                  ],
-        "//conditions:default": [ "@mkl//:mkl_thr",
+        "//conditions:default": [ "@mkl//:mkl_seq",
                                 ],
         }),
 )
@@ -85,13 +82,12 @@ daal_module(
     ],
     deps = [
         ":includes",
-                                  "@mkl//:headers",
     ],
 )
 
 daal_module(
     name = "threading_headers",
-    hdrs = glob(["src/threading/**/*.h"]),
+    hdrs = glob(["src/threading/*.h"]),
     deps = [
         ":service_headers",
     ],
@@ -110,7 +106,6 @@ daal_module(
         ":service_headers",
         ":threading_headers",
         ":microvmlipp",
- "@mkl//:headers",
     ],
 )
 
@@ -142,7 +137,7 @@ daal_module(
 
 daal_module(
     name = "threading_tbb",
-    srcs = glob(["src/threading/**/*.cpp"]),
+    srcs = glob(["src/threading/*.cpp"]),
     local_defines = [
         "__DO_TBB_LAYER__",
         "__TBB_NO_IMPLICIT_LINKAGE",
@@ -158,8 +153,8 @@ daal_module(
                                           "@tbb//:tbbmalloc",
                                         ],
             "//conditions:default": [
+                                    ":mathbackend_thread",
                                       ":threading_headers",
-                                      ":mathbackend_thread",
                                       "@tbb//:tbb",
                                       "@tbb//:tbbmalloc",
                                     ],
