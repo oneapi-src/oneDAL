@@ -376,7 +376,7 @@ inline void compute_histogram(const local_accessor_rw_t<hist_type_t>& hist,
             const Index id = data.order_[row_ofs + row_idx];
             const Index bin = data.data_[id * column_count + ts_ftr_id];
             const Index response_int = static_cast<Index>(data.response_[id]);
-            const Index start = sycl::fmax(0, bin - bin_ofs);
+            const Index start = sycl::max(0, bin - bin_ofs);
             for (Index bin_id = start; bin_id < act_bin_block; ++bin_id) {
                 const Index loc_bin_pos = bin_id * hist_prop_count;
                 sycl::atomic_ref<Index,
@@ -607,7 +607,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
                                   bin_block);
                 item.barrier(sycl::access::fence_space::local_space);
                 // Calculate histogram for bin block
-                const Index act_bin_block = sycl::fmin(bin_block, bin_count - bin_ofs);
+                const Index act_bin_block = sycl::min(bin_block, bin_count - bin_ofs);
                 compute_histogram<Index, Float, Task, Bin, hist_type_t>(hist,
                                                                         l_weight,
                                                                         item,

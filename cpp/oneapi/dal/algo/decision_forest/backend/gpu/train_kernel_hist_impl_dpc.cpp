@@ -879,7 +879,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
 
             const Index ind_start = local_id * elem_count;
             const Index ind_end =
-                sycl::fmin(static_cast<Index>((local_id + 1) * elem_count), row_count);
+                sycl::min(static_cast<Index>((local_id + 1) * elem_count), row_count);
 
             const Index* node_tree_order_ptr = &tree_order_ptr[row_offset];
 

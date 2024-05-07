@@ -143,7 +143,7 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
 
             Index ind_start = group_id * elems_for_sbg;
             Index ind_end =
-                sycl::fmin(static_cast<Index>((group_id + 1) * elems_for_sbg), row_count);
+                sycl::min(static_cast<Index>((group_id + 1) * elems_for_sbg), row_count);
 
             Index cur_bin = 0;
 

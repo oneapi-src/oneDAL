@@ -188,7 +188,7 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
 
                 Index node_block_count =
                     row_count / min_block_size
-                        ? sycl::fmin(row_count / min_block_size, max_block_count)
+                        ? sycl::min(row_count / min_block_size, max_block_count)
                         : 1;
 
                 // if block_ind assigned for this sbg less than current node's block count -> sbg will just go to the next node
@@ -199,8 +199,8 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
                             ? row_count / node_block_count + bool(row_count % node_block_count)
                             : row_count;
 
-                    const Index ind_end = sycl::fmin((block_ind + 1) * block_size, row_count);
-                    const Index ind_start = sycl::fmin(block_ind * block_size, ind_end);
+                    const Index ind_end = sycl::min((block_ind + 1) * block_size, row_count);
+                    const Index ind_start = sycl::min(block_ind * block_size, ind_end);
                     const Index group_row_count = ind_end - ind_start;
 
                     if (group_row_count > 0) {
@@ -320,7 +320,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
 
                 Index node_block_count =
                     row_count / min_block_size
-                        ? sycl::fmin(row_count / min_block_size, max_block_count)
+                        ? sycl::min(row_count / min_block_size, max_block_count)
                         : 1;
 
                 // if block_ind assigned for this sbg less than current node's block count -> sbg will just go to the next node
@@ -333,8 +333,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
                             ? row_count / node_block_count + bool(row_count % node_block_count)
                             : row_count;
 
-                    const Index ind_end = sycl::fmin((block_ind + 1) * block_size, row_count);
-                    const Index ind_start = sycl::fmin(block_ind * block_size, ind_end);
+                    const Index ind_end = sycl::min((block_ind + 1) * block_size, row_count);
+                    const Index ind_start = sycl::min(block_ind * block_size, ind_end);
                     const Index group_row_count = ind_end - ind_start;
 
                     Index group_left_boundary = 0;
@@ -442,7 +442,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
                 node_count / n_sub_groups + bool(node_count % n_sub_groups);
 
             const Index ind_start = sub_group_id * sbg_elem_count;
-            const Index ind_end = sycl::fmin((sub_group_id + 1) * sbg_elem_count, node_count);
+            const Index ind_end = sycl::min((sub_group_id + 1) * sbg_elem_count, node_count);
 
             Float ftr_imp = Float(0);
 
@@ -525,7 +525,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
             const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
-            const Index ind_end = sycl::fmin((group_id + 1) * elems_for_sbg, node_row_count);
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, node_row_count);
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 rows_buffer_ptr[block_row_count * node_idx +
@@ -577,7 +577,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
             const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
-            const Index ind_end = sycl::fmin((group_id + 1) * elems_for_sbg, block_row_count);
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
 
             Index sub_sum = 0;
 
@@ -692,7 +692,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             const Index group_id = item.get_group().get_group_id(0) * n_sub_groups + sub_group_id;
 
             const Index ind_start = group_id * elems_for_sbg;
-            const Index ind_end = sycl::fmin((group_id + 1) * elems_for_sbg, block_row_count);
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, block_row_count);
 
             const Index oob_row_list_offset = oob_row_num_list_ptr[node_idx];
 
