@@ -153,8 +153,8 @@ daal_module(
                                           "@tbb//:tbbmalloc",
                                         ],
             "//conditions:default": [
-                                    ":mathbackend_thread",
                                       ":threading_headers",
+                                      ":mathbackend_thread",
                                       "@tbb//:tbb",
                                       "@tbb//:tbbmalloc",
                                     ],
