@@ -14,26 +14,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/model_impl.hpp"
+#include "oneapi/dal/algo/logistic_regression/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/logistic_regression/common.hpp"
+#include "oneapi/dal/algo/logistic_regression/train_types.hpp"
 
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/objective_function.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
-
-#include "oneapi/dal/table/csr_accessor.hpp"
-
-#include "oneapi/dal/algo/logistic_regression/common.hpp"
-#include "oneapi/dal/algo/logistic_regression/train_types.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/model_impl.hpp"
-#include "oneapi/dal/algo/logistic_regression/backend/gpu/infer_kernel.hpp"
+#include "oneapi/dal/backend/primitives/objective_function.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas.hpp"
+
+#include "oneapi/dal/detail/profiler.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 
 namespace oneapi::dal::logistic_regression::backend {
 
