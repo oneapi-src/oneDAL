@@ -17,6 +17,7 @@ dal_module(
     name = "parameters",
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo/decision_forest/parameters",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
 )
 

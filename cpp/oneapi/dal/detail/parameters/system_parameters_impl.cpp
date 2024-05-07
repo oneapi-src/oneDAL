@@ -17,7 +17,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/cpu_info_impl.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
-#include "oneapi/dal/detail/system_parameters_impl.hpp"
+#include "oneapi/dal/detail/parameters/system_parameters_impl.hpp"
 #include <daal/src/services/service_defines.h>
 #include <daal/include/services/internal/daal_kernel_defines.h>
 

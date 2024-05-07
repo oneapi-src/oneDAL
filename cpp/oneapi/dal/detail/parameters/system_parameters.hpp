@@ -19,7 +19,7 @@
 #include <string>
 
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/detail/system_parameters_impl.hpp"
+#include "oneapi/dal/detail/parameters/system_parameters_impl.hpp"
 
 namespace oneapi::dal {
 
