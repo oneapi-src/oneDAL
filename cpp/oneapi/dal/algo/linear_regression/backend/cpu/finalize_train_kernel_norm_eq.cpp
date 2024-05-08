@@ -16,6 +16,7 @@
 
 #include <daal/src/algorithms/linear_regression/linear_regression_train_kernel.h>
 #include <daal/src/algorithms/linear_regression/linear_regression_hyperparameter_impl.h>
+#include <daal/src/algorithms/ridge_regression/ridge_regression_train_kernel.h>
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -37,21 +38,26 @@ namespace be = dal::backend;
 namespace pr = be::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
+namespace daal_rr = daal::algorithms::ridge_regression;
 
-using daal_hyperparameters_t = daal_lr::internal::Hyperparameter;
+using daal_lr_hyperparameters_t = daal_lr::internal::Hyperparameter;
 
-constexpr auto daal_method = daal_lr::training::normEqDense;
+constexpr auto daal_lr_method = daal_lr::training::normEqDense;
+constexpr auto daal_rr_method = daal_rr::training::normEqDense;
 
 template <typename Float, daal::CpuType Cpu>
-using online_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_method, Cpu>;
+using online_lr_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_lr_method, Cpu>;
+
+template <typename Float, daal::CpuType Cpu>
+using online_rr_kernel_t = daal_rr::training::internal::OnlineKernel<Float, daal_rr_method, Cpu>;
 
 template <typename Float, typename Task>
-static daal_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
+static daal_lr_hyperparameters_t convert_parameters(const detail::train_parameters<Task>& params) {
     using daal_lr::internal::HyperparameterId;
 
     const std::int64_t block = params.get_cpu_macro_block();
 
-    daal_hyperparameters_t daal_hyperparameter;
+    daal_lr_hyperparameters_t daal_hyperparameter;
     auto status = daal_hyperparameter.set(HyperparameterId::denseUpdateStepBlockSize, block);
     interop::status_to_exception(status);
 
@@ -68,36 +74,58 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
 
-    const bool beta = desc.get_compute_intercept();
+    const bool compute_intercept = desc.get_compute_intercept();
 
     const auto response_count = input.get_partial_xty().get_row_count();
     const auto ext_feature_count = input.get_partial_xty().get_column_count();
 
-    const auto feature_count = ext_feature_count - beta;
+    const auto feature_count = ext_feature_count - compute_intercept;
 
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
 
-    const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
+    const daal_lr_hyperparameters_t& hp = convert_parameters<Float>(params);
 
     auto xtx_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xtx());
     auto xty_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xty());
     auto betas_daal_table =
         interop::convert_to_daal_homogen_table(betas_arr, response_count, feature_count + 1);
 
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return online_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
-                                                                      *xty_daal_table,
-                                                                      *xtx_daal_table,
-                                                                      *xty_daal_table,
-                                                                      *betas_daal_table,
-                                                                      beta,
-                                                                      &hp);
-        });
+    double alpha = desc.get_alpha();
+    if (alpha != 0.0) {
+        auto ridge_matrix_array = array<Float>::full(1, static_cast<Float>(alpha));
+        auto ridge_matrix = interop::convert_to_daal_homogen_table<Float>(ridge_matrix_array, 1, 1);
 
-        interop::status_to_exception(status);
+        {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return online_rr_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
+                                                                             *xty_daal_table,
+                                                                             *xtx_daal_table,
+                                                                             *xty_daal_table,
+                                                                             *betas_daal_table,
+                                                                             compute_intercept,
+                                                                             *ridge_matrix);
+            });
+
+            interop::status_to_exception(status);
+        }
+    }
+    else {
+        {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return online_lr_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
+                                                                             *xty_daal_table,
+                                                                             *xtx_daal_table,
+                                                                             *xty_daal_table,
+                                                                             *betas_daal_table,
+                                                                             compute_intercept,
+                                                                             &hp);
+            });
+
+            interop::status_to_exception(status);
+        }
     }
 
     auto betas_table = homogen_table::wrap(betas_arr, response_count, feature_count + 1);

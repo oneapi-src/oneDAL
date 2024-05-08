@@ -35,6 +35,27 @@ using dal::backend::context_gpu;
 namespace be = dal::backend;
 namespace pr = be::primitives;
 
+template <typename Float>
+sycl::event add_ridge_penalty(sycl::queue& q,
+                              const pr::ndarray<Float, 2, pr::ndorder::c>& xtx,
+                              bool compute_intercept,
+                              double alpha) {
+    ONEDAL_ASSERT(xtx.has_mutable_data());
+    ONEDAL_ASSERT(be::is_known_usm(q, xtx.get_mutable_data()));
+    ONEDAL_ASSERT(xtx.get_dimension(0) == xtx.get_dimension(1));
+
+    Float* xtx_ptr = xtx.get_mutable_data();
+    std::int64_t feature_count = xtx.get_dimension(0);
+    std::int64_t original_feature_count = feature_count - compute_intercept;
+
+    return q.submit([&](sycl::handler& cgh) {
+        const auto range = be::make_range_1d(original_feature_count);
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            xtx_ptr[idx * (feature_count + 1)] += alpha;
+        });
+    });
+}
+
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                           const detail::descriptor_base<Task>& desc,
@@ -47,14 +68,14 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto& queue = ctx.get_queue();
 
-    const bool beta = desc.get_compute_intercept();
+    const bool compute_intercept = desc.get_compute_intercept();
 
     constexpr auto uplo = pr::mkl::uplo::upper;
     constexpr auto alloc = sycl::usm::alloc::device;
 
     const auto response_count = input.get_partial_xty().get_row_count();
     const auto ext_feature_count = input.get_partial_xty().get_column_count();
-    const auto feature_count = ext_feature_count - beta;
+    const auto feature_count = ext_feature_count - compute_intercept;
 
     const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
 
@@ -69,9 +90,21 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(queue, betas_size, alloc);
 
+    double alpha = desc.get_alpha();
+    sycl::event ridge_event;
+    if (alpha != 0.0) {
+        ridge_event = add_ridge_penalty<Float>(queue, xtx_nd, compute_intercept, alpha);
+    }
+
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);
-    auto solve_event = pr::solve_system<uplo>(queue, beta, xtx_nd, xty_nd, nxtx, nxty, {});
+    auto solve_event = pr::solve_system<uplo>(queue,
+                                              compute_intercept,
+                                              xtx_nd,
+                                              xty_nd,
+                                              nxtx,
+                                              nxty,
+                                              { ridge_event });
     sycl::event::wait_and_throw({ solve_event });
 
     auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);

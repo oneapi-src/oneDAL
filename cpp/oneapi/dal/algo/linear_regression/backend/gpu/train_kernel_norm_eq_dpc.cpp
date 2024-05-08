@@ -40,7 +40,7 @@ namespace pr = be::primitives;
 template <typename Float>
 sycl::event add_ridge_penalty(sycl::queue& q,
                               pr::ndview<Float, 2>& xtx,
-                              bool compute_intercept, 
+                              bool compute_intercept,
                               double alpha,
                               const be::event_vector& deps) {
     ONEDAL_ASSERT(xtx.has_mutable_data());
@@ -130,7 +130,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     double alpha = desc.get_alpha();
     if (alpha != 0.0) {
-        last_xtx_event = add_ridge_penalty<Float>(queue, xtx, compute_intercept, alpha, { last_xtx_event });
+        last_xtx_event =
+            add_ridge_penalty<Float>(queue, xtx, compute_intercept, alpha, { last_xtx_event });
     }
 
     auto& comm = ctx.get_communicator();
@@ -150,7 +151,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);
-    auto solve_event = pr::solve_system<uplo>(queue, compute_intercept, xtx, xty, nxtx, nxty, solve_deps);
+    auto solve_event =
+        pr::solve_system<uplo>(queue, compute_intercept, xtx, xty, nxtx, nxty, solve_deps);
     sycl::event::wait_and_throw({ solve_event });
 
     auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
