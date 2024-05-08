@@ -307,8 +307,8 @@ public:
     }
 
     void generate_input(bool maxval) {
-        double mininp = 0.9 * (double)maxval * std::numeric_limits<double>::max() - 1.0f;
-        double maxinp = (double)maxval * std::numeric_limits<double>::max();
+        float mininp = 0.9 * (float)maxval * std::numeric_limits<float>::max() - 1.0f;
+        float maxinp = (float)maxval * std::numeric_limits<float>::max();
         const auto train_dataframe = GENERATE_DATAFRAME(
             te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(mininp, maxinp));
         this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
@@ -319,7 +319,8 @@ TEMPLATE_LIST_TEST_M(infinite_sum_test_random,
                      "Randomly filled reduction with infinte sum",
                      "[reduction][rm][small]",
                      finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
     SECTION("Reduce Row-Major by Rows") {
@@ -368,7 +369,8 @@ TEMPLATE_LIST_TEST_M(single_infinite_test_random,
                      "Randomly filled reduction with single inf or nan",
                      "[reduction][rm][small]",
                      finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
     SECTION("Reduce Row-Major by Rows") {
