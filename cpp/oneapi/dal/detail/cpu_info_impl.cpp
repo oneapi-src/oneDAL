@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/cpu_info_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 #include <sstream>
 
@@ -52,11 +53,19 @@ std::string to_string(cpu_extension extension) {
 }
 
 cpu_vendor cpu_info_impl::get_cpu_vendor() const {
-    return std::any_cast<detail::cpu_vendor>(info_.find("vendor")->second);
+    const auto entry = info_.find("vendor");
+    if (entry == info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<detail::cpu_vendor>(entry->second);
 }
 
 cpu_extension cpu_info_impl::get_top_cpu_extension() const {
-    return std::any_cast<cpu_extension>(info_.find("top_cpu_extension")->second);
+    const auto entry = info_.find("top_cpu_extension");
+    if (entry == info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<cpu_extension>(entry->second);
 }
 
 std::string cpu_info_impl::dump() const {
