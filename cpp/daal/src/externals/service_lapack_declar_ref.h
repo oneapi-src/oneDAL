@@ -79,8 +79,8 @@ extern "C"
     extern void dgesvd_(char *, char *, DAAL_INT *, DAAL_INT *, double *, DAAL_INT *, double *, double *, DAAL_INT *, double *, DAAL_INT *, double *,
                         DAAL_INT *, DAAL_INT *);
 
-    extern void ssyevd_(char *, char *, DAAL_INT *, float *, DAAL_INT *, float *, float *, DAAL_INT *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
-    extern void dsyevd_(char *, char *, DAAL_INT *, double *, DAAL_INT *, double *, double *, DAAL_INT *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
+    // extern void ssyevd_(char *, char *, DAAL_INT *, float *, DAAL_INT *, float *, float *, DAAL_INT *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
+    // extern void dsyevd_(char *, char *, DAAL_INT *, double *, DAAL_INT *, double *, double *, DAAL_INT *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
 
     extern void sormqr_(char *, char *, DAAL_INT *, DAAL_INT *, DAAL_INT *, float *, DAAL_INT *, float *, float *, DAAL_INT *, float *, DAAL_INT *,
                         DAAL_INT *);

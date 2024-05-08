@@ -26,7 +26,7 @@
 
 #include "service_lapack_declar_ref.h"
 #include "service_thread_declar_ref.h"
-#include <mkl_lapack.h>
+
 namespace daal
 {
 namespace internal
@@ -194,14 +194,14 @@ struct OpenBlasLapack<double, cpu>
     static void xsyevd(char * jobz, char * uplo, DAAL_INT * n, double * a, DAAL_INT * lda, double * w, double * work, DAAL_INT * lwork,
                        DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
+        // dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
     static void xxsyevd(char * jobz, char * uplo, DAAL_INT * n, double * a, DAAL_INT * lda, double * w, double * work, DAAL_INT * lwork,
                         DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        openblas_thread_setter ots(1);
-        dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
+        // openblas_thread_setter ots(1);
+        // dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,

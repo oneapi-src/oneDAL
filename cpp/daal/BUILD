@@ -18,7 +18,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ ],
         "//conditions:default": [
-                                    "@mkl//:mkl_thr"
+                                    "@mkl//:mkl_thr",
                                 ],
         }),
 )

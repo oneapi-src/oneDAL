@@ -26,7 +26,6 @@
 
 #include "services/daal_defines.h"
 #include <mkl.h>
-#include <mkl_lapack.h>
 
 #if !defined(__DAAL_CONCAT4)
     #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)
@@ -290,19 +289,19 @@ struct MklLapack<double, cpu>
     static void xsyevd(char * jobz, char * uplo, DAAL_INT * n, double * a, DAAL_INT * lda, double * w, double * work, DAAL_INT * lwork,
                        DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        __DAAL_MKLFN_CALL(
-            lapack_, dsyevd,
-            (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
+        // __DAAL_MKLFN_CALL(
+        //     lapack_, dsyevd,
+        //     (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
     }
 
     static void xxsyevd(char * jobz, char * uplo, DAAL_INT * n, double * a, DAAL_INT * lda, double * w, double * work, DAAL_INT * lwork,
                         DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(
-            lapack_, dsyevd,
-            (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
-        fpk_serv_set_num_threads_local(old_threads);
+        // int old_threads = fpk_serv_set_num_threads_local(1);
+        // __DAAL_MKLFN_CALL(
+        //     lapack_, dsyevd,
+        //     (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
+        // fpk_serv_set_num_threads_local(old_threads);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
@@ -516,19 +515,19 @@ struct MklLapack<float, cpu>
     static void xsyevd(char * jobz, char * uplo, DAAL_INT * n, float * a, DAAL_INT * lda, float * w, float * work, DAAL_INT * lwork, DAAL_INT * iwork,
                        DAAL_INT * liwork, DAAL_INT * info)
     {
-        __DAAL_MKLFN_CALL(
-            lapack_, ssyevd,
-            (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
+        // __DAAL_MKLFN_CALL(
+        //     lapack_, ssyevd,
+        //     (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
     }
 
     static void xxsyevd(char * jobz, char * uplo, DAAL_INT * n, float * a, DAAL_INT * lda, float * w, float * work, DAAL_INT * lwork,
                         DAAL_INT * iwork, DAAL_INT * liwork, DAAL_INT * info)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(
-            lapack_, ssyevd,
-            (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
-        fpk_serv_set_num_threads_local(old_threads);
+        // int old_threads = fpk_serv_set_num_threads_local(1);
+        // __DAAL_MKLFN_CALL(
+        //     lapack_, ssyevd,
+        //     (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)iwork, (MKL_INT *)liwork, (MKL_INT *)info));
+        // fpk_serv_set_num_threads_local(old_threads);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,

@@ -25,10 +25,6 @@
 #define __SERVICE_MATH_MKL_H__
 
 #include <math.h>
-#include <mkl_vml.h>
-#include <mkl_vsl.h>
-#include <mkl_vsl_functions.h>
-#include <mkl_vml_functions.h>
 #include <mkl.h>
 #include "src/services/service_defines.h"
 

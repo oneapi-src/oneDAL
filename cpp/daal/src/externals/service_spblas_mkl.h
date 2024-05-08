@@ -25,9 +25,7 @@
 #define __SERVICE_SPBLAS_MKL_H__
 
 #include "services/daal_defines.h"
-//#include "mkl_daal.h"
 #include <mkl.h>
-#include <mkl_spblas.h>
 //todo::investigate how to migrate on MKL IE Blas Api
 #if !defined(__DAAL_CONCAT4)
     #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)
@@ -110,37 +108,37 @@ struct MklSpBlas<double, cpu>
     static void xcsrmultd(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, double * a, DAAL_INT * ja, DAAL_INT * ia,
                           double * b, DAAL_INT * jb, DAAL_INT * ib, double * c, DAAL_INT * ldc)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmultd,
-                          (transa, (const MKL_INT *)m, (const MKL_INT *)n, (const MKL_INT *)k, a, (MKL_INT *)ja, (MKL_INT *)ia, b, (MKL_INT *)jb,
-                           (MKL_INT *)ib, c, (MKL_INT *)ldc));
+        //     __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmultd,
+        //                       (transa, (const MKL_INT *)m, (const MKL_INT *)n, (const MKL_INT *)k, a, (MKL_INT *)ja, (MKL_INT *)ia, b, (MKL_INT *)jb,
+        //                        (MKL_INT *)ib, c, (MKL_INT *)ldc));
     }
 
     static void xcsrmv(const char * transa, const DAAL_INT * m, const DAAL_INT * k, const double * alpha, const char * matdescra, const double * val,
                        const DAAL_INT * indx, const DAAL_INT * pntrb, const DAAL_INT * pntre, const double * x, const double * beta, double * y)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmv,
-                          (transa, (const MKL_INT *)m, (const MKL_INT *)k, alpha, matdescra, val, (const MKL_INT *)indx, (const MKL_INT *)pntrb,
-                           (const MKL_INT *)pntre, x, beta, y));
+        //     __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmv,
+        //                       (transa, (const MKL_INT *)m, (const MKL_INT *)k, alpha, matdescra, val, (const MKL_INT *)indx, (const MKL_INT *)pntrb,
+        //                        (const MKL_INT *)pntre, x, beta, y));
     }
 
     static void xcsrmm(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, const double * alpha, const char * matdescra,
                        const double * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const double * b, const DAAL_INT * ldb, const double * beta,
                        double * c, const DAAL_INT * ldc)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmm,
-                          (transa, (const MKL_INT *)m, (const MKL_INT *)n, (const MKL_INT *)k, alpha, matdescra, val, (const MKL_INT *)indx,
-                           (const MKL_INT *)pntrb, (const MKL_INT *)(pntrb + 1), b, (const MKL_INT *)ldb, beta, c, (const MKL_INT *)ldc));
+        //     __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmm,
+        //                       (transa, (const MKL_INT *)m, (const MKL_INT *)n, (const MKL_INT *)k, alpha, matdescra, val, (const MKL_INT *)indx,
+        //                        (const MKL_INT *)pntrb, (const MKL_INT *)(pntrb + 1), b, (const MKL_INT *)ldb, beta, c, (const MKL_INT *)ldc));
     }
 
     static void xxcsrmm(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, const double * alpha, const char * matdescra,
                         const double * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const double * b, const DAAL_INT * ldb,
                         const double * beta, double * c, const DAAL_INT * ldc)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmm,
-                          (transa, (const MKL_INT *)m, (const MKL_INT *)n, (const MKL_INT *)k, alpha, matdescra, val, (const MKL_INT *)indx,
-                           (const MKL_INT *)pntrb, (const MKL_INT *)(pntrb + 1), b, (const MKL_INT *)ldb, beta, c, (const MKL_INT *)ldc));
-        fpk_serv_set_num_threads_local(old_threads);
+        //     int old_threads = fpk_serv_set_num_threads_local(1);
+        //     __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmm,
+        //                       (transa, (const MKL_INT *)m, (const MKL_INT *)n, (const MKL_INT *)k, alpha, matdescra, val, (const MKL_INT *)indx,
+        //                        (const MKL_INT *)pntrb, (const MKL_INT *)(pntrb + 1), b, (const MKL_INT *)ldb, beta, c, (const MKL_INT *)ldc));
+        //     fpk_serv_set_num_threads_local(old_threads);
     }
 };
 

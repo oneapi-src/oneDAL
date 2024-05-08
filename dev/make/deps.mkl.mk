@@ -30,16 +30,14 @@ RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/mat
 # MKLGPUFPKDIR.libia   := $(MKLROOT)/lib/
 
 mklgpufpk.LIBS_A := $(MKLROOT)/lib/$(plib)mkl_sycl.$a
-mklgpufpk.HEADERS :=
+mklgpufpk.HEADERS :=$(MKLDIR.include)/oneapi/mkl.hpp
 
-daaldep.math_backend.incdir := $(MKLDIR.include) 
-daaldep.math_backend_oneapi.incdir := $(MKLDIR.include)
+daaldep.math_backend.incdir := $(MKLDIR.include)
+daaldep.math_backend_oneapi.incdir := $(MKLDIR.include)/oneapi
 
-daaldep.lnx32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core.$a
-daaldep.lnx32e.mkl.iface := $(MKLROOT)/lib/$(plib)mkl_intel_ilp64.$a
+daaldep.lnx32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64.$a $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
 daaldep.lnx32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
 daaldep.lnx32e.mkl.seq := $(MKLDIR.libia)/$(plib)mkl_sequential.$a
-daaldep.lnx32e.mkl := $(MKLDIR.libia)/$(plib)mkl_tbb_thread.$a
 
 daaldep.win32e.mkl.iface :=
 daaldep.win32e.mkl.core :=
@@ -60,9 +58,9 @@ daaldep.fbsd32e.mkl.seq := $(MKLDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.fbsd32e.mkl := $(MKLDIR.libia)/$(plib)daal_vmlipp_core.$a
 
 
-daaldep.mkl     := $(daaldep.$(PLAT).mkl)
-daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.iface) $(daaldep.$(PLAT).mkl.thr) $(daaldep.$(PLAT).mkl.core)
-daaldep.math_backend.seq := $(daaldep.$(PLAT).mkl.seq) $(daaldep.mkl)
+daaldep.mkl     := $(daaldep.$(PLAT).mkl.core)
+daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr) $(daaldep.$(PLAT).mkl.core)
+daaldep.math_backend.seq := $(daaldep.$(PLAT).mkl.seq)
 
 daaldep.lnx32e.vml :=
 daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)

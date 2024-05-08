@@ -275,12 +275,12 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
 #============================= Micromkl folders =====================================
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
-MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
+MKLGPUFPKDIR:=  $(MKLROOT)
+MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
 MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
 
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)daal_sycl$d.$(a)
-mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a)
+mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
@@ -984,8 +984,8 @@ ifneq ($(MKLGPUFPKDIR),)
 # $1: Path to the file to be copied
 # $2: Destination directory
 define .release.sycl.old
-_release_common: $2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
-$2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
+$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
