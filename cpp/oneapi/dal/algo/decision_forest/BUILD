@@ -10,6 +10,7 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/algo/decision_forest/backend:model_impl",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
 )
 
