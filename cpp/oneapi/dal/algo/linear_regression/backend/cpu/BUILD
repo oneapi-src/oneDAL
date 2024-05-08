@@ -15,5 +15,6 @@ dal_module(
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal/src/algorithms/linear_model:kernel",
         "@onedal//cpp/daal/src/algorithms/linear_regression:kernel",
+        "@onedal//cpp/daal/src/algorithms/ridge_regression:kernel"
     ],
 )
