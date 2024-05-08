@@ -305,6 +305,35 @@ public:
         }
     }
 
+    // spmd::request_iface* sendrecv_replace(byte_t* buf,
+    //                                       std::int64_t count,
+    //                                       const data_type& dtype,
+    //                                       std::int64_t destination_rank,
+    //                                       std::int64_t source_rank) override {
+    //     ONEDAL_ASSERT(destination_rank >= 0);
+    //     ONEDAL_ASSERT(source_rank >= 0);
+
+    //     if (count == 0) {
+    //         return nullptr;
+    //     }
+
+    //     ONEDAL_ASSERT(buf);
+    //     ONEDAL_ASSERT(count > 0);
+
+    //     MPI_Status status;
+    //     constexpr int zero_tag = 0;
+    //     mpi_call(MPI_Sendrecv_replace(buf,
+    //                                   integral_cast<int>(count),
+    //                                   make_mpi_data_type(dtype),
+    //                                   integral_cast<int>(destination_rank),
+    //                                   zero_tag,
+    //                                   integral_cast<int>(source_rank),
+    //                                   zero_tag,
+    //                                   mpi_comm_,
+    //                                   &status));
+    //     return nullptr;
+    // }
+
     spmd::request_iface* sendrecv_replace(byte_t* buf,
                                           std::int64_t count,
                                           const data_type& dtype,
@@ -322,50 +351,25 @@ public:
 
         MPI_Status status;
         constexpr int zero_tag = 0;
-        mpi_call(MPI_Sendrecv_replace(buf,
-                                      integral_cast<int>(count),
-                                      make_mpi_data_type(dtype),
-                                      integral_cast<int>(destination_rank),
-                                      zero_tag,
-                                      integral_cast<int>(source_rank),
-                                      zero_tag,
-                                      mpi_comm_,
-                                      &status));
-        return nullptr;
-    }
+        const auto size = count * sizeof(dtype);
+        auto q = base_t.get_queue();
 
-    spmd::request_iface* sendrecv_replace(byte_t* buf,
-                                          std::int64_t count,
-                                          const data_type& dtype,
-                                          std::int64_t destination_rank,
-                                          std::int64_t source_rank,
-                                          byte_t* recv_buf = nullptr) const {
-        ONEDAL_ASSERT(destination_rank >= 0);
-        ONEDAL_ASSERT(source_rank >= 0);
-
-        if (count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(buf);
-        ONEDAL_ASSERT(count > 0);
-
-        MPI_Status status;
-        constexpr int zero_tag = 0;
-
+        byte_t* const recv_buf = sycl::malloc_device<byte_t>(size, q);
         // Trying MPI_Sendrecv with 2 buffers to check perf
         mpi_call(MPI_Sendrecv(buf,
                               integral_cast<int>(count),
                               make_mpi_data_type(dtype),
                               integral_cast<int>(destination_rank),
                               zero_tag,
-                              buf,
+                              recv_buf,
                               integral_cast<int>(count),
                               make_mpi_data_type(dtype),
                               integral_cast<int>(source_rank),
                               zero_tag,
                               mpi_comm_,
                               &status));
+        q.memcpy(buf, recv_buf, size).wait();
+        sycl::free(recv_buf, q);
         return nullptr;
     }
 

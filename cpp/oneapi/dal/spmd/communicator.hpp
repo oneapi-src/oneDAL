@@ -89,8 +89,7 @@ public:
                                             std::int64_t count,
                                             const data_type& dtype,
                                             std::int64_t destination_rank,
-                                            std::int64_t source_rank,
-                                            byte_t* recv_buf = nullptr) = 0;
+                                            std::int64_t source_rank) = 0;
 };
 
 template <typename MemoryAccessKind>
