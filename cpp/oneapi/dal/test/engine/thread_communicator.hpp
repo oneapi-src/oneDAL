@@ -410,7 +410,8 @@ public:
                                 std::int64_t count,
                                 const data_type& dtype,
                                 std::int64_t destination_rank,
-                                std::int64_t source_rank) override;
+                                std::int64_t source_rank,
+                                sycl::queue q = sycl::queue{}) override;
 
 private:
     thread_communicator_context ctx_;

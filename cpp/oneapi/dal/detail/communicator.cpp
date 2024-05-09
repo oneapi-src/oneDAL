@@ -238,7 +238,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
 
     if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
-        wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
+        wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank, q));
     }
     else {
         ONEDAL_PROFILER_TASK(comm.srr_cpu, q);
