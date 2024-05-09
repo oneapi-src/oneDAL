@@ -405,7 +405,7 @@ public:
                                           const data_type& dtype,
                                           std::int64_t destination_rank,
                                           std::int64_t source_rank,
-                                          sycl::queue q = sycl::queue{}) override {
+                                          byte_t* recv_buf = nullptr) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
         ONEDAL_ASSERT(destination_rank < rank_count_);

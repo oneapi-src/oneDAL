@@ -339,7 +339,7 @@ public:
                                           const data_type& dtype,
                                           std::int64_t destination_rank,
                                           std::int64_t source_rank,
-                                          sycl::queue q = sycl::queue{}) override {
+                                          byte_t* recv_buf = nullptr) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
 
@@ -352,9 +352,7 @@ public:
 
         MPI_Status status;
         constexpr int zero_tag = 0;
-        const auto size = count * sizeof(dtype);
 
-        byte_t* const recv_buf = sycl::malloc_device<byte_t>(size, q);
         // Trying MPI_Sendrecv with 2 buffers to check perf
         mpi_call(MPI_Sendrecv(buf,
                               integral_cast<int>(count),
@@ -368,8 +366,6 @@ public:
                               zero_tag,
                               mpi_comm_,
                               &status));
-        q.memcpy(buf, recv_buf, size).wait();
-        sycl::free(recv_buf, q);
         return nullptr;
     }
 
