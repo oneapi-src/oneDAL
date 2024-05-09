@@ -60,6 +60,14 @@ During training, the data is divided into batches, and the gradients from each b
 
 Refer to :ref:`Mathematical formulation: Newton-CG <newton_cg_c_math>`.
 
+.. _logreg_t_math_sparse:
+
+Training Method: *sparse*
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using this method you can train Logistic Regression model on sparse data. All you need is to provide matrix with feature vectors as 
+sparse table. Find more info about sparse tables here :ref:`Compressed Sparse Rows (CSR) Table: <csr_table>`.
+
 .. _logreg_i_math:
 
 Inference
