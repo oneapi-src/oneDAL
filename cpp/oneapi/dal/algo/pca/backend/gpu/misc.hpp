@@ -421,7 +421,7 @@ auto compute_eigenvectors_on_host(sycl::queue& queue,
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
     auto host_corr = corr.to_host(queue, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+    //pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
 
     return std::make_tuple(eigvecs, eigvals);
 }

@@ -87,7 +87,7 @@ daal_module(
 
 daal_module(
     name = "threading_headers",
-    hdrs = glob(["src/threading/*.h"]),
+    hdrs = glob(["src/threading/**/*.h"]),
     deps = [
         ":service_headers",
     ],
@@ -137,7 +137,7 @@ daal_module(
 
 daal_module(
     name = "threading_tbb",
-    srcs = glob(["src/threading/*.cpp"]),
+    srcs = glob(["src/threading/**/*.cpp"]),
     local_defines = [
         "__DO_TBB_LAYER__",
         "__TBB_NO_IMPLICIT_LINKAGE",
