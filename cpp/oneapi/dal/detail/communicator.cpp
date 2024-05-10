@@ -238,10 +238,14 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
 
     if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
-        byte_t* const recv_buf = sycl::malloc_device<byte_t>(size, q);
+        static byte_t* recv_buf = nullptr;
+        static bool initialized = false;
+        if (!initialized) {
+            recv_buf = sycl::malloc_device<byte_t>(size, q);
+            initialized = true;
+        }
         wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank, recv_buf));
         q.memcpy(buf, recv_buf, size).wait();
-        sycl::free(recv_buf, q);
     }
     else {
         ONEDAL_PROFILER_TASK(comm.srr_cpu, q);
