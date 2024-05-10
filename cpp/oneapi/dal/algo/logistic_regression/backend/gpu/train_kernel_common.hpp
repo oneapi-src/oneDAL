@@ -14,28 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/logistic_regression/common.hpp"
 
-#include "oneapi/dal/array.hpp"
-#include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/detail/sparse_matrix_handle_impl.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/algo/logistic_regression/train_types.hpp"
 
-namespace oneapi::dal::backend::primitives {
+namespace oneapi::dal::logistic_regression::backend {
 
-#ifdef ONEDAL_DATA_PARALLEL
+using dal::backend::context_gpu;
 
-/// Handle that is used to store the information about the data in starse format
-class sparse_matrix_handle {
-    friend dal::detail::pimpl_accessor;
+template <typename Float, typename Task>
+train_result<Task> call_dal_kernel(const context_gpu& ctx,
+                                   const detail::descriptor_base<Task>& desc,
+                                   const detail::train_parameters<Task>& params,
+                                   const table& data,
+                                   const table& resp);
 
-public:
-    sparse_matrix_handle(sycl::queue& queue);
-
-private:
-    dal::detail::pimpl<dal::detail::sparse_matrix_handle_impl> impl_;
-};
-
-#endif // ONEDAL_DATA_PARALLEL
-
-} // namespace oneapi::dal::backend::primitives
+} // namespace oneapi::dal::logistic_regression::backend

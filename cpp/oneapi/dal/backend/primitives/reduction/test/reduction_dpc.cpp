@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -33,6 +34,11 @@ namespace pr = oneapi::dal::backend::primitives;
 
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<double, sum<double>, square<double>>>;
+
+using finiteness_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
+                                    std::tuple<double, sum<double>, identity<double>>,
+                                    std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                    std::tuple<double, logical_or<double>, isinfornan<double>>>;
 
 template <typename Param>
 class reduction_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -262,7 +268,7 @@ public:
         check_output_cm_rw(host_output);
     }
 
-private:
+protected:
     const binary_t binary_{};
     const unary_t unary_{};
     std::int64_t height_;
@@ -282,6 +288,103 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
     this->test_rm_cw_reduce();
     this->test_cm_cw_reduce();
     this->test_cm_rw_reduce();
+}
+
+template <typename Param>
+class infinite_sum_test_random : public reduction_test_random<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+
+    void generate(bool maxval) {
+        this->height_ = GENERATE(17, 999, 1, 5, 1001);
+        this->width_ = GENERATE(7, 707, 1, 251, 5);
+        this->override_init_ = true; // poorly named variable
+        CAPTURE(this->override_init_, this->width_, this->height_, maxval);
+        generate_input(maxval);
+        this->generate_offset();
+    }
+
+    void generate_input(bool maxval) {
+        float mininp = 0.9 * (float)maxval * std::numeric_limits<float>::max() - 1.0f;
+        float maxinp = (float)maxval * std::numeric_limits<float>::max();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(mininp, maxinp));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+};
+
+TEMPLATE_LIST_TEST_M(infinite_sum_test_random,
+                     "Randomly filled reduction with infinte sum",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SECTION("Reduce Row-Major by Rows") {
+        this->test_rm_rw_reduce();
+    }
+    SECTION("Reduce Row-Major by Cols") {
+        this->test_rm_cw_reduce();
+    }
+    SECTION("Reduce Col-Major by Rows") {
+        this->test_cm_cw_reduce();
+    }
+    SECTION("Reduce Row-Major by Cols") {
+        this->test_cm_rw_reduce();
+    }
+}
+
+template <typename Param>
+class single_infinite_test_random : public reduction_test_random<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+
+    void generate(bool infval) {
+        this->height_ = GENERATE(17, 999, 1, 5, 1001);
+        this->width_ = GENERATE(7, 707, 1, 251, 5);
+        this->override_init_ = true; // poorly named variable
+        CAPTURE(this->override_init_, this->width_, this->height_, infval);
+        generate_input(infval);
+        this->generate_offset();
+    }
+
+    void generate_input(bool infval) {
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->height_, this->width_ }.fill_uniform(-3.0, 4.0));
+        auto train_data = train_dataframe.get_array().get_mutable_data();
+
+        // train_data is a float array
+        train_data[5] = infval ? std::numeric_limits<float>::infinity()
+                               : std::numeric_limits<float>::quiet_NaN();
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+};
+
+TEMPLATE_LIST_TEST_M(single_infinite_test_random,
+                     "Randomly filled reduction with single inf or nan",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SECTION("Reduce Row-Major by Rows") {
+        this->test_rm_rw_reduce();
+    }
+    SECTION("Reduce Row-Major by Cols") {
+        this->test_rm_cw_reduce();
+    }
+    SECTION("Reduce Col-Major by Rows") {
+        this->test_cm_cw_reduce();
+    }
+    SECTION("Reduce Col-Major by Cols") {
+        this->test_cm_rw_reduce();
+    }
 }
 
 } // namespace oneapi::dal::backend::primitives::test
