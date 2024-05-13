@@ -123,6 +123,17 @@ public:
         return result;
     }
 
+    double generate_alpha(std::int64_t seed) const {
+        std::mt19937 gen(seed);
+
+        double alpha_min = 0.1;
+        double alpha_max = 5;
+
+        std::uniform_real_distribution<double> dist(alpha_min, alpha_max);
+
+        return dist(gen);
+    }
+
     void check_table_dimensions(const table& x_train,
                                 const table& y_train,
                                 const table& x_test,
@@ -144,13 +155,14 @@ public:
 
         this->bias_ = std::move(bias);
         this->beta_ = std::move(beta);
+        this->alpha_ = generate_alpha(seed);
     }
 
-    auto get_descriptor() const {
+    auto get_descriptor(double alpha = 0.0) const {
         result_option_id resopts = result_options::coefficients;
         if (this->intercept_)
             resopts = resopts | result_options::intercept;
-        return linear_regression::descriptor<float_t, method_t, task_t>(intercept_)
+        return linear_regression::descriptor<float_t, method_t, task_t>(intercept_, alpha)
             .set_result_options(resopts);
     }
 
@@ -191,7 +203,63 @@ public:
         }
     }
 
-    void run_and_check(std::int64_t seed = 888, double tol = 1e-2) {
+    void check_coefficient_shrinkage(const table& lr_coeffs,
+                                     const table& rr_coeffs,
+                                     double tol = 1e-3) {
+        row_accessor<const float_t> lr_acc(lr_coeffs);
+        row_accessor<const float_t> rr_acc(rr_coeffs);
+        const auto lr_arr = lr_acc.pull({ 0, -1 });
+        const auto rr_arr = rr_acc.pull({ 0, -1 });
+
+        double lr_norm = 0, rr_norm = 0;
+        for (std::int64_t i = 0; i < lr_arr.get_count(); ++i) {
+            lr_norm += lr_arr[i] * lr_arr[i];
+            rr_norm += rr_arr[i] * rr_arr[i];
+        }
+        lr_norm = std::sqrt(lr_norm);
+        rr_norm = std::sqrt(rr_norm);
+
+        REQUIRE(rr_norm <= lr_norm + tol);
+    }
+
+    void run_and_check_ridge(std::int64_t seed = 888, double tol = 1e-2) {
+        using namespace ::oneapi::dal::detail;
+
+        std::mt19937 meta_gen(seed);
+
+        const std::int64_t train_seed = meta_gen();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
+                                                                                 3.5,
+                                                                                 train_seed));
+        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
+
+        const std::int64_t test_seed = meta_gen();
+        const auto test_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
+                                                                                 5.5,
+                                                                                 test_seed));
+        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
+
+        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
+        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
+
+        check_table_dimensions(x_train, y_train, x_test, y_test);
+
+        const auto linear_desc = this->get_descriptor();
+        const auto linear_train_res = this->train(linear_desc, x_train, y_train);
+
+        const auto ridge_desc = this->get_descriptor(this->alpha_);
+        const auto ridge_train_res = this->train(ridge_desc, x_train, y_train);
+
+        SECTION("Checking coefficient shrinkage") {
+            this->check_coefficient_shrinkage(linear_train_res.get_coefficients(),
+                                              ridge_train_res.get_coefficients(),
+                                              tol);
+        }
+    }
+
+    void run_and_check_linear(std::int64_t seed = 888, double tol = 1e-2) {
         using namespace ::oneapi::dal::detail;
 
         std::mt19937 meta_gen(seed);
@@ -234,6 +302,7 @@ public:
             check_if_close(infer_res.get_responses(), y_test, tol);
         }
     }
+
     template <typename Float>
     std::vector<dal::table> split_table_by_rows(const dal::table& t, std::int64_t split_count) {
         ONEDAL_ASSERT(0l < split_count);
@@ -259,7 +328,8 @@ public:
 
         return result;
     }
-    void run_and_check_online(std::int64_t nBlocks) {
+
+    void run_and_check_linear_online(std::int64_t nBlocks) {
         using namespace ::oneapi::dal::detail;
 
         std::int64_t seed = 888;
@@ -312,6 +382,62 @@ public:
         }
     }
 
+    void run_and_check_ridge_online(std::int64_t nBlocks) {
+        using namespace ::oneapi::dal::detail;
+
+        std::int64_t seed = 888;
+        double tol = 1e-2;
+
+        std::mt19937 meta_gen(seed);
+        const std::int64_t train_seed = meta_gen();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
+                                                                                 3.5,
+                                                                                 train_seed));
+        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
+
+        const std::int64_t test_seed = meta_gen();
+        const auto test_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
+                                                                                 5.5,
+                                                                                 test_seed));
+        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
+
+        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
+        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
+
+        check_table_dimensions(x_train, y_train, x_test, y_test);
+
+        auto input_table_x = split_table_by_rows<double>(x_train, nBlocks);
+        auto input_table_y = split_table_by_rows<double>(y_train, nBlocks);
+
+        const auto linear_desc = this->get_descriptor();
+        dal::linear_regression::partial_train_result<> linear_partial_result;
+        for (std::int64_t i = 0; i < nBlocks; i++) {
+            linear_partial_result = this->partial_train(linear_desc,
+                                                        linear_partial_result,
+                                                        input_table_x[i],
+                                                        input_table_y[i]);
+        }
+        auto linear_train_res = this->finalize_train(linear_desc, linear_partial_result);
+
+        const auto ridge_desc = this->get_descriptor(this->alpha_);
+        dal::linear_regression::partial_train_result<> ridge_partial_result;
+        for (std::int64_t i = 0; i < nBlocks; i++) {
+            ridge_partial_result = this->partial_train(ridge_desc,
+                                                       ridge_partial_result,
+                                                       input_table_x[i],
+                                                       input_table_y[i]);
+        }
+        auto ridge_train_res = this->finalize_train(ridge_desc, ridge_partial_result);
+
+        SECTION("Checking coefficient shrinkage") {
+            this->check_coefficient_shrinkage(linear_train_res.get_coefficients(),
+                                              ridge_train_res.get_coefficients(),
+                                              tol);
+        }
+    }
+
 protected:
     bool intercept_ = true;
     std::int64_t t_count_;
@@ -321,6 +447,7 @@ protected:
 
     table bias_;
     table beta_;
+    double alpha_;
 };
 
 using lr_types = COMBINE_TYPES((float, double),

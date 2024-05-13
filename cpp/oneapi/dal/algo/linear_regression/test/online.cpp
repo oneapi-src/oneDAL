@@ -47,7 +47,15 @@ TEMPLATE_LIST_TEST_M(lr_online_test, "LR common flow", "[lr][online]", lr_types)
     this->generate(777);
     const int64_t nBlocks = GENERATE(1, 3, 5, 8);
 
-    this->run_and_check_online(nBlocks);
+    this->run_and_check_linear_online(nBlocks);
+}
+
+TEMPLATE_LIST_TEST_M(lr_online_test, "RR common flow", "[rr][online]", lr_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate(777);
+    const int64_t nBlocks = GENERATE(1, 3, 5, 8);
+
+    this->run_and_check_linear_online(nBlocks);
 }
 
 } // namespace oneapi::dal::linear_regression::test
