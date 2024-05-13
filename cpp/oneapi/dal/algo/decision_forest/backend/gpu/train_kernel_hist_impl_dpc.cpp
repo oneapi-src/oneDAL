@@ -699,7 +699,7 @@ inline void compute_hist_for_node(
     }
 
     node_ptr[5] = win_cls;
-    node_imp_ptr[0] = sycl::fmax(imp, Float(0));
+    node_imp_ptr[0] = sycl::max(imp, Float(0));
 }
 
 // regression compute_hist_for_node
@@ -799,7 +799,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
             }
 
             node_ptr[impl_const_t::ind_win] = win_cls;
-            node_imp_ptr[0] = sycl::fmax(imp, Float(0));
+            node_imp_ptr[0] = sycl::max(imp, Float(0));
         }
         imp_data_list.imp_list_.assign_from_host(queue_, imp_list_host).wait_and_throw();
         node_list.assign_from_host(queue_, node_list_host).wait_and_throw();
@@ -1271,7 +1271,7 @@ inline void get_block_borders(Index total_elem_count,
     const Index elem_count = total_elem_count / block_count + bool(total_elem_count % block_count);
 
     ind_start = block_id * elem_count;
-    ind_end = sycl::fmin(static_cast<Index>(block_id + 1) * elem_count, total_elem_count);
+    ind_end = sycl::min(static_cast<Index>(block_id + 1) * elem_count, total_elem_count);
 }
 
 template <typename Float, typename Index, typename Task>
@@ -1334,7 +1334,7 @@ static void do_node_imp_split(const imp_data_list_ptr<Float, Index, Task>& imp_l
         Float* node_rch_imp = imp_list_ptr_new.imp_list_ptr_ +
                               (new_left_node_pos + 1) * impl_const_t::node_imp_prop_count_;
         node_lch_imp[0] = left_child_imp[0];
-        node_rch_imp[0] = sycl::fmax(imp_right, Float(0));
+        node_rch_imp[0] = sycl::max(imp_right, Float(0));
     }
     else {
         constexpr Index buff_size = impl_const_t::node_imp_prop_count_ + 1;

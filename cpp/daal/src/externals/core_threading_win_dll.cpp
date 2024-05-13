@@ -1067,14 +1067,14 @@ CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, sgesvd,
                          int ijobu, int ijobvt),
                         (jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, info, ijobu, ijobvt));
 
-// CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, dsyevd,
-//                         (const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
-//                          const DAAL_INT * lwork, DAAL_INT * iwork, const DAAL_INT * liwork, DAAL_INT * info, int ijobz, int iuplo),
-//                         (jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info, ijobz, iuplo));
-// CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, ssyevd,
-//                         (const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
-//                          const DAAL_INT * lwork, DAAL_INT * iwork, const DAAL_INT * liwork, DAAL_INT * info, int ijobz, int iuplo),
-//                         (jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info, ijobz, iuplo));
+CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, dsyevd,
+                        (const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
+                         const DAAL_INT * lwork, DAAL_INT * iwork, const DAAL_INT * liwork, DAAL_INT * info, int ijobz, int iuplo),
+                        (jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info, ijobz, iuplo));
+CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, ssyevd,
+                        (const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
+                         const DAAL_INT * lwork, DAAL_INT * iwork, const DAAL_INT * liwork, DAAL_INT * info, int ijobz, int iuplo),
+                        (jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info, ijobz, iuplo));
 
 CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, dsyev,
                         (const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,

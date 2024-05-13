@@ -595,7 +595,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
         }
     }
 
-    for (std::int64_t stride = std::min(local_size, block_count) / 2; stride > 0; stride /= 2) {
+    for (std::int64_t stride = sycl::min(local_size, block_count) / 2; stride > 0; stride /= 2) {
         item.barrier(sycl::access::fence_space::local_space);
 
         if (stride > id) {
@@ -696,7 +696,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 
         if constexpr (!DefferedFin) {
             Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
-            Float mrgstdev = sycl::sqrt(mrgvariance);
+            Float mrgstdev = (Float)sqrt(mrgvariance);
 
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
                 rsorm_ptr[group_id] = mrgsum2 / mrgvectors;

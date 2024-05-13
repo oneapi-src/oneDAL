@@ -90,22 +90,22 @@ struct MKLGemm
 
 private:
     template <typename T>
-    void innerGemm(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, T alpha, ::sycl::buffer<T, 1> a, int64_t lda,
-                   ::sycl::buffer<T, 1> b, int64_t ldb, T beta, ::sycl::buffer<T, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_b,
-                   int64_t offset_c);
+    DAAL_DEPRECATED void innerGemm(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, T alpha, ::sycl::buffer<T, 1> a,
+                                   int64_t lda, ::sycl::buffer<T, 1> b, int64_t ldb, T beta, ::sycl::buffer<T, 1> c, int64_t ldc, int64_t offset_a,
+                                   int64_t offset_b, int64_t offset_c);
 
     template <>
-    void innerGemm<double>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, double alpha, ::sycl::buffer<double, 1> a,
-                           int64_t lda, ::sycl::buffer<double, 1> b, int64_t ldb, double beta, ::sycl::buffer<double, 1> c, int64_t ldc,
-                           int64_t offset_a, int64_t offset_b, int64_t offset_c)
+    DAAL_DEPRECATED void innerGemm<double>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, double alpha,
+                                           ::sycl::buffer<double, 1> a, int64_t lda, ::sycl::buffer<double, 1> b, int64_t ldb, double beta,
+                                           ::sycl::buffer<double, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
         //mkl::blas::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
 
     template <>
-    void innerGemm<float>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, float alpha, ::sycl::buffer<float, 1> a,
-                          int64_t lda, ::sycl::buffer<float, 1> b, int64_t ldb, float beta, ::sycl::buffer<float, 1> c, int64_t ldc, int64_t offset_a,
-                          int64_t offset_b, int64_t offset_c)
+    DAAL_DEPRECATED void innerGemm<float>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, float alpha,
+                                          ::sycl::buffer<float, 1> a, int64_t lda, ::sycl::buffer<float, 1> b, int64_t ldb, float beta,
+                                          ::sycl::buffer<float, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
         //mkl::blas::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }

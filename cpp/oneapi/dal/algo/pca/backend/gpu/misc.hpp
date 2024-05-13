@@ -396,36 +396,6 @@ auto compute_correlation_from_covariance(sycl::queue& queue,
 
 // SVD method
 
-///  A wrapper that computes 1d array of eigenvalues and 2d array of eigenvectors from the covariance matrix
-///
-/// @tparam Float Floating-point type used to perform computations
-///
-/// @param[in]  queue The SYCL queue
-/// @param[in]  corr  The input covariance/correlation matrix of size `column_count` x `column_count`
-/// @param[in]  component_count  The number of `component_count` of the descriptor
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
-///
-/// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
-/// of size `component_count` x `column_count` and the second element is the resulting 1d array of eigenvalues
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& queue,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-    auto host_corr = corr.to_host(queue, deps);
-    //pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
-
 ///  A wrapper that computes 1d array of eigenvalues from the 1d array of the singular values
 ///
 /// @tparam Float Floating-point type used to perform computations
