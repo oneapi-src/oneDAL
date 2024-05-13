@@ -563,14 +563,16 @@ ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(addprefix $(ONEAPI.srcdir)/io/, $(ONEAPI.IO))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
-ONEAPI.srcdirs.parameters := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
+ONEAPI.srcdirs.parameters := $(ONEAPI.srcdir)/detail/parameters \
+                             $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend) $(ONEAPI.srcdirs.parameters)
 
-ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*"
+ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*" ! -path "*/detail/parameters/*"
+ONEAPI.srcs.parameters.exclude := ! -path "*_test.*" ! -path "*/test/*"
 ONEAPI.srcs.all := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
-                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude)))
+                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.parameters.exclude)))
 ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
@@ -705,14 +707,14 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y.dpc),.dpcpp))
 
 # Filtering parameter files
-PARAMETERS.objs_a.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_a))
-ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_a))
-PARAMETERS.objs_y.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_y))
-ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_y))
-PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
-PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
-ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+PARAMETERS.objs_a.filtered := $(filter %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_a))
+ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_a))
+PARAMETERS.objs_y.filtered := $(filter %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_y))
+ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_y))
+PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
 
 # Actual compilation
 $(foreach x,$(ONEAPI.objs_a.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
