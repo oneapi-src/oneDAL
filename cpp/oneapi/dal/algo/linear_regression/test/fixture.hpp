@@ -126,7 +126,7 @@ public:
     double generate_alpha(std::int64_t seed) const {
         std::mt19937 gen(seed);
 
-        double alpha_min = 0.1;
+        double alpha_min = 1;
         double alpha_max = 5;
 
         std::uniform_real_distribution<double> dist(alpha_min, alpha_max);

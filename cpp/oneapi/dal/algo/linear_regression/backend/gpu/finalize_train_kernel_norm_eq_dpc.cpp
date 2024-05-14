@@ -27,6 +27,7 @@
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/finalize_train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/misc.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
@@ -34,27 +35,6 @@ using dal::backend::context_gpu;
 
 namespace be = dal::backend;
 namespace pr = be::primitives;
-
-template <typename Float>
-sycl::event add_ridge_penalty(sycl::queue& q,
-                              const pr::ndarray<Float, 2, pr::ndorder::c>& xtx,
-                              bool compute_intercept,
-                              double alpha) {
-    ONEDAL_ASSERT(xtx.has_mutable_data());
-    ONEDAL_ASSERT(be::is_known_usm(q, xtx.get_mutable_data()));
-    ONEDAL_ASSERT(xtx.get_dimension(0) == xtx.get_dimension(1));
-
-    Float* xtx_ptr = xtx.get_mutable_data();
-    std::int64_t feature_count = xtx.get_dimension(0);
-    std::int64_t original_feature_count = feature_count - compute_intercept;
-
-    return q.submit([&](sycl::handler& cgh) {
-        const auto range = be::make_range_1d(original_feature_count);
-        cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            xtx_ptr[idx * (feature_count + 1)] += alpha;
-        });
-    });
-}
 
 template <typename Float, typename Task>
 static train_result<Task> call_dal_kernel(const context_gpu& ctx,
