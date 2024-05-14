@@ -211,15 +211,13 @@ public:
         const auto lr_arr = lr_acc.pull({ 0, -1 });
         const auto rr_arr = rr_acc.pull({ 0, -1 });
 
-        double lr_norm = 0, rr_norm = 0;
+        double lr_norm_squared = 0, rr_norm_squared = 0;
         for (std::int64_t i = 0; i < lr_arr.get_count(); ++i) {
-            lr_norm += lr_arr[i] * lr_arr[i];
-            rr_norm += rr_arr[i] * rr_arr[i];
+            lr_norm_squared += lr_arr[i] * lr_arr[i];
+            rr_norm_squared += rr_arr[i] * rr_arr[i];
         }
-        lr_norm = std::sqrt(lr_norm);
-        rr_norm = std::sqrt(rr_norm);
 
-        REQUIRE(rr_norm <= lr_norm + tol);
+        REQUIRE(rr_norm_squared <= lr_norm_squared + tol);
     }
 
     void run_and_check_ridge(std::int64_t seed = 888, double tol = 1e-2) {
@@ -440,6 +438,7 @@ public:
 
 protected:
     bool intercept_ = true;
+    double alpha_;
     std::int64_t t_count_;
     std::int64_t s_count_;
     std::int64_t f_count_;
@@ -447,7 +446,6 @@ protected:
 
     table bias_;
     table beta_;
-    double alpha_;
 };
 
 using lr_types = COMBINE_TYPES((float, double),

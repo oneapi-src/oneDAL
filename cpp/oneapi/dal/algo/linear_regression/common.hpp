@@ -175,11 +175,6 @@ public:
         set_alpha(alpha);
     }
 
-    auto& set_alpha(double value) {
-        base_t::set_alpha_impl(value);
-        return *this;
-    }
-
     /// Defines should intercept be taken into consideration.
     bool get_compute_intercept() const {
         return base_t::get_compute_intercept();
@@ -187,6 +182,15 @@ public:
 
     auto& set_compute_intercept(bool compute_intercept) const {
         base_t::set_compute_intercept(compute_intercept);
+        return *this;
+    }
+
+    double get_alpha() const {
+        return base_t::get_alpha();
+    }
+
+    auto& set_alpha(double value) {
+        base_t::set_alpha_impl(value);
         return *this;
     }
 

@@ -54,8 +54,9 @@ sycl::event add_ridge_penalty(sycl::queue& q,
     return q.submit([&](sycl::handler& cgh) {
         const auto range = be::make_range_1d(original_feature_count);
         cgh.depends_on(deps);
+        std::int64_t step = feature_count + 1;
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            xtx_ptr[idx * (feature_count + 1)] += alpha;
+            xtx_ptr[idx * step] += alpha;
         });
     });
 }
