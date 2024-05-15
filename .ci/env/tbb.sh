@@ -88,6 +88,8 @@ set_arch_dir() {
         arch_dir="intel64"
     elif [ "$arch" == "aarch64" ]; then
         arch_dir="arm"
+    elif [ "$arch" == "riscv64" ]; then
+        arch_dir="riscv64"
     else
         echo "Unsupported architecture '${arch}'. Quitting tbb build script."
         exit 1

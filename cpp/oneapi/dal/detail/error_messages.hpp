@@ -247,6 +247,7 @@ public:
     MSG(inverse_regularization_leq_zero);
     MSG(l1_coef_neq_zero);
     MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu);
+    MSG(log_reg_sparse_method_is_not_implemented_for_cpu);
     MSG(unknown_optimizer);
 
     /* Louvain */

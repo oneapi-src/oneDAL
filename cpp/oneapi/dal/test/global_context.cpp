@@ -85,6 +85,9 @@ cpu_vendor get_vendor() {
 #elif defined(TARGET_ARM)
     /// ARM architecture
     return cpu_vendor::arm;
+#elif defined(TARGET_RISCV64)
+    /// riscv64 architecture
+    return cpu_vendor::riscv64;
 #endif
 }
 
@@ -118,6 +121,8 @@ cpu_extension get_top_cpu_extension() {
     }
 #elif defined(TARGET_ARM)
     ext = cpu_extension::sve;
+#elif defined(TARGET_RISCV64)
+    ext = cpu_extension::rv64;
 #endif
     return ext;
 }

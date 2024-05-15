@@ -90,13 +90,16 @@ done
 TESTING_RETURN=0
 PLATFORM=${platform:-$(bash dev/make/identify_os.sh)}
 OS=${PLATFORM::3}
-ARCH=${PLATFORM:3:3}
+ARCH=${PLATFORM:3}
 if [ "$ARCH" == "32e" ]; then
     full_arch=intel64
     arch_dir=intel_intel64
 elif [ "$ARCH" == "arm" ]; then
     full_arch=arm
     arch_dir=arm_aarch64
+elif [ "$ARCH" == "riscv64" ]; then
+    full_arch=riscv64
+    arch_dir=riscv64_riscv64
 else
     echo "Unknown architecture ${ARCH} detected for platform ${PLATFORM}"
     exit 1
@@ -174,15 +177,19 @@ for link_mode in "${link_modes[@]}"; do
     fi
     if [ "$build_system" == "cmake" ]; then
         if [[ ${compiler} == gnu ]]; then
-            export CC=gcc
-            export CXX=g++
+            CC=gcc
+            CXX=g++
         elif [[ ${compiler} == clang ]]; then
-            export CC=clang
-            export CXX=clang++
+            CC=clang
+            CXX=clang++
         elif [[ ${compiler} == icx ]]; then
-            export CC=icx
-            export CXX=icpx
+            CC=icx
+            CXX=icpx
         fi
+
+        export CC
+        export CXX
+
         echo "============== Configuration: =============="
         echo Compiler:  "${compiler}"
         echo Link mode: "${link_mode}"
@@ -232,9 +239,22 @@ for link_mode in "${link_modes[@]}"; do
         output_result=
         err=
         cmake_results_dir="_cmake_results/${arch_dir}_${lib_ext}"
+
+        if [ "$TEST_KIND" = "samples" ]; then
+            cd Build;
+            cmake_results_dir="../_cmake_results/${arch_dir}_${lib_ext}"
+        fi
+
         for p in "${cmake_results_dir}"/*; do
             e=$(basename "$p")
-            ${p} &> "${e}".res
+
+            if [ "$TEST_KIND" = "samples" ]; then
+                run_command="make run_${e}"
+            else
+                run_command="$p"
+            fi
+
+            ${run_command} > "${e}".res 2>&1
             err=$?
             output_result=$(cat "${e}".res)
             mv -f "${e}".res ${cmake_results_dir}/
@@ -249,6 +269,8 @@ for link_mode in "${link_modes[@]}"; do
             fi
             echo -e "$status_ex"
         done
+        # Go back from "Build" directory in case of samples testing
+        [ "$TEST_KIND" = "samples" ] && cd ..
     else
         build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
         echo "Building ${TEST_KIND} ${build_command}"

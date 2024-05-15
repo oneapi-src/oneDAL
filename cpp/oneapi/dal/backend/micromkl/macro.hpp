@@ -58,6 +58,8 @@
 #define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
 #elif defined(TARGET_ARM)
 #define FUNC_A8SVE(...) EXPAND(FUNC_CPU(sve, sve, __VA_ARGS__))
+#elif defined(TARGET_RISCV64)
+#define FUNC_RV64(...) EXPAND(FUNC_CPU(rv64, rv64, __VA_ARGS__))
 #endif
 
 #ifdef __APPLE__
@@ -79,6 +81,10 @@
 #define FUNC(prefix, name, argdecl, argcall)  \
     DISPATCH_FUNC_DECL(prefix, name, argdecl) \
     FUNC_A8SVE(prefix, name, argdecl, argcall)
+#elif defined(TARGET_RISCV64)
+#define FUNC(prefix, name, argdecl, argcall)  \
+    DISPATCH_FUNC_DECL(prefix, name, argdecl) \
+    FUNC_RV64(prefix, name, argdecl, argcall)
 #endif
 
 #ifdef ONEDAL_REF
@@ -120,6 +126,12 @@
 #define INSTANTIATE_SSE42(...)
 #endif
 
+#ifdef ONEDAL_CPU_DISPATCH_RV64
+#define INSTANTIATE_RV64(...) EXPAND(INSTANTIATE_CPU(rv64, __VA_ARGS__))
+#else
+#define INSTANTIATE_RV64(...)
+#endif
+
 #define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
 
 #if defined(TARGET_X86_64)
@@ -130,6 +142,8 @@
     INSTANTIATE_SSE2(name, Float, argdecl)
 #elif defined(TARGET_ARM)
 #define INSTANTIATE_FLOAT(name, Float, argdecl) INSTANTIATE_A8SVE(name, Float, argdecl)
+#elif defined(TARGET_RISCV64)
+#define INSTANTIATE_FLOAT(name, Float, argdecl) INSTANTIATE_RV64(name, Float, argdecl)
 #endif
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \

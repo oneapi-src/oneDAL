@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -44,6 +45,13 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>
                                    std::tuple<double, sum<double>, abs<double>>,
                                    std::tuple<double, max<double>, identity<double>>,
                                    std::tuple<double, min<double>, identity<double>>>;
+
+using finiteness_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
+                                    std::tuple<double, sum<double>, identity<double>>,
+                                    std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                    std::tuple<float, logical_or<float>, isinf<float>>,
+                                    std::tuple<double, logical_or<double>, isinfornan<double>>,
+                                    std::tuple<double, logical_or<double>, isinf<double>>>;
 
 template <typename Param>
 class reduction_rm_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -98,7 +106,8 @@ public:
         auto res = array<float_t>::full(width_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
         for (std::int64_t j = 0; j < height_; ++j) {
-            const auto row_acc = row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+            //input_table_ is a float ndarray
+            const auto row_acc = row_accessor<const float>{ input_table_ }.pull({ j, j + 1 });
             for (std::int64_t i = 0; i < width_; ++i) {
                 const auto val = row_acc[i];
                 res_ptr[i] = binary_(res_ptr[i], unary_(val));
@@ -111,7 +120,7 @@ public:
         auto res = array<float_t>::full(height_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
         for (std::int64_t j = 0; j < height_; ++j) {
-            const auto row_acc = row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+            const auto row_acc = row_accessor<const float>{ input_table_ }.pull({ j, j + 1 });
             for (std::int64_t i = 0; i < width_; ++i) {
                 const auto val = row_acc[i];
                 res_ptr[j] = binary_(res_ptr[j], unary_(val));
@@ -127,7 +136,7 @@ public:
         for (auto i = 0; i < height_; ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
-                CAPTURE(gtv[i], arr[i], diff, tol);
+                CAPTURE(i, gtv[i], arr[i], diff, tol);
                 FAIL();
             }
         }
@@ -140,7 +149,7 @@ public:
         for (auto i = 0; i < width_; ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
-                CAPTURE(gtv[i], arr[i], diff, tol);
+                CAPTURE(i, gtv[i], arr[i], diff, tol);
                 FAIL();
             }
         }
@@ -242,7 +251,7 @@ public:
         check_output_cw(out_array);
     }
 
-private:
+protected:
     const binary_t binary_{};
     const unary_t unary_{};
     std::int64_t width_;
@@ -273,6 +282,121 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
     this->test_raw_cw_reduce_naive();
     this->test_raw_cw_reduce_atomic();
     this->test_raw_cw_reduce_wrapper();
+}
+
+template <typename Param>
+class infinite_sum_rm_test_random : public reduction_rm_test_random<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+
+    void generate(bool maxval) {
+        this->width_ = GENERATE(7, 707, 5);
+        this->stride_ = GENERATE(707, 812, 1024);
+        this->height_ = GENERATE(17, 999, 1, 1001);
+        CAPTURE(this->width_, this->stride_, this->height_, maxval);
+        generate_input(maxval);
+    }
+
+    void generate_input(bool maxval) {
+        float mininp = 0.9 * (float)maxval * std::numeric_limits<float>::max() - 1.0f;
+        float maxinp = (float)maxval * std::numeric_limits<float>::max();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(mininp, maxinp));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+};
+
+TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
+                     "Randomly filled Row-Major Row-Wise reduction with infinte sum",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
+}
+
+TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
+                     "Randomly filled Row-Major Col-Wise reduction with infinte sum",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_atomic();
+    this->test_raw_cw_reduce_wrapper();
+}
+
+template <typename Param>
+class single_infinite_rm_test_random : public reduction_rm_test_random<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+    void generate(bool infval) {
+        this->width_ = GENERATE(7, 707, 5);
+        this->stride_ = GENERATE(707, 812, 1024);
+        this->height_ = GENERATE(17, 999, 1, 1001);
+        CAPTURE(this->width_, this->stride_, this->height_, infval);
+        generate_input(infval);
+    }
+
+    void generate_input(bool infval) {
+        float infinp = infval ? std::numeric_limits<float>::infinity()
+                              : std::numeric_limits<float>::quiet_NaN();
+        const auto train_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ this->height_, this->stride_ }.fill_uniform(-0.2, 0.5));
+
+        // train_data is a float ndarray
+        auto train_data = train_dataframe.get_array().get_mutable_data();
+        train_data[0] = infinp;
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+        // no inf added to see what will happen in testing
+    }
+};
+
+TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
+                     "Randomly filled Row-Major Row-Wise reduction with single inf or nan",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
+}
+
+TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
+                     "Randomly filled Row-Major Col-Wise reduction with single inf or nan",
+                     "[reduction][rm][small]",
+                     finiteness_types) {
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    SKIP_IF(this->should_be_skipped());
+    SECTION("Reduce Naive") {
+        this->test_raw_cw_reduce_naive();
+    }
+    // Investigation into atomic reduction discrepancies ongoing
+    //SECTION("Reduce Atomic") {
+    // this->test_raw_cw_reduce_atomic();
+    //}
+    SECTION("Reduce Wrapper") {
+        this->test_raw_cw_reduce_wrapper();
+    }
 }
 
 } // namespace oneapi::dal::backend::primitives::test

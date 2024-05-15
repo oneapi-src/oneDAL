@@ -68,5 +68,21 @@
             DAAL_KERNEL_SVE_ONLY_CODE(case daal::CpuType::sve : st = func(daal::CpuType::sve, __VA_ARGS__); break;) \
         }                                                                                                           \
         services::throwIfPossible(st);
+#elif defined(TARGET_RISCV64)
+    #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...)                                                              \
+        switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId()))               \
+        {                                                                                                         \
+            DAAL_KERNEL_RV64_ONLY_CODE(case daal::CpuType::rv64 : func(daal::CpuType::rv64, __VA_ARGS__); break;) \
+        }
+
+    #define DAAL_DISPATCH_FUNCTION_BY_CPU_SAFE(func, ...)                                                              \
+        services::Status st;                                                                                           \
+        int cpuid = daal::rv64;                                                                                        \
+        DAAL_SAFE_CPU_CALL((cpuid = daal::services::Environment::getInstance()->getCpuId()), (cpuid = daal::rv64))     \
+        switch (static_cast<daal::CpuType>(cpuid))                                                                     \
+        {                                                                                                              \
+            DAAL_KERNEL_RV64_ONLY_CODE(case daal::CpuType::rv64 : st = func(daal::CpuType::rv64, __VA_ARGS__); break;) \
+        }                                                                                                              \
+        services::throwIfPossible(st);
 #endif
 #endif
