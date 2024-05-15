@@ -438,7 +438,7 @@ public:
 
 protected:
     bool intercept_ = true;
-    double alpha_;
+    float_t alpha_;
     std::int64_t t_count_;
     std::int64_t s_count_;
     std::int64_t f_count_;
