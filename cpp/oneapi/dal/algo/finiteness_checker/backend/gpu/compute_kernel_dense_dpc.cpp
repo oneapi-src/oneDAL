@@ -50,11 +50,8 @@ template <typename Float>
 static bool compute(const context_gpu& ctx, const bool desc, const input_t& input) {
     auto& queue = ctx.get_queue();
     const auto x = input.get_x();
-    bool result;
-
     const auto x_1d = pr::table2ndarray_1d<Float>(queue, x, sycl::usm::alloc::device);
-    result = compute_finiteness(queue, x_1d, desc);
-    return result;
+    return compute_finiteness(queue, x_1d, desc);
 }
 
 template <typename Float>
