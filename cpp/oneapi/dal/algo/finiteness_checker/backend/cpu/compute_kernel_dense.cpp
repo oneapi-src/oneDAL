@@ -28,24 +28,16 @@ namespace oneapi::dal::finiteness_checker::backend {
 
 using dal::backend::context_cpu;
 using input_t = compute_input<task::compute>;
-using descriptor_t = detail::descriptor_base<task::compute>;
-
-namespace daal_finiteness_checker = daal::algorithms::kernel_function::rbf;
-
-
-template <typename Float, daal::CpuType Cpu>
-using daal_finiteness_checker_t =
-    daal::data_management::internal::allValuesAreFinite<Float, Cpu>;
 
 template <typename Float>
 static bool call_daal_kernel(const context_cpu& ctx,
                                  const bool desc,
                                  const table& x) {
-
+    bool result;
     const auto daal_x = interop::convert_to_daal_table<Float>(x);
 
     interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_finiteness_checker_t>(ctx,
+        daal::data_management::internal::allValuesAreFinite<Float>(
                                                             daal_x.get(),
                                                             desc,
                                                             &result));
@@ -53,7 +45,7 @@ static bool call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
+static result_t compute(const context_cpu& ctx, const bool desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_x());
 }
 
@@ -69,7 +61,6 @@ struct compute_kernel_cpu<Float, method::dense, task::compute> {
     void operator()(const context_cpu& ctx,
                     bool desc,
                     const table& x,
-                    const table& y,
                     bool& res) const {
         throw unimplemented(dal::detail::error_messages::method_not_implemented());
     }
