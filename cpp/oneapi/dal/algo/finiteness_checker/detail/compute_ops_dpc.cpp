@@ -27,8 +27,8 @@ using dal::detail::data_parallel_policy;
 template <typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     bool operator()(const data_parallel_policy& ctx,
-                                    const bool param,
-                                    const compute_input<Task>& input) const {
+                    const bool param,
+                    const compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
             KERNEL_SINGLE_NODE_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;
@@ -36,10 +36,7 @@ struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const data_parallel_policy& ctx,
-                    const bool param,
-                    const table& x,
-                    bool& res) {
+    void operator()(const data_parallel_policy& ctx, const bool param, const table& x, bool& res) {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
             KERNEL_SINGLE_NODE_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;

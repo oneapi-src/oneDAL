@@ -23,23 +23,25 @@ namespace oneapi::dal::finiteness_checker::backend {
 
 using dal::backend::context_gpu;
 using input_t = compute_input<task::compute>;
-using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
 bool compute_finiteness(sycl::queue& queue,
-                 const pr::ndview<Float, 1>& x_1d,
-                 bool allowNaN,
-                 const dal::backend::event_vector& deps = {}) {
-
+                        const pr::ndview<Float, 1>& x_1d,
+                        bool allowNaN,
+                        const dal::backend::event_vector& deps = {}) {
     Float out;
-    
+
     {
         ONEDAL_PROFILER_TASK(finiteness_checker.reduce, queue);
-        out =
-            pr::reduce_1d(queue, x_1d, output, pr::logical_or<Float>{}, allowNaN? pr::isinf<Float>{} : pr::isinfornan<Float>, deps);
+        out = pr::reduce_1d(queue,
+                            x_1d,
+                            output,
+                            pr::logical_or<Float>{},
+                            allowNaN ? pr::isinf<Float>{} : pr::isinfornan<Float>,
+                            deps);
     }
     return static_cast<bool> out;
 }
@@ -57,22 +59,15 @@ static bool compute(const context_gpu& ctx, const bool desc, const input_t& inpu
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_gpu& ctx,
-                        const bool desc,
-                        const input_t& input) const {
+    result_t operator()(const context_gpu& ctx, const bool desc, const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const context_gpu& ctx,
-                    const bool desc,
-                    const table& x,
-                    bool& res) {
-                        
+    void operator()(const context_gpu& ctx, const bool desc, const table& x, bool& res) {
         auto& queue = ctx.get_queue();
         const auto x_1d = pr::table2ndarray_1d<Float>(queue, x, sycl::usm::alloc::device);
         res = compute_finiteness(queue, x_1d, desc);
-
     }
 #endif
 };

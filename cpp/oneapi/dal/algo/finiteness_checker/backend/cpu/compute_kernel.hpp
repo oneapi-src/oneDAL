@@ -25,8 +25,8 @@ namespace oneapi::dal::finiteness_checker::backend {
 template <typename Float, typename Method, typename Task>
 struct compute_kernel_cpu {
     bool operator()(const dal::backend::context_cpu& ctx,
-                                    const bool params,
-                                    const compute_input<Task>& input) const;
+                    const bool params,
+                    const compute_input<Task>& input) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
     void operator()(const dal::backend::context_cpu& ctx,

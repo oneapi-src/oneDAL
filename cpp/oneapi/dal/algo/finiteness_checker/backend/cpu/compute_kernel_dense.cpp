@@ -30,17 +30,12 @@ using dal::backend::context_cpu;
 using input_t = compute_input<task::compute>;
 
 template <typename Float>
-static bool call_daal_kernel(const context_cpu& ctx,
-                                 const bool desc,
-                                 const table& x) {
+static bool call_daal_kernel(const context_cpu& ctx, const bool desc, const table& x) {
     bool result;
     const auto daal_x = interop::convert_to_daal_table<Float>(x);
 
     interop::status_to_exception(
-        daal::data_management::internal::allValuesAreFinite<Float>(
-                                                            daal_x.get(),
-                                                            desc,
-                                                            &result));
+        daal::data_management::internal::allValuesAreFinite<Float>(daal_x.get(), desc, &result));
     return result;
 }
 
@@ -51,17 +46,12 @@ static result_t compute(const context_cpu& ctx, const bool desc, const input_t& 
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_cpu& ctx,
-                        const bool desc,
-                        const input_t& input) const {
+    result_t operator()(const context_cpu& ctx, const bool desc, const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const context_cpu& ctx,
-                    bool desc,
-                    const table& x,
-                    bool& res) const {
+    void operator()(const context_cpu& ctx, bool desc, const table& x, bool& res) const {
         throw unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 #endif

@@ -26,14 +26,12 @@ public:
     table x;
 };
 
-
 using detail::v1::compute_input_impl;
 
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& x)
-        : impl_(new compute_input_impl<Task>(x)) {}
+compute_input<Task>::compute_input(const table& x) : impl_(new compute_input_impl<Task>(x)) {}
 
 template <typename Task>
 const table& compute_input<Task>::get_x() const {
