@@ -41,7 +41,7 @@ template <typename Float>
 sycl::event add_ridge_penalty(sycl::queue& q,
                               const pr::ndarray<Float, 2>& xtx,
                               bool compute_intercept,
-                              double alpha,
+                              Float alpha,
                               const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(xtx.has_mutable_data());
     ONEDAL_ASSERT(be::is_known_usm(q, xtx.get_mutable_data()));
