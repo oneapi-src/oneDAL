@@ -19,7 +19,7 @@ jobs:
     if: |
       github.event.action == 'labeled' &&
       contains(toJson(github.event.pull_request.labels.*.name), '"RFC"')
-    steps: 
+    steps:
     - name: Notify Slack
       uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
       with:
