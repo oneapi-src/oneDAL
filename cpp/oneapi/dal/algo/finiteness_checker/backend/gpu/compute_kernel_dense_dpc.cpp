@@ -50,8 +50,8 @@ static bool compute(const context_gpu& ctx, const bool desc, const input_t& inpu
     const auto x = input.get_x();
     bool result;
 
-    const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
-
+    const auto x_1d = pr::table2ndarray_1d<Float>(queue, x, sycl::usm::alloc::device);
+    result = compute_finiteness(queue, x_1d, desc);
     return result;
 }
 
