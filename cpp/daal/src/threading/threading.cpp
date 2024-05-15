@@ -23,61 +23,46 @@
 
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
+#include "src/algorithms/service_qsort.h"
 
-#if defined(__DO_TBB_LAYER__)
-    #define TBB_PREVIEW_GLOBAL_CONTROL 1
-    #define TBB_PREVIEW_TASK_ARENA     1
+#define TBB_PREVIEW_GLOBAL_CONTROL 1
+#define TBB_PREVIEW_TASK_ARENA     1
 
-    #include <stdlib.h> // malloc and free
-    #include <tbb/tbb.h>
-    #include <tbb/spin_mutex.h>
-    #include <tbb/scalable_allocator.h>
-    #include <tbb/global_control.h>
-    #include <tbb/task_arena.h>
-    #include "services/daal_atomic_int.h"
+#include <stdlib.h> // malloc and free
+#include <tbb/tbb.h>
+#include <tbb/spin_mutex.h>
+#include <tbb/scalable_allocator.h>
+#include <tbb/global_control.h>
+#include <tbb/task_arena.h>
+#include "services/daal_atomic_int.h"
 
-    #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
-        #include <tbb/task.h>
-    #endif
+#if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
+    #include <tbb/task.h>
+#endif
 
 using namespace daal::services;
-#else
-    #include "src/externals/service_service.h"
-    #include "src/algorithms/service_qsort.h"
-#endif
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
-#if defined(__DO_TBB_LAYER__)
     return scalable_aligned_malloc(size, alignment);
-#else
-    return daal::internal::Service<>::serv_malloc(size, alignment);
-#endif
 }
 
 DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 {
-#if defined(__DO_TBB_LAYER__)
     scalable_aligned_free(ptr);
-#else
-    daal::internal::Service<>::serv_free(ptr);
-#endif
 }
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-#if defined(__DO_TBB_LAYER__)
     if (globalControl)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
         globalControl = nullptr;
     }
-#endif
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
-#if defined(__DO_TBB_LAYER__)
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
@@ -87,180 +72,209 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }
-#endif
     daal::threader_env()->setNumberOfThreads(1);
     return 1;
 }
 
 DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func)
 {
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
-        int i;
-        for (i = r.begin(); i < r.end(); i++)
-        {
-            func(i, a);
-        }
-    });
-#elif defined(__DO_SEQ_LAYER__)
-    int i;
-    for (i = 0; i < n; i++)
+    if (daal::threader_env()->getNumberOfThreads() > 1)
     {
-        func(i, a);
-    }
-#endif
-}
-
-DAAL_EXPORT void _daal_threader_for_int64(int64_t n, const void * a, daal::functype_int64 func)
-{
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<int64_t>(0, n, 1), [&](tbb::blocked_range<int64_t> r) {
-        int64_t i;
-        for (i = r.begin(); i < r.end(); i++)
-        {
-            func(i, a);
-        }
-    });
-#elif defined(__DO_SEQ_LAYER__)
-    int64_t i;
-    for (i = 0; i < n; i++)
-    {
-        func(i, a);
-    }
-#endif
-}
-
-DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const void * a, daal::functype_blocked_size func)
-{
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<size_t>(0ul, n, block), [=](tbb::blocked_range<size_t> r) -> void { return func(r.begin(), r.end(), a); });
-#elif defined(__DO_SEQ_LAYER__)
-    func(0ul, n, a);
-#endif
-}
-
-DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
-{
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(
-        tbb::blocked_range<int>(0, n, 1),
-        [&](tbb::blocked_range<int> r) {
+        tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
             int i;
             for (i = r.begin(); i < r.end(); i++)
             {
                 func(i, a);
             }
-        },
-        tbb::simple_partitioner {});
-#elif defined(__DO_SEQ_LAYER__)
-    int i;
-    for (i = 0; i < n; i++)
-    {
-        func(i, a);
+        });
     }
-#endif
+    else
+    {
+        int i;
+        for (i = 0; i < n; i++)
+        {
+            func(i, a);
+        }
+    }
+}
+
+DAAL_EXPORT void _daal_threader_for_int64(int64_t n, const void * a, daal::functype_int64 func)
+{
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        tbb::parallel_for(tbb::blocked_range<int64_t>(0, n, 1), [&](tbb::blocked_range<int64_t> r) {
+            int64_t i;
+            for (i = r.begin(); i < r.end(); i++)
+            {
+                func(i, a);
+            }
+        });
+    }
+    else
+    {
+        int64_t i;
+        for (i = 0; i < n; i++)
+        {
+            func(i, a);
+        }
+    }
+}
+
+DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const void * a, daal::functype_blocked_size func)
+{
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0ul, n, block),
+                          [=](tbb::blocked_range<size_t> r) -> void { return func(r.begin(), r.end(), a); });
+    }
+    else
+    {
+        func(0ul, n, a);
+    }
+}
+
+DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
+{
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        tbb::parallel_for(
+            tbb::blocked_range<int>(0, n, 1),
+            [&](tbb::blocked_range<int> r) {
+                int i;
+                for (i = r.begin(); i < r.end(); i++)
+                {
+                    func(i, a);
+                }
+            },
+            tbb::simple_partitioner {});
+    }
+    else
+    {
+        int i;
+        for (i = 0; i < n; i++)
+        {
+            func(i, a);
+        }
+    }
 }
 
 DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func)
 {
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<const int *>(begin, end, 1), [&](tbb::blocked_range<const int *> r) {
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        tbb::parallel_for(tbb::blocked_range<const int *>(begin, end, 1), [&](tbb::blocked_range<const int *> r) {
+            const int * i;
+            for (i = r.begin(); i != r.end(); i++)
+            {
+                func(i, a);
+            }
+        });
+    }
+    else
+    {
         const int * i;
-        for (i = r.begin(); i != r.end(); i++)
+        for (i = begin; i != end; ++i)
         {
             func(i, a);
         }
-    });
-#elif defined(__DO_SEQ_LAYER__)
-    const int * i;
-    for (i = begin; i != end; ++i)
-    {
-        func(i, a);
     }
-#endif
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
                                                       const void * b, daal::reduction_functype_int64 reduction_func)
 {
-#if defined(__DO_TBB_LAYER__)
-    return tbb::parallel_reduce(
-        tbb::blocked_range<int32_t>(0, n), init,
-        [&](const tbb::blocked_range<int32_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
-        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::auto_partitioner {});
-
-#elif defined(__DO_SEQ_LAYER__)
-    int64_t value_for_reduce = init;
-    return loop_func(0, n, value_for_reduce, a);
-#endif
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        return tbb::parallel_reduce(
+            tbb::blocked_range<int32_t>(0, n), init,
+            [&](const tbb::blocked_range<int32_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+            [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::auto_partitioner {});
+    }
+    else
+    {
+        int64_t value_for_reduce = init;
+        return loop_func(0, n, value_for_reduce, a);
+    }
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
                                                              const void * b, daal::reduction_functype_int64 reduction_func)
 {
-#if defined(__DO_TBB_LAYER__)
-    return tbb::parallel_reduce(
-        tbb::blocked_range<int32_t>(0, n), init,
-        [&](const tbb::blocked_range<int32_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
-        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
-
-#elif defined(__DO_SEQ_LAYER__)
-    int64_t value_for_reduce = init;
-    return loop_func(0, n, value_for_reduce, a);
-#endif
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        return tbb::parallel_reduce(
+            tbb::blocked_range<int32_t>(0, n), init,
+            [&](const tbb::blocked_range<int32_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+            [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
+    }
+    else
+    {
+        int64_t value_for_reduce = init;
+        return loop_func(0, n, value_for_reduce, a);
+    }
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
                                                                 daal::loop_functype_int32ptr_int64 loop_func, const void * b,
                                                                 daal::reduction_functype_int64 reduction_func)
 {
-#if defined(__DO_TBB_LAYER__)
-    return tbb::parallel_reduce(
-        tbb::blocked_range<const int32_t *>(begin, end), init,
-        [&](const tbb::blocked_range<const int32_t *> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
-        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
-
-#elif defined(__DO_SEQ_LAYER__)
-    int64_t value_for_reduce = init;
-    return loop_func(begin, end, value_for_reduce, a);
-#endif
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        return tbb::parallel_reduce(
+            tbb::blocked_range<const int32_t *>(begin, end), init,
+            [&](const tbb::blocked_range<const int32_t *> & r, int64_t value_for_reduce) {
+                return loop_func(r.begin(), r.end(), value_for_reduce, a);
+            },
+            [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
+    }
+    else
+    {
+        int64_t value_for_reduce = init;
+        return loop_func(begin, end, value_for_reduce, a);
+    }
 }
 
 DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func)
 {
-#if defined(__DO_TBB_LAYER__)
-    const size_t nthreads           = _daal_threader_get_max_threads();
-    const size_t nblocks_per_thread = n / nthreads + !!(n % nthreads);
-
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(0, nthreads, 1),
-        [&](tbb::blocked_range<size_t> r) {
-            const size_t tid   = r.begin();
-            const size_t begin = tid * nblocks_per_thread;
-            const size_t end   = n < begin + nblocks_per_thread ? n : begin + nblocks_per_thread;
-
-            for (size_t i = begin; i < end; ++i)
-            {
-                func(i, tid, a);
-            }
-        },
-        tbb::static_partitioner());
-#elif defined(__DO_SEQ_LAYER__)
-    for (size_t i = 0; i < n; i++)
+    if (daal::threader_env()->getNumberOfThreads() > 1)
     {
-        func(i, 0, a);
+        const size_t nthreads           = _daal_threader_get_max_threads();
+        const size_t nblocks_per_thread = n / nthreads + !!(n % nthreads);
+
+        tbb::parallel_for(
+            tbb::blocked_range<size_t>(0, nthreads, 1),
+            [&](tbb::blocked_range<size_t> r) {
+                const size_t tid   = r.begin();
+                const size_t begin = tid * nblocks_per_thread;
+                const size_t end   = n < begin + nblocks_per_thread ? n : begin + nblocks_per_thread;
+
+                for (size_t i = begin; i < end; ++i)
+                {
+                    func(i, tid, a);
+                }
+            },
+            tbb::static_partitioner());
     }
-#endif
+    else
+    {
+        for (size_t i = 0; i < n; i++)
+        {
+            func(i, 0, a);
+        }
+    }
 }
 
 template <typename F>
 DAAL_EXPORT void _daal_parallel_sort_template(F * begin_p, F * end_p)
 {
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_sort(begin_p, end_p);
-#elif defined(__DO_SEQ_LAYER__)
-    daal::algorithms::internal::qSort<F>(end_p - begin_p, begin_p);
-#endif
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        tbb::parallel_sort(begin_p, end_p);
+    }
+    else
+    {
+        daal::algorithms::internal::qSort<F>(end_p - begin_p, begin_p);
+    }
 }
 
 #define DAAL_PARALLEL_SORT_IMPL(TYPE, NAMESUFFIX)                                   \
@@ -279,129 +293,113 @@ DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<double>, pair_fp64_uint64)
 
 DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
 {
-#if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) { func(r.begin(), r.end() - r.begin(), a); });
-#elif defined(__DO_SEQ_LAYER__)
-    func(0, n, a);
-#endif
+    if (daal::threader_env()->getNumberOfThreads() > 1)
+    {
+        tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) { func(r.begin(), r.end() - r.begin(), a); });
+    }
+    else
+    {
+        func(0, n, a);
+    }
 }
 
 DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func)
 {
-#if defined(__DO_TBB_LAYER__)
-    if (_daal_is_in_parallel())
+    if (daal::threader_env()->getNumberOfThreads() > 1)
     {
-        int i;
-        for (i = 0; i < n; i++)
+        if (_daal_is_in_parallel())
         {
-            func(i, a);
+            int i;
+            for (i = 0; i < n; i++)
+            {
+                func(i, a);
+            }
+        }
+        else
+        {
+            _daal_threader_for(n, threads_request, a, func);
         }
     }
     else
     {
         _daal_threader_for(n, threads_request, a, func);
     }
-#elif defined(__DO_SEQ_LAYER__)
-    _daal_threader_for(n, threads_request, a, func);
-#endif
 }
 
 DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func)
 {
-#if defined(__DO_TBB_LAYER__)
-    tbb::task_group_context context;
-    tbb::parallel_for(
-        tbb::blocked_range<int>(0, n, 1),
-        [&](tbb::blocked_range<int> r) {
-            int i;
-            for (i = r.begin(); i < r.end(); ++i)
-            {
-                bool needBreak = false;
-                func(i, needBreak, a);
-                if (needBreak) context.cancel_group_execution();
-            }
-        },
-        context);
-#elif defined(__DO_SEQ_LAYER__)
-    int i;
-    for (i = 0; i < n; ++i)
+    if (daal::threader_env()->getNumberOfThreads() > 1)
     {
-        bool needBreak = false;
-        func(i, needBreak, a);
-        if (needBreak) break;
+        tbb::task_group_context context;
+        tbb::parallel_for(
+            tbb::blocked_range<int>(0, n, 1),
+            [&](tbb::blocked_range<int> r) {
+                int i;
+                for (i = r.begin(); i < r.end(); ++i)
+                {
+                    bool needBreak = false;
+                    func(i, needBreak, a);
+                    if (needBreak) context.cancel_group_execution();
+                }
+            },
+            context);
     }
-#endif
+    else
+    {
+        int i;
+        for (i = 0; i < n; ++i)
+        {
+            bool needBreak = false;
+            func(i, needBreak, a);
+            if (needBreak) break;
+        }
+    }
 }
 
 DAAL_EXPORT int _daal_threader_get_max_threads()
 {
-#if defined(__DO_TBB_LAYER__)
     return tbb::this_task_arena::max_concurrency();
-#elif defined(__DO_SEQ_LAYER__)
-    return 1;
-#endif
 }
 
 DAAL_EXPORT int _daal_threader_get_current_thread_index()
 {
-#if defined(__DO_TBB_LAYER__)
     return tbb::this_task_arena::current_thread_index();
-#elif defined(__DO_SEQ_LAYER__)
-    return 0;
-#endif
 }
 
 DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func)
 {
-#if defined(__DO_TBB_LAYER__)
     tbb::enumerable_thread_specific<void *> * p = new tbb::enumerable_thread_specific<void *>([=]() -> void * { return func(a); });
     return (void *)p;
-#elif defined(__DO_SEQ_LAYER__)
-    return func(a);
-#endif
 }
 
 DAAL_EXPORT void _daal_del_tls_ptr(void * tlsPtr)
 {
-#if defined(__DO_TBB_LAYER__)
     tbb::enumerable_thread_specific<void *> * p = static_cast<tbb::enumerable_thread_specific<void *> *>(tlsPtr);
     delete p;
-#elif defined(__DO_SEQ_LAYER__)
-#endif
 }
 
 DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr)
 {
-#if defined(__DO_TBB_LAYER__)
     tbb::enumerable_thread_specific<void *> * p = static_cast<tbb::enumerable_thread_specific<void *> *>(tlsPtr);
     return p->local();
-#elif defined(__DO_SEQ_LAYER__)
-    return tlsPtr;
-#endif
 }
 
 DAAL_EXPORT void _daal_reduce_tls(void * tlsPtr, void * a, daal::tls_reduce_functype func)
 {
-#if defined(__DO_TBB_LAYER__)
     tbb::enumerable_thread_specific<void *> * p = static_cast<tbb::enumerable_thread_specific<void *> *>(tlsPtr);
 
     for (auto it = p->begin(); it != p->end(); ++it)
     {
         func((*it), a);
     }
-#elif defined(__DO_SEQ_LAYER__)
-    func(tlsPtr, a);
-#endif
 }
 
 DAAL_EXPORT void _daal_parallel_reduce_tls(void * tlsPtr, void * a, daal::tls_reduce_functype func)
 {
-#if defined(__DO_TBB_LAYER__)
     size_t n                                    = 0;
     tbb::enumerable_thread_specific<void *> * p = static_cast<tbb::enumerable_thread_specific<void *> *>(tlsPtr);
 
-    for (auto it = p->begin(); it != p->end(); ++it, ++n)
-        ;
+    for (auto it = p->begin(); it != p->end(); ++it, ++n);
     if (n)
     {
         typedef void * mptr;
@@ -416,51 +414,34 @@ DAAL_EXPORT void _daal_parallel_reduce_tls(void * tlsPtr, void * a, daal::tls_re
             ::free(aDataPtr);
         }
     }
-#elif defined(__DO_SEQ_LAYER__)
-    func(tlsPtr, a);
-#endif
 }
 
 DAAL_EXPORT void * _daal_new_mutex()
 {
-#if defined(__DO_TBB_LAYER__)
     return new tbb::spin_mutex();
-#elif defined(__DO_SEQ_LAYER__)
-    return NULL;
-#endif
 }
 
 DAAL_EXPORT void _daal_lock_mutex(void * mutexPtr)
 {
-#if defined(__DO_TBB_LAYER__)
     static_cast<tbb::spin_mutex *>(mutexPtr)->lock();
-#endif
 }
 
 DAAL_EXPORT void _daal_unlock_mutex(void * mutexPtr)
 {
-#if defined(__DO_TBB_LAYER__)
     static_cast<tbb::spin_mutex *>(mutexPtr)->unlock();
-#endif
 }
 
 DAAL_EXPORT void _daal_del_mutex(void * mutexPtr)
 {
-#if defined(__DO_TBB_LAYER__)
     delete static_cast<tbb::spin_mutex *>(mutexPtr);
-#endif
 }
 
 DAAL_EXPORT bool _daal_is_in_parallel()
 {
-#if defined(__DO_TBB_LAYER__)
-    #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
+#if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
     return tbb::task::current_context() != nullptr;
-    #else
-    return tbb::task::self().state() == tbb::task::executing;
-    #endif
 #else
-    return false;
+    return tbb::task::self().state() == tbb::task::executing;
 #endif
 }
 
@@ -470,7 +451,6 @@ DAAL_EXPORT void * _daal_threader_env()
     return &env;
 }
 
-#if defined(__DO_TBB_LAYER__)
 template <typename T, typename Key, typename Pred>
 //Returns an index of the first element in the range[ar, ar + n) that is not less than(i.e.greater or equal to) value.
 size_t lower_bound(size_t n, const T * ar, const Key & value)
@@ -630,19 +610,19 @@ protected:
     size_t _capacity;
 };
 
-    #if _WIN32 || _WIN64
+#if _WIN32 || _WIN64
 typedef DWORD ThreadId;
 ThreadId getCurrentThreadId()
 {
     return ::GetCurrentThreadId();
 }
-    #else
+#else
 typedef pthread_t ThreadId;
 ThreadId getCurrentThreadId()
 {
     return pthread_self();
 }
-    #endif // _WIN32||_WIN64
+#endif // _WIN32||_WIN64
 
 class LocalStorage
 {
@@ -825,39 +805,6 @@ DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr)
 {
     ((tbb::task_group *)taskGroupPtr)->wait();
 }
-
-#else
-DAAL_EXPORT void * _daal_get_ls_ptr(void * a, daal::tls_functype func)
-{
-    return func(a);
-}
-
-DAAL_EXPORT void * _daal_get_ls_local(void * lsPtr)
-{
-    return lsPtr;
-}
-
-DAAL_EXPORT void _daal_reduce_ls(void * lsPtr, void * a, daal::tls_reduce_functype func)
-{
-    func(lsPtr, a);
-}
-
-DAAL_EXPORT void _daal_del_ls_ptr(void * lsPtr) {}
-
-DAAL_EXPORT void _daal_release_ls_local(void * lsPtr, void * p) {}
-
-DAAL_EXPORT void * _daal_new_task_group()
-{
-    return nullptr;
-}
-
-DAAL_EXPORT void _daal_del_task_group(void * taskGroupPtr) {}
-
-DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * task) {}
-
-DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr) {}
-
-#endif
 
 namespace daal
 {}
