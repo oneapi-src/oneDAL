@@ -185,6 +185,7 @@ public:
         return *this;
     }
 
+    /// Defines regularization term alpha used in Ridge Regression
     double get_alpha() const {
         return base_t::get_alpha();
     }

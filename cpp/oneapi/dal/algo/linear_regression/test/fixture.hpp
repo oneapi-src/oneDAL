@@ -220,7 +220,8 @@ public:
         REQUIRE(rr_norm_squared <= lr_norm_squared + tol);
     }
 
-    void run_and_check_ridge(std::int64_t seed = 888, double tol = 1e-2) {
+    std::tuple<table, table, table, table> prepare_inputs(std::int64_t seed = 888,
+                                                          double tol = 1e-2) {
         using namespace ::oneapi::dal::detail;
 
         std::mt19937 meta_gen(seed);
@@ -243,6 +244,12 @@ public:
         auto y_test = compute_responses(this->beta_, this->bias_, x_test);
 
         check_table_dimensions(x_train, y_train, x_test, y_test);
+        return { x_train, y_train, x_test, y_test };
+    }
+
+    void run_and_check_ridge(std::int64_t seed = 888, double tol = 1e-2) {
+        table x_train, y_train, x_test, y_test;
+        std::tie(x_train, y_train, x_test, y_test) = prepare_inputs(seed, tol);
 
         const auto linear_desc = this->get_descriptor();
         const auto linear_train_res = this->train(linear_desc, x_train, y_train);
@@ -258,28 +265,8 @@ public:
     }
 
     void run_and_check_linear(std::int64_t seed = 888, double tol = 1e-2) {
-        using namespace ::oneapi::dal::detail;
-
-        std::mt19937 meta_gen(seed);
-
-        const std::int64_t train_seed = meta_gen();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
-                                                                                 3.5,
-                                                                                 train_seed));
-        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
-
-        const std::int64_t test_seed = meta_gen();
-        const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
-                                                                                 5.5,
-                                                                                 test_seed));
-        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
-
-        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
-        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
-
-        check_table_dimensions(x_train, y_train, x_test, y_test);
+        table x_train, y_train, x_test, y_test;
+        std::tie(x_train, y_train, x_test, y_test) = prepare_inputs(seed, tol);
 
         const auto desc = this->get_descriptor();
         const auto train_res = this->train(desc, x_train, y_train);
@@ -328,30 +315,10 @@ public:
     }
 
     void run_and_check_linear_online(std::int64_t nBlocks) {
-        using namespace ::oneapi::dal::detail;
-
         std::int64_t seed = 888;
         double tol = 1e-2;
-
-        std::mt19937 meta_gen(seed);
-        const std::int64_t train_seed = meta_gen();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
-                                                                                 3.5,
-                                                                                 train_seed));
-        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
-
-        const std::int64_t test_seed = meta_gen();
-        const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
-                                                                                 5.5,
-                                                                                 test_seed));
-        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
-
-        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
-        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
-
-        check_table_dimensions(x_train, y_train, x_test, y_test);
+        table x_train, y_train, x_test, y_test;
+        std::tie(x_train, y_train, x_test, y_test) = prepare_inputs(seed, tol);
 
         const auto desc = this->get_descriptor();
         dal::linear_regression::partial_train_result<> partial_result;
@@ -381,30 +348,10 @@ public:
     }
 
     void run_and_check_ridge_online(std::int64_t nBlocks) {
-        using namespace ::oneapi::dal::detail;
-
         std::int64_t seed = 888;
         double tol = 1e-2;
-
-        std::mt19937 meta_gen(seed);
-        const std::int64_t train_seed = meta_gen();
-        const auto train_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->s_count_, this->f_count_ }.fill_uniform(-5.5,
-                                                                                 3.5,
-                                                                                 train_seed));
-        auto x_train = train_dataframe.get_table(this->get_homogen_table_id());
-
-        const std::int64_t test_seed = meta_gen();
-        const auto test_dataframe = GENERATE_DATAFRAME(
-            te::dataframe_builder{ this->t_count_, this->f_count_ }.fill_uniform(-3.5,
-                                                                                 5.5,
-                                                                                 test_seed));
-        auto x_test = test_dataframe.get_table(this->get_homogen_table_id());
-
-        auto y_train = compute_responses(this->beta_, this->bias_, x_train);
-        auto y_test = compute_responses(this->beta_, this->bias_, x_test);
-
-        check_table_dimensions(x_train, y_train, x_test, y_test);
+        table x_train, y_train, x_test, y_test;
+        std::tie(x_train, y_train, x_test, y_test) = prepare_inputs(seed, tol);
 
         auto input_table_x = split_table_by_rows<double>(x_train, nBlocks);
         auto input_table_y = split_table_by_rows<double>(y_train, nBlocks);

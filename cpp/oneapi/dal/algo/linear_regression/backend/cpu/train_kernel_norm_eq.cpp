@@ -48,7 +48,7 @@ constexpr auto daal_lr_method = daal_lr::training::normEqDense;
 constexpr auto daal_rr_method = daal_rr::training::normEqDense;
 
 template <typename Float, daal::CpuType Cpu>
-using online_lr_kernel_t = daal_lr::training::internal::OnlineKernel<Float, daal_lr_method, Cpu>;
+using batch_lr_kernel_t = daal_lr::training::internal::BatchKernel<Float, daal_lr_method, Cpu>;
 
 template <typename Float, daal::CpuType Cpu>
 using batch_rr_kernel_t = daal_rr::training::internal::BatchKernel<Float, daal_rr_method, Cpu>;
@@ -103,8 +103,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto x_daal_table = interop::convert_to_daal_table<Float>(data);
     auto y_daal_table = interop::convert_to_daal_table<Float>(resp);
 
-    const daal_lr_hyperparameters_t& hp = convert_parameters<Float>(params);
-
     double alpha = desc.get_alpha();
     if (alpha != 0.0) {
         auto ridge_matrix_array = array<Float>::full(1, static_cast<Float>(alpha));
@@ -125,30 +123,18 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         }
     }
     else {
+        const daal_lr_hyperparameters_t& hp = convert_parameters<Float>(params);
+
         {
             const auto status =
-                interop::call_daal_kernel<Float, online_lr_kernel_t>(ctx,
-                                                                     *x_daal_table,
-                                                                     *y_daal_table,
-                                                                     *xtx_daal_table,
-                                                                     *xty_daal_table,
-                                                                     intp,
-                                                                     &hp);
-
-            interop::status_to_exception(status);
-        }
-
-        {
-            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-                return online_lr_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
-                                                                             *xty_daal_table,
-                                                                             *xtx_daal_table,
-                                                                             *xty_daal_table,
-                                                                             *betas_daal_table,
-                                                                             intp,
-                                                                             &hp);
-            });
+                interop::call_daal_kernel<Float, batch_lr_kernel_t>(ctx,
+                                                                    *x_daal_table,
+                                                                    *y_daal_table,
+                                                                    *xtx_daal_table,
+                                                                    *xty_daal_table,
+                                                                    *betas_daal_table,
+                                                                    intp,
+                                                                    &hp);
 
             interop::status_to_exception(status);
         }

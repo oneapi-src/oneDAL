@@ -84,8 +84,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(betas_size);
 
-    const daal_lr_hyperparameters_t& hp = convert_parameters<Float>(params);
-
     auto xtx_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xtx());
     auto xty_daal_table = interop::convert_to_daal_table<Float>(input.get_partial_xty());
     auto betas_daal_table =
@@ -112,6 +110,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         }
     }
     else {
+        const daal_lr_hyperparameters_t& hp = convert_parameters<Float>(params);
+
         {
             const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
                 constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;

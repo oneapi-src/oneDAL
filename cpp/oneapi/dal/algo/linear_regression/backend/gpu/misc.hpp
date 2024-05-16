@@ -30,11 +30,11 @@ namespace pr = dal::backend::primitives;
 ///
 /// @tparam Float Floating-point type used to perform computations
 ///
-/// @param[in]  q The SYCL queue
-/// @param[in]  xtx The input matrix to which the ridge penalty is added
+/// @param[in]  q                 The SYCL queue
+/// @param[in]  xtx               The input matrix to which the ridge penalty is added
 /// @param[in]  compute_intercept Flag indicating whether the intercept term is used in the matrix
-/// @param[in]  alpha The regularization parameter
-/// @param[in]  deps Events indicating the availability of the `xtx` for reading or writing
+/// @param[in]  alpha             The regularization parameter
+/// @param[in]  deps              Events indicating the availability of the `xtx` for reading or writing
 ///
 /// @return A SYCL event indicating the availability of the matrix for reading and writing
 template <typename Float>
