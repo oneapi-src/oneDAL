@@ -66,13 +66,13 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-    std::cout<<"_daal_tbb_task_global_control_free"<<std::endl;
+    std::cout << "_daal_tbb_task_global_control_free" << std::endl;
 #if defined(__DO_TBB_LAYER__)
     if (globalControl)
     {
-        delete reinterpret_cast<tbb::global_control *>(globalControl);
-        std::cout<<"true delete"<<std::endl;
-        globalControl = nullptr;
+        // delete reinterpret_cast<tbb::global_control *>(globalControl);
+        // std::cout<<"true delete"<<std::endl;
+        // globalControl = nullptr;
     }
 #endif
 }
@@ -82,10 +82,9 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
     if (schedulerHandle)
     {
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
-        std::cout<<"true delete handler"<<std::endl;
+        std::cout << "true delete handler" << std::endl;
         schedulerHandle = nullptr;
     }
-
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
@@ -96,9 +95,9 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     if (numThreads != 0)
     {
         _daal_tbb_task_scheduler_free(*globalControl);
-        std::cout<<"allocate global_control new"<<std::endl;
+        std::cout << "allocate global_control new" << std::endl;
         *globalControl = new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads);
-        std::cout<<"allocate global_control final"<<std::endl;
+        std::cout << "allocate global_control final" << std::endl;
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }

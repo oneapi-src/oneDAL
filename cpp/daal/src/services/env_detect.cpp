@@ -132,9 +132,9 @@ DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _g
     // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
     // instance, it blocks the calling thread until the completion of all worker
     // threads that were implicitly created by the library.
-    std::cout<<"env has been created"<<std::endl;
+    std::cout << "env has been created" << std::endl;
     daal::setSchedulerHandle(&_schedulerHandle);
-    std::cout<<"_schedulerHandle has been created"<<std::endl;
+    std::cout << "_schedulerHandle has been created" << std::endl;
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -164,12 +164,12 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    std::cout<<"before free  _globalControl"<<std::endl;
+    std::cout << "before free  _globalControl" << std::endl;
     _daal_tbb_task_scheduler_free(_globalControl);
     // Makes _schedulerHandle destroyed after the destruction of _globalControl.
     // Those objects need to be destroyed in this particular order to avoid segmentation faults.
     _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
-    std::cout<<"after free  _schedulerHandle"<<std::endl;
+    std::cout << "after free  _schedulerHandle" << std::endl;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
