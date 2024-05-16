@@ -23,7 +23,7 @@
 
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
-
+#include <iostream>
 #if defined(__DO_TBB_LAYER__)
     #define TBB_PREVIEW_GLOBAL_CONTROL 1
     #define TBB_PREVIEW_TASK_ARENA     1
@@ -66,10 +66,12 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
+    std::cout<<"_daal_tbb_task_global_control_free"<<std::endl;
 #if defined(__DO_TBB_LAYER__)
     if (globalControl)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
+        std::cout<<"true delete"<<std::endl;
         globalControl = nullptr;
     }
 #endif
@@ -77,12 +79,13 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
-#if defined(__DO_TBB_LAYER__)
     if (schedulerHandle)
     {
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+        std::cout<<"true delete handler"<<std::endl;
+        schedulerHandle = nullptr;
     }
-#endif
+
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
@@ -93,6 +96,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     if (numThreads != 0)
     {
         _daal_tbb_task_scheduler_free(*globalControl);
+        std::cout<<"allocate global_control"<<std::endl;
         *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
@@ -104,9 +108,8 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
 
 DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
 {
-#if defined(__DO_TBB_LAYER__)
     *schedulerHandle = new tbb::task_scheduler_handle(tbb::attach {});
-#endif
+
     return 0;
 }
 

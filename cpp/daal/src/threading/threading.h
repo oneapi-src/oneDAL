@@ -185,9 +185,9 @@ inline size_t threader_get_threads_number()
     return threader_env()->getNumberOfThreads();
 }
 
-inline size_t setSchedulerHandle(void ** globalControl)
+inline size_t setSchedulerHandle(void ** schedulerHandle)
 {
-    return _setSchedulerHandle(globalControl);
+    return _setSchedulerHandle(schedulerHandle);
 }
 
 inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl)
