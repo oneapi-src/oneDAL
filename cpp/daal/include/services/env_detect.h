@@ -198,7 +198,8 @@ private:
     void initNumberOfThreads();
 
     env _env;
-    // The oneapi::tbb::task_scheduler_handle class and the oneapi::tbb::finalize function
+    // Pointer to the oneapi::tbb::task_scheduler_handle class object, global for oneDAL.
+    // The oneapi::tbb::task_scheduler_handle and the oneapi::tbb::finalize function
     // allow user to wait for completion of worker threads.
     void * _schedulerHandle;
     void * _globalControl;
