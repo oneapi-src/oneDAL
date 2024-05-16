@@ -127,6 +127,9 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
 
 DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
+    // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
+    // instance, it blocks the calling thread until the completion of all worker
+    // threads that were implicitly created by the library.
     daal::setSchedulerHandle(&_schedulerHandle);
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
@@ -158,6 +161,8 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
+    // _schedulerHandle should be destroyed after the _globalControl
+    // for avoiding segmentation faults.
     _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 

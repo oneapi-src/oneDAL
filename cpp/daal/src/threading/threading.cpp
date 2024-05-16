@@ -102,7 +102,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     return 1;
 }
 
-DAAL_EXPORT size_t _setScheduleHandle(void ** schedulerHandle)
+DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
 {
 #if defined(__DO_TBB_LAYER__)
     *schedulerHandle = new tbb::task_scheduler_handle(tbb::attach {});

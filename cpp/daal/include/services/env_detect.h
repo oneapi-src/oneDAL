@@ -198,6 +198,8 @@ private:
     void initNumberOfThreads();
 
     env _env;
+    // The oneapi::tbb::task_scheduler_handle class and the oneapi::tbb::finalize function
+    // allow user to wait for completion of worker threads.
     void * _schedulerHandle;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
