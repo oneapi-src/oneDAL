@@ -75,6 +75,16 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 #endif
 }
 
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
+{
+#if defined(__DO_TBB_LAYER__)
+    if (schedulerHandle)
+    {
+        delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+    }
+#endif
+}
+
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
 #if defined(__DO_TBB_LAYER__)
@@ -90,6 +100,14 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
 #endif
     daal::threader_env()->setNumberOfThreads(1);
     return 1;
+}
+
+DAAL_EXPORT size_t _setScheduleHandle(void ** schedulerHandle)
+{
+#if defined(__DO_TBB_LAYER__)
+    *schedulerHandle = new tbb::task_scheduler_handle(tbb::attach {});
+#endif
+    return 0;
 }
 
 DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func)
