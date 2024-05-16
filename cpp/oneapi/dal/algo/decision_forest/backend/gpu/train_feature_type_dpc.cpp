@@ -29,6 +29,12 @@ namespace de = dal::detail;
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
+template <typename Float>
+std::int64_t propose_block_size(const sycl::queue& q, const std::int64_t r) {
+    constexpr std::int64_t fsize = sizeof(Float);
+    return 0x10000l * (8 / fsize);
+}
+
 template <typename Float, typename Index>
 inline sycl::event sort_inplace(sycl::queue& queue_,
                                 pr::ndarray<Float, 1>& src,
@@ -56,18 +62,29 @@ sycl::event indexed_features<Float, Bin, Index>::extract_column(
     Float* values = values_nd.get_mutable_data();
     Index* indices = indices_nd.get_mutable_data();
     auto column_count = column_count_;
+    const auto block_size = propose_block_size<Float>(queue_, row_count_);
+    const bk::uniform_blocking blocking(row_count_, block_size);
 
-    const sycl::range<1> range = de::integral_cast<std::size_t>(row_count_);
+    std::vector<sycl::event> events(blocking.get_block_count());
+    for (std::int64_t block_index = 0; block_index < blocking.get_block_count(); ++block_index) {
+        const auto first_row = blocking.get_block_start_index(block_index);
+        const auto last_row = blocking.get_block_end_index(block_index);
+        const auto curr_block = last_row - first_row;
+        ONEDAL_ASSERT(curr_block > 0);
 
-    auto event = queue_.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-        h.parallel_for(range, [=](sycl::id<1> idx) {
-            values[idx] = data[idx * column_count + feature_id];
-            indices[idx] = idx;
+        auto event = queue_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for<>(de::integral_cast<std::size_t>(curr_block), [=](sycl::id<1> idx) {
+                const std::int64_t row = idx + first_row;
+
+                values[row] = data[row * column_count + feature_id];
+                indices[row] = row;
+            });
         });
-    });
 
-    return event;
+        events.push_back(event);
+    }
+    return bk::wait_or_pass(events);
 }
 
 template <typename Float, typename Bin, typename Index>
