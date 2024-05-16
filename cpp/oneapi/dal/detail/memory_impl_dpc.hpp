@@ -19,7 +19,7 @@
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/detail/policy.hpp"
-
+#include <iostream>
 namespace oneapi::dal::detail {
 namespace v1 {
 
@@ -63,7 +63,7 @@ template <typename T>
 inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
     ONEDAL_ASSERT(is_known_usm_pointer_type(policy, dest));
     ONEDAL_ASSERT(count > 0);
-
+    std::cout << "here fill memory impl dpc" << std::endl;
     auto& queue = policy.get_queue();
     queue.fill(dest, value, count).wait_and_throw();
 }

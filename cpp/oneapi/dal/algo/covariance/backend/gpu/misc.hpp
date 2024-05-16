@@ -48,23 +48,23 @@ auto compute_sums(sycl::queue& q,
     ONEDAL_PROFILER_TASK(compute_sums, q);
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(data.get_dimension(1) > 0);
-    std::cout<<"compute sums step 1"<<std::endl;
+    std::cout << "compute sums step 1" << std::endl;
     const std::int64_t column_count = data.get_dimension(1);
-    std::cout<<"compute sums step 2"<<std::endl;
+    std::cout << "compute sums step 2" << std::endl;
     if (assume_centered) {
-        std::cout<<"compute sums step 3"<<std::endl;
+        std::cout << "compute sums step 3" << std::endl;
         return pr::ndarray<Float, 1>::zeros(q, { column_count }, alloc::device);
     }
     else {
-        std::cout<<"compute sums step 4"<<std::endl;
+        std::cout << "compute sums step 4" << std::endl;
         auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-        std::cout<<"compute sums step 5"<<std::endl;
+        std::cout << "compute sums step 5" << std::endl;
         constexpr pr::sum<Float> binary{};
-        std::cout<<"compute sums step 6"<<std::endl;
+        std::cout << "compute sums step 6" << std::endl;
         constexpr pr::identity<Float> unary{};
-        std::cout<<"compute sums step 7"<<std::endl;
+        std::cout << "compute sums step 7" << std::endl;
         auto sums_event = pr::reduce_by_columns(q, data, sums, binary, unary, deps);
-        std::cout<<"compute sums step 8"<<std::endl;
+        std::cout << "compute sums step 8" << std::endl;
         return std::make_tuple(sums, sums_event);
     }
 }

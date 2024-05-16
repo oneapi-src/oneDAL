@@ -144,6 +144,7 @@ public:
                           std::int64_t count,
                           const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         // TODO: can be optimized in future
+        std::cout << "zeros queue array" << std::endl;
         return array<T>{ impl_t::full(dal::detail::data_parallel_policy{ queue },
                                       count,
                                       T{},

@@ -642,8 +642,11 @@ public:
     }
 
     static ndarray zeros(const shape_t& shape) {
+        std::cout << "here zeros" << std::endl;
         auto ary = empty(shape);
+        std::cout << "here empty array creation" << std::endl;
         ary.fill(T(0));
+        std::cout << "here empty array filled" << std::endl;
         return ary;
     }
 

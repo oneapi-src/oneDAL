@@ -18,7 +18,7 @@
 
 #include <variant>
 #include <optional>
-
+#include <iostream>
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
@@ -100,6 +100,7 @@ public:
                                K&& element,
                                const Allocator& alloc) {
         auto array = empty(policy, count, alloc);
+        std::cout << "here array full" << std::endl;
         detail::fill(policy, array->get_mutable_data(), count, std::forward<K>(element));
         return array;
     }
