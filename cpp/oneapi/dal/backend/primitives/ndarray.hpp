@@ -19,7 +19,7 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/primitives/ndshape.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend::primitives {
 
 enum class ndorder {
@@ -678,8 +678,11 @@ public:
         const T& value,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared,
         const event_vector& deps = {}) {
+        std::cout << "here is init of full method" << std::endl;
         auto ary = empty(q, shape, alloc_kind);
+        std::cout << "empty array has been created" << std::endl;
         auto event = ary.fill(q, value, deps);
+        std::cout << "event has been finished successfully" << std::endl;
         return { ary, event };
     }
 #endif
@@ -689,6 +692,7 @@ public:
         sycl::queue& q,
         const shape_t& shape,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        std::cout << "here with event" << std::endl;
         return full(q, shape, T(0), alloc_kind);
     }
 #endif
