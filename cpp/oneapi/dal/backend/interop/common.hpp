@@ -45,6 +45,10 @@ struct to_daal_cpu_type<cpu_dispatch_avx512> : daal_cpu_value<daal::avx512> {};
 template <>
 struct to_daal_cpu_type<cpu_dispatch_sve> : daal_cpu_value<daal::sve> {};
 
+#elif defined(TARGET_RISCV64)
+template <>
+struct to_daal_cpu_type<cpu_dispatch_rv64> : daal_cpu_value<daal::rv64> {};
+
 #endif
 
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
