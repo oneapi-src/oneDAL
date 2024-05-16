@@ -96,8 +96,9 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     if (numThreads != 0)
     {
         _daal_tbb_task_scheduler_free(*globalControl);
-        std::cout<<"allocate global_control"<<std::endl;
-        *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
+        std::cout<<"allocate global_control new"<<std::endl;
+        *globalControl = new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads);
+        std::cout<<"allocate global_control final"<<std::endl;
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }
