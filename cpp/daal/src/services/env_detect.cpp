@@ -161,8 +161,8 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
-    // _schedulerHandle should be destroyed after the _globalControl
-    // for avoiding segmentation faults.
+    // Makes _schedulerHandle destroyed after the destruction of _globalControl.
+    // Those objects need to be destroyed in this particular order to avoid segmentation faults.
     _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 
