@@ -32,7 +32,7 @@ namespace pr = dal::backend::primitives;
 ///
 /// @param[in]  q                 The SYCL queue
 /// @param[in]  xtx               The input matrix to which the ridge penalty is added
-/// @param[in]  compute_intercept Flag indicating whether the intercept term is used in the matrix
+/// @param[in]  compute_intercept Flag indicating whether the intercept term is used in the matrix, extending it with extra dimension if true
 /// @param[in]  alpha             The regularization parameter
 /// @param[in]  deps              Events indicating the availability of the `xtx` for reading or writing
 ///
