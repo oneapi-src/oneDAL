@@ -39,7 +39,7 @@ template class BatchContainer<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class BatchKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
+template class DAAL_EXPORT BatchKernel<DAAL_FPTYPE, normEqDense, DAAL_CPU>;
 }
 } // namespace training
 } // namespace linear_regression
