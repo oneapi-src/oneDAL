@@ -143,6 +143,7 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
+    daal::setSchedulerHandle(&_schedulerHandle);
 
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
