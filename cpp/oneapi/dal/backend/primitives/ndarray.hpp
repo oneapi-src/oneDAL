@@ -506,6 +506,7 @@ inline sycl::event fill(sycl::queue& q,
                         const T& value = T{},
                         const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
+    std::cout<<"fill #1"<<std::endl;
     return q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.fill(dst.get_mutable_data(), value, dst.get_count());
@@ -518,20 +519,29 @@ inline sycl::event fill(sycl::queue& q,
                         const T& value = T{},
                         const event_vector& deps = {}) {
     ONEDAL_ASSERT(dst.has_mutable_data());
+    std::cout<<"fill #2"<<std::endl;
     sycl::event res_event;
+    std::cout<<"event definition"<<std::endl;
     if constexpr (ord1 == ndorder::c) {
+        std::cout<<"if 1"<<std::endl;
         T* const dst_ptr = dst.get_mutable_data();
+        std::cout<<"mutable data get"<<std::endl;
         const ndshape<2> dst_shape = dst.get_shape();
+        std::cout<<"get shapes"<<std::endl;
         const auto dst_stride = dst.get_leading_stride();
+        std::cout<<"leading stride"<<std::endl;
         const auto fl_range = make_range_2d(dst_shape[0], dst_shape[1]);
+        std::cout<<"creating range"<<std::endl;
         res_event = q.submit([&](sycl::handler& h) {
             h.depends_on(deps);
             h.parallel_for(fl_range, [=](sycl::id<2> idx) {
                 *(dst_ptr + idx[0] * dst_stride + idx[1]) = value;
             });
         });
+        std::cout<<"after the loop"<<std::endl;
     }
     else {
+        std::cout<<"transpose"<<std::endl;
         auto new_dst = dst.t();
         res_event = fill(q, new_dst, value, deps);
     }
@@ -737,16 +747,22 @@ public:
     }
 
     void fill(T value) {
+        std::cout<<"fill wo queue"<<std::endl;
         T* data_ptr = this->get_mutable_data();
+        std::cout<<"fill get_mutable_data wo queue"<<std::endl;
         for (std::int64_t i = 0; i < this->get_count(); i++) {
             data_ptr[i] = value;
         }
+        std::cout<<"end of the loop wo queue"<<std::endl;
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
+        std::cout<<"fill func remark 1"<<std::endl;
         auto data_ptr = this->get_mutable_data();
+        std::cout<<"fill func remark 2"<<std::endl;
         ONEDAL_ASSERT(is_known_usm(q, data_ptr));
+        std::cout<<"fill func remark 3"<<std::endl;
         return q.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.fill(data_ptr, value, this->get_count());
