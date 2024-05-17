@@ -179,6 +179,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
+    daal::setSchedulerHandle(&_schedulerHandle);
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 
