@@ -164,12 +164,32 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    std::cout << "before free  _globalControl" << std::endl;
-    _daal_tbb_task_scheduler_free(_globalControl);
-    // Makes _schedulerHandle destroyed after the destruction of _globalControl.
-    // Those objects need to be destroyed in this particular order to avoid segmentation faults.
-    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
-    std::cout << "after free  _schedulerHandle" << std::endl;
+    std::cout << "before free _globalControl" << std::endl;
+
+    if (_globalControl)
+    {
+        _daal_tbb_task_scheduler_free(_globalControl);
+        _globalControl = nullptr;
+        std::cout << "_globalControl has been freed" << std::endl;
+    }
+    else
+    {
+        std::cout << "_globalControl was already nullptr" << std::endl;
+    }
+
+    // Ensuring _schedulerHandle is destroyed after _globalControl.
+    if (_schedulerHandle)
+    {
+        _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
+        _schedulerHandle = nullptr;
+        std::cout << "_schedulerHandle has been freed" << std::endl;
+    }
+    else
+    {
+        std::cout << "_schedulerHandle was already nullptr" << std::endl;
+    }
+
+    std::cout << "after free _schedulerHandle" << std::endl;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
