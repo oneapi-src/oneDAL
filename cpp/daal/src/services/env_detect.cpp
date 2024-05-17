@@ -125,8 +125,14 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
     initNumberOfThreads();
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
+    // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
+    // destruction of the calling thread.
+    // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
+    // instance, it blocks the calling thread until the completion of all worker
+    // threads that were implicitly created by the library.
+    daal::setSchedulerHandle(&_schedulerHandle);
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -137,6 +143,7 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
+    daal::setSchedulerHandle(&_schedulerHandle);
 
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
@@ -157,6 +164,7 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
+    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -171,6 +179,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
+    daal::setSchedulerHandle(&_schedulerHandle);
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 
